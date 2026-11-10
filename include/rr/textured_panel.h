@@ -18,21 +18,21 @@ typedef struct {
     s16 x3,y3;
     u8 u3,v3;
     u16 pad26;
-} RrPolyFT4Packet;
+} PolyFT4Packet;
 
 /* Emits a raw-texture panel at (32,112)..(288,368). Signed index division
  * selects texture-page/vertical coordinates. Requires a four-byte-aligned destination
  * with 40 writable bytes and an accessible second word in the ordering page. RGB bytes and
  * the last two UV padding halfwords retain their old contents. */
 void EmitTexturedPanel(s32 index);
-RR_ASSERT_SIZE(RrPolyFT4Packet, 0x28);
-RR_ASSERT_OFFSET(RrPolyFT4Packet, code, 7);
-RR_ASSERT_OFFSET(RrPolyFT4Packet, x0, 8);
-RR_ASSERT_OFFSET(RrPolyFT4Packet, clut, 0xE);
-RR_ASSERT_OFFSET(RrPolyFT4Packet, x1, 0x10);
-RR_ASSERT_OFFSET(RrPolyFT4Packet, tpage, 0x16);
-RR_ASSERT_OFFSET(RrPolyFT4Packet, x2, 0x18);
-RR_ASSERT_OFFSET(RrPolyFT4Packet, pad1E, 0x1E);
-RR_ASSERT_OFFSET(RrPolyFT4Packet, x3, 0x20);
-RR_ASSERT_OFFSET(RrPolyFT4Packet, pad26, 0x26);
+RR_ASSERT_SIZE(PolyFT4Packet, 0x28);
+RR_ASSERT_OFFSET(PolyFT4Packet, code, 7);
+RR_ASSERT_OFFSET(PolyFT4Packet, x0, 8);
+RR_ASSERT_OFFSET(PolyFT4Packet, clut, 0xE);
+RR_ASSERT_OFFSET(PolyFT4Packet, x1, 0x10);
+RR_ASSERT_OFFSET(PolyFT4Packet, tpage, 0x16);
+RR_ASSERT_OFFSET(PolyFT4Packet, x2, 0x18);
+RR_ASSERT_OFFSET(PolyFT4Packet, pad1E, 0x1E);
+RR_ASSERT_OFFSET(PolyFT4Packet, x3, 0x20);
+RR_ASSERT_OFFSET(PolyFT4Packet, pad26, 0x26);
 #endif

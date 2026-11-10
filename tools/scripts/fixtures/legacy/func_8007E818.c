@@ -1,9 +1,9 @@
 #include "rr/wide.h"
-RrWide64 *_mul_mant_d(RrWide64 *out,u32 a,u32 b) {
-    RrWide64 r,t;
+Wide64 *_mul_mant_d(Wide64 *out,u32 a,u32 b) {
+    Wide64 r,t;
     u32 low_a=a&65535;
     /* ASM_BARRIER: Retain the output address across both additions. */
-    register RrWide64 *result __asm__("$19")=out;
+    register Wide64 *result __asm__("$19")=out;
     u32 low_b=b&65535,high_a=a>>16,high_b=b>>16;
     u32 m;
     /* ASM_BARRIER: Retain the high half of each cross product in the original temporary. */

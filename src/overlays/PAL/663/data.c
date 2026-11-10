@@ -10,7 +10,7 @@ u8 ovl663_course_order[9]
 u8 ovl663_time_text[10]
     __attribute__((section(".ovl663.time_text"))) = {48, 48, 39, 48, 48, 34, 48, 48, 48, 0};
 
-RrUiUvRect ovl663_record_badges[2]
+UiUvRect ovl663_record_badges[2]
     __attribute__((section(".ovl663.record_badges"))) = {{0, 216, 16, 32}, {16, 216, 16, 32}};
 
 u8 ovl663_race_column_widths[4]
@@ -19,7 +19,7 @@ u8 ovl663_race_column_widths[4]
 u8 ovl663_lap_column_widths[4]
     __attribute__((section(".ovl663.lap_column_widths"))) = {20, 8, 60, 8};
 
-RrUiUvRect ovl663_record_label __attribute__((section(".ovl663.record_label"))) = {176, 16, 48, 16};
+UiUvRect ovl663_record_label __attribute__((section(".ovl663.record_label"))) = {176, 16, 48, 16};
 
 s32 ovl663_selected_record __attribute__((section(".ovl663.selected_record"))) = 0;
 

@@ -28,7 +28,7 @@ class SequencerInitTest(unittest.TestCase):
 ''' + header('spu.h') + header('library.h') + header('sequencer_init.h') + r'''
 static struct {
     u8 prefix[64];
-    RrLibStateB0 *entries[34];
+    LibStateB0 *entries[34];
     u8 suffix[64];
 } pointers;
 static s16 stored_banks,stored_rows,*banks_location,*rows_location;
@@ -37,24 +37,24 @@ static s16 stored_banks,stored_rows,*banks_location,*rows_location;
 #define _snd_seq_t_max (*rows_location)
 u32 _snd_openflag;
 ''' + body + r'''
-static void reset_record(RrLibStateB0 *record) {
+static void reset_record(LibStateB0 *record) {
     record->w98=record->w9c=record->wa0=record->wa4=record->wa8=record->wac=0;
     record->b22[0]=-1;record->b22[1]=0;
     for(int i=0;i<4;i++){record->h48[i]=0;record->h58[i]=127;}
 }
 static void one(int banks,int rows,u32 mask,int alias) {
     size_t count=(size_t)banks*rows;
-    RrLibStateB0 *allocation=malloc((count+2)*sizeof(*allocation));
-    RrLibStateB0 *expected=malloc((count+2)*sizeof(*expected));
+    LibStateB0 *allocation=malloc((count+2)*sizeof(*allocation));
+    LibStateB0 *expected=malloc((count+2)*sizeof(*expected));
     assert(allocation&&expected);
     for(size_t i=0;i<(count+2)*sizeof(*allocation);i++)
         ((u8*)allocation)[i]=(u8)(i*73U+(i>>7)+19U);
-    RrLibStateB0 *base=allocation+1;
+    LibStateB0 *base=allocation+1;
     memset(&pointers,0xA5,sizeof(pointers));
     for(int i=0;i<34;i++)pointers.entries[i]=allocation;
     union {uint64_t alignment;u8 bytes[sizeof(pointers)];} wanted_pointers;
     memcpy(wanted_pointers.bytes,&pointers,sizeof(pointers));
-    RrLibStateB0 **wanted_table=(RrLibStateB0 **)(wanted_pointers.bytes+64);
+    LibStateB0 **wanted_table=(LibStateB0 **)(wanted_pointers.bytes+64);
     for(int i=0;i<banks;i++)wanted_table[i+1]=base+i*rows;
     banks_location=&stored_banks;rows_location=&stored_rows;
     stored_banks=-1;stored_rows=-1;

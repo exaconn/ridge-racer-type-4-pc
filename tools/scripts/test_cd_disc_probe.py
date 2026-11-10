@@ -10,7 +10,11 @@ import unittest
 def native_body(text):
     text=re.sub(r'^#include[^\n]*\n','',text,flags=re.M)
     text=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',text)
-    return re.sub(r'\s*:\s*"\$[0-9]+"(?:\s*,\s*"\$[0-9]+")*(?=\))','',text)
+    def empty_asm(match):
+        body=re.sub(r'"\$[0-9]+"\s*,\s*','',match[0])
+        body=re.sub(r',\s*"\$[0-9]+"(?=\s*\))','',body)
+        return re.sub(r'"\$[0-9]+"(?=\s*\))','',body)
+    return re.sub(r'(?:__asm__|asm)\s*(?:volatile|__volatile__)?\s*\(\s*""[^;]*;',empty_asm,text)
 
 
 class CdDiscProbeTest(unittest.TestCase):

@@ -1,3 +1,6 @@
+#include "psyq/libgte/gtemat5.h"
+#include "psyq/libgte/gtemat4.h"
+#include "psyq/libgte/gtemat3.h"
 #include "scratchpad.h"
 #include "rr/track_interpolation.h"
 #include "game/ui/uicode.h"
@@ -5,34 +8,40 @@
 #include "game/course/trkintp2.h"
 #include "rr/overlay662_palette_refresh.h"
 #include "rr/matrix_workspace.h"
+#include "rr/overlay665_render.h"
+#include "game/math/rotmat.h"
 
 typedef struct { int x, y, z, w; } V4;
 
 typedef struct { int a, b, c, d; } V;
 
-extern unsigned char ChecksumBytes();
-extern int func_80096424();
+typedef struct {
+    u8 reserved00[0x32];
+    s16 node32;
+    u8 reserved34[0x44 - 0x34];
+} TrackEntry44;
+
+typedef struct {
+    int w0[2];
+    V4 pos08;
+    V4 vec18;
+} ScratchTrackView;
+
+#include "game/ui/uicnt.h"
+extern int PsyqStrcpy();
 extern int PsyqRand();
 extern char PasswordChars[];
 extern char PasswordBytes[];
 extern void DrawSync();
 extern char *D_800ACBA0;
-extern int BuildRotMatrixZ();
-extern int BuildRotMatrixY();
-extern int BuildRotMatrixX();
-extern int MulMatrix();
-extern int ApplyMatrix();
-extern int SetGeomScreen();
 
 int ValidateRecordPassword(unsigned char *a0, unsigned char *a1);
 int EncodeRecordPassword();
 int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, int f);
 void LoadTimImage(int *p);
 void LoadTimList(int *p);
-int FindNearestTrackEntry();
-void func_800437D8();
 void CarLocalToWorld(char *a, int b, int *c);
-void GetTrackPointAhead(RrRaceVehicle *vehicle, s32 *output, s32 distance);
+void GetTrackPointAhead(RaceVehicle *vehicle, s32 *output, s32 distance);
 
 int ValidateRecordPassword(unsigned char *a0, unsigned char *a1) {
     unsigned char *p = a1;
@@ -59,7 +68,7 @@ L1:
     q = a0;
     i = 0;
     k = ((unsigned char)c % 11) & 0xFF;
-    tab = D_8009FE2C;
+    tab = PasswordCipherKey;
     do {
         unsigned char *t;
         r = (unsigned char *)(k + (int)tab);
@@ -70,7 +79,7 @@ L1:
         i++;
     } while (i < 6);
     a0[5] = a0[5] & 0xF;
-    if ((unsigned char)c != ChecksumBytes(a0, 6)) return -1;
+    if ((unsigned char)c != (u8)ChecksumBytes(a0, 6)) return -1;
     XorBytes37(a0, 6);
     v = (((a0[4] & 0xF) << 16) + (a0[3] << 8) + a0[2]);
     v >>= 2;
@@ -83,8 +92,7 @@ L1:
     return 0;
 }
 
-int EncodeRecordPassword(a0, a1, a2, a3, a4, a5) int a0; int a1; int a2; int a3; int a4; int a5;
-{
+int EncodeRecordPassword(int a0, int a1, int a2, int a3, int a4, int a5) {
     unsigned s0; int r;
     s0 = a1 << 4;
     a0 &= 0xF;
@@ -99,17 +107,13 @@ int EncodeRecordPassword(a0, a1, a2, a3, a4, a5) int a0; int a1; int a2; int a3;
     PasswordBytes[5] = a4 & 0xF;
     EncodePasswordCode(PasswordBytes, PasswordChars);
     PasswordChars[0xD] = 0;
-    func_80096424(a5, PasswordChars);
+    PsyqStrcpy(a5, PasswordChars);
     return 0;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define func_80096424 ((void (*)())func_80096424)
-#define PasswordBytes (*(unsigned char (*)[])&PasswordBytes)
-
 int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, int f) {
     unsigned t;
-    func_80096424(PasswordChars, f);
+    PsyqStrcpy(PasswordChars, f);
     if (ValidateRecordPassword(PasswordBytes, PasswordChars) == 0) {
         *a = PasswordBytes[0] & 0xF;
         *b = (PasswordBytes[1] * 16 + (PasswordBytes[0] >> 4)) & 0x3FF;
@@ -121,9 +125,6 @@ int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, int f) {
     }
     return -1;
 }
-
-#undef func_80096424
-#undef PasswordBytes
 
 void LoadTimImage(int *p) {
     short r[4];
@@ -160,16 +161,15 @@ void LoadTimList(int *p) {
     }
 }
 
-int FindNearestTrackEntry(a0) char *a0;
-{
+int FindNearestTrackEntry(char *a0) {
     int t2 = 0;
     int t1 = 0x7FFFFFFF;
-    char *a2 = D_800ACBA0;
-    unsigned short a1 = *(unsigned short *)(a2 + 0x32);
+    TrackEntry44 *a2 = (TrackEntry44 *)D_800ACBA0;
+    unsigned short a1 = a2->node32;
     int a3 = 0;
     int a0v, v1, b;
-    if (*(short *)(a2 + 0x32) != -1) {
-        a0v = *(int *)(a0 + 0xF0);
+    if (a2->node32 != -1) {
+        a0v = ((RaceVehicle *)a0)->trackNodeF0;
         do {
             v1 = (short)a1;
             if (v1 < a0v) v1 = a0v - v1; else v1 = v1 - a0v;
@@ -177,91 +177,77 @@ int FindNearestTrackEntry(a0) char *a0;
             if (TrackNodeCount / 2 < v1) b = TrackNodeCount - v1;
             v1 = b;
             if (v1 < t1) { t2 = a3; t1 = v1; }
-            a2 += 0x44;
-            a1 = *(unsigned short *)(a2 + 0x32);
+            a2++;
+            a1 = a2->node32;
             a3++;
-        } while (*(short *)(a2 + 0x32) != -1);
+        } while (a2->node32 != -1);
     }
     return t2;
 }
 
-void func_800437D8(a0, a1) char *a0; int *a1;
-{
+void InitDemoComCars(char *a0, int *a1) {
     struct { int m[16]; int n[8]; short c[4]; short d[4]; V4 e; V4 f; } s;
     int *g;
-    BuildRotMatrixY(s.m, 0x800 - *(short *)(a0 + 0x82));
-    BuildRotMatrixX(s.n, *(short *)(a0 + 0x80));
-    MulMatrix(s.m, s.n);
-    BuildRotMatrixZ(s.n, *(short *)(a0 + 0x84));
-    MulMatrix2(s.m, s.n);
+    RaceVehicle *car = (RaceVehicle *)a0;
+    BuildRotMatrixY(s.m, 0x800 - car->ang82);
+    BuildRotMatrixX(s.n, car->ang80);
+    MulMatrix((MatrixWords32 *)(s.m), (const MatrixWords32 *)(s.n));
+    BuildRotMatrixZ(s.n, car->ang84);
+    MulMatrix2((const MatrixWords32 *)(s.m), (MatrixWords32 *)(s.n));
     s.c[0] = a1[0] * 4;
     s.c[1] = a1[1] * 4;
     s.c[2] = a1[2] * 4;
-    ApplyMatrix(s.n, s.c, &s.e);
+    ApplyMatrix((const MatrixWords32 *)(s.n), (const Vec3s8 *)(s.c), (Vec3i *)(&s.e));
     BuildRotMatrixY(s.m, a1[5]);
-    BuildRotMatrixX(s.n, *(short *)(a0 + 0x80));
-    MulMatrix(s.m, s.n);
-    BuildRotMatrixZ(s.n, *(short *)(a0 + 0x84));
-    MulMatrix2(s.m, s.n);
-    s.d[0] = *(unsigned short *)(a0 + 0x80);
+    BuildRotMatrixX(s.n, car->ang80);
+    MulMatrix((MatrixWords32 *)(s.m), (const MatrixWords32 *)(s.n));
+    BuildRotMatrixZ(s.n, car->ang84);
+    MulMatrix2((const MatrixWords32 *)(s.m), (MatrixWords32 *)(s.n));
+    s.d[0] = (unsigned short)car->ang80;
     s.d[1] = 0;
-    s.d[2] = *(unsigned short *)(a0 + 0x84);
-    ApplyMatrix(s.n, s.d, &s.f);
-    *(V4 *)(SCRATCHPAD + 0x18) = s.f;
+    s.d[2] = (unsigned short)car->ang84;
+    ApplyMatrix((const MatrixWords32 *)(s.n), (const Vec3s8 *)(s.d), (Vec3i *)(&s.f));
+    ((ScratchTrackView *)SCRATCHPAD)->vec18 = s.f;
     g = (int *)SCRATCHPAD;
-    g[7] = *(short *)(a0 + 0x82) + a1[5];
+    g[7] = car->ang82 + a1[5];
     g[6] += a1[4];
     g[8] += a1[6];
-    *(V4 *)(SCRATCHPAD + 0x8) = *(V4 *)(a0 + 0x70);
+    ((ScratchTrackView *)SCRATCHPAD)->pos08 = *(V4 *)car->ir70;
     g[2] += s.e.x;
     g[3] += s.e.y;
     g[4] += s.e.z;
     SetGeomScreen(a1[10]);
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define BuildRotMatrixZ ((void (*)())BuildRotMatrixZ)
-#define BuildRotMatrixY ((void (*)())BuildRotMatrixY)
-#define BuildRotMatrixX ((void (*)())BuildRotMatrixX)
-#define MulMatrix ((void (*)())MulMatrix)
-#define MulMatrix2 ((void (*)())MulMatrix2)
-#define ApplyMatrix ((void (*)())ApplyMatrix)
-
 void CarLocalToWorld(char *a, int b, int *c) {
     int m1[8];
     int m2[10];
     int t[3];
-    BuildRotMatrixY(m1, 0x800 - *(short *)(a + 0x82));
-    BuildRotMatrixX(m2, *(short *)(a + 0x80));
-    MulMatrix(m1, m2);
-    BuildRotMatrixZ(m2, *(short *)(a + 0x84));
-    MulMatrix2(m1, m2);
-    ApplyMatrix(m2, b, t);
-    *(V *)c = *(V *)(a + 0x10);
+    RaceVehicle *car = (RaceVehicle *)a;
+    BuildRotMatrixY(m1, 0x800 - car->ang82);
+    BuildRotMatrixX(m2, car->ang80);
+    MulMatrix((MatrixWords32 *)(m1), (const MatrixWords32 *)(m2));
+    BuildRotMatrixZ(m2, car->ang84);
+    MulMatrix2((const MatrixWords32 *)(m1), (MatrixWords32 *)(m2));
+    ApplyMatrix((const MatrixWords32 *)(m2), (const Vec3s8 *)(b), (Vec3i *)(t));
+    *(V *)c = *(V *)car->pos10;
     c[0] = c[0] + t[0];
     c[1] = c[1] + t[1];
     c[2] = c[2] + t[2];
 }
 
-#undef BuildRotMatrixZ
-#undef BuildRotMatrixY
-#undef BuildRotMatrixX
-#undef MulMatrix
-#undef MulMatrix2
-#undef ApplyMatrix
-
-void GetTrackPointAhead(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
+void GetTrackPointAhead(RaceVehicle *vehicle, s32 *output, s32 distance) {
     s16 current_y;
     s32 fraction;
     s32 index, length;
     /* ASM_BARRIER: use v1 for the PAL count page before loading vehicle fields. */
     register u8 *page __asm__("$3");
     s32 neighbour;
-    RrTrackSample3C *next;
-    RrTrackSample3C *current;
+    TrackSample3C *next;
+    TrackSample3C *current;
 
     if (ReverseCourse == 0) {
-        index = vehicle->trackNodeF0 - ((s32) (distance - vehicle->trackFraction170) >> 0xA);
+        index = vehicle->trackNodeF0 - ((distance - vehicle->trackFraction170) >> 0xA);
         neighbour = index - 1;
         if (index < 0) {
             index += TrackNodeCount;
@@ -274,8 +260,8 @@ void GetTrackPointAhead(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
         page=(u8*)0x800B0000U;
         /* ASM_BARRIER: preserve the page base for the signed count displacement. */
         __asm__("" : "+r"(page));
-        length=*(s32*)(page-0x4134);
-        index = vehicle->trackNodeF0 + ((s32) (distance - vehicle->trackFraction170) >> 0xA);
+        length=((s32*)page)[-0x4134/4];
+        index = vehicle->trackNodeF0 + ((distance - vehicle->trackFraction170) >> 0xA);
         neighbour = index + 1;
         if (index >= length) {
             index -= length;
@@ -289,8 +275,8 @@ void GetTrackPointAhead(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
     current = TrackNodes + index;
     next = TrackNodes + neighbour;
     fraction = (distance - vehicle->trackFraction170) & 0x3FF;
-    output[0] = (s32) ((((s32) ((next->x08 - current->x08) * fraction) / 1024) + current->x08) * 4);
+    output[0] = (((((next->x08 - current->x08) * fraction) / 1024) + current->x08) * 4);
     current_y = current->y10;
-    output[1] = (s32) (((s32) ((next->y10 - current_y) * fraction) / 1024) + current_y);
-    output[2] = (s32) ((((s32) ((next->z0C - current->z0C) * fraction) / 1024) + current->z0C) * 4);
+    output[1] = ((((next->y10 - current_y) * fraction) / 1024) + current_y);
+    output[2] = (((((next->z0C - current->z0C) * fraction) / 1024) + current->z0C) * 4);
 }

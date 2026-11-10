@@ -1,9 +1,11 @@
+#include "game/system/pad.h"
 #include "scratchpad.h"
+#include "rr/frame_storage_types.h"
 #include "rr/controller_hud.h"
+#include "game/ui/hudctrl.h"
 
 struct P { unsigned w0; char b4, b5, b6, b7; short x, y, w, h; };
 
-struct O { char pad[0xB70]; unsigned t; };
 
 void DrawSteeringIndicator(u32 *ordering, s32 layout);
 void DrawSplitScreenDivider(int a0);
@@ -17,23 +19,23 @@ void DrawRaceMinimap(s32 arg0) {
     u32 *var_s3;
     s32 var_s4;
     register s32 var_v0 __asm__("$2");
-    RrBankRecord320 *temp_a0;
+    RaceVehicle *temp_a0;
 
     var_s4 = 0;
     if (arg0 == 0) {
-        var_s3 = ((RrFrameStorage *)(void *)CurrentDrawBuf)->ordering.ordering70;
+        var_s3 = CurrentDrawBuf->ordering.ordering70.words;
         if (D_800AD508 >= 0) {
             var_s2 = (s16)((u16)D_800AD508 ^ 1);
         } else {
             var_s2 = 0;
         }
     } else {
-        var_s3 = ((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70;
+        var_s3 = CurrentDrawBuf->buffer.secondaryOrderingB70.words;
         if (arg0 == 1) {
             var_s4 = -0x80;
         }
         if (D_800AD508 >= 0) {
-            {s32 step=((s32)(((u16)D_800AD508^1)<<16)>>15);step=step-1;var_s2=arg0+step;}
+            {s32 step=((((u16)D_800AD508^1)<<16)>>15);step=step-1;var_s2=arg0+step;}
         } else {
             var_s2 = arg0 - 1;
         }
@@ -41,13 +43,13 @@ void DrawRaceMinimap(s32 arg0) {
     var_a1 = RR_HUD_SCRATCH->cursor;
     var_s0 = 0;
     if (NumCars > 0) {
-        s32 yBase;RrUiUvRect *const glyph=&D_8009EE58;
+        s32 yBase;UiUvRect *const glyph=&D_8009EE58;
         do {
-            temp_hi = (s32) (var_s2 + var_s0) % (s16) NumCars;
+            temp_hi = (var_s2 + var_s0) % (s16) NumCars;
             temp_a0 = CarTable[temp_hi];
-            if ((u16)temp_a0->value1E4 & 0x10) {
+            if ((u16)temp_a0->flags1E4 & 0x10) {
                 u16 clut=(temp_hi<<6)+0x1A16;
-                s32 yNumerator=temp_a0->y28; s32 xNumerator=temp_a0->x20;
+                s32 yNumerator=temp_a0->position20.words[2]; s32 xNumerator=temp_a0->position20.words[0];
                 register s32 yValue __asm__("$2");s32 xValue;xValue=xNumerator/1150+4;yBase=var_s4+242;yValue=yBase-yNumerator/1150;
                 var_a1 = AddSpritePrim(var_s3, var_a1, xValue, yValue-4, glyph, clut, 0);
             }
@@ -58,6 +60,7 @@ void DrawRaceMinimap(s32 arg0) {
     if ((arg0 + 1) > 0) {
         s16 originX=8;
         do {
+            /* ASM_BARRIER: preserve original register scheduling. */
             __asm__("" : : "r"((s32)originX));
             var_v0 = var_s4 + 0x3E;
             if (var_s0_2 <= 0) {
@@ -71,7 +74,7 @@ void DrawRaceMinimap(s32 arg0) {
 }
 
 void DrawSteeringIndicator(u32 *ordering, s32 layout) {
-    RrHudTriangle triangle;
+    HudTriangle triangle;
     s16 *outputPoint;
     s32 status;
 
@@ -90,8 +93,8 @@ void DrawSteeringIndicator(u32 *ordering, s32 layout) {
     u8 *shapeY;
     u8 *shapeX;
     u8 encodedX;
-    RrMenuItemState5C *input;
-    RrMenuItemState5C *inputBase;
+    ControllerState5C *input;
+    ControllerState5C *inputBase;
     u8 *shapeBase;
 
     player = 0;
@@ -102,24 +105,19 @@ void DrawSteeringIndicator(u32 *ordering, s32 layout) {
     }
     inputBase = PlayerControllers;
 
-    input = (RrMenuItemState5C *)((unsigned long)inputBase + player * 0x5C);
-    status = input->status10;
+    input = inputBase + player;
+    status = input->protocol10;
     if (status == 2) {
-        if (input->buttons08 & 0x100) {
+        if (input->edges08.fields.pressed & 0x100) {
             toggle = (u16 *)&D_8009EE68[player];
             *toggle ^= 1;
         }
-        i = func_8004B70C(player);
+        i = GetControllerWarning(player);
         if (i > 0) {
-            if ((u32) (ScreenFrame & 3) < 2U) {
-                if (i == status) {
-                    goto drawWarning;
-                }
-            } else {
-drawWarning:
+            if ((ScreenFrame & 3) >= 2U || i == status) {
                 modeCursor = AddDrawModePrim(ordering, RR_HUD_SCRATCH->cursor, 0x25);
                 RR_HUD_SCRATCH->cursor = modeCursor;
-                spriteCursor = GameQueueSprite(ordering, (RrSpritePacketSignedClut *)RR_HUD_SCRATCH->cursor, 0x80, baselineY - 0xA, 0x44, 8, 0x80, 0x40, 0x1B16);
+                spriteCursor = GameQueueSprite(ordering, (SpritePacketSignedClut *)RR_HUD_SCRATCH->cursor, 0x80, baselineY - 0xA, 0x44, 8, 0x80, 0x40, 0x1B16);
                 RR_HUD_SCRATCH->cursor = spriteCursor;
                 RR_HUD_SCRATCH->cursor = AddDrawModePrim(ordering, spriteCursor, 0x25);
             }
@@ -154,7 +152,7 @@ drawNeedle:
             outputPoint = triangle.half;
             shapeX = shapeBase;
             do {
-                shapeY = (u8 *)((unsigned long)shapeOffset + (unsigned long)shapeBase);
+                shapeY = (u8 *)(shapeOffset + (unsigned long)shapeBase);
                 shapeOffset += 2;
                 encodedX = *shapeX;
                 shapeX += 2;
@@ -163,18 +161,15 @@ drawNeedle:
                 outputPoint[1] = (s16) ((s8) *shapeY + baselineY + 5);
                 outputPoint += 2;
             } while (i < 3);
-            RR_HUD_SCRATCH->cursor = (u8 *)func_8002071C(ordering, cursor, triangle.word[0], triangle.word[1], triangle.word[2], D_8009EE64, 0);
+            RR_HUD_SCRATCH->cursor = (u8 *)EmitPolyF3(ordering, cursor, triangle.word[0], triangle.word[1], triangle.word[2], D_8009EE64, 0);
         }
     }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define CurrentDrawBuf ((struct O *)CurrentDrawBuf)
-
 void DrawSplitScreenDivider(int a0)
 {
     struct P *p;
-    struct O *o;
+    FrameStorage *o;
     p = *(struct P **)SCRATCHPAD;
     ((char *)p)[3] = 3;
     p->b7 = 0x60;
@@ -193,9 +188,8 @@ void DrawSplitScreenDivider(int a0)
     p->b5 = 8;
     p->b6 = 8;
     o = CurrentDrawBuf;
-    p->w0 = (p->w0 & 0xFF000000) | (o->t & 0xFFFFFF);
-    *(volatile unsigned *)&o->t = (o->t & 0xFF000000) | ((unsigned)p++ & 0xFFFFFF);
+    p->w0 = (p->w0 & 0xFF000000) | (o->buffer.secondaryOrderingB70.words[0] & 0xFFFFFF);
+    *(unsigned *)&o->buffer.secondaryOrderingB70.words[0] =
+        (o->buffer.secondaryOrderingB70.words[0] & 0xFF000000) | ((unsigned)p++ & 0xFFFFFF);
     *(struct P **)SCRATCHPAD = p;
 }
-
-#undef CurrentDrawBuf

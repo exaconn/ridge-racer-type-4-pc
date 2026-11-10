@@ -1,127 +1,114 @@
+#include "psyq/libgte/rotmat.h"
+#include "game/data/bankrec.h"
 #include "types.h"
 #include "rr/race_types.h"
 #include "rr_asm.h"
-#include "m2c_macros.h"
 #include "game/car/aipath.h"
 #include "game/car/carparam.h"
 #include "game/course/trktext.h"
 #include "game/race/racemai2.h"
 #include "game/sound/sndbgm3.h"
 #include "game/car/carsetup.h"
-#include "game/race/racemai2.h"
-#include "game/car/carparam.h"
 #include "rr/bios_devices.h"
 #include "rr/controller_hud.h"
-#include "game/car/aipath.h"
 #include "game/car/aipath2.h"
 #include "game/car/carsteer.h"
 #include "game/race/racesamp.h"
+#include "game/ui/hudmap.h"
 
-#define H(p, o) (*(unsigned short *)((char *)(p) + (o)))
-#define W(b, o) (*(int *)((char *)(b) + (o)))
-#define H(b, o) (*(short *)((char *)(b) + (o)))
-#define UH(b, o) (*(unsigned short *)((char *)(b) + (o)))
-
-extern void RotMatrix();
-extern char *CarRecordPtrs[];
 extern unsigned char SelectionRows[][4];
 extern int RaceState;
 extern int TrackEventSfxEnabled;
 extern int ReplayState;
 extern int D_800AC538;
-extern char PlayerCars[];
-extern short func_80022848(void);
-extern void func_800172DC();
+extern RaceVehicle PlayerCars[];
+extern void ResetCarSlotBuffers();
 
-void ComputeWheelOffsets(char *a0);
-void UpdatePlayerCar(char *a0, int a1);
-void StepCarPhysics(s32 arg0);
-void func_80022CD4(RrRaceVehicle *arg0);
+void UpdatePlayerCar(RaceVehicle *a0, int a1);
+void StepCarPhysics(RaceVehicle *arg0);
+void UpdateCarStartLineSteering(RaceVehicle *arg0);
 
-void ComputeWheelOffsets(char *a0)
+void ComputeWheelOffsets(RaceVehicle *a0)
 {
-    unsigned short v[3];
-    int m[8];
-    int i, n, j;
-    char *p, *q;
-    v[0] = 0;
-    v[1] = H(a0, 0x54);
-    v[2] = 0;
-    RotMatrix(v, m);
-    RR_GTE_SETROT(m);
-    v[0] = H(a0, 0x110);
-    v[1] = H(a0, 0x8C);
+    Vec3sFields8 v;
+    MatrixWords32 m;
+    int i, n;
+    v.x = 0;
+    v.y = (short)a0->rot54;
+    v.z = 0;
+    RotMatrix(&v, &m);
+    RR_GTE_SETROT(m.w);
+    v.x = a0->footprint110.pairs[0].x;
+    v.y = (short)a0->wheelPositions88[0].y;
     i = 0;
-    v[2] = H(a0, 0x112);
+    v.z = a0->footprint110.pairs[0].y;
     do {
-        RR_GTE_MVMVA_ROT_V0_NOCV(v);
+        RR_GTE_MVMVA_ROT_V0_NOCV(&v);
         n = i + 1;
-        q = a0 + n * 4;
-        v[0] = H(q, 0x110);
-        j = i << 4;
-        v[1] = H(a0 + j, 0x8C);
-        j += 0x88;
-        v[2] = H(q, 0x112);
-        p = a0 + j;
-        RR_GTE_STORE_IR(p);
+        v.x = a0->footprint110.pairs[n].x;
+        v.y = (short)a0->wheelPositions88[i].y;
+        v.z = a0->footprint110.pairs[n].y;
+        RR_GTE_STORE_IR_MEM(&a0->wheelPositions88[i]);
         i = n;
     } while (i < 4);
 }
 
-void InitPlayerCar(a0, a1, a2)
-char *a0; int a1; int a2;
+void InitPlayerCar(RaceVehicle *vehicle, s32 recordIndex, s32 gridIndex)
 {
-    char *s3, *s2, *p0;
-    short *p2;
-    int i, t;
-    s2 = a0 + 0x1F4;
-    s3 = CarRecordPtrs[a1];
-    func_80096434(a0, 0x320);
-    H(s2, 0x84) = SelectionRows[a1][3] & 1;
-    H(a0, 0x1E6) = a1 * 2;
-    W(s2, 0x24) = a1;
-    UH(a0, 0x1E4) = UH(s2, 0x24) | 0x110;
-    W(s2, 0xA4) = 4;
-    t = H(s3, 0x1DE);
+    CarRecord *record;
+    RaceVehicleControl *control;
+    CarGearRecord3C *gear;
+    s16 *speed;
+    s32 i, threshold;
+
+    control = &vehicle->control;
+    record = CarRecordPtrs[recordIndex];
+    PsyqBzero(vehicle, sizeof(*vehicle));
+    control->previewSample84.halves.low = SelectionRows[recordIndex][3] & 1;
+    vehicle->slotIndex1E6 = recordIndex * 2;
+    control->playerFlags24 = recordIndex;
+    vehicle->flags1E4 = (u16)control->playerFlags24 | 0x110;
+    control->dynamics94.player.motionState10 = 4;
+    threshold = record->handling1C8.slideThreshold16;
     RaceState = 2;
-    W(s2, 0x94) = t;
-    if (t < 0x2710) {
-        W(s2, 0x94) = 0x2710;
+    control->dynamics94.player.slideThreshold00 = threshold;
+    if (threshold < 10000) {
+        control->dynamics94.player.slideThreshold00 = 10000;
     }
-    p2 = (short *)(s3 + 4);
-    W(s2, 0x1C) = (int)(s3 + 0x1C8);
-    H(s2, 0x34) = 1;
-    H(s2, 0x86) = 1;
-    W(s2, 0x18) = (int)s3;
-    H(s2, 0x48) = 4;
-    H(s2, 0x2A) = 0x64;
+    gear = record->gears04;
+    control->handling1C = &record->handling1C8;
+    control->pathDeltaZ34 = 1;
+    control->previewSample84.halves.high = 1;
+    control->record18 = record;
+    control->holdFlag48 = 4;
+    control->steeringThreshold2A = 100;
     i = 0;
-    if (W(s3, 0) >= 0) {
+    if (record->lastGear00 >= 0) {
         do {
-            p0 = (char *)p2 + 2;
-            *p2 = (((H(p0, 0) * 0x36C000) / 1600) << 8) / 100000;
-            H(p0, 0x30) = 0;
-            if (i == W(s3, 0)) {
-                W(s2, 0x98) = (H(p0, 0) * 0x490) / 160;
+            speed = &gear->speed02;
+            gear->scaledRate00 = (((s32)((u32)*speed * 0x36C000U) / 1600) * 256) / 100000;
+            gear->accumulator32 = 0;
+            if (i == record->lastGear00) {
+                control->dynamics94.player.topGearSpeed04 = (*speed * 0x490) / 160;
             }
             i++;
-            p2 += 0x1E;
-        } while (W(s3, 0) >= i);
+            gear++;
+        } while (record->lastGear00 >= i);
     }
-    PlaceCarOnGrid(a0, a2, p2);
+    PlaceCarOnGrid(vehicle, gridIndex);
 }
 
-void UpdatePlayerCar(char *a0, int a1)
+void UpdatePlayerCar(RaceVehicle *a0, int a1)
 {
-  int pad[18];
-  int *pp = pad;
+  int unused[18];
+  int *pp = unused;
   if (RaceState > 0)
   {
-    *((short *) (a0 + 0x1EA)) = func_80022848();
+    a0->half1EA = IsCarFacingReverse(a0);
     UpdateCarGear(a0, a1);
     UpdatePlayerSteering(a0, a1);
     UpdateCarEngine(a0);
-    if ((a0 == PlayerCars) || (a0 == (PlayerCars + 0x320)))
+    if ((a0 == &PlayerCars[0]) || (a0 == &PlayerCars[1]))
     {
       if (TrackEventSfxEnabled == 1)
       {
@@ -136,47 +123,47 @@ void UpdatePlayerCar(char *a0, int a1)
   else
     if (RaceState == 0)
   {
-    func_800512C4(a1 & 1, 0, 0);
+    SetLoopVoiceVolumes(a1 & 1, 0, 0);
   }
   if (D_800AD508 < 0)
   {
     if (GetMappedPadButtons(a1 & 1) != 0)
     {
-      if (((unsigned) (RaceState - 2)) < 2)
+      if (RaceState - 2U < 2U)
       {
-        unsigned short t = (*((unsigned short *) (a0 + 0x1E4))) ^ 0x100;
+        unsigned short t = a0->flags1E4 ^ 0x100;
         D_800AC538 ^= 1;
-        *((unsigned short *) (a0 + 0x1E4)) = t;
- do { func_800172DC(t); } while (0);
+        a0->flags1E4 = t;
+        do { ResetCarSlotBuffers(t); } while (0);
       }
     }
   }
 }
 
-void StepCarPhysics(s32 arg0) {
-    UpdateCarSteering();
+void StepCarPhysics(RaceVehicle *arg0) {
+    UpdateCarSteering(arg0);
     IntegrateCarMotion(arg0);
     UpdateCarTrackNode(arg0);
     ComputeWheelOffsets(arg0);
     ConstrainCarToTrack(arg0);
 }
 
-void func_80022CD4(RrRaceVehicle *arg0) {
+void UpdateCarStartLineSteering(RaceVehicle *arg0) {
     s32 temp_a2;
-    void *temp_a1;
+    RaceVehicleControl *control;
 
-    temp_a1 = (u8 *)arg0 + 0x1F4;
-    M2C_FIELD(temp_a1, s32 *, 0x74) = 0;
-    temp_a2 = (s32)((u32)M2C_FIELD(temp_a1, s32 *, 0x88) - 0x1964U);
-    if (M2C_FIELD(temp_a1, s16 *, 0x86) >= 2) {
-        M2C_FIELD(temp_a1, s32 *, 0xA0) = 0;
+    control = &arg0->control;
+    control->relDist74 = 0;
+    temp_a2 = (control->laneMode88 - 0x1964U);
+    if (control->previewSample84.halves.high >= 2) {
+        control->dynamics94.steering.angle0C = 0;
     }
     if (temp_a2 < 0) {
-        M2C_FIELD(temp_a1, s32 *, 0x74) = (s32) (temp_a2 >> 2);
-        M2C_FIELD(temp_a1, s32 *, 0xA0) = (s32) ((s32)((u32)M2C_FIELD(temp_a1, s32 *, 0xA0) * 7U) / 10);
+        control->relDist74 = (temp_a2 >> 2);
+        control->dynamics94.steering.angle0C = ((s32)(control->dynamics94.steering.angle0C * 7U) / 10);
         return;
     }
-    M2C_FIELD(temp_a1, s32 *, 0x74) = temp_a2;
-    M2C_FIELD(temp_a1, s32 *, 0x88) = (s32) ((u32)M2C_FIELD(temp_a1, s32 *, 0x88) - (u32)temp_a2);
-    M2C_FIELD(temp_a1, s32 *, 0xA0) = (s32) ((u32)M2C_FIELD(temp_a1, s32 *, 0xA0) - (u32)temp_a2);
+    control->relDist74 = temp_a2;
+    control->laneMode88 = ((u32)control->laneMode88 - temp_a2);
+    control->dynamics94.steering.angle0C = ((u32)control->dynamics94.steering.angle0C - temp_a2);
 }

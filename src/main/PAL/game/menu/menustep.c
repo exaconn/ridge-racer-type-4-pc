@@ -1,38 +1,29 @@
 /* RODATA 0x800115ec 0x20 */
 #include "game/data/cardchk.h"
+#include "game/menu/menumode.h"
 #include "game/menu/menutra21.h"
-extern struct 
-{
-  unsigned short a;
-  signed char b;
-  unsigned char c;
-  unsigned char d;
-  unsigned char e;
-  short f;
-} D_800A4258[];
+#include "game/system/pad.h"
+#include "game/menu/menustep.h"
+#include "rr/frame_loop.h"
 extern void (*D_800A4548[])();
 extern short MenuStateIndex;
-extern unsigned char D_800F3A24[];
+extern unsigned char CardPortPollStatus[];
 extern unsigned short D_800F3AF8;
-extern short D_800F4D3C;
-extern short D_800F4D8A;
-extern short D_800FFC00;
-extern unsigned short D_800FFC18;
+extern short GpSaveSlotCursor;
+extern short CardActivePort;
+extern unsigned short CardMenuOperation;
 extern short D_80109478[];
 extern short D_8010948E;
-extern short D_800AC594;
-extern struct { char pad[0x28]; int x28; int x2c; char pad2[0x2C]; } PlayerControllers[];
+extern short MenuActiveControllerIndex;
 
-void func_8007B460();
-int func_8007B654();
+int GetCardMenuInitialState();
 
-static inline int w4c7_nz(int arg0)
+static inline int IsNonZero(int arg0)
 {
   return arg0 != 0;
 }
 
-void func_8007B460()
-{
+void StepCardMenuStateMachine(void) {
   int a;
   int t0;
   unsigned short v;
@@ -41,37 +32,37 @@ void func_8007B460()
   int s0;
   int s1;
   int s3;
-  int new_var;
+  int one;
   int fp;
   r = 1;
-  s0 = D_800A4258[MenuStateIndex].e;
-  s1 = D_800A4258[MenuStateIndex].c;
-  t0 = D_800A4258[MenuStateIndex].a;
+  s0 = MenuStateTable[MenuStateIndex].flags05;
+  s1 = MenuStateTable[MenuStateIndex].handlerIdx03;
+  t0 = MenuStateTable[MenuStateIndex].textId00;
   s7 = s0 & 1;
-  s3 = D_800A4258[MenuStateIndex].b;
-  fp = D_800F3A24[D_800FFC00];
-  if (w4c7_nz(s7))
+  s3 = MenuStateTable[MenuStateIndex].kind02;
+  fp = CardPortPollStatus[CardActivePort];
+  if (IsNonZero(s7))
   {
-    PollCardStatus(D_800FFC00, 0, 0);
+    PollCardStatus(CardActivePort, 0, 0);
   }
   if (s0 & 2)
   {
-    r = func_8007B654();
+    r = GetCardMenuInitialState();
   }
   if (r == 1)
   {
     D_800A4548[s1]();
   }
-  func_8007D1B8(s3, t0, s0, D_800FFC00, D_80109478[D_8010948E], D_800F3A24[D_800FFC00]);
-  if (w4c7_nz(s7))
+  DrawCardMenuStatusText(s3, t0, s0, CardActivePort, D_80109478[D_8010948E], CardPortPollStatus[CardActivePort]);
+  if (IsNonZero(s7))
   {
     if (fp == 0x1E)
     {
-      if (D_800F3A24[D_800FFC00] != fp)
+      if (CardPortPollStatus[CardActivePort] != fp)
       {
         D_800F4D8A = 0;
-        D_800F4D3C = 0;
-        v = D_800FFC18;
+        GpSaveSlotCursor = 0;
+        v = CardMenuOperation;
         D_800F3AF8 = v;
         a = (short) v;
         if (a == 0)
@@ -85,8 +76,8 @@ void func_8007B460()
           D_800F3AF8 = 0x10;
           return;
         }
-        new_var = 1;
-        if ((a == new_var) || (a == 5))
+        one = 1;
+        if ((a == one) || (a == 5))
         {
           MenuStateIndex = 0x20;
         }
@@ -105,16 +96,12 @@ void func_8007B460()
   }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800FFC18 (*(short (*))&D_800FFC18)
-
-int func_8007B654()
-{
+int GetCardMenuInitialState(void) {
     int a1;
     int a2;
     int v;
     a2 = -1;
-    switch (D_800FFC18) {
+    switch ((short)CardMenuOperation) {
     case 0:
         a1 = 0;
         break;
@@ -135,12 +122,12 @@ int func_8007B654()
     case 4:
         break;
     }
-    v = D_800F3A24[D_800FFC00];
+    v = CardPortPollStatus[CardActivePort];
     switch (v) {
     case 0x28:
     case 0x3C:
     case 0x1E:
-        if (PlayerControllers[D_800AC594].x28 != 0 || PlayerControllers[D_800AC594].x2c != 0) {
+        if (PlayerControllers[MenuActiveControllerIndex].action28 != 0 || PlayerControllers[MenuActiveControllerIndex].action2C != 0) {
             MenuStateIndex = a1;
         }
         break;
@@ -156,5 +143,3 @@ int func_8007B654()
     }
     return a2;
 }
-
-#undef D_800FFC18

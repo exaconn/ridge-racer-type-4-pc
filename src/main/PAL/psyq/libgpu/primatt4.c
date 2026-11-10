@@ -1,7 +1,8 @@
 #include "types.h"
-#include "m2c_macros.h"
+#include "rr/gpu.h"
 
 void SetSprt(void *arg0) {
-    M2C_FIELD(arg0, s8 *, 3) = 4;
-    M2C_FIELD(arg0, s8 *, 7) = 0x64;
+    PolyG4Packet *p = arg0;
+    p->len = 4;
+    p->code = 0x64;
 }

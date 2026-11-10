@@ -1,9 +1,10 @@
 #include "rr/overlay662_image_fade.h"
+#include "rr/frame_storage_types.h"
 #ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((RrGpuScratchPointers *)0x1F800000U)
+#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
 #endif
 void ovl662_func_80119898(s32 mode) {
- RrGarageFadeGeometry quad;
+ GarageFadeGeometry quad;
  s32 amount=ovl662_D_80127398;
  s32 high,low,uv;
  s32 i,*x,*y,*u,*v;
@@ -28,13 +29,13 @@ void ovl662_func_80119898(s32 mode) {
   quad.y[0]+=amount;quad.y[1]=quad.y[0];
   quad.y[2]-=amount;quad.y[3]=quad.y[2];amount=0;
  }
- color=64-rsin((s32)((u32)ScreenFrame*64U))/64;
+ color=64-rsin((ScreenFrame*64U))/64;
  cursor=RR_GPU_SCRATCH->cursor;
  if(amount>0){
-  cursor=EmitPolyFT3(&CurrentDrawBuf->head70,cursor,quad.x,quad.y,quad.u,quad.v,42,0x1028,0,(u16)amount);
-  cursor=EmitPolyFT3(&CurrentDrawBuf->head70,cursor,quad.x+1,quad.y+1,quad.u+1,quad.v+1,42,0x1028,0,(u16)amount);
-  cursor=AddTilePrim(&CurrentDrawBuf->head70,cursor,quad.x[0],quad.y[0],(s32)((u32)quad.x[1]-(u32)quad.x[0]),(s32)((u32)quad.y[2]-(u32)quad.y[0]),color,color,color);
- }else cursor=AddTilePrim(&CurrentDrawBuf->head70,cursor,quad.x[0],quad.y[0],(s32)((u32)quad.x[1]-(u32)quad.x[0]),(s32)((u32)quad.y[2]-(u32)quad.y[0]),0,0,0);
+  cursor=EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.words[0],cursor,quad.x,quad.y,quad.u,quad.v,42,0x1028,0,(u16)amount);
+  cursor=EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.words[0],cursor,quad.x+1,quad.y+1,quad.u+1,quad.v+1,42,0x1028,0,(u16)amount);
+  cursor=AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0],cursor,quad.x[0],quad.y[0],((u32)quad.x[1]-quad.x[0]),((u32)quad.y[2]-quad.y[0]),color,color,color);
+ }else cursor=AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0],cursor,quad.x[0],quad.y[0],((u32)quad.x[1]-quad.x[0]),((u32)quad.y[2]-quad.y[0]),0,0,0);
  fresh=ovl662_D_80127398;
 
  previous=(u16)ovl662_D_80127398;

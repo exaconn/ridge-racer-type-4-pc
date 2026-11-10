@@ -1,5 +1,6 @@
 #ifndef RR_OVERLAY662_AVAILABLE_CARS_H
 #define RR_OVERLAY662_AVAILABLE_CARS_H
+#include "game/data/cdfile2.h"
 #include "rr/menu_arenas.h"
 #include "rr/menu_setup.h"
 #include "rr/menu_selection.h"
@@ -8,14 +9,14 @@
 #include "rr/course_choice_types.h"
 /* Four-byte available-car slots retain their unused upper halfword. Twenty
  * slots occupy27348..27398;the following storage is the image-fade phase. */
-typedef struct {s16 value;u16 reserved;} RrGarageAvailableCar;
-extern RrCourseChoice4 CourseChoiceTable[2][9];
+typedef struct {s16 value;u16 reserved;} GarageAvailableCar;
+extern CourseChoice4 CourseChoiceTable[2][9];
 extern s16 ovl662_D_801272D4,ovl662_D_801272E0,ovl662_D_801272E4;
 extern s16 MenuCursor,MenuItemCount,D_800F3A26,D_800F4D8A;
 extern u16 ModeGroup;
 extern s16 ovl662_D_80127300[20];
-extern RrGarageAvailableCar ovl662_D_80127348[20];
-void SetupRenderer(s32);void InitPreviewImageRows(void);s32 PackChoiceGlyph(void *);
+extern GarageAvailableCar ovl662_D_80127348[20];
+void InitPreviewImageRows(void);s32 PackChoiceGlyph(void *);
 /* Resource base owns at least0x2D000 bytes for the initial arena offset.
  * Services may replace full arena/UI pointers;progress group bytes remain
  *0..3 whenever the next progress word is selected. Each of20 low mask bits
@@ -25,6 +26,6 @@ void SetupRenderer(s32);void InitPreviewImageRows(void);s32 PackChoiceGlyph(void
  * remains a readable initialized record. Count is0..20. Final UI and arena
  * first pointer both capture the fresh screen root after the last decoder. */
 void ovl662_func_80116960(void);
-RR_ASSERT_SIZE(RrGarageAvailableCar,4);
-RR_ASSERT_OFFSET(RrGarageAvailableCar,reserved,2);
+RR_ASSERT_SIZE(GarageAvailableCar,4);
+RR_ASSERT_OFFSET(GarageAvailableCar,reserved,2);
 #endif

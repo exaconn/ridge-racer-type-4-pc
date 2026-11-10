@@ -4,16 +4,16 @@
 
 s32 ResetGraph(s32 mode)
 {
-    RrGpuResetState80 *state;
+    GpuResetState80 *state;
     switch(mode & 7) {
     case 0:
     case 3:
-        DebugPrintStub(ResetGraphFmt,&GpuDriverTable,&D_800ABAC0);
+        DebugPrintStub(ResetGraphFmt,&GpuDriverTable,&GpuResetState);
     case 5:
-        state=&D_800ABAC0;
+        state=&GpuResetState;
         GPU_memset((s8 *)state,0,128);
         ResetCallback();
-        func_80096E24((unsigned long)GpuFuncTable & 0xFFFFFF);
+        GPU_cw((unsigned long)GpuFuncTable & 0xFFFFFF);
         state->kind00=_reset(mode);
         state->enabled01=1;
         /* Preserve the explicit byte reload after the reset service. */

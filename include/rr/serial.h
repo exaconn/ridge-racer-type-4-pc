@@ -12,27 +12,33 @@ typedef struct {
     volatile u16 control;
     u8 pad0C[2];
     volatile u16 baud;
-} RrSerialPortRegisters;
+} SerialPortRegisters;
 
 typedef struct {
     s32 active;
-    s32 first, second;
-} RrSerialRequest;
+    u8 *cursor;
+    s32 remaining;
+} SerialRequest;
 
 typedef struct {
-    RrSerialRequest request;
+    SerialRequest request;
     u32 receive_status;
-} RrSerialReceiveRequest;
+} SerialReceiveRequest;
 
-extern RrSerialRequest volatile SioRequest;
-extern RrSerialReceiveRequest SioReceiveRequest;
-extern RrSerialPortRegisters *CardSio0Regs;
-extern RrSerialPortRegisters *SIO1_REGS;
-extern RrSerialPortRegisters *PadSio0Base;
+/* Cursor advances inside the caller-owned transfer buffer. The IRQ handler
+ * shares active/remaining state with synchronous and asynchronous callers. */
+extern SerialRequest volatile SioRequest;
+extern volatile SerialReceiveRequest SioReceiveRequest;
+extern SerialPortRegisters SioShadowRegs;
+extern SerialPortRegisters *CardSio0Regs;
+extern SerialPortRegisters *SIO1_REGS;
+extern SerialPortRegisters *PadSio0Base;
+/* Three independent SDK pointer slots initially select SIO0 at0x1F801040. */
+extern SerialPortRegisters *JOY_DATA, *D_800ABD00;
 s32 _sio_deinit(void);
 
-extern RrSerialPortRegisters *volatile CardCmdSioRegs;
-extern RrSerialPortRegisters *CardSio0Base;
+extern SerialPortRegisters *volatile CardCmdSioRegs;
+extern SerialPortRegisters *CardSio0Base;
 s32 _cardSelectSlot(s32 slot);
 extern volatile u32 *I_STAT_CardSel;
 extern s32 D_80114700;
@@ -42,16 +48,18 @@ s32 chkRC2wait(void);
  * the interrupt handshake. Returns captured data or the corresponding timeout. */
 s32 _cardXferByte(s32 value);
 
-RR_ASSERT_SIZE(RrSerialRequest, 0xC);
-RR_ASSERT_OFFSET(RrSerialRequest, first, 4);
-RR_ASSERT_OFFSET(RrSerialRequest, second, 8);
-RR_ASSERT_SIZE(RrSerialReceiveRequest, 0x10);
-RR_ASSERT_OFFSET(RrSerialReceiveRequest, receive_status, 0xC);
+#if defined(__mips__)
+RR_ASSERT_SIZE(SerialRequest, 0xC);
+RR_ASSERT_OFFSET(SerialRequest, cursor, 4);
+RR_ASSERT_OFFSET(SerialRequest, remaining, 8);
+RR_ASSERT_SIZE(SerialReceiveRequest, 0x10);
+RR_ASSERT_OFFSET(SerialReceiveRequest, receive_status, 0xC);
+#endif
 
-RR_ASSERT_SIZE(RrSerialPortRegisters, 0x10);
-RR_ASSERT_OFFSET(RrSerialPortRegisters, status, 4);
-RR_ASSERT_OFFSET(RrSerialPortRegisters, mode, 8);
-RR_ASSERT_OFFSET(RrSerialPortRegisters, control, 0xA);
-RR_ASSERT_OFFSET(RrSerialPortRegisters, baud, 0xE);
+RR_ASSERT_SIZE(SerialPortRegisters, 0x10);
+RR_ASSERT_OFFSET(SerialPortRegisters, status, 4);
+RR_ASSERT_OFFSET(SerialPortRegisters, mode, 8);
+RR_ASSERT_OFFSET(SerialPortRegisters, control, 0xA);
+RR_ASSERT_OFFSET(SerialPortRegisters, baud, 0xE);
 
 #endif

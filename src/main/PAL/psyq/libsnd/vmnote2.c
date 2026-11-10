@@ -1,18 +1,16 @@
 /* CC1_FLAGS: -mno-split-addresses */
-extern signed char D_80110102[];
-extern struct { signed char a; char p[4]; signed char b; } D_80110107;
-extern char *_svm_tn;
-extern unsigned short D_800A5128[];
+#include "rr/channels.h"
+#include "rr/spu.h"
+#include "psyq/libsnd/vmnote2.h"
+extern unsigned short SsSemitonePitchTable[];
 extern unsigned short _svm_ptable[];
 
-int note2pitch();
-unsigned short note2pitch2();
 unsigned short SsPitchFromNote(int cen_note_high, int cen_note_low, int note_high, int note_low);
 
-int note2pitch() { return SsPitchFromNote(D_80110102[0], 0, (unsigned char)D_80110102[0xE], (unsigned char)D_80110102[0xF]); }
+unsigned short note2pitch(void) { return SsPitchFromNote(_svm_cur.f02, 0, (unsigned char)_svm_cur.f10, (unsigned char)_svm_cur.f11); }
 
 unsigned short note2pitch2(a0, a1) short a0; short a1; {
-    short i = D_80110107.a * 16 + D_80110107.b;
+    short i = _svm_cur.f07 * 16 + _svm_cur.f0C;
     char *t = (char *)(i * 32 + (int)_svm_tn);
     return SsPitchFromNote(a0, a1, t[4], t[5]);
 }
@@ -27,7 +25,7 @@ unsigned short SsPitchFromNote(int cen_note_high, int cen_note_low, int note_hig
     short octave;
     int q;
     int t;
-    int pitch;
+    u32 pitch;
     int shift;
 
     fine = (short)((note_low & 0xFF) + cen_note_low);
@@ -47,13 +45,13 @@ unsigned short SsPitchFromNote(int cen_note_high, int cen_note_low, int note_hig
         scale = scale + 12;
         octave = oct - 3;
     }
-    pitch = (D_800A5128[scale] * _svm_ptable[frac]) >> 16;
+    pitch = (SsSemitonePitchTable[scale] * _svm_ptable[frac]) >> 16;
     if (octave >= 0) {
         pitch = 0x3FFF;
     } else {
         shift = -octave;
         pitch += 1 << (shift - 1);
-        pitch = (unsigned)pitch >> shift;
+        pitch = pitch >> shift;
     }
     return pitch;
 }

@@ -35,8 +35,8 @@ class ChannelVolumeRampTest(unittest.TestCase):
 #define BANKS 4
 #define ROWS 8
 #define SLOTS (998+BANKS)
-typedef struct {u32 guard[4]; RrChannelValueRecordB0 records[2][BANKS][ROWS];
- u32 tail[4];RrChannelValueRecordB0 *slots[SLOTS];s16 last;} World;
+typedef struct {u32 guard[4]; ChannelValueRecordB0 records[2][BANKS][ROWS];
+ u32 tail[4];ChannelValueRecordB0 *slots[SLOTS];s16 last;} World;
 static World actual,expected;
 typedef struct {World state;s32 id;u16 left,right;unsigned kind;} Event;
 static Event events[3];static unsigned eventCount,eventIndex,mutate;
@@ -52,14 +52,14 @@ static void check(const World *a,const World *e){unsigned i;
  for(i=0;i<SLOTS;i++)assert((uintptr_t)a->slots[i]-(uintptr_t)&actual == (uintptr_t)e->slots[i]-(uintptr_t)&expected);
 }
 #define _ss_score (actual.slots)
-#define D_80110114 (actual.last)
+#define _svm_cur_vab_id (actual.last)
 '''+getter+r'''
 static void snapshot(unsigned kind,s32 id,u16 left,u16 right){Event *e;assert(eventCount<3);
  e=&events[eventCount++];memcpy(&e->state,&expected,sizeof(expected));e->kind=kind;e->id=id;e->left=left;e->right=right;}
 static void enter(unsigned kind,s32 id,u16 left,u16 right){Event *e;assert(eventIndex<eventCount);
  e=&events[eventIndex++];assert(e->kind==kind&&e->id==id);if(kind)assert(e->left==left&&e->right==right);check(&actual,&e->state);}
 static void set(World *w,s32 id,u16 left,u16 right){unsigned bank=(u32)id&255,row=((u32)id>>8)&255;
- RrChannelValueRecordB0 *r=&w->slots[bank][row];r->value58=left;r->value5A=right;
+ ChannelValueRecordB0 *r=&w->slots[bank][row];r->value58=left;r->value5A=right;
  if(mutate){w->slots[bank]=w->records[1][bank];w->records[1][bank][row].mode98=wrap((int64_t)w->records[1][bank][row].mode98 ^ 0x12345678);}}
 s32 _SsVmGetSeqVol(s32 id,u16 *left,u16 *right){enter(0,id,0,0);return real_getter(id,left,right);}
 void _SsVmSetSeqVol(s32 id,u16 left,u16 right,s32 mode){assert(mode==1);enter(1,id,left,right);set(&actual,id,left,right);}
@@ -67,7 +67,7 @@ void _SsVmSetSeqVol(s32 id,u16 left,u16 right,s32 mode){assert(mode==1);enter(1,
 static void get_model(s32 id,u16 *left,u16 *right){unsigned b=(u32)id&255,r=((u32)id>>8)&255;
  snapshot(0,id,0,0);expected.last=signed16((u16)id);*left=expected.slots[b][r].value58;*right=expected.slots[b][r].value5A;}
 static unsigned paths[6];
-static void model(unsigned bank,unsigned row){RrChannelValueRecordB0 *original=&expected.slots[bank][row];
+static void model(unsigned bank,unsigned row){ChannelValueRecordB0 *original=&expected.slots[bank][row];
  s32 elapsed=wrap((int64_t)original->rampElapsedA0+1),delta;u16 left,right;s32 l,r;
  s32 id=signed16((u16)(bank+256*row));original->rampElapsedA0=elapsed;
  if(elapsed>original->rampDuration9C){expected.slots[bank][row].mode98&=~16;paths[0]++;}
@@ -85,13 +85,13 @@ static void model(unsigned bank,unsigned row){RrChannelValueRecordB0 *original=&
  get_model(id,&original->volume5C,&original->volume5E);
 }
 int main(void){unsigned n,i,b,row,bank;uint64_t cases=0;
- _Static_assert(sizeof(RrChannelValueRecordB0)==176,"record owner");
- _Static_assert(offsetof(RrChannelValueRecordB0,rampDelta48)==72,"delta");
- _Static_assert(offsetof(RrChannelValueRecordB0,rampApplied4A)==74,"applied");
- _Static_assert(offsetof(RrChannelValueRecordB0,volume5C)==92,"output left");
- _Static_assert(offsetof(RrChannelValueRecordB0,volume5E)==94,"output right");
- _Static_assert(offsetof(RrChannelValueRecordB0,rampDuration9C)==156,"duration");
- _Static_assert(offsetof(RrChannelValueRecordB0,rampElapsedA0)==160,"elapsed");
+ _Static_assert(sizeof(ChannelValueRecordB0)==176,"record owner");
+ _Static_assert(offsetof(ChannelValueRecordB0,rampDelta48)==72,"delta");
+ _Static_assert(offsetof(ChannelValueRecordB0,rampApplied4A)==74,"applied");
+ _Static_assert(offsetof(ChannelValueRecordB0,volume5C)==92,"output left");
+ _Static_assert(offsetof(ChannelValueRecordB0,volume5E)==94,"output right");
+ _Static_assert(offsetof(ChannelValueRecordB0,rampDuration9C)==156,"duration");
+ _Static_assert(offsetof(ChannelValueRecordB0,rampElapsedA0)==160,"elapsed");
  assert((uintptr_t)actual.slots>UINT32_MAX);
  for(n=0;n<262144;n++){
   unsigned char *raw=(unsigned char*)&actual;
@@ -99,7 +99,7 @@ int main(void){unsigned n,i,b,row,bank;uint64_t cases=0;
   for(i=0;i<SLOTS;i++)actual.slots[i]=actual.records[(i>>2)&1][i%BANKS];
   for(b=0;b<BANKS;b++)actual.slots[b]=actual.records[0][b];
   bank=next()%BANKS;row=next()%ROWS;mutate=(n>>3)&1;
-  {RrChannelValueRecordB0 *r=&actual.records[0][bank][row];
+  {ChannelValueRecordB0 *r=&actual.records[0][bank][row];
    switch(n&7){
    case 0:r->rampDuration9C=0;r->rampElapsedA0=(s32)(next()&INT32_MAX);if(r->rampElapsedA0==INT32_MAX)r->rampElapsedA0=0;break;
    case 1:r->rampDuration9C=1;r->rampElapsedA0=0;r->rampDelta48=0;r->rampApplied4A=0;break;
@@ -113,7 +113,7 @@ int main(void){unsigned n,i,b,row,bank;uint64_t cases=0;
     if(elapsed<=r->rampDuration9C&&(r->rampDuration9C==0||(product==INT32_MIN&&r->rampDuration9C==-1)))r->rampDuration9C=1;}
   }
   memcpy(&expected,&actual,sizeof(actual));
-  for(i=0;i<SLOTS;i++)expected.slots[i]=(RrChannelValueRecordB0 *)((unsigned char*)&expected+((unsigned char*)actual.slots[i]-(unsigned char*)&actual));
+  for(i=0;i<SLOTS;i++)expected.slots[i]=(ChannelValueRecordB0 *)((unsigned char*)&expected+((unsigned char*)actual.slots[i]-(unsigned char*)&actual));
   eventCount=eventIndex=0;model(bank,row);
   _SsSndCrescendo(signed32((next()&0xffff0000U)|bank),signed32((next()&0xffff0000U)|row));
   assert(eventIndex==eventCount);check(&actual,&expected);cases++;

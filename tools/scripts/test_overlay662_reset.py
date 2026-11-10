@@ -20,7 +20,7 @@ class OverlayResetTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_garage.h"
-static struct World {u32 before[8];RrGarageSelectionPrefix state;RrGarageWorkingStorage work;u32 after[8];} world,expected;
+static struct World {u32 before[8];GarageSelectionPrefix state;GarageWorkingStorage work;u32 after[8];} world,expected;
 #define ovl662_D_801276A8 world.state
 #define ovl662_D_80127668 world.work
 ''' + body + r'''

@@ -6,6 +6,7 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
 
 
 class Transfer(C.Structure):
@@ -20,25 +21,51 @@ class ChannelTransferByteTest(unittest.TestCase):
     def setUpClass(cls):
         cls.temp=TemporaryDirectory();cls.addClassCleanup(cls.temp.cleanup)
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
-        header=(root/'include/rr/channels.h').read_text()
-        header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(root/'src/main/PAL/psyq/libpad/padlist.c').read_text().replace('#include "rr/channels.h"','')
-        body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
-        code='''#include <stdint.h>
+        owners=source_owners(root/'src/main/PAL')
+        body='\n'.join(definition_source(owners[name].read_text(),name)
+                       for name in ('_padGetTxByte','_padSaveCommand'))
+        code="""#include <assert.h>
+#include <string.h>
 #include <stddef.h>
-typedef uint8_t u8; typedef int8_t s8; typedef uint16_t u16; typedef int16_t s16;
-typedef uint32_t u32; typedef int32_t s32;
-'''+header+'''
-unsigned long native_size=sizeof(RrChannelTransferView);
-unsigned long native_offsets[]={offsetof(RrChannelTransferView,data28),offsetof(RrChannelTransferView,phase45),offsetof(RrChannelTransferView,gates54)};
-'''+body
+#include "rr/channels.h"
+#include "channel_legacy_inputs.h"
+unsigned long native_size=sizeof(LegacyChannelTransferViewInput);
+unsigned long native_offsets[]={offsetof(LegacyChannelTransferViewInput,data28),offsetof(LegacyChannelTransferViewInput,phase45),offsetof(LegacyChannelTransferViewInput,gates54)};
+/* The old104-byte inputs retain every original byte and native payload
+ * pointer. Bind their consumed fields to the real complete owner; all other
+ * owner storage is independently guarded against unexpected writes. */
+static void bind(PadChannel *owner,const LegacyChannelTransferViewInput *input) {
+    memset(owner,0xA5,sizeof(*owner));
+    owner->data28=input->data28;owner->data2C=input->data2C;
+    owner->length34=input->length34;owner->length36=input->length36;
+    owner->command37=input->command37;owner->previous38=input->previous38;
+    owner->b45=input->phase45;
+    memcpy(owner->output54.fields.gates,input->gates54,9);
+}
+"""+body+"""
+u32 test_get(const LegacyChannelTransferViewInput *input) {
+    PadChannel owner,before;u32 result;
+    bind(&owner,input);memcpy(&before,&owner,sizeof(owner));
+    result=_padGetTxByte(&owner,0);
+    assert(!memcmp(&owner,&before,sizeof(owner)));
+    return result;
+}
+void test_history(LegacyChannelTransferViewInput *input) {
+    PadChannel owner,expected;
+    bind(&owner,input);memcpy(&expected,&owner,sizeof(owner));
+    expected.previous38=owner.command37;expected.command37=0;
+    _padSaveCommand(&owner);
+    assert(!memcmp(&owner,&expected,sizeof(owner)));
+    input->previous38=owner.previous38;input->command37=owner.command37;
+}
+"""
         (d/'f.c').write_text(code)
-        subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
+        subprocess.run(['cc','-shared','-fPIC','-O2','-I',str(root/'include'),'-I',str(root/'tools/scripts'),str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))
         assert C.c_ulong.in_dll(cls.lib,'native_size').value==C.sizeof(Transfer)
         assert list((C.c_ulong*3).in_dll(cls.lib,'native_offsets'))==[Transfer.data28.offset,Transfer.phase45.offset,Transfer.gates54.offset]
-        cls.get=cls.lib._padGetTxByte;cls.get.argtypes=[C.POINTER(Transfer)];cls.get.restype=C.c_uint32
-        cls.history=cls.lib._padSaveCommand;cls.history.argtypes=[C.POINTER(Transfer)];cls.history.restype=None
+        cls.get=cls.lib.test_get;cls.get.argtypes=[C.POINTER(Transfer)];cls.get.restype=C.c_uint32
+        cls.history=cls.lib.test_history;cls.history.argtypes=[C.POINTER(Transfer)];cls.history.restype=None
 
     def setUp(self):
         self.ctx=Transfer();C.memset(C.addressof(self.ctx),0xA5,C.sizeof(self.ctx))

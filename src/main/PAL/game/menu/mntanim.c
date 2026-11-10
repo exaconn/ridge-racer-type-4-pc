@@ -8,14 +8,13 @@
 #include "rr/gpu_scratch_types.h"
 #include "game/menu/mntrow.h"
 #include "rr/menu_overlay_runtime.h"
+#include "game/ui/badge1.h"
 
-#define RR_TEXT_GPU_SCRATCH ((RrGpuScratchPointers *)SCRATCHPAD)
+#define RR_TEXT_GPU_SCRATCH ((GpuScratchPointers *)SCRATCHPAD)
 
-void *AddDrawModePrim(u32 *ordering, void *cursor, u16 mode);
 void AddPrim(u32 *ordering, void *packet);
 void SetSprt(void *packet);
 
-extern RrFrameStorage *CurrentDrawBuf;
 
 void UpdateMenuTextRow(s32 row) {
     s32 x[4];
@@ -26,8 +25,8 @@ void UpdateMenuTextRow(s32 row) {
     s32 mode;
     s32 brightness;
     s32 glyph;
-    RrSpritePacket *cursor;
-    RrSpritePacket *sprite;
+    SpritePacket *cursor;
+    SpritePacket *sprite;
 
     if (row < MenuTextRowCount) {
         mode = MenuTextRows[row].rendering.phase;
@@ -54,7 +53,7 @@ void UpdateMenuTextRow(s32 row) {
                 brightness = rcos((tick << 10) / 30);
             }
             brightness /= 32;
-            cursor = (RrSpritePacket *)RR_TEXT_GPU_SCRATCH->cursor;
+            cursor = (SpritePacket *)RR_TEXT_GPU_SCRATCH->cursor;
             sprite = cursor;
             for (glyph = 0; glyph < 0x16; sprite++) {
                 SetSprt(cursor);
@@ -69,11 +68,11 @@ void UpdateMenuTextRow(s32 row) {
                 sprite->g = brightness;
                 sprite->b = brightness;
                 sprite->clut = 0x2678;
-                AddPrim(CurrentDrawBuf->ordering.ordering70, sprite);
+                AddPrim(CurrentDrawBuf->ordering.ordering70.words, sprite);
                 glyph++;
                 x[0] += 0xD;
             }
-            RR_TEXT_GPU_SCRATCH->cursor = AddDrawModePrim(CurrentDrawBuf->ordering.ordering70, cursor, 0x2E);
+            RR_TEXT_GPU_SCRATCH->cursor = AddDrawModePrim(CurrentDrawBuf->ordering.ordering70.words, (GpuDrawModePacket *)cursor, 0x2E);
             if (tick >= 0x1E) {
                 MenuTextRows[row].rendering.phase++;
                 MenuTextRows[row].rendering.tick = 0;

@@ -1,11 +1,11 @@
 #include "rr/overlay662_buttons.h"
 #ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((RrGpuScratchPointers *)0x1F800000)
+#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000)
 #endif
 void ovl662_func_8011B940(s32 index)
 {
-    RrGpuScratchPointers *scratch=RR_GPU_SCRATCH;
-    RrGarageButton *button=(RrGarageButton *)ovl662_D_801273B8[index];
+    GpuScratchPointers *scratch=RR_GPU_SCRATCH;
+    GarageButton *button=(GarageButton *)ovl662_D_801273B8[index];
     s16 timer=button->timer0E;
     s32 sprite;
     if(timer==0)sprite=button->sprite08;

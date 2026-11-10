@@ -7,8 +7,22 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
 
-from test_race_distance import Distance
+from test_race_distance import Distance, DistanceControl
+
+CONTROL_FIELDS = {'blend': 'boostTimer44', 'maximum': 'maximum118',
+                  'span': 'span11A', 'divisor': 'divisor11C'}
+
+
+def field_offset(name):
+    if name == 'input':
+        return Distance.input.offset
+    return Distance.control.offset + getattr(DistanceControl, CONTROL_FIELDS[name]).offset
+
+
+def field_value(vehicle, name):
+    return vehicle.input if name == 'input' else getattr(vehicle.control, CONTROL_FIELDS[name])
 
 
 def divide(left, right):
@@ -39,20 +53,15 @@ class VehicleResponseTest(unittest.TestCase):
         cls.temp = TemporaryDirectory()
         cls.addClassCleanup(cls.temp.cleanup)
         root = Path(__file__).resolve().parents[2]
-        header = (root/'include/rr/race_types.h').read_text() + (root/'include/rr/race.h').read_text()
-        header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        body = (root/'tools/scripts/fixtures/views/func_80047CE0.c').read_text()
-        body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
+        owner = source_owners(root/'src/main/PAL')['CalcSteerLimit']
+        body = definition_source(owner.read_text(), 'CalcSteerLimit')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+",\s*', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?=\))', '', body)
-        source = '''#include <stdint.h>
-typedef uint8_t u8;typedef uint16_t u16;typedef int16_t s16;
-typedef uint32_t u32;typedef int32_t s32;typedef int64_t s64;
-''' + header + body
+        source = '#include "rr/race.h"\n' + body
         directory = Path(cls.temp.name)
         (directory/'function.c').write_text(source)
-        result = subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory/'function.c'),
+        result = subprocess.run(['cc', '-shared', '-fPIC', '-O2', '-I', str(root/'include'), str(directory/'function.c'),
                                  '-o', str(directory/'function.so')], capture_output=True)
         if result.returncode:
             raise AssertionError(result.stderr.decode())
@@ -68,10 +77,10 @@ typedef uint32_t u32;typedef int32_t s32;typedef int64_t s64;
 
     def check(self, raw, maximum, span, blend, divisor):
         self.vehicle.input = raw
-        self.vehicle.maximum = maximum
-        self.vehicle.span = span
-        self.vehicle.blend = blend
-        self.vehicle.divisor = divisor
+        self.vehicle.control.maximum118 = maximum
+        self.vehicle.control.span11A = span
+        self.vehicle.control.boostTimer44 = blend
+        self.vehicle.control.divisor11C = divisor
         expected = expected_response(raw, maximum, span, blend, divisor)
         self.assertEqual(self.response(C.byref(self.vehicle)), expected,
                          (raw,maximum,span,blend,divisor))
@@ -79,8 +88,8 @@ typedef uint32_t u32;typedef int32_t s32;typedef int64_t s64;
     def test_canonical_offsets_and_zero_input_bypasses_both_divisions(self):
         for name, offset in (('input',0x1D8),('blend',0x238),('maximum',0x30C),
                              ('span',0x30E),('divisor',0x310)):
-            self.assertEqual(getattr(Distance,name).offset, offset)
-        self.assertEqual(C.sizeof(Distance),0x320)
+            self.assertEqual(field_offset(name), offset+(12 if name!='input' and C.sizeof(C.c_void_p)==8 else 0))
+        self.assertEqual(C.sizeof(Distance),0x330 if C.sizeof(C.c_void_p)==8 else 0x320)
         for maximum, blend in product((-32768,-1,0,1,32767), repeat=2):
             self.check(0,maximum,0,blend,0)
         before = bytes(self.records)
@@ -126,6 +135,6 @@ typedef uint32_t u32;typedef int32_t s32;typedef int64_t s64;
         expected = bytearray(b'\xA5'*C.sizeof(self.records))
         offset = C.sizeof(Distance)
         for field in ('input','maximum','span','blend','divisor'):
-            start = offset+getattr(Distance,field).offset
-            expected[start:start+2] = (getattr(self.vehicle,field)&65535).to_bytes(2,'little')
+            start = offset+field_offset(field)
+            expected[start:start+2] = (field_value(self.vehicle,field)&65535).to_bytes(2,'little')
         self.assertEqual(bytes(self.records), bytes(expected))

@@ -1,11 +1,11 @@
 #ifndef RR_OVERLAY668_PLAYBACK_STEP_H
 #define RR_OVERLAY668_PLAYBACK_STEP_H
+#include "game/system/pad.h"
 #include "rr/overlay668_stream.h"
 #include "rr/diagnostics.h"
 #include "rr/tables.h"
-extern RrMenuItemState5C PlayerControllers[];
 extern const char ovl668_D_8011487C[];
-s32 StGetBackloc(const RrCdLocation *location);
+s32 StGetBackloc(const CdLocation *location);
 void DrawSync(s32 mode);
 /* activeB8 addresses a complete playback owner, and command/display selectors
  * word00/word08 are0..1 at each use. Owners and currentC0 remain live across

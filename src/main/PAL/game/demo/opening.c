@@ -1,21 +1,18 @@
 #include "types.h"
 #include "scratchpad.h"
 #include "rr/line_emit.h"
-#include "m2c_macros.h"
 #include "game/ui/hudmap2.h"
 #include "game/course/trktext.h"
-#include "game/ui/hudmap2.h"
 #include "psyq/libc/printf.h"
 #include "game/demo/opening.h"
-#include "game/ui/hudmap2.h"
-#include "game/course/trktext.h"
+#include "rr/audio_state_types.h"
 #include "rr/menu_overlay_runtime.h"
 #include "game/gfx/gfxotag.h"
 
 extern void DrawFontString(s32, s32, const char *, s32, s32);
 extern void DrawGlyphList(s16 *, s32, s32);
-extern void func_80059C28(s32, u8);
-extern void func_80059D34(s32, u8);
+extern void EmitIconSpriteRow120(s32, u8);
+extern void EmitIconSpriteRow128(s32, u8);
 extern const char D_80011228[];
 extern const char D_8001122C[];
 extern const char D_80011230[];
@@ -26,19 +23,11 @@ extern u8 D_800A1A60[];
 extern u8 D_800A1A68[];
 extern u32 D_800A1A70[];
 extern u32 D_800A1A88[];
-extern struct {
-    char pad[0x28A4];
-    s32 w28a4;
-    s32 w28a8;
-    s32 w28ac;
-} SoundState;
 
-s32 func_80059E40(s32 arg0);
-void func_8005A90C(void);
-void func_8005A91C(int a0, int a1, int a2);
-void func_8005A9C4(void);
+s32 UpdateRaceOpeningOverlay(s32 arg0);
+void EmitProjectedMarkerSprt(int a0, int a1, int a2);
 
-s32 func_80059E40(s32 arg0) {
+s32 UpdateRaceOpeningOverlay(s32 arg0) {
     s32 sp18[6];
     char sp30[16];
     s16 sp40[4];
@@ -58,7 +47,7 @@ s32 func_80059E40(s32 arg0) {
         arg0 = 0;
     }
     if (arg0 >= 0x1C3) {
-        s4 = ++D_8010E238 >= 0x4C;
+        s4 = ++OpeningSlideTimer >= 0x4C;
         if (arg0 >= 0xA8D) {
             s4 = 1;
         }
@@ -67,7 +56,7 @@ s32 func_80059E40(s32 arg0) {
 
     if (s2 < 8) {
         for (i = 0; i < 6; i++) {
-            if (D_800A1A70[i] < (u32)arg0) {
+            if (D_800A1A70[i] < arg0) {
                 sp18[i] = arg0 - D_800A1A70[i];
                 if (sp18[i] < 0x19) {
                     sp18[i] = (sp18[i] * 0x80) / 25;
@@ -77,10 +66,10 @@ s32 func_80059E40(s32 arg0) {
             } else {
                 sp18[i] = 0;
             }
-            if (D_8010E228 >= 0) {
-                sp18[i] = (D_8010E228 * 0x80) / 100;
-                if (D_8010E228 > 0) {
-                    D_8010E228--;
+            if (OpeningFadeTimer >= 0) {
+                sp18[i] = (OpeningFadeTimer * 0x80) / 100;
+                if (OpeningFadeTimer > 0) {
+                    OpeningFadeTimer--;
                 } else {
                     return 1;
                 }
@@ -90,7 +79,7 @@ s32 func_80059E40(s32 arg0) {
         sp40[0] = 0x48;
         sp40[1] = 0x48;
         sp40[3] = 0x48;
-        if (D_8010E228 < 0) {
+        if (OpeningFadeTimer < 0) {
             sp40[2] = (sp18[0] * 0xB0) / 128 + 0x47;
             sp48[2] = 0x80;
             sp48[1] = 0x80;
@@ -114,7 +103,7 @@ s32 func_80059E40(s32 arg0) {
         DrawGlyphList(D_800A1910[s2], sp18[1], 0);
         DrawGlyphList(D_800A1930[s2], sp18[2], 0);
         DrawGlyphListSloped(D_800A1970[D_8010E230], sp18[2], 0);
-        func_80059D34(0, sp18[3]);
+        EmitIconSpriteRow128(0, sp18[3]);
         DrawFontString(0x9A, 0xA0, D_80011228, sp18[4], 0);
         s0_1 = DrawFontStringCentered(0x60, 0xB0, CourseNames + CourseIndex * 0x18, sp18[4], 0) / 2;
         DrawFontString(0x9A - s0_1, 0xB0, D_8001122C, sp18[4], 0);
@@ -124,49 +113,49 @@ s32 func_80059E40(s32 arg0) {
         if (sp18[5] >= 0x80) {
             if (Pad0Buttons & 0x8000) {
                 if (D_8010E234 == 0) {
-                    SoundState.w28a4 = 0;
+                    SoundState.track28A4 = 0;
                     D_8010E234 = 1;
                 } else {
-                    SoundState.w28a4--;
-                    if (SoundState.w28a4 < 0) {
-                        SoundState.w28a4 = SoundState.w28a8 - 1;
+                    SoundState.track28A4--;
+                    if (SoundState.track28A4 < 0) {
+                        SoundState.track28A4 = SoundState.count28A8 - 1;
                     }
                 }
-                D_8010E238 = 0;
+                OpeningSlideTimer = 0;
             }
             if (Pad0Buttons & 0x2000) {
                 if (D_8010E234 == 0) {
-                    SoundState.w28a4 = 0;
+                    SoundState.track28A4 = 0;
                     D_8010E234 = 1;
                 } else {
-                    SoundState.w28a4++;
-                    if (SoundState.w28a4 >= SoundState.w28a8) {
-                        SoundState.w28a4 = 0;
+                    SoundState.track28A4++;
+                    if (SoundState.track28A4 >= SoundState.count28A8) {
+                        SoundState.track28A4 = 0;
                     }
                 }
-                D_8010E238 = 0;
+                OpeningSlideTimer = 0;
             }
             if (D_800F3A60 != 0) {
                 s4 = 1;
             }
         }
 
-        func_80059B1C(D_800A1A60, 0x3C, 0xC8, sp18[5]);
-        func_80059B1C(D_800A1A60 + 4, 0xFC, 0xC8, sp18[5]);
-        func_80059B1C(D_800A1A60 + 8, 0x4C, 0xC8, sp18[5]);
-        PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.w28a4);
+        AddBrightnessSprite(D_800A1A60, 0x3C, 0xC8, sp18[5]);
+        AddBrightnessSprite(D_800A1A60 + 4, 0xFC, 0xC8, sp18[5]);
+        AddBrightnessSprite(D_800A1A60 + 8, 0x4C, 0xC8, sp18[5]);
+        PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.track28A4);
         DrawFontString(0x5A, 0xC8, sp30, sp18[5], 0);
-        func_80059B1C(D_800A1A60 + 0xC, 0x6C, 0xC8, sp18[5]);
-        if (SoundState.w28a4 <= 0) {
+        AddBrightnessSprite(D_800A1A60 + 0xC, 0x6C, 0xC8, sp18[5]);
+        if (SoundState.track28A4 <= 0) {
             DrawFontString(0x78, 0xC8, D_8001123C, sp18[5], 0);
         } else {
-            DrawFontString(0x78, 0xC8, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), sp18[5], 0);
+            DrawFontString(0x78, 0xC8, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5), sp18[5], 0);
         }
         AddSetTexpagePrim(0);
         return s4;
     } else {
         for (i = 0; i < 6; i++) {
-            if (D_800A1A88[i] < (u32)arg0) {
+            if (D_800A1A88[i] < arg0) {
                 sp18[i] = arg0 - D_800A1A88[i];
                 if (i != 0) {
                     if (sp18[i] < 0x19) {
@@ -184,10 +173,10 @@ s32 func_80059E40(s32 arg0) {
             } else {
                 sp18[i] = 0;
             }
-            if (D_8010E228 >= 0) {
-                sp18[i] = (D_8010E228 * 0x80) / 100;
-                if (D_8010E228 > 0) {
-                    D_8010E228--;
+            if (OpeningFadeTimer >= 0) {
+                sp18[i] = (OpeningFadeTimer * 0x80) / 100;
+                if (OpeningFadeTimer > 0) {
+                    OpeningFadeTimer--;
                 } else {
                     return 1;
                 }
@@ -200,7 +189,7 @@ s32 func_80059E40(s32 arg0) {
         sp50[0] = 0x48;
         sp50[1] = 0x38;
         sp50[3] = 0x38;
-        if (D_8010E228 < 0) {
+        if (OpeningFadeTimer < 0) {
             sp50[2] = (sp18[0] * 0xB0) / 128 + 0x47;
             sp58[2] = 0x80;
             sp58[1] = 0x80;
@@ -227,49 +216,49 @@ s32 func_80059E40(s32 arg0) {
         AddSetTexpagePrim(0);
 
         if (s2 < 3) {
-            func_80059C28(1, sp18[3]);
+            EmitIconSpriteRow120(1, sp18[3]);
         } else {
-            func_80059C28(s2 - 1, sp18[3]);
+            EmitIconSpriteRow120(s2 - 1, sp18[3]);
         }
 
         if (D_8010E234 >= 0) {
             if (sp18[5] >= 0x80) {
                 if (Pad0Buttons & 0x8000) {
-                    SoundState.w28a4--;
-                    if (SoundState.w28a4 < 0) {
-                        SoundState.w28a4 = SoundState.w28a8 - 1;
+                    SoundState.track28A4--;
+                    if (SoundState.track28A4 < 0) {
+                        SoundState.track28A4 = SoundState.count28A8 - 1;
                     }
-                    D_8010E238 = 0;
+                    OpeningSlideTimer = 0;
                 }
                 if (Pad0Buttons & 0x2000) {
-                    SoundState.w28a4++;
-                    if (SoundState.w28a4 >= SoundState.w28a8) {
-                        SoundState.w28a4 = 0;
+                    SoundState.track28A4++;
+                    if (SoundState.track28A4 >= SoundState.count28A8) {
+                        SoundState.track28A4 = 0;
                     }
-                    D_8010E238 = 0;
+                    OpeningSlideTimer = 0;
                 }
                 if (D_800F3A60 != 0) {
                     s4 = 1;
                 }
             }
-            SoundState.w28ac = SoundState.w28a4;
-            func_80059B1C(D_800A1A60, 0x3C, 0xC8, sp18[5]);
-            func_80059B1C(D_800A1A60 + 4, 0xFC, 0xC8, sp18[5]);
-            func_80059B1C(D_800A1A60 + 8, 0x4C, 0xC8, sp18[5]);
-            PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.w28a4);
+            SoundState.displayed28AC = SoundState.track28A4;
+            AddBrightnessSprite(D_800A1A60, 0x3C, 0xC8, sp18[5]);
+            AddBrightnessSprite(D_800A1A60 + 4, 0xFC, 0xC8, sp18[5]);
+            AddBrightnessSprite(D_800A1A60 + 8, 0x4C, 0xC8, sp18[5]);
+            PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.track28A4);
             DrawFontString(0x5A, 0xC8, sp30, sp18[5], 0);
-            func_80059B1C(D_800A1A60 + 0xC, 0x6C, 0xC8, sp18[5]);
-            if (SoundState.w28a4 > 0) {
-                DrawFontString(0x78, 0xC8, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), sp18[5], 0);
+            AddBrightnessSprite(D_800A1A60 + 0xC, 0x6C, 0xC8, sp18[5]);
+            if (SoundState.track28A4 > 0) {
+                DrawFontString(0x78, 0xC8, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5), sp18[5], 0);
             } else {
                 DrawFontString(0x78, 0xC8, D_8001123C, sp18[5], 0);
             }
         } else {
-            s0_3 = 0x88 - DrawFontStringCenteredOffset(0x14, 0xC8, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), sp18[5], 0) / 2;
-            func_80059B1C(D_800A1A68, s0_3, 0xC8, sp18[5]);
-            PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.w28a4);
+            s0_3 = 0x88 - DrawFontStringCenteredOffset(0x14, 0xC8, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5), sp18[5], 0) / 2;
+            AddBrightnessSprite(D_800A1A68, s0_3, 0xC8, sp18[5]);
+            PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.track28A4);
             DrawFontString(s0_3 + 0xE, 0xC8, sp30, sp18[5], 0);
-            func_80059B1C(D_800A1A68 + 4, s0_3 + 0x20, 0xC8, sp18[5]);
+            AddBrightnessSprite(D_800A1A68 + 4, s0_3 + 0x20, 0xC8, sp18[5]);
             if (sp18[5] >= 0x80 && D_800F3A60 != 0) {
                 s4 = 1;
             }
@@ -280,11 +269,11 @@ s32 func_80059E40(s32 arg0) {
     return s4;
 }
 
-void func_8005A90C(void) {
-    D_8010E228 = 0x64;
+void StartOpeningFadeOut(void) {
+    OpeningFadeTimer = 0x64;
 }
 
-void func_8005A91C(int a0, int a1, int a2)
+void EmitProjectedMarkerSprt(int a0, int a1, int a2)
 {
     int *g = (int *)SCRATCHPAD;
     char *p = (char *)g[0];
@@ -292,28 +281,28 @@ void func_8005A91C(int a0, int a1, int a2)
     int off = a2 * 4;
     p[3] = 4;
     p[7] = 0x65;
-    *(short *)(p + 0x10) = 8;
-    *(short *)(p + 0x12) = 0x10;
+    ((short *)p)[8] = 8;
+    ((short *)p)[9] = 0x10;
     p[0xC] = 0x3C;
     p[0xD] = 0x48;
-    *(short *)(p + 8) = a0 - 4;
-    *(short *)(p + 0xA) = a1 - 8;
-    *(short *)(p + 0xE) = 0x1B96;
+    ((short *)p)[4] = a0 - 4;
+    ((short *)p)[5] = a1 - 8;
+    ((short *)p)[7] = 0x1B96;
     *(int *)p = (*(int *)p & 0xFF000000) | (*(int *)(off + g[1]) & 0xFFFFFF);
     o = (int *)(off + g[1]);
     *o = (*o & 0xFF000000) | ((int)p & 0xFFFFFF);
-    g[0] = (int)(p + 0x14);
+    g[0] = (p + 0x14);
 }
 
-void func_8005A9C4(void)
+void EmitOpeningDrawModePrim(void)
 {
     int *g = (int *)SCRATCHPAD;
     char *p = (char *)g[0];
     int *o;
     p[3] = 1;
-    *(int *)(p + 4) = 0xE1000205;
-    *(int *)p = (*(int *)p & 0xFF000000) | (*(int *)(g[1] + 0xAFC) & 0xFFFFFF);
+    ((int *)p)[1] = 0xE1000205;
+    *(int *)p = (*(int *)p & 0xFF000000) | (((int *)g[1])[0xAFC / 4] & 0xFFFFFF);
     o = (int *)(g[1] + 0xAFC);
     *o = (*o & 0xFF000000) | ((int)p & 0xFFFFFF);
-    g[0] = (int)(p + 8);
+    g[0] = (p + 8);
 }

@@ -1,6 +1,11 @@
+#include "rr/rro_model.h"
+#include "game/gfx/model.h"
+#include "psyq/libgte/gtemat5.h"
+#include "rr/frame_storage_types.h"
+#include "game/camera/viewcam.h"
 #include "types.h"
 #include "scratchpad.h"
-#include "m2c_macros.h"
+#include "rr/projection_state.h"
 #include "game/course/trkintp2.h"
 #include "game/demo/opening.h"
 #include "game/gfx/gfxdraw.h"
@@ -12,10 +17,15 @@
 #include "rr/hud_number.h"
 #include "rr/bios_devices.h"
 #include "rr/race_setup.h"
-#include "game/gfx/gfxotag.h"
-#include "game/gfx/drawbuf.h"
-
-typedef struct { unsigned addr : 24; unsigned len : 8; } P_TAG;
+#include "rr/race_types.h"
+#include "rr/gpu.h"
+#include "rr/frame_storage_types.h"
+#include "rr/audio_loop.h"
+#include "rr/screen_tiles.h"
+#include "game/sound/cdstart.h"
+#include "rr/menu_transition.h"
+#include "psyq/libc/rand.h"
+#include "game/sound/cdplay.h"
 
 
 typedef struct {
@@ -35,62 +45,51 @@ typedef struct {
     int f24;
 } Elem28;
 
-typedef struct {
-    char pad0[0x10];
-    int f10, f14, f18;
-} Arg0Struct;
 
 typedef struct {
-    char pad0[0x60];
+    s32 unk00[12];
+    short f30, f32, f34, f36;
+    s32 unk38[6];
+    int f50[2];
+    int f58[2];
     V4 f60;
     V8 f70;
     int f78;
     int f7C;
     int f80;
-    char pad84[0x20];
+    int f84;
+    int f88;
+    int f8C;
+    int f90;
+    int f94;
+    int f98;
+    int f9C;
+    int fA0;
     int fA4;
+    int fA8[2];
+    s32 unkB0[(0x554 - 0xB0) / 4];
+    Elem28 (*f554)[16];
+    int f558;
+    char *f55C;
 } Context650;
 
-extern struct {
-    char pad0[0x50];
-    int f50[2];
-    int f58[2];
-    char pad60[0x55C - 0x60];
-    char *f55C;
-} RaceContext;
+extern Context650 RaceContext;
 extern short D_800AD520;
-extern int D_800F2FD8;
 extern short CourseIndex;
-extern void SetGteObjectTransform();
-extern void SelectModelBank();
-extern void func_8005F0D0();
-extern void BuildCameraMatrices();
-extern void ApplyMatrix();
 extern void SetGeomScreen();
 extern void RotMatrixZYX();
-extern void func_800172DC();
-extern int D_800AC6B0;
-extern Elem28 (*D_800ACBA4)[16];
-extern short D_800F4D44;
-extern M2C_UNK D_800AC6D8;
-extern void AddScreenFadeTiles();
-extern void SlotsStartForRace();
-extern void CdAudioSelectTrack();
-extern void CdAudioBeginPlay();
-extern void CdAudioFade();
-extern void func_80059E40();
-extern int PsyqRand();
+extern SceneCameraView24 D_800AC6B0;
+extern Elem28 (*CameraTrackTriggerTable)[16];
+extern s32 D_800AC6D8;
 extern int D_800AC6EC;
 extern signed char SelectionState[];
-extern signed char Options[];
-extern int D_8010718C;
+extern int ViewUsesCarTrackNode;
 
-void func_80044EC4(void);
-void ApplyCameraState(int *a);
-int func_800452CC(Arg0Struct *a0, int a1, int a2);
-int func_80045868(char *arg0);
+void RenderSubOtObject(void);
+int FindCameraTrackTrigger(RaceVehicle *a0, int a1, int a2);
+int DrawLensFlareAndSun(RaceVehicle *arg0);
 
-void func_80044EC4(void) {
+void RenderSubOtObject(void) {
     int sp10[8];
     int *g = (int *)SCRATCHPAD;
     int s5;
@@ -99,8 +98,8 @@ void func_80044EC4(void) {
 
     s5 = g[0x18];
     s2 = RaceContext.f55C + (D_800AD520 << 7);
-    func_80044920(s2, sp10);
-    SetGteObjectTransform((SCRATCHPAD + 0x7C), s2, sp10);
+    BuildObjectLightAndRotMatrices(s2, sp10);
+    SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)s2, sp10);
     s1 = RotTransPersOrigin(sp10, s2);
     if (s1 > 0) {
         ClearOTagR(RaceContext.f50[DrawBufIndex], 0x15F);
@@ -110,21 +109,21 @@ void func_80044EC4(void) {
             g[0x18] = 5;
         }
         SelectModelBank(8);
-        SetGteObjectTransform((SCRATCHPAD + 0x7C), s2, sp10);
+        SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)s2, sp10);
         g[0x1E] = 0;
-        func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
+        SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, ModelBankFormat < 1, 0, 0);
         s1 >>= s5;
         s1 += 0x6E;
         if (s1 > 0) {
-            func_80044BA0(s1 + 1);
-            ((P_TAG *)g[1])->addr = ((P_TAG *)&DRAWBUF->ot[s1])->addr;
-            ((P_TAG *)&DRAWBUF->ot[s1])->addr = g[1] + 0x578;
+            EmitSpotlightConePolys(s1 + 1);
+            ((GpuDmaTag *)g[1])->bits.address = (CurrentDrawBuf->buffer.ordering70.tags + s1)->bits.address;
+            (CurrentDrawBuf->buffer.ordering70.tags + s1)->bits.address = g[1] + 0x578;
         }
     }
     if (D_8009FE60[CourseIndex] == 7) {
         s2 = RaceContext.f55C + (D_800AD520 << 7) + 0x40;
-        func_80044920(s2, sp10);
-        SetGteObjectTransform((SCRATCHPAD + 0x7C), s2, sp10);
+        BuildObjectLightAndRotMatrices(s2, sp10);
+        SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)s2, sp10);
         s1 = RotTransPersOrigin(sp10, s2);
         if (s1 > 0) {
             ClearOTagR(RaceContext.f58[DrawBufIndex], 0x15F);
@@ -134,51 +133,59 @@ void func_80044EC4(void) {
                 g[0x18] = 5;
             }
             SelectModelBank(9);
-            SetGteObjectTransform((SCRATCHPAD + 0x7C), s2, sp10);
-            *(int *)(SCRATCHPAD + 0x78) = 0;
-            func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
+            SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)s2, sp10);
+            ((int *)SCRATCHPAD)[0x78 / 4] = 0;
+            SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, ModelBankFormat < 1, 0, 0);
             s1 >>= s5;
             s1 += 0x6E;
             if (s1 > 0) {
-                func_80044BA0(s1 + 1);
-                ((P_TAG *)g[1])->addr = ((P_TAG *)&DRAWBUF->ot[s1])->addr;
-                ((P_TAG *)&DRAWBUF->ot[s1])->addr = g[1] + 0x578;
+                EmitSpotlightConePolys(s1 + 1);
+                ((GpuDmaTag *)g[1])->bits.address = (CurrentDrawBuf->buffer.ordering70.tags + s1)->bits.address;
+                (CurrentDrawBuf->buffer.ordering70.tags + s1)->bits.address = g[1] + 0x578;
             }
         }
     }
     g[0x18] = s5;
-    g[1] = (int)CurrentDrawBuf + 0x70;
+    g[1] = &CurrentDrawBuf->buffer.ordering70.words[0];
 }
 
-void ApplyCameraState(int *a) {
-    int m[8];
-    unsigned short v[3];
-    short r[3];
-    int t[3];
-    int *s = (int *)SCRATCHPAD;
-    s[6] = -*(short *)((char *)a + 0x10);
-    s[7] = *(short *)((char *)a + 0x12);
-    s[8] = *(short *)((char *)a + 0x14);
-    v[0] = *(short *)((char *)a + 0x10);
-    v[1] = *(short *)((char *)a + 0x12);
-    v[2] = 0;
-    r[0] = 0;
-    r[1] = 0;
-    r[2] = -*(unsigned short *)((char *)a + 0x1C);
-    RotMatrixZYX(v, m);
-    ApplyMatrix(m, r, t);
-    s[2] = a[0] + t[0];
-    s[3] = a[1] + t[1];
-    s[4] = a[2] + t[2];
-    SetGeomScreen(a[8]);
+void ApplyCameraState(const SceneCameraView24 *state) {
+    MatrixWords32 matrix;
+    Vec3s8 angles;
+    Vec3s8 offset;
+    Vec3i transformed;
+    ProjectionScratchPrefix *scratch = (ProjectionScratchPrefix *)SCRATCHPAD;
+    scratch->pose08.angles10.xyz.x = -state->pose00.rotation10.x;
+    scratch->pose08.angles10.xyz.y = state->pose00.rotation10.y;
+    scratch->pose08.angles10.xyz.z = state->pose00.rotation10.z;
+    angles.fields.x = state->pose00.rotation10.x;
+    angles.fields.y = state->pose00.rotation10.y;
+    angles.fields.z = 0;
+    offset.fields.x = 0;
+    offset.fields.y = 0;
+    offset.fields.z = -(u16)state->distance1C;
+    RotMatrixZYX(angles.halves, matrix.w);
+    ApplyMatrix(&matrix, &offset, &transformed);
+    {
+        s32 origin = state->pose00.position00.xyz.x;
+        u32 displacement = transformed.x;
+        scratch->pose08.position00.xyz.x = origin + displacement;
+    }
+    {
+        s32 origin = state->pose00.position00.xyz.y;
+        u32 displacement = transformed.y;
+        scratch->pose08.position00.xyz.y = origin + displacement;
+    }
+    {
+        s32 origin = state->pose00.position00.xyz.z;
+        u32 displacement = transformed.z;
+        scratch->pose08.position00.xyz.z = origin + displacement;
+    }
+    SetGeomScreen(state->projection20);
     BuildCameraMatrices();
 }
-
-/* legacy typing of shared globals in this part of the unit */
-#define RaceContext (*(Context650 (*))&RaceContext)
-
-int func_800452CC(Arg0Struct *a0, int a1, int a2) {
-    int pad[4];
+int FindCameraTrackTrigger(RaceVehicle *a0, int a1, int a2) {
+    int unused10[4];
     V4 sp20;
     V4 sp30;
     int s0;
@@ -189,7 +196,7 @@ int func_800452CC(Arg0Struct *a0, int a1, int a2) {
     int t2;
 
     s0 = -1;
-    s2 = D_800ACBA4[a2];
+    s2 = CameraTrackTriggerTable[a2];
     for (i = 1; i < 0x10; i++) {
         if (s2[i].f24 * 5 >= a1) {
             s0 = i;
@@ -201,22 +208,22 @@ int func_800452CC(Arg0Struct *a0, int a1, int a2) {
         return 1;
     }
     if (RaceContext.fA4 != s3) {
-        func_800172DC();
+        ResetCarSlotBuffers();
         RaceContext.fA4 = s3;
     }
     t1 = (s2[s0].f24 - s2[s3].f24) * 5;
     t2 = a1 - s2[s3].f24 * 5;
     if (s2[s3].f18 == 0) {
-        sp20.x = a0->f10;
-        sp20.y = a0->f14;
-        sp20.z = a0->f18;
+        sp20.x = a0->pos10[0];
+        sp20.y = a0->pos10[1];
+        sp20.z = a0->pos10[2];
     } else {
         sp20 = s2[s3].f0;
     }
     if (s2[s0].f18 == 0) {
-        sp30.x = a0->f10;
-        sp30.y = a0->f14;
-        sp30.z = a0->f18;
+        sp30.x = a0->pos10[0];
+        sp30.y = a0->pos10[1];
+        sp30.z = a0->pos10[2];
     } else {
         sp30 = s2[s0].f0;
     }
@@ -236,299 +243,241 @@ int func_800452CC(Arg0Struct *a0, int a1, int a2) {
         RaceContext.f80 = s2[s0].f20;
     }
     ApplyCameraState(&D_800AC6B0);
-    if (D_800F4D44 == 1) {
-        func_80044B5C();
-        func_80044EC4();
+    if (GameModeType == 1) {
+        InitRaceContextBuffers();
+        RenderSubOtObject();
     }
     return 0;
 }
 
-#undef RaceContext
-
-void func_80045830(void) {
-    func_80096434(&D_800AC6D8, 0x20);
-    M2C_FIELD(&D_800AC6D8, s32 *, 0x1C) = -1;
+void ResetLensFlareState(void) {
+    PsyqBzero(&D_800AC6D8, 0x20);
+    ((s32 *)(&D_800AC6D8))[7] = -1;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define RaceContext (*(int (*)[])&RaceContext)
-#define D_800AC6B0 (*(char (*)[])&D_800AC6B0)
-#define D_800AC6D8 (*(int (*))&D_800AC6D8)
-#define CurrentDrawBuf ((char *)CurrentDrawBuf)
-
-int func_80045868(char *arg0)
+int DrawLensFlareAndSun(RaceVehicle *arg0)
 {
-  int i;
-  int s0;
-  int *p;
-  signed char *q;
-  char *r;
-  char *pk;
-  char *pk2;
-  char *ot;
-  char *ot2;
-  int v;
-  int v1;
-  int v2;
-  int c;
-  int *g;
-  int *g2;
-  int *g1;
-  int *gB;
-  int *gC;
-  int *gL;
-  int *gF;
-  int *gD;
-  int *gS;
-  int *gT;
-  s0 = 0;
-  do
-  {
-    SlotSetPause(s0, 1);
-    s0++;
-  }
-  while (s0 < 4);
-  g1 = RaceContext;
-  if ((*((int *) (((char *) g1) + 0x90))) != 0)
-  {
-    AddScreenFadeTiles(CurrentDrawBuf + 0x70, (*((int *) (((char *) g1) + 0x8C))) * 10, 0x25);
-    v1 = (*((int *) (((char *) g1) + 0xA0))) - 8;
-    *((int *) (((char *) g1) + 0xA0)) = v1;
-    if (v1 < 0)
-    {
-      *((int *) (((char *) g1) + 0xA0)) = 0;
-    }
-    SetSoundChannelVolLR(0, (short) (*((int *) (((char *) g1) + 0xA0))), (short) (*((int *) (((char *) g1) + 0xA0))));
-    *((int *) (((char *) g1) + 0x8C)) = (*((int *) (((char *) g1) + 0x8C))) + 1;
-  }
-  else
-  {
-    v2 = (*((int *) (((char *) g1) + 0xA0))) + 8;
-    *((int *) (((char *) g1) + 0xA0)) = v2;
-    if (v2 >= 0x61)
-    {
-      *((int *) (((char *) g1) + 0xA0)) = 0x60;
-    }
-    SetSoundChannelVolLR(0, (short) (*((int *) (((char *) g1) + 0xA0))), (short) (*((int *) (((char *) g1) + 0xA0))));
-  }
-  gB = RaceContext;
-  s0 = gB[0x88 / 4];
-  if (s0 < 0xC)
-  {
-    if (s0 == 1)
-    {
-      func_8005A90C();
-      if (gB[0x94 / 4] == s0)
-      {
-        CdAudioBeginPlay(0);
-      }
-      {
-        int two;
-        s0 = 0;
-        two = 2;
-        q = Options;
-        p = gB;
-        do
-        {
-          s0++;
-          p[0xA8 / 4] = q[0x2A];
-          __asm__ volatile("" : "+r"(q) : "r"(p)); /* ASM_BARRIER: prevent CSE of q + 0x2A and prioritize p for a0 */
-          q[0x2A] = two;
-          q += 4;
-          p++;
-        }
-        while (s0 < 2);
-      }
-    }
-    {
-      int x, d;
-      x = D_800AC6D8 << 8;
-      d = x / 12;
-      s0 = 0x100;
-      __asm__("" : "+r"(s0) : "r"(x)); /* ASM_BARRIER: keep 0x100 in s0 and prioritize x in v0 */
-      s0 -= d;
-    }
-    func_80059E40(0x1C2);
-    {
-      int w, low, high;
-      low = 0xFFFFFF;
-      high = 0xFF000000;
-      pk = *((char **) SCRATCHPAD);
-      pk[3] = 3;
-      pk[7] = 0x62;
-      pk[4] = s0;
-      pk[5] = s0;
-      pk[6] = s0;
-      ot = CurrentDrawBuf;
-      __asm__("" : "+r"(pk) : "r"(ot), "r"(low)); /* ASM_BARRIER: order ot load before pk load and prioritize low */
-      w = *((int *) pk);
-      *((short *) (pk + 0xC)) = 0x140;
-      *((short *) (pk + 8)) = 0;
-      *((short *) (pk + 0xA)) = 0;
-      *((short *) (pk + 0xE)) = 0xF0;
-      *((int *) pk) = (w & high) | ((*((int *) (ot + 0x70))) & low);
-      *((int *) (ot + 0x70)) = ((*((int *) (ot + 0x70))) & high) | (((int) pk) & low);
-      pk += 0x10;
-      *((char **) SCRATCHPAD) = pk;
-      pk[3] = 1;
-      ot2 = CurrentDrawBuf;
-      __asm__("" : "+r"(pk) : "r"(ot2)); /* ASM_BARRIER: order ot2 load before pk load */
-      w = *((int *) pk);
-      *((int *) (pk + 4)) = 0xE1000245;
-      *((int *) pk) = (w & high) | ((*((int *) (ot2 + 0x70))) & low);
-      *((int *) (ot2 + 0x70)) = ((*((int *) (ot2 + 0x70))) & high) | (((int) pk) & low);
-      *((char **) SCRATCHPAD) = pk + 8;
-    }
-  }
-  gC = RaceContext;
-  if (gC[0x94 / 4] == 0)
-  {
-    if ((D_800F4D44 == 1) && (SelectionState[SelectionState[0x17] + 8] >= 3))
-    {
-      s0 = 1;
-      gL = gC;
-      gL[0x98 / 4] = 0;
-      r = (((char *) gL[0x554 / 4]) + (D_800AD520 * 0x280)) + 0x28;
-      do
-      {
-        v = *((int *) (r + 0x24));
-        if (gL[0x98 / 4] < v)
-        {
-          gL[0x98 / 4] = v;
-        }
+    int i;
+    int s0;
+    int *p;
+    signed char *q;
+    Elem28 *r;
+    GpuTilePacket *pk;
+    char *ot;
+    char *ot2;
+    int v;
+    int v1;
+    int v2;
+    Context650 *g;
+    Context650 *g2;
+    Context650 *g1;
+    Context650 *gB;
+    Context650 *gC;
+    Context650 *gL;
+    Context650 *gF;
+    Context650 *gD;
+    Context650 *gS;
+    Context650 *gT;
+    s0 = 0;
+    do {
+        SlotSetPause(s0, 1);
         s0++;
-        r += 0x28;
-      }
-      while (s0 < 0x10);
-      gF = RaceContext;
-      gF[0x94 / 4] = 1;
-      gF[0x98 / 4] = gF[0x98 / 4] * 5;
-    }
-    else
-    {
-      gC[0x94 / 4] = 2;
-    }
-  }
-  gD = RaceContext;
-  switch (gD[0x94 / 4])
-  {
-    case 1:
-      func_800452CC(arg0, gD[0x88 / 4], D_800AD520);
-      if (Pad0Buttons & 0x800)
-    {
-      if (gD[0x88 / 4] >= 0x1A)
-      {
-        if (gD[0x90 / 4] == 0)
-        {
-          gD[0x98 / 4] = gD[0x88 / 4] + 0x19;
+    } while (s0 < 4);
+    g1 = &RaceContext;
+    if (g1->f90 != 0) {
+        AddScreenFadeTiles((char *)&CurrentDrawBuf->buffer.ordering70.words[0], g1->f8C * 10, 0x25);
+        v1 = g1->fA0 - 8;
+        g1->fA0 = v1;
+        if (v1 < 0) {
+            g1->fA0 = 0;
         }
-      }
+        SetSoundChannelVolLR(0, (short)g1->fA0, (short)g1->fA0);
+        g1->f8C = g1->f8C + 1;
+    } else {
+        v2 = g1->fA0 + 8;
+        g1->fA0 = v2;
+        if (v2 >= 0x61) {
+            g1->fA0 = 0x60;
+        }
+        SetSoundChannelVolLR(0, (short)g1->fA0, (short)g1->fA0);
     }
-      gS = RaceContext;
-      if ((gS[0x98 / 4] - gS[0x88 / 4]) < 0x1A)
-    {
-      if (gS[0x90 / 4] == 0)
-      {
-        gS[0x90 / 4] = 1;
-        CdAudioFade(0, 8);
-      }
+    gB = &RaceContext;
+    s0 = gB->f88;
+    if (s0 < 0xC) {
+        if (s0 == 1) {
+            StartOpeningFadeOut();
+            if (gB->f94 == s0) {
+                CdAudioBeginPlay(0);
+            }
+            {
+                int two;
+                s0 = 0;
+                two = 2;
+                q = (signed char *)&Options;
+                p = (int *)gB;
+                do {
+                    s0++;
+                    p[0xA8 / 4] = q[0x2A];
+                    __asm__ volatile("" : "+r"(q) : "r"(p)); /* ASM_BARRIER: prevent CSE of q + 0x2A and prioritize p for a0 */
+                    q[0x2A] = two;
+                    q += 4;
+                    p++;
+                } while (s0 < 2);
+            }
+        }
+        {
+            int x, d;
+            x = D_800AC6D8 << 8;
+            d = x / 12;
+            s0 = 0x100;
+            __asm__("" : "+r"(s0) : "r"(x)); /* ASM_BARRIER: keep 0x100 in s0 and prioritize x in v0 */
+            s0 -= d;
+        }
+        UpdateRaceOpeningOverlay(0x1C2);
+        {
+            int w, low, high;
+            low = 0xFFFFFF;
+            high = 0xFF000000;
+            pk = *(GpuTilePacket **)SCRATCHPAD;
+            pk->tag.bytes.length = 3;
+            pk->code = 0x62;
+            pk->r = s0;
+            pk->g = s0;
+            pk->b = s0;
+            ot = (char *)CurrentDrawBuf;
+            __asm__("" : "+r"(pk) : "r"(ot), "r"(low)); /* ASM_BARRIER: order ot load before pk load and prioritize low */
+            w = *(int *)pk;
+            pk->w = 0x140;
+            pk->x = 0;
+            pk->y = 0;
+            pk->h = 0xF0;
+            *(int *)pk = (w & high) | ((((int *)ot)[0x70 / 4]) & low);
+            *(int *)(ot + RR_FIELD_OFFSET(FrameStorage, buffer.ordering70)) = ((((int *)ot)[0x70 / 4]) & high) | (((int)pk) & low);
+            pk++;
+            *(GpuTilePacket **)SCRATCHPAD = pk;
+            pk->tag.bytes.length = 1;
+            ot2 = (char *)CurrentDrawBuf;
+            __asm__("" : "+r"(pk) : "r"(ot2)); /* ASM_BARRIER: order ot2 load before pk load */
+            w = *(int *)pk;
+            ((int *)pk)[1] = 0xE1000245;
+            *(int *)pk = (w & high) | ((((int *)ot2)[0x70 / 4]) & low);
+            *(int *)(ot2 + RR_FIELD_OFFSET(FrameStorage, buffer.ordering70)) = ((((int *)ot2)[0x70 / 4]) & high) | (((int)pk) & low);
+            *(char **)SCRATCHPAD = (char *)pk + 8;
+        }
     }
-      gT = RaceContext;
-      gT[0x88 / 4]++;
-      if (gT[0x88 / 4] >= gT[0x98 / 4])
-    {
-      gT[0x88 / 4] = gT[0x98 / 4];
-      gT[0x9C / 4] = 1;
+    gC = &RaceContext;
+    if (gC->f94 == 0) {
+        if ((GameModeType == 1) && (SelectionState[SelectionState[0x17] + 8] >= 3)) {
+            s0 = 1;
+            gL = gC;
+            gL->f98 = 0;
+            r = &gL->f554[D_800AD520][1];
+            do {
+                v = r->f24;
+                if (gL->f98 < v) {
+                    gL->f98 = v;
+                }
+                s0++;
+                r++;
+            } while (s0 < 0x10);
+            gF = &RaceContext;
+            gF->f94 = 1;
+            gF->f98 = gF->f98 * 5;
+        } else {
+            gC->f94 = 2;
+        }
     }
-      D_8010718C = 0;
-      break;
+    gD = &RaceContext;
+    switch (gD->f94) {
+    case 1:
+        FindCameraTrackTrigger(arg0, gD->f88, D_800AD520);
+        if (Pad0Buttons & 0x800) {
+            if (gD->f88 >= 0x1A) {
+                if (gD->f90 == 0) {
+                    gD->f98 = gD->f88 + 0x19;
+                }
+            }
+        }
+        gS = &RaceContext;
+        if ((gS->f98 - gS->f88) < 0x1A) {
+            if (gS->f90 == 0) {
+                gS->f90 = 1;
+                CdAudioFade(0, 8);
+            }
+        }
+        gT = &RaceContext;
+        gT->f88++;
+        if (gT->f88 >= gT->f98) {
+            gT->f88 = gT->f98;
+            gT->f9C = 1;
+        }
+        ViewUsesCarTrackNode = 0;
+        break;
 
     case 2:
-      gD[0x88 / 4]++;
-      if (gD[0x88 / 4] >= 0x49)
-    {
-      gD[0x9C / 4] = 1;
-      *((unsigned short *) (arg0 + 0x1E4)) = (*((unsigned short *) (arg0 + 0x1E4))) | 0x100;
-    }
-      if (gD[0x9C / 4] == 0)
-    {
-      *((short *) (((char *) RaceContext) + 0x30)) = 0;
-      *((short *) (((char *) RaceContext) + 0x32)) = 0;
-      *((short *) (((char *) RaceContext) + 0x34)) = -0x100;
-      CarLocalToWorld(arg0, ((char *) RaceContext) + 0x30, ((char *) RaceContext) + 0x60);
-      *((short *) (((char *) RaceContext) + 0x74)) = 0;
-      *((int *) (((char *) RaceContext) + 0x80)) = 0x1D6;
-      *((short *) (((char *) RaceContext) + 0x70)) = (((*((int *) (((char *) RaceContext) + 0x88))) * 0x190) / 73) - 0x280;
-      v = (*((short *) (((char *) RaceContext) + 0x72)) = ((-((*((int *) (((char *) RaceContext) + 0x88))) * 0xB00)) / 73) + 0x600);
-      *((int *) (((char *) RaceContext) + 0x7C)) = ((-((*((int *) (((char *) RaceContext) + 0x88))) << 9)) / 73) + 0x400;
-      if (((short) v) < (-0x400))
-      {
-        *((short *) (((char *) RaceContext) + 0x72)) = -0x400;
-      }
-    }
-    else
-    {
-      *((short *) (((char *) RaceContext) + 0x30)) = 0;
-      *((short *) (((char *) RaceContext) + 0x32)) = 0;
-      *((short *) (((char *) RaceContext) + 0x34)) = -0x100;
-      CarLocalToWorld(arg0, ((char *) RaceContext) + 0x30, ((char *) RaceContext) + 0x60);
-      *((short *) (((char *) RaceContext) + 0x70)) = -0xF0;
-      *((short *) (((char *) RaceContext) + 0x72)) = -0x400;
-      *((int *) (((char *) RaceContext) + 0x7C)) = 0x200;
-      *((short *) (((char *) RaceContext) + 0x74)) = 0;
-      *((int *) (((char *) RaceContext) + 0x80)) = 0x1D6;
-    }
-      ApplyCameraState(D_800AC6B0);
-      g2 = (int *) (D_800AC6B0 - 0x60);
-      if (g2[0x88 / 4] >= 0x33)
-    {
-      g2[0x90 / 4] = 1;
-    }
-      break;
-
-  }
-
-  g = RaceContext;
-  if (g[0x9C / 4] != 0)
-  {
-    SlotsStartForRace();
-    v = g[0x9C / 4];
-    D_800ACBF8 = 1;
-    if (v == 1)
-    {
-      if (g[0x94 / 4] == v)
-      {
-        if (D_800F765C == 0)
-        {
-          CdAudioSelectTrack(0, (PsyqRand() % 14) + 0xB);
+        gD->f88++;
+        if (gD->f88 >= 0x49) {
+            gD->f9C = 1;
+            arg0->flags1E4 = arg0->flags1E4 | 0x100;
         }
-        else
-        {
-          CdAudioSelectTrack(0, D_800A0C9C[D_800F765C - 1]);
+        if (gD->f9C == 0) {
+            RaceContext.f30 = 0;
+            RaceContext.f32 = 0;
+            RaceContext.f34 = -0x100;
+            CarLocalToWorld(arg0, &RaceContext.f30, &RaceContext.f60);
+            RaceContext.f70.z = 0;
+            RaceContext.f80 = 0x1D6;
+            RaceContext.f70.x = ((RaceContext.f88 * 0x190) / 73) - 0x280;
+            v = (RaceContext.f70.y = (-(RaceContext.f88 * 0xB00) / 73) + 0x600);
+            RaceContext.f7C = (-(RaceContext.f88 << 9) / 73) + 0x400;
+            if (((short)v) < (-0x400)) {
+                RaceContext.f70.y = -0x400;
+            }
+        } else {
+            RaceContext.f30 = 0;
+            RaceContext.f32 = 0;
+            RaceContext.f34 = -0x100;
+            CarLocalToWorld(arg0, &RaceContext.f30, &RaceContext.f60);
+            RaceContext.f70.x = -0xF0;
+            RaceContext.f70.y = -0x400;
+            RaceContext.f7C = 0x200;
+            RaceContext.f70.z = 0;
+            RaceContext.f80 = 0x1D6;
         }
-      }
-      D_800AC6EC = 2;
+        ApplyCameraState(&D_800AC6B0);
+        g2 = (Context650 *)((char *)&D_800AC6B0 - 0x60);
+        if (g2->f88 >= 0x33) {
+            g2->f90 = 1;
+        }
+        break;
     }
-    s0 = 0;
-    p = RaceContext;
-    q = Options;
-    do
-    {
-      q[0x2A] = *(((unsigned char *) p) + 0xA8);
-      p++;
-      q += 4;
-      s0++;
+
+    g = &RaceContext;
+    if (g->f9C != 0) {
+        SlotsStartForRace();
+        v = g->f9C;
+        DrawSubOtFlag = 1;
+        if (v == 1) {
+            if (g->f94 == v) {
+                if (RaceBgmListIndex == 0) {
+                    CdAudioSelectTrack(0, (PsyqRand() % 14) + 0xB);
+                } else {
+                    CdAudioSelectTrack(0, BgmNumberToCdTrack[RaceBgmListIndex - 1]);
+                }
+            }
+            D_800AC6EC = 2;
+        }
+        s0 = 0;
+        p = (int *)&RaceContext;
+        q = (signed char *)&Options;
+        do {
+            q[0x2A] = *(((unsigned char *)p) + 0xA8);
+            p++;
+            q += 4;
+            s0++;
+        } while (s0 < 2);
+    } else {
+        DrawSubOtFlag = 0;
     }
-    while (s0 < 2);
-  }
-  else
-  {
-    D_800ACBF8 = 0;
-  }
-  return D_800AC6EC;
+    return D_800AC6EC;
 }
-
-#undef RaceContext
-#undef D_800AC6B0
-#undef D_800AC6D8
-#undef CurrentDrawBuf

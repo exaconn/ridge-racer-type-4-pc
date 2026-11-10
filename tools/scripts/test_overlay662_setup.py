@@ -27,9 +27,9 @@ class GarageSetupTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_primitives.h"
 #include "rr/animated_sprite_grid.h"
-typedef union {RrGpuDrawModePacket packets[16];u32 words[48];} Owner;
+typedef union {GpuDrawModePacket packets[16];u32 words[48];} Owner;
 typedef struct {u8 *cursor;u32 *order;void *packet;u32 args[5];} Event;
-static struct World {u32 guard[4];RrGpuScratchPointers scratch;u32 orders[3][704];Owner storage[4];u32 calls;Event log[3];u32 tail[4];} world,expected;
+static struct World {u32 guard[4];GpuScratchPointers scratch;u32 orders[3][704];Owner storage[4];u32 calls;Event log[3];u32 tail[4];} world,expected;
 #define RR_GPU_SCRATCH (&world.scratch)
 static unsigned root_id,storage_id,packet_id;
 static u32 seed=0x1b400;
@@ -46,7 +46,7 @@ static void change_roots(struct World *v,unsigned step){
  v->scratch.order=world.orders[(root_id+step+1)%3];
 }
 ''' + page + window + builder + r'''
-void SetDrawMode(void *output,s32 display,s32 dither,s32 page,RrGpuRectangleFields *window){
+void SetDrawMode(void *output,s32 display,s32 dither,s32 page,GpuRectangleFields *window){
  unsigned step=world.calls;
  assert(step==1 || step==2);assert(output==cursor(step));
  assert(display==0 && dither==1 && page==11 && window==0);
@@ -63,15 +63,15 @@ u8 *ovl662_func_8011ABB4(u32 *ordering,u8 *packet,u32 x,u32 y,u32 width,u32 heig
  record(&world,packet,x,y,width,height,0);
  /* Unrecovered clip-builder boundary: preserve its verified three-word stride
   * while making writes and pointer changes observable to the caller. */
- ((RrGpuDrawModePacket *)packet)->tag.word=0x02123456;
- ((RrGpuDrawModePacket *)packet)->command[0]=0xE3001234;
- ((RrGpuDrawModePacket *)packet)->command[1]=0xE4005678;
+ ((GpuDrawModePacket *)packet)->tag.word=0x02123456;
+ ((GpuDrawModePacket *)packet)->command[0]=0xE3001234;
+ ((GpuDrawModePacket *)packet)->command[1]=0xE4005678;
  change_roots(&world,0);
  return packet+12;
 }
 ''' + mode + setup + r'''
 static void reference(void){
- unsigned step;RrGpuDrawModePacket *p=&expected.storage[storage_id].packets[packet_id];
+ unsigned step;GpuDrawModePacket *p=&expected.storage[storage_id].packets[packet_id];
  record(&expected,cursor(0),12,61,296,352,0);
  p[0].tag.word=0x02123456;p[0].command[0]=0xE3001234;p[0].command[1]=0xE4005678;
  change_roots(&expected,0);

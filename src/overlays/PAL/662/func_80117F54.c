@@ -6,13 +6,13 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
     s32 i, x, y, dx, dy, clut, color;
     register s32 v __asm__("$3");
     s32 shifted;
-    RrCharacterGridAddress clearAddress;
+    CharacterGridAddress clearAddress;
 
     x = BadgeRows[row].x04 + 36;
     y = BadgeRows[row].y06 + 56;
     /* Convert only the four in-bounds addresses to pointers. The last integer
      * decrement never constructs a C pointer before the buffer. */
-    for (i = 3, clearAddress = (RrCharacterGridAddress)(text + 3); i >= 0; i--) {
+    for (i = 3, clearAddress = (CharacterGridAddress)(text + 3); i >= 0; i--) {
         *(char *)clearAddress = 0;
         --clearAddress;
     }
@@ -21,7 +21,7 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
         dx = (i % 10) * 24;
         dy = (i / 10) * 32;
         if (i == ovl662_D_801273B4) {
-            v = rcos((s32)(((u32)ScreenFrame << 7) - 682U));
+            v = rcos(((ScreenFrame * 128U) - 682U));
             if (v >= 0) {
                 clut = 32760;
                 shifted = v >> 6;
@@ -43,8 +43,8 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
         cursor = AddTilePrim(order, cursor, x + dx, y, 1, 16, 255, 255, 255);
         dx += 4;
         if (i < 3) {
-            if (i == (s32)((u32)ovl662_D_801273B4 - 40U)) {
-                v = rcos((s32)(((u32)ScreenFrame << 7) - 682U));
+            if (i == (ovl662_D_801273B4 - 40U)) {
+                v = rcos(((ScreenFrame * 128U) - 682U));
                 if (v >= 0) {
                     clut = 32760;
                     shifted = v >> 6;

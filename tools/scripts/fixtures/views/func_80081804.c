@@ -4,7 +4,7 @@
 
 extern s32 _SsVmPitchBend(s32, s32, s32, s32);
 
-extern RrLibStateB0 *_ss_score[];
+extern LibStateB0 *_ss_score[];
 
 void _SsSetPitchBend(s32 bank, s32 row) {
     s32 bank_value = bank;
@@ -13,9 +13,9 @@ void _SsSetPitchBend(s32 bank, s32 row) {
     /* ASM_BARRIER: Retain the original saved or argument register through stream lookup and callbacks. */
     register u32 encoded_bits __asm__("$4");
     /* ASM_BARRIER: Retain the original saved or argument register through stream lookup and callbacks. */
-    register RrLibStateB0 **table __asm__("$16");
+    register LibStateB0 **table __asm__("$16");
     s32 index, units;
-    RrLibStateB0 *state;
+    LibStateB0 *state;
     u8 *cursor, *selected;
     u32 value; u8 slot;
     encoded_bits = (u32)row_value<< 8;
@@ -29,10 +29,10 @@ void _SsSetPitchBend(s32 bank, s32 row) {
     /* ASM_BARRIER: Complete both lookup indices before materializing the PAL table page. */
     __asm__ volatile("" : : "r"(index), "r"(units) : "$16");
     /* PAL mapping: table[-0xF98 / 4] selects _ss_score[bank]. */
-    table = (RrLibStateB0 **)0x80110000U;
+    table = (LibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL lookup page without folding its signed low offset. */
     __asm__("" : "=r"(table) : "0"(table));
-    table = (RrLibStateB0 **)((u8 *)table + index);
+    table = (LibStateB0 **)((u8 *)table + index);
     state = table[-0xF98 / 4] + row_value;
     cursor = state->c0;
     value = *cursor++;

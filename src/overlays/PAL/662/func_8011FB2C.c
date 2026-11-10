@@ -42,7 +42,7 @@ void ovl662_func_8011FB2C(s32 mode) {
                     ovl662_D_801276A8.saved64[3] = 0;
                     ovl662_D_801276A8.saved64[4] = 3;
                 }
-                ((RrGarageButton *)ovl662_D_801273B8[7])->timer0E = 7;
+                ((GarageButton *)ovl662_D_801273B8[7])->timer0E = 7;
                 PlaySfx(1);
                 ovl662_D_801276A8.config1F++;
                 if (ovl662_D_801276A8.config1F >= 3) {

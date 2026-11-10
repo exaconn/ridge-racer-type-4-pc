@@ -21,8 +21,8 @@ class RootCounterReadTest(unittest.TestCase):
         code='''#include <stdint.h>
 typedef uint8_t u8; typedef uint16_t u16; typedef uint32_t u32; typedef int32_t s32;
 '''+header+'''
-RrRootCounterRegisters registers[3];
-RrRootCounterRegisters *RCNT_REGS=registers;
+RootCounterRegisters registers[3];
+RootCounterRegisters *RCNT_REGS=registers;
 s32 read_count, last_index;
 u16 test_read(s32 index) {
     u16 result=RCNT_REGS[index].count;

@@ -1,6 +1,6 @@
 #include "rr/overlay662_primitives.h"
 
-RrGpuLineF4Packet *ovl662_func_8011AEC4(u32 *ordering, RrGpuLineF4Packet *packet, u32 x, u32 y, u32 w, u32 h, u32 r, u32 g, u32 b)
+GpuLineF4Packet *ovl662_func_8011AEC4(u32 *ordering, GpuLineF4Packet *packet, u32 x, u32 y, u32 w, u32 h, u32 r, u32 g, u32 b)
 {
     u16 baseX = ovl662_D_801276A8.halfC8;
     u16 baseY = ovl662_D_801276A8.halfCA;

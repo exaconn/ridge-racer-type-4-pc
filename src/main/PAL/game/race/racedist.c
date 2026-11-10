@@ -1,3 +1,4 @@
+#include "rr/vehicle_table.h"
 #include "types.h"
 #include "game/car/car.h"
 #include "game/course/control.h"
@@ -5,54 +6,54 @@
 #include "rr/track_interpolation.h"
 #include "rr/race.h"
 #include "game/race/racedist.h"
+#include "game/data/globals.h"
 
 #define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -SinTable[0x400 - ((x) & 0x3FF)] : -SinTable[(x) & 0x3FF]) : (((x) & 0x400) ? SinTable[0x400 - ((x) & 0x3FF)] : SinTable[(x) & 0x3FF]))
 
-extern Car ComCars[];
-extern Car *CarTable[];
-extern RrRaceStandingsTable *RaceStandings;
-extern s32 NumPlayers;
+extern RaceVehicle ComCars[];
+extern RaceStandingsTable *RaceStandings;
 extern s16 NumCars;
+extern int abs(int);
 
 
 void UpdateRaceStandings(void) {
     int i, j;
-    Car *v;
-    Control *c;
-    RrRaceStandingsTable *t;
+    RaceVehicle *v;
+    RaceVehicleControl *c;
+    RaceStandingsTable *t;
     int a0;
-    RrRaceStandingEntry0C tmp;
+    RaceStandingEntry0C tmp;
 
     t = RaceStandings;
     for (i = 0; i < 0xB; i++) {
         v = &ComCars[i];
-        c = (Control *)((char *)v + 0x1F4);
-        if (v->unk1E4 > 0) {
-            a0 = -v->unk1D4 + 0x400;
-            a0 -= TrackNodes[v->wF0].heading12;
-            c->unk58 = -((SIN(a0) * v->unk1D8) / 4096);
+        c = &v->control;
+        if ((s16)v->flags1E4 > 0) {
+            a0 = -v->heading1D4 + 0x400;
+            a0 -= TrackNodes[v->trackNodeF0].heading12;
+            c->lateralSpeed58 = -((SIN(a0) * v->input) / 4096);
         }
     }
 
     if (NumPlayers > 0) {
         v = &PlayerCars[0];
-        a0 = -v->unk1D4 + 0x400;
-        a0 -= TrackNodes[v->wF0].heading12;
-        t->unk00 = -((SIN(a0) * v->unk1D8) / 4096);
+        a0 = -v->heading1D4 + 0x400;
+        a0 -= TrackNodes[v->trackNodeF0].heading12;
+        t->unk00 = -((SIN(a0) * v->input) / 4096);
     }
 
     if (NumPlayers == 2) {
         v = &PlayerCars[1];
-        a0 = -v->unk1D4 + 0x400;
-        a0 -= TrackNodes[v->wF0].heading12;
-        t->unk04 = -((SIN(a0) * v->unk1D8) / 4096);
+        a0 = -v->heading1D4 + 0x400;
+        a0 -= TrackNodes[v->trackNodeF0].heading12;
+        t->unk04 = -((SIN(a0) * v->input) / 4096);
     }
 
     for (i = 0; i < NumCars; i++) {
         v = CarTable[i];
         t->entries18[i].unk00 = i;
-        t->entries18[i].totalDist04 = v->w184 + v->w188;
-        t->entries18[i].vehicle08 = (RrRaceVehicle *)v;
+        t->entries18[i].totalDist04 = v->first + v->second;
+        t->entries18[i].vehicle08 = v;
     }
 
     for (i = 1; i < NumCars; i++) {
@@ -64,53 +65,27 @@ void UpdateRaceStandings(void) {
     }
 }
 
-void CalcDistanceToPlayer(RrRaceVehicle *input) {
-    register RrRaceDistanceContextPrefix *context=&RaceContext;
-    register s32 one=1;
-    s32 mode;
-    RrRaceDistanceResult *out;
-    RrRaceVehicle *current;
-    mode=context->mode;
-    out=context->result;
-    current=input;
-    if(mode==one) {
-        register RrRaceVehicle *base;
-        u32 limit=0x7FFF0000U;
-        /* ASM_BARRIER: Retain the two reference-distance load temporaries. */
-        register u32 first __asm__("$3"),second __asm__("$5");
-        u32 own_first,own_second;
-        base=PlayerCars;
-        first=base->first;second=base->second;
-        own_first=current->first;own_second=current->second;
-        out->second=limit|0xFFFF;out->selected=0;
-        out->first=(first+second)-(own_first+own_second);
-    } else if(mode==2) {
-        /* ASM_BARRIER: Reload the first published distance after the second input sum. */
-        register s32 a __asm__("$4");
-        /* ASM_BARRIER: Keep the second difference and its wrapped absolute value together. */
-        register s32 b __asm__("$2");
-        register RrRaceVehicle *base=PlayerCars;
-        out->first=((u32)base[0].first+(u32)base[0].second)-((u32)current->first+(u32)current->second);
-        {
-            /* ASM_BARRIER: Preserve the second reference component while loading current inputs. */
-            register u32 left,extra __asm__("$5");
-            /* ASM_BARRIER: Sum the current components in the original temporary. */
-            register u32 right __asm__("$3"),right_extra;
-            left=base[1].first;extra=base[1].second;
-            right=current->first;right_extra=current->second;
-            left+=extra;right+=right_extra;
-            /* ASM_BARRIER: Finish the current sum before reloading the published first result. */
-            __asm__("" : "+r"(right) : : "$4");
-            a=*(volatile s32 *)&out->first;
-            b=left-right;
+static __inline__ s32 WrappingMagnitude(s32 value) {
+    return value < 0 ? (s32)(0U - value) : value;
+}
+
+void CalcDistanceToPlayer(RaceVehicle *input) {
+    RaceDistanceResult *out = RaceContext.result;
+    if (RaceContext.mode == 1) {
+        out->first = (PlayerCars[0].first + 0U + PlayerCars[0].second) - (input->first + 0U + input->second);
+        out->second = 0x7FFFFFFF;
+        out->selected = 0;
+    } else if (RaceContext.mode == 2) {
+        out->first = (PlayerCars[0].first + 0U + PlayerCars[0].second) - (input->first + 0U + input->second);
+        out->second = (PlayerCars[1].first + 0U + PlayerCars[1].second) - (input->first + 0U + input->second);
+        if (WrappingMagnitude(out->first) <= WrappingMagnitude(out->second)) {
+            out->selected = 0;
+        } else {
+            out->selected = 1;
         }
-        out->second=b;
-        /* ASM_BARRIER: Publish the second result before either absolute-value branch. */
-        __asm__("" : "+r"(b) : : "memory");
-        if(b<0)b=0U-(u32)b;
-        if(a<0)a=0U-(u32)a;
-        if(b>=a)out->selected=0;else out->selected=one;
     } else {
-        out->first=0;out->second=0;out->selected=0;
+        out->first = 0;
+        out->second = 0;
+        out->selected = 0;
     }
 }

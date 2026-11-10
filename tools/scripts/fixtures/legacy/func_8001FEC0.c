@@ -2,7 +2,7 @@
 void SetSprt(void *);
 void SetShadeTex(void *,s32);
 void AddPrim(u32 *,u32 *);
-RrSpritePacketSignedClut *GameQueueSprite(u32 *a0, RrSpritePacketSignedClut *a1, s32 a2, s32 a3, int a4, int a5, int a6, int a7, int a8) {
+SpritePacketSignedClut *GameQueueSprite(u32 *a0, SpritePacketSignedClut *a1, s32 a2, s32 a3, int a4, int a5, int a6, int a7, int a8) {
     SetSprt(a1);
     SetShadeTex(a1, 1);
     a1->x = a2;

@@ -16,6 +16,7 @@ class GaragePixelDispatchTest(unittest.TestCase):
             'ovl662_func_8011E6C8(', 'real_hit(')
         source = r'''
 #include <assert.h>
+#include "game/system/pad.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -25,7 +26,7 @@ class GaragePixelDispatchTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4||sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4||offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_pixel_dispatch.h"
-typedef struct {u32 guard[4],rng;RrGarageSelectionPrefix garage;RrGarageWorkingStorage work;RrMenuItemState5C controllers[2];u32 tail[4];} State;
+typedef struct {u32 guard[4],rng;GarageSelectionPrefix garage;GarageWorkingStorage work;ControllerState5C controllers[2];u32 tail[4];} State;
 typedef struct {s32 kind,args[7];u32 hash;} Event;
 typedef struct {State s;Event e[12];unsigned calls;} World;
 static World actual,reference,initial,*w;
@@ -43,7 +44,7 @@ static void coordinates(unsigned x,unsigned y){u16 a=(u16)next(),b=(u16)next();
  w->s.garage.reset08[0]=half(a);w->s.garage.reset08[6]=half(((u16)next()&0xFF00U)|((x-(u8)a)&255));
  w->s.garage.reset08[1]=half(b);w->s.garage.reset08[7]=half(((u16)next()&0xFF00U)|((y-(u8)b)&255));
 }
-static unsigned currentPixel(void){RrGarageSelectionPrefix *g=&w->s.garage;
+static unsigned currentPixel(void){GarageSelectionPrefix *g=&w->s.garage;
  unsigned x=((u16)g->reset08[0]+(u16)g->reset08[6])&255,y=((u16)g->reset08[1]+(u16)g->reset08[7])&255;
  u32 *base=g->layer23?g->image40[g->active21]:g->image38[g->active21];assert(x<64&&y<64);return byteIndex((u8*)base)+y*32+x/2;
 }
@@ -57,7 +58,7 @@ static void change(void){unsigned i;if(!mutation)return;
  for(i=0;i<2;i++){w->s.garage.image38[i]=pool+((scenario+i+w->calls)%4)*512;w->s.garage.image40[i]=pool+((scenario+i+w->calls+2)%4)*512;}
  w->s.garage.scratch34=(scenario&1)?w->s.garage.image38[0]:pool+2048;
  w->s.work.words[1]=(w->s.work.words[1]&~1U)|(next()%2);
- w->s.controllers[0].type01=(next()&1)?0x12:(u8)next();w->s.controllers[0].buttons02=(u16)next();
+ w->s.controllers[0].input00.fields.type=(next()&1)?0x12:(u8)next();w->s.controllers[0].input00.fields.buttons=(u16)next();
  coordinates(next()%64,next()%64);
 }
 void ovl662_func_8012571C(void){event(1);change();}
@@ -78,7 +79,7 @@ static void expectedPixel(void){unsigned x,y,index,old,color;u32 operation;
  x=((u16)w->s.garage.reset08[0]+(u16)w->s.garage.reset08[6])%256;
  y=((u16)w->s.garage.reset08[1]+(u16)w->s.garage.reset08[7])%256;
  assert(x<64&&y<64);index=currentPixel();old=(payload()[index]>>(4*(x%2)))&15;
- color=w->s.controllers[0].type01!=0x12&&(w->s.controllers[0].buttons02&3)==3?0:w->s.garage.config22;
+ color=w->s.controllers[0].input00.fields.type!=0x12&&(w->s.controllers[0].input00.fields.buttons&3)==3?0:w->s.garage.config22;
  xSeen[x]++;ySeen[y]++;colors[color]++;seen[2+(x&1)]++;
  if(old==color){seen[4]++;return;}
  operation=(u32)x+(u32)y*256U+(u32)old*65536U+(u32)color*16777216U;
@@ -105,7 +106,7 @@ int main(void){unsigned i,j;uint64_t cases=0;static const s32 codes[8]={0,1,2,4,
   w->s.garage.config20=scenario%256;w->s.garage.config1E=(scenario>>2)%8;w->s.garage.config1F=(scenario>>5)%5;w->s.garage.config22=(scenario>>4)%256;
   for(i=0;i<2;i++){w->s.garage.image38[i]=pool+i*512;w->s.garage.image40[i]=pool+(2+i)*512;}
   w->s.garage.scratch34=(scenario&1)?w->s.garage.image38[0]:pool+2048;
-  w->s.controllers[0].type01=(scenario&2)?0x12:0;w->s.controllers[0].buttons02=(u16)((next()&~3U)|(scenario%4));
+  w->s.controllers[0].input00.fields.type=(scenario&2)?0x12:0;w->s.controllers[0].input00.fields.buttons=(u16)((next()&~3U)|(scenario%4));
   coordinates(scenario%64,(scenario>>6)%64);
   memcpy(pool,initialPool,sizeof(pool));
   if((scenario&128)&&w->s.garage.config22<16){unsigned k=currentPixel(),shift=4*(scenario%2);((u8*)pool)[k]=(((u8*)pool)[k]&~(15U<<shift))|(w->s.garage.config22<<shift);}

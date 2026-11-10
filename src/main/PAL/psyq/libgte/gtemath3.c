@@ -1,10 +1,11 @@
+#include "rr_asm.h"
 #include "psyq/libgte/gtemath3.h"
 int NormalClip(int a0, int a1, int a2) {
     int v;
-    __asm__ volatile ("mtc2 %0, $12" : : "r"(a0));
-    __asm__ volatile ("mtc2 %0, $14" : : "r"(a2));
-    __asm__ volatile ("mtc2 %0, $13" : : "r"(a1));
-    __asm__ volatile ("nop\n\tnop\n\t.word 0x4B400006");
-    __asm__ volatile ("mfc2 %0, $24" : "=r"(v));
+    RR_GTE_MTC2(a0, 12);
+    RR_GTE_MTC2(a2, 14);
+    RR_GTE_MTC2(a1, 13);
+    RR_GTE_CMD_2NOP(0x4B400006);
+    RR_GTE_MFC2(v, 24);
     return v;
 }

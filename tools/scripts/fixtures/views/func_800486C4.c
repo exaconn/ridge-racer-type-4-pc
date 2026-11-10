@@ -6,7 +6,7 @@
 
 #define U(p, o) (*(u16 *)((char *)(p) + (o)))
 
-void UpdateComCarDrive(RrDriveVehicleView *arg0) {
+void UpdateComCarDrive(RaceVehicle *arg0) {
     s32 sp18;
     s32 sp1C;
     s32 sp20;
@@ -27,11 +27,11 @@ void UpdateComCarDrive(RrDriveVehicleView *arg0) {
     u16 temp_a0;
     u16 temp_v1;
     /* ASM_BARRIER: Keep this initialized drive value in its original register phase. */
-    register RrDriveControlView *temp_s1 __asm__("$17");
+    register RaceVehicleControl *temp_s1 __asm__("$17");
 
-    temp_s1 = &arg0->control1F4;
-    arg0->previous1D6 = (u16) arg0->heading1D4;
-    temp_a1 = ratan2(arg0->control1F4.directionX30, arg0->control1F4.directionZ34);
+    temp_s1 = &arg0->control;
+    arg0->prevHeading1D6 = (u16) arg0->heading1D4;
+    temp_a1 = ratan2(arg0->control.pathDeltaX30, arg0->control.pathDeltaZ34);
     temp_v1 = *(volatile u16 *)&arg0->heading1D4;
     temp_a0 = temp_v1 & 0xFFF;
     arg0->heading1D4 = temp_a0;
@@ -60,7 +60,7 @@ void UpdateComCarDrive(RrDriveVehicleView *arg0) {
         register s32 channel __asm__("$3");
         /* ASM_BARRIER: Keep this initialized drive value in its original register phase. */
         register s32 steering __asm__("$4");
-        value = CalcSteerLimit((RrRaceVehicle *)arg0);
+        value = CalcSteerLimit(arg0);
         steering = var_s0;
         temp_s1->limit6E = value;
         channel = temp_s1->error92;
@@ -94,12 +94,12 @@ void UpdateComCarDrive(RrDriveVehicleView *arg0) {
     temp_s1->filtered90 = (s16) temp_v0_4;
     temp_s1->steering8C = (u16) temp_v0_4;
     temp_v1_3 = -(s16) temp_v0_4 * 0x90;
-    arg0->lateral178 = temp_v1_3;
+    arg0->lateralMotion178 = temp_v1_3;
     if ((temp_v1_3 < -0xF000) || (var_a0_2 = 0xF000, ((temp_v1_3 > 0xF000) != 0))) {
-        arg0->lateral178 = var_a0_2;
+        arg0->lateralMotion178 = var_a0_2;
     }
-    if (arg0->input1D8 > 0) {
-        if (arg0->lock1B8 == 0) {
+    if (arg0->input > 0) {
+        if (arg0->steeringLock1B8 == 0) {
             arg0->heading1D4 = (u16) (arg0->heading1D4 + temp_s1->steering8C);
         }
     }
@@ -118,8 +118,8 @@ void UpdateComCarDrive(RrDriveVehicleView *arg0) {
         temp_s1->holdFlag48 = (s16) ((u16) temp_s1->holdFlag48 - 1);
         temp_s1->accel50 = 0;
     } else if (temp_a1_2 < var_s0) {
-        temp_s1->accel50 = (s32) temp_s1->gearRatios100[temp_s1->gear68];
-    } else if (arg0->input1D8 != 0) {
+        temp_s1->accel50 = (s32)(u16) temp_s1->gearRatios100[temp_s1->gear68];
+    } else if (arg0->input != 0) {
         /* ASM_BARRIER: Keep this initialized drive value in its original register phase. */
         register s32 half_limit __asm__("$2") = var_s0 >> 1;
         temp_a0_2 = (s32)((u32)temp_a1_2 - (u32)var_s0);
@@ -129,16 +129,16 @@ void UpdateComCarDrive(RrDriveVehicleView *arg0) {
             {
             /* ASM_BARRIER: Keep this initialized drive value in its original register phase. */
             register s32 fraction __asm__("$2") = (var_s0 * 2) / 3;
-            if ((fraction < temp_a0_2) && (temp_s1->steeringEnabled124 != 0) && (temp_s1->steering94.mode00 == 0)) {
-                PlanComCarCornerTurn((RrRaceVehicle *)arg0, temp_a1_2);
+            if ((fraction < temp_a0_2) && (temp_s1->steeringEnabled124 != 0) && (temp_s1->dynamics94.steering.mode00 == 0)) {
+                PlanComCarCornerTurn(arg0, temp_a1_2);
             }
             }
         }
     } else {
-        temp_s1->accel50 = (s32) temp_s1->gearRatios100[0];
+        temp_s1->accel50 = (s32)(u16) temp_s1->gearRatios100[0];
     }
     if (temp_s1->accel50 > 0) {
-        var_a0_3 = arg0->rotation50;
+        var_a0_3 = arg0->rot50;
         if (var_a0_3 < -0xC8) {
             var_a0_3 = -0xC8;
         } else if (var_a0_3 >= 0x65) {
@@ -155,9 +155,9 @@ void UpdateComCarDrive(RrDriveVehicleView *arg0) {
         temp_s1->accel50 = (s32)((u32)temp_s1->accel50 * (u32)(0x10-temp_a0_3)) / 16;
     }
     if (temp_s1->accel50 == 0) {
-        temp_s1->accelerating54 = 0;
+        temp_s1->engine54.halves.accelerating = 0;
     } else {
-        temp_s1->accelerating54 = 1;
+        temp_s1->engine54.halves.accelerating = 1;
     }
-    UpdateEngineRpm((RrRaceVehicle *)arg0);
+    UpdateEngineRpm(arg0);
 }

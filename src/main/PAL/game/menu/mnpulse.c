@@ -1,18 +1,23 @@
+#include "game/system/pad.h"
 #include "rr/menu_pulse.h"
 
-void func_8004B8A8(void) {
-    RrMenuItemState5C *next_output;
-    RrPulseState18 *next_state;
+void PadStepPulse(void) {
+    ControllerState5C *next_output;
+    PadPulseState18 *next_state;
     /* ASM_BARRIER: reuse V1 for selector, step and duration in disjoint lifetimes. */
+#ifdef __mips__
     register s32 word asm("$3");
+#else
+    s32 word;
+#endif
     s32 port;
     u16 repeat_tick;
     u16 once_tick;
-    const RrPulseRow *repeat_row;
-    const RrPulseRow *once_row;
+    const PulseRow *repeat_row;
+    const PulseRow *once_row;
 
-    RrPulseSetting4 *settings;
-    const RrPulseRow **repeat, **once;
+    PulseSetting4 *settings;
+    const PulseRow **repeat, **once;
     s32 small;
     port = 0;
     settings = Options.controls.pulse;
@@ -23,13 +28,21 @@ void func_8004B8A8(void) {
     next_state = PadPulseState;
     do {
         /* ASM_BARRIER: keep the per-port state cursor in A2 inside the loop. */
-        register RrPulseState18 *state asm("$6") = next_state;
+#ifdef __mips__
+        register PadPulseState18 *state asm("$6") = next_state;
+#else
+        PadPulseState18 *state = next_state;
+#endif
         /* ASM_BARRIER: keep the output cursor in A1 after address initialization. */
-        register RrMenuItemState5C *output asm("$5") = next_output;
+#ifdef __mips__
+        register ControllerState5C *output asm("$5") = next_output;
+#else
+        ControllerState5C *output = next_output;
+#endif
         if (settings[port].disabled02 != 0) {
             /* ASM_BARRIER: retain the disabled-port path before the shared clear. */
-            __asm__ volatile("" ::: "memory");
-            output->output19 = 0U;
+            __asm__ ("" ::: "memory");
+            output->output19[0] = 0U;
             goto clear_second;
         }
         word = state->repeat04;
@@ -37,59 +50,59 @@ void func_8004B8A8(void) {
             s32 index;
             if (output->kind1C != 0) {
                 index = word - 1;
-                word = state->repeat_step0C;
+                word = state->repeatStep0C;
                 repeat_row = repeat[index] + word;
-                output->output19 = (u8) repeat_row->first;
-                output->output1A = (u8) repeat_row->second;
+                output->output19[0] = (u8) repeat_row->first;
+                output->output19[1] = (u8) repeat_row->second;
             } else {
                 index = word + 2;
-                word = state->repeat_step0C;
+                word = state->repeatStep0C;
                 repeat_row = repeat[index] + word;
-                output->output19 = small;
-                output->output1A = (u8) repeat_row->first;
+                output->output19[0] = small;
+                output->output19[1] = (u8) repeat_row->first;
             }
-            repeat_tick = state->repeat_tick08 + 1;
-            state->repeat_tick08 = repeat_tick;
+            repeat_tick = state->repeatTick08 + 1;
+            state->repeatTick08 = repeat_tick;
             if ((s16) repeat_tick >= (word = repeat_row->duration)) {
-                state->repeat_step0C = (s16) ((u16) state->repeat_step0C + 1);
+                state->repeatStep0C = (s16) ((u16) state->repeatStep0C + 1);
                 if (repeat_row[1].duration < 0) {
-                    state->repeat_tick08 = 0U;
-                    state->repeat_step0C = 0;
+                    state->repeatTick08 = 0U;
+                    state->repeatStep0C = 0;
                 }
             }
         } else {
-            output->output19 = 0U;
-            output->output1A = 0U;
+            output->output19[0] = 0U;
+            output->output19[1] = 0U;
         }
         word = state->once06;
         if (word != 0) {
             s32 index;
             if (output->kind1C != 0) {
                 index = word - 1;
-                word = state->once_step0E;
+                word = state->onceStep0E;
                 once_row = once[index] + word;
-                output->output19 = (u8) once_row->first;
-                output->output1A = (u8) once_row->second;
+                output->output19[0] = (u8) once_row->first;
+                output->output19[1] = (u8) once_row->second;
             } else {
                 index = word + 2;
-                word = state->once_step0E;
+                word = state->onceStep0E;
                 once_row = once[index] + word;
-                output->output19 = small;
-                output->output1A = (u8) once_row->first;
+                output->output19[0] = small;
+                output->output19[1] = (u8) once_row->first;
             }
-            once_tick = state->once_tick0A + 1;
-            state->once_tick0A = once_tick;
+            once_tick = state->onceTick0A + 1;
+            state->onceTick0A = once_tick;
             if ((s16) once_tick >= (word = once_row->duration)) {
-                state->once_step0E = (s16) ((u16) state->once_step0E + 1);
+                state->onceStep0E = (s16) ((u16) state->onceStep0E + 1);
                 if (once_row[1].duration < 0) {
                     state->once06 = 0;
                     if (output->kind1C != 0) {
-                        output->output19 = 0U;
+                        output->output19[0] = 0U;
                     } else {
-                        output->output19 = small;
+                        output->output19[0] = small;
                     }
 clear_second:
-                    output->output1A = 0U;
+                    output->output19[1] = 0U;
                 }
             }
         }

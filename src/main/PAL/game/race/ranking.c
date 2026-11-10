@@ -1,5 +1,5 @@
 #include "types.h"
-#include "m2c_macros.h"
+#include "rr/load_cursor.h"
 #include "game/data/ldscn1.h"
 #include "game/gfx/poly1.h"
 #include "game/menu/menutra21.h"
@@ -9,56 +9,39 @@
 #include "rr/driver_control.h"
 #include "game/gfx/color.h"
 #include "game/race/raceset.h"
+#include "game/race/ranking.h"
 #include "game/system/modeinit.h"
 #include "game/data/globals.h"
+#include "rr/time_record_types.h"
+#include "rr/course_choice_types.h"
+#include "rr/course_choices.h"
+#include "game/sound/sndctrl.h"
 
 typedef struct {
     char name[10];
     unsigned short car;
-} StructC;
-
-typedef struct {
-    char name[10];
-    unsigned short car;
-    int time;
-} Struct10;
+} DefaultRecordEntry0C;
 
 extern int DefaultCourseTimes[2][8];
-extern StructC DefaultRecordEntries[5];
-extern unsigned char CourseLapCounts[2][8];
+extern DefaultRecordEntry0C DefaultRecordEntries[5];
 extern int CourseBestLap[2][8];
-extern Struct10 RaceRecords[2][8][5];
+extern TimeRecord16 RaceRecords[2][8][5];
 extern int CourseBestLapTimes[2][8][3];
-extern int D_800F3B00[8];
-extern Struct10 LapRecords[2][8][5];
-extern char CourseChoiceTable[];
+extern int CourseBestLapRecords[8];
+extern TimeRecord16 LapRecords[2][8][5];
+extern CourseChoice4 CourseChoiceTable[2][9];
 extern unsigned short D_8009EA80[];
 extern unsigned char SaveDataWork[];
 extern unsigned char D_800F3B28[];
-/* extern */
-/* extern */
-/* extern */
-/* extern */
 extern s32 CdDirectoryBuffer;
-extern M2C_UNK D_800103B8;
+extern s32 D_800103B8;
 extern s32 VSyncThreshold;
-extern s32 LoadCursor;
 extern s32 ModeFrame;
 extern s16 D_800F3A26;
 extern s16 ModeGroup;
 extern s8 LoadState;
 extern s16 D_800F4D8A;
-extern s16 D_800FFC18;
-extern int SetCdMixMode();
-
-void InitDefaultTimeRecords(void);
-void InitCourseChoices(void);
-void BackupSaveData(void);
-void RestoreSaveData(void);
-void func_8001F2CC(void);
-void SplashModeEnter(void);
-void SplashModeUpdate(void);
-void func_8001F400(void);
+extern s16 CardMenuOperation;
 
 void InitDefaultTimeRecords(void) {
     int i, j, k;
@@ -66,7 +49,7 @@ void InitDefaultTimeRecords(void) {
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 8; j++) {
             int c = 0x2FD;
-            D_800F3B00[j] = DefaultCourseTimes[0][j];
+            CourseBestLapRecords[j] = DefaultCourseTimes[0][j];
             CourseBestTotalTimes[j] = (DefaultCourseTimes[0][j] - 0x2FD) * CourseLapCounts[1][j] + (CourseLapCounts[1][j] * 1000 + c);
             CourseBestLap[i][j] = DefaultCourseTimes[1][j];
             CourseBestTotal[i][j] = (DefaultCourseTimes[1][j] - 0x2FD) * CourseLapCounts[0][j] + (CourseLapCounts[0][j] * 1000 + c);
@@ -105,12 +88,12 @@ void InitCourseChoices(void)
     register int t4 asm("$12");
     register int e asm("$13");
     unsigned short *t6;
-    register unsigned short *t0 asm("$8");
     short *t3;
     char *a1;
+    register unsigned short *t0;
     unsigned short u;
-    func_80096434(CourseChoiceTable, 0x90);
-    func_80096434(CourseChoiceTable + 0x24, 0x90);
+    PsyqBzero(CourseChoiceTable, 0x90);
+    PsyqBzero((char *)CourseChoiceTable + 0x24, 0x90);
     t4 = 0;
     e = 8;
     t6 = D_8009EA80;
@@ -118,11 +101,11 @@ void InitCourseChoices(void)
     t1 = t4;
     do {
         a2 = 0;
-        t3 = (short *)(t2 + CourseChoiceTable);
+        t3 = (short *)(t2 + (char *)CourseChoiceTable);
         t0 = t6;
         a3 = t1;
 loop:
-        a1 = a3 + CourseChoiceTable;
+        a1 = a3 + (char *)CourseChoiceTable;
         if (a2 == e) {
             int m;
             __asm__ volatile("" : "=r"(m) : "0"(-1)); /* ASM_BARRIER: keep -1 inside branch */
@@ -156,16 +139,16 @@ void RestoreSaveData(void) {
     }
 }
 
-void func_8001F2CC(void) {
+void MenuSceneNoop(void) {
 }
 
 void SplashModeEnter(void) {
-    int pad[6];
+    int reserved[6];
     SetDispMask(0);
     DebugPrintStub(&D_800103B8);
     LoadCursor = CdDirectoryBuffer;
-    func_80071440();
-    D_800FFC18 = 0;
+    InitSplashDispEnv();
+    CardMenuOperation = 0;
     LoadSaveFromCardStep(0);
     VSyncThreshold = 0x80;
     ModeFrame = 0;
@@ -178,14 +161,10 @@ void SplashModeEnter(void) {
     D_800F4D8A = 0;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define LoadSaveFromCardStep ((int (*)())LoadSaveFromCardStep)
-#define PendingModeId (*(u16 (*))&PendingModeId)
-
 void SplashModeUpdate(void) {
     s32 temp_v0;
 
-    temp_v0 = func_8003BBBC();
+    temp_v0 = LoadSplashAssetsStep();
     if (temp_v0 == 1) {
         ModeFrame += 1;
         if (SplashLogoUpdate(LoadSaveFromCardStep(1) == 1) == temp_v0) {
@@ -197,9 +176,7 @@ void SplashModeUpdate(void) {
     }
 }
 
-#undef LoadSaveFromCardStep
-#undef PendingModeId
 
-void func_8001F400(void){ int a[6];
+void DrawSmallFontString(s32 x, s32 y, const char *text, s32 color){ int a[6];
 /* ASM_BARRIER: empty-frame function needs jr/addiu sp delay-slot epilogue form */
-asm volatile("" ::: "memory"); }
+asm ("" ::: "memory"); }

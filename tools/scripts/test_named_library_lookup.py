@@ -31,7 +31,7 @@ typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-struct { u8 prefix[0x954]; RrLibNamedEntry entries[128];
+struct { u8 prefix[0x954]; LibNamedEntry entries[128];
          u8 suffix[0x10000 - 0x954 - 128 * 0x2C]; } test_page;
 #define D_8011095C test_page.entries[0].name
 s32 test_comparisons, test_mutate_next;

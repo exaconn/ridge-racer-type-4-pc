@@ -35,13 +35,13 @@ s32 test_page[0x4000];
 #define D_80114700 test_page[0x4700/4]
 #define RR_NOP_DEP_ON(value) ((void)(value))
 ''' + header + '''
-RrSerialPortRegisters test_ports[2],*CardSio0Base;
+SerialPortRegisters test_ports[2],*CardSio0Base;
 volatile u32 test_irq[2],*I_STAT_CardSel;
 s32 (*test_poll)(void);void (*test_start)(s32);
 u16 (*test_status)(void *);
 s32 chkRC2wait(void) { return test_poll(); }
 void setRC2wait(s32 limit) { test_start(limit); }
-u16 test_initial_status(RrSerialPortRegisters *port) { return test_status(port); }
+u16 test_initial_status(SerialPortRegisters *port) { return test_status(port); }
 void test_reset(void) {
  memset(test_ports,0x5A,sizeof(test_ports));memset(test_page,0xA5,sizeof(test_page));
  test_ports[0].data=0xAB;test_ports[0].status=1;

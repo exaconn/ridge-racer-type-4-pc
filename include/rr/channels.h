@@ -3,58 +3,62 @@
 
 #include "rr/layout.h"
 
-typedef void (*RrChannelUpdateCallback)(void *);
+typedef void (*ChannelUpdateCallback)(void *);
+typedef s32 (*ChannelStatusCallback)(void *);
 
-/* Five-byte rows used to select and budget per-command output gates. */
-typedef struct {u8 opaque00[2],all_bits02,cost03,opaque04;} RrChannelGateEntry5;
+/* Five-byte actuator descriptions returned by command 0x46. */
+typedef struct {u8 opaque00[2],all_bits02,cost03,opaque04;} ChannelGateEntry5;
+typedef struct {
+    u8 count00;
+    u8 reserved01[3];
+    u8 *buttons04;
+} ChannelCombEntry8;
 
-/* Shared channel prefix for readiness and stage dispatch. */
-typedef struct RrChannelStatusView {
-    u8 pad00[4];
-    const RrChannelGateEntry5 *entries04;
-    u8 pad08[4];
-    s32 reset0C;
-    struct RrChannelStatusView *owner10;
-    RrChannelUpdateCallback update14;
-    u8 pad18[0x24-0x18], argument24, pad25[3];
-    u8 *data28;
-    u8 *data2C;
-    u8 *input30;
-    u8 length34,pad35, length36, command37, pad38[4];
-    u8 *packet;
-    u8 *buffer40;
-    u8 pad44[2];
-    u8 phase;
-    u8 state47, pad48, state49, pad4A[0x57-0x4A], gates57[6], payload5D[6], pad63[0xE4-0x63], argumentE4, padE5;
+/* PAL metadata has a 128-byte protocol budget. Native descriptor pointers
+ * need additional storage and alignment without enlarging that wire budget. */
+enum { PAD_ACT_INFO_BYTES=0x80, PAD_COMB_WIRE_BYTES=8,
+       PAD_MAX_COMBINATIONS=PAD_ACT_INFO_BYTES/PAD_COMB_WIRE_BYTES };
+
+/* The transfer gates and six output IDs occupy one contiguous byte area.
+ * Payload cursors may also address the three bytes preceding the IDs. */
+typedef union {
+    u8 bytes[15];
+    struct {u8 gates[9],payload[6];} fields;
+} ChannelOutput15;
+
+typedef struct PadChannel {
+    u16 *modes00;
+    ChannelGateEntry5 *entries04;
+    ChannelCombEntry8 *combs08;
+    struct PadChannel *children0C;
+    struct PadChannel *owner10;
+    ChannelUpdateCallback update14;
+    ChannelStatusCallback complete18;
+    u8 reserved1C[4];
+    u8 *layout20;
+    u8 argument24,reserved25[3];
+    u8 *data28,*data2C,*input30;
+    u8 length34,pad35,length36,command37,previous38,flag39,reserved3A[2];
+    u8 *packet,*buffer40;
+    u8 b44,b45,phase,state47,flag48,state49,retry4A,reserved4B;
+    s32 type4C;
+    u8 b50,modeArgs51[2],modeEqual53;
+    ChannelOutput15 output54;
+    u8 metadata63[PAD_ACT_INFO_BYTES
+        + PAD_MAX_COMBINATIONS*(sizeof(ChannelCombEntry8)-PAD_COMB_WIRE_BYTES)
+        + (__alignof__(ChannelCombEntry8)-4)];
+    u8 modeCountE3,argumentE4,padE5;
     u16 pending;
-} RrChannelStatusView;
-
-/* Channel records walked by the two-channel reset path. */
-typedef struct {
-    RrChannelStatusView status;
-    u8 responseE8,entry_countE9,padEA[6];
-} RrChannelRecordF0;
-
-/* Partial transfer view: pointer fields are native pointers in host fixtures. */
-typedef struct {
-    u8 pad00[0x28];
-    u8 *data28, *data2C;
-    u8 pad30[4], length34, pad35, length36, command37, previous38;
-    u8 pad39[12], phase45, pad46[14], gates54[9];
-} RrChannelTransferView;
+    u8 responseE8,entry_countE9,combCountEA,scanIndexEB;
+    u16 scanOffsetEC,scanSeenEE;
+} PadChannel;
 
 /* Accessed payload pointers must cover offsets -3..-1 for phases 0..2. */
-u32 _padGetTxByte(const RrChannelTransferView *channel);
-void _padSaveCommand(RrChannelTransferView *channel);
-
-RR_ASSERT_SIZE(RrChannelTransferView, 0x60);
-RR_ASSERT_OFFSET(RrChannelTransferView, data28, 0x28);
-RR_ASSERT_OFFSET(RrChannelTransferView, data2C, 0x2C);
-RR_ASSERT_OFFSET(RrChannelTransferView, length34, 0x34);
-RR_ASSERT_OFFSET(RrChannelTransferView, command37, 0x37);
-RR_ASSERT_OFFSET(RrChannelTransferView, previous38, 0x38);
-RR_ASSERT_OFFSET(RrChannelTransferView, phase45, 0x45);
-RR_ASSERT_OFFSET(RrChannelTransferView, gates54, 0x54);
+/* The driver computes the second argument for its byte-provider callback.
+ * This installed implementation selects bytes from channel state alone. */
+typedef u32 (*ChannelByteCallback)(const PadChannel *channel, s32 transferMode);
+u32 _padGetTxByte(const PadChannel *channel, s32 transferMode);
+void _padSaveCommand(PadChannel *channel);
 
 /* Partial layout of the 0x36-byte control rows beginning at _svm_voice. */
 typedef struct {
@@ -62,39 +66,99 @@ typedef struct {
     u16 age02;
     u16 value04;
     u16 value06;
-    u8 pad08[0xE - 8];
+    s16 unk08;
+    u8 unk0A;
+    u8 pad0B;
+    s16 unk0C;
     s16 group0E, match10;
-    u8 pad12[2];
+    s16 unk12;
     s16 match14;
-    u8 pad16[2];
+#ifndef __mips__
+    union {
+        u8 pad16[2];
+        s16 unk16;
+    };
+#else
+    s16 unk16;
+#endif
     s16 match18;
     s16 priority1A;
     u8 pad1C;
-    u8 flags1D;
-    u8 pad1E[0x36 - 0x1E];
-} RrChannelControlRow36;
+    s8 flags1D;
+#ifndef __mips__
+    union {
+        u8 pad1E[24];
+        struct {
+            s16 field1E;
+            s16 field20;
+            s16 field22;
+            s16 field24;
+            s16 field26;
+            s16 field28;
+            s16 field2A;
+            s16 field2C;
+            s16 field2E;
+            s16 field30;
+            s16 field32;
+            s16 field34;
+        };
+    };
+#else
+    s16 field1E;
+    s16 field20;
+    s16 field22;
+    s16 field24;
+    s16 field26;
+    s16 field28;
+    s16 field2A;
+    s16 field2C;
+    s16 field2E;
+    s16 field30;
+    s16 field32;
+    s16 field34;
+#endif
+} ChannelControlRow36;
+
+typedef struct {
+    s8 f00, f01, f02, f03, f04;
+    u8 f05;
+    s8 f06, f07, f08, f09, f0A;
+    u8 f0B;
+    s8 f0C, f0D;
+    u8 f0E;
+    s8 f0F, f10, f11;
+    u8 f12;
+    s8 f13;
+    s16 f14, f16, f18;
+} SvmCur;
 
 /* Partial per-channel record selected through _ss_score (0xB0 stride). */
 typedef struct {
-    u8 pad00[0x48];
+    u8 pad00[0x17];
+    u8 unk17;
+    u8 pad18[0x26 - 0x18];
+    s8 unk26;
+    u8 pad27[0x48 - 0x27];
     s16 rampDelta48, rampApplied4A;
     u8 pad4C[0x58 - 0x4C];
     u16 value58, value5A;
     u16 volume5C, volume5E;
-    u8 pad60[0x98 - 0x60];
+    s16 unk60[16];
+    u8 pad80[0x98 - 0x80];
     s32 mode98, rampDuration9C, rampElapsedA0;
     u8 padA4[0xB0 - 0xA4];
-} RrChannelValueRecordB0;
+} ChannelValueRecordB0;
 
-extern RrChannelValueRecordB0 *_ss_score[];
-extern s16 D_80110114;
-extern u16 D_80110118;
+extern ChannelValueRecordB0 *_ss_score[];
+extern SvmCur _svm_cur;
+extern s16 _svm_cur_vab_id;
+extern u16 _svm_voice_cursor;
 extern s32 _snd_ev_flag;
 
 /* Reset uses the global selector; the caller-supplied mode is unused. */
 extern void _SsVmKeyOffNow(s32 unused_mode);
 extern void vmNoiseOff(u8 index);
-extern RrChannelControlRow36 _svm_voice[];
+extern ChannelControlRow36 _svm_voice[];
 extern u32 _snd_vmask;
 /* Uses the valid active-channel count established by SsSetReservedVoice. */
 s32 _SsVmKeyOff(s32 match10, s32 match18, s32 match14, u32 group0E);
@@ -107,58 +171,32 @@ extern s32 SsUtKeyOffV(s32 selected);
 extern s8 spuVmMaxVoice;
 extern s32 SsSetReservedVoice(u32 count);
 
-typedef s32 (*RrChannelStatusCallback)(void *);
-
-/* Command record used by the two-byte channel mode request and its handlers. */
-typedef struct {
-    u8 pad00[0x14];
-    RrChannelUpdateCallback update;
-    RrChannelStatusCallback complete;
-    u8 pad1C[0x2C-0x1C];
-    u8 *data2C;
-    u8 pad30[6], length36, command37, pad38[0x46-0x38];
-    u8 phase, pad47[0x51-0x47], first, second, equal;
-    u8 pad54[0x5D-0x54], payload[6], pad63[0xE4-0x63], argument;
-} RrChannelPatchCommand;
-
-typedef void *(*RrChannelRecordCallback)(s32 selector);
-extern RrChannelRecordCallback D_800ABC7C;
+typedef void *(*ChannelRecordCallback)(s32 selector);
+extern ChannelRecordCallback PadPortToChannelFn;
 void PadSetMainMode(s32 selector, s32 first, s32 second);
-s32 _padSetMainMode(RrChannelPatchCommand *channel, s32 first, s32 second);
+s32 _padSetMainMode(PadChannel *channel, s32 first, s32 second);
 void _padMainModeUpdate(void *channel);
 s32 _padMainModeComplete(void *channel);
 
-RR_ASSERT_SIZE(RrChannelPatchCommand, 0xE8);
-RR_ASSERT_OFFSET(RrChannelPatchCommand, update, 0x14);
-RR_ASSERT_OFFSET(RrChannelPatchCommand, complete, 0x18);
-RR_ASSERT_OFFSET(RrChannelPatchCommand, data2C, 0x2C);
-RR_ASSERT_OFFSET(RrChannelPatchCommand, length36, 0x36);
-RR_ASSERT_OFFSET(RrChannelPatchCommand, command37, 0x37);
-RR_ASSERT_OFFSET(RrChannelPatchCommand, phase, 0x46);
-RR_ASSERT_OFFSET(RrChannelPatchCommand, first, 0x51);
-RR_ASSERT_OFFSET(RrChannelPatchCommand, second, 0x52);
-RR_ASSERT_OFFSET(RrChannelPatchCommand, equal, 0x53);
-RR_ASSERT_OFFSET(RrChannelPatchCommand, payload, 0x5D);
-RR_ASSERT_OFFSET(RrChannelPatchCommand, argument, 0xE4);
-extern RrChannelRecordF0 *PadChannelRecords;
-extern RrChannelUpdateCallback D_800ABC6C;
+extern PadChannel *PadChannelRecords;
+extern ChannelUpdateCallback PadResetChannelFn;
 extern s32 PadComActive;
 void _padStartCom(void);
 
-typedef void (*RrChannelErrorCallback)(s32 status);
-extern RrChannelErrorCallback PadAdvanceChannelFn;
-extern s32 D_800ABCD0, PadFirstChannel, D_800ABCBC;
-extern s32 PadActiveChannel, PadRecvStage, D_800ABCB0;
-extern s32 D_80114428[2];
-s32 _padInitSioMode(RrChannelRecordF0 *channel);
+typedef void (*ChannelErrorCallback)(s32 status);
+extern ChannelErrorCallback PadAdvanceChannelFn;
+extern s32 D_800ABCD0, PadFirstChannel, PadLastChannel;
+extern s32 PadActiveChannel, PadRecvStage, PadTotalGateCost;
+extern s32 PadPortTimeoutCounts[2];
+s32 _padInitSioMode(PadChannel *channel);
 /* Entry stage must be in 0..4; the handler sees its incremented value. */
-typedef s32 (*RrChannelStageCallback)(RrChannelRecordF0 *channel);
-extern RrChannelStageCallback PadRecvStageTable[5];
-void _padSioStageStep(RrChannelRecordF0 *channel);
+typedef s32 (*ChannelStageCallback)(PadChannel *channel);
+extern ChannelStageCallback PadRecvStageTable[5];
+void _padSioStageStep(PadChannel *channel);
 s32 _padIntPad(void);
 
-extern RrChannelStatusCallback D_800ABC80, PadChannelBusyFn;
-extern RrChannelUpdateCallback PadPacketDoneCallback;
+extern ChannelStatusCallback PadChannelDispatchFn, PadChannelBusyFn;
+extern ChannelUpdateCallback PadPacketDoneCallback;
 
 extern s32 _padChannelDispatch(void *channel);
 void _padCmdParaMode(void *channel, s32 value);
@@ -171,51 +209,66 @@ void _padSendAtLoadInfo(u8 *channel);
 extern s32 _padChannelBusy(void *channel);
 extern void _padPacketDone(void *channel);
 
-RR_ASSERT_SIZE(RrChannelGateEntry5,5);
-RR_ASSERT_OFFSET(RrChannelGateEntry5,all_bits02,2);
-RR_ASSERT_OFFSET(RrChannelGateEntry5,cost03,3);
-RR_ASSERT_OFFSET(RrChannelStatusView,entries04,4);
-RR_ASSERT_OFFSET(RrChannelStatusView,data28,0x28);
-RR_ASSERT_OFFSET(RrChannelStatusView,length34,0x34);
-RR_ASSERT_OFFSET(RrChannelStatusView,gates57,0x57);
-RR_ASSERT_OFFSET(RrChannelRecordF0,entry_countE9,0xE9);
-RR_ASSERT_OFFSET(RrChannelStatusView, reset0C, 0x0C);
-RR_ASSERT_OFFSET(RrChannelStatusView, owner10, 0x10);
-RR_ASSERT_OFFSET(RrChannelStatusView, input30, 0x30);
-RR_ASSERT_OFFSET(RrChannelStatusView, buffer40, 0x40);
-RR_ASSERT_OFFSET(RrChannelStatusView, payload5D, 0x5D);
-RR_ASSERT_SIZE(RrChannelRecordF0, 0xF0);
-RR_ASSERT_OFFSET(RrChannelRecordF0, status, 0);
-RR_ASSERT_SIZE(RrChannelStatusView, 0xE8);
-RR_ASSERT_OFFSET(RrChannelStatusView, update14, 0x14);
-RR_ASSERT_OFFSET(RrChannelStatusView, argument24, 0x24);
-RR_ASSERT_OFFSET(RrChannelStatusView, data2C, 0x2C);
-RR_ASSERT_OFFSET(RrChannelStatusView, length36, 0x36);
-RR_ASSERT_OFFSET(RrChannelStatusView, command37, 0x37);
-RR_ASSERT_OFFSET(RrChannelStatusView, packet, 0x3C);
-RR_ASSERT_OFFSET(RrChannelStatusView, state47, 0x47);
-RR_ASSERT_OFFSET(RrChannelStatusView, state49, 0x49);
-RR_ASSERT_OFFSET(RrChannelStatusView, argumentE4, 0xE4);
-RR_ASSERT_OFFSET(RrChannelRecordF0, responseE8, 0xE8);
-RR_ASSERT_OFFSET(RrChannelStatusView, phase, 0x46);
-RR_ASSERT_OFFSET(RrChannelStatusView, pending, 0xE6);
-RR_ASSERT_SIZE(RrChannelControlRow36, 0x36);
-RR_ASSERT_OFFSET(RrChannelControlRow36, value04, 4);
-RR_ASSERT_OFFSET(RrChannelControlRow36, group0E, 0xE);
-RR_ASSERT_OFFSET(RrChannelControlRow36, match10, 0x10);
-RR_ASSERT_OFFSET(RrChannelControlRow36, match14, 0x14);
-RR_ASSERT_OFFSET(RrChannelControlRow36, match18, 0x18);
-RR_ASSERT_OFFSET(RrChannelControlRow36, flags1D, 0x1D);
-RR_ASSERT_SIZE(RrChannelValueRecordB0, 0xB0);
-RR_ASSERT_OFFSET(RrChannelValueRecordB0, value58, 0x58);
-RR_ASSERT_OFFSET(RrChannelValueRecordB0, value5A, 0x5A);
-RR_ASSERT_OFFSET(RrChannelValueRecordB0, mode98, 0x98);
+RR_ASSERT_SIZE(ChannelGateEntry5,5);
+RR_ASSERT_OFFSET(ChannelGateEntry5,all_bits02,2);
+RR_ASSERT_OFFSET(ChannelGateEntry5,cost03,3);
+RR_ASSERT_SIZE(ChannelOutput15,15);
+#if defined(__mips__)
+RR_ASSERT_SIZE(ChannelCombEntry8,8);
+RR_ASSERT_SIZE(PadChannel,0xF0);
+RR_ASSERT_OFFSET(PadChannel,modes00,0x0);
+RR_ASSERT_OFFSET(PadChannel,entries04,0x4);
+RR_ASSERT_OFFSET(PadChannel,combs08,0x8);
+RR_ASSERT_OFFSET(PadChannel,children0C,0xC);
+RR_ASSERT_OFFSET(PadChannel,owner10,0x10);
+RR_ASSERT_OFFSET(PadChannel,update14,0x14);
+RR_ASSERT_OFFSET(PadChannel,complete18,0x18);
+RR_ASSERT_OFFSET(PadChannel,layout20,0x20);
+RR_ASSERT_OFFSET(PadChannel,argument24,0x24);
+RR_ASSERT_OFFSET(PadChannel,data28,0x28);
+RR_ASSERT_OFFSET(PadChannel,data2C,0x2C);
+RR_ASSERT_OFFSET(PadChannel,input30,0x30);
+RR_ASSERT_OFFSET(PadChannel,length34,0x34);
+RR_ASSERT_OFFSET(PadChannel,length36,0x36);
+RR_ASSERT_OFFSET(PadChannel,command37,0x37);
+RR_ASSERT_OFFSET(PadChannel,previous38,0x38);
+RR_ASSERT_OFFSET(PadChannel,packet,0x3C);
+RR_ASSERT_OFFSET(PadChannel,buffer40,0x40);
+RR_ASSERT_OFFSET(PadChannel,b45,0x45);
+RR_ASSERT_OFFSET(PadChannel,phase,0x46);
+RR_ASSERT_OFFSET(PadChannel,state47,0x47);
+RR_ASSERT_OFFSET(PadChannel,state49,0x49);
+RR_ASSERT_OFFSET(PadChannel,type4C,0x4C);
+RR_ASSERT_OFFSET(PadChannel,modeArgs51,0x51);
+RR_ASSERT_OFFSET(PadChannel,output54,0x54);
+RR_ASSERT_OFFSET(PadChannel,metadata63,0x63);
+RR_ASSERT_OFFSET(PadChannel,modeCountE3,0xE3);
+RR_ASSERT_OFFSET(PadChannel,argumentE4,0xE4);
+RR_ASSERT_OFFSET(PadChannel,pending,0xE6);
+RR_ASSERT_OFFSET(PadChannel,responseE8,0xE8);
+RR_ASSERT_OFFSET(PadChannel,entry_countE9,0xE9);
+RR_ASSERT_OFFSET(PadChannel,combCountEA,0xEA);
+RR_ASSERT_OFFSET(PadChannel,scanIndexEB,0xEB);
+RR_ASSERT_OFFSET(PadChannel,scanOffsetEC,0xEC);
+RR_ASSERT_OFFSET(PadChannel,scanSeenEE,0xEE);
+#endif
+RR_ASSERT_SIZE(ChannelControlRow36, 0x36);
+RR_ASSERT_OFFSET(ChannelControlRow36, value04, 4);
+RR_ASSERT_OFFSET(ChannelControlRow36, group0E, 0xE);
+RR_ASSERT_OFFSET(ChannelControlRow36, match10, 0x10);
+RR_ASSERT_OFFSET(ChannelControlRow36, match14, 0x14);
+RR_ASSERT_OFFSET(ChannelControlRow36, match18, 0x18);
+RR_ASSERT_OFFSET(ChannelControlRow36, flags1D, 0x1D);
+RR_ASSERT_SIZE(ChannelValueRecordB0, 0xB0);
+RR_ASSERT_OFFSET(ChannelValueRecordB0, value58, 0x58);
+RR_ASSERT_OFFSET(ChannelValueRecordB0, value5A, 0x5A);
+RR_ASSERT_OFFSET(ChannelValueRecordB0, mode98, 0x98);
 
-RR_ASSERT_OFFSET(RrChannelValueRecordB0, rampDelta48, 0x48);
-RR_ASSERT_OFFSET(RrChannelValueRecordB0, rampApplied4A, 0x4A);
-RR_ASSERT_OFFSET(RrChannelValueRecordB0, volume5C, 0x5C);
-RR_ASSERT_OFFSET(RrChannelValueRecordB0, volume5E, 0x5E);
-RR_ASSERT_OFFSET(RrChannelValueRecordB0, rampDuration9C, 0x9C);
-RR_ASSERT_OFFSET(RrChannelValueRecordB0, rampElapsedA0, 0xA0);
+RR_ASSERT_OFFSET(ChannelValueRecordB0, rampDelta48, 0x48);
+RR_ASSERT_OFFSET(ChannelValueRecordB0, rampApplied4A, 0x4A);
+RR_ASSERT_OFFSET(ChannelValueRecordB0, volume5C, 0x5C);
+RR_ASSERT_OFFSET(ChannelValueRecordB0, volume5E, 0x5E);
+RR_ASSERT_OFFSET(ChannelValueRecordB0, rampDuration9C, 0x9C);
+RR_ASSERT_OFFSET(ChannelValueRecordB0, rampElapsedA0, 0xA0);
 
 #endif

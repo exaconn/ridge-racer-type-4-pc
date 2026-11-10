@@ -5,7 +5,7 @@
 #include "rr/save_progress.h"
 #include "rr/course_choice_types.h"
 #include "rr/string_tail_copy.h"
-extern RrCourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[2][9];
 void SeqStartTrack(s32 mode);
 #include "rr/overlay662_progress_init.h"
 extern const char ovl662_D_8011487C[];

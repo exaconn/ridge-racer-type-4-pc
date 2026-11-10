@@ -5,8 +5,8 @@
 
 /* The selector and the record list share the same resident buffer. */
 typedef union {
-    RrMenuChoice4 choice;
-    RrSelectionRows selection;
-    RrSelectionRow entry;
-} RrCurrentSelection;
+    MenuChoice4 choice;
+    SelectionRows32 selection;
+    SelectionRow entry;
+} CurrentSelection;
 #endif

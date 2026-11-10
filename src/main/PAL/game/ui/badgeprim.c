@@ -1,30 +1,33 @@
+#include "game/ui/badgeprim.h"
+#include "rr/sprite_emit.h"
 #include "types.h"
 #include "psyq/libgpu/primattr.h"
 #include "psyq/libgpu/settrans.h"
 #include "rr/animated_glyph.h"
-struct R { unsigned char u, v, w, h; };
-struct P { int link; unsigned char r, g, b, code; short x, y; unsigned char u, v; unsigned short clut; short w, h; };
-void AddPrim(u32 *,u32 *);
 
-struct P *AddSpritePrim(u32 *a0, struct P *a1, int a2, int a3, struct R *a4, unsigned short a5, int a6)
-{
-    int s1 = a6 >> 1;
-    SetSprt(a1);
-    if (s1 == 0) {
-        SetShadeTex(a1, 1);
+void *AddSpritePrim(u32 *ordering, void *packet, s32 x, s32 y, UiUvRect *region, u16 clut, s32 flags) {
+    s32 brightness = flags >> 1;
+    SetSprt(packet);
+    if (brightness == 0) {
+        SetShadeTex(packet, 1);
     } else {
-        a1->r = s1;
-        a1->g = s1;
-        a1->b = s1;
+        SpritePacket *sprite = packet;
+        sprite->r = brightness;
+        sprite->g = brightness;
+        sprite->b = brightness;
     }
-    SetSemiTrans(a1, a6 & 1);
-    a1->x = a2;
-    a1->y = a3;
-    a1->w = a4->w;
-    a1->h = a4->h;
-    a1->u = a4->u;
-    a1->v = a4->v;
-    a1->clut = a5;
-    AddPrim(a0, (u32 *)a1++);
-    return a1;
+    SetSemiTrans(packet, flags & 1);
+    {
+        SpritePacket *sprite = packet;
+        sprite->x = x;
+        sprite->y = y;
+        sprite->w = region->w;
+        sprite->h = region->h;
+        sprite->u = region->u;
+        sprite->v = region->v;
+        sprite->clut = clut;
+        packet = sprite + 1;
+        AddPrim(ordering, (u32 *)sprite);
+    }
+    return packet;
 }

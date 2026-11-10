@@ -3,30 +3,30 @@
 
 #include "rr/layout.h"
 
-typedef void (*RrSpuTickCallback)(void);
+typedef void (*SpuTickCallback)(void);
 typedef struct {
     s8 direct, divided, interrupt, reserved;
-} RrSpuTickFlags4;
+} SpuTickFlags4;
 /* Timer state through the three-word D_800A4D4C owner, ending at0x800A4D58. The first two words also have the
  * assembler names _snd_seq_tick_env and D_800A4D3C; callback pointers retain native width. */
 typedef struct {
     s32 selector, active;
-    RrSpuTickCallback callback, previous;
-    RrSpuTickFlags4 flags;
+    SpuTickCallback callback, previous;
+    SpuTickFlags4 flags;
     s32 state[3];
-} RrSpuTickState20;
+} SpuTickState20;
 
-extern RrSpuTickState20 _snd_seq_tick_env;
+extern SpuTickState20 _snd_seq_tick_env;
 extern s32 VBLANK_MINUS;
 s32 GetVideoMode(void);
 void SsSetTickMode(s32 mode);
 
-RR_ASSERT_SIZE(RrSpuTickFlags4,4);
-RR_ASSERT_SIZE(RrSpuTickState20,0x20);
-RR_ASSERT_OFFSET(RrSpuTickState20,active,4);
-RR_ASSERT_OFFSET(RrSpuTickState20,callback,8);
-RR_ASSERT_OFFSET(RrSpuTickState20,previous,0xC);
-RR_ASSERT_OFFSET(RrSpuTickState20,flags,0x10);
-RR_ASSERT_OFFSET(RrSpuTickState20,state,0x14);
+RR_ASSERT_SIZE(SpuTickFlags4,4);
+RR_ASSERT_SIZE(SpuTickState20,0x20);
+RR_ASSERT_OFFSET(SpuTickState20,active,4);
+RR_ASSERT_OFFSET(SpuTickState20,callback,8);
+RR_ASSERT_OFFSET(SpuTickState20,previous,0xC);
+RR_ASSERT_OFFSET(SpuTickState20,flags,0x10);
+RR_ASSERT_OFFSET(SpuTickState20,state,0x14);
 
 #endif

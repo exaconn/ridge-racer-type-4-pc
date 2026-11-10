@@ -8,8 +8,8 @@
 #undef _spu_memList
 
 s32 _SpuIsInAllocateArea(u32 address) {
-    RrSpuAllocation *initial=_spu_memList;
-    RrSpuAllocation *p;
+    SpuAllocation *initial=_spu_memList;
+    SpuAllocation *p;
     u32 value;
     u32 skip=0x80000000U;
     u32 end;

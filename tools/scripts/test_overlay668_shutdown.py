@@ -28,10 +28,10 @@ class OverlayShutdownTest(unittest.TestCase):
 #include "rr/overlay668_decode.h"
 #include "rr/cd.h"
 #include "rr/frame_loop.h"
-typedef struct {s32 kind,argument;RrLibInterruptCallback callback;} Event;
+typedef struct {s32 kind,argument;LibInterruptCallback callback;} Event;
 static struct World {
- u32 before[8];RrLibInterruptDriverPrefix driver,*active;
- RrLibInterruptCallback slot;s32 audio_mode,after_lock;
+ u32 before[8];LibInterruptDriverPrefix driver,*active;
+ LibInterruptCallback slot;s32 audio_mode,after_lock;
  s8 ports[4],*port0,*port1;u32 first,second,calls;
  u16 screen,step;s16 counter;Event events[8];u32 after[8];
 } world,expected;
@@ -44,12 +44,12 @@ static struct World {
 #define D_800F4D8A world.counter
 static void callback(void) {assert(0);}
 static void event(struct World *w,s32 kind,s32 a){Event *e;assert(w->calls<8);e=&w->events[w->calls++];e->kind=kind;e->argument=a;}
-static void exchange_effect(struct World *w,s32 channel,RrLibInterruptCallback cb){
+static void exchange_effect(struct World *w,s32 channel,LibInterruptCallback cb){
  event(w,1,channel);w->events[w->calls-1].callback=cb;w->slot=cb;
  w->audio_mode=99;w->screen=0x1234;w->counter=-17;
 }
-static RrLibInterruptCallback exchange(s32 channel,RrLibInterruptCallback cb){
- RrLibInterruptCallback old=world.slot;assert(channel==1 && cb==0);
+static LibInterruptCallback exchange(s32 channel,LibInterruptCallback cb){
+ LibInterruptCallback old=world.slot;assert(channel==1 && cb==0);
  exchange_effect(&world,channel,cb);return old;
 }
 static void lock_effect(struct World *w){

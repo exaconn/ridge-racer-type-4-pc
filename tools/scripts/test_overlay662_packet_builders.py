@@ -23,12 +23,12 @@ class GaragePacketBuildersTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_primitives.h"
 typedef union {
- RrGpuPolyFT4Packet quads[3];RrGpuLineF4Packet frames[3];
- RrGpuTilePacket lines[3];
+ GpuPolyFT4Packet quads[3];GpuLineF4Packet frames[3];
+ GpuTilePacket lines[3];
 } PacketOwner;
 typedef union {
- RrGarageSelectionPrefix state;
- struct {u8 pad[offsetof(RrGarageSelectionPrefix,halfC8)-8];PacketOwner storage;} view;
+ GarageSelectionPrefix state;
+ struct {u8 pad[offsetof(GarageSelectionPrefix,halfC8)-8];PacketOwner storage;} view;
 } GarageOwner;
 static struct World {u32 guard[4];GarageOwner garage;PacketOwner storage;u32 ordering;u32 tail[4];} world,expected;
 #define ovl662_D_801276A8 world.garage.state
@@ -95,8 +95,8 @@ int main(void){
   PacketOwner *p;u32 *o;
   for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();
   mode=k&1;which=(k/2)%7;
-  put16(&world.garage.state,offsetof(RrGarageSelectionPrefix,halfC8),k);
-  put16(&world.garage.state,offsetof(RrGarageSelectionPrefix,halfCA),k*40503U+17U);
+  put16(&world.garage.state,offsetof(GarageSelectionPrefix,halfC8),k);
+  put16(&world.garage.state,offsetof(GarageSelectionPrefix,halfCA),k*40503U+17U);
   for(i=0;i<10;i++)a[i]=(k&4)?next():edge[(k+i)%13];
   memcpy(&expected,&world,sizeof(world));reference(kind,mode,which,a);
   p=storage(&world,mode);o=ordering(&world,kind,mode,which);assert((uintptr_t)p>UINT32_MAX);

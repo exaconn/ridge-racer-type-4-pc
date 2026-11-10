@@ -10,14 +10,18 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class UiPanelTest(unittest.TestCase):
     def test_actual_body_callbacks_and_complete_owners(self):
-        s=(ROOT/'tools/scripts/fixtures/legacy/func_8003D474.c').read_text()
+        from c_functions import definition_source, source_owners, function_definitions
+        name=function_definitions((ROOT/'tools/scripts/fixtures/legacy/func_8003D474.c').read_text())[0]
+        owner_text=source_owners(ROOT/'src/main/PAL')[name].read_text()
+        s=re.search(r'SpritePacket \*DrawBadgeTitleBar[^;]*;',owner_text).group(0)+'\n'+definition_source(owner_text,name)
         s=re.sub(r'^#include.*\n','',s,flags=re.M)
         s=re.sub(r' asm\("\$\d+"\)','',s)
         s=re.sub(r'__asm__\(""[^;]*;',';',s)
-        self.assertEqual(s.count('(RrGpuScratchPointers *)0x1F800000U'),1)
-        s=s.replace('(RrGpuScratchPointers *)0x1F800000U','(&w->scratch)')
+        self.assertEqual(s.count('(GpuScratchPointers *)SCRATCHPAD'),1)
+        s=s.replace('(GpuScratchPointers *)SCRATCHPAD','(&w->scratch)')
         prefix=r'''
 #include <assert.h>
+#include "rr/frame_storage_types.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -31,39 +35,39 @@ class UiPanelTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,s)
 #define RR_ASSERT_OFFSET(t,f,o)
 #include "rr/ui_panel.h"
-_Static_assert(sizeof(RrBadgeRow1C)==28,"row stride");
-_Static_assert(offsetof(RrBadgeRow1C,status00)==0,"status");
-_Static_assert(offsetof(RrBadgeRow1C,x04)==4,"x");
-_Static_assert(offsetof(RrBadgeRow1C,y06)==6,"y");
-_Static_assert(offsetof(RrBadgeRow1C,y0A)==10,"lower edge");
-_Static_assert(offsetof(RrBadgeRow1C,width0C)==12,"width");
-_Static_assert(offsetof(RrBadgeRow1C,extent0E)==14,"extent");
-_Static_assert(offsetof(RrBadgeRow1C,x14)==20,"viewport x");
-_Static_assert(offsetof(RrBadgeRow1C,y16)==22,"viewport y");
-_Static_assert(offsetof(RrBadgeRow1C,w18)==24,"viewport width");
-_Static_assert(offsetof(RrBadgeRow1C,h1A)==26,"viewport height");
-_Static_assert(sizeof(RrPanelContext)==120,"context");
-_Static_assert(offsetof(RrPanelContext,head74)==116,"head");
+_Static_assert(sizeof(BadgeRow1C)==28,"row stride");
+_Static_assert(offsetof(BadgeRow1C,status00)==0,"status");
+_Static_assert(offsetof(BadgeRow1C,x04)==4,"x");
+_Static_assert(offsetof(BadgeRow1C,y06)==6,"y");
+_Static_assert(offsetof(BadgeRow1C,y0A)==10,"lower edge");
+_Static_assert(offsetof(BadgeRow1C,width0C)==12,"width");
+_Static_assert(offsetof(BadgeRow1C,extent0E)==14,"extent");
+_Static_assert(offsetof(BadgeRow1C,x14)==20,"viewport x");
+_Static_assert(offsetof(BadgeRow1C,y16)==22,"viewport y");
+_Static_assert(offsetof(BadgeRow1C,w18)==24,"viewport width");
+_Static_assert(offsetof(BadgeRow1C,h1A)==26,"viewport height");
+_Static_assert(sizeof(FrameStorage)==0x22778,"context");
+_Static_assert(offsetof(FrameStorage,buffer.ordering70.words[1])==116,"head");
 _Static_assert(sizeof(void*)==sizeof(unsigned long),"full pointers");
-_Static_assert(sizeof(RrGpuScratchPointers)==2*sizeof(void*),"native scratch");
-_Static_assert(offsetof(RrGpuScratchPointers,order)==sizeof(void*),"native order slot");
-typedef struct {RrBadgeRow1C rows[2][6];RrPanelContext contexts[3];RrGpuScratchPointers scratch;u8 canary[32];} World;
+_Static_assert(sizeof(GpuScratchPointers)==2*sizeof(void*),"native scratch");
+_Static_assert(offsetof(GpuScratchPointers,order)==sizeof(void*),"native order slot");
+typedef struct {BadgeRow1C rows[2][6];FrameStorage contexts[3];GpuScratchPointers scratch;u8 canary[32];} World;
 typedef struct {int kind,context;void *cursor;s32 args[7];} Entry;
 static World actual,expected,*w;
 static Entry entries[32],actual_entries[32];
 static int entry_count,row_bank,context_index,selected_index,mutate,skip_case;
 static u32 seed;
 static union {uint64_t align;u8 bytes[128];} arena[32];
-static RrPanelDraw callbacks[256];
+static PanelDraw callbacks[256];
 #define BadgeRows (w->rows[row_bank]+1)
-#define CurrentDrawBuf (skip_case?NULL:&w->contexts[context_index].prefix)
+#define CurrentDrawBuf (skip_case?NULL:&w->contexts[context_index])
 #define D_8009F984 (callbacks+129)
 '''
         reference=r'''
 static void *emit(int kind,u32 *order,void *cursor,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){
  assert(entry_count<32);
  int context=-1;
- for(int i=0;i<3;i++)if(order==&w->contexts[i].head74)context=i;
+ for(int i=0;i<3;i++)if(order==&w->contexts[i].buffer.ordering70.words[1])context=i;
  assert(context>=0);
  Entry *out=&entries[entry_count];memset(out,0,sizeof(*out));
  out->kind=kind;out->context=context;out->cursor=cursor;
@@ -71,7 +75,7 @@ static void *emit(int kind,u32 *order,void *cursor,s32 a,s32 b,s32 c,s32 d,s32 e
  int sequence=entry_count++;
  if(mutate){
   for(int bank=0;bank<2;bank++){
-   RrBadgeRow1C *r=&w->rows[bank][selected_index+1];
+   BadgeRow1C *r=&w->rows[bank][selected_index+1];
    r->status00^=0xFFFF;
    r->x04=(s16)((u16)r->x04+101U);r->y06=(s16)((u16)r->y06+103U);
    r->width0C=(s16)((u16)r->width0C+107U);r->extent0E=(s16)((u16)r->extent0E+109U);
@@ -86,8 +90,8 @@ static void *emit(int kind,u32 *order,void *cursor,s32 a,s32 b,s32 c,s32 d,s32 e
  return arena[(seed+(u32)sequence*7U+(u32)kind)%32].bytes;
 }
 void *AddDrawAreaPrim(u32 *o,void *p,s32 x,s32 y,s32 width,s32 height){return emit(0,o,p,x,y,width,height,0,0,0);}
-void *AddDrawModePrim(u32 *o,void *p,u16 mode){return emit(1,o,p,mode,0,0,0,0,0,0);}
-RrSpritePacket *DrawBadgeTitleBar(u32 *o,RrSpritePacket *p,s32 x,s32 y,s32 style){return emit(2,o,p,x,y,style,0,0,0,0);}
+void *AddDrawModePrim(u32 *o,GpuDrawModePacket *mode_packet,u16 mode){ void *p = (void *)mode_packet;return emit(1,o,p,mode,0,0,0,0,0,0);}
+SpritePacket *DrawBadgeTitleBar(u32 *o,SpritePacket *p,s32 x,s32 y,s32 style){return emit(2,o,p,x,y,style,0,0,0,0);}
 void *AddTilePrim(u32 *o,void *p,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){return emit(3,o,p,x,y,width,height,r,g,b);}
 static void *cb0(u32 *o,void *p,s32 index){return emit(100,o,p,index,0,0,0,0,0,0);}
 static void *cb1(u32 *o,void *p,s32 index){return emit(101,o,p,index,0,0,0,0,0,0);}
@@ -98,7 +102,7 @@ static void reference(int index){
  u8 *r=record(index);u16 status=read16(r);if(status==65535)return;
  int callback=status>>8;if(callback>=128)callback-=256;
  s32 x=signed16(r+4),y=signed16(r+6),width=signed16(r+12),height=signed16(r+14)-22;
- u32 *head=&w->contexts[context_index].head74;
+ u32 *head=&w->contexts[context_index].buffer.ordering70.words[1];
  void *cursor=emit(0,head,w->scratch.cursor,0,0,320,512,0,0,0);
  cursor=emit(1,head,cursor,37,0,0,0,0,0,0);
  if(callback)cursor=emit(100+((unsigned)callback&1),head,cursor,index,0,0,0,0,0,0);

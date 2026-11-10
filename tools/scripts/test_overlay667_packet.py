@@ -19,8 +19,8 @@ class Overlay667PacketTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay667_packet.h"
-RrOverlay667SerialStorage ovl667_D_80118F80;
-RrOverlay667ChoicePair D_800F3AF0;
+Overlay667SerialStorage ovl667_D_80118F80;
+Overlay667ChoicePair D_800F3AF0;
 u8 ovl667_D_80118F09,ovl667_D_80118EEF;
 s32 RaceState,ovl667_D_80118EEC,LinkWriteHandle;
 static u8 expected[12],after[12],choice_after[8];

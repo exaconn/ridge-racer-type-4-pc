@@ -1,13 +1,14 @@
 #include "rr/overlay662_available_cars.h"
+#include "rr/load_cursor.h"
 
 void ovl662_func_80116960(void){
  u8 parts[3];
  s32 decoded;
  s32 arenaOffset;
  s32 i,count;s32 j;
- s16 *status;RrGarageAvailableCar *entry;
+ s16 *status;GarageAvailableCar *entry;
  u8 *choice;
- RrGarageAvailableCar *captured;
+ GarageAvailableCar *captured;
  ModeFrame=0;ScreenFrame=0;ovl662_D_801272D4=0;ovl662_D_801272E4=0;MenuCursor=0;MenuItemCount=2;
  ResetScreenCounters();
  arenaOffset=0x2D000;i=0;count=i;
@@ -23,7 +24,7 @@ void ovl662_func_80116960(void){
   if(*status!=0){
    entry->value=PackChoiceGlyph(&SelectionRows);j=0;captured=entry;choice=(u8*)&CourseChoiceTable;
    do{
-    UnpackChoiceGlyph((s8*)parts,((RrCourseChoice4*)(choice+36))->glyph);
+    UnpackChoiceGlyph((s8*)parts,((CourseChoice4*)(choice+36))->glyph);
     if(parts[2]<39)parts[2]%=20;
     decoded=PackChoiceGlyph(parts);
     if(captured->value==(s16)decoded)*status=2;
@@ -37,5 +38,5 @@ void ovl662_func_80116960(void){
  UnpackChoiceGlyph((s8*)&SelectionRows,ovl662_D_80127348[0].value);
  PlayerCourseChoices[0].first=0;PlayerCourseChoices[0].second=0;
  ModeGroup=1;D_800F3A26=67;D_800F4D8A=0;
- LoadCursor=D_800F4D40;MenuArenas.first=D_800F4D40;
+ LoadCursor=MenuArenaBase;MenuArenas.first=MenuArenaBase;
 }

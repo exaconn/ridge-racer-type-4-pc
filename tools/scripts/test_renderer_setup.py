@@ -13,37 +13,32 @@ class RendererSetupTest(unittest.TestCase):
     def setUpClass(cls):
         cls.temporary=TemporaryDirectory()
         cls.addClassCleanup(cls.temporary.cleanup)
-        def header(name):
-            text=(ROOT/'include/rr'/name).read_text()
-            return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-        body=(ROOT/'tools/scripts/fixtures/views/func_80013890.c').read_text()
-        body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
-        body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
-        assert body.count('*(s32*)0x1F800060U')==1
-        assert body.count('(RrRendererScratch*)0x1F800000U')==1
-        body=body.replace('*(s32*)0x1F800060U','actual.scratch.depthShift60')
-        body=body.replace('(RrRendererScratch*)0x1F800000U','&actual.scratch')
+        from c_functions import definition_source, source_owners
+        owner=source_owners(ROOT/'src/main/PAL')['SetupRenderer']
+        body=definition_source(owner.read_text(),'SetupRenderer')
+        body=re.sub(r'\s+(?:__asm__|asm)\("\$\d+"\)','',body)
+        assert not re.search(r'(?:__asm__|asm)\s*\(',body)
         code=r'''
 #include <assert.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "types.h"
-''' + header('gpu.h') + header('renderer_setup.h') + r'''
+#include "rr/renderer_setup.h"
 typedef struct {
     u8 prefix[16];
-    RrRendererScratch scratch;
+    RendererScratch scratch;
     u8 middle[16];
     s32 flags;
     u8 gap[12];
-    RrGpuColorCommand gouraud;
+    GpuColorCommand gouraud;
     u32 untouched1C;
-    RrGpuColorCommand flat;
+    GpuColorCommand flat;
     u32 untouched24;
     u8 suffix[16];
 } World;
 static World actual,expected;
+#define SCRATCHPAD ((u8 *)&actual.scratch)
 #define D_800AD568 actual.flags
 #define D_800F3A18 actual.gouraud
 #define D_800F3A20 actual.flat
@@ -59,14 +54,19 @@ static void check(s32 shift,u32 flagbits,u32 seed) {
     memcpy(&expected,&actual,sizeof(actual));
     /* Independent memory specification, rather than the source field names. */
     size_t scratch=offsetof(World,scratch);
-    store(scratch+0x60,(u32)shift,4);
-    store(scratch+0x64,flagbits,4);
+    /* PAL's four scene pointer slots follow the matrix prefix. Account for
+     * native pointer alignment independently of the production field names. */
+    size_t pointer=sizeof(void*),afterReserved=sizeof(ViewMatrixScratch48)+pointer+4;
+    size_t depth=((afterReserved+pointer-1)/pointer)*pointer+3*pointer+4;
+    size_t viewport=depth+12;
+    store(scratch+depth,(u32)shift,4);
+    store(scratch+depth+4,flagbits,4);
     store(offsetof(World,flat),0x2C808080U,4);
     store(offsetof(World,gouraud),0x3CFFFFFFU,4);
-    store(scratch+0x70,320,2);
-    store(scratch+0x6C,0,2);
-    store(scratch+0x6E,0,2);
-    store(scratch+0x72,256,2);
+    store(scratch+viewport+4,320,2);
+    store(scratch+viewport,0,2);
+    store(scratch+viewport+2,0,2);
+    store(scratch+viewport+6,256,2);
     SetupRenderer(shift);
     assert(!memcmp(&actual,&expected,sizeof(actual)));
     /* A second call must replace stale parameters and templates again. */

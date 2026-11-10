@@ -11,9 +11,9 @@
 #undef MotionController
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80096434 ((int (*)())func_80096434)
+#define PsyqBzero ((int (*)())PsyqBzero)
 
-#undef func_80096434
+#undef PsyqBzero
 
 /* legacy typing of shared globals in this part of the unit */
 #define RaceContext (*(struct { char pad[0x3D8]; struct Q_1 *q; } (*))&RaceContext)
@@ -35,18 +35,18 @@
 
 #undef MotionController
 
-void UpdateMotionTrack(RrMotionClock20 *clock) {
+void UpdateMotionTrack(MotionClock20 *clock) {
     s16 counter, next;
     s32 start, code, delta, units;
     s32 rate;
     register s32 velocity __asm__("$4");
     u32 tempo;
-    RrMotionKey32 *key;
-    RrMotionKey32 *finishKey;
-    RrMotionKey32 *restKey;
-    register RrMotionKey32 *scaleKey __asm__("$4");
-    RrMotionTrack44 *track;
-    RrMotionControllerPrefix *controller;
+    MotionKey32 *key;
+    MotionKey32 *finishKey;
+    MotionKey32 *restKey;
+    register MotionKey32 *scaleKey __asm__("$4");
+    MotionTrack44 *track;
+    MotionControllerPrefix *controller;
 
     controller = MotionController;
     track = &controller->track;

@@ -1,9 +1,11 @@
+#include "game/data/bankrec.h"
 /* RODATA 0x80010e20 0x7c */
 #include "rr/menu_text_rows.h"
 #include "rr/menu_state_types.h"
 #include "rr/time_record_types.h"
 #include "rr/string_tail_copy.h"
 #include "rr/menu_choice.h"
+#include "game/menu/mntext.h"
 
 void FormatDecimalDigits(char *output, s32 value, s32 digits);
 void FormatRaceTime(char *output, s32 time);
@@ -15,17 +17,15 @@ extern char *D_8009FD9C;
 extern s8 D_800AD4F1;
 extern s16 ReverseCourse;
 extern s16 CourseIndex;
-extern RrTimeRecord16 RaceRecords[2][8][5];
-extern RrTimeRecord16 LapRecords[2][8][5];
-extern u8 *CarRecordPtrs[];
+extern TimeRecord16 RaceRecords[2][8][5];
+extern TimeRecord16 LapRecords[2][8][5];
 extern s32 TotalRaceTime;
 
-
-s32 InitMenuTextRows(RrMenuTextRow60 *rows) {
-    u32 size = (u32)MenuTextRowCount * 60U;
+s32 InitMenuTextRows(MenuTextRow60 *rows) {
+    u32 size = MenuTextRowCount * 60U;
     MenuTextRows = rows;
-    func_80096434(rows, size);
-    return (s32)size;
+    PsyqBzero(rows, size);
+    return size;
 }
 
 void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
@@ -90,7 +90,7 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
             }
             break;
         case 15:
-            value = CarRecordPtrs[0][0x1F3];
+            value = CarRecordPtrs[0]->stage1F3;
             FormatDecimalDigits((char *)&MenuTextRows[row].rendering.text[12], value + 1, 0);
             break;
         case 16:

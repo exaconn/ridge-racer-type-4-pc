@@ -8,7 +8,7 @@
  * and tone slots remain full native pointers in the shared declarations. */
 void _SsVmDoAllocate(void) {
     register s32 i=0;
-    register u16 *initial=&D_80110118;
+    register u16 *initial=&_svm_voice_cursor;
     register u16 *selected;
     register u32 *mask;
     /* ASM_BARRIER: retain the loop shift unit in A3 independently of row scaling. */
@@ -30,7 +30,7 @@ void _SsVmDoAllocate(void) {
     register s32 offset;
     /* ASM_BARRIER: retain the byte selection base in A3 through the final voice reload. */
     register s8 *tone_selection asm("$7");
-    register RrSpuTone32 *tone;
+    register SpuTone32 *tone;
     /* ASM_BARRIER: retain tone flags in A0 through the signed low16 clamp. */
     register u32 flags asm("$4");
     register s32 low;
@@ -49,7 +49,7 @@ void _SsVmDoAllocate(void) {
     mask=_svm_envx_hist;
     scaled=(u32)voice*8;
     voice=(s16)voice;
-    row_offset=voice*sizeof(RrChannelControlRow36);
+    row_offset=voice*sizeof(ChannelControlRow36);
     value3=32767;
     /* ASM_BARRIER: finish row offset and sentinel setup before forming the store page. */
     __asm__("" : :);
@@ -57,7 +57,7 @@ void _SsVmDoAllocate(void) {
     /* ASM_BARRIER: retain the captured PAL page before adding the destination offset. */
     __asm__("" : "+r"(store));
     store+=row_offset;
-    *(u16 *)(store - 0x6F8 + RR_FIELD_OFFSET(RrChannelControlRow36, value06))=value3;
+    *(u16 *)(store - 0x6F8 + RR_FIELD_OFFSET(ChannelControlRow36, value06))=value3;
     do {
         i++;
         *mask &= ~(one << (s16)*selected);
@@ -80,7 +80,7 @@ void _SsVmDoAllocate(void) {
     /* ASM_BARRIER: retain the captured PAL page before adding the destination offset. */
     __asm__("" : "+r"(store));
     store+=offset;
-    *(u16 *)(store - 0x1E8 + RR_FIELD_OFFSET(RrSpuVolumeCache, voices) + RR_FIELD_OFFSET(RrSpuCachedVolumeEntry, program06))=value;
+    *(u16 *)(store - 0x1E8 + RR_FIELD_OFFSET(SpuVolumeCache, voices) + RR_FIELD_OFFSET(SpuCachedVolumeEntry, program06))=value;
     voice=selection[1];
     /* ASM_BARRIER: schedule the fresh signed voice load before forming its flag address. */
     __asm__("" : :);
@@ -101,7 +101,7 @@ void _SsVmDoAllocate(void) {
     tone_selection=D_80110107;
     offset=(s32)(scaled<<16);
     offset2=offset>>15;
-    tone=(RrSpuTone32 *)((unsigned long)(tone_selection[0]*16+tone_selection[5])*32UL+(unsigned long)_svm_tn);
+    tone=(SpuTone32 *)((unsigned long)(tone_selection[0]*16+tone_selection[5])*32UL+(unsigned long)_svm_tn);
     value3=tone->value10;
     /* ASM_BARRIER: schedule tone value10 before forming the cache destination base. */
     __asm__("" : :);
@@ -110,7 +110,7 @@ void _SsVmDoAllocate(void) {
     /* ASM_BARRIER: retain the captured PAL page before adding the destination offset. */
     __asm__("" : "+r"(store));
     store+=offset2;
-    *(u16 *)(store - 0x1E8 + RR_FIELD_OFFSET(RrSpuVolumeCache, voices) + RR_FIELD_OFFSET(RrSpuCachedVolumeEntry, tone08))=value3;
+    *(u16 *)(store - 0x1E8 + RR_FIELD_OFFSET(SpuVolumeCache, voices) + RR_FIELD_OFFSET(SpuCachedVolumeEntry, tone08))=value3;
     flags=tone->value12;
     value=_svm_damper+(flags&31);
     low=value;

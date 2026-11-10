@@ -24,10 +24,10 @@ class Overlay662DrawAreaTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_draw_area.h"
-_Static_assert(sizeof(RrFrameStorage)==0x22778,"real frame stride");
-_Static_assert(offsetof(RrFrameEnvironment,display.y)==0x5E,"comparison halfword");
-RrFrameStorage D_800ADAF0[2];static RrFrameStorage expected_frames[2];
-RrGarageSelectionPrefix ovl662_D_801276A8;static RrGarageSelectionPrefix saved;
+_Static_assert(sizeof(FrameStorage)==0x22778,"real frame stride");
+_Static_assert(offsetof(FrameEnvironment,display5C.display.y)==0x5E,"comparison halfword");
+FrameStorage D_800ADAF0[2];static FrameStorage expected_frames[2];
+GarageSelectionPrefix ovl662_D_801276A8;static GarageSelectionPrefix saved;
 s32 DrawBufIndex;s16 D_800ABAC4,D_800ABAC6;
 static struct Packets {u32 before[3],words[9],head,after[3];} actual,expected;
 '''+resident+constructor+body+r'''
@@ -51,10 +51,10 @@ int main(void){unsigned i,shape,j;u32 x,y,w,h;uint64_t cases=0;
   s16 rx,ry;int64_t yy;
   ovl662_D_801276A8.halfC8=half(i);ovl662_D_801276A8.halfCA=half(i*73U+17);
   memcpy(&saved,&ovl662_D_801276A8,sizeof(saved));
-  D_800ADAF0[0].environment.display.y=half(i);
-  D_800ADAF0[1].environment.display.y=half(i+(i&1));
-  expected_frames[0].environment.display.y=D_800ADAF0[0].environment.display.y;
-  expected_frames[1].environment.display.y=D_800ADAF0[1].environment.display.y;
+  D_800ADAF0[0].environment.display5C.display.y=half(i);
+  D_800ADAF0[1].environment.display5C.display.y=half(i+(i&1));
+  expected_frames[0].environment.display5C.display.y=D_800ADAF0[0].environment.display5C.display.y;
+  expected_frames[1].environment.display5C.display.y=D_800ADAF0[1].environment.display5C.display.y;
   DrawBufIndex=i%9==8?word(next()):clocks[i%8];
   D_800ABAC4=i%3==0?1:i%3==1?320:1024;D_800ABAC6=i%3==0?512:i%3==1?256:1;
   x=next();y=next();w=(u16)i;h=(u16)(i*73U+17);

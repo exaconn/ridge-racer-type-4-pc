@@ -1,41 +1,18 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "psyq/libgpu/sys_drain.h"
-#include "rr/gpu.h"
 #include "rr/interrupts.h"
-struct GpuSys {
-    unsigned char pad0;
-    unsigned char enabled;
-    unsigned char pad2[6];
-    int unk8;
-    int unkC;
-};
 
-struct GpuQueue {
-    int (*op)();
-    int *p0;
-    int p1;
-    int buf[21];
-};
-
-typedef int (*GpuOpFunc)();
-
-extern int DMACallback(int, int (*)());
-extern struct GpuSys D_800ABAC0;
-extern volatile unsigned int *GPU_STATUS;
-extern volatile unsigned int *DMA2_CHCR;
-extern volatile int _qin;
 extern int GpuQueueSavedIntrMask;
-extern volatile struct GpuQueue D_801128D8[];
 
-void _addque(int a, int b, int c);
-int _addque2(GpuOpFunc op, int *p0, int len, int p1);
+void _addque(GpuOpFunc op, void *payload, unsigned long parameter);
+int _addque2(GpuOpFunc op, void *p0, int len, unsigned long p1);
 
-void _addque(int a, int b, int c) { _addque2(a, b, 0, c); }
+void _addque(GpuOpFunc op, void *payload, unsigned long parameter) { _addque2(op, payload, 0, parameter); }
 
-int _addque2(GpuOpFunc op, int *p0, int len, int p1) {
+int _addque2(GpuOpFunc op, void *p0, int len, unsigned long p1) {
     int i;
-    struct GpuSys *sys;
+    GpuResetState80 *sys;
 
     set_alarm();
     while (((_qin + 1) & 0x3F) == _qout) {
@@ -45,26 +22,26 @@ int _addque2(GpuOpFunc op, int *p0, int len, int p1) {
         _exeque();
     }
     GpuQueueSavedIntrMask = SetIntrMask(0);
-    sys = &D_800ABAC0;
-    sys->unk8 = 1;
-    if (sys->enabled == 0 || (_qin == _qout && (*DMA2_CHCR & 0x01000000) == 0 && sys->unkC == 0)) {
+    sys = &GpuResetState;
+    sys->pending08 = 1;
+    if (sys->enabled01 == 0 || (_qin == _qout && (*DMA2_CHCR & 0x01000000) == 0 && sys->completion0C == 0)) {
         while ((*GPU_STATUS & 0x04000000) == 0)
 ;
         op(p0, p1);
         SetIntrMask(GpuQueueSavedIntrMask);
         return 0;
     }
-    DMACallback(2, _exeque);
+    DMACallback(2, (LibInterruptCallback)_exeque);
     if (len != 0) {
         for (i = 0; i < len / 4; i++) {
-            D_801128D8[_qin].buf[i] = p0[i];
+            GpuCommandQueue[_qin].buf[i] = ((int *)p0)[i];
         }
-        D_801128D8[_qin].p0 = D_801128D8[_qin].buf;
+        GpuCommandQueue[_qin].p0 = (int *)GpuCommandQueue[_qin].buf;
     } else {
-        D_801128D8[_qin].p0 = p0;
+        GpuCommandQueue[_qin].p0 = p0;
     }
-    D_801128D8[_qin].p1 = p1;
-    D_801128D8[_qin].op = op;
+    GpuCommandQueue[_qin].p1 = p1;
+    GpuCommandQueue[_qin].op = op;
     _qin = (_qin + 1) & 0x3F;
     SetIntrMask(GpuQueueSavedIntrMask);
     _exeque();

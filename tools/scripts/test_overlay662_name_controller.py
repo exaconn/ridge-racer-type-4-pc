@@ -5,6 +5,8 @@ body=Path('src/overlays/PAL/662/func_80118A30.c').read_text();body=re.sub(r'^ext
 copy=Path('tools/scripts/fixtures/views/func_8002B75C.c').read_text().replace('CopyStringClearTail','actual_tail_copy')
 source=r'''
 #include <assert.h>
+#include "game/system/pad.h"
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -21,7 +23,7 @@ source=r'''
 #include "rr/string_tail_copy.h"
 #include "rr/tables.h"
 #include "rr/icon_sprites.h"
-static struct World {u32 guard[4];RrSaveProgressRecord7C save;u8 name[12],glyphs[44];s8 index,column,row;s32 selected,frame,tick,accept;RrMenuItemState5C input[2];s16 timer,state,slot,scene;u16 enable;RrIconSpriteContext contexts[2],*context;u32 tail[4];} world,expected;
+static struct World {u32 guard[4];SaveProgressRecord7C save;u8 name[12],glyphs[44];s8 index,column,row;s32 selected,frame,tick,accept;ControllerState5C input[2];s16 timer,state,slot,scene;u16 enable;FrameStorage contexts[2],*context;u32 tail[4];} world,expected;
 #define SaveProgress world.save
 #define NameCharset world.glyphs
 #define ovl662_D_801273A8 world.name
@@ -35,7 +37,7 @@ static struct World {u32 guard[4];RrSaveProgressRecord7C save;u8 name[12],glyphs
 #define PlayerControllers world.input
 #define D_800AC5D0 world.timer
 #define D_800F4D8A world.state
-#define D_800FFC18 world.slot
+#define CardMenuOperation world.slot
 #define D_800F3A26 world.scene
 #define ModeGroup world.enable
 #define CurrentDrawBuf world.context
@@ -49,9 +51,9 @@ static void event(unsigned kind,s32 a,s32 b,s32 c,void *p){struct World *w=refer
  else{coverage[kind]++;assert(seen<count);struct Event *e=&events[seen++];assert(e->kind==kind&&e->a==a&&e->b==b&&e->c==c&&e->p==p&&memcmp(w,&e->before,sizeof(*w))==0);}
 }
 static void effect(unsigned kind,s32 a){struct World *w=reference_run?&expected:&world;unsigned n=serial++;u32 v=0x9E3779B9U*(scenario+n+profile+1);
- w->frame=word((u32)w->frame+v);w->tick=word((u32)w->tick-v);w->context=&world.contexts[(scenario+n)&1];w->contexts[(scenario+n)&1].head70^=v;
+ w->frame=word((u32)w->frame+v);w->tick=word((u32)w->tick-v);w->context=&world.contexts[(scenario+n)&1];w->contexts[(scenario+n)&1].buffer.ordering70.words[0]^=v;
  w->timer=half((u16)(scenario*23+n*17));w->state=half((u16)v);w->index=(scenario+n+profile)%9;w->row=(scenario+n)%5;w->column=(scenario/5+profile)%(w->row==4?3:10);
- w->input[0].buttons0A=(u16)scenario;w->input[0].b=(scenario>>6)&1;w->accept=(scenario>>7)&1;
+ w->input[0].edges08.fields.repeat=(u16)scenario;w->input[0].action2C=(scenario>>6)&1;w->accept=(scenario>>7)&1;
  w->name[(scenario+n)%8]^=(u8)(v>>24);w->name[11]=0;
  if(kind==1&&a==1){oneCalls++;w->selected=(scenario+profile+n)%(oneCalls==1?46:43);}
  else w->selected=(scenario+profile+n)%43;
@@ -67,18 +69,18 @@ void UpdateBadgeRowAnim(s32 a){event(4,a,0,0,0);effect(4,a);}void UpdateScreenFa
 static void reference(void){struct World *w=&expected;unsigned state=(u16)w->state;
  w->frame=word((u32)w->frame+1);w->tick=word((u32)w->tick+1);
  if(state==0){int cancel=0;SetMenuFrameOptions(1,1,1);
-  if(w->input[0].b)cancel=1;
-  else if(w->input[0].buttons0A&0x1000){PlaySfx(0);w->row=(w->row+4)%5;if(w->row==4&&w->column>=3)w->column=2;}
-  else if(w->input[0].buttons0A&0x4000){PlaySfx(0);w->row=(w->row+1)%5;if(w->row==4&&w->column>=3)w->column=2;}
-  else if(w->input[0].buttons0A&0x8000){PlaySfx(0);w->column--;}
-  else if(w->input[0].buttons0A&0x2000){PlaySfx(0);w->column++;}
+  if(w->input[0].action2C)cancel=1;
+  else if(w->input[0].edges08.fields.repeat&0x1000){PlaySfx(0);w->row=(w->row+4)%5;if(w->row==4&&w->column>=3)w->column=2;}
+  else if(w->input[0].edges08.fields.repeat&0x4000){PlaySfx(0);w->row=(w->row+1)%5;if(w->row==4&&w->column>=3)w->column=2;}
+  else if(w->input[0].edges08.fields.repeat&0x8000){PlaySfx(0);w->column--;}
+  else if(w->input[0].edges08.fields.repeat&0x2000){PlaySfx(0);w->column++;}
   int columns=w->row==4?3:10;w->column=(w->column+columns)%columns;w->selected=w->row*10+w->column;
   if(w->accept){PlaySfx(1);int selected=w->selected;if(selected>=0&&selected<46)choices[selected]++;
    if(selected<41){if(w->index<8){PlaySfx(1);assert(w->index>=0&&w->index<12&&w->selected>=0&&w->selected<=42);w->name[w->index]=w->glyphs[w->selected==40?0:w->selected+1];if(w->index<7)w->index++;}}
    else if(selected==41){if(w->index>0)w->index--;}
    else if(selected==42){w->timer=64;w->state=1;CopyStringClearTail(world.save.prefix.progress.prefix00.fields.name,(char*)world.name);}
   }else if(cancel){PlaySfx(2);w->name[w->index]=w->glyphs[0];if(w->index>0)w->index--;}
- }else if(state==1){SetMenuFrameOptions(0,1,1);s16 timer=half((u16)((u16)w->timer-1));w->timer=timer;AddScreenFadeTiles(&w->context->head70,(64-(s32)timer)*4,69);
+ }else if(state==1){SetMenuFrameOptions(0,1,1);s16 timer=half((u16)((u16)w->timer-1));w->timer=timer;AddScreenFadeTiles(&w->context->buffer.ordering70.words[0],(64-(s32)timer)*4,69);
   if(w->timer<=0){outcome[0]++;w->slot=5;w->enable=1;w->scene=71;w->state=0;}else outcome[1]++;
  }
  UpdateBadgeRowAnim(0);UpdateBadgeRowAnim(1);UpdateScreenFade(0x1008B);

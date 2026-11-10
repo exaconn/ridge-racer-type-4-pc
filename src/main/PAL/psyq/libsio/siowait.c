@@ -2,16 +2,14 @@
 #include "rr/serial.h"
 #include "psyq/libsio/siowait.h"
 
-s32 _sio_read_async(s32 first, s32 second) {
-    RrSerialReceiveRequest *state = &SioReceiveRequest;
-    RrSerialPortRegisters *port;
+s32 _sio_read_async(u8 *buffer, s32 length) {
+    volatile SerialReceiveRequest *state = &SioReceiveRequest;
+    SerialPortRegisters *port;
     /* ASM_BARRIER: retain the request base for its adjacent fields. */
     __asm__("" : "=r"(state) : "0"(state));
     if (state->request.active != 0) return -1;
-    state->request.second = second;
-    /* ASM_BARRIER: publish the second parameter before the first parameter and activation. */
-    __asm__ volatile("" : : : "memory");
-    state->request.first = first;
+    state->request.remaining = length;
+    state->request.cursor = buffer;
     port = SIO1_REGS;
     state->request.active = 1;
     state->receive_status = port->status & 0x80;

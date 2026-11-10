@@ -4,21 +4,22 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 class MenuTransitionTest(unittest.TestCase):
     def test_actual_body_and_rectangle_wrapper(self):
-        source = (ROOT / 'tools/scripts/fixtures/views/func_8003A544.c').read_text()
-        source = re.sub(r'^#include.*\n', '', source, flags=re.M)
+        owners = source_owners(ROOT / 'src/main/PAL')
+        source = definition_source(owners['UpdateMenuScript'].read_text(), 'UpdateMenuScript')
         # The sole literal is the existing scratchpad cursor owner.
-        self.assertEqual(source.count('*(void **)0x1F800000'), 2)
-        source = source.replace('*(void **)0x1F800000', 'w->cursor')
-        helper = (ROOT / 'tools/scripts/fixtures/views/func_8001FDD4.c').read_text()
-        helper = re.sub(r'^#include.*\n', '', helper, flags=re.M)
+        self.assertEqual(source.count('*(void **)SCRATCHPAD'), 2)
+        source = source.replace('*(void **)SCRATCHPAD', 'w->cursor')
+        helper = definition_source(owners['AddTileGrid2x2'].read_text(), 'AddTileGrid2x2')
         prefix = r'''
 #include <assert.h>
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -40,14 +41,14 @@ static int count,mutation,status,op_status;
 static unsigned seen[12];
 static _Alignas(16) u8 contexts[2][0xc00],packets[4096];
 static s8 *scripts[12];
-#define CurrentDrawBuf ((RrIconSpriteContext*)contexts[w->context])
-#define D_800AD50A (w->transition)
+#define CurrentDrawBuf ((FrameStorage*)contexts[w->context])
+#define ActiveSceneId (w->transition)
 #define ModeFrame (w->frame)
 #define D_800F3A26 (w->next_timer)
 #define MenuScriptStep (w->step)
 #define MenuScriptId (w->scene)
 #define ModeGroup (w->phase)
-#define D_800F4D44 (w->ui_mode)
+#define GameModeType (w->ui_mode)
 #define LoadState (w->operation)
 #define D_800F4D8A (w->timer)
 #define D_800FFC10 (w->mode)
@@ -67,9 +68,9 @@ static void record(int kind,intptr_t a,intptr_t b,intptr_t c,intptr_t d,intptr_t
 }
 void SetDispMask(s32 arg){record(0,arg,0,0,0,0,0,0,0,0);}
 int UpdateLinkHandshake(int arg){record(1,arg,0,0,0,0,0,0,0,0);return -77;}
-s32 func_80059E40(s32 frame){record(2,frame,0,0,0,0,0,0,0,0);return status;}
+s32 UpdateRaceOpeningOverlay(s32 frame){record(2,frame,0,0,0,0,0,0,0,0);return status;}
 s32 IntroScriptStep(void){record(3,0,0,0,0,0,0,0,0,0);return status;}
-void func_8005CA14(void){record(4,0,0,0,0,0,0,0,0,0);}
+void StartDemoFadeOutAndCloseVab(void){record(4,0,0,0,0,0,0,0,0,0);}
 static s32 op0(void){record(5,0,0,0,0,0,0,0,0,0);return op_status;}
 static s32 op1(void){record(5,1,0,0,0,0,0,0,0,0);return op_status;}
 static s32 op2(void){record(5,2,0,0,0,0,0,0,0,0);return op_status;}
@@ -78,8 +79,8 @@ static void enter0(void){record(6,0,0,0,0,0,0,0,0,0);}
 static void enter1(void){record(6,1,0,0,0,0,0,0,0,0);}
 static void enter2(void){record(6,2,0,0,0,0,0,0,0,0);}
 static void enter3(void){record(6,3,0,0,0,0,0,0,0,0);}
-RrMenuScriptOperation MenuScriptOps[]={op0,op1,op2,op3,op0,op1,op2,op3,op0,op1,op2,op3};
-RrMenuSceneEntry MenuSceneEntries[]={enter0,enter1,enter2,enter3,enter0,enter1,enter2,enter3,enter0,enter1,enter2,enter3};
+MenuScriptOperation MenuScriptOps[]={op0,op1,op2,op3,op0,op1,op2,op3,op0,op1,op2,op3};
+MenuSceneEntry MenuSceneEntries[]={enter0,enter1,enter2,enter3,enter0,enter1,enter2,enter3,enter0,enter1,enter2,enter3};
 void *AddTilePrim(u32 *order,void *cursor,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){
  record(7,(intptr_t)order,(intptr_t)cursor,x,y,width,height,r,g,b);
  return (u8*)cursor+16;

@@ -1,29 +1,26 @@
+#include "game/system/pad.h"
 #include "types.h"
-#include "m2c_macros.h"
 #include "psyq/libpad/padctl.h"
 #include "game/car/carstat.h"
 #include "rr/bios_devices.h"
-#include "rr/channel_init.h"
+#include "psyq/libpad/padgate.h"
 #include "rr/runtime_settings.h"
 #include "rr/race_setup.h"
+#include "rr/tables.h"
+#include "rr/menu_pulse.h"
 
-extern int PlayerControllers[];
-extern char PadPulseState[];
-extern char PadPorts[];
 extern unsigned short PadButtonLayoutPresetsA[][8];
 extern unsigned short PadButtonLayoutPresetsB[][8];
 extern unsigned short D_800A00EC[][8];
 extern unsigned short PadButtonMap[][3][8];
 extern unsigned short D_800F4BF8[][2][8];
 
-void SetPadButtonMapLayout(int a, int b, int c, int d);
-
 void InitGamePads(void) {
-    func_80096434(PlayerControllers, 0xB8);
-    func_80096434(PadPulseState, 0x30);
-    PlayerControllers[4] = -1;
-    PlayerControllers[27] = -1;
-    PadInitDirect(PadPorts, PadPorts + 0x28);
+    PsyqBzero(PlayerControllers, sizeof(PlayerControllers));
+    PsyqBzero(PadPulseState, sizeof(PadPulseState));
+    PlayerControllers[0].protocol10 = -1;
+    PlayerControllers[1].protocol10 = -1;
+    PadInitDirect((u8 *)&PadPorts[0], (u8 *)&PadPorts[1]);
     PadStartCom();
 }
 
@@ -39,6 +36,6 @@ void SetPadButtonMapLayout(int a, int b, int c, int d) {
 }
 
 void ApplyOptionsPadButtonMaps(void) {
-    SetPadButtonMapLayout(0, M2C_FIELD(&Options, s16 *, 0), M2C_FIELD(&Options, s16 *, 0x14), M2C_FIELD(&Options, s8 *, 0x2B));
-    SetPadButtonMapLayout(1, M2C_FIELD(&Options, s16 *, 4), M2C_FIELD(&Options, s16 *, 0x24), M2C_FIELD(&Options, s8 *, 0x2F));
+    SetPadButtonMapLayout(0, Options.config.f0[0].buttonLayout00, Options.config.p[0].buttonLayout0C, Options.config.w[0].buttonLayout03);
+    SetPadButtonMapLayout(1, Options.config.f0[1].buttonLayout00, Options.config.p[1].buttonLayout0C, Options.config.w[1].buttonLayout03);
 }

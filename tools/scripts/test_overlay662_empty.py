@@ -22,7 +22,7 @@ class OverlayEmptyTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_garage.h"
-static struct World {u32 before[8];RrGarageSelectionPrefix state;u32 pixels[4][512],after[8];} world,initial;
+static struct World {u32 before[8];GarageSelectionPrefix state;u32 pixels[4][512],after[8];} world,initial;
 #define ovl662_D_801276A8 world.state
 ''' + body + r'''
 static u32 seed=0x1d0c0;

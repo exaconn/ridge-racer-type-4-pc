@@ -12,18 +12,21 @@ class TextSpritesTest(unittest.TestCase):
         def header(name):
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '',
                           (ROOT/'include/rr'/name).read_text(), flags=re.M)
-        body = (ROOT/'tools/scripts/fixtures/legacy/func_8004C5A4.c').read_text()
+        from c_functions import definition_source, source_owners, function_definitions
+        name=function_definitions((ROOT/'tools/scripts/fixtures/legacy/func_8004C5A4.c').read_text())[0]
+        body=definition_source(source_owners(ROOT/'src/main/PAL')[name].read_text(),name)
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r' asm\("\$\d+"\)', '', body)
         body = re.sub(r'__asm__\("".*?\);', ';', body)
-        assert body.count('(RrGpuScratchPointers *)0x1F800000U') == 2
-        body = body.replace('(RrGpuScratchPointers *)0x1F800000U', '&actual->scratch')
+        assert body.count('(GpuScratchPointers *)SCRATCHPAD') == 2
+        body = body.replace('(GpuScratchPointers *)SCRATCHPAD', '&actual->scratch')
         exe = (ROOT/'assets/PAL/main.exe').read_bytes()
         def table(address, size):
             start = 0x800 + address - 0x80010000
             return ','.join(str(x) for x in exe[start:start+size])
         code = r'''
 #include <assert.h>
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -32,8 +35,8 @@ class TextSpritesTest(unittest.TestCase):
 #include "types.h"
 ''' + ''.join(header(n) for n in ['gpu_scratch_types.h','gpu.h','animated_sprite_grid.h','icon_sprites.h','text_sprites.h']) + r'''
 typedef struct {
- RrGpuScratchPointers scratch;
- RrIconSpriteContext *context;
+ GpuScratchPointers scratch;
+ FrameStorage *context;
  u8 *width_base;
  u8 guard[32];
  u8 arena[4096] __attribute__((aligned(8)));
@@ -92,7 +95,7 @@ int main(void) {
   memcpy(actual->mapping,original_mapping,288);memcpy(actual->widths,original_widths,256);
   actual->width_base=actual->widths;
   actual->scratch.cursor=actual->arena+512;actual->scratch.order=NULL;
-  actual->context=(RrIconSpriteContext *)(actual->arena+128);
+  actual->context=(FrameStorage *)(actual->arena+128);
   s32 bank=(s32)(n%10)-2,color=colors[n%8];
   s32 x=n&1?signed32(random32()):extremes[(n/2)%10];
   s32 y=n&2?signed32(random32()):extremes[(n/3)%10];
@@ -108,7 +111,7 @@ int main(void) {
   if((n&15)==1) {
    /* Selected head aliases an existing packet tag, color or UV word. */
    unsigned offset=((n/16)%4)*4;
-   actual->context=(RrIconSpriteContext *)(actual->scratch.cursor+offset-0x70-bank*4);
+   actual->context=(FrameStorage *)(actual->scratch.cursor+offset-0x70-bank*4);
   }
   if((n&15)==2) {
    /* Width loads see coordinate, CLUT or queue writes before the second read. */

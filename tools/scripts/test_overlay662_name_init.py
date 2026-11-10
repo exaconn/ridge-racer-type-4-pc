@@ -20,11 +20,11 @@ class Overlay662NameInitTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_name_init.h"
-typedef struct {s32 args[7],frame,counter,local;s8 a,b,c;u16 mode;s16 scene,timer,first,second;u8 name[12];RrBadgeRow1C *root;} Event;
+typedef struct {s32 args[7],frame,counter,local;s8 a,b,c;u16 mode;s16 scene,timer,first,second;u8 name[12];BadgeRow1C *root;} Event;
 static struct World {
  u32 guard[4];s32 frame,counter,local;s8 a,b,c;u16 mode;s16 scene,timer;
- RrSaveProgressRecord7C save;u32 before_name;u8 name[12];u32 after_name;
- RrBadgeRow1C badges[3][2],*root;unsigned calls;Event events[4];u32 tail[4];
+ SaveProgressRecord7C save;u32 before_name;u8 name[12];u32 after_name;
+ BadgeRow1C badges[3][2],*root;unsigned calls;Event events[4];u32 tail[4];
 } world,expected;
 static unsigned scenario;
 #define ModeFrame world.frame

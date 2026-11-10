@@ -6,5 +6,7 @@
 extern unsigned int CdAudioFadeState;
 void CdAudioResumeStep(void);
 void CdAudioLoopStep(void);
+void CdAudioPauseStep(void);
+
 
 #endif /* RR_GAME_SOUND_CDCLOSE_H */

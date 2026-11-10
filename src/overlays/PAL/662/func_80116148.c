@@ -1,4 +1,5 @@
 #include "rr/menu_arenas.h"
+#include "rr/load_cursor.h"
 void ovl662_func_80116148(void){
  ResetScreenCounters();
  MenuArenas.second=CdDirectoryBuffer+0x2D000;

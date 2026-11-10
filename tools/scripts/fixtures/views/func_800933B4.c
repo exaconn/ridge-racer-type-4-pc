@@ -136,7 +136,7 @@
 #undef GpuFuncTable
 
 /* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((RrLibGraphicsDriverPrefix *)GpuFuncTable)
+#define GpuFuncTable ((LibGraphicsDriverPrefix *)GpuFuncTable)
 
 #undef GpuFuncTable
 
@@ -175,7 +175,7 @@ int PutDrawEnv(int *a0) {
     if (*p >= 2) {
         GPU_printf(PutDrawEnvFmt, a0);
     }
-    SetDrawEnv2((u32 *)(a0 + 7), (RrFrameEnvironment *)a0);
+    SetDrawEnv2((u32 *)(a0 + 7), (FrameEnvironment *)a0);
     a0[7] |= 0xFFFFFF;
     ((int (*)())GpuFuncTable[2])(GpuFuncTable[6], a0 + 7, 0x40, 0);
     PsyqMemcpy(p + 0xE, a0, 0x5C);

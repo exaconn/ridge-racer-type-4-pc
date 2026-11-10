@@ -4,7 +4,7 @@
 
 #include "types.h"
 
-#define R(o) (*(unsigned short *)(D_800A6760 + (o)))
+#define R(o) (*(unsigned short *)(CdSpuRegBase + (o)))
 
 /* legacy typing of shared globals in this part of the unit */
 #define CD_cbsync (*(void (*(*))(u8, u8 *))&CD_cbsync)
@@ -68,9 +68,9 @@ extern s32 CD_debug;
 
 extern u8 CD_pos[4];
 
-extern u8 D_800A64A4;
+extern u8 CD_mode;
 
-extern u8 D_800A64A5;
+extern u8 CD_com;
 
 extern char *CD_comstr[];
 
@@ -86,26 +86,26 @@ extern volatile u8 *CD_REG1;
 
 extern volatile u8 *CD_REG2;
 
-extern u8 D_800A6764[];
+extern u8 CD_intr_status[];
 
 extern u8 CD_syncResult[];
 
 extern s32 CD_timeout_deadline;
 
-extern s32 D_80110334;
+extern s32 CD_timeout_count;
 
 extern const char *CdWaitCallerName;
 
 static inline int check_alarm(char **ac, char ** sc, volatile u8 *st) {
-    if (VSync(-1) > CD_timeout_deadline || D_80110334++ > 0x3C0000) {
-        func_800963DC(CdTimeoutPrefixStr);
+    if (VSync(-1) > CD_timeout_deadline || CD_timeout_count++ > 0x3C0000) {
+        PsyqPuts(CdTimeoutPrefixStr);
         { u8 s0_ = st[0]; u8 s1_ = st[1]; char *x5 = sc[s1_];
         /* ASM_BARRIER: Load CdWaitCallerName directly into $a1. */
         register const char *a1 __asm__("$5") = CdWaitCallerName;
         DebugPrintStub(
             CdTimeoutStatusFmt,
             a1,
-            ac[D_800A64A5],
+            ac[CD_com],
             sc[s0_],
             x5
         ); }
@@ -158,28 +158,28 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
         }
     }
     if (arg0 == 0xE) {
-        D_800A64A4 = *p;
+        CD_mode = *p;
     }
-    D_800A6764[0] = 0;
+    CD_intr_status[0] = 0;
     if (((s32 (*)[64])CdCommandParamTable)[0][arg0] != 0) {
-        D_800A6764[1] = 0;
+        CD_intr_status[1] = 0;
     }
     *CD_reg0 = 0;
     for (i = 0; i < ((s32 (*)[64])CdCommandParamTable)[1][arg0]; i++) {
         *CD_REG2 = p[i];
     }
-    D_800A64A5 = arg0;
+    CD_com = arg0;
     *CD_REG1 = arg0;
     if (arg3 != 0) {
         return 0;
     }
     CD_timeout_deadline = VSync(-1) + 0x3C0;
-    D_80110334 = 0;
+    CD_timeout_count = 0;
     CdWaitCallerName = CdCwLabel;
-    if (D_800A6764[0] == 0) {
+    if (CD_intr_status[0] == 0) {
         char **ac = CD_comstr;
         char **sc = CD_intstr;
-        volatile u8 *st = D_800A6764;
+        volatile u8 *st = CD_intr_status;
         volatile u8 *st1 = st + 1;
         do {
             if (check_alarm(ac, sc, st)) {
@@ -198,5 +198,5 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
             *dst++ = *src++;
         }
     }
-    return -(((volatile u8 *)D_800A6764)[0] == 5);
+    return -(((volatile u8 *)CD_intr_status)[0] == 5);
 }

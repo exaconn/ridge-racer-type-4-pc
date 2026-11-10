@@ -5,8 +5,9 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
 from test_cd_disc_probe import native_body
-from test_channel_callbacks import ChannelRecord
+from channel_native_types import PadChannel
 
 Hook=C.CFUNCTYPE(None,C.c_void_p)
 ErrorHook=C.CFUNCTYPE(None)
@@ -25,7 +26,7 @@ class ChannelTickDispatchTest(unittest.TestCase):
         for name in ('channels.h','serial.h'):
             h=(root/'include/rr'/name).read_text()
             header+=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',h,flags=re.M)+'\n'
-        body=native_body((root/'tools/scripts/fixtures/views/func_80097EA0.c').read_text())
+        body=native_body(definition_source(source_owners(root/'src/main/PAL')['_padIntPad'].read_text(),'_padIntPad'))
         assert body.count('(s32 *)0x800B0000U')==1
         body=body.replace('(s32 *)0x800B0000U','ram+0x4330/4')
         observed=body.replace('_padIntPad','observed_tick')
@@ -37,29 +38,29 @@ class ChannelTickDispatchTest(unittest.TestCase):
 typedef uint8_t u8;typedef int8_t s8;typedef uint16_t u16;typedef int16_t s16;typedef uint32_t u32;typedef int32_t s32;
 #define RR_FIELD_OFFSET(type,field) offsetof(type,field)
 '''+header+'''
-s32 ram[0x4330/4+2],PadFirstChannel,D_800ABCBC,PadComActive,PadActiveChannel,PadRecvStage,D_800ABCB0,D_80114428[2];
-unsigned long record_size=sizeof(RrChannelRecordF0);
-RrChannelRecordF0 records[16];RrChannelRecordF0 *PadChannelRecords=&records[4];
-RrSerialPortRegisters ports[2];RrSerialPortRegisters *PadSio0Base=&ports[0];
+s32 ram[0x4330/4+2],PadFirstChannel,PadLastChannel,PadComActive,PadActiveChannel,PadRecvStage,PadTotalGateCost,PadPortTimeoutCounts[2];
+unsigned long record_size=sizeof(PadChannel);
+PadChannel records[16];PadChannel *PadChannelRecords=&records[4];
+SerialPortRegisters ports[2];SerialPortRegisters *PadSio0Base=&ports[0];
 s32 begin_result,events,event_kind[32],event_index[32],event_stage[32],event_counter[32],error_codes[32];void *event_pointer[32];
 void (*on_begin)(void *),(*on_step)(void *);void (*on_error)(void),(*on_read)(void);
 s32 io_count,io_kind[4],io_port[4];u16 io_value[4];
-void record(s32 kind,void *p){s32 i=events++;event_kind[i]=kind;event_pointer[i]=p;event_index[i]=PadActiveChannel;event_stage[i]=PadRecvStage;event_counter[i]=D_800ABCB0;}
+void record(s32 kind,void *p){s32 i=events++;event_kind[i]=kind;event_pointer[i]=p;event_index[i]=PadActiveChannel;event_stage[i]=PadRecvStage;event_counter[i]=PadTotalGateCost;}
 void error_a(s32 code){s32 i=events;record(1,0);error_codes[i]=code;if(on_error)on_error();}
 void error_b(s32 code){s32 i=events;record(2,0);error_codes[i]=code;if(on_error)on_error();}
-RrChannelErrorCallback PadAdvanceChannelFn=error_a;
-s32 _padInitSioMode(RrChannelRecordF0 *p){record(0,p);if(on_begin)on_begin(p);return begin_result;}
-void _padSioStageStep(RrChannelRecordF0 *p){record(3,p);if(on_step)on_step(p);else PadActiveChannel=(u32)PadActiveChannel+1;}
-u16 test_read(RrSerialPortRegisters *p){s32 i=io_count++;u16 value=p->control;io_kind[i]=0;io_port[i]=p==&ports[1];io_value[i]=value;if(on_read)on_read();return value;}
-void test_write(RrSerialPortRegisters *p,s32 baud,u16 value){s32 i=io_count++;io_kind[i]=baud?2:1;io_port[i]=p==&ports[1];io_value[i]=value;if(baud)p->baud=value;else p->control=value;}
+ChannelErrorCallback PadAdvanceChannelFn=error_a;
+s32 _padInitSioMode(PadChannel *p){record(0,p);if(on_begin)on_begin(p);return begin_result;}
+void _padSioStageStep(PadChannel *p){record(3,p);if(on_step)on_step(p);else PadActiveChannel=(u32)PadActiveChannel+1;}
+u16 test_read(SerialPortRegisters *p){s32 i=io_count++;u16 value=p->control;io_kind[i]=0;io_port[i]=p==&ports[1];io_value[i]=value;if(on_read)on_read();return value;}
+void test_write(SerialPortRegisters *p,s32 baud,u16 value){s32 i=io_count++;io_kind[i]=baud?2:1;io_port[i]=p==&ports[1];io_value[i]=value;if(baud)p->baud=value;else p->control=value;}
 '''+body+observed
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'));cls.f=cls.lib._padIntPad;cls.observed=cls.lib.observed_tick
         for f in (cls.f,cls.observed):f.argtypes=[];f.restype=C.c_int32
-        cls.values={n:C.c_int32.in_dll(cls.lib,n) for n in ('PadFirstChannel','D_800ABCBC','PadComActive','PadActiveChannel','PadRecvStage','D_800ABCB0','begin_result','events','io_count')}
-        cls.ram=(C.c_int32*(0x4330//4+2)).in_dll(cls.lib,'ram');cls.counters=(C.c_int32*2).in_dll(cls.lib,'D_80114428')
-        cls.record_size=C.sizeof(ChannelRecord)
+        cls.values={n:C.c_int32.in_dll(cls.lib,n) for n in ('PadFirstChannel','PadLastChannel','PadComActive','PadActiveChannel','PadRecvStage','PadTotalGateCost','begin_result','events','io_count')}
+        cls.ram=(C.c_int32*(0x4330//4+2)).in_dll(cls.lib,'ram');cls.counters=(C.c_int32*2).in_dll(cls.lib,'PadPortTimeoutCounts')
+        cls.record_size=C.sizeof(PadChannel)
         assert C.c_ulong.in_dll(cls.lib,'record_size').value==cls.record_size
         cls.records=(C.c_uint8*(16*cls.record_size)).in_dll(cls.lib,'records');cls.base=C.c_void_p.in_dll(cls.lib,'PadChannelRecords')
         cls.ports=(Port*2).in_dll(cls.lib,'ports');cls.port=C.c_void_p.in_dll(cls.lib,'PadSio0Base')
@@ -71,8 +72,8 @@ void test_write(RrSerialPortRegisters *p,s32 baud,u16 value){s32 i=io_count++;io
 
     def reset(self):
         for v in self.values.values():v.value=0
-        self.values['D_800ABCBC'].value=1;self.values['PadActiveChannel'].value=91
-        self.values['PadRecvStage'].value=92;self.values['D_800ABCB0'].value=93
+        self.values['PadLastChannel'].value=1;self.values['PadActiveChannel'].value=91
+        self.values['PadRecvStage'].value=92;self.values['PadTotalGateCost'].value=93
         self.values['begin_result'].value=1
         self.counters[:]=[100,101]
         C.memset(self.ram,0xA5,C.sizeof(self.ram));C.memset(self.records,0x5A,C.sizeof(self.records));C.memset(self.ports,0xC3,C.sizeof(self.ports))
@@ -88,7 +89,7 @@ void test_write(RrSerialPortRegisters *p,s32 baud,u16 value){s32 i=io_count++;io
             except BaseException as error:
                 self.errors.append(error)
                 self.values['PadActiveChannel'].value=2147483647
-                self.values['D_800ABCBC'].value=-1
+                self.values['PadLastChannel'].value=-1
         callback=(Hook if with_pointer else ErrorHook)(safe)
         self.retained.append(callback);C.c_void_p.in_dll(self.lib,name).value=C.cast(callback,C.c_void_p).value
 
@@ -111,17 +112,17 @@ void test_write(RrSerialPortRegisters *p,s32 baud,u16 value){s32 i=io_count++;io
         for first in (0,1,-1):
             for last in (0,1,-1):
                 for value in (-2147483648,-1,0,149,150,151,2147483647):
-                    self.reset();self.values['PadFirstChannel'].value=first;self.values['D_800ABCBC'].value=last
+                    self.reset();self.values['PadFirstChannel'].value=first;self.values['PadLastChannel'].value=last
                     self.counters[:]=[value,value];self.invoke()
                     self.assertEqual(list(self.counters),[value+int(bool(first) and value<150),value+int(last==0 and value<150)])
-                    self.assertEqual([self.values[n].value for n in ('PadActiveChannel','PadRecvStage','D_800ABCB0','events')],[91,92,93,0])
+                    self.assertEqual([self.values[n].value for n in ('PadActiveChannel','PadRecvStage','PadTotalGateCost','events')],[91,92,93,0])
                     self.assertEqual(self.ports[0].baud,0xBEEF)
 
     def test_ranges_initializer_result_and_native_record_addresses(self):
         for first,last in [(-1,1),(0,0),(0,2),(1,1),(2,1)]:
             for initialized in (-1,0,1):
                 self.reset();self.values['PadComActive'].value=1
-                self.values['PadFirstChannel'].value=first;self.values['D_800ABCBC'].value=last
+                self.values['PadFirstChannel'].value=first;self.values['PadLastChannel'].value=last
                 self.values['begin_result'].value=initialized;before=bytes(self.records)
                 self.invoke()
                 if last<first:
@@ -133,25 +134,25 @@ void test_write(RrSerialPortRegisters *p,s32 baud,u16 value){s32 i=io_count++;io
                 self.assertEqual(list(self.pointers)[step_start:len(kinds)],[self.base.value+i*self.record_size for i in range(first,last+1)])
                 if initialized==0:self.assertEqual(self.arrays['error_codes'][1],65535)
                 self.assertEqual((self.arrays['event_index'][0],self.arrays['event_stage'][0],self.arrays['event_counter'][0]),(first,0,93))
-                self.assertEqual(self.values['PadActiveChannel'].value,last+1);self.assertEqual(self.values['D_800ABCB0'].value,0)
+                self.assertEqual(self.values['PadActiveChannel'].value,last+1);self.assertEqual(self.values['PadTotalGateCost'].value,0)
                 self.assertEqual(self.ports[0].baud,0x88);self.assertEqual(bytes(self.records),before)
 
     def test_mutating_initializer_error_callback_and_step_reload_all_state(self):
-        self.values['PadComActive'].value=1;self.values['D_800ABCBC'].value=0;self.values['begin_result'].value=0
+        self.values['PadComActive'].value=1;self.values['PadLastChannel'].value=0;self.values['begin_result'].value=0
         original_base=self.base.value;steps=[]
         def begin(p):
             self.assertEqual(p,original_base)
             self.error.value=C.cast(self.lib.error_b,C.c_void_p).value
             self.base.value=C.addressof(self.records)+8*self.record_size
         def error():
-            self.values['PadActiveChannel'].value=-1;self.values['D_800ABCBC'].value=0
+            self.values['PadActiveChannel'].value=-1;self.values['PadLastChannel'].value=0
             self.port.value=C.addressof(self.ports)+C.sizeof(Port)
         def step(p):
             steps.append(p)
-            self.assertEqual(self.values['D_800ABCB0'].value,0)
+            self.assertEqual(self.values['PadTotalGateCost'].value,0)
             if len(steps)==1:
                 self.base.value=C.addressof(self.records)+10*self.record_size
-                self.values['PadActiveChannel'].value=1;self.values['D_800ABCBC'].value=1
+                self.values['PadActiveChannel'].value=1;self.values['PadLastChannel'].value=1
             else:self.values['PadActiveChannel'].value=2
         self.hook('on_begin',begin);self.hook('on_error',error,False);self.hook('on_step',step)
         self.invoke(True)

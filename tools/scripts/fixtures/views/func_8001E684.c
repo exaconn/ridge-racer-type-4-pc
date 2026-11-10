@@ -59,7 +59,7 @@ void MainLoop(void) {
             /* ASM_BARRIER: prepare the real ordering-table length before its address. */
             register s32 length asm("$5")=0x2C0;
             /* ASM_BARRIER: materialize the frame arena in V1 before indexing it. */
-            register RrFrameStorage *frames asm("$3");
+            register FrameStorage *frames asm("$3");
             register u8 *frame_page;
             register u8 **scratch;
             register u32 *ordering;
@@ -69,9 +69,9 @@ void MainLoop(void) {
             bank=FrameCounter;
             /* ASM_BARRIER: read the counter before completing the arena address. */
             __asm__("" : "+r"(frame_page), "+r"(bank));
-            frames=(RrFrameStorage *)(frame_page-0x2510);
+            frames=(FrameStorage *)(frame_page-0x2510);
             bank &=1;
-            frame=(u8 *)((unsigned long)bank*sizeof(RrFrameStorage)+(unsigned long)frames);
+            frame=(u8 *)((unsigned long)bank*sizeof(FrameStorage)+(unsigned long)frames);
             ordering=(u32 *)(frame+0x70);
             CurrentDrawBuf=frame;
             *(s32 *)(bank_page+0x4BF0)=bank;
@@ -91,7 +91,7 @@ void MainLoop(void) {
         PutDispEnv(CurrentDrawBuf+0x5C);
         PutDrawEnv(CurrentDrawBuf);
         DrawOTag(CurrentDrawBuf+0xB6C);
-        if(D_800ACBF8) DrawOTag(CurrentDrawBuf+0x166C);
+        if(DrawSubOtFlag) DrawOTag(CurrentDrawBuf+0x166C);
         PadUpdate();
         FrameCounter++;
     }

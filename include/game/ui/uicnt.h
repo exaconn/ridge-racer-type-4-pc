@@ -3,9 +3,11 @@
 
 #include "types.h"
 
-unsigned char AddOrSubtractByte();
-int ByteToCodeChars();
+s32 AddOrSubtractByte(s32 arg0, s32 arg1, s32 arg2);
+void ByteToCodeChars(s32 arg0, void *arg1);
 s32 CodeCharsToByte(s32 arg0, s32 arg1);
-int XorBytes37();
+void XorBytes37(u8 *arg0, s32 arg1);
+/* Byte sum, zero-extended to the public word result. */
+s32 ChecksumBytes(u8 *p, int n);
 
 #endif /* RR_GAME_UI_UICNT_H */

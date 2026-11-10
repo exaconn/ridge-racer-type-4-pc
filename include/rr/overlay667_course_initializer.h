@@ -7,9 +7,9 @@
 #include "rr/player_status.h"
 #include "rr/course_choices.h"
 extern s16 D_8010C080[4],D_8010C0D0[2],D_8010C0D8[2];
-extern RrSelectionRows SelectionRows;
-extern RrCourseChoice4 D_8010BFD8[2][2][9];
-extern RrCourseChoice4 CourseChoiceTable[2][9];
+extern SelectionRows32 SelectionRows;
+extern CourseChoice4 D_8010BFD8[2][2][9];
+extern CourseChoice4 CourseChoiceTable[2][9];
 extern char D_8010C088[4][12];
 extern char *ovl667_D_80118E00[4];
 extern s8 LinkEntryState[2][2];

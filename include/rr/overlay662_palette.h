@@ -2,15 +2,15 @@
 #define RR_OVERLAY662_PALETTE_H
 #include "rr/overlay662_primitives.h"
 /* The same32 palette bytes are copied as eight words and selected as16 colors. */
-typedef union {u16 value;u8 bytes[2];} RrGaragePaletteEntry;
+typedef union {u16 value;u8 bytes[2];} GaragePaletteEntry;
 typedef union {
     u32 words[8];
-    RrGaragePaletteEntry colors[16];
+    GaragePaletteEntry colors[16];
     u8 bytes[32];
-} RrGaragePalette;
+} GaragePalette;
 void ovl662_func_8011BF04(void);
 /* Channel0..2; panel supplies a five-bit value. */
 void ovl662_func_8011C00C(s32 channel,s32 value);
-RR_ASSERT_SIZE(RrGaragePaletteEntry,2);
-RR_ASSERT_SIZE(RrGaragePalette,32);
+RR_ASSERT_SIZE(GaragePaletteEntry,2);
+RR_ASSERT_SIZE(GaragePalette,32);
 #endif

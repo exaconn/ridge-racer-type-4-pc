@@ -6,11 +6,11 @@ extern u8 CdStatus(void);
 extern s32 CdMode(void);
 extern u8 *CdLastPos(void);
 extern void CdFlush(void);
-extern RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback);
-extern RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback);
-extern RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback);
+extern LibCompletionCallback CdSyncCallback(LibCompletionCallback);
+extern LibCompletionCallback CdReadyCallback(LibCompletionCallback);
+extern LibCompletionCallback CdDataCallback(LibCompletionCallback);
 extern s32 CdPosToInt(void *);
-extern s32 func_800963DC(const char *, ...);
+extern s32 PsyqPuts(const char *, ...);
 extern const char StrCdReadShellOpen[], StrCdReadRetry[];
 extern volatile u32 D_800A67BC;
 extern void cb_read(s32, u8 *);
@@ -19,16 +19,16 @@ extern void cb_data(void);
 s32 cd_read_retry(s32 restart) {
     u8 mode_byte;
     register u32 requested;
-    register RrLibReadRequestState *state;
+    register LibReadRequestState *state;
     /* ASM_BARRIER: keep the captured mode address in s1 and preserve the raw
      * restart argument in s2 through the command and status helpers. */
     register volatile u32 *mode_slot __asm__("$17");
     register s32 retry __asm__("$18") = restart;
-    register volatile RrLibReadRequestState *shell_state;
-    register volatile RrLibReadRequestState *failed_state;
+    register volatile LibReadRequestState *shell_state;
+    register volatile LibReadRequestState *failed_state;
     u32 timestamp;
     s32 completed;
-    register RrLibCompletionCallback callback;
+    register LibCompletionCallback callback;
     /* ASM_BARRIER: a0/a1 stage independent command/null-parameter values;
      * neither bound value is used across a call that can overwrite it. */
     register s32 command __asm__("$4");
@@ -41,7 +41,7 @@ s32 cd_read_retry(s32 restart) {
     }
     if (CdStatus() & 0x10) {
         if (!(VSync(-1) & 63)) {
-            func_800963DC(StrCdReadShellOpen);
+            PsyqPuts(StrCdReadShellOpen);
         }
         CdControlF(1, 0);
         timestamp = VSync(-1);
@@ -54,7 +54,7 @@ s32 cd_read_retry(s32 restart) {
         /* ASM_BARRIER: keep retry-only diagnostic address formation in this
          * branch instead of copying it into its predecessor's delay slot. */
         __asm__("" : );
-        func_800963DC(StrCdReadRetry);
+        PsyqPuts(StrCdReadRetry);
         command = 9;
         parameters = 0;
         /* ASM_BARRIER: stage the null parameter after the command value. */
@@ -87,7 +87,7 @@ failed:
     completed = CdPosToInt(CdLastPos());
     /* ASM_BARRIER: the success-state address is formed after decoding. */
     __asm__("" : : : "$16");
-    callback = (RrLibCompletionCallback)cb_read;
+    callback = (LibCompletionCallback)cb_read;
     state = &CdReadState;
     /* ASM_BARRIER: stage the callback address before the state address, then
      * publish the decoded sector in the callback setter's delay slot. */
@@ -102,6 +102,6 @@ failed:
     state->position08 = state->buffer04;
     CdControlF(command, 0);
     state->remaining14 = state->sectors00;
-    ((volatile RrLibReadRequestState *)state)->retry18 = VSync(-1);
-    return ((volatile RrLibReadRequestState *)state)->remaining14;
+    ((volatile LibReadRequestState *)state)->retry18 = VSync(-1);
+    return ((volatile LibReadRequestState *)state)->remaining14;
 }

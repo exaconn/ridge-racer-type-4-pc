@@ -5,6 +5,7 @@ root=Path(__file__).resolve().parents[2];body=(root/'src/overlays/PAL/662/func_8
 body=body.replace('extern s32 ScreenFrame;','').replace('extern s16 ovl662_D_80127398;','')
 source=r'''
 #include <assert.h>
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -15,7 +16,7 @@ source=r'''
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4||sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4||offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_image_fade.h"
-static struct World {u32 guard[4];RrGpuScratchPointers scratch;RrIconSpriteContext contexts[3];RrIconSpriteContext *context;s16 phase;u16 pad;s32 clock;u32 arena[256];u32 tail[4];} world,expected;
+static struct World {u32 guard[4];GpuScratchPointers scratch;FrameStorage contexts[3];FrameStorage *context;s16 phase;u16 pad;s32 clock;u32 arena[256];u32 tail[4];} world,expected;
 static struct Event {unsigned id;u32 args[12];u8 *cursor;u32 *head;struct World before;} events[5];
 static unsigned count,seen,scenario;static int ref;static s32 sineReturns[2];static unsigned sineIndex;static s32 geometry[4][4];static u16 expectedShade;
 #define CurrentDrawBuf world.context
@@ -49,9 +50,9 @@ static void reference(s32 mode){
  unsigned si=0;
  if(mode==1){u32 a[12]={(u32)(amount*8)};service(1,a,0,0);s32 d=sineReturns[si++]/64;geometry[1][0]+=d;geometry[1][1]+=d;geometry[1][2]-=d;geometry[1][3]-=d;amount=0;}
  u32 a[12]={(u32)expected.clock*64U};service(1,a,0,0);s32 shade=64-sineReturns[si++]/64;u8 *cursor=expected.scratch.cursor;
- if(amount>0){for(unsigned tri=0;tri<2;tri++){u32 t[12];for(unsigned i=0;i<4;i++)for(unsigned j=0;j<3;j++)t[3*i+j]=(u32)geometry[i][j+tri];service(2,t,cursor,&expected.context->head70);cursor+=32;for(unsigned i=0;i<4;i++)for(unsigned j=0;j<3;j++)geometry[i][j+tri]=bits32((u32)geometry[i][j+tri]+0x80000001U+i*17U+j);}}
+ if(amount>0){for(unsigned tri=0;tri<2;tri++){u32 t[12];for(unsigned i=0;i<4;i++)for(unsigned j=0;j<3;j++)t[3*i+j]=(u32)geometry[i][j+tri];service(2,t,cursor,&expected.context->buffer.ordering70.words[0]);cursor+=32;for(unsigned i=0;i<4;i++)for(unsigned j=0;j<3;j++)geometry[i][j+tri]=bits32((u32)geometry[i][j+tri]+0x80000001U+i*17U+j);}}
  else shade=0;
- u32 back[12]={(u32)geometry[0][0],(u32)geometry[1][0],(u32)geometry[0][1]-(u32)geometry[0][0],(u32)geometry[1][2]-(u32)geometry[1][0],(u32)shade,(u32)shade,(u32)shade};service(3,back,cursor,&expected.context->head70);cursor+=16;
+ u32 back[12]={(u32)geometry[0][0],(u32)geometry[1][0],(u32)geometry[0][1]-(u32)geometry[0][0],(u32)geometry[1][2]-(u32)geometry[1][0],(u32)shade,(u32)shade,(u32)shade};service(3,back,cursor,&expected.context->buffer.ordering70.words[0]);cursor+=16;
  s16 current=expected.phase;u16 old=(u16)current;expected.scratch.cursor=cursor;
  if(current>=128)expected.phase=128;else expected.phase=bits16(old+(mode==1?8U:4U));
 }

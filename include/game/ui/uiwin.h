@@ -4,6 +4,9 @@
 #include "types.h"
 
 int AllocUiRows(int a);
-void func_8003EA04(s32 arg0, s32 arg1, s32 arg2);
+void InitUiRow(s32 index, s32 a, s32 b, s32 c, s32 d, s32 e, s32 f, s32 count, s32 g, s32 h, ...);
+void DrawUiWindowRowText(s32 arg0, s32 arg1, s32 arg2);
+int UpdateGlyphRow(int arg0);
+
 
 #endif /* RR_GAME_UI_UIWIN_H */

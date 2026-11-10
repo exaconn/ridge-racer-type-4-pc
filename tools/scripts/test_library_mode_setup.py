@@ -27,11 +27,11 @@ typedef uint32_t u32; typedef int32_t s32;
 s32 test_page[0x4000];
 s32 test_unexpected;
 s32 (*test_command)(s32, const u8 *, u8 *);
-void (*test_first)(RrLibCompletionCallback);
-void (*test_second)(RrLibCompletionCallback);
+void (*test_first)(LibCompletionCallback);
+void (*test_second)(LibCompletionCallback);
 s32 CdControl(s32 c, const u8 *p, u8 *r) { return test_command(c,p,r); }
-void CdDataCallback(RrLibCompletionCallback c) { test_first(c); }
-void CdReadyCallback(RrLibCompletionCallback c) { test_second(c); }
+void CdDataCallback(LibCompletionCallback c) { test_first(c); }
+void CdReadyCallback(LibCompletionCallback c) { test_second(c); }
 void data_ready_callback(void) { test_unexpected++; }
 void StCdInterrupt2(void) { test_unexpected++; }
 '''

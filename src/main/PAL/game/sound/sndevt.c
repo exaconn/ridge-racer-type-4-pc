@@ -1,85 +1,55 @@
+#include "psyq/libgte/rotmat.h"
+#include "psyq/libgte/gteatan.h"
 #include "types.h"
+#include "rr/audio_state_types.h"
 #include "game/car/car.h"
 #include "rr_asm.h"
 #include "game/sound/sndown.h"
 #include "game/sound/sndcmd.h"
 #include "rr/bios_devices.h"
 #include "rr/overlay662_distance.h"
+#include "game/sound/sndevt.h"
+#include "rr/trig.h"
 
-#define REC(b, i, o) (*(s32 *)((b) + (i) * 28 + (o)))
-#define RECH(b, i, o) (*(s16 *)((b) + (i) * 28 + (o)))
 
-typedef struct {
-    s32 unk00;
-    s16 unk04;
-    s16 unk06;
-    s32 unk08[5];
-} Rec1C;
+typedef struct { s32 d[3]; s32 unused0; MatrixWords32 m; Vec3sFields8 sv; s32 unused1[2]; Vec3sFields8 rot; s32 fl; } SoundGteScratch;
 
-typedef struct {
-    char pad0[0x18C4];
-    s32 pos18C4[3];
-    char pad1[0x18E4 - 0x18D0];
-    s32 unk18E4;
-    s32 unk18E8;
-    Rec1C rec[2];
-} State800F4DB8;
-
-typedef struct { char pad[0x20]; s32 p[3]; char pad2[0x320 - 0x2C]; } w3t1_E;
-
-typedef struct { s16 vx, vy, vz, pad; } w3t1_SV;
-
-typedef struct { s32 d[3]; s32 pad0; s32 m[8]; w3t1_SV sv; s32 pad1[2]; w3t1_SV rot; s32 fl; } w3t1_F;
-
-extern struct {
-    char pad0[0x18C0]; short a; short b; char pad1[0x28];
-    int c; char pad2[0x18]; int d; char pad3[0x18]; int e; short f; char pad4[0x16]; int g; short h;
-} SoundState;
 extern int D_800F66A0;
 extern s32 TrackLength;
 extern struct {
-    char pad0[0x10];
+    s32 unk00[4];
     s32 count10;
 } RaceContext;
 extern s32 D_800AC660;
-extern Car ComCars[];
-extern s32 D_800F6748;
-extern w3t1_E PlayerCars[];
-extern s32 RotMatrix();
-extern s32 ratan2();
-extern s32 rcos();
-extern s32 rsin();
+extern RaceVehicle ComCars[];
+extern RaceVehicle PlayerCars[];
 
-void SoundListenerInit(short arg0, short arg1);
-void SoundFindNearestCars(s32 arg0);
-void SoundCalcCarParams(s32 idx);
-void func_800523C8(int arg0);
+void SoundListenerInit(int arg0, int arg1);
 
-void SoundListenerInit(short arg0, short arg1) {
+void SoundListenerInit(int arg0_in, int arg1_in) {
+    short arg0 = arg0_in;
+    short arg1 = arg1_in;
     int t;
-    SoundState.a = arg0;
-    SoundState.b = arg1;
-    func_80096434((char *)&SoundState + 0x18EC, 0x70);
+    SoundState.mode18C0 = arg0;
+    SoundState.submode18C2 = arg1;
+    PsyqBzero(SoundState.rec18EC, sizeof(SoundState.rec18EC));
     t = arg1 & 0xFFFF;
     switch (t) {
     case 0:
-        SoundState.c = 1;
-        SoundState.d = 1;
-        SoundState.e = 0;
-        SoundState.f = 0;
+        SoundState.rec18EC[0].mode00 = 1;
+        SoundState.rec18EC[1].mode00 = 1;
+        SoundState.rec18EC[2].mode00 = 0;
+        SoundState.rec18EC[2].carIndex04 = 0;
         break;
     case 1:
-        SoundState.e = 0;
-        SoundState.g = 0;
-        SoundState.f = 0;
-        SoundState.h = t;
+        SoundState.rec18EC[2].mode00 = 0;
+        SoundState.rec18EC[3].mode00 = 0;
+        SoundState.rec18EC[2].carIndex04 = 0;
+        SoundState.rec18EC[3].carIndex04 = t;
         break;
     }
     D_800F66A0 = 4;
 }
-
-/* legacy typing of shared globals in this part of the unit */
-#define SoundState (*(State800F4DB8 (*))&SoundState)
 
 void SoundFindNearestCars(s32 arg0) {
     s32 d[4];
@@ -90,11 +60,11 @@ void SoundFindNearestCars(s32 arg0) {
     s32 i;
     s32 dist;
     /* ASM_BARRIER: allocate car pointer to v1 to match original register allocation */
-    register Car *car asm("$3");
-    Control *sub;
+    register RaceVehicle *car asm("$3");
+    RaceVehicleControl *sub;
 
-    prev_idx[0] = SoundState.rec[0].unk04;
-    prev_idx[1] = SoundState.rec[1].unk04;
+    prev_idx[0] = SoundState.rec18EC[0].carIndex04;
+    prev_idx[1] = SoundState.rec18EC[1].carIndex04;
 
     switch (arg0) {
     case 0:
@@ -104,7 +74,7 @@ void SoundFindNearestCars(s32 arg0) {
         min_dist[0] = TrackLength;
         for (i = 0; i < D_800AC660; i++) {
             car = &ComCars[i];
-            dist = (car->w184 + car->w188) - SoundState.unk18E4;
+            dist = (car->first + car->second) - SoundState.unk18E4;
             dist %= TrackLength;
             if (dist >= TrackLength / 2) {
                 dist -= TrackLength;
@@ -132,10 +102,10 @@ void SoundFindNearestCars(s32 arg0) {
         min_idx[1] = -1;
         min_idx[0] = -1;
         for (i = 0; i < RaceContext.count10; i++) {
-            d[0] = (ComCars[i].u20.s.w20 - SoundState.pos18C4[0]) / 16;
-            d[1] = (ComCars[i].u20.s.w24 - SoundState.pos18C4[1]) / 16;
-            d[2] = (ComCars[i].u20.s.w28 - SoundState.pos18C4[2]) / 16;
-            dist = func_80090758(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
+            d[0] = (ComCars[i].position20.vector.x - SoundState.pos18C4[0]) / 16;
+            d[1] = (ComCars[i].position20.vector.y - SoundState.pos18C4[1]) / 16;
+            d[2] = (ComCars[i].position20.vector.z - SoundState.pos18C4[2]) / 16;
+            dist = CordicSqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
             if (dist < min_dist[0]) {
                 min_dist[1] = min_dist[0];
                 min_idx[1] = min_idx[0];
@@ -149,94 +119,87 @@ void SoundFindNearestCars(s32 arg0) {
     update_slots:
         slot[0] = 0;
         slot[1] = 1;
-        if (min_idx[0] == SoundState.rec[1].unk04) {
+        if (min_idx[0] == SoundState.rec18EC[1].carIndex04) {
             slot[0] = 1;
             slot[1] = 0;
         }
-        if (min_idx[1] == SoundState.rec[0].unk04) {
+        if (min_idx[1] == SoundState.rec18EC[0].carIndex04) {
             slot[0] = 1;
             slot[1] = 0;
         }
-        SoundState.rec[slot[0]].unk04 = min_idx[0];
-        SoundState.rec[slot[1]].unk04 = min_idx[1];
+        SoundState.rec18EC[slot[0]].carIndex04 = min_idx[0];
+        SoundState.rec18EC[slot[1]].carIndex04 = min_idx[1];
         break;
     }
 
     for (i = 0; i < 2; i++) {
-        SoundState.rec[i].unk06 = 0;
-        if (prev_idx[i] != SoundState.rec[i].unk04) {
-            SoundState.rec[i].unk06 = 1;
+        SoundState.rec18EC[i].changed06 = 0;
+        if (prev_idx[i] != SoundState.rec18EC[i].carIndex04) {
+            SoundState.rec18EC[i].changed06 = 1;
         }
     }
 
-    sub = &ComCars[min_idx[0]].sub1F4;
-    if (sub->unk94 != 0) {
-        SetPlayerVoice(1, sub->unkC0, sub->unkC4, 1);
-        D_800F6748 = slot[0] + 2;
+    sub = &ComCars[min_idx[0]].control;
+    if (sub->dynamics94.steering.mode00 != 0) {
+        SetPlayerVoice(1, sub->dynamics94.steering.range2C, sub->dynamics94.steering.gain30, 1);
+        SoundState.playerVoices195C[1].slot18 = slot[0] + 2;
     } else {
-        sub = &ComCars[min_idx[1]].sub1F4;
-        if (sub->unk94 != 0) {
-            SetPlayerVoice(1, sub->unkC0, sub->unkC4, 1);
-            D_800F6748 = slot[1] + 2;
+        sub = &ComCars[min_idx[1]].control;
+        if (sub->dynamics94.steering.mode00 != 0) {
+            SetPlayerVoice(1, sub->dynamics94.steering.range2C, sub->dynamics94.steering.gain30, 1);
+            SoundState.playerVoices195C[1].slot18 = slot[1] + 2;
         } else {
             SetPlayerVoice(0, 0, 0, 1);
         }
     }
 }
 
-#undef SoundState
-
-/* legacy typing of shared globals in this part of the unit */
-#define SoundState (*(char (*)[])&SoundState)
-#define ComCars (*(w3t1_E (*)[])&ComCars)
-#define func_80090758 ((s32 (*)())func_80090758)
-
 void SoundCalcCarParams(s32 idx) {
-    w3t1_F f;
-    char *B = SoundState;
-    char *B2, *B3;
-    w3t1_E *e;
+    SoundGteScratch f;
+    AudioState *B = &SoundState;
+    AudioState *B2, *B3;
+    RaceVehicle *e;
     s32 rx, ry, rz;
     s32 mode, a, c, t, ang, prev, t2;
     s32 s2;
     s32 alpha;
-    REC(B, idx, 0x18F8) = REC(B, idx, 0x18F4);
-    mode = REC(B, idx, 0x18EC);
+    B->rec18EC[idx].prevDist0C = B->rec18EC[idx].dist08;
+    mode = B->rec18EC[idx].mode00;
     switch (mode) {
     case 0:
-        e = &PlayerCars[RECH(B, idx, 0x18F0)];
-        f.d[0] = (e->p[0] - *(s32 *)(B + 0x18C4)) / 16;
-        f.d[1] = (e->p[1] - *(s32 *)(B + 0x18C8)) / 16;
-        f.d[2] = (e->p[2] - *(s32 *)(B + 0x18CC)) / 16;
+        e = &PlayerCars[B->rec18EC[idx].carIndex04];
+        f.d[0] = (e->position20.vector.x - B->pos18C4[0]) / 16;
+        f.d[1] = (e->position20.vector.y - B->pos18C4[1]) / 16;
+        f.d[2] = (e->position20.vector.z - B->pos18C4[2]) / 16;
         break;
     case 1:
-        e = &ComCars[RECH(B, idx, 0x18F0)];
-        f.d[0] = (e->p[0] - *(s32 *)(B + 0x18C4)) / 16;
-        f.d[1] = (e->p[1] - *(s32 *)(B + 0x18C8)) / 16;
-        f.d[2] = (e->p[2] - *(s32 *)(B + 0x18CC)) / 16;
+        e = &ComCars[B->rec18EC[idx].carIndex04];
+        f.d[0] = (e->position20.vector.x - B->pos18C4[0]) / 16;
+        f.d[1] = (e->position20.vector.y - B->pos18C4[1]) / 16;
+        f.d[2] = (e->position20.vector.z - B->pos18C4[2]) / 16;
         break;
     }
-    t = func_80090758(f.d[0] * f.d[0] + f.d[1] * f.d[1] + f.d[2] * f.d[2]);
-    B2 = SoundState;
-    prev = REC(B2, idx, 0x18F8);
-    REC(B2, idx, 0x18F4) = t;
+    t = CordicSqrt(f.d[0] * f.d[0] + f.d[1] * f.d[1] + f.d[2] * f.d[2]);
+    B2 = &SoundState;
+    prev = B2->rec18EC[idx].prevDist0C;
+    B2->rec18EC[idx].dist08 = t;
     a = prev - t;
-    REC(B2, idx, 0x18FC) = a;
-    if (a == 0x2350) REC(B2, idx, 0x18FC) = 0x234F;
-    rx = *(u16 *)(B2 + 0x18D4);
-    f.m[7] = 0;
-    f.m[6] = 0;
-    f.m[5] = 0;
-    f.rot.vx = rx;
-    ry = *(u16 *)(B2 + 0x18D8);
-    rz = *(u16 *)(B2 + 0x18DC);
-    f.rot.vy = -ry;
-    f.rot.vz = rz;
-    RotMatrix(&f.rot, f.m);
-    RR_GTE_SETROT_TR(f.m);
-    f.sv.vx = f.d[0];
-    f.sv.vy = f.d[1];
-    f.sv.vz = f.d[2];
+    B2->rec18EC[idx].deltaDist10 = a;
+    if (a == 0x2350) B2->rec18EC[idx].deltaDist10 = 0x234F;
+    rx = B2->rot18D4.r.rx00;
+    f.m.w[7] = 0;
+    f.m.w[6] = 0;
+    f.m.w[5] = 0;
+    f.rot.x = rx;
+    ry = B2->rot18D4.r.ry04;
+    rz = B2->rot18D4.r.rz08;
+    f.rot.y = -ry;
+    f.rot.z = rz;
+    RotMatrix(&f.rot, &f.m);
+    RR_GTE_SETROT_TR(f.m.w);
+    f.sv.x = f.d[0];
+    f.sv.y = f.d[1];
+    f.sv.z = f.d[2];
     RR_GTE_MVMVA_ROT_TR_V0(&f.sv);
     RR_GTE_SWC2_MAC123(f.d);
     RR_GTE_STORE_FLAG(&f.fl);
@@ -245,7 +208,7 @@ void SoundCalcCarParams(s32 idx) {
     if (s2 >= 0x80) s2 = 0x7F;
     c = rsin(ang) / 64 + 0x40;
     if (c >= 0x80) c = 0x7F;
-    t2 = REC(B2, idx, 0x18F4);
+    t2 = B2->rec18EC[idx].dist08;
     if (t2 > 0x2800) {
         alpha = 0;
     } else {
@@ -254,32 +217,28 @@ void SoundCalcCarParams(s32 idx) {
         if (alpha > 0x80) alpha = 0x80;
     }
     if (D_800AC66C) alpha = 0;
-    B3 = SoundState;
-    t2 = REC(B3, idx, 0x18FC);
+    B3 = &SoundState;
+    t2 = B3->rec18EC[idx].deltaDist10;
     if (t2 < 0) t2 = -t2;
     /* ASM_BARRIER: launder abs result so reorg cannot copy the slti into the bgez delay slot */
     __asm__("" : "=r"(t2) : "0"(t2));
     if (t2 > 0x800) alpha = 0;
-    if (*(s32 *)(B3 + 0x18E8)) alpha = 0;
-    RECH(B3, idx, 0x1902) = alpha;
-    RECH(B3, idx, 0x1900) = s2;
-    REC(B3, idx, 0x1904) = c;
+    if (B3->unk18E8) alpha = 0;
+    B3->rec18EC[idx].vol16 = alpha;
+    B3->rec18EC[idx].pan14 = s2;
+    B3->rec18EC[idx].depth18 = c;
 }
 
-#undef SoundState
-#undef ComCars
-#undef func_80090758
-
-/* legacy typing of shared globals in this part of the unit */
-#define SoundState (*(char (*)[])&SoundState)
-
-void func_800523C8(int arg0) {
- int k = arg0 * 3; int t = arg0 + 2; char *v, *s, *b;
- SoundCalcCarParams(t); b = SoundState; s = b + (((k << 4) + arg0) << 5); v = b + t * 0x1C;
- *(int *)(s + 0x68) = *(int *)(v + 0x18FC);
- *(unsigned short *)(s + 0x5C) = *(unsigned short *)(v + 0x1900);
- *(unsigned short *)(s + 0x5A) = *(unsigned short *)(v + 0x1902);
- *(int *)(s + 0x64) = *(int *)(v + 0x1904);
+void UpdateCarSpatialAudio(int arg0) {
+    int k = arg0 * 3;
+    int t = arg0 + 2;
+    AudioState *b;
+    AudioState *s;
+    SoundCalcCarParams(t);
+    b = &SoundState;
+    s = (AudioState *)((char *)b + (((k << 4) + arg0) << 5));
+    s->slots38[0].filter30 = b->rec18EC[t].deltaDist10;
+    s->slots38[0].pan24 = b->rec18EC[t].pan14;
+    s->slots38[0].levels20.halves.gain = b->rec18EC[t].vol16;
+    s->slots38[0].spatial2C.word = b->rec18EC[t].depth18;
 }
-
-#undef SoundState

@@ -5,38 +5,22 @@
 #include "psyq/libcd/dsread.h"
 #include "psyq/libcd/dsfile.h"
 #include "psyq/libcd/cdfile.h"
-#include "psyq/libcd/dsfile.h"
 #include "rr/audio_cd_controller.h"
-
-typedef struct {
-    unsigned char pos[4];
-    unsigned int size;
-    char name[16];
-} CdlFILE;
+#include "game/data/globals.h"
 
 typedef struct {
     int x;
 } __attribute__((packed)) U4;
 
-struct DirPath {
-    int a;
-    int b;
-    int c;
-    char name[32];
-};
-
 extern int CD_dirNopen;
-extern int CD_nopen;
-extern int CD_debug;
-extern CdlFILE DsDirFileCache[];
-extern const char D_80011B38[];
+extern const char CdPathLevelErrorFmt[];
 extern const char StrCdDirNotFoundFmt[];
 extern const char CdSearchFileDiscErrorMsg[];
 extern const char StrCdSearchFileFmt[];
 extern const char StrFoundFmt[];
 extern const char FileNotFoundFmt[];
 extern int PsyqStrncmp();
-extern struct DirPath CD_pathtbl[];
+extern CdDirPath2C CD_pathtbl[];
 extern const char CdNewMediaReadErrorStr[];
 extern const char StrCd001[];
 extern const char CdNewMediaFormatErrorMsg[];
@@ -50,7 +34,6 @@ extern s32 PsyqStrcmp(const char *, const char *);
 
 CdlFILE *CdSearchFile(CdlFILE *fp, char *name);
 int _cmp(int a, int b);
-int DS_newmedia(void);
 s32 DS_searchdir(s32 key, const char *name);
 
 CdlFILE *CdSearchFile(CdlFILE *fp, char *name) {
@@ -94,7 +77,7 @@ CdlFILE *CdSearchFile(CdlFILE *fp, char *name) {
 done:
     if (i >= 8) {
         if (CD_debug > 0)
-            DebugPrintStub(D_80011B38, name, i);
+            DebugPrintStub(CdPathLevelErrorFmt, name, i);
         return 0;
     }
     if (buf[0] == 0) {
@@ -127,9 +110,6 @@ done:
 
 int _cmp(int a, int b) { return PsyqStrncmp(a, b, 12) == 0; }
 
-/* legacy typing of shared globals in this part of the unit */
-#define PsyqStrncmp ((int (*)(void *, const char *, int))PsyqStrncmp)
-
 int DS_newmedia(void) {
     int sp18;
     unsigned char *p;
@@ -153,7 +133,7 @@ int DS_newmedia(void) {
     p8c = CdIsoSectorBuf;
     /* ASM_BARRIER: prevent cse2 from folding s0+0x8C back to symbol+0x8C */
     __asm__ volatile("" : "=r"(p8c) : "0"(p8c));
-    *(U4 *)&sp18 = *(U4 *)(p8c + 0x8C);
+    *(U4 *)&sp18 = ((U4 *)p8c)[0x8C / 4];
     if (cd_read(1, sp18, p8c) != 1) {
         if (CD_debug > 0) {
             DebugPrintStub(StrCdNewmediaReadError, sp18);
@@ -169,7 +149,7 @@ int DS_newmedia(void) {
         if (p[0] == 0) {
             break;
         }
-        *(U4 *)&CD_pathtbl[i].c = *(U4 *)(p + 2);
+        *(U4 *)&CD_pathtbl[i].c = ((U4 *)(p + 2))[0];
         CD_pathtbl[i].b = p[6];
         CD_pathtbl[i].a = i + 1;
         PsyqMemcpy(CD_pathtbl[i].name, p + 8, p[0]);
@@ -194,22 +174,17 @@ int DS_newmedia(void) {
     if (i < 0x80) {
         CD_pathtbl[i].b = 0;
     }
-    D_800A67A0 = 0;
+    DS_cachedDir = 0;
     if (CD_debug >= 2) {
         DebugPrintStub(StrCdNewMediaDirCountFmt, i);
     }
     return 1;
 }
 
-#undef PsyqStrncmp
-
 s32 DS_searchdir(s32 key, const char *name) {
     s32 i = 0;
     register char *entry_name;
-    /* ASM_BARRIER: Retain the original table-offset register across comparisons. */
-    register s32 offset __asm__("$17");
-    /* ASM_BARRIER: Keep independently initialized scan count and byte offset without folding their zeros. */
-    __asm__("" : "=r"(i) : "0"(i) : "$18");
+    s32 offset;
     entry_name = D_8011095C;
     offset = 0;
     do {
@@ -220,7 +195,7 @@ s32 DS_searchdir(s32 key, const char *name) {
         /* ASM_BARRIER: Expose the PAL page without folding its table offset into a macro load. */
         __asm__("" : "=r"(page) : "0"(page));
         page += offset;
-        entry_key = ((RrLibNamedEntry *)(page + 0x954))->key;
+        entry_key = ((LibNamedEntry *)(page + 0x954))->key;
         if (entry_key == 0) break;
         if (entry_key == key) {
             if (PsyqStrcmp(name, entry_name) == 0) return i + 1;

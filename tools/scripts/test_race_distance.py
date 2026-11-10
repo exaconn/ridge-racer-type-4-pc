@@ -7,14 +7,21 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
+
+
+class DistanceControl(C.Structure):
+    _fields_ = [('prefix00', C.c_uint8*0x18), ('record', C.c_void_p), ('handling', C.c_void_p),
+                ('reserved20', C.c_uint8*(0x44-0x20)), ('boostTimer44', C.c_int16),
+                ('reserved46', C.c_uint8*(0x118-0x46)), ('maximum118', C.c_int16),
+                ('span11A', C.c_int16), ('divisor11C', C.c_int16),
+                ('tail', C.c_uint8*14)]
 
 
 class Distance(C.Structure):
     _fields_ = [('pad', C.c_uint8*0x184), ('first', C.c_int32), ('second', C.c_int32),
                 ('middle', C.c_uint8*(0x1D8-0x18C)), ('input', C.c_int16),
-                ('pad1DA', C.c_uint8*(0x238-0x1DA)), ('blend', C.c_int16),
-                ('pad23A', C.c_uint8*(0x30C-0x23A)), ('maximum', C.c_int16),
-                ('span', C.c_int16), ('divisor', C.c_int16), ('tail', C.c_uint8*14)]
+                ('pad1DA', C.c_uint8*(0x1F4-0x1DA)), ('control', DistanceControl)]
 
 
 class Result(C.Structure):
@@ -45,24 +52,27 @@ class RaceDistanceTest(unittest.TestCase):
         cls.temp = TemporaryDirectory()
         cls.addClassCleanup(cls.temp.cleanup)
         root = Path(__file__).resolve().parents[2]
-        header = (root/'include/rr/race_types.h').read_text() + (root/'include/rr/race.h').read_text()
-        header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        body = (root/'tools/scripts/fixtures/views/func_8004A080.c').read_text()
-        body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
+        owner = source_owners(root/'src/main/PAL')['CalcDistanceToPlayer']
+        body = definition_source(owner.read_text(), 'CalcDistanceToPlayer')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+",\s*', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?=\))', '', body)
-        source = '''#include <stdint.h>
-typedef uint8_t u8;typedef uint32_t u32;typedef int32_t s32;typedef int16_t s16;
-''' + header + '''
-RrRaceVehicle PlayerCars[2];
-RrRaceDistanceContextPrefix RaceContext;
-unsigned long test_context_size(void) {return sizeof(RrRaceDistanceContextPrefix);}
-unsigned long test_record_size(void) {return sizeof(RrRaceVehicle);}
+        source = '#include <stdlib.h>\n#include "rr/race.h"\n' + r'''
+static __inline__ s32 WrappingDiff(u32 a0, u32 a1, u32 b0, u32 b1) {
+    return (a0 + a1) - (b0 + b1);
+}
+static __inline__ s32 WrappingMagnitude(s32 value) {
+    u32 u = value;
+    return value < 0 ? 0U - u : u;
+}
+RaceVehicle PlayerCars[2];
+RaceDistanceContextPrefix RaceContext;
+unsigned long test_context_size(void) {return sizeof(RaceDistanceContextPrefix);}
+unsigned long test_record_size(void) {return sizeof(RaceVehicle);}
 ''' + body
         directory = Path(cls.temp.name)
         (directory/'function.c').write_text(source)
-        result = subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory/'function.c'),
+        result = subprocess.run(['cc', '-shared', '-fPIC', '-O2', '-I', str(root/'include'), str(directory/'function.c'),
                                  '-o', str(directory/'function.so')], capture_output=True)
         if result.returncode:
             raise AssertionError(result.stderr.decode())
@@ -110,7 +120,7 @@ unsigned long test_record_size(void) {return sizeof(RrRaceVehicle);}
 
     def test_native_layout_full_pointer_and_signed_boundaries(self):
         self.assertEqual(self.lib.test_context_size(), C.sizeof(Context))
-        self.assertEqual(self.lib.test_record_size(), 0x320)
+        self.assertEqual(self.lib.test_record_size(), C.sizeof(Distance))
         self.assertEqual(Context.result.offset, 0xE8)
         self.assertEqual(C.addressof(self.context.result.contents), C.addressof(self.output.result))
         boundaries = (-0x80000000,-0x7FFFFFFF,-1,0,1,0x7FFFFFFE,0x7FFFFFFF)

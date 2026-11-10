@@ -27,14 +27,14 @@ class CardFormatTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,o)
 #include "rr/card_format.h"
 
-_Static_assert(sizeof(RrCardWireWord)==4,"wire word");
-_Static_assert(_Alignof(RrCardWireWord)==1,"wire alignment");
-_Static_assert(sizeof(RrCardDirectoryWire)==32,"directory wire");
-_Static_assert(sizeof(RrCardDirectoryRecord)==32,"directory owner");
-_Static_assert(offsetof(RrCardDirectoryRecord,fields.next)==8,"next link");
-_Static_assert(sizeof(RrCardBrokenRecord)==4,"broken owner");
-_Static_assert(sizeof(RrCardFormatSector)==128,"sector owner");
-typedef struct {RrCardDirectoryRecord directory[15];RrCardBrokenRecord broken[20];RrCardFormatSector scratch;u8 canary[24];} World;
+_Static_assert(sizeof(CardWireWord)==4,"wire word");
+_Static_assert(_Alignof(CardWireWord)==1,"wire alignment");
+_Static_assert(sizeof(CardDirectoryWire)==32,"directory wire");
+_Static_assert(sizeof(CardDirectoryRecord)==32,"directory owner");
+_Static_assert(offsetof(CardDirectoryRecord,fields.next)==8,"next link");
+_Static_assert(sizeof(CardBrokenRecord)==4,"broken owner");
+_Static_assert(sizeof(CardFormatSector)==128,"sector owner");
+typedef struct {CardDirectoryRecord directory[15];CardBrokenRecord broken[20];CardFormatSector scratch;u8 canary[24];} World;
 _Static_assert(offsetof(World,broken)==480,"broken region");
 _Static_assert(offsetof(World,scratch)==560,"sector region");
 typedef struct {int kind,offset,size,sector;s32 port;World snapshot;} Entry;
@@ -55,7 +55,7 @@ static void mutate_other(void *buffer,int size){
  /* Preserve bzero's exact postcondition and mutate only the other real owners. */
  for(size_t i=0;i<560;i++)if(i<low||i>=high)p[i]^=(u8)(count*17U+(unsigned)i*131U);
 }
-void func_80096434(void *buffer,s32 size){
+void PsyqBzero(void *buffer,s32 size){
  assert(size==32||size==128);record(0,buffer,size,0,0);memset(buffer,0,(size_t)size);mutate_other(buffer,size);
 }
 s32 _card_sector_write(s32 port,s32 sector,u8 *buffer){

@@ -391,7 +391,7 @@ def run(*args):
 
 def main():
     blob = (ROOT / 'disc/PAL/R4.BIN').read_bytes()
-    padding = padding_spans(blob)
+    padding = padding_spans(blob, {index for index, _, _ in SAMPLES + EXTRA_FUNCTIONS})
     for index, address, size in SAMPLES + EXTRA_FUNCTIONS:
         assert all(address + size <= a or b <= address
                    for a, b in padding.get(index, [])), (index, hex(address))

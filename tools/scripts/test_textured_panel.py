@@ -19,8 +19,8 @@ class TexturedPanelTest(unittest.TestCase):
         body=(ROOT/'tools/scripts/fixtures/views/func_8005D40C.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
-        assert body.count('(RrGpuScratchPointers*)0x1F800000U')==1
-        body=body.replace('(RrGpuScratchPointers*)0x1F800000U','&actual.scratch')
+        assert body.count('(GpuScratchPointers*)0x1F800000U')==1
+        body=body.replace('(GpuScratchPointers*)0x1F800000U','&actual.scratch')
         code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -31,7 +31,7 @@ class TexturedPanelTest(unittest.TestCase):
 ''' + header('gpu_scratch_types.h')+header('gpu.h') + header('animated_sprite_grid.h') + header('textured_panel.h') + r'''
 typedef struct {
     u8 prefix[32];
-    RrGpuScratchPointers scratch;
+    GpuScratchPointers scratch;
     u32 ordering[4];
     u8 gap[32];
     u8 packets[128];
@@ -111,10 +111,10 @@ int main(int argc,char **argv) {
                 check(extremes[i]);
             }
             initialize(i);
-            actual.scratch.order=(u32*)((u8*)&actual+offsetof(World,scratch)+offsetof(RrGpuScratchPointers,order)-4);
+            actual.scratch.order=(u32*)((u8*)&actual+offsetof(World,scratch)+offsetof(GpuScratchPointers,order)-4);
             check(extremes[i]);
             initialize(i);
-            actual.scratch.order=(u32*)((u8*)&actual+offsetof(World,scratch)+offsetof(RrGpuScratchPointers,cursor)-4);
+            actual.scratch.order=(u32*)((u8*)&actual+offsetof(World,scratch)+offsetof(GpuScratchPointers,cursor)-4);
             check(extremes[i]);
         }
     }

@@ -7,7 +7,7 @@ void ovl662_func_80115EC4(s32 arg0) {
     D_800F4D99 = 0;
     for (i = 0; i < 4; i++) {
         /* Unsigned addition wraps; the PAL signed-word conversion keeps its bits. */
-        GlyphRows[arg0 + i].phase18 = (s32)((u32)GlyphRows[i].phase18 + 0x30000U);
+        GlyphRows[arg0 + i].phase18 = (GlyphRows[i].phase18 + 0x30000U);
         InitGlyphRow(arg0 + i, -2, 0, 1);
         InitRect16Row(
             GlyphRows[arg0 + i].glyph07,

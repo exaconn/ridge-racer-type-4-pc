@@ -39,13 +39,13 @@ s32 get_alarm(void) {
     }
     saved=SetIntrMask(0);
     _qout=0;
-    D_800ABBF8=saved;
+    GpuResetSavedIntrMask=saved;
     _qin=_qout;
     *DMA2_CHCR=0x401;
     *DPCR|=0x800;
     *GPU_STATUS=0x02000000;
     *GPU_STATUS=0x01000000;
-    SetIntrMask(D_800ABBF8);
+    SetIntrMask(GpuResetSavedIntrMask);
     result=-1;
     goto done;
 ok:

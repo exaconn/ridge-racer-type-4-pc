@@ -6,14 +6,17 @@ def header(name):
  s=(ROOT/'include/rr'/name).read_text()
  s=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',s,flags=re.M)
  return re.sub(r'extern[^;]*;','',s)
-body=(ROOT/'tools/scripts/fixtures/views/func_8005C37C.c').read_text()
+from c_functions import definition_source, source_owners
+owner_text=source_owners(ROOT/'src/main/PAL')['EmitFadeSprite'].read_text()
+body=re.search(r'extern SpritePacket \*AddSpritePrim[^;]*;',owner_text).group(0)+'\n'+definition_source(owner_text,'EmitFadeSprite')
 body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
 body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
 body=re.sub(r',?\s*"\$\d+"','',body)
-body, scratch_remaps = re.subn(r'\(RrGpuScratchPointers\s*\*\)0x1F800000U', '&actual.scratch', body)
+body, scratch_remaps = re.subn(r'\(GpuScratchPointers\s*\*\)SCRATCHPAD', '&actual.scratch', body)
 assert scratch_remaps == 1, 'native fixture must replace exactly one physical scratch address'
 code=r'''
 #include <assert.h>
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -22,11 +25,11 @@ code=r'''
 ''' + ''.join(header(n) for n in ['gpu_scratch_types.h','gpu.h','ui_bar.h','animated_sprite_grid.h','fade_sprite.h'])+r'''
 typedef struct {
  u8 guard0[32];
- RrGpuScratchPointers scratch;
- RrFadeSpriteContext contexts[2];
- RrFadeSpriteContext *context;
+ GpuScratchPointers scratch;
+ FrameStorage contexts[2];
+ FrameStorage *context;
  s32 phase,gain;
- RrUiUvRect uv[8];
+ UiUvRect uv[8];
  u32 modes[4];
  u32 packets[128];
  u8 guard1[32];
@@ -34,9 +37,9 @@ typedef struct {
 typedef struct {
  int count;
  u32 *ordering;
- RrSpritePacket *cursor;
+ SpritePacket *cursor;
  s32 x,y,flags;
- RrUiUvRect *uv;
+ UiUvRect *uv;
  u16 clut;
  World snapshot;
 } Trace;
@@ -54,8 +57,8 @@ static void *mapped(World *world,const void *p) {
  uintptr_t offset=(uintptr_t)p-(uintptr_t)&actual;
  assert(offset<sizeof(actual));return (u8*)world+offset;
 }
-static RrSpritePacket *helper(int model,u32 *ordering,RrSpritePacket *cursor,
- s32 x,s32 y,RrUiUvRect *uv,u16 clut,s32 flags) {
+static SpritePacket *helper(int model,u32 *ordering,SpritePacket *cursor,
+ s32 x,s32 y,UiUvRect *uv,u16 clut,s32 flags) {
  World *w=model?&expected:&actual;Trace *t=model?&expected_log:&actual_log;
  memset(t,0,sizeof(*t));t->count=1;t->ordering=ordering;t->cursor=cursor;
  t->x=x;t->y=y;t->uv=uv;t->clut=clut;t->flags=flags;
@@ -66,19 +69,19 @@ static RrSpritePacket *helper(int model,u32 *ordering,RrSpritePacket *cursor,
   w->context=&actual.contexts[1];
   w->scratch.cursor=(u8*)actual.packets+240;
   for(int i=0;i<4;i++)w->modes[i]^=0xFEED9ABCU;
-  w->contexts[1].head98=0xAB123456U;
+  w->contexts[1].buffer.ordering70.words[10]=0xAB123456U;
   w->phase^=0x12345678;w->gain^=0x45678912;
  }
  u8 *raw=(u8*)cursor+return_offset;
- if(return_kind==1)raw=(u8*)&actual.contexts[0].head98;
- if(return_kind==2)raw=(u8*)&actual.contexts[1].head98;
+ if(return_kind==1)raw=(u8*)&actual.contexts[0].buffer.ordering70.words[10];
+ if(return_kind==2)raw=(u8*)&actual.contexts[1].buffer.ordering70.words[10];
  if(return_kind==3)raw=(u8*)&actual.context-8;
  if(return_kind==4)raw=(u8*)&actual.modes[original_selector];
  if(!return_kind)memset(mapped(w,raw),0xCA,24);
- return (RrSpritePacket*)raw;
+ return (SpritePacket*)raw;
 }
-RrSpritePacket *AddSpritePrim(u32 *a,RrSpritePacket *b,s32 c,s32 d,
- RrUiUvRect *e,u16 f,s32 g){return helper(0,a,b,c,d,e,f,g);}
+SpritePacket *AddSpritePrim(u32 *a,SpritePacket *b,s32 c,s32 d,
+ UiUvRect *e,u16 f,s32 g){return helper(0,a,b,c,d,e,f,g);}
 static void reference(s32 index,s32 x,s32 y,s32 intensity) {
  s32 phase=expected.phase;
  unsigned selector=(index==4)+(phase>=128?2:0);
@@ -86,25 +89,25 @@ static void reference(s32 index,s32 x,s32 y,s32 intensity) {
  s32 first=bits(weight*(u32)intensity)/256;
  s32 scale=bits((u32)first*(u32)expected.gain)/256;
  if(scale<=0)return;
- RrFadeSpriteContext *raw_context=expected.context;
- RrSpritePacket *returned=helper(1,&raw_context->head98,
-  (RrSpritePacket*)expected.scratch.cursor,x,y,&actual.uv[index],0x7F38,
+ FrameStorage *raw_context=expected.context;
+ SpritePacket *returned=helper(1,&raw_context->buffer.ordering70.words[10],
+  (SpritePacket*)expected.scratch.cursor,x,y,&actual.uv[index],0x7F38,
   bits(((u32)scale*2U)|1U));
  u32 mode=expected.modes[selector];
  expected.scratch.cursor=(u8*)returned;
  u8 *p=mapped(&expected,returned);p[3]=1;
  u32 *words=(u32*)p;
- RrFadeSpriteContext *ctx=mapped(&expected,expected.context);
+ FrameStorage *ctx=mapped(&expected,expected.context);
  words[1]=0xE1000200U|(mode&0x9FFU);
- words[0]=(words[0]&0xFF000000U)|(ctx->head98&0xFFFFFFU);
- ctx->head98=(ctx->head98&0xFF000000U)|((uintptr_t)returned&0xFFFFFFU);
+ words[0]=(words[0]&0xFF000000U)|(ctx->buffer.ordering70.words[10]&0xFFFFFFU);
+ ctx->buffer.ordering70.words[10]=(ctx->buffer.ordering70.words[10]&0xFF000000U)|((uintptr_t)returned&0xFFFFFFU);
  expected.scratch.cursor=(u8*)returned+8;
 }
 static void check(s32 index,s32 x,s32 y,s32 intensity,s32 phase,s32 gain,u32 seed,int change) {
  memset(&actual,(u8)seed,sizeof(actual));
  actual.context=&actual.contexts[0];
  actual.scratch.cursor=(u8*)actual.packets+16;
- actual.scratch.order=&actual.contexts[0].head98;
+ actual.scratch.order=&actual.contexts[0].buffer.ordering70.words[10];
  actual.phase=phase;actual.gain=gain;
  for(int i=0;i<4;i++)actual.modes[i]=seed*2654435761U+i*1717U;
  memcpy(&expected,&actual,sizeof(actual));
@@ -119,7 +122,7 @@ static void check(s32 index,s32 x,s32 y,s32 intensity,s32 phase,s32 gain,u32 see
 int main(int argc,char **argv) {
  assert(argc==2);int group=atoi(argv[1]);
  assert(sizeof(void*)>4);
- assert(offsetof(RrFadeSpriteContext,head98)==0x98);
+ assert(offsetof(FrameStorage,buffer.ordering70.words[10])==0x98);
  const s32 edges[]={(-2147483647-1),-2147483647,-65536,-256,-1,0,1,127,128,129,255,256,65535,2147483647};
  if(group==0) {
  for(unsigned p=0;p<14;p++)for(unsigned a=0;a<14;a++)for(unsigned g=0;g<14;g++) {

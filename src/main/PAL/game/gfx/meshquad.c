@@ -1,8 +1,12 @@
+#include "game/car/carbound.h"
 #include "rr_asm.h"
 #include "rr/gpu.h"
 
 /* Candidate module: mesh quad packet builders (GT4, G4, F4), 80057A44..80058038. */
 #include "types.h"
+#include "rr/scene_camera_state.h"
+#include "rr/player_cars.h"
+#include "game/car/bounds.h"
 #include "scratchpad.h"
 #include "game/camera/camview.h"
 #include "game/effect/spark.h"
@@ -10,65 +14,43 @@
 #include "rr/overlay665_render.h"
 #include "game/gfx/gfxotag.h"
 #include "game/effect/carfx.h"
+#include "rr/race_types.h"
 #define RTPT() RR_GTE_RTPT_MEM()
 #define RTPS() RR_GTE_RTPS_MEM()
 #define NCLIP() RR_GTE_NCLIP_MEM()
 #define AVSZ4() RR_GTE_AVSZ4_MEM()
 
-struct Q
-{
-  char pad0[0xA0];
-  int fA0;
-  char pad1[0x100 - 0xA4];
-  int f100;
-  int f104;
-  int f108;
-};
-
-extern struct 
-{
-  char pad[0x24C];
-  struct Q *p;
-} RaceContext;
-extern struct 
-{
-  char pad[0x10E];
-  unsigned short f10E;
-} PlayerCars;
-extern struct 
-{
-  char pad[8];
-  short f8;
-} *CarBoundsTable;
-
-RrMeshQuadGT4 *DrawMeshQuadGT4(RrMeshQuadGT4 *p, s32 *s);
-RrMeshQuadG4 *DrawMeshQuadG4(RrMeshQuadG4 *p, s32 *s);
-RrMeshQuadF4 *DrawMeshQuadF4(RrMeshQuadF4 *p, s32 *s);
+MeshQuadGT4 *DrawMeshQuadGT4(MeshQuadGT4 *p, s32 *s);
+MeshQuadG4 *DrawMeshQuadG4(MeshQuadG4 *p, s32 *s);
+MeshQuadF4 *DrawMeshQuadF4(MeshQuadF4 *p, s32 *s);
 void DrawMeshPrimList(int arg0, int arg1, int arg2);
 
-int func_800578D8(int a0)
+int StepCarShowcaseScene(int a0)
 {
   int sp10[2];
   int s1;
   s1 = 4;
-  RaceContext.p->f100 = (RaceContext.p->fA0 - s1) - (CarBoundsTable->f8 + ((short) (((short) PlayerCars.f10E) / 3)));
-  s1 = func_8005642C(&PlayerCars, RaceContext.p->f104, a0, sp10);
-  UpdateSparkEffects();
-  func_8002E828(2, SCRATCH_ROT_MATRIX);
-  func_80055C84();
-  RaceContext.p->f104 = RaceContext.p->f104 + 1;
-  RaceContext.p->f108 = RaceContext.p->f108 + 1;
-  if (RaceContext.p->f104 >= 0x322)
   {
-    RaceContext.p->f104 = 0x321;
+    u32 extent = RaceContext.camera24C->extentA0;
+    RaceContext.camera24C->distance100 = extent - s1 - (CarBoundsTable[0]->unk08 + PlayerCars[0].halfSpan10E / 3);
   }
-  if (RaceContext.p->f108 >= 0x516)
+  s1 = StepCarShowcasePhysics(&PlayerCars[0], RaceContext.camera24C->frame104, a0, sp10);
+  UpdateSparkEffects();
+  ScaleMatrixRow1(2, (MatrixWords32 *)SCRATCH_ROT_MATRIX);
+  DrawGarageFloorReflection();
+  RaceContext.camera24C->frame104 = RaceContext.camera24C->frame104 + 1U;
+  RaceContext.camera24C->phase108 = RaceContext.camera24C->phase108 + 1U;
+  if (RaceContext.camera24C->frame104 >= 0x322)
   {
-    RaceContext.p->f108 = 0x515;
+    RaceContext.camera24C->frame104 = 0x321;
+  }
+  if (RaceContext.camera24C->phase108 >= 0x516)
+  {
+    RaceContext.camera24C->phase108 = 0x515;
   }
   if (Pad0Buttons & 0x800)
   {
-    if (RaceContext.p->f104 >= 0x33)
+    if (RaceContext.camera24C->frame104 >= 0x33)
     {
       s1 = 1;
     }
@@ -76,23 +58,25 @@ int func_800578D8(int a0)
   return s1;
 }
 
-RrMeshQuadGT4 *DrawMeshQuadGT4(RrMeshQuadGT4 *p, s32 *s) {
+MeshQuadGT4 *DrawMeshQuadGT4(MeshQuadGT4 *p, s32 *s) {
     s32 *g = (s32 *)SCRATCHPAD;
-    RrPolyGT4WordPacket *out = (RrPolyGT4WordPacket *)g[0];
+    PolyGT4WordPacket *out = (PolyGT4WordPacket *)g[0];
     s32 sh = g[0x18];
     u8 *verts = (u8 *)s[0];
     s32 n = s[1];
     s32 nv;
+    /* ASM_BARRIER: Keep paired packet word copies in $v1/$a0 around GTE pipeline gaps. */
     register s32 x __asm__("$3");
+    /* ASM_BARRIER: Keep second word of paired packet copy in $a0. */
     register s32 y __asm__("$4");
-    RrPolyGT4WordPacket *t1 = out;
+    PolyGT4WordPacket *t1 = out;
     if (n-- > 0) {
         s32 c3c = 0x3C;
         do {
             u8 *v0 = verts + (p->v0 << 3);
             u8 *v1 = verts + (p->v1 << 3);
             u8 *v2 = verts + (p->v2 << 3);
-            __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)\n\tlwc2 $2, 0(%1)\n\tlwc2 $3, 4(%1)\n\tlwc2 $4, 0(%2)\n\tlwc2 $5, 4(%2)" : : "r"(v0), "r"(v1), "r"(v2));
+            RR_GTE_LWC2_V012_3P(v0, v1, v2);
             t1->len = 0xC;
             RTPT();
             ((u8 *)t1)[7] = c3c;
@@ -102,20 +86,20 @@ RrMeshQuadGT4 *DrawMeshQuadGT4(RrMeshQuadGT4 *p, s32 *s) {
                 t1->color10 = y;
             }
             NCLIP();
-            __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(s + 6) : "memory");
-            __asm__ volatile ("swc2 $12, 0(%0)\n\tswc2 $13, 4(%0)\n\tswc2 $14, 8(%0)" : : "r"(s + 2) : "memory");
+            RR_GTE14_SWC2_MAC0(s + 6);
+            RR_GTE14_SWC2_SXYZ(s + 2);
             if (s[6] > 0) {
                 u8 *v3 = verts + (p->v3 << 3);
                 s32 x2, y2;
-                __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(v3));
+                RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, v3);
                 x = s[2]; y = s[3];
                 RTPS();
                 t1->xy0 = x;
                 t1->xy1 = y;
-                __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(s + 5));
+                RR_GTE_SWC2_AT(14, 0, s + 5);
                 x2 = s[4]; y2 = s[5];
                 AVSZ4();
-                __asm__ volatile ("swc2 $7, 0(%0)" : : "r"(s + 8) : "memory");
+                RR_GTE14_SWC2_OTZ(s + 8);
                 s[8] = s[8] >> sh;
                 if (s[8] < 0x1C1) {
                     t1->xy2 = x2;
@@ -150,27 +134,29 @@ RrMeshQuadGT4 *DrawMeshQuadGT4(RrMeshQuadGT4 *p, s32 *s) {
             p++;
         } while (n-- > 0);
     }
-    *(s32 *)SCRATCHPAD = (s32)t1;
+    *(s32 *)SCRATCHPAD = t1;
     return p;
 }
 
-RrMeshQuadG4 *DrawMeshQuadG4(RrMeshQuadG4 *p, s32 *s) {
+MeshQuadG4 *DrawMeshQuadG4(MeshQuadG4 *p, s32 *s) {
     s32 *g = (s32 *)SCRATCHPAD;
-    RrPolyG4WordPacket *out = (RrPolyG4WordPacket *)g[0];
+    PolyG4WordPacket *out = (PolyG4WordPacket *)g[0];
     s32 sh = g[0x18];
     u8 *verts = (u8 *)s[0];
     s32 n = s[1];
     s32 nv;
+    /* ASM_BARRIER: Keep paired packet word copies in $v1/$a0 around GTE pipeline gaps. */
     register s32 x __asm__("$3");
+    /* ASM_BARRIER: Keep second word of paired packet copy in $a0. */
     register s32 y __asm__("$4");
-    RrPolyG4WordPacket *t1 = out;
+    PolyG4WordPacket *t1 = out;
     if (n-- > 0) {
         s32 c3c = 0x38;
         do {
             u8 *v0 = verts + (p->v0 << 3);
             u8 *v1 = verts + (p->v1 << 3);
             u8 *v2 = verts + (p->v2 << 3);
-            __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)\n\tlwc2 $2, 0(%1)\n\tlwc2 $3, 4(%1)\n\tlwc2 $4, 0(%2)\n\tlwc2 $5, 4(%2)" : : "r"(v0), "r"(v1), "r"(v2));
+            RR_GTE_LWC2_V012_3P(v0, v1, v2);
             t1->len = 8;
             RTPT();
             ((u8 *)t1)[7] = c3c;
@@ -180,20 +166,20 @@ RrMeshQuadG4 *DrawMeshQuadG4(RrMeshQuadG4 *p, s32 *s) {
                 t1->color0C = y;
             }
             NCLIP();
-            __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(s + 6) : "memory");
-            __asm__ volatile ("swc2 $12, 0(%0)\n\tswc2 $13, 4(%0)\n\tswc2 $14, 8(%0)" : : "r"(s + 2) : "memory");
+            RR_GTE14_SWC2_MAC0(s + 6);
+            RR_GTE14_SWC2_SXYZ(s + 2);
             if (s[6] > 0) {
                 u8 *v3 = verts + (p->v3 << 3);
                 s32 x2, y2;
-                __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(v3));
+                RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, v3);
                 x = s[2]; y = s[3];
                 RTPS();
                 t1->xy0 = x;
                 t1->xy1 = y;
-                __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(s + 5));
+                RR_GTE_SWC2_AT(14, 0, s + 5);
                 x2 = s[4]; y2 = s[5];
                 AVSZ4();
-                __asm__ volatile ("swc2 $7, 0(%0)" : : "r"(s + 8) : "memory");
+                RR_GTE14_SWC2_OTZ(s + 8);
                 s[8] = s[8] >> sh;
                 if (s[8] < 0x1C1) {
                     t1->xy2 = x2;
@@ -218,27 +204,27 @@ RrMeshQuadG4 *DrawMeshQuadG4(RrMeshQuadG4 *p, s32 *s) {
             p++;
         } while (n-- > 0);
     }
-    *(s32 *)SCRATCHPAD = (s32)t1;
+    *(s32 *)SCRATCHPAD = t1;
     return p;
 }
 
-RrMeshQuadF4 *DrawMeshQuadF4(RrMeshQuadF4 *p, s32 *s) {
+MeshQuadF4 *DrawMeshQuadF4(MeshQuadF4 *p, s32 *s) {
     s32 *g = (s32 *)SCRATCHPAD;
-    RrPolyF4Packet *out = (RrPolyF4Packet *)g[0];
+    PolyF4Packet *out = (PolyF4Packet *)g[0];
     s32 sh = g[0x18];
     u8 *verts = (u8 *)s[0];
     s32 n = s[1];
     s32 nv;
     s32 x;
     s32 y;
-    RrPolyF4Packet *t1 = out;
+    PolyF4Packet *t1 = out;
     if (n-- > 0) {
         s32 c3c = 0x28;
         do {
             u8 *v0 = verts + (p->v0 << 3);
             u8 *v1 = verts + (p->v1 << 3);
             u8 *v2 = verts + (p->v2 << 3);
-            __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)\n\tlwc2 $2, 0(%1)\n\tlwc2 $3, 4(%1)\n\tlwc2 $4, 0(%2)\n\tlwc2 $5, 4(%2)" : : "r"(v0), "r"(v1), "r"(v2));
+            RR_GTE_LWC2_V012_3P(v0, v1, v2);
             t1->len = 5;
             ((u8 *)t1)[7] = c3c;
             RTPT();
@@ -247,22 +233,22 @@ RrMeshQuadF4 *DrawMeshQuadF4(RrMeshQuadF4 *p, s32 *s) {
                 t1->colorCode04 = w;
             }
             NCLIP();
-            __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(s + 6) : "memory");
-            __asm__ volatile ("swc2 $12, 0(%0)\n\tswc2 $13, 4(%0)\n\tswc2 $14, 8(%0)" : : "r"(s + 2) : "memory");
+            RR_GTE14_SWC2_MAC0(s + 6);
+            RR_GTE14_SWC2_SXYZ(s + 2);
             {
                 u8 *v3 = verts + (p->v3 << 3);
-                __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(v3));
+                RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, v3);
                 x = s[2]; y = s[3];
                 RTPS();
                 t1->xy0 = x;
                 t1->xy1 = y;
-                __asm__ volatile ("nop\n\tnop\n\t.word 0x4B400006");
-                __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(s + 5));
-                __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(s + 7));
+                RR_GTE_CMD_2NOP(0x4B400006);
+                RR_GTE_SWC2_AT(14, 0, s + 5);
+                RR_GTE_SWC2_AT(24, 0, s + 7);
                 if (s[6] > 0 || s[7] < 0) {
                     x = s[4]; y = s[5];
                     AVSZ4();
-                    __asm__ volatile ("swc2 $7, 0(%0)" : : "r"(s + 8) : "memory");
+                    RR_GTE14_SWC2_OTZ(s + 8);
                     s[8] = s[8] >> sh;
                     if (s[8] < 0x1C1) {
                         t1->xy2 = x;
@@ -283,7 +269,7 @@ RrMeshQuadF4 *DrawMeshQuadF4(RrMeshQuadF4 *p, s32 *s) {
             p++;
         } while (n-- > 0);
     }
-    *(s32 *)SCRATCHPAD = (s32)t1;
+    *(s32 *)SCRATCHPAD = t1;
     return p;
 }
 
@@ -293,10 +279,10 @@ void DrawMeshPrimList(int arg0, int arg1, int arg2) {
     int v;
     int t;
     g[0x54 / 4] = arg2;
-    g[0x58 / 4] = *(int *)(SCRATCHPAD + 0x4);
+    g[0x58 / 4] = ((int *)SCRATCHPAD)[1];
     t = arg0 + arg1 * 0xC;
-    g[0] = *(int *)(t + 4);
-    a = *(int **)(t + 0xC);
+    g[0] = ((int *)t)[1];
+    a = *(int **)(t + RR_FIELD_OFFSET(RroModelTable, entries[0].commands));
     v = *a;
     a++;
     if (v != 0) {

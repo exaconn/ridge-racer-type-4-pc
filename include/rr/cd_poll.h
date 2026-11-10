@@ -2,16 +2,16 @@
 #define RR_CD_POLL_H
 #include "rr/cd.h"
 #include "rr/timing.h"
-#include "rr/diagnostics.h"
 /* Names are indexed by command0..27 and completion code0..6. The timeout
  * diagnostic requires the two status bytes to select those seven names. */
 extern const char *CD_comstr[28],*CD_intstr[7];
-extern u8 D_800A64A5,D_800A6764[];
+extern volatile u8 CD_intr_status[];
 extern s32 CD_timeout_deadline;
-extern u32 D_80110334;
-extern const char *CdWaitCallerName;
+extern s32 CD_timeout_count;
+extern const char *CdWaitCallerName[];
 extern const char CdTimeoutPrefixStr[],CdTimeoutStatusFmt[],CdDatasyncNameStr[];
-s32 func_800963DC(const char *message);
+s32 DebugPrintStub();
+s32 PsyqPuts(const char *message);
 void CD_flush(void);
 /* Mode0 waits; a nonzero mode polls once. Returns-1 on timeout,0 when idle,
  * and1 when a nonblocking poll finds DMA busy. Counters wrap in32 bits. */

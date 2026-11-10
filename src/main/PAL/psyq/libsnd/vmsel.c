@@ -1,99 +1,41 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
+#include "rr/channels.h"
 #include "rr/spu.h"
 #include "psyq/libsnd/vmsel.h"
 #include "game/data/globals.h"
 
-/* $at as the %hi() base: with $1 allocatable cc1 2.8.1 emits lui $1,%hi / sw %lo($1) and its reorg fills the jr/jal delay slot with the sw (see DECOMP_GUIDE "delay-slot store"). */
+s32 _SsVmVSetUp(s32 bank, s32 program);
 
-s32 _SsVmVSetUp(s32 bank,s32 program);
-
-s32 _SsVmVSetUp(s32 bank,s32 program) {
-    /* ASM_BARRIER: Retain full selectors until publishing their low bytes. */
-    register s32 raw_bank __asm__("$7")=bank;
-    /* ASM_BARRIER: Retain full selectors until publishing their low bytes. */
-    register s32 raw_program __asm__("$8")=program;
-    /* ASM_BARRIER: Retain the narrowed bank in the consumed argument register. */
-    register s32 i;
-    /* ASM_BARRIER: Retain the narrowed program while publishing pointer globals. */
-    register s32 j;
-    /* ASM_BARRIER: Retain the selected bank-data pointer. */
-    register u8 *data;
-    /* ASM_BARRIER: Retain the selected tone-data pointer. */
-    register u8 *tones;
-    RrSpuProgram *programs;
-    /* ASM_BARRIER: Reuse the consumed bank register for selection state. */
-    register RrSpuSelectionPrefix *state;
-    unsigned long offset;
-    /* ASM_BARRIER: Retain the common return value before the epilogue. */
-    register s32 result __asm__("$2");
-    if((u16)raw_bank>=16)goto fail;
-    {
-        /* ASM_BARRIER: Sign-extend the bank through the original temporary. */
-        register s32 shifted=(u32)bank<<16;
-        i=shifted>>16;
+s32 _SsVmVSetUp(s32 bank, s32 program) {
+    s16 i = bank;
+    s16 j = program;
+    if ((u16)i >= 16) {
+        goto fail;
     }
-    /* ASM_BARRIER: Finish narrowing the bank before forming its flag-page address. */
-    __asm__("" : "+r"(i) : : "$3");
-    {
-        /* ASM_BARRIER: Keep the indexed flag address in its original temporary. */
-        register unsigned long page __asm__("$3")=0x80110000U;
-        /* ASM_BARRIER: Expose the actual mapped PAL table page to the indexed load. */
-        __asm__("" : "+r"(page));
-        page=page+(u32)i;
-        if(*(u8 *)(page+0x120)!=1) {result=-1;goto out;}
+    if (_svm_vab_used[i] != 1) {
+        return -1;
     }
-    j=(s16)program;
-    if(j<kMaxPrograms)goto publish;
+    if (j < kMaxPrograms) {
+        goto publish;
+    }
 fail:
-    result=-1;
-    goto out;
+    return -1;
 publish:
-    offset=i*sizeof(u8 *);
-    /* ASM_BARRIER: Prepare the native-width table offset before the first table page. */
-    __asm__("" : "+r"(offset) : : "$3");
-    {
-        /* ASM_BARRIER: Load bank data before preparing the program-table address. */
-        register u8 **page __asm__("$3")=(u8 **)0x80110000U;
-        /* ASM_BARRIER: Expose the actual mapped PAL table page to the indexed load. */
-        __asm__("" : "+r"(page));
-        data=*(u8 **)((u8 *)page+offset+0x60);
-        /* ASM_BARRIER: Capture bank data before loading the second table pointer. */
-        __asm__("" : "+r"(data) : : "$5");
-    }
-    {
-        /* ASM_BARRIER: Keep the program-table address in the original argument register. */
-        register RrSpuProgram **page __asm__("$5")=(RrSpuProgram **)0x80110000U;
-        /* ASM_BARRIER: Expose the actual mapped PAL table page to the indexed load. */
-        __asm__("" : "+r"(page));
-        programs=*(RrSpuProgram **)((u8 *)page+offset+0x20);
-    }
-    tones=*(u8 **)((u8 *)_svm_vab_tn+offset);
-    state=&D_80110101;
-    state->bank=raw_bank;
-    state->program=raw_program;
-    _svm_tn=tones;
-    /* ASM_BARRIER: Publish tone data before the other selected pointers. */
-    __asm__("" : : : "memory");
-    _svm_vh=data;
-    _svm_pg=programs;
-    state->value=programs[j].value08;
-    result=0;
-out:
-    /* ASM_BARRIER: Materialize the return value before the shared return instruction. */
-    __asm__("" : : "r"(result));
-    return result;
+    _svm_vh = _svm_vab_vh[i];
+    _svm_pg = _svm_vab_pg[i];
+    _svm_tn = _svm_vab_tn[i];
+    _svm_cur.f01 = i;
+    _svm_cur.f06 = j;
+    _svm_cur.f07 = _svm_pg[j].value08;
+    return 0;
 }
 
 void SsSetMono(void) {
-    s32 value = 1;
-    /* ASM_BARRIER: preserve the original assembler temporary as the address base. */
-    register s16 *base __asm__("$1") = (s16 *)0x80110000U;
-    /* PAL RAM mapping: _svm_stereo_mono is base plus 0xE8. */
-    /* ASM_BARRIER: retain the address and value registers for the return-slot store. */
-    __asm__("" : "=r"(base), "=r"(value) : "0"(base), "1"(value));
-    base[(0xE8) / 2] = value;
+    _svm_stereo_mono = 1;
 }
 
-void SsSetStereo() { _svm_stereo_mono = 0; }
+void SsSetStereo(void) {
+    _svm_stereo_mono = 0;
+}

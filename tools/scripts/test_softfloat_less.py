@@ -33,10 +33,10 @@ static void check(uint64_t a,uint64_t b){s32 result=__ltdf2(a,b);int want=key(a)
 }
 int main(void){unsigned e,r,s,f,l,p,n;u32 fraction;uint64_t a,b;
  static const u32 lows[8]={0,1,2,0x3fffffff,0x7fffffff,0x80000000,0xfffffffe,0xffffffff};
- _Static_assert(sizeof(u64)==8&&sizeof(RrWide64)==8,"wide ABI");
- _Static_assert(offsetof(RrWide64,hi)==4,"PAL high word");
+ _Static_assert(sizeof(u64)==8&&sizeof(Wide64)==8,"wide ABI");
+ _Static_assert(offsetof(Wide64,hi)==4,"PAL high word");
  _Static_assert(INT_MIN==(-2147483647-1),"signed32 bits");
- {union {u64 bits;RrWide64 words;} x;x.bits=0x1234567887654321ULL;assert(x.words.lo==0x87654321U&&(u32)x.words.hi==0x12345678U);}
+ {union {u64 bits;Wide64 words;} x;x.bits=0x1234567887654321ULL;assert(x.words.lo==0x87654321U&&(u32)x.words.hi==0x12345678U);}
  for(e=0;e<2048;e++)for(r=0;r<2048;r++)for(s=0;s<4;s++)
   check((uint64_t)(s&1)<<63|(uint64_t)e<<52,(uint64_t)(s>>1)<<63|(uint64_t)r<<52);
  for(e=0;e<2048;e++)for(s=0;s<4;s++)for(f=0;f<16;f++)for(l=0;l<8;l++){

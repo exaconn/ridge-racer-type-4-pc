@@ -1,3 +1,4 @@
+#include "rr/vehicle_table.h"
 #include "game/car/car.h"
 /* RODATA 0x80010720 0x1c */
 #include "game/car/carsetup.h"
@@ -6,83 +7,79 @@
 #include "game/race/raceinit.h"
 #include "rr/bios_devices.h"
 #include "rr/overlay667_course_initializer.h"
-extern int func_800293D0();
-extern Car PlayerCars[];
-extern short D_800AC3FC;
+#include "rr/race_setup.h"
+#include "rr/record_banks.h"
+extern RaceVehicle PlayerCars[];
 extern short NumCars;
-extern int CarTable[];
 extern int TrackLength;
-extern short D_80107178;
-extern int SavedRaceState;
 extern int TotalRaceTime;
 
 void InitRaceCars(int a0)
 {
     int s1, s2, i, t;
-    signed char *s3;
-    int *s0;
-    D_800AC3FC = 0;
-    InitCarTable();
+    RaceVehicle **s0;
+    RaceVehicle *vehicle;
+    PlayerCars[1].flags1E4 = 0;
+    InitCarTable(a0);
     D_800ABEC4 = 0;
     switch (a0) {
     case 0:
     default:
         i = 0;
         InitPlayerCar(PlayerCars, i, i);
-        func_800293D0(0, 0);
+        SetupRaceMemoryArena(0, 0);
         break;
     case 1:
         InitPlayerCar(PlayerCars, 0, 7);
         InitComCars(7);
-        func_800293D0(0, 0);
+        SetupRaceMemoryArena(0, 0);
         break;
     case 2:
         i = 0;
         InitPlayerCar(PlayerCars, i, i);
         i = 1;
         InitPlayerCar(PlayerCars + 1, i, i);
-        func_800293D0(1, 0);
+        SetupRaceMemoryArena(1, 0);
         break;
     case 3:
         InitPlayerCar(PlayerCars, 0, NumCars - 2);
         InitPlayerCar(PlayerCars + 1, 1, NumCars - 1);
         InitComCars(NumCars - 2);
-        func_800293D0(1, 0);
+        SetupRaceMemoryArena(1, 0);
         break;
     case 4:
         s1 = 0;
         s2 = 0;
         if (NumCars > 0) {
-            s3 = LinkEntryState;
-            s0 = CarTable;
             do {
-                if (*(signed char *)(s1 + (int)s3) == 1) {
+                s8 participant = ((s8 *)LinkEntryState)[s1];
+                s0 = &CarTable[s1];
+                if (participant == 1) {
                     InitPlayerCar(*s0, s1, s2);
                     s2++;
                 } else {
-                    *(short *)(*(int *)s0 + 0x1E4) = 0;
-                    i = *(int *)s0;
+                    (*s0)->flags1E4 = 0;
+                    vehicle = *s0;
                     t = TrackLength;
-                    *(short *)(i + 0x1E8) = -1;
-                    *(int *)(*(int *)s0 + 0x184) = -(t * 300);
+                    vehicle->half1E8 = -1;
+                    (*s0)->first = -(t * 300);
                 }
-                s0++;
                 s1++;
             } while (s1 < NumCars);
         }
         D_80107178 = s2;
-        func_800293D0(2, 0);
+        SetupRaceMemoryArena(2, 0);
         break;
     case 5:
-        func_80096434(PlayerCars, 0x320);
+        PsyqBzero(PlayerCars, sizeof(PlayerCars[0]));
         InitComCars(7);
-        func_800293D0(1, 0);
+        SetupRaceMemoryArena(1, 0);
         SavedRaceState = 2;
         break;
     case 6:
         InitPlayerCar(PlayerCars, 0, 1);
         InitComCars(1);
-        func_800293D0(0, 0);
+        SetupRaceMemoryArena(0, 0);
         break;
     }
     TotalRaceTime = 0;

@@ -22,7 +22,7 @@ void ovl662_func_80118238(u32 *arg0, void *arg1, s32 arg2) {
         buf[0] = ovl662_D_801273A8[i];
         if (i == ovl662_D_801273A0) {
             clut = 0x7FF8;
-            val = rcos((s32)(((u32)ScreenFrame << 7) - 682U));
+            val = rcos(((ScreenFrame * 128U) - 682U));
             c = 0xFF;
             if (val < 0) {
                 /* ASM_BARRIER: prevent CSE from folding second val < 0 branch */

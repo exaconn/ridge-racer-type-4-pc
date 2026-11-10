@@ -2,9 +2,9 @@
 
 extern s32 CdControl(s32 command, const u8 *parameters, u8 *result);
 
-extern void CdDataCallback(RrLibCompletionCallback);
+extern void CdDataCallback(LibCompletionCallback);
 
-extern void CdReadyCallback(RrLibCompletionCallback);
+extern void CdReadyCallback(LibCompletionCallback);
 
 extern void data_ready_callback(void), StCdInterrupt2(void);
 
@@ -19,7 +19,7 @@ void CdRead2(s32 flags) {
                 register s32 *base __asm__("$1");
                 /* ASM_BARRIER: Materialize the mode-store address only after its conditional branch. */
                 __asm__ volatile("" : : : "$1", "memory");
-                /* PAL mapping: base[0x348 / 4] is D_80110348. */
+                /* PAL mapping: base[0x348 / 4] is CdReadModeFlag. */
                 base = (s32 *)0x80110000U;
                 /* ASM_BARRIER: Expose the PAL mode store without a symbol-address macro. */
                 __asm__("" : "=r"(base) : "0"(base));
@@ -29,7 +29,7 @@ void CdRead2(s32 flags) {
             {
                 s32 *base;
                 register s32 one = 1;
-                /* PAL mapping: base[0x348 / 4] is D_80110348. */
+                /* PAL mapping: base[0x348 / 4] is CdReadModeFlag. */
                 base = (s32 *)0x80110000U;
                 base[0x348 / 4] = one;
             }

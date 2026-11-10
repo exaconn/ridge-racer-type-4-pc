@@ -19,8 +19,8 @@
 
 s32 _cardXferByte(s32 value) {
     s32 ready, completed, input;
-    RrSerialPortRegisters *initial=CardSio0Base;
-    RrSerialPortRegisters *port;
+    SerialPortRegisters *initial=CardSio0Base;
+    SerialPortRegisters *port;
     u32 *interrupt;
     {
         /* ASM_BARRIER: Keep the captured byte in the original zero-extended temporary. */
@@ -43,7 +43,7 @@ s32 _cardXferByte(s32 value) {
         {
             /* ASM_BARRIER: Form the complemented byte in the original polling delay slot. */
             register u32 complement __asm__("$2")=~input;
-            RrSerialPortRegisters *output=CardSio0Base;
+            SerialPortRegisters *output=CardSio0Base;
             /* ASM_BARRIER: Preserve the original load gap before the shared success jump. */
             RR_NOP_DEP_ON(output);
             /* Ordinary write view retains the original jump-delay store. */
@@ -63,7 +63,7 @@ irq_done:
     while(!chkRC2wait()) {}
     {
         s32 limit=60;
-        RrSerialPortRegisters *output;
+        SerialPortRegisters *output;
         /* ASM_BARRIER: Prepare the next timer limit before loading the fresh output port. */
         __asm__("" : "+r"(limit));
         output=CardSio0Base;

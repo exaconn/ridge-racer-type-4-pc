@@ -30,11 +30,11 @@ class CourseChoicesTest(unittest.TestCase):
 #include "rr/overlay665_render_types.h"
 static u8 arenas[4][4096];static u32 heads[4][256];
 struct State {
- u32 guards[4];RrMenuArenas arenas;void *current,*backing;
- RrSelectionRows selection;RrMenuGridPoint points[4];u8 ui[4][32];
- RrCourseChoice4 main[2][9],table661[2][2][9],table667[2][2][9];
+ u32 guards[4];MenuArenas8 arenas;void *current,*backing;
+ SelectionRows32 selection;MenuGridPoint points[4];u8 ui[4][32];
+ CourseChoice4 main[2][9],table661[2][2][9],table667[2][2][9];
  s32 player; s16 rows661[2],cols661[2],rows667[2],cols667[2];
- RrRaceVehicle vehicles[2];RrPreviewRenderScratch scratch;
+ RaceVehicle vehicles[2];PreviewRenderScratch scratch;
  s32 word2de4,wordabeb0;s16 halfc64a,halfc5e0,row660,col660,reset660,counts660[2];
  u32 tail[4];
 };
@@ -42,7 +42,7 @@ static struct World {struct State s;unsigned calls;struct {u32 hash;s32 service,
 static unsigned scenario,mutation;
 #define MenuArenas w->s.arenas
 #define LoadCursor w->s.current
-#define D_800F4D40 w->s.backing
+#define MenuArenaBase w->s.backing
 #define SelectionRows w->s.selection
 #define PlayerCourseChoices w->s.points
 #define ImageRows w->s.ui[scenario%4]
@@ -55,7 +55,7 @@ static unsigned scenario,mutation;
 #define D_8010C0D8 w->s.rows667
 #define D_8010C0D0 w->s.cols667
 #define PlayerCars w->s.vehicles
-#define RR_COURSE_SCRATCH (&w->s.scratch.projection)
+#define RR_COURSE_SCRATCH (&w->s.scratch.scene.view.projection)
 #define RR_PROJECTION_SCRATCH RR_COURSE_SCRATCH
 #define ModeFrame w->s.word2de4
 #define ScreenFrame w->s.wordabeb0
@@ -78,7 +78,7 @@ static void effect(unsigned n){
   w->s.rows667[i]=((scenario>>5)+n+i+1)%2;w->s.cols667[i]=((scenario>>8)+n+i+3)%9;
   w->s.counts660[i]=half(value+i);
   for(j=0;j<9;j++){
-   RrCourseChoice4 *p=&w->s.main[i][j];p->glyph=half(value+j*71+i);p->first=(s8)(value+j);p->second=(s8)(value+j*13);
+   CourseChoice4 *p=&w->s.main[i][j];p->glyph=half(value+j*71+i);p->first=(s8)(value+j);p->second=(s8)(value+j*13);
    if(j==(scenario+n+i)%10)p->glyph=-1;
    if(j==8 && ((scenario+n)&1))p->glyph=0x167;
    for(k=0;k<2;k++){
@@ -88,8 +88,8 @@ static void effect(unsigned n){
   }
  }
  for(i=0;i<sizeof(w->s.vehicles);i++)((u8*)w->s.vehicles)[i]=(u8)(value+i*73);
- w->s.scratch.projection.pointers.cursor=arenas[(scenario+n)%4];
- w->s.scratch.projection.pointers.order=heads[(scenario+n)%4];
+ w->s.scratch.scene.view.projection.pointers.cursor=arenas[(scenario+n)%4];
+ w->s.scratch.scene.view.projection.pointers.order=heads[(scenario+n)%4];
 }
 static void event(s32 service,s32 arg){
  unsigned i,n=w->calls;u32 h=2166136261U;assert(n<8);
@@ -100,29 +100,29 @@ static void event(s32 service,s32 arg){
 void SetupRenderer(s32 shift){assert(shift==5);event(1,shift);}
 void ResetScreenCounters(void){event(2,0);}
 void InitPreviewImageRows(void){event(3,0);}
-void ResetCarState(RrRaceVehicle *vehicle){assert(vehicle==&w->s.vehicles[0]);event(4,0);}
+void ResetCarState(RaceVehicle *vehicle){assert(vehicle==&w->s.vehicles[0]);event(4,0);}
 ''' + glyph + count + bodies + r'''
 static void reference_glyph(s8 *output,s32 value){
  s32 first=value/160,second=value/40-first*4,last=value%40;
  output[0]=(s8)first;output[1]=(s8)second;output[2]=(s8)last;
 }
-static s32 reference_count(const RrCourseChoice4 *p){unsigned i;for(i=0;i<9;i++)if(p[i].glyph==-1 || (i==8 && p[i].glyph!=0x167))return i;return 9;}
+static s32 reference_count(const CourseChoice4 *p){unsigned i;for(i=0;i<9;i++)if(p[i].glyph==-1 || (i==8 && p[i].glyph!=0x167))return i;return 9;}
 static void reference(unsigned kind){
  if(kind==0){
   w->s.word2de4=0;w->s.wordabeb0=0;SetupRenderer(5);w->s.halfc64a=0;w->s.halfc5e0=3;
   ResetScreenCounters();InitPreviewImageRows();
-  w->s.scratch.projection.word18=120;w->s.scratch.projection.word08=-16;
-  w->s.scratch.projection.word0C=-248;w->s.scratch.projection.word10=-96;
-  w->s.scratch.projection.word1C=0;w->s.scratch.projection.word20=0;
+  w->s.scratch.scene.view.projection.pose08.angles10.xyz.x=120;w->s.scratch.scene.view.projection.pose08.position00.words[0]=-16;
+  w->s.scratch.scene.view.projection.pose08.position00.words[1]=-248;w->s.scratch.scene.view.projection.pose08.position00.words[2]=-96;
+  w->s.scratch.scene.view.projection.pose08.angles10.xyz.y=0;w->s.scratch.scene.view.projection.pose08.angles10.xyz.z=0;
   w->s.current=w->s.backing;ResetCarState(&w->s.vehicles[0]);
-  w->s.vehicles[0].pos20[1]=10;w->s.vehicles[0].pos20[2]=308;w->s.vehicles[0].rot54=2048;
+  w->s.vehicles[0].position20.words[1]=10;w->s.vehicles[0].position20.words[2]=308;w->s.vehicles[0].rot54=2048;
   w->s.reset660=0;
   reference_glyph((s8*)&w->s.selection,w->s.main[w->s.row660][w->s.col660].glyph);
   w->s.points[0].first=w->s.main[w->s.row660][w->s.col660].first;
   w->s.points[0].second=w->s.main[w->s.row660][w->s.col660].second;
   w->s.counts660[0]=reference_count(w->s.main[0]);w->s.counts660[1]=reference_count(w->s.main[1]);
  }else{
-  RrCourseChoice4 *p;s32 slot,side;ResetScreenCounters();w->s.current=w->s.arenas.first;
+  CourseChoice4 *p;s32 slot,side;ResetScreenCounters();w->s.current=w->s.arenas.first;
   slot=w->s.player;side=slot%2;
   p=kind==1?&w->s.table661[side][w->s.rows661[side]][w->s.cols661[side]]:
             &w->s.table667[side][w->s.rows667[side]][w->s.cols667[side]];
@@ -139,7 +139,7 @@ int main(void){
   for(i=0;i<sizeof(w->s.selection);i++)((u8*)&w->s.selection)[i]=(u8)(scenario+i*43);
   for(i=0;i<4;i++){w->s.guards[i]=0x12345678U+i;w->s.tail[i]=0x87654321U-i;}
   actual=initial;expected=initial;w=&actual;
-  if(kind==0)ovl660_func_801163C4();else if(kind==1)ovl661_func_80115F8C();else ovl667_func_80116BB4();
+  if(kind==0)ovl660_init_preview();else if(kind==1)ovl661_func_80115F8C();else ovl667_func_80116BB4();
   w=&expected;reference(kind);assert(memcmp(&actual,&expected,sizeof(actual))==0);
  }
  return 0;

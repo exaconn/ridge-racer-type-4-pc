@@ -1,8 +1,9 @@
 #include "types.h"
-#include "m2c_macros.h"
+#include "rr/gpu.h"
 #include "psyq/libgpu/primatt2.h"
 
 void SetPolyF3(void *arg0) {
-    M2C_FIELD(arg0, s8 *, 3) = 4;
-    M2C_FIELD(arg0, s8 *, 7) = 0x20;
+    PolyG4Packet *p = arg0;
+    p->len = 4;
+    p->code = 0x20;
 }

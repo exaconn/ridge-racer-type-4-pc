@@ -25,7 +25,7 @@ s32 CdControl(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer
     /* ASM_BARRIER: Retain the byte command separately from its full input. */
     register s32 code __asm__("$19")=command&255;
     u32 *table;
-    RrLibDataCallback saved;
+    LibDataCallback saved;
     u32 *metadata;
     u32 offset;
     /* ASM_BARRIER: Retain the independent success/failure state. */

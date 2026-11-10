@@ -1,4 +1,7 @@
+#include "game/system/pad.h"
 #include "rr/overlay659.h"
+#include "rr/frame_storage_types.h"
+#include "rr/load_cursor.h"
 
 void ovl659_init_preview(void) {
     s32 index;
@@ -17,7 +20,7 @@ void ovl659_init_preview(void) {
         InitUiRow(0, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x54);
         InitUiRow(1, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 1, 0xC);
         InitUiRow(2, 0xC, 0x90, 0x44, 0x20, 0, 0, 1, 0, 0x1D);
-        InitUiRow(3, 0xC, 0x170, 0xD0, 0x20, 0, 0, 8, 4, (s32)SelectionState.phase17);
+        InitUiRow(3, 0xC, 0x170, 0xD0, 0x20, 0, 0, 8, 4, SelectionState.phase17);
         InitUiRow(4, 0x74, 0x58, 0x1C, 0x20, 0, 0, 1, 0, 0x37);
         InitUiRow(5, 0x74, 0x80, 0x1C, 0x20, 0, 0, 1, 0, 0x38);
         InitUiRow(6, 0x18, 0x58, 0x44, 0x20, 0, 0, 1, 0, 0x53);
@@ -37,12 +40,12 @@ void ovl659_init_preview(void) {
         scratch[2] = 0;
         scratch[3] = -0x1A0;
         scratch[4] = 0;
-        PlayerCars[1].pos20[0] = 0;
-        PlayerCars[1].pos20[1] = 0;
-        PlayerCars[1].pos20[2] = 0;
+        PlayerCars[1].position20.words[0] = 0;
+        PlayerCars[1].position20.words[1] = 0;
+        PlayerCars[1].position20.words[2] = 0;
         ResetCarState(PlayerCars);
-        PlayerCars[0].pos20[1] = 0xA;
-        PlayerCars[0].pos20[2] = 0x134;
+        PlayerCars[0].position20.words[1] = 0xA;
+        PlayerCars[0].position20.words[2] = 0x134;
         PlayerCars[0].rot54 = 0xA00;
         D_800F4D8A = 1;
     } else if (D_800F4D8A == 1) {
@@ -61,7 +64,7 @@ void ovl659_init_preview(void) {
 
 void ovl659_update_preview(void) {
 
-    RrPreviewColor color;
+    PreviewColor color;
     s32 renderMask;
     s32 drawFlags;
     s32 scale;
@@ -73,9 +76,9 @@ void ovl659_update_preview(void) {
     s32 row;
 
     renderMask = 0x1002E;
-    ModeFrame = (u32)ModeFrame + 1;
-    ScreenFrame = (u32)ScreenFrame + 1;
-    PlayerCars[0].rot54 = ((u32)PlayerCars[0].rot54 + 8) & 0xFFF;
+    ModeFrame = ModeFrame + 1U;
+    ScreenFrame = ScreenFrame + 1U;
+    PlayerCars[0].rot54 = (PlayerCars[0].rot54 + 8U) & 0xFFF;
     phase = SelectionState.phase17;
     switch (D_800F4D8A) {
     case 0:
@@ -94,7 +97,7 @@ void ovl659_update_preview(void) {
         UiRows[MenuCursor].cells[0] = 0;
         StepMenuValue(0, 2, (char *)&MenuCursor, 3, 0);
         UiRows[MenuCursor].cells[0] = 2;
-        if (PlayerControllers[0].a != 0) {
+        if (PlayerControllers[0].action28 != 0) {
             PlaySfx(1);
             SetMenuFrameOptions(0, 1, 0);
             UiRows[MenuCursor].cells[0] = 1;
@@ -144,13 +147,13 @@ void ovl659_update_preview(void) {
         if (state6 == 2) {
             SetMenuFrameOptions(1, 1, 1);
             UiRows[6].cells[0] = state6;
-            if (PlayerControllers[0].a != 0) {
+            if (PlayerControllers[0].action28 != 0) {
                 PlaySfx(1);
                 UiRows[4].byte14 = 0;
                 UiRows[5].byte14 = 0;
                 UiRows[6].cells[0] = 1;
                 D_800F4D8A = 4;
-            } else if (PlayerControllers[0].b != 0) {
+            } else if (PlayerControllers[0].action2C != 0) {
                 PlaySfx(2);
                 UiRows[6].byte14 = 3;
                 ((s8 *)ImageRows)[1] = 3;
@@ -167,7 +170,7 @@ void ovl659_update_preview(void) {
             StepMenuValue(0, 1, (char *)&SelectionState.copies[0].bytes[3], 2, 0);
             UiRows[SelectionState.copies[0].bytes[3] + 4].cells[0] = state4;
             SelectionRows.choice = SelectionState.copies[0];
-            if (PlayerControllers[0].a != 0) {
+            if (PlayerControllers[0].action28 != 0) {
                 PlaySfx(1);
                 UiRows[SelectionState.copies[0].bytes[3] + 4].cells[0] = 1;
                 ((s8 *)ImageRows)[1] = 3;
@@ -192,7 +195,7 @@ void ovl659_update_preview(void) {
     case 6:
         timer6 = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer6;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (0x40 - timer6) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - timer6) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             ModeGroup = 1;
             D_800F3A26 = 3;
@@ -202,7 +205,7 @@ void ovl659_update_preview(void) {
     case 3:
         timer3 = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer3;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (0x40 - timer3) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - timer3) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             SelectionRows.choice = SelectionState.copies[0];
             MenuScriptId = 0;
@@ -212,7 +215,7 @@ void ovl659_update_preview(void) {
         }
         break;
     }
-    func_80033368(phase, 0);
+    DrawCourseMapPreview(phase, 0);
     DrawCourseInfoPanel(phase, 0);
 draw_rows:
     for (row = 0; row < 4; row++) {
@@ -230,11 +233,11 @@ draw_vehicle_preview:
             DrawUiRow(5);
         }
     }
-    if ((u32)((u8)((s8 *)ImageRows)[1] - 1) < 2U) {
+    if (((u8)((s8 *)ImageRows)[1] - 1) < 2U) {
         SetupMenuCarCamera(1);
         SetupViewport(6);
         DrawSelectionIconGrid(0);
-        func_8002E5A0(PlayerCars);
+        UpdateCarWorldTransform(PlayerCars);
         if (((s8 *)ImageRows)[1] == 1) {
             s8 c = ~((ImageRows[2] * 0xFF) / 30);
             color.channels.r = c;

@@ -1,6 +1,6 @@
 #include "rr/wide.h"
-RrWide64 *_mainasu(RrWide64 *result,RrWide64 x) {
-    RrWide64 one;
+Wide64 *_mainasu(Wide64 *result,Wide64 x) {
+    Wide64 one;
     one.hi=0;
     /* Qualified write views keep the real ABI-home stores and subsequent reloads. */
     *(volatile u32 *)&one.lo=1;

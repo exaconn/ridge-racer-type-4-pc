@@ -35,8 +35,8 @@ class OverlayDecodeTest(unittest.TestCase):
 typedef union {
  u32 words[192];
  struct {
-  u32 before[31];RrStrQuantizationCommand quant;
-  RrStrMatrixCommand matrix;u32 after[95];
+  u32 before[31];StrQuantizationCommand quant;
+  StrMatrixCommand matrix;u32 after[95];
  } tables;
 } TableViews;
 static struct WordWorld {
@@ -45,9 +45,9 @@ static struct WordWorld {
  const void *addresses[2];
 } wworld,winitial,wexpected;
 static struct CallbackWorld {
- u32 before[8];RrLibInterruptDriverPrefix drivers[2];
- RrLibInterruptDriverPrefix *active;
- RrLibInterruptCallback callbacks[8],last;
+ u32 before[8];LibInterruptDriverPrefix drivers[2];
+ LibInterruptDriverPrefix *active;
+ LibInterruptCallback callbacks[8],last;
  s32 channel;u32 calls,tag,mutate;u32 after[8];
 } cworld,cinitial,cexpected;
 #define ovl668_D_80116D10 wworld.image.tables.quant
@@ -68,7 +68,7 @@ static void init_words(void){
 static int table_copy(void){
  unsigned k,i,position;
  assert(sizeof(void*)==8 && (uintptr_t)&wworld>UINT32_MAX);
- assert(sizeof(RrStrQuantizationCommand)==132 && sizeof(RrStrMatrixCommand)==132);
+ assert(sizeof(StrQuantizationCommand)==132 && sizeof(StrMatrixCommand)==132);
  assert(offsetof(TableViews,tables.quant.luma)==32*4);
  assert(offsetof(TableViews,tables.quant.chroma)==48*4);
  assert(offsetof(TableViews,tables.matrix.matrix)==65*4);
@@ -124,7 +124,7 @@ static int header_read(void){
  unsigned k;u32 endian=0x12345678;
  assert(*(u8*)&endian==0x78);
  for(k=0;k<65536;k++){
-  RrStrCommandHeader *header;init_words();
+  StrCommandHeader *header;init_words();
   header=k&1?&wworld.image.tables.quant.header:&wworld.image.tables.matrix.header;
   header->word=(next()&0xffff0000U)|k;
   memcpy(&wexpected,&wworld,sizeof(wworld));
@@ -137,25 +137,25 @@ static int header_read(void){
 static void callback_a(void){callback_touches+=1;}
 static void callback_b(void){callback_touches+=2;}
 static void callback_c(void){callback_touches+=4;}
-static RrLibInterruptCallback exchange(u32 tag,s32 channel,RrLibInterruptCallback callback){
- RrLibInterruptCallback old;
+static LibInterruptCallback exchange(u32 tag,s32 channel,LibInterruptCallback callback){
+ LibInterruptCallback old;
  assert(channel==1);
  old=cworld.callbacks[channel];cworld.callbacks[channel]=callback;
  cworld.calls++;cworld.channel=channel;cworld.last=callback;cworld.tag=tag;
  if(cworld.mutate)cworld.active=&cworld.drivers[tag==1?1:0];
  return old;
 }
-static RrLibInterruptCallback exchange_a(s32 c,RrLibInterruptCallback f){return exchange(1,c,f);}
-static RrLibInterruptCallback exchange_b(s32 c,RrLibInterruptCallback f){return exchange(2,c,f);}
+static LibInterruptCallback exchange_a(s32 c,LibInterruptCallback f){return exchange(1,c,f);}
+static LibInterruptCallback exchange_b(s32 c,LibInterruptCallback f){return exchange(2,c,f);}
 static int callbacks(void){
- RrLibInterruptCallback choices[]={0,callback_a,callback_b,callback_c};
+ LibInterruptCallback choices[]={0,callback_a,callback_b,callback_c};
  unsigned k,i;
  assert(sizeof(void*)==8 && (uintptr_t)callback_a>UINT32_MAX);
  for(k=0;k<16384;k++){
-  RrLibInterruptCallback input,old,result;u32 tag;
+  LibInterruptCallback input,old,result;u32 tag;
   for(i=0;i<8;i++){cworld.before[i]=next();cworld.after[i]=next();cworld.callbacks[i]=choices[(k+i)%4];}
-  cworld.drivers[0]=(RrLibInterruptDriverPrefix){callback_a,exchange_a,exchange_b,callback_c};
-  cworld.drivers[1]=(RrLibInterruptDriverPrefix){callback_b,exchange_b,exchange_a,callback_c};
+  cworld.drivers[0]=(LibInterruptDriverPrefix){callback_a,exchange_a,exchange_b,callback_c};
+  cworld.drivers[1]=(LibInterruptDriverPrefix){callback_b,exchange_b,exchange_a,callback_c};
   if(k&64){cworld.drivers[0].exchange=exchange_b;cworld.drivers[1].exchange=exchange_a;}
   cworld.active=&cworld.drivers[(k>>2)&1];
   cworld.calls=k&128?UINT32_MAX:next();cworld.channel=-1;cworld.last=0;cworld.tag=0;
@@ -178,7 +178,7 @@ static int callbacks(void){
 static u32 reset_calls,mode_calls;
 static s32 observed_mode;
 static int touches_at_mode;
-static RrLibInterruptDriverPrefix *driver_at_mode;
+static LibInterruptDriverPrefix *driver_at_mode;
 static void reset_a(void){reset_calls++;callback_touches+=1;cworld.active=&cworld.drivers[1];}
 static void reset_b(void){reset_calls++;callback_touches+=2;cworld.active=&cworld.drivers[0];}
 void ovl668_func_80116558(s32 mode){
@@ -194,8 +194,8 @@ static int modes(void){
    default:{u32 bits=next();memcpy(&mode,&bits,4);break;}
   }
   for(i=0;i<8;i++){cworld.before[i]=next();cworld.after[i]=next();cworld.callbacks[i]=callback_c;}
-  cworld.drivers[0]=(RrLibInterruptDriverPrefix){callback_a,exchange_a,exchange_b,reset_a};
-  cworld.drivers[1]=(RrLibInterruptDriverPrefix){callback_b,exchange_b,exchange_a,reset_b};
+  cworld.drivers[0]=(LibInterruptDriverPrefix){callback_a,exchange_a,exchange_b,reset_a};
+  cworld.drivers[1]=(LibInterruptDriverPrefix){callback_b,exchange_b,exchange_a,reset_b};
   cworld.active=&cworld.drivers[driver];cworld.calls=next();cworld.channel=-1;
   cworld.last=callback_c;cworld.tag=0;cworld.mutate=0;
   memcpy(&cexpected,&cworld,sizeof(cworld));

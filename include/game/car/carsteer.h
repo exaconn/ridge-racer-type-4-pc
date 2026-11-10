@@ -3,6 +3,7 @@
 
 #include "types.h"
 
-int UpdateCarSteering();
+struct RaceVehicle;
+void UpdateCarSteering(struct RaceVehicle *vehicle);
 
 #endif /* RR_GAME_CAR_CARSTEER_H */

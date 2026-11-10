@@ -1,13 +1,12 @@
+#include "rr/work_arena.h"
 /* RODATA 0x800113f0 0x1c */
 #include "types.h"
-#include "m2c_macros.h"
 #include "rr/bios_devices.h"
 #include "psyq/libcard/cardirq.h"
 #include "psyq/libcard/cardsts.h"
 #include "psyq/libcard/init.h"
 #include "psyq/libc/printf.h"
 #include "psyq/libcard/cardc162.h"
-#include "psyq/libcard/init.h"
 #include "psyq/libgpu/gpuctl.h"
 #include "game/data/cardini.h"
 #include "rr/bios_events.h"
@@ -15,10 +14,9 @@
 #include "rr/overlay667_packet.h"
 #include "rr/card_format.h"
 #include "game/data/globals.h"
+#include "rr/spu_tick_control.h"
 
 extern int _bu_init();
-extern int EnterCriticalSection();
-extern int ExitCriticalSection();
 extern int HwCardEvIoe;
 extern int HwCardEvError;
 extern int HwCardEvTimeout;
@@ -27,13 +25,12 @@ extern int SwCardEvIoe;
 extern int SwCardEvError;
 extern int SwCardEvTimeout;
 extern int SwCardEvNew;
-extern unsigned char D_800F3A24[];
-extern char D_800FFC48[];
+extern unsigned char CardPortPollStatus[];
 extern int CardPortTimer[];
 extern char StrCardDirPatternFmt[];
 extern char CardDirEntries[];
 extern char *nextfile();
-extern char D_800113E4[];
+extern char CardFilePathFmt[];
 extern int CardFileHandle;
 extern int FileSeek();
 extern int _card_info();
@@ -56,8 +53,7 @@ int CardWriteFileAt(int a0, int a1, int a2, int a3, int a4, int a5);
 int CardUpdate(int p, char *a1);
 void CardFormatSlot(s32 arg0, s32 arg1);
 
-void CardSystemInit()
-{
+void CardSystemInit(void) {
     InitCARD();
     StartCARD();
     _bu_init();
@@ -80,9 +76,9 @@ void CardSystemInit()
     EnableEvent(SwCardEvError);
     EnableEvent(SwCardEvTimeout);
     EnableEvent(SwCardEvNew);
-    D_800F3A24[1] = 0x5A;
-    D_800F3A24[0] = 0x5A;
-    SaveBuffer = (int)D_800FFC48;
+    CardPortPollStatus[1] = 0x5A;
+    CardPortPollStatus[0] = 0x5A;
+    SaveBuffer = (SaveBuf *)D_800FFC48;
 }
 
 void CardSystemShutdown(void) {
@@ -166,7 +162,7 @@ int CardFreeBlocks(int a0) {
     char *v1;
     char *p = CardDirEntries;
     int v;
-    if (a0 > 0) { v1 = p; do { a1 += *(int *)(v1 + 0x18); v1 += 0x28; } while (++a2 < a0); }
+    if (a0 > 0) { v1 = p; do { a1 += ((int *)v1)[6]; v1 += 0x28; } while (++a2 < a0); }
     v = a1;
     if (v < 0) v += 0x1FFF;
     a1 = v >> 13;
@@ -179,40 +175,40 @@ int CardHasFile(int a0, unsigned char *a1) {
     int a3, v1;
     unsigned char a2;
     char *b = CardDirEntries;
-    if (a0 <= 0) goto end;
-    t0 = b;
-outer:
-    a3 = 0;
-    v1 = a3;
-top:
-    a2 = a1[v1];
-    if (a2 == 0) goto l64;
-    if (a2 != (unsigned char)t0[v1]) goto l74;
-    v1++;
-    if (v1 < 0x15) goto top;
+    if (a0 > 0) {
+        t0 = b;
+        do {
+            a3 = 0;
+            v1 = a3;
+            do {
+                a2 = a1[v1];
+                if (a2 == 0) goto l64;
+                if (a2 != (unsigned char)t0[v1]) goto l74;
+                v1++;
+            } while (v1 < 0x15);
 l64:
-    t1++;
-    if (a3 != 0) goto l7c;
-    t2 = 1;
-    goto end;
+            t1++;
+            if (a3 == 0) {
+                t2 = 1;
+                break;
+            }
+            if (0) {
 l74:
-    a3++;
-    goto l64;
-l7c:
-    t0 += 0x28;
-    if (t1 < a0) goto outer;
-end:
+                a3++;
+                goto l64;
+            }
+            t0 += 0x28;
+        } while (t1 < a0);
+    }
     return t2;
 }
 
-int CardReadFile(a0, a1, a2, a3, a4)
-int a0, a1, a2, a3, a4;
-{
+int CardReadFile(int a0, int a1, int a2, int a3, int a4) {
     int sp[8];
     int r;
     int v;
     int ret;
-    PsyqSprintf(sp, D_800113E4, a0, a1, a2);
+    PsyqSprintf(sp, CardFilePathFmt, a0, a1, a2);
     v = a4 << 13;
     r = FileOpen(sp, 0x8001);
     if (r != -1) {
@@ -230,8 +226,11 @@ int a0, a1, a2, a3, a4;
 
 int CardReadFileAt(int a0, int a1, int a2, int a3, int a4, int a5) {
     char sp18[32];
-    int h; register int r asm("$17"); int t;
-    PsyqSprintf(sp18, D_800113E4, a0, a1, a2);
+    int h;
+    /* ASM_BARRIER: pin return status r to $s1 ($17) */
+    register int r asm("$17");
+    int t;
+    PsyqSprintf(sp18, CardFilePathFmt, a0, a1, a2);
     t = a4;
     h = FileOpen(sp18, 0x8001);
     /* ASM_BARRIER: loads -1 into r after the call, not hoisted before it */
@@ -246,19 +245,17 @@ int CardReadFileAt(int a0, int a1, int a2, int a3, int a4, int a5) {
         FileClose(h);
         return r;
     }
-    /* ASM_BARRIER: legacy, reason not recorded (forces reg copy); retire & retest with fd.py */
-    __asm__ volatile("" : "=r"(r) : "0"(r));
+    /* ASM_BARRIER: re-launders r so the -1 return uses s1 (not the equal h in s0) */
+    __asm__ ("" : "=r"(r) : "0"(r));
     return r;
 }
 
-int CardWriteFile(a0, a1, a2, a3, a4, a5)
-int a0, a1, a2, a3, a4, a5;
-{
+int CardWriteFile(int a0, int a1, int a2, int a3, int a4, int a5) {
     int sp[8];
     int r;
     int v;
     int ret;
-    PsyqSprintf(sp, D_800113E4, a0, a1, a2);
+    PsyqSprintf(sp, CardFilePathFmt, a0, a1, a2);
     if (a5 == 1) {
         r = FileOpen(sp, (a4 << 16) | 0x200);
         if (r == -1) {
@@ -283,8 +280,11 @@ int a0, a1, a2, a3, a4, a5;
 
 int CardWriteFileAt(int a0, int a1, int a2, int a3, int a4, int a5) {
     char sp18[32];
-    int h; register int r asm("$17"); int t;
-    PsyqSprintf(sp18, D_800113E4, a0, a1, a2);
+    int h;
+    /* ASM_BARRIER: pin return status r to $s1 ($17) */
+    register int r asm("$17");
+    int t;
+    PsyqSprintf(sp18, CardFilePathFmt, a0, a1, a2);
     t = a4;
     h = FileOpen(sp18, 0x8002);
     /* ASM_BARRIER: loads -1 into r after the call, not hoisted before it */
@@ -300,7 +300,7 @@ int CardWriteFileAt(int a0, int a1, int a2, int a3, int a4, int a5) {
         return r;
     }
     /* ASM_BARRIER: re-launders r so the -1 return uses s1 (not the equal h in s0) */
-    __asm__ volatile("" : "=r"(r) : "0"(r));
+    __asm__ ("" : "=r"(r) : "0"(r));
     return r;
 }
 
@@ -345,7 +345,7 @@ int CardUpdate(int p, char *a1) {
         }
         break;
     case 2:
-        if (_cardCmd5ABegin(s2, p * 17 + (int)D_8010EF28)) {
+        if (_cardCmd5ABegin(s2, p * 17 + D_8010EF28)) {
             CardPortState[p] = 3;
             CardPortTimer[p] = 0;
         } else {
@@ -433,9 +433,9 @@ int CardUpdate(int p, char *a1) {
             break;
         case 4:
             x = CardPortResult[p];
-            if ((unsigned)(x - 1) < 2) {
+            if ((x - 1) < 2U) {
                 CardPortResult[p] = -2;
-            } else if ((unsigned)(x - 3) < 2) {
+            } else if ((x - 3) < 2U) {
                 CardPortResult[p] = -3;
             }
             CardPortLoaded[p] = 0;

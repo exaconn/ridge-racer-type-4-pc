@@ -2,7 +2,9 @@
 #define RR_GAME_CAR_AIPATH2_H
 
 #include "types.h"
+#include "rr/race_types.h"
 
-int ConstrainCarToTrack();
+void FindTrackNodeScratch(void);
+void ConstrainCarToTrack(RaceVehicle *arg0);
 
 #endif /* RR_GAME_CAR_AIPATH2_H */

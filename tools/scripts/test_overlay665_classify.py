@@ -11,6 +11,7 @@ class OverlayClassifyTest(unittest.TestCase):
         body = (root / 'src/overlays/PAL/665/func_8011629C.c').read_text()
         source = r'''
 #include <assert.h>
+#include "game/system/pad.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -20,7 +21,7 @@ class OverlayClassifyTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(t)==n,"size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(offsetof(t,f)==n,"offset")
 #include "rr/menu_pulse.h"
-static struct World {u32 before[8];RrMenuItemState5C rows[16];u32 after[8];} world,initial;
+static struct World {u32 before[8];ControllerState5C rows[16];u32 after[8];} world,initial;
 #define PlayerControllers (world.rows+8)
 ''' + body + r'''
 static u32 seed=0x1629c;
@@ -36,8 +37,8 @@ static int model(unsigned type,s16 kind,unsigned flag){
  return -1;
 }
 static void check(unsigned k,unsigned type,s16 kind,unsigned flag){
- s32 index=(s32)(k&15)-8;RrMenuItemState5C *row=&world.rows[index+8];s32 value;
- row->type01=type;row->kind1C=kind;row->flag40=flag;
+ s32 index=(s32)(k&15)-8;ControllerState5C *row=&world.rows[index+8];s32 value;
+ row->input00.fields.type=type;row->kind1C=kind;row->flag40=flag;
  memcpy(&initial,&world,sizeof(world));
  value=ovl665_func_8011629C(index);
  assert(value==model(type,kind,flag));assert(memcmp(&world,&initial,sizeof(world))==0);

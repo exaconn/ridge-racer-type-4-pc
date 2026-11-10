@@ -6,18 +6,18 @@
 typedef struct {
     u32 lo;
     s32 hi;
-} RrWide64;
+} Wide64;
 
 typedef union {
     u64 bits;
-    RrWide64 s;
+    Wide64 s;
 } DpUnion;
 
-extern RrWide64 _add_mant_d(RrWide64 left, RrWide64 right);
-extern RrWide64 _dbl_shift(s32 direction, RrWide64 value, s32 count);
-extern s32 _comp_mant(RrWide64 left, RrWide64 right);
-extern RrWide64 _dbl_shift_us(s32 direction, RrWide64 value, s32 count);
-extern RrWide64 _mainasu(RrWide64 value);
+extern Wide64 _add_mant_d(Wide64 left, Wide64 right);
+extern Wide64 _dbl_shift(s32 direction, Wide64 value, s32 count);
+extern s32 _comp_mant(Wide64 left, Wide64 right);
+extern Wide64 _dbl_shift_us(s32 direction, Wide64 value, s32 count);
+extern Wide64 _mainasu(Wide64 value);
 extern s32 _err_math(s32 category, s32 operation);
 
 u64 __divdf3(u64 a_in, u64 b_in) {
@@ -27,11 +27,11 @@ u64 __divdf3(u64 a_in, u64 b_in) {
     s32 s1;
     DpUnion r;
     u32 s4;
-    RrWide64 sp18;
-    RrWide64 sp20;
-    RrWide64 sp28;
-    RrWide64 sp30;
-    RrWide64 sp38;
+    Wide64 sp18;
+    Wide64 sp20;
+    Wide64 sp28;
+    Wide64 sp30;
+    Wide64 sp38;
 
     a.bits = a_in;
     b.bits = b_in;
@@ -77,14 +77,14 @@ u64 __divdf3(u64 a_in, u64 b_in) {
         if (s1 >= 0) {
             s0 = 1;
             sp28.hi = 0;
-            *(volatile u32 *)&sp28.lo = s0;
+            sp28.lo = s0;
             sp18 = _add_mant_d(sp18, sp28);
             s1++;
             sp18 = _dbl_shift_us(1, sp18, s0);
         } else {
             s32 n = -s1;
             sp28.hi = 0;
-            *(volatile u32 *)&sp28.lo = 1 << n;
+            sp28.lo = 1 << n;
             sp18 = _add_mant_d(sp18, sp28);
             s1 = 0;
             sp18 = _dbl_shift_us(1, sp18, n + 1);

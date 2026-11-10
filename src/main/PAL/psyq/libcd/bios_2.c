@@ -7,13 +7,13 @@ int CD_init(void) {
     volatile u8 *statusBytes;
     s32 command;
     const u8 *parameters;
-    volatile u8 *indexPort;
-    func_800963DC(CD_str_init_prefix);
+    u8 *indexPort;
+    PsyqPuts(CD_str_init_prefix);
     /* The disabled logger consumes a32-bit PAL address value, never a pointer
      * used for access; hardware and callback pointers remain full-width. */
-    DebugPrintStub(StrAddrFmt, (u32)(unsigned long)&D_800A6768);
-    D_800A64A5 = 0;
-    D_800A64A4 = 0;
+    DebugPrintStub(StrAddrFmt, &D_800A6768);
+    CD_com = 0;
+    CD_mode = 0;
     CD_cbready = 0;
     CD_cbsync = 0;
     CD_status1 = 0;
@@ -29,7 +29,7 @@ int CD_init(void) {
         } while (RR_CD_READ8(CD_reg3) & 7);
     }
     command=1;parameters=0;
-    statusBytes=D_800A6764;
+    statusBytes=CD_intr_status;
     statusBytes[2] = 0U;
     statusBytes[1] = statusBytes[2];
     indexPort=CD_reg0;

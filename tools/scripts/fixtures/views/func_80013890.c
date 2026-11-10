@@ -31,9 +31,9 @@
 
 void SetupRenderer(s32 shift) {
     /* ASM_BARRIER: reuse the incoming argument register for the scratch base. */
-    register RrRendererScratch *scratch __asm__("$4");
+    register RendererScratch *scratch __asm__("$4");
     *(s32*)0x1F800060U=shift;
-    scratch=(RrRendererScratch*)0x1F800000U;
+    scratch=(RendererScratch*)0x1F800000U;
     scratch->renderFlags64=D_800AD568;
     D_800F3A20.b=128;
     D_800F3A20.g=128;

@@ -26,7 +26,7 @@ typedef struct {
     char padB8[0x4];
     int unkBC;
     char padC0[0x8];
-    RrCurve24 primaryC8;
+    Curve24 primaryC8;
 } Sub1F4;
 
 typedef struct {

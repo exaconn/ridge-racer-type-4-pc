@@ -4,6 +4,7 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -13,11 +14,9 @@ class TrackInterpolationTest(unittest.TestCase):
     def setUpClass(cls):
         cls.temporary=TemporaryDirectory()
         cls.addClassCleanup(cls.temporary.cleanup)
-        def header(name):
-            text=(ROOT/'include/rr'/name).read_text()
-            return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-        body=(ROOT/'tools/scripts/fixtures/views/func_80043AB0.c').read_text()
-        body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
+        owner=source_owners(ROOT/'src/main/PAL')['GetTrackPointAhead']
+        text=owner.read_text()
+        body=definition_source(text,'GetTrackPointAhead')
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         assert body.count('(u8*)0x800B0000U')==1
         body=body.replace('(u8*)0x800B0000U','count_page.bytes+0x10000')
@@ -27,13 +26,15 @@ class TrackInterpolationTest(unittest.TestCase):
 #include <stdlib.h>
 #include <string.h>
 #include "types.h"
-''' + header('race_types.h') + header('race.h') + header('track_sample_types.h') + header('track_interpolation.h') + r'''
+#include "rr/geometry.h"
+#include "rr/track_interpolation.h"
+
 static union {uint64_t alignment;u8 bytes[0x10000];} count_page;
 ''' + body + r'''
-RrTrackSample3C *TrackNodes;
+TrackSample3C *TrackNodes;
 s32 TrackNodeCount;
 s16 ReverseCourse;
-static RrTrackSample3C actual[256], expected[256];
+static TrackSample3C actual[256], expected[256];
 static unsigned random_state=0x873AF519;
 static unsigned random_value(void) {
     random_state=random_state*1664525U+1013904223U;return random_state;
@@ -68,18 +69,18 @@ static int interpolate(int first,int second,int fraction) {
     return first+(int)(((int64_t)second-first)*fraction/1024);
 }
 static void reference(int a,int b,int fraction,s32 *out) {
-    RrTrackSample3C *x=&expected[128+a],*y=&expected[128+b];
+    TrackSample3C *x=&expected[128+a],*y=&expected[128+b];
     /* Keep the original order: an aliased output can change z before its read. */
     out[0]=4*interpolate(x->x08,y->x08,fraction);
     out[1]=interpolate(x->y10,y->y10,fraction);
     out[2]=4*interpolate(x->z0C,y->z0C,fraction);
 }
 static void one(int count,int index,int difference,int direction,int alias) {
-    RrRaceVehicle vehicle, before;
+    RaceVehicle vehicle, before;
     memset(&vehicle,0x39,sizeof(vehicle));
     vehicle.trackNodeF0=index;
     s16 offset=-123;
-    memcpy(&vehicle.pad120[0x50],&offset,2);
+    vehicle.trackFraction170=offset;
     before=vehicle;
     TrackNodeCount=count;ReverseCourse=direction;
     memcpy(count_page.bytes+0xBECC,&count,4);

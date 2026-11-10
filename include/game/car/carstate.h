@@ -3,6 +3,8 @@
 
 #include "types.h"
 
-void SetCarImpactState();
+struct RaceVehicle;
+void SetCarImpactState(int state, struct RaceVehicle *vehicle);
+void UpdateCarShake(struct RaceVehicle *vehicle);
 
 #endif /* RR_GAME_CAR_CARSTATE_H */

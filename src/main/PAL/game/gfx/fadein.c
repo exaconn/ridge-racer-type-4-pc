@@ -1,28 +1,23 @@
 #include "game/gfx/fadectl.h"
 #include "game/gfx/fadeset.h"
 #include "game/gfx/fadein.h"
-extern int RaceContext[];
+#include "game/gfx/fadespr.h"
 
-void func_8005C8D8(int a0) {
-    if (RaceContext[0x41C / 4] == 0) {
-        func_8005C7A4();
+extern FadeRaceContext RaceContext;
+
+void StartDemoFadeIn(int a0) {
+    if (RaceContext.f41C == 0) {
+        ResetDemoFadeState();
     }
-    RaceContext[0x438 / 4] = a0 + 2;
-    RaceContext[0x434 / 4] = 1;
-    RaceContext[0x43C / 4] = 0;
-    if (RaceContext[0x408 / 4] != 1) {
-        if (RaceContext[0x408 / 4] == 0) {
-            if (RaceContext[0x3EC / 4] == 0xFF) {
-                goto b5;
-            }
-        }
-    } else {
-b5:
-        RaceContext[0x408 / 4] = 2;
-        RaceContext[0x3E0 / 4] = 1;
+    RaceContext.f438 = a0 + 2;
+    RaceContext.f434 = 1;
+    RaceContext.f43C = 0;
+    if (RaceContext.f408 == 1 || (RaceContext.f408 == 0 && RaceContext.f3EC == 0xFF)) {
+        RaceContext.f408 = 2;
+        RaceContext.f3E0 = 1;
         SetParticleBrightFade(0x20, 0, 0x100);
-        RaceContext[0x3F4 / 4] = 1;
+        RaceContext.f3F4 = 1;
     }
-    RaceContext[0x3F8 / 4] = 3;
-    RaceContext[0x41C / 4] = 2;
+    RaceContext.f3F8 = 3;
+    RaceContext.f41C = 2;
 }

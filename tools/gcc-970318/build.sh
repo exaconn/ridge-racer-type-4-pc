@@ -8,9 +8,10 @@
 # Linux/Docker recipe: bashalarmistdecomp/eternal-silver-sssc-decomp recipe/gcc-970318/.
 # This script is that recipe plus old-gcc's gcc-2.7.2-psx-macos.sh host support.
 #
-# The one edit to the compiler proper: mips_split_addresses stays 0. The snapshot always
+# The target-backend adjustment: mips_split_addresses stays 0. The snapshot always
 # splits symbol addresses into %hi/%lo for GAS and has no -mno-split-addresses yet; Sony's
 # objects have the assembler's unsplit `lw $2,sym($3)` macro forms.
+# The shared host-real repair restores logical RTL words on LP64 hosts.
 #
 # Needs: curl, git, cc (Xcode CLT), python3, and bison >= 3.6 on PATH or docker
 # (parsers are then generated in ubuntu:jammy, bison 3.8.2).
@@ -90,11 +91,13 @@ perl -pi -e 's|^target_alias=.*|target_alias=mips-sony-psx|' Makefile
 ! grep -q "configure' substitutes" Makefile
 cc -std=gnu89 -c "$P/eprintf-darwin.c" -o eprintf-darwin.o
 # Serial on purpose: this Makefile.in does not order every object after its insn-*.h.
+"$root/.venv/bin/python" "$root/tools/scripts/repair_gcc_real_host.py" "$PWD"
 make cc1 LANGUAGES=c LDFLAGS="$PWD/eprintf-darwin.o" \
     CFLAGS="-std=gnu89 -w -Wno-int-conversion -Wno-implicit-function-declaration -Wno-return-mismatch -Wno-incompatible-pointer-types"
 ./cc1 -quiet -O2 "$src/old-gcc/tests/little_endian.c" -o le.s && grep -Eq 'lbu\s\$2,0\(\$4\)' le.s
 ./cc1 -quiet -O2 "$src/old-gcc/tests/host_wide_int.c" -o hwi.s && grep -Eq '# 0x80000000$' hwi.s
 printf 'extern int g[];\nint f(int i){return g[i];}\n' > t.c
 ./cc1 -quiet -O2 -G8 -mhard-float -fno-exceptions t.c -o t.s && grep -Eq 'lw\s\$2,g\(\$4\)' t.s
+"$root/.venv/bin/python" "$root/tools/scripts/target_float_literals.py" --compiler "$PWD/cc1" --version 970318
 mkdir -p "$out"; cp cc1 "$out/cc1"
 echo "installed $out/cc1"

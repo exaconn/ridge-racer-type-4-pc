@@ -6,7 +6,8 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
-from test_channel_callbacks import ChannelRecord
+from c_functions import source_owners, definition_source
+from channel_native_types import PadChannel
 
 Hook=C.CFUNCTYPE(None,C.c_int32)
 
@@ -28,7 +29,9 @@ class ChannelSystemResetTest(unittest.TestCase):
         for name in ('channels.h','interrupts.h'):
             h=(root/'include/rr'/name).read_text()
             headers+=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',h,flags=re.M)
-        body=(root/'tools/scripts/fixtures/views/func_80098044.c').read_text()
+        queue_header=(root/'include/psyq/libpad/padenab.h').read_text()
+        headers+=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',queue_header,flags=re.M)
+        body=definition_source(source_owners(root/'src/main/PAL')['_padStartCom'].read_text(),'_padStartCom')
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
         body=re.sub(r'"\$[0-9]+", ','',body)
@@ -36,7 +39,7 @@ class ChannelSystemResetTest(unittest.TestCase):
         assert body.count('(s32 *)0x800B0000U')==1
         body=body.replace('(s32 *)0x800B0000U','(test_state+0x10000/4)')
         observed=body.replace('_padStartCom','observed_reset')
-        replacements={'p->pending=0xFFFFFFFEU;':'test_ack(p,0xFFFFFFFEU);','mask=p->mask;':'mask=test_read_mask(p);','*(u32 *)((u8 *)p+RR_FIELD_OFFSET(RrInterruptRegisters,mask))=mask|1;':'test_write_mask(p,mask|1);'}
+        replacements={'p->pending=0xFFFFFFFEU;':'test_ack(p,0xFFFFFFFEU);','mask=p->mask;':'mask=test_read_mask(p);','*(u32 *)((u8 *)p+RR_FIELD_OFFSET(InterruptRegisters,mask))=mask|1;':'test_write_mask(p,mask|1);'}
         for old,new in replacements.items():
             assert observed.count(old)==1
             observed=observed.replace(old,new)
@@ -48,13 +51,13 @@ typedef uint32_t u32; typedef int32_t s32;
 '''+headers+'''
 s32 test_state[0x10000/4+1];
 #define PadComActive test_state[0xBCA0/4]
-unsigned long record_size=sizeof(RrChannelRecordF0);
-RrChannelRecordF0 channels_a[2],channels_b[2];
-RrChannelRecordF0 *PadChannelRecords=channels_a;
-RrChannelUpdateCallback D_800ABC6C;
-s32 D_80114428[2];u32 PadIntQueueEntry[4];
-struct {u32 guard0;RrInterruptRegisters irq;u32 guard1;} irq_units[2];
-RrInterruptRegisters *I_STAT_Pad=&irq_units[0].irq;
+unsigned long record_size=sizeof(PadChannel);
+PadChannel channels_a[2],channels_b[2];
+PadChannel *PadChannelRecords=channels_a;
+ChannelUpdateCallback PadResetChannelFn;
+s32 PadPortTimeoutCounts[2];PadInterruptQueueRecord PadIntQueueEntry;
+struct {u32 guard0;InterruptRegisters irq;u32 guard1;} irq_units[2];
+InterruptRegisters *I_STAT_Pad=&irq_units[0].irq;
 struct Trace {s32 stage,enabled;uintptr_t arg0,arg1;u32 pending,mask;s32 counter0,counter1;} trace[64];
 s32 trace_count,op_count,op_kind[8],op_unit[8];u32 op_value[8];
 void (*on_stage)(s32);
@@ -62,7 +65,7 @@ void stage(s32 kind,uintptr_t a,uintptr_t b) {
     struct Trace *t=&trace[trace_count++];
     t->stage=kind;t->enabled=PadComActive;t->arg0=a;t->arg1=b;
     t->pending=I_STAT_Pad->pending;t->mask=I_STAT_Pad->mask;
-    t->counter0=D_80114428[0];t->counter1=D_80114428[1];
+    t->counter0=PadPortTimeoutCounts[0];t->counter1=PadPortTimeoutCounts[1];
     if(on_stage)on_stage(kind);
 }
 s32 EnterCriticalSection(void) {stage(0,0,0);return -123;}
@@ -72,12 +75,12 @@ s32 SysEnqIntRP(s32 n,void *q) {stage(2,n,(uintptr_t)q);return -2;}
 s32 ChangeClearRCnt(s32 n,s32 mode) {stage(3,n,mode);return -3;}
 void callback_a(void *p) {stage(5,(uintptr_t)p,0);}
 void callback_b(void *p) {stage(6,(uintptr_t)p,0);}
-void op(s32 kind,RrInterruptRegisters *p,u32 value) {
+void op(s32 kind,InterruptRegisters *p,u32 value) {
     s32 i=op_count++;op_kind[i]=kind;op_unit[i]=p==&irq_units[1].irq;op_value[i]=value;
 }
-void test_ack(RrInterruptRegisters *p,u32 value) {op(0,p,value);p->pending&=value;}
-u32 test_read_mask(RrInterruptRegisters *p) {u32 value=p->mask;op(1,p,value);return value;}
-void test_write_mask(RrInterruptRegisters *p,u32 value) {op(2,p,value);p->mask=value;}
+void test_ack(InterruptRegisters *p,u32 value) {op(0,p,value);p->pending&=value;}
+u32 test_read_mask(InterruptRegisters *p) {u32 value=p->mask;op(1,p,value);return value;}
+void test_write_mask(InterruptRegisters *p,u32 value) {op(2,p,value);p->mask=value;}
 '''+body+observed
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
@@ -85,13 +88,13 @@ void test_write_mask(RrInterruptRegisters *p,u32 value) {op(2,p,value);p->mask=v
         for name in ('_padStartCom','observed_reset'):
             fn=getattr(cls.lib,name);fn.argtypes=[];fn.restype=None
         cls.state=(C.c_int32*(0x10000//4+1)).in_dll(cls.lib,'test_state')
-        cls.record_size=C.sizeof(ChannelRecord)
+        cls.record_size=C.sizeof(PadChannel)
         assert C.c_ulong.in_dll(cls.lib,'record_size').value==cls.record_size
         cls.a=(C.c_uint8*(2*cls.record_size)).in_dll(cls.lib,'channels_a');cls.b=(C.c_uint8*(2*cls.record_size)).in_dll(cls.lib,'channels_b')
         cls.units=(Irq*2).in_dll(cls.lib,'irq_units')
-        cls.base=C.c_void_p.in_dll(cls.lib,'PadChannelRecords');cls.callback=C.c_void_p.in_dll(cls.lib,'D_800ABC6C')
+        cls.base=C.c_void_p.in_dll(cls.lib,'PadChannelRecords');cls.callback=C.c_void_p.in_dll(cls.lib,'PadResetChannelFn')
         cls.irq=C.c_void_p.in_dll(cls.lib,'I_STAT_Pad');cls.hook=C.c_void_p.in_dll(cls.lib,'on_stage')
-        cls.counters=(C.c_int32*2).in_dll(cls.lib,'D_80114428');cls.queue=(C.c_uint32*4).in_dll(cls.lib,'PadIntQueueEntry')
+        cls.counters=(C.c_int32*2).in_dll(cls.lib,'PadPortTimeoutCounts');cls.queue=(C.c_uint32*(4*C.sizeof(C.c_void_p)//4)).in_dll(cls.lib,'PadIntQueueEntry')
         cls.trace=(Trace*64).in_dll(cls.lib,'trace')
         cls.cb_a=C.cast(cls.lib.callback_a,C.c_void_p).value;cls.cb_b=C.cast(cls.lib.callback_b,C.c_void_p).value
 
@@ -107,7 +110,7 @@ void test_write_mask(RrInterruptRegisters *p,u32 value) {op(2,p,value);p->mask=v
         self.base.value=C.addressof(self.a);self.callback.value=self.cb_a
         for i in range(2):self.units[i]=Irq(0xABCDEF01,0xA5A50001+i,0x12340002+i,0x10FEDCBA)
         self.irq.value=C.addressof(self.units[0])+Irq.pending.offset
-        self.counters[:]=[-11,123];self.queue[:]=[1,2,3,4]
+        self.counters[:]=[-11,123];self.queue[:]=[1,2,3,4]+[0xA5A5A5A5]*(len(self.queue)-4)
         self.integer('trace_count').value=0;self.integer('op_count').value=0;self.hook.value=None;self.retained=[]
 
     def test_call_order_state_publication_and_ram_body_guards(self):

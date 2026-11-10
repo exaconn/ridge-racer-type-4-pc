@@ -7,12 +7,12 @@ u8 *PsyqMemmove(u8 *destination,const u8 *source,s32 length) {
     /* ASM_BARRIER: Preserve the original loop comparison register. */
     /* ASM_BARRIER: Preserve the original register through address or return preparation. */
     register s32 previous __asm__("$3");
-    u32 remaining=(u32)length;
+    u32 remaining=length;
     register u8 *destination_byte;
     register const u8 *source_byte;
     /* ASM_BARRIER: Preserve the original register through address or return preparation. */
     register u8 *answer __asm__("$2");
-    if((unsigned long)cursor>=(unsigned long)source) {
+    if(cursor>=source) {
         test_length=length;
         /* ASM_BARRIER: Keep the signed length gate distinct from the address comparison. */
         __asm__ volatile("" : "=r"(test_length) : "0"(test_length));

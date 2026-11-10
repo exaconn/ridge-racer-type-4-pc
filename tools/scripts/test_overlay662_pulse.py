@@ -26,7 +26,7 @@ class OverlayPulseTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_garage.h"
 #include "rr/trig.h"
-static struct World {u32 before[8];RrGarageSelectionPrefix state;u32 after[8];} world,expected;
+static struct World {u32 before[8];GarageSelectionPrefix state;u32 after[8];} world,expected;
 #define ovl662_D_801276A8 world.state
 static s16 rom[4097]={''' + ','.join(map(str, table)) + r'''};
 static s16 original_rom[4097];

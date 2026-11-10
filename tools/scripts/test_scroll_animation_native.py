@@ -3,20 +3,23 @@ from tempfile import TemporaryDirectory
 import ctypes as C,subprocess,sys,os,re,struct,random,json,hashlib
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN
 from unicorn.mips_const import *
+from c_functions import source_owners, definition_source
 P=Path(__file__).resolve().parent;ROOT=next(x for x in P.parents if (x/'Makefile').exists());os.chdir(ROOT)
-source=Path(sys.argv[1]if len(sys.argv)>1 else ROOT/'tools/scripts/fixtures/views/func_8005ED34.c').resolve();count=int(sys.argv[2])if len(sys.argv)>2 else 131072
-body=source.read_text();body=body[body.index('void UpdateScrollTrack'):];body=re.sub(r'\s+(?:asm|__asm__)\s*\("\$\d+"\)','',body)
+source=Path(sys.argv[1]if len(sys.argv)>1 else source_owners(ROOT/'src/main/PAL')['UpdateScrollTrack']).resolve();count=int(sys.argv[2])if len(sys.argv)>2 else 131072
+body=definition_source(source.read_text(),'UpdateScrollTrack');body=re.sub(r'\s+(?:asm|__asm__)\s*\("\$\d+"\)','',body)
 class Key(C.Structure):_fields_=[('glyph',C.c_int16),('timing',C.c_uint16)]
 class Channel(C.Structure):_fields_=[('glyph',C.c_int16),('offset',C.c_uint16)]
 class Track(C.Structure):_fields_=[('state',C.c_int32),('disabled',C.c_int32),('index',C.c_int32),('hold',C.c_int32),('wait',C.c_int32),('keys',C.c_void_p),('channel',Channel*2),('reserved20',C.c_int32),('step',C.c_int32)]
-class Root(C.Structure):_fields_=[('prefix00',C.c_ubyte*0x4c),('speed4C',C.c_uint32),('prefix50',C.c_ubyte*(0x134-0x50)),('scroll',Track),('motionTail',C.c_ubyte*56)]
 class Clock(C.Structure):_fields_=[('active',C.c_int16),('reserved02',C.c_ubyte*14),('tempo',C.c_uint32)]
 sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();pack=lambda v:struct.pack('<I',v&0xffffffff)
 with TemporaryDirectory(prefix='rr5ed34-')as td:
- d=Path(td);head='#include <stdint.h>\n#include <stddef.h>\n#include "rr/cpu_md_leaf.h"\n#include "rr/layout.h"\n#undef RR_ASSERT_SIZE\n#undef RR_ASSERT_OFFSET\n#define RR_ASSERT_SIZE(t,n)\n#define RR_ASSERT_OFFSET(t,f,n)\n#include "rr/game_motion.h"\ntypedef RrMotionControllerPrefix RrScrollController;\ntypedef RrMotionClock20 RrScrollClock20;\nstruct {u8 before[16];RrScrollController value;u8 after[16];} root;\nstruct {u8 before[16];RrScrollClock20 value;u8 after[16];} clockOwner;\nstruct {u8 before[16];RrScrollKey4 value[8];u8 after[16];} keys;\nRrScrollController *MotionController;\n'
- tail='\nvoid *owner(int n){return n==0?(void*)&root.value:n==1?(void*)&clockOwner.value:(void*)keys.value;}\nvoid run(void){MotionController=&root.value;UpdateScrollTrack(&clockOwner.value);}\nsize_t root_size(void){return sizeof root.value;}\n'
+ d=Path(td);head='#include <stdint.h>\n#include <stddef.h>\n#include "rr/cpu_md_leaf.h"\n#include "rr/layout.h"\n#undef RR_ASSERT_SIZE\n#undef RR_ASSERT_OFFSET\n#define RR_ASSERT_SIZE(t,n)\n#define RR_ASSERT_OFFSET(t,f,n)\n#include "rr/game_motion.h"\ntypedef PresentationController ScrollController;\ntypedef MotionClock20 ScrollClock20;\nstruct {u8 before[16];ScrollController value;u8 after[16];} root;\nstruct {u8 before[16];ScrollClock20 value;u8 after[16];} clockOwner;\nstruct {u8 before[16];ScrollKey4 value[8];u8 after[16];} keys;\nPresentationContextPrefix RaceContext;\n'
+ tail='\nvoid *owner(int n){return n==0?(void*)&root.value:n==1?(void*)&clockOwner.value:(void*)keys.value;}\nvoid run(void){RaceContext.controller3D8=&root.value;UpdateScrollTrack(&clockOwner.value);}\nsize_t root_size(void){return sizeof root.value;}\nsize_t scroll_offset(void){return offsetof(ScrollController,scroll);}\n'
  (d/'test.c').write_text(head+body+tail);subprocess.run(['cc','-std=gnu11','-O2','-shared','-fPIC','-funsigned-char','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-I'+str(P),str(d/'test.c'),'-o',str(d/'test.dylib')],check=True)
- lib=C.CDLL(str(d/'test.dylib'));lib.owner.restype=C.c_void_p;lib.root_size.restype=C.c_size_t;N=[lib.owner(i)for i in range(3)];assert all(n>0xffffffff for n in N);assert lib.root_size()==C.sizeof(Root)
+ lib=C.CDLL(str(d/'test.dylib'));lib.owner.restype=C.c_void_p;lib.root_size.restype=C.c_size_t;lib.scroll_offset.restype=C.c_size_t;N=[lib.owner(i)for i in range(3)];assert all(n>0xffffffff for n in N)
+ scroll_offset=lib.scroll_offset();root_size=lib.root_size()
+ class Root(C.Structure):_fields_=[('prefix00',C.c_ubyte*0x4c),('speed4C',C.c_uint32),('prefix50',C.c_ubyte*(scroll_offset-0x50)),('scroll',Track),('motionTail',C.c_ubyte*(root_size-scroll_offset-C.sizeof(Track)))]
+ assert Root.scroll.offset==scroll_offset and C.sizeof(Root)==root_size
  u=Uc(UC_ARCH_MIPS,UC_MODE_MIPS32|UC_MODE_LITTLE_ENDIAN);u.mem_map(0,0x400000);exe=Path('assets/PAL/main.exe').read_bytes();u.mem_write(0x10000,exe[0x800:])
  elf=os.getenv('RR_COMPILED_ELF')
  if elf:
@@ -44,7 +47,7 @@ with TemporaryDirectory(prefix='rr5ed34-')as td:
   for i in [1,2]:assert read(A[i]-16,sizes[i]+32)==C.string_at(N[i]-16,sizes[i]+32),('readonly',case,i)
   assert C.string_at(N[0]-16,16)==b'\xa5'*16 and C.string_at(N[0]+C.sizeof(Root),16)==b'\xa5'*16
   # Native layout padding is guard storage, not part of the target projection.
-  for a,b in [(0x134,Root.scroll.offset),(Root.scroll.offset+20,Root.scroll.offset+Track.keys.offset),(Root.motionTail.offset+44,C.sizeof(Root))]:assert C.string_at(N[0]+a,b-a)==initialRoot[a:b]
+  for a,b in [(0,Root.scroll.offset),(Root.scroll.offset+20,Root.scroll.offset+Track.keys.offset),(Root.motionTail.offset,C.sizeof(Root))]:assert C.string_at(N[0]+a,b-a)==initialRoot[a:b]
   if case and case%1024==0:print(case,'cases',flush=True)
  result=dict(cases=count,engine=('compiled'if elf else'original')+' MIPS/native C',source_sha256=sha(source),header_sha256=sha(ROOT/'include/rr/game_motion.h'),md_header_sha256=sha(ROOT/'include/rr/cpu_md_leaf.h'),original_exe_sha256=sha(ROOT/'assets/PAL/main.exe'),test_sha256=sha(__file__),elf_sha256=sha(elf)if elf else None,full_host_pointers=True,guarded_complete_owners=True,callee_saves_stack_return=True,readonly_clock_and_keys=True,unsigned_product_and_division_domains=True)
  if os.getenv('RR_AUDIT_JSON'):Path(os.environ['RR_AUDIT_JSON']).write_text(json.dumps(result,indent=2)+'\n')

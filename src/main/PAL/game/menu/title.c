@@ -1,3 +1,5 @@
+#include "rr/vehicle_table.h"
+#include "rr/frame_storage_types.h"
 #include "scratchpad.h"
 #include "game/car/car.h"
 #include "game/course/trkintp2.h"
@@ -11,34 +13,32 @@
 #include "game/demo/attract.h"
 #include "game/demo/opening.h"
 #include "game/menu/title.h"
-#include "game/ui/hudmap2.h"
-#include "game/course/trktext.h"
 #include "rr/frame_environment.h"
 #include "rr/color_conversion.h"
 #include "rr/driver_control.h"
+#include "rr/audio_state_types.h"
 #include "game/gfx/gfxotag.h"
-#include "game/gfx/drawbuf.h"
+#include "game/car/carwheel.h"
+#include "rr/screen_tiles.h"
+#include "game/car/carbound.h"
+#include "game/race/racemai2.h"
+#include "rr/text_sprites.h"
+#include "game/math/rotmat.h"
+#include "game/race/objsim.h"
+#include "game/race/objdraw.h"
+#include "game/gfx/gtepoly1.h"
+#include "game/menu/mnchoice.h"
+#include "game/sound/sndctrl.h"
+#include "game/sound/cdplay.h"
 
-extern int SetModelTexturePage();
-extern int func_800172DC();
-extern int AddScreenFadeTiles();
-extern int DrawOpponentCar();
-extern int DrawCars();
-extern int DrawTrackSceneryForPlayer();
-extern int StepRaceFrame();
-extern int DrawFontString();
-extern int SoundSetMasterVolume();
-extern int CdAudioSelectTrack();
+extern int ResetCarSlotBuffers();
 extern int CdAudioBeginPlay();
 extern int CdAudioFade();
-extern int func_80055330();
-extern int func_8005534C();
+extern int SetSceneOverlayColor();
+extern int SetSceneOverlayEnabled();
 extern int SelectCourseBgmTrack();
-extern int BuildCameraMatrices();
 extern int SetupPlayerView();
 extern int SetupViewport();
-extern int UpdateTrackObjects();
-extern int DrawTrackObjects();
 extern char RepeatLabel[];
 extern char StrFmtTwoDigitsTitle[];
 extern char D_800A1A6C[];
@@ -55,25 +55,18 @@ extern int D_800F3A68;
 extern int D_800F3A6C;
 extern short ModeGroup;
 extern short D_800F4D8A;
-extern int D_8010718C;
-extern int CarTable[];
-extern Car ComCars[];
-extern struct 
-{
-  char pad[0x28A4];
-  int w28a4;
-  int w28a8;
-} SoundState;
+extern int ViewUsesCarTrackNode;
+extern RaceVehicle ComCars[];
 typedef struct 
 {
-  char pad0[0x18];
+  s32 unk00[0x18 / 4];
   int w18;
   int w1c;
-  char pad20[0x2C];
+  s32 unk20[0x2C / 4];
   int w4c;
-  char pad50[0x38C];
+  s32 unk50[0x38C / 4];
   int w3dc;
-  char pad3E0[0xDC];
+  s32 unk3E0[0xDC / 4];
   int w4bc;
   int w4c0;
   int w4c4;
@@ -85,22 +78,20 @@ typedef struct
   int w4dc;
   unsigned short h4e0;
   short h4e2;
-  char pad4E4[0x4];
+  s32 unk4E4;
   unsigned char b4e8;
   unsigned char b4e9;
   unsigned char b4ea;
-  char pad4EB[0x1];
   int w4ec;
-  char pad4F0[0x10];
+  s32 unk4F0[0x10 / 4];
   int w500;
-  char pad504[0x2C];
+  s32 unk504[0x2C / 4];
   int w530;
   int w534;
   int w538;
 } AC;
 extern AC RaceContext;
-void func_8005DDF4()
-{
+void AttractDemoRaceUpdate(void) {
   char sp18[16];
   int i;
   int old;
@@ -109,7 +100,7 @@ void func_8005DDF4()
   int vv;
   AC *p;
   int c8;
-  Car *tp;
+  RaceVehicle *tp;
   int *ip;
   if (RaceContext.w4bc == 0)
   {
@@ -122,11 +113,11 @@ void func_8005DDF4()
     {
       if (D_8010E270[i & 3] < 2)
       {
-        ComCars[i].sub1F4.unk124 = 1;
+        ComCars[i].control.steeringEnabled124 = 1;
       }
       else
       {
-        ComCars[i].sub1F4.unk124 = 0;
+        ComCars[i].control.steeringEnabled124 = 0;
       }
     }
 
@@ -191,8 +182,8 @@ void func_8005DDF4()
     RaceContext.w4cc = 2;
   }
   {
-    register int c8_1 asm("a1") = RaceContext.w4c8; /* ASM_BARRIER: pin w4c8 to a1 across switch cases and func_800172DC second argument */
-    register int one_v0 asm("v0") = 1; /* ASM_BARRIER: pin constant 1 to v0 for w4c8 comparison */
+    register int c8_1 asm("$5") = RaceContext.w4c8; /* ASM_BARRIER: pin w4c8 to a1 across switch cases and ResetCarSlotBuffers second argument */
+    register int one_v0 asm("$2") = 1; /* ASM_BARRIER: pin constant 1 to v0 for w4c8 comparison */
     if (c8_1 == one_v0)
     {
       if (Pad0Buttons & 0x10)
@@ -207,7 +198,7 @@ void func_8005DDF4()
           case 0:
             RaceContext.w3dc = 0;
             RaceContext.w530 = 0;
-            func_800172DC(&RaceContext, c8_1);
+            ResetCarSlotBuffers(&RaceContext, c8_1);
             break;
 
           case 1:
@@ -217,9 +208,9 @@ void func_8005DDF4()
 
           case 2:
             RaceContext.w3dc = 0;
-            __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: keep w3dc store before w530 store in delay slot */
+            __asm__ ("" ::: "memory"); /* ASM_BARRIER: keep w3dc store before w530 store in delay slot */
             RaceContext.w530 = c8_1;
-            func_800172DC(&RaceContext, c8_1);
+            ResetCarSlotBuffers(&RaceContext, c8_1);
             break;
 
           case 3:
@@ -229,7 +220,7 @@ void func_8005DDF4()
 
         }
 
-        func_8005534C(D_800ACA2C);
+        SetSceneOverlayEnabled(D_800ACA2C);
       }
     if (RaceContext.w3dc == 1)
     {
@@ -268,7 +259,7 @@ void func_8005DDF4()
           RaceContext.h4e2 = 0x800;
         }
         HsvToRgb(&RaceContext.h4e0, &RaceContext.b4e8);
-        func_80055330(0, RaceContext.b4e8, RaceContext.b4e9, RaceContext.b4ea);
+        SetSceneOverlayColor(0, RaceContext.b4e8, RaceContext.b4e9, RaceContext.b4ea);
       }
     }
     if (RaceContext.w530 == 1)
@@ -299,13 +290,13 @@ void func_8005DDF4()
   SetupViewport(0);
   if ((RaceContext.w4c8 == 0) || (RaceContext.w530 == 0))
   {
-    func_8004417C(2, ComCars + RaceContext.w4c0);
+    UpdateRaceCamera(2, ComCars + RaceContext.w4c0);
   }
   else
   {
-    D_8010718C = 1;
-    D_800ABFE8 = ComCars[0].wF0;
-    func_800437D8(ComCars, &RaceContext.w4ec);
+    ViewUsesCarTrackNode = 1;
+    D_800ABFE8 = ComCars[0].trackNodeF0;
+    InitDemoComCars(ComCars, &RaceContext.w4ec);
   }
   if (RaceContext.w4c4 >= 0x178)
   {
@@ -321,7 +312,7 @@ void func_8005DDF4()
         }
         RaceContext.w4c = -1;
         RaceContext.w4c4 = 0;
-        func_8004417C(2, ComCars + RaceContext.w4c0);
+        UpdateRaceCamera(2, ComCars + RaceContext.w4c0);
       }
     }
   }
@@ -330,17 +321,17 @@ void func_8005DDF4()
   {
     if (RaceContext.w4c8 == 0)
     {
-      func_800556B4();
+      UpdateAndDrawSceneOverlay();
     }
     else
     {
-      func_80055660();
+      DrawSceneOverlayIfActive();
     }
   }
   if (D_800AC5D0 > 0)
   {
     D_800AC5D0 = D_800AC5D0 - 1;
-    AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+    AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - D_800AC5D0) * 4, 0x45);
     if (D_800AC5D0 == 0)
     {
       if (RaceContext.w4c8 == 0)
@@ -356,42 +347,42 @@ void func_8005DDF4()
       }
       D_800F4D8A = 0;
       MaskBitSetting = 0;
-      __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: prevent hoisting argument setup for SoundSetMasterVolume before stores */
+      __asm__ ("" ::: "memory"); /* ASM_BARRIER: prevent hoisting argument setup for SoundSetMasterVolume before stores */
       SoundSetMasterVolume(0, 0);
     }
   }
   else
     if (D_800ACB0C < 0x1A)
   {
-    AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x19 - D_800ACB0C) * 8, 0x45);
+    AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x19 - D_800ACB0C) * 8, 0x45);
   }
   {
-    register int c8_2 asm("a2") = RaceContext.w4c8; /* ASM_BARRIER: pin w4c8 to a2 across w28a4 clamping and func_800534B4 third argument */
+    register int c8_2 asm("$6") = RaceContext.w4c8; /* ASM_BARRIER: pin w4c8 to a2 across w28a4 clamping and PollCdAudioStatus third argument */
     if (c8_2 == 1)
     {
       if (RaceContext.w538 == 0)
       {
-        old = SoundState.w28a4;
+        old = SoundState.track28A4;
         if (Pad0Buttons & 0x8000)
         {
-          SoundState.w28a4 = SoundState.w28a4 - 1;
+          SoundState.track28A4 = SoundState.track28A4 - 1;
         }
         if (Pad0Buttons & 0x2000)
         {
-          SoundState.w28a4 = SoundState.w28a4 + 1;
+          SoundState.track28A4 = SoundState.track28A4 + 1;
         }
-        if (SoundState.w28a4 <= 0)
+        if (SoundState.track28A4 <= 0)
         {
-          SoundState.w28a4 = SoundState.w28a8 - 1;
+          SoundState.track28A4 = SoundState.count28A8 - 1;
         }
-        if (SoundState.w28a4 >= SoundState.w28a8)
+        if (SoundState.track28A4 >= SoundState.count28A8)
         {
-          SoundState.w28a4 = c8_2;
+          SoundState.track28A4 = c8_2;
         }
-        if (old != SoundState.w28a4)
+        if (old != SoundState.track28A4)
         {
           RaceContext.w4d4 = 0x1D;
-          if (func_800534B4(&SoundState, old, c8_2) >= 0)
+          if (PollCdAudioStatus(&SoundState, old, c8_2) >= 0)
         {
           if (RaceContext.w4d0 == 0)
           {
@@ -408,14 +399,14 @@ void func_8005DDF4()
       {
         if (RaceContext.w4dc == 0)
         {
-          if (func_800534B4() < 0)
+          if (PollCdAudioStatus() < 0)
           {
             if (RaceContext.w4d8 == 0)
             {
-              SoundState.w28a4 = SoundState.w28a4 + 1;
-              if (SoundState.w28a4 >= SoundState.w28a8)
+              SoundState.track28A4 = SoundState.track28A4 + 1;
+              if (SoundState.track28A4 >= SoundState.count28A8)
               {
-                SoundState.w28a4 = 1;
+                SoundState.track28A4 = 1;
               }
             }
             CdAudioFade(0, 0x11);
@@ -434,7 +425,7 @@ void func_8005DDF4()
         RaceContext.w4d4 = RaceContext.w4d4 - 1;
         if (RaceContext.w4d4 == 0)
         {
-          CdAudioSelectTrack(0, D_800A0C9C[D_800F765C - 1]);
+          CdAudioSelectTrack(0, BgmNumberToCdTrack[RaceBgmListIndex - 1]);
           if (RaceContext.w4d8 == 0)
           {
             CdAudioBeginPlay(0);
@@ -462,13 +453,13 @@ void func_8005DDF4()
         old = 0xC8;
         DrawFontStringRight(0x131, old, RepeatLabel, 0xFF, 0);
       }
-      DrawFontStringRight(0xFA, 0xD4, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), 0xFF, 0);
-      func_80059B1C(D_800A1A6C, 0xFC, 0xD4, 0xFF);
-      func_80059B1C(D_800A1A6C - 4, 0x105, 0xD4, 0xFF);
-      PsyqSprintf(sp18, StrFmtTwoDigitsTitle, SoundState.w28a4);
+      DrawFontStringRight(0xFA, 0xD4, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5), 0xFF, 0);
+      AddBrightnessSprite(D_800A1A6C, 0xFC, 0xD4, 0xFF);
+      AddBrightnessSprite(D_800A1A6C - 4, 0x105, 0xD4, 0xFF);
+      PsyqSprintf(sp18, StrFmtTwoDigitsTitle, SoundState.track28A4);
       DrawFontString(0x112, 0xD4, sp18, 0xFF, 0);
-      func_80059B1C(D_800A1A6C - 0xC, 0x121, 0xD4, 0xFF);
-        func_80059B1C(D_800A1A6C - 8, 0x12A, 0xD4, 0xFF);
+      AddBrightnessSprite(D_800A1A6C - 0xC, 0x121, 0xD4, 0xFF);
+        AddBrightnessSprite(D_800A1A6C - 8, 0x12A, 0xD4, 0xFF);
         AddSetTexpagePrim(0);
       }
     }
@@ -480,24 +471,20 @@ void func_8005DDF4()
   }
   else
   {
-    register int i_s1 asm("s1") = 1; /* ASM_BARRIER: pin loop counter to s1 */
-    register int *ip_v0 asm("v0") = CarTable; /* ASM_BARRIER: load base address into v0 before adding 4 into s0 */
-    register int *ip_s0 asm("s0"); /* ASM_BARRIER: pin array pointer to s0 */
-    __asm__ volatile("" : "+r"(ip_v0)); /* ASM_BARRIER: prevent folding +1 into address lo */
-    ip_s0 = ip_v0 + 1;
+    int i_s1 = 1;
+    RaceVehicle **ip_v0 = CarTable;
+    RaceVehicle **ip_s0;    ip_s0 = ip_v0 + 1;
     do
     {
-      register int a0 asm("a0") = *ip_s0; /* ASM_BARRIER: load *ip_s0 into a0 first */
-      register int a1 asm("a1") = 2; /* ASM_BARRIER: load 2 into a1 before ip_s0 increment */
-      __asm__ volatile("" : "+r"(a0), "+r"(a1)); /* ASM_BARRIER: order argument setup before pointer increment */
-      ip_s0++;
+      register RaceVehicle *a0 asm("$4") = *ip_s0; /* ASM_BARRIER: load *ip_s0 into a0 first */
+      register int a1 asm("$5") = 2;      ip_s0++;
       __asm__ volatile("" : "+r"(ip_s0)); /* ASM_BARRIER: keep pointer increment before jal so i_s1++ fills delay slot */
       DrawOpponentCar(a0, a1);
       i_s1++;
     }
     while (i_s1 < 7);
   }
-  *((int *) (SCRATCHPAD + 0x78)) = D_800F2A64;
+  ((int *)SCRATCHPAD)[0x78 / 4] = D_800F2A64;
   SetupPlayerView(0);
   DrawTrackObjects(0);
   DrawTrackSceneryForPlayer(0);

@@ -6,7 +6,7 @@
 
 #define H BadgeRows
 
-#define K D_800AC590
+#define K CardDialogueStatePtr
 
 #define SPP (*(struct P **)0x1F800000)
 
@@ -18,7 +18,7 @@
 
 #define ORDER (order_page->order)
 
-void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state) {
+void EmitSpriteGrid(u32 intensity,SpriteGridClock *state) {
     s32 row;
     /* ASM_BARRIER: retain the horizontal position counter in a3. */
     register s32 x __asm__("$7");
@@ -37,8 +37,8 @@ void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state) {
     u32 y;
     /* ASM_BARRIER: keep the raw/color word in its original temporary. */
     register u32 color __asm__("$9")=intensity;
-    RrGpuScratchPointers *order_page;
-    RrGpuScratchPointers *scratch;
+    GpuScratchPointers *order_page;
+    GpuScratchPointers *scratch;
     u8 *packet;
     u8 *fields;
     hi=color<<16;
@@ -52,7 +52,7 @@ void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state) {
     /* ASM_BARRIER: keep the row counter distinct from later coordinate zero. */
     __asm__("" : "+r"(row));
     limit=15;size=0x180010;uv=0x2F29A400U;
-    order_page=(RrGpuScratchPointers*)0x1F800000U;
+    order_page=(GpuScratchPointers*)0x1F800000U;
     /* ASM_BARRIER: stage the scratch page before the packed-y constant. */
     __asm__("" : "+r"(order_page) : : "$8");
     length=4;
@@ -77,22 +77,22 @@ void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state) {
             phase+=5;x+=26;
             *(u32*)packet=*ORDER;
             fields[0]=length;
-            fields+=sizeof(RrSpritePacket);
+            fields+=sizeof(SpritePacket);
             *ORDER=(u32)(unsigned long)packet;
             ((u8*)ORDER)[3]=0;
-            packet+=sizeof(RrSpritePacket);
+            packet+=sizeof(SpritePacket);
         }while(x<130);
         row_step=0x300000;
         y+=row_step;
         row+=48;x=0;
     }while(row<144);
     mode_command=0xE100022A;
-    scratch=(RrGpuScratchPointers*)0x1F800000U;
+    scratch=(GpuScratchPointers*)0x1F800000U;
     CURSOR=packet;
     *(u32*)(packet+4)=mode_command;
     *(u32*)CURSOR=*scratch->order;
     CURSOR[3]=1;
     *scratch->order=(u32)(unsigned long)CURSOR;
     ((u8*)scratch->order)[3]=0;
-    CURSOR+=sizeof(RrGpuSingleCommandPacket);
+    CURSOR+=sizeof(GpuSingleCommandPacket);
 }

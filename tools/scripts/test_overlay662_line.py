@@ -21,7 +21,7 @@ class Overlay662LineTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_line.h"
-static struct World {u32 head[4];RrGarageSelectionPrefix garage;RrGpuLineF2Packet packets[5];u32 order[4];u32 tail[4];} world,expected;
+static struct World {u32 head[4];GarageSelectionPrefix garage;GpuLineF2Packet packets[5];u32 order[4];u32 tail[4];} world,expected;
 #define ovl662_D_801276A8 world.garage
 ''' + body + r'''
 static u32 seed=0x1AE2C;
@@ -32,7 +32,7 @@ static u32 *ordering(struct World *v,unsigned mode,unsigned index){
  switch(mode){case 0:return &v->order[index%4];case 1:return &v->packets[index].tag.word;case 2:return &v->packets[index+1].tag.word;case 3:return &v->packets[index-1].tag.word;default:return &v->garage.phaseCC;}
 }
 static void reference(unsigned mode,unsigned index,u32 x,u32 y0,u32 y1,u32 r,u32 g,u32 b){
- RrGpuLineF2Packet *p=&expected.packets[index];u32 *ot=ordering(&expected,mode,index);
+ GpuLineF2Packet *p=&expected.packets[index];u32 *ot=ordering(&expected,mode,index);
  u32 bx=(u16)expected.garage.halfC8,by=(u16)expected.garage.halfCA;
  p->tag.bytes.length=3;p->code=0x40;
  coordinate(&p->x0,bx+x);coordinate(&p->x1,bx+x);
@@ -43,7 +43,7 @@ static void reference(unsigned mode,unsigned index,u32 x,u32 y0,u32 y1,u32 r,u32
 }
 int main(void){unsigned k,m,i;
  for(k=0;k<65536;k++)for(m=0;m<5;m++){
-  u32 x=next(),y0=next(),y1=next(),r=next(),g=next(),b=next();unsigned index=1+(k&1);RrGpuLineF2Packet *result;
+  u32 x=next(),y0=next(),y1=next(),r=next(),g=next(),b=next();unsigned index=1+(k&1);GpuLineF2Packet *result;
   for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();
   world.garage.halfC8=half((u16)k);world.garage.halfCA=half((u16)(k*40503U));
   for(i=0;i<2;i++){world.garage.image38[i]=world.order;world.garage.image40[i]=world.order;world.garage.palette48[i]=world.order;}

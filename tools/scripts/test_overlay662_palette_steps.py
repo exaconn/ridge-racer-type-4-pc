@@ -24,7 +24,7 @@ class Overlay662PaletteStepsTest(unittest.TestCase):
 #include "rr/overlay662_palette_edit.h"
 #include "rr/overlay662_tool_action.h"
 #include "rr/audio_pan.h"
-static struct World {u32 head[4];RrGarageSelectionPrefix garage;RrGarageWorkingStorage work;u32 image[4][512];RrPalette16 palette[2];RrGarageButton buttons[46];RrGarageRectangle *table[46];u32 tail[4];} world,expected,checkpoint;
+static struct World {u32 head[4];GarageSelectionPrefix garage;GarageWorkingStorage work;u32 image[4][512];Palette16 palette[2];GarageButton buttons[46];GarageRectangle *table[46];u32 tail[4];} world,expected,checkpoint;
 #define ovl662_D_801276A8 world.garage
 #define ovl662_D_80127668 world.work
 #define ovl662_D_801273B8 world.table
@@ -40,7 +40,7 @@ static void backup(void){unsigned a=expected.garage.active21,b=!a,j,s,d;expected
  s=palette_index(expected.garage.palette48[a]);d=palette_index(expected.garage.palette48[b]);for(j=0;j<8;j++)expected.palette[d].words[j]=expected.palette[s].words[j];}
 static unsigned family,bits,flags,slot,captured_pool,color_index,expected_sound,calls;
 static s32 program;static uint64_t cases;
-static unsigned button_index(RrGarageRectangle*p){unsigned n=(unsigned)((RrGarageButton*)p-world.buttons);assert(n<46);return n;}
+static unsigned button_index(GarageRectangle*p){unsigned n=(unsigned)((GarageButton*)p-world.buttons);assert(n<46);return n;}
 static void sound_effect(struct World*w){w->palette[captured_pool].entries[color_index]=(u16)(bits^0xA55AU);w->garage.active21^=1;w->garage.config22=(u8)(color_index^15);w->garage.palette48[!w->garage.active21]=world.palette[!captured_pool].words;w->table[slot]=&world.buttons[(bits+19)%46].rectangle;w->work.words[1]^=0xA551FF45U;w->garage.reset08[0]=half(bits);}
 void TriggerSfx(s32 p,s32 level,s32 pan,s32 pitch,s32 voice){assert(expected_sound&&calls++==0);assert(p==program&&level==127&&pan==64&&pitch==0x1E00&&voice==-1);assert(memcmp(&world,&checkpoint,sizeof(world))==0);sound_effect(&world);}
 static void reference(void){unsigned n,j,shift=5*(family/2);int value=(bits>>shift)&31;
@@ -60,7 +60,7 @@ static void run(void){unsigned j,k,n;int x=(family&1)?213:141,y=355+(int)(family
  for(j=0;j<46;j++){world.table[j]=&world.buttons[j].rectangle;world.buttons[j].key0C=(s16)j;world.buttons[j].timer0E=half(bits+j);for(k=0;k<4;k++)world.buttons[j].rectangle[k]=(u16)next();}
  n=bits%46;world.table[slot]=&world.buttons[n].rectangle;
  world.work.words[0]=0xA5510000U|((flags&1)?8:0);world.work.words[1]=0xAAE00000U|((flags&2)?4:0)|((flags&4)?1:0)|((flags&8)?0x40U:0);
- world.work.points.cursor14=(RrGaragePoint){(s16)(x+((flags&16)?0:8)),(s16)y};
+ world.work.points.cursor14=(GaragePoint){(s16)(x+((flags&16)?0:8)),(s16)y};
  expected_sound=calls=0;expected=world;reference();switch(family){
  case 0:ovl662_func_8012349C();break;case 1:ovl662_func_801235F4();break;case 2:ovl662_func_80123750();break;case 3:ovl662_func_801238AC();break;case 4:ovl662_func_80123A0C();break;case 5:ovl662_func_80123B68();break;}
  assert(calls==expected_sound);assert(memcmp(&world,&expected,sizeof(world))==0);assert((uintptr_t)world.palette>UINT32_MAX);cases++;

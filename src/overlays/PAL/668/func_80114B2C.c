@@ -1,5 +1,5 @@
 #include "rr/overlay668_stream.h"
-#define STR_STATE ((RrStrPlaybackState *)RaceContext.activeB8)
+#define STR_STATE ((StrPlaybackState *)RaceContext.activeB8)
 
 void ovl668_func_80114B2C(u8 *arg0) {
     s32 vol;

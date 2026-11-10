@@ -10,10 +10,10 @@
     *(int *)(GS->ot + (t)) = (int)GS->cur; \
     *(char *)(GS->ot + (t) + 3) = 0
 
-void EmitTiledRect(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head) {
+void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head) {
     register s32 value;
     register u32 command;
-    register RrGpuRectangleFields *rect = rectangle;
+    register GpuRectangleFields *rect = rectangle;
     register u32 *ordering = head;
     register s32 height, y, width, x;
     register s32 tile_h, tile_w;
@@ -36,7 +36,7 @@ void EmitTiledRect(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head) {
     register s32 xpage asm("$3");
     /* ASM_BARRIER: retain the output/biased-field cursors in T4/T0. */
     register u8 *packet asm("$12"), *fields asm("$8");
-    RrGpuScratchPointers *scratch;
+    GpuScratchPointers *scratch;
     if (shade >= 0) {
         value = shade < 256;
 
@@ -66,7 +66,7 @@ clamp_low:
     ((u8 *)ordering)[3] = 0;
     height = rect->h;
     y = rect->y;
-    packet+=sizeof(RrGpuSingleCommandPacket);
+    packet+=sizeof(GpuSingleCommandPacket);
     if (height > 0) {
         limit = 256;
         do {
@@ -122,9 +122,9 @@ clamp_low:
                     length = 5;
 
                     fields[0] = length;
-                    fields+=sizeof(RrTiledRectanglePacket);
+                    fields+=sizeof(TiledRectanglePacket);
                     *ordering = (u32)(unsigned long)packet;
-                    packet+=sizeof(RrTiledRectanglePacket);
+                    packet+=sizeof(TiledRectanglePacket);
                     ((u8 *)ordering)[3] = 0;
                 } while (width > 0);
             }
@@ -132,11 +132,11 @@ clamp_low:
             y+=tile_h;
         } while (height > 0);
     }
-    scratch = (RrGpuScratchPointers *)0x1F800000U;
+    scratch = (GpuScratchPointers *)0x1F800000U;
     *(u32 *)(packet+4) = 0xE6000001U;
     *(u32 *)packet = scratch->order[703];
     packet[3] = 1;
     scratch->order[703] = (u32)(unsigned long)packet;
     ((u8 *)&scratch->order[703])[3] = 0;
-    scratch->cursor = packet+sizeof(RrGpuSingleCommandPacket);
+    scratch->cursor = packet+sizeof(GpuSingleCommandPacket);
 }

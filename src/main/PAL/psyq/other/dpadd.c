@@ -1,159 +1,149 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-#include "rr/wide.h"
-
-extern RrWide64 *_dbl_shift(RrWide64 *result, s32 direction, RrWide64 value, s32 count);
-extern s32 _err_math(s32 category, s32 operation);
+#include "rr/softfloat.h"
+#include "psyq/other/dpadd.h"
 
 typedef union {
     double d;
-    RrWide64 s;
+    s64 i;
+    Wide64 s;
 } DpUnion;
 
-double __adddf3(double a_in, double b_in) {
-    RrWide64 sp18;
-    RrWide64 sp20;
-    RrWide64 sp28;
-    DpUnion sp30;
-    DpUnion a;
-    /* ASM_BARRIER: pin b to s0/s1 */
-    register DpUnion b asm("$16");
-    /* ASM_BARRIER: DFmode view of s0/s1 so dbr_schedule splits movdf */
-    register double b_ret asm("$16");
-    s32 s4;
-    s32 s6;
-    u32 s7;
+s64 __adddf3(s64 leftBits, s64 rightBits) {
+    Wide64 leftMantissa;
+    Wide64 rightMantissa;
+    Wide64 rounding;
+    DpUnion zeroResult;
+    DpUnion left;
+    /* ASM_BARRIER: pin right to s0/s1 */
+    register DpUnion right asm("$16");
+    /* ASM_BARRIER: keep rightBits in a2/a3 for early zero return */
+    register s64 incomingRight asm("$6") = rightBits;
+    /* ASM_BARRIER: DFmode return view in v0/v1 so movdf is not split for target delay-slot stealing */
+    register DpUnion result asm("$2");
+    s32 exponent;
+    s32 rightExponent;
+    u32 sign;
 
-    sp30.s.lo = 0;
-    sp30.s.hi = 0;
-    s7 = 0;
-    a.d = a_in;
-    b.d = b_in;
+    zeroResult.s.lo = 0;
+    zeroResult.s.hi = 0;
+    sign = 0;
+    left.i = leftBits;
+    right.i = incomingRight;
 
-    if ((a.s.hi & 0x7FFFFFFF) == 0 && a.s.lo == 0) {
-        return b.d;
+    if ((left.s.hi & 0x7FFFFFFF) == 0 && left.s.lo == 0) {
+        return incomingRight;
     }
-    if ((b.s.hi & 0x7FFFFFFF) == 0 && b.s.lo == 0) {
-        return a.d;
+    if ((right.s.hi & 0x7FFFFFFF) == 0 && right.s.lo == 0) {
+        goto return_left;
     }
 
-    s4 = (a.s.hi >> 20) & 0x7FF;
-    s6 = (b.s.hi >> 20) & 0x7FF;
+    exponent = (left.s.hi >> 20) & 0x7FF;
+    rightExponent = (right.s.hi >> 20) & 0x7FF;
 
-    if (s6 + 0x36 < s4) {
-        return a.d;
+    if (rightExponent + 0x36 < exponent) {
+        goto return_left;
     }
-    if (s4 + 0x36 < s6) {
+    if (exponent + 0x36 < rightExponent) {
         /* ASM_BARRIER: block beq fallthrough delay slot so it steals lui from target */
         __asm__ volatile("");
-        return b_ret;
+        return right.i;
     }
 
-    sp18.hi = (a.s.hi & 0xFFFFF) | 0x100000;
-    sp18.lo = a.s.lo;
-    sp20.hi = (b.s.hi & 0xFFFFF) | 0x100000;
-    sp20.lo = b.s.lo;
+    leftMantissa.hi = (left.s.hi & 0xFFFFF) | 0x100000;
+    leftMantissa.lo = left.s.lo;
+    rightMantissa.hi = (right.s.hi & 0xFFFFF) | 0x100000;
+    rightMantissa.lo = right.s.lo;
 
-    if (a.s.hi & 0x80000000) {
-        _mainasu(&sp18, sp18);
+    if (left.s.hi & 0x80000000) {
+        _mainasu(&leftMantissa, leftMantissa);
     }
-    if (b.s.hi & 0x80000000) {
-        _mainasu(&sp20, sp20);
+    if (right.s.hi & 0x80000000) {
+        _mainasu(&rightMantissa, rightMantissa);
     }
 
-    _dbl_shift(&sp18, 0, sp18, 9);
-    _dbl_shift(&sp20, 0, sp20, 9);
+    leftMantissa = _dbl_shift(0, leftMantissa, 9);
+    rightMantissa = _dbl_shift(0, rightMantissa, 9);
 
-    if (s6 < s4) {
-        _dbl_shift(&sp20, 1, sp20, s4 - s6);
+    if (rightExponent < exponent) {
+        rightMantissa = _dbl_shift(1, rightMantissa, exponent - rightExponent);
     } else {
-        _dbl_shift(&sp18, 1, sp18, s6 - s4);
-        s4 = s6;
+        leftMantissa = _dbl_shift(1, leftMantissa, rightExponent - exponent);
+        exponent = rightExponent;
     }
 
-    _add_mant_d(&sp18, sp18, sp20);
+    _add_mant_d(&leftMantissa, leftMantissa, rightMantissa);
 
-    if (sp18.hi < 0) {
-        _mainasu(&sp18, sp18);
-        s7 = 0x80000000;
-    } else if (sp18.hi == 0 && sp18.lo == 0) {
-        return sp30.d;
+    if (leftMantissa.hi < 0) {
+        _mainasu(&leftMantissa, leftMantissa);
+        sign = 0x80000000;
+    } else if (leftMantissa.hi == 0 && leftMantissa.lo == 0) {
+        return zeroResult.i;
     }
 
     {
-        /* ASM_BARRIER: keep initial 0xE0000000 mask in v1 */
-        register s32 init_mask asm("$3");
-        /* ASM_BARRIER: load sp18.hi into v0 before materializing 0xE0000000 in v1 */
-        register s32 hi_val asm("$2") = sp18.hi;
-        /* ASM_BARRIER: order sp18.hi load before init_mask lui */
-        __asm__("" : "+r"(hi_val));
-        init_mask = 0xE0000000;
+        s32 topBits;
+        /* ASM_BARRIER: load leftMantissa.hi into v0 before materializing 0xE0000000 in v1 */
+        register s32 highWord asm("$2") = leftMantissa.hi;
+        topBits = 0xE0000000;
         /* ASM_BARRIER: hide 0xE0000000 in v1 from CSE so s0 reloads via lui */
-        __asm__("" : "+r"(init_mask));
-        if ((hi_val & init_mask) == 0) {
+        __asm__("" : "+r"(topBits));
+        if ((highWord & topBits) == 0) {
             /* ASM_BARRIER: keep loop mask in s0 */
-            register s32 mask_e0 asm("$16") = 0xE0000000;
+            register s32 normalizationMask asm("$16") = 0xE0000000;
             do {
-                _dbl_shift(&sp18, 0, sp18, 1);
-                s4--;
-            } while ((sp18.hi & mask_e0) == 0);
+                leftMantissa = _dbl_shift(0, leftMantissa, 1);
+                exponent--;
+            } while ((leftMantissa.hi & normalizationMask) == 0);
         }
     }
 
-    if (sp18.hi & 0x40000000) {
-        /* ASM_BARRIER: materialize &sp18 in a0 for branch delay slot */
-        register RrWide64 *p18 asm("$4") = &sp18;
-        /* ASM_BARRIER: materialize direction=1 in a1 before stack arg=1 */
-        register s32 dir1 asm("$5");
-        /* ASM_BARRIER: materialize stack count=1 in v0 */
-        register s32 cnt1 asm("$2");
+    if (leftMantissa.hi & 0x40000000) {
+        s32 direction;
+        s32 count;
         /* ASM_BARRIER: order a0 before a1 */
-        __asm__("" : "+r"(p18));
-        dir1 = 1;
+        direction = 1;
         /* ASM_BARRIER: order a1 before v0 */
-        __asm__("" : "+r"(dir1));
-        cnt1 = 1;
-        /* ASM_BARRIER: order stack store of cnt1 before loading sp18 into a2/a3 */
-        __asm__("" : "+r"(cnt1), "+m"(sp18));
-        _dbl_shift(p18, dir1, sp18, cnt1);
-        s4++;
+        __asm__("" : "+r"(direction));
+        count = 1;
+        /* ASM_BARRIER: order stack store of count before loading leftMantissa into a2/a3 */
+        __asm__("" : "+r"(count), "+m"(leftMantissa));
+        leftMantissa = _dbl_shift(direction, leftMantissa, count);
+        exponent++;
     }
 
-    sp28.hi = 0;
-    sp28.lo = (sp18.lo & 0x200) ? 0x100 : 0xFF;
-    /* ASM_BARRIER: reload sp28.lo from stack while keeping sp28.hi=0 constant */
-    __asm__("" : "+m"(sp28.lo));
-    _add_mant_d(&sp18, sp18, sp28);
+    rounding.hi = 0;
+    rounding.lo = (leftMantissa.lo & 0x200) ? 0x100 : 0xFF;
+    /* ASM_BARRIER: reload rounding.lo from stack while keeping rounding.hi=0 constant */
+    __asm__("" : "+m"(rounding.lo));
+    _add_mant_d(&leftMantissa, leftMantissa, rounding);
 
-    if (sp18.hi & 0x40000000) {
-        /* ASM_BARRIER: materialize &sp18 in a0 for branch delay slot */
-        register RrWide64 *p18 asm("$4") = &sp18;
-        /* ASM_BARRIER: materialize direction=1 in a1 before stack arg=1 */
-        register s32 dir1 asm("$5");
-        /* ASM_BARRIER: materialize stack count=1 in v0 */
-        register s32 cnt1 asm("$2");
+    if (leftMantissa.hi & 0x40000000) {
+        s32 direction;
+        s32 count;
         /* ASM_BARRIER: order a0 before a1 */
-        __asm__("" : "+r"(p18));
-        dir1 = 1;
+        direction = 1;
         /* ASM_BARRIER: order a1 before v0 */
-        __asm__("" : "+r"(dir1));
-        cnt1 = 1;
-        /* ASM_BARRIER: order stack store of cnt1 before loading sp18 into a2/a3 */
-        __asm__("" : "+r"(cnt1), "+m"(sp18));
-        _dbl_shift(p18, dir1, sp18, cnt1);
-        s4++;
+        __asm__("" : "+r"(direction));
+        count = 1;
+        /* ASM_BARRIER: order stack store of count before loading leftMantissa into a2/a3 */
+        __asm__("" : "+r"(count), "+m"(leftMantissa));
+        leftMantissa = _dbl_shift(direction, leftMantissa, count);
+        exponent++;
     }
 
-    _dbl_shift(&sp18, 1, sp18, 9);
-    sp18.hi &= 0xFFEFFFFF;
+    leftMantissa = _dbl_shift(1, leftMantissa, 9);
+    leftMantissa.hi &= 0xFFEFFFFF;
 
-    if (s4 >= 0x7FF) {
+    if (exponent >= 0x7FF) {
         _err_math(0x22, 0xB);
-        a.s.hi = s7 ? 0xFFF00000 : 0x7FF00000;
-        a.s.lo = 0;
+        left.s.hi = sign ? 0xFFF00000 : 0x7FF00000;
+        left.s.lo = 0;
     } else {
-        a.s.hi = s7 | (s4 << 20) | sp18.hi;
-        a.s.lo = sp18.lo;
+        left.s.hi = sign | (exponent * 0x100000U) | leftMantissa.hi;
+        left.s.lo = leftMantissa.lo;
     }
 
-    return a.d;
+return_left:
+    result.d = left.d;
+    return result.i;
 }

@@ -1,13 +1,13 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/channels.h"
 
-extern RrChannelControlRow36 _svm_voice[];
+extern ChannelControlRow36 _svm_voice[];
 void vmNoiseOff(u8 index) {
     s32 offset = index * 54;
     /* ASM_BARRIER: retain the original assembler temporary for the final field store. */
     register u8 *base __asm__("$1");
-    ((RrChannelControlRow36 *)((u8 *)_svm_voice + offset))->flags1D = 0;
-    ((RrChannelControlRow36 *)((u8 *)_svm_voice + offset))->value00 = 0;
+    ((ChannelControlRow36 *)((u8 *)_svm_voice + offset))->flags1D = 0;
+    ((ChannelControlRow36 *)((u8 *)_svm_voice + offset))->value00 = 0;
     /* ASM_BARRIER: finish the first two field stores before binding the last address. */
     __asm__ volatile("" : : "r"(offset) : "$1", "memory");
     /* PAL RAM mapping: _svm_voice is base minus 0x6F8. */
@@ -15,5 +15,5 @@ void vmNoiseOff(u8 index) {
     /* ASM_BARRIER: expose the indexed field store in the return delay slot. */
     __asm__("" : "=r"(base) : "0"(base));
     base += offset;
-    ((RrChannelControlRow36 *)(base - 0x6F8))->value04 = 0;
+    ((ChannelControlRow36 *)(base - 0x6F8))->value04 = 0;
 }

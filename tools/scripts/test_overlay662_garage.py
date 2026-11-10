@@ -25,20 +25,20 @@ class OverlayGarageTest(unittest.TestCase):
 #include "rr/overlay662_garage.h"
 /* Each overlapping source is a genuine four-halfword array in a union view. */
 typedef union {
- RrGarageWorkingStorage storage;
+ GarageWorkingStorage storage;
  s16 halves[32];
- RrGarageRectangle blocks[8];
- struct {u16 before[23];RrGarageRectangle rect;u16 after[5];} from23;
- struct {u16 before[25];RrGarageRectangle rect;u16 after[3];} from25;
- struct {u16 before[26];RrGarageRectangle rect;u16 after[2];} from26;
- struct {u16 before[22];RrGarageRectangle rect;u16 after[6];} from22;
+ GarageRectangle blocks[8];
+ struct {u16 before[23];GarageRectangle rect;u16 after[5];} from23;
+ struct {u16 before[25];GarageRectangle rect;u16 after[3];} from25;
+ struct {u16 before[26];GarageRectangle rect;u16 after[2];} from26;
+ struct {u16 before[22];GarageRectangle rect;u16 after[6];} from22;
 } ClipViews;
 static struct World {
  u32 guard0[8];
- RrGarageSelectionPrefix state;
+ GarageSelectionPrefix state;
  ClipViews clip;
- RrGarageRectangle rectangles[16];
- RrGarageRectangle *table[16];
+ GarageRectangle rectangles[16];
+ GarageRectangle *table[16];
  u32 guard1[8];
 } world,initial,expected;
 #define ovl662_D_801276A8 world.state
@@ -62,11 +62,11 @@ static void check(unsigned iteration,unsigned function){
 int main(void){
  u32 k,i,index;
  assert(sizeof(void*)==8 && (uintptr_t)&world>UINT32_MAX);
- assert(sizeof(ClipViews)==64 && sizeof(RrGarageRectangle)==8);
- assert(sizeof(RrGarageSelectionPrefix)==0x138 && offsetof(RrGarageSelectionPrefix,scratch34)==0x48 && offsetof(RrGarageSelectionPrefix,image38)==0x50 && offsetof(RrGarageSelectionPrefix,paletteBackup50)==0x80 && offsetof(RrGarageSelectionPrefix,paletteScratch58)==0x90 && offsetof(RrGarageSelectionPrefix,current60)==0xA0);
+ assert(sizeof(ClipViews)==64 && sizeof(GarageRectangle)==8);
+ assert(sizeof(GarageSelectionPrefix)==0x138 && offsetof(GarageSelectionPrefix,scratch34)==0x48 && offsetof(GarageSelectionPrefix,image38)==0x50 && offsetof(GarageSelectionPrefix,paletteBackup50)==0x80 && offsetof(GarageSelectionPrefix,paletteScratch58)==0x90 && offsetof(GarageSelectionPrefix,current60)==0xA0);
  for(k=0;k<65536;k++){
   s32 args[4];int answer;
-  RrGarageRectangle *selected;
+  GarageRectangle *selected;
   for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();
   for(i=0;i<16;i++)world.table[i]=&world.rectangles[i];
   index=k%16;

@@ -22,11 +22,11 @@ class CalibrationSetupTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay665_calibration.h"
 static const char format[]="calibration";
-typedef struct {u32 guard[4],rng;RrRuntimeSettings settings;RrBadgeRow1C rows[3][8];s32 root;s16 flag;u32 tail[4];} State;
+typedef struct {u32 guard[4],rng;RuntimeSettings settings;BadgeRow1C rows[3][8];s32 root;s16 flag;u32 tail[4];} State;
 typedef struct {s32 op,args[7];u32 hash;} Event;
 typedef struct {State s;unsigned calls;Event events[4];} World;
 static World actual,reference,initial,*w;static unsigned mutation;
-RrBadgeRow1C *BadgeRows;
+BadgeRow1C *BadgeRows;
 #define Options w->s.settings
 #define MenuCursor w->s.flag
 #define ovl665_D_801148B4 format
@@ -50,7 +50,7 @@ static void expected(void){
  w->s.rows[w->s.root][0].half02=1;SetMenuFrameOptions(1,1,0);
  DebugPrintStub(format,w->s.settings.display.x34,w->s.settings.display.y38);
 }
-int main(void){unsigned scenario,i;_Static_assert(sizeof(RrRuntimeSettings)==60,"settings extent");_Static_assert(offsetof(RrDisplaySettings3C,x34)==52,"signed word x");
+int main(void){unsigned scenario,i;_Static_assert(sizeof(RuntimeSettings)==64,"settings extent");_Static_assert(offsetof(DisplaySettings3C,x34)==52,"signed word x");
  assert((uintptr_t)actual.s.rows>UINT32_MAX);
  for(scenario=0;scenario<65536;scenario++)for(mutation=0;mutation<2;mutation++){
   memset(&initial,0,sizeof(initial));w=&initial;w->s.rng=0x15798+scenario*31;effect();

@@ -15,9 +15,9 @@ class StrokePathsTest(unittest.TestCase):
 #include <stdint.h>
 #include <string.h>
 #include "rr/overlay665_strokes.h"
-typedef struct {u32 guard[4];RrStrokeStep4 banks[10][9];u8 selected[5];RrStrokeColor4 color;u16 origins[5][2];u32 rng,tail[4];} State;
+typedef struct {u32 guard[4];StrokeStep4 banks[10][9];u8 selected[5];StrokeColor4 color;u16 origins[5][2];u32 rng,tail[4];} State;
 typedef struct {State before;u16 xy[4];u8 rgba[4];s32 blend,depth;} Event;
-typedef struct {State s;const RrStrokeStep4 *paths[5];Event events[80];unsigned count;} World;
+typedef struct {State s;const StrokeStep4 *paths[5];Event events[80];unsigned count;} World;
 static World actual,reference,*w;
 static unsigned scenario,mutation,seen[16],directions[4],factorSeen[65536],lengthSeen[65536],originSeen[5];
 static const s32 factors[12]={INT32_MIN,INT32_MIN+1,INT32_MAX-1,INT32_MAX,-65537,-65536,-17,-1,0,1,16,65536};
@@ -36,7 +36,7 @@ void AddLineF2Prim(const s16 *points,const u8 *color,s32 blend,s32 depth){u16 *x
  }
 }
 void ovl665_func_80116AA4'''+body+r'''
-static void expected(s32 factor){RrStrokeColor4 color=w->s.color;unsigned path,row,bank;u16 xy[4];s32 total,limit,used,n,nextUsed,dir;RrStrokeStep4 step;
+static void expected(s32 factor){StrokeColor4 color=w->s.color;unsigned path,row,bank;u16 xy[4];s32 total,limit,used,n,nextUsed,dir;StrokeStep4 step;
  if(!factor){seen[0]++;return;}seen[1+(factor<0)]++;
  for(path=0;path<5;path++){
   originSeen[path]++;xy[0]=w->s.origins[path][0];xy[1]=w->s.origins[path][1];bank=w->s.selected[path];total=0;
@@ -55,7 +55,7 @@ static void expected(s32 factor){RrStrokeColor4 color=w->s.color;unsigned path,r
  }
 }
 int main(void){unsigned i,j,k;u32 guard[4];s32 factor;uint64_t cases=0;
- _Static_assert(sizeof(RrStrokeStep4)==4,"complete step");_Static_assert(sizeof(RrStrokeColor4)==4,"complete color");
+ _Static_assert(sizeof(StrokeStep4)==4,"complete step");_Static_assert(sizeof(StrokeColor4)==4,"complete color");
  assert((uintptr_t)&actual.s.banks[0][0]>UINT32_MAX);
  for(scenario=0;scenario<73728;scenario++)for(mutation=0;mutation<2;mutation++){
   memset(&actual,0,sizeof(actual));memset(&reference,0,sizeof(reference));w=&actual;w->s.rng=0x16AA4U+scenario*73U;

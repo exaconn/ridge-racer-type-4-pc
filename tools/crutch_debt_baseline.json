@@ -1,14 +1,47 @@
 {
- "pins": 75,
- "barriers": 467,
- "asm_bodies": 0,
- "directives": 0,
- "gte_asm": 340,
- "gotos": 376,
- "pad_arrays": 335,
- "raw_offset_derefs": 589,
- "pointer_int_casts": 476,
- "gcc_2_7_2_units": 190,
- "cc1_flags_units": 139,
- "volatile_hacks": 623
+  "schema_version": 2,
+  "scopes": {
+    "resident": {
+      "counts": {
+        "pins": 1249,
+        "barriers": 1566,
+        "asm_bodies": 78,
+        "directives": 3,
+        "gte_asm": 439,
+        "gotos": 694,
+        "pad_arrays": 452,
+        "raw_offset_derefs": 1458,
+        "integer_casts": 1486,
+        "gcc_2_7_2_units": 70,
+        "cc1_flags_units": 105,
+        "volatile_qualifiers": 1601,
+        "legacy_type_blocks": 315,
+        "cast_alias_macros": 270,
+        "m2c_accesses": 371
+      },
+      "files": 462,
+      "files_to_review": 323
+    },
+    "overlays": {
+      "counts": {
+        "pins": 54,
+        "barriers": 49,
+        "asm_bodies": 10,
+        "directives": 0,
+        "gte_asm": 0,
+        "gotos": 149,
+        "pad_arrays": 0,
+        "raw_offset_derefs": 28,
+        "integer_casts": 570,
+        "gcc_2_7_2_units": 13,
+        "cc1_flags_units": 4,
+        "volatile_qualifiers": 26,
+        "legacy_type_blocks": 0,
+        "cast_alias_macros": 4,
+        "m2c_accesses": 0
+      },
+      "files": 271,
+      "files_to_review": 39
+    }
+  }
 }

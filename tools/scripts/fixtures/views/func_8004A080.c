@@ -4,17 +4,17 @@
 
 #define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -SinTable[0x400 - ((x) & 0x3FF)] : -SinTable[(x) & 0x3FF]) : (((x) & 0x400) ? SinTable[0x400 - ((x) & 0x3FF)] : SinTable[(x) & 0x3FF]))
 
-void CalcDistanceToPlayer(RrRaceVehicle *input) {
-    register RrRaceDistanceContextPrefix *context=&RaceContext;
+void CalcDistanceToPlayer(RaceVehicle *input) {
+    register RaceDistanceContextPrefix *context=&RaceContext;
     register s32 one=1;
     s32 mode;
-    RrRaceDistanceResult *out;
-    RrRaceVehicle *current;
+    RaceDistanceResult *out;
+    RaceVehicle *current;
     mode=context->mode;
     out=context->result;
     current=input;
     if(mode==one) {
-        register RrRaceVehicle *base;
+        register RaceVehicle *base;
         u32 limit=0x7FFF0000U;
         /* ASM_BARRIER: Retain the two reference-distance load temporaries. */
         register u32 first __asm__("$3"),second __asm__("$5");
@@ -29,7 +29,7 @@ void CalcDistanceToPlayer(RrRaceVehicle *input) {
         register s32 a __asm__("$4");
         /* ASM_BARRIER: Keep the second difference and its wrapped absolute value together. */
         register s32 b __asm__("$2");
-        register RrRaceVehicle *base=PlayerCars;
+        register RaceVehicle *base=PlayerCars;
         out->first=((u32)base[0].first+(u32)base[0].second)-((u32)current->first+(u32)current->second);
         {
             /* ASM_BARRIER: Preserve the second reference component while loading current inputs. */

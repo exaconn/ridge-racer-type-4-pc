@@ -26,12 +26,12 @@ class SpuAllocationCleanupTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,s) _Static_assert(sizeof(t)==(s),#t)
 #define RR_ASSERT_OFFSET(t,f,o) _Static_assert(offsetof(t,f)==(o),#t "." #f)
 #include "rr/spu_allocation.h"
-_Static_assert(sizeof(RrSpuAllocation)==8,"serialized record");
-_Static_assert(offsetof(RrSpuAllocation,size)==4,"size");
+_Static_assert(sizeof(SpuAllocation)==8,"serialized record");
+_Static_assert(offsetof(SpuAllocation,size)==4,"size");
 _Static_assert(sizeof(unsigned long)>=sizeof(void *),"full pointer arithmetic");
-typedef struct {RrSpuAllocation records[34];int32_t last;uint32_t fence[4];} World;
+typedef struct {SpuAllocation records[34];int32_t last;uint32_t fence[4];} World;
 static World initial,actual,expected,*world;
-static RrSpuAllocation *table;
+static SpuAllocation *table;
 #define _spu_AllocLastNum (world->last)
 #define _spu_memList table
 '''
@@ -93,7 +93,7 @@ int main(void){
   uint32_t address=0x100;
   if(n>=0){
    for(int i=0;i<n;i++){
-    RrSpuAllocation *r=&initial.records[i+1];
+    SpuAllocation *r=&initial.records[i+1];
     uint32_t size=1+(next()%64);
     uint32_t type=next()%3;
     r->address_flags=type==2?UINT32_C(0x2FFFFFFF):((next()&UINT32_C(0x0FFFFFFF))|(type?UINT32_C(0x80000000):0));

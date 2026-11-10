@@ -22,11 +22,11 @@ class PaletteRefreshTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4||sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4||offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_palette_refresh.h"
-typedef struct {u32 guard[4],rng;RrGarageSelectionPrefix garage;s32 phase;RrGpuRectangleFields rectangles[5];u32 tail[4];} State;
+typedef struct {u32 guard[4],rng;GarageSelectionPrefix garage;s32 phase;GpuRectangle rectangles[5];u32 tail[4];} State;
 typedef struct {s32 kind,arg,result;unsigned index;u32 hash;} Event;
 typedef struct {State s;Event events[8];unsigned count;} World;
 static World actual,reference,initial,*w;
-static RrPalette16 palettes[9],expectedPalettes[9],initialPalettes[9];
+static Palette16 palettes[9],expectedPalettes[9],initialPalettes[9];
 static u32 images[4][512];
 static unsigned scenario,mutation,aliasSeen[27],sineSeen[8193],uploadSeen[5],phaseSeen[8];
 static const s32 phases[8]={INT32_MIN,INT32_MIN+4095,-4097,-1,0,4095,INT32_MAX-170,INT32_MAX};
@@ -39,34 +39,34 @@ static const s32 phases[8]={INT32_MIN,INT32_MIN+4095,-4097,-1,0,4095,INT32_MAX-1
 #define ovl662_D_801268C0 w->s.rectangles[4]
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static u32 next(void){u32 n=w->s.rng;n^=n<<13;n^=n>>17;n^=n<<5;return w->s.rng=n;}
-static unsigned paletteIndex(const void *p){uintptr_t address=(uintptr_t)p,start=(uintptr_t)palettes;assert(address>UINT32_MAX&&address>=start&&address<start+sizeof(palettes));assert((address-start)%sizeof(RrPalette16)==0);return (unsigned)((address-start)/sizeof(RrPalette16));}
-static RrPalette16 *owner(const void *p){return (w==&actual?palettes:expectedPalettes)+paletteIndex(p);}
-static Event *event(s32 kind){unsigned i;u32 hash=2166136261U;Event *e;RrPalette16 *p=w==&actual?palettes:expectedPalettes;
+static unsigned paletteIndex(const void *p){uintptr_t address=(uintptr_t)p,start=(uintptr_t)palettes;assert(address>UINT32_MAX&&address>=start&&address<start+sizeof(palettes));assert((address-start)%sizeof(Palette16)==0);return (unsigned)((address-start)/sizeof(Palette16));}
+static Palette16 *owner(const void *p){return (w==&actual?palettes:expectedPalettes)+paletteIndex(p);}
+static Event *event(s32 kind){unsigned i;u32 hash=2166136261U;Event *e;Palette16 *p=w==&actual?palettes:expectedPalettes;
  assert(w->count<8);e=&w->events[w->count++];memset(e,0,sizeof(*e));e->kind=kind;
  for(i=0;i<sizeof(w->s);i++)hash=(hash^((u8*)&w->s)[i])*16777619U;
  for(i=0;i<sizeof(palettes);i++)hash=(hash^((u8*)p)[i])*16777619U;e->hash=hash;return e;
 }
-static void change(void){unsigned i,j;RrPalette16 *p=w==&actual?palettes:expectedPalettes;if(!mutation)return;
+static void change(void){unsigned i,j;Palette16 *p=w==&actual?palettes:expectedPalettes;if(!mutation)return;
  w->s.phase=word(next());w->s.garage.active21=next()%2;w->s.garage.scratch34=images[next()%4];
  for(i=0;i<2;i++){
   w->s.garage.palette48[i]=palettes[next()%9].words;w->s.garage.paletteBackup50[i]=palettes[next()%9].words;w->s.garage.paletteScratch58[i]=palettes[next()%9].words;
   w->s.garage.image38[i]=images[next()%4];w->s.garage.image40[i]=images[next()%4];
  }
  for(i=0;i<9;i++)for(j=0;j<16;j++)p[i].entries[j]=(u16)next();
- for(i=0;i<5;i++){w->s.rectangles[i].x=(s16)next();w->s.rectangles[i].y=(s16)next();}
+ for(i=0;i<5;i++){w->s.rectangles[i].rect.x=(s16)next();w->s.rectangles[i].rect.y=(s16)next();}
 }
 s32 rsin(s32 angle){unsigned index=(scenario+(w->count*2731U))%8193;Event *e=event(1);s32 result=(s32)index-4096;
  assert(angle>=-4095&&angle<=4095);e->arg=angle;e->result=result;sineSeen[index]++;change();return result;
 }
-void LoadImage(const RrGpuRectangleFields *rectangle,const void *pixels){unsigned index=(unsigned)(rectangle-w->s.rectangles);Event *e=event(2);
+void LoadImage(GpuRectangle *rectangle,const void *pixels){unsigned index=(unsigned)(rectangle-w->s.rectangles);Event *e=event(2);
  assert(index<5);e->arg=index;uploadSeen[index]++;
  if(index<3){uintptr_t p=(uintptr_t)pixels,start=(uintptr_t)images;assert(p>UINT32_MAX&&p>=start&&p<start+sizeof(images));assert((p-start)%sizeof(images[0])==0);e->index=(unsigned)((p-start)/sizeof(images[0]));}
  else e->index=paletteIndex(pixels);
  change();
 }
 ''' + body + r'''
-static void expected(void){RrGarageSelectionPrefix *g=&w->s.garage;unsigned active=g->active21,i;void *capturedPalette=g->palette48[active],*capturedScratch=g->paletteScratch58[active],*capturedBackup=g->paletteBackup50[active];
- RrPalette16 *p=owner(capturedPalette),*s=owner(capturedScratch),*b=owner(capturedBackup);s32 angle,result;u32 component;
+static void expected(void){GarageSelectionPrefix *g=&w->s.garage;unsigned active=g->active21,i;void *capturedPalette=g->palette48[active],*capturedScratch=g->paletteScratch58[active],*capturedBackup=g->paletteBackup50[active];
+ Palette16 *p=owner(capturedPalette),*s=owner(capturedScratch),*b=owner(capturedBackup);s32 angle,result;u32 component;
  p->entries[0]=0;s->entries[0]=32768;
  for(i=0;i<3;i++){
   s32 phase=word((u32)w->s.phase+85U*i);angle=(s32)((int64_t)phase%4096);result=rsin(angle);

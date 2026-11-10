@@ -25,8 +25,8 @@ class BiosDeviceHandlerTest(unittest.TestCase):
 #include <string.h>
 typedef uint8_t u8; typedef int8_t s8; typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-RrBiosDevice test_devices[8],test_other_devices[8];
-RrBiosDevice *test_kernel_table;
+BiosDevice test_devices[8],test_other_devices[8];
+BiosDevice *test_kernel_table;
 u32 test_kernel_bytes;
 char test_name_page[65536];
 #define D_801143C0 (test_name_page+0x43C0)
@@ -36,11 +36,11 @@ u32 test_first_calls;
 void *firstfile2(char *path,void *directory) {
  test_requested_path=path;test_directory=directory;test_first_calls++;return directory;
 }
-RrBiosDeviceHandler CardFirstFileHandler;
+BiosDeviceHandler CardFirstFileHandler;
 s32 (*test_compare)(const char *,const char *);
 s32 PsyqStrcmp(const char *first,const char *second) {return test_compare(first,second);}
 s32 test_prior_handler(s32 *first,s32 second,s32 third) {return -1;}
-u32 test_layout[]={sizeof(RrBiosDevice),offsetof(RrBiosDevice,name),offsetof(RrBiosDevice,handler)};
+u32 test_layout[]={sizeof(BiosDevice),offsetof(BiosDevice,name),offsetof(BiosDevice,handler)};
 const char *test_names[]={0,"other","tty","last"};
 void test_set_name(u32 index,u32 which) {test_devices[index].name=test_names[which];}
 void test_set_other_name(u32 index,u32 which) {test_other_devices[index].name=test_names[which];}
@@ -52,11 +52,11 @@ void test_initialize(u32 bytes) {
  memcpy(test_name_page+0x43C0,"tty",4);
 }
 void test_replace_kernel_table(void) {test_kernel_table=test_other_devices;test_kernel_bytes=0;}
-void test_select_other_table(u32 count) {test_kernel_table=test_other_devices;test_kernel_bytes=count*sizeof(RrBiosDevice);}
+void test_select_other_table(u32 count) {test_kernel_table=test_other_devices;test_kernel_bytes=count*sizeof(BiosDevice);}
 '''
         body = (root / 'tools/scripts/fixtures/views/func_800972B0.c').read_text()
         body = body.replace('#include "rr/bios_devices.h"', '')
-        sites = ('*(RrBiosDevice **)0x150', '*(u32 *)0x154', '(char *)0x80110000U')
+        sites = ('*(BiosDevice **)0x150', '*(u32 *)0x154', '(char *)0x80110000U')
         for site in sites:
             if body.count(site) != 1:
                 raise AssertionError('Unexpected kernel/page adapter site count: ' + site)

@@ -31,7 +31,7 @@ class OverlayMenuActionsTest(unittest.TestCase):
 #include "rr/overlay_menu.h"
 typedef struct {s32 kind,args[7];const void *pointer;} Event;
 static struct World {
- u32 before[8];s16 selection,limit; s32 accepted;RrMenuChoice4 choice;
+ u32 before[8];s16 selection,limit; s32 accepted;MenuChoice4 choice;
  s16 first_selection,choice_selection,second_selection,sound_selection,first_limit;
  s32 first_accept,choice_accept,second_accept,sound_accept;
  u8 changed_choice[4];u32 draws,calls;Event events[8];u32 after[8];
@@ -56,7 +56,7 @@ static void sound(struct World *w,s32 a,s32 b,s32 c,s32 d){
  Event *e=event(w,3);e->args[0]=a;e->args[1]=b;e->args[2]=c;e->args[3]=d;
  w->selection=w->sound_selection;w->accepted=w->sound_accept;
 }
-void func_80041320(s32 a,s32 b,s32 c){draw(&world,a,b,c);}
+void SetMenuTextRowStyle(s32 a,s32 b,s32 c){draw(&world,a,b,c);}
 void StepMenuValue(s32 a,s32 b,char *p,s32 c,s32 d){choose(&world,a,b,p,c,d);}
 int PlaySfxVolPan(s32 a,s32 b,s32 c,s32 d){sound(&world,a,b,c,d);return -1;}
 void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 f,s32 g,s32 h){
@@ -78,7 +78,7 @@ static void initialize(u32 k){unsigned i;memset(&world,0,sizeof(world));
  world.second_accept=(k&1)?(s32)(next()|1):0;world.sound_accept=(k&2)?0:-1;
  for(i=0;i<4;i++){world.choice.bytes[i]=next();world.changed_choice[i]=next();}
 }
-static s32 results_menu(void){return ovl660_func_801156A8(0);}
+static s32 results_menu(void){return ovl660_update_retry_choice(0);}
 static s32 retry_menu(void){return ovl666_update_retry_choice(0);}
 static void menus(unsigned which){u32 k;const s32 offsets[]={37,38,37,39};
  s32 (*functions[])(void)={results_menu,ovl661_func_80117E10,retry_menu,ovl667_func_801187DC};

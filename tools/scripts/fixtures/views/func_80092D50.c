@@ -136,7 +136,7 @@
 #undef GpuFuncTable
 
 /* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((RrLibGraphicsDriverPrefix *)GpuFuncTable)
+#define GpuFuncTable ((LibGraphicsDriverPrefix *)GpuFuncTable)
 
 #undef GpuFuncTable
 

@@ -9,10 +9,19 @@ extern int RaceLoadState;
 extern int RaceLoadSubState;
 extern int RaceLoadCursor;
 int LoadCarSpecStep();
-int func_8004D7D8();
-int func_8004D994();
+int LoadMenuCarStep();
+int LoadCourseAssetsStep();
 int LoadVabPairStep(char *a0);
-s32 func_8004E184(void);
+void RaceLoadReset(void);
+s32 LoadMenuSoundVabStep(void);
+s32 LoadMenuSoundSeqStep(void);
 int LoadRaceSoundStep(void);
+void SetRaceLoadCursor(s32 arg0);
+s32 GetRaceLoadCursor(void);
+int LoadSlotBankStep(int a0, int a1);
+int LoadComSlotBankStep(int a0);
+int LoadSoundBanksStep(int a0, int a1, int a2);
+int LoadSfxVabStep(int a0, int a1);
+
 
 #endif /* RR_GAME_DATA_TRKLD1_H */

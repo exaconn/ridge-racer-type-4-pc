@@ -3,126 +3,116 @@
 #include "game/sound/sndvab.h"
 #include "game/system/pad.h"
 #include "game/car/carstate.h"
-#include "rr/menu_overlay_runtime.h"
+#include "rr/trig.h"
+#include "game/course/trkintp.h"
 
-#define B(o) (*(unsigned char *)(p + (o)))
-#define S(o) (*(short *)(p + (o)))
-#define U(o) (*(unsigned short *)(p + (o)))
-#define I(o) (*(int *)(p + (o)))
-
-extern int AngleDiffAbs();
 extern int ReplayState;
 
-void UpdateCarShake(char *p);
-
-void SetCarImpactState(a0, a1) int a0; RrRaceVehicle *a1; {
-    int a2 = -1;
-    int v1;
-    register int av asm("$3"); /* ASM_BARRIER: abs copy */
-    int tt;
-    int t;
-    a1->state1A4 = a0;
-    switch (a0) {
+void SetCarImpactState(int state, RaceVehicle *vehicle) {
+    int pulseStrength = -1;
+    int magnitude;
+    register int absoluteSteer asm("$3"); /* ASM_BARRIER: abs copy */
+    int negatedSteer;
+    int speed;
+    vehicle->state1A4 = state;
+    switch (state) {
     case 1:
-        a2 = 0;
-        a1->stateTimer1A5 = 0x1E;
-        a1->steerAngle1A2 = a1->steerInput1BA * 8;
+        pulseStrength = 0;
+        vehicle->stateTimer1A5 = 0x1E;
+        vehicle->steerAngle1A2 = vehicle->steerInput1BA * 8;
         break;
     case 2:
-        v1 = AngleDiffAbs((short)a1->trackAngle1EC, a1->rot54);
-        goto L;
+        magnitude = AngleDiffAbs((short)vehicle->trackAngle1EC, vehicle->rot54);
+        goto applyImpactAngle;
     case 8:
-        v1 = 0x400;
-    L:
-        if (v1 >= 0x401) v1 = 0x800 - v1;
-        t = a1->input;
-        if (t < 0x140) {
-            a1->steerAngle1A2 = 0;
+        magnitude = 0x400;
+    applyImpactAngle:
+        if (magnitude >= 0x401) magnitude = 0x800 - magnitude;
+        speed = vehicle->input;
+        if (speed < 0x140) {
+            vehicle->steerAngle1A2 = 0;
         } else {
-            a1->steerAngle1A2 = ((t - 0x140) * v1) / 4096;
+            vehicle->steerAngle1A2 = ((speed - 0x140) * magnitude) / 4096;
         }
-        a1->stateTimer1A5 = 0x1E;
-        tt = -(unsigned short)a1->steerAngle1A2; a1->steerAngle1A2 = tt; tt = (short)tt; av = tt; if (tt < 0) av = -av; v1 = av;
-        a2 = 0;
-        if (v1 >= 0x64) {
-            a2 = 2;
-            if (v1 < 0x12C) a2 = 1;
+        vehicle->stateTimer1A5 = 0x1E;
+        negatedSteer = -(unsigned short)vehicle->steerAngle1A2;
+        vehicle->steerAngle1A2 = negatedSteer;
+        negatedSteer = (short)negatedSteer;
+        absoluteSteer = negatedSteer;
+        if (negatedSteer < 0) absoluteSteer = -absoluteSteer;
+        magnitude = absoluteSteer;
+        pulseStrength = 0;
+        if (magnitude >= 0x64) {
+            pulseStrength = 2;
+            if (magnitude < 0x12C) pulseStrength = 1;
         }
         break;
     }
-    if (a1 == &PlayerCars[0] || a1 == &PlayerCars[1]) {
-        if (a2 != -1) {
-            PadStartPulse(a1->playerFlags218 & 1, 2, a2);
+    if (vehicle == &PlayerCars[0] || vehicle == &PlayerCars[1]) {
+        if (pulseStrength != -1) {
+            PadStartPulse(vehicle->control.playerFlags24 & 1, 2, pulseStrength);
         }
     }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define PlayerCars (*(char (*)[])&PlayerCars)
+void UpdateCarShake(RaceVehicle *vehicle) {
+    int amplitude, oscillation, value, wave;
 
-void UpdateCarShake(char *p) {
-    int s1, s2, a1, v;
-
-    if (B(0x1A4)) {
-        B(0x1A5) = B(0x1A5) - 1;
-        if (B(0x1A5) == 0) {
-            B(0x1A4) = 0;
-            S(0x1B4) = 0;
-            S(0x1B6) = 0;
-            S(0x1B0) = 0;
-            S(0x1B2) = 0;
+    if (vehicle->state1A4) {
+        vehicle->stateTimer1A5 = vehicle->stateTimer1A5 - 1;
+        if (vehicle->stateTimer1A5 == 0) {
+            vehicle->state1A4 = 0;
+            vehicle->bumpPitch1B4 = 0;
+            vehicle->shakeRollOffset1B6 = 0;
+            vehicle->shakePitch1B0 = 0;
+            vehicle->shakeRoll1B2 = 0;
         }
-        a1 = B(0x1A5);
-        s1 = (a1 * S(0x1A2)) / 128;
-        v = rsin((a1 * 0x3000) / 30);
-        s2 = (v * s1) / 2048;
-        switch (B(0x1A4)) {
+        value = vehicle->stateTimer1A5;
+        amplitude = (value * vehicle->steerAngle1A2) / 128;
+        wave = rsin((value * 0x3000) / 30);
+        oscillation = (wave * amplitude) / 2048;
+        switch (vehicle->state1A4) {
         case 1:
-            if (p == PlayerCars || p == PlayerCars + 0x320) {
-                if (ReplayState != 2 && B(0x1A5) == 0x1D) {
-                    a1 = S(0x1BA) * 4;
-                    if (a1 > 0x64) a1 = 0x64;
-                    PlaySfxVolPan(0x28, (short)a1, 0x40, -1);
+            if (vehicle == &PlayerCars[0] || vehicle == &PlayerCars[1]) {
+                if (ReplayState != 2 && vehicle->stateTimer1A5 == 0x1D) {
+                    value = vehicle->steerInput1BA * 4;
+                    if (value > 0x64) value = 0x64;
+                    PlaySfxVolPan(0x28, (short)value, 0x40, -1);
                 }
             }
         case 5:
-            S(0x1B0) = s2 + s1;
-            S(0x1B2) = (s2 + s1 / 2) / 2;
-            a1 = S(0x1B0);
-            if (a1 < 0) a1 += 3;
-            a1 >>= 2;
-            U(0x1AC) = U(0x1AC) + a1;
-            U(0x1AE) = U(0x1AE) + U(0x1B2);
+            vehicle->shakePitch1B0 = oscillation + amplitude;
+            vehicle->shakeRoll1B2 = (oscillation + amplitude / 2) / 2;
+            vehicle->renderAngleX1AC += vehicle->shakePitch1B0 / 4;
+            vehicle->renderAngleZ1AE += vehicle->shakeRoll1B2;
             break;
         case 2:
         case 8:
-            if (S(0x1B8) == 0) S(0x1B6) = s2;
-            U(0x1AE) = U(0x1AE) + U(0x1B6);
+            if (vehicle->steeringLock1B8 == 0) vehicle->shakeRollOffset1B6 = oscillation;
+            vehicle->renderAngleZ1AE += vehicle->shakeRollOffset1B6;
             break;
         case 3:
-            v = s2 + s1;
-            S(0x1B4) = v;
-            U(0x1AC) = U(0x1AC) + v;
+            wave = oscillation + amplitude;
+            vehicle->bumpPitch1B4 = wave;
+            vehicle->renderAngleX1AC += wave;
             break;
         }
-    } else if (B(0x1A7)) {
-        if (p == PlayerCars || p == PlayerCars + 0x320) {
-            PadStartPulse(I(0x218) & 1, 1, 1);
+    } else if (vehicle->contactTimer1A7) {
+        if (vehicle == &PlayerCars[0] || vehicle == &PlayerCars[1]) {
+            PadStartPulse(vehicle->control.playerFlags24 & 1, 1, 1);
         }
-        s1 = (short)U(0x1D8) >> 2;
-        a1 = B(0x1A7);
-        s1 = (a1 * s1) / 128;
-        v = rsin((a1 * 0x3000) / 30);
-        s2 = (v * s1) / 2048;
-        if (S(0x1B8) == 0) S(0x1B6) = s2;
-        U(0x1AE) = U(0x1AE) + U(0x1B6);
-        B(0x1A7) = B(0x1A7) - 1;
+        amplitude = vehicle->input >> 2;
+        value = vehicle->contactTimer1A7;
+        amplitude = (value * amplitude) / 128;
+        wave = rsin((value * 0x3000) / 30);
+        oscillation = (wave * amplitude) / 2048;
+        if (vehicle->steeringLock1B8 == 0) vehicle->shakeRollOffset1B6 = oscillation;
+        vehicle->renderAngleZ1AE += vehicle->shakeRollOffset1B6;
+        vehicle->contactTimer1A7 = vehicle->contactTimer1A7 - 1;
     } else {
-        S(0x1B6) = 0;
-        if (p == PlayerCars || p == PlayerCars + 0x320) {
-            PadStartPulse(I(0x218) & 1, 0, 1);
+        vehicle->shakeRollOffset1B6 = 0;
+        if (vehicle == &PlayerCars[0] || vehicle == &PlayerCars[1]) {
+            PadStartPulse(vehicle->control.playerFlags24 & 1, 0, 1);
         }
     }
 }
-
-#undef PlayerCars

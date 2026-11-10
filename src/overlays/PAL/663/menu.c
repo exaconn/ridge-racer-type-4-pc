@@ -1,4 +1,7 @@
+#include "game/system/pad.h"
 #include "rr/overlay663.h"
+#include "rr/frame_storage_types.h"
+#include "rr/load_cursor.h"
 
 void ovl663_init_menu(void) {
     ModeFrame = 0;
@@ -63,8 +66,8 @@ void ovl663_update_menu(void) {
     s32 highlight;
     u8 rowState;
 
-    ModeFrame = (s32)((u32)ModeFrame + 1U);
-    ScreenFrame = (s32)((u32)ScreenFrame + 1U);
+    ModeFrame = (ModeFrame + 1U);
+    ScreenFrame = (ScreenFrame + 1U);
     switch (D_800F4D8A) {
     case 0:
         i = 0;
@@ -80,7 +83,7 @@ void ovl663_update_menu(void) {
             }
             UiRows[MenuCursor].cells[0] = highlight;
             closingMode = 0;
-            if (PlayerControllers[0].a != 0) {
+            if (PlayerControllers[0].action28 != 0) {
                 UiRows[MenuCursor].cells[0] = 1;
                 selected = MenuCursor;
                 if (selected == 0) {
@@ -89,39 +92,33 @@ void ovl663_update_menu(void) {
                         closingMode = 2;
                         ResetScreenCounters();
                         D_800F4D8A = 3;
-                        LoadCursor = D_800F4D40;
+                        LoadCursor = MenuArenaBase;
                     } else {
                         PlaySfx(4);
                     }
-                    goto chosen;
                 } else if (selected == 1) {
                     PlaySfx(1);
                     closingMode = 2;
                     ovl663_record_kind = selected;
                     D_800F4D8A = 4;
-                    goto chosen;
                 } else if (selected == 2) {
                     PlaySfx(1);
                     ovl663_record_kind = selected;
                     closingMode = 2;
                     D_800F4D8A = 5;
-                    goto chosen;
-                } else {
-                    if (selected != 3)
-                        goto chosen;
+                } else if (selected == 3) {
                     cancelSound = 1;
                     goto cancel;
                 }
             } else {
                 cancelSound = 2;
-                if (PlayerControllers[0].b != 0) {
+                if (PlayerControllers[0].action2C != 0) {
                 cancel:
                     PlaySfx(cancelSound);
                     D_800F4D8A = 8;
                     closingMode = 1;
                 }
             }
-        chosen:
             if (closingMode > 0) {
                 SetMenuFrameOptions(0, 1, 1);
                 D_800AC5D0 = 0x40;
@@ -147,10 +144,10 @@ void ovl663_update_menu(void) {
         if ((s16)D_800AC5D0 > 0) {
             D_800AC5D0 = (u16)D_800AC5D0 - 1;
         }
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (0x40 - (s16)D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - (s16)D_800AC5D0) * 4, 0x45);
         i = 0;
         if ((s16)D_800AC5D0 <= 0) {
-            loaded = func_8003BEA8(ovl663_available_courses[0]);
+            loaded = LoadCoursePreviewStep(ovl663_available_courses[0]);
             if (loaded == 1) {
                 ovl663_init_preview();
                 ModeGroup = loaded;
@@ -165,7 +162,7 @@ void ovl663_update_menu(void) {
     case 5:
         closingTimer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = (u16)closingTimer;
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (0x40 - closingTimer) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - closingTimer) * 4, 0x45);
         i = 0;
         if ((s16)D_800AC5D0 <= 0) {
             ovl663_init_selection(ovl663_record_kind);
@@ -177,7 +174,7 @@ void ovl663_update_menu(void) {
     case 8:
         cancelTimer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = (u16)cancelTimer;
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (0x40 - cancelTimer) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - cancelTimer) * 4, 0x45);
         i = 0;
         if ((s16)D_800AC5D0 <= 0) {
             SeqMuteVolume();

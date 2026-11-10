@@ -2,8 +2,22 @@
 #define RR_GAME_CAMERA_VIEWCAM_H
 
 #include "types.h"
+#include "rr/object_transform_types.h"
 
-int func_8006EDA4();
-int GetViewTrackNode();
+/* Position supplies the signed low half of each of three word components.
+ * Rotation supplies the eight-word libgte matrix storage. */
+void SetGteObjectTransform(ObjectTransform38 *output, const s16 *position,
+                           s32 *rotation);
+
+void BuildLightMatrix(void);
+void SetupViewLighting(void);
+void SetupPlayerView(int player);
+void RenderMirrorCourseView(int player);
+void SetupViewport(s32 a0);
+int GetViewTrackNode(const s32 *position, s32 player);
+void SetupHorizonViewTransform(int *a0, int *a1);
+void SetupViewMatrix(void);
+void RenderPlayerCourseView(int player);
+
 
 #endif /* RR_GAME_CAMERA_VIEWCAM_H */

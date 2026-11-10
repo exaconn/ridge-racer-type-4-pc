@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int StSetMask();
+void StSetMask();
 
 #endif /* RR_PSYQ_LIBCD_DSSTRM23_H */

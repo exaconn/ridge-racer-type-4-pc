@@ -7,7 +7,7 @@
 
 #undef CdDirectoryBuffer
 
-typedef struct {RrCdLocation location; s32 size; u8 name[16];} SearchResult;
+typedef struct {CdLocation location; s32 size; u8 name[16];} SearchResult;
 
 extern s32 CdSearchFile(SearchResult *, const char *);
 
@@ -15,9 +15,9 @@ extern s32 CdRead(s32, void *, s32);
 
 extern s32 CdReadSync(s32, void *);
 
-extern s32 CdPosToInt(const RrCdLocation *);
+extern s32 CdPosToInt(const CdLocation *);
 
-extern void func_800963C4(s32);
+extern void PsyqExit(s32);
 
 extern void DebugPrintStub(const char *, ...);
 
@@ -29,7 +29,7 @@ extern const char StrFileNotFoundFmt[];
 
 extern u32 *CdDirectoryBuffer;
 
-extern RrCdFileEntry CdFileTable[];
+extern CdFileEntry CdFileTable[];
 
 void LoadR4Directory(void)
 {
@@ -44,13 +44,13 @@ void LoadR4Directory(void)
     register u32 i __asm__("$17");
     s32 base, sector, next;
     u32 *directory;
-    RrCdFileEntry *entry;
+    CdFileEntry *entry;
     DebugPrintStub(NowLoadingFmt,R4BinPath,CdDirectoryBuffer);
     found=CdSearchFile(&file,R4BinPath);
     message_page=(u8 *)0x80010000U;
     if (!found) {
         DebugPrintStub(StrFileNotFoundFmt,R4BinPath);
-        func_800963C4(1);
+        PsyqExit(1);
     }
     sectors=2;
     /* ASM_BARRIER: keep the saved count and address opaque to constant folding. */

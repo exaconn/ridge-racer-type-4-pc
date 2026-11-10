@@ -9,9 +9,9 @@ void SsSeqSetVol(s16 bank, s32 left, s32 right) {
     /* ASM_BARRIER: Retain the original register across the bank lookup and mode branch. */
     register s32 left_value __asm__("$9")= left;
     /* ASM_BARRIER: Retain the original register across the bank lookup and mode branch. */
-    register RrChannelValueRecordB0 **table __asm__("$7");
+    register ChannelValueRecordB0 **table __asm__("$7");
     s32 index;
-    register RrChannelValueRecordB0 *state;
+    register ChannelValueRecordB0 *state;
     /* ASM_BARRIER: Retain the original register across the bank lookup and mode branch. */
     register s32 argument_right __asm__("$6");
     /* ASM_BARRIER: Preserve the right value before reusing its incoming argument register. */
@@ -21,10 +21,10 @@ void SsSeqSetVol(s16 bank, s32 left, s32 right) {
     /* ASM_BARRIER: Scale the bank index before materializing the PAL table page. */
     __asm__ volatile("" : : "r"(index):"$7");
     /* PAL mapping: table[-0xF98 / 4] selects _ss_score[bank]. */
-    table = (RrChannelValueRecordB0 **)0x80110000U;
+    table = (ChannelValueRecordB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL table page without a symbol-address macro. */
     __asm__("" : "=r"(table):"0"(table));
-    table = (RrChannelValueRecordB0 **)((u8 *)table+index);
+    table = (ChannelValueRecordB0 **)((u8 *)table+index);
     state = table[-0xF98 / 4];
     argument_right = right_value;
     if (state->mode98 != 1) {

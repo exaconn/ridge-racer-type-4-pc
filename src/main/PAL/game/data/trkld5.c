@@ -1,23 +1,19 @@
 /* RODATA 0x80011088 0x14 */
 #include "rr/track_resources.h"
+#include "rr/load_cursor.h"
 #include "game/data/cdfile2.h"
-#include "game/data/trkld1.h"
 #include "game/data/trkld1.h"
 #include "game/data/trkld5.h"
 #include "game/course/trkres2.h"
 #include "game/data/cdfile1.h"
-#include "game/data/cdfile2.h"
 #include "game/data/selection.h"
-
-typedef struct { unsigned char a, b, c, d; } T;
+#include "rr/selection_types.h"
 
 extern short D_800ABEC8;
-extern void *LoadCursor;
 extern short D_800AD520;
 extern short CourseIndex;
 
-int LoadTrackStep()
-{
+int LoadTrackStep(void) {
     int r;
     int r2;
     int r3;
@@ -29,7 +25,7 @@ int LoadTrackStep()
     case 1:
         r2 = CdFileBytesLoaded();
         if (r2 != 0) {
-            LoadTrackResource((RrTrackResourceFile *)RaceLoadCursor);
+            LoadTrackResource((TrackResourceFile *)RaceLoadCursor);
             RaceLoadCursor += AlignUp4(r2);
             RaceLoadStepIndex += 1;
         }
@@ -38,7 +34,7 @@ int LoadTrackStep()
         r3 = LoadCarSpecStep(CourseIndex, D_800AD520, D_800ABEC8);
         goto chk;
     case 3:
-        r3 = func_8004D994(CourseIndex, D_800AD520);
+        r3 = LoadCourseAssetsStep(CourseIndex, D_800AD520);
     chk:
         if (r3 != 0) {
     inc:
@@ -55,17 +51,17 @@ out:
     return r;
 }
 
-int func_8004E3B0(int i) {
-    T *base = SelectionRows;
-    T *t = base + i;
+int GetPlayerCarVariantIndex(int i) {
+    SelectionRow *base = (SelectionRow *)SelectionRows;
+    SelectionRow *t = base + i;
     int r = 0;
-    if (t->c != 0x27) {
-        r = t->b;
-        if (t->c == 0x13) {
+    if (t->parameter != 0x27) {
+        r = t->variant;
+        if (t->parameter == 0x13) {
             r += 4;
         }
-    } else if (t->b == 0) {
-        r = (t->a == 2) * 8;
+    } else if (t->variant == 0) {
+        r = (t->selection == 2) * 8;
     }
     return r;
 }

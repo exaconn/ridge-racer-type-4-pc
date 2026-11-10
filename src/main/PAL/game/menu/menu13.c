@@ -1,45 +1,28 @@
 /* RODATA 0x800105b0 0x18 */
 #include "types.h"
-#include "m2c_macros.h"
 #include "rr/menu_selection.h"
+#include "rr/menu_text_state.h"
+#include "rr/badge_row_types.h"
 #include "game/gfx/fontdraw.h"
 #include "game/menu/menu8.h"
 #include "game/menu/menuslot.h"
 #include "game/menu/menu13.h"
+#include "rr/badge_rows.h"
+#include "rr/menu_choice.h"
 
-typedef struct {
-    unsigned short *p;
-    signed char b4, b5, st, b7;
-    unsigned char b8;
-    signed char b9;
-    unsigned char bA, bB;
-    short sC, sE, s10, s12, s14, s16;
-    int i18;
-    unsigned char b1C, b1D, b1E, b1F;
-    int arr[0xC8];
-} S;
-
-extern int PlaySfx();
 extern int D_800F3A60;
-extern char *BadgeRows;
-extern char *Dialogue;
-extern int AddSpriteWithDrawMode();
 
-void UpdateDialogue(int a0, int a1, S *s);
-void SkipDialoguePage(void *arg0);
+void UpdateDialogue(int a0, int a1, MenuTextState *s);
 int DecodeCourseIndex(s32 a0);
-void func_80032EC8();
+void EmitSpinningWheelIcon();
 
-void UpdateDialogue(int a0, int a1, S *s) {
+void UpdateDialogue(int a0, int a1, MenuTextState *s) {
     unsigned short *p;
     int i;
     int v;
-    char *q;
+    int *q;
     int w;
     unsigned short *r;
-    /* ASM_BARRIER: pin sum to v0 */
-    register int e __asm__("$2");
-    int c;
 
     if (s->b4 != s->b5) {
         s->st = 0;
@@ -70,16 +53,14 @@ void UpdateDialogue(int a0, int a1, S *s) {
         s->b1F = 0;
         s->s14 = 0;
         s->b8 = v;
-        p = (unsigned short *)((char *)s + 0x31C);
+        p = (unsigned short *)&s->arr[0xBF];
         for (i = 0xC7; i >= 0; i--) {
-            *(int *)((char *)p + 0x28) = 0;
+            ((int *)p)[10] = 0;
             p = (unsigned short *)((char *)p - 4);
         }
         break;
     case 1:
-        e = s->sC;
-        c = s->i18;
-        if (c >= e) {
+        if (s->i18 >= s->sC) {
             if (s->b7 == 1) {
                 DrawDialogueContinueMark(a0 + 0x10D, a1 + 0x58);
                 if (D_800F3A60 == 0) {
@@ -90,8 +71,7 @@ void UpdateDialogue(int a0, int a1, S *s) {
             s->st = 3;
             s->s12 = s->bA - s->bB;
         } else {
-            e = c + 1;
-            s->i18 = e;
+            s->i18++;
             if (s->sE <= s->s10) {
                 if (s->s12 < s->bA - s->bB) {
                     s->s12 = s->s12 + 1;
@@ -115,8 +95,8 @@ tail1:
         }
         break;
     case 2:
-        func_80031DA0();
-        func_80031DA8();
+        DialogueWaitEnterHook();
+        DialogueWaitExitHook();
         DrawAnimatedText(a0, a1, s, 1, 0x3FFC);
         break;
     case 3:
@@ -132,9 +112,9 @@ tail1:
             s->p = r;
             s->s12 = 0;
             s->bB = w;
-            for (i = 0xC7, q = (char *)s + 0x31C; i >= 0; i--) {
-                *(int *)(q + 0x28) = 0;
-                q -= 4;
+            for (i = 0xC7, q = &s->arr[0xBF]; i >= 0; i--) {
+                q[10] = 0;
+                q--;
             }
             s->i18 = 0;
             s->s10 = 0;
@@ -151,7 +131,7 @@ tail1:
         s->st = 4;
         break;
     case 5:
-        if (*(short *)(BadgeRows + s->s16 * 0x1C + 0x10) == 3) {
+        if (BadgeRows[s->s16].state10 == 3) {
             s->st = 1;
         }
         break;
@@ -159,16 +139,16 @@ tail1:
 }
 
 void SkipDialoguePage(void *arg0) {
-    if (M2C_FIELD(arg0, s32 *, 0x18) < M2C_FIELD(arg0, s16 *, 0xC)) {
+    if (((s32 *)arg0)[6] < ((s16 *)arg0)[6]) {
         if (D_800F3A60 != 0) {
-            if (M2C_FIELD(arg0, s8 *, 6) != 4) {
+            if (((s8 *)arg0)[6] != 4) {
                 PlaySfx(3);
-                if (M2C_FIELD(arg0, s16 *, 0x12) < (M2C_FIELD(arg0, u8 *, 0xA) - M2C_FIELD(arg0, u8 *, 0xB))) {
-                    M2C_FIELD(arg0, s16 *, 0x12) = (s16) (M2C_FIELD(arg0, u8 *, 0xA) - M2C_FIELD(arg0, u8 *, 0xB));
-                    M2C_FIELD(arg0, s32 *, 0x18) = (s32) (M2C_FIELD(arg0, s16 *, 0xC) - 1);
+                if (((s16 *)arg0)[9] < (((u8 *)arg0)[10] - ((u8 *)arg0)[11])) {
+                    ((s16 *)arg0)[9] = (s16) (((u8 *)arg0)[10] - ((u8 *)arg0)[11]);
+                    ((s32 *)arg0)[6] = (((s16 *)arg0)[6] - 1);
                     return;
                 }
-                M2C_FIELD(arg0, s32 *, 0x18) = (s32) (M2C_FIELD(arg0, s16 *, 0xC) - 1);
+                ((s32 *)arg0)[6] = (((s16 *)arg0)[6] - 1);
             }
         }
     }
@@ -179,8 +159,7 @@ s32 DecodeCourseIndex(s32 a0) {
     return D_8009F64C[a0 & 7];
 }
 
-void func_80032EC8(a0, a1, a2, a3, a4) int a0, a1, a2, a3, a4;
-{
+void EmitSpinningWheelIcon(int a0, int a1, int a2, int a3, int a4) {
     int m = (a4 << 5) % 256;
     unsigned short s = (a4 << 6) + 0x3828;
     AddSpriteWithDrawMode(a0, a1, a2, a3, 0x20, 0x40, m, 0xC0, 0x9A, s, 0, 0x80);

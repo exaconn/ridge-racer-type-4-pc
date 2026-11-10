@@ -3,11 +3,12 @@
 
 #include "types.h"
 
-int FramesToMilliseconds();
+int FramesToMilliseconds(s32 frames, s32 subframe);
 void DrawRaceTime();
-char *FormatMillisecondsTime();
-int ResetVehicleShake();
-void StartCollisionShake();
-void SetVehicleShake();
+char *FormatMillisecondsTime(int t);
+struct RaceVehicle;
+void ResetVehicleShake(struct RaceVehicle *vehicle);
+void StartCollisionShake(struct RaceVehicle *vehicle, s32 impactKind);
+void SetVehicleShake(struct RaceVehicle *vehicle, s32 x, s32 y);
 
 #endif /* RR_GAME_UI_UIPART1_H */

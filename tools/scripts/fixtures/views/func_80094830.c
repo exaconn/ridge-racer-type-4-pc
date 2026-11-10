@@ -35,8 +35,8 @@
 
 #undef GPU_STATUS
 
-s32 _drs(RrGpuRectangle *arg0,u32 *arg1) {
-    register RrGpuRectangle *rect=arg0;
+s32 _drs(GpuRectangle *arg0,u32 *arg1) {
+    register GpuRectangle *rect=arg0;
     register u32 *cursor;
     register s32 signed_side;
     /* ASM_BARRIER: retain the raw halfword reload register. */

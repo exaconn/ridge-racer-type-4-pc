@@ -1,28 +1,13 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
-#include "m2c_macros.h"
+#include "rr/channels.h"
+#include "rr/spu.h"
 #include "psyq/libsnd/vmkoff.h"
 #include "psyq/libsnd/vmnote2.h"
 #include "psyq/libsnd/vmupd.h"
-#include "rr/channel_stream.h"
-
-typedef struct {
-    unsigned char *c0;
-    int c4, c8, cC;
-    char p10[4];
-    unsigned char b14;
-    char p15[2];
-    unsigned char b17;
-    char p18[0x60 - 0x18];
-    short h60[0x10];
-    char p80[0xB0 - 0x80];
-} Ch;
-
-typedef struct {
-    unsigned char f00, f01, f02, f03, f04, f05;
-    char p06[0x10 - 6];
-} Prog;
+#include "psyq/libsnd/vmmain.h"
+#include "rr/spu_voice_cache.h"
 
 typedef struct {
     char p00[0x12];
@@ -34,47 +19,14 @@ typedef struct {
     char p06[0x20 - 6];
 } Tone;
 
-typedef struct {
-    signed char f00, f01, f02, f03, f04, f05, f06, f07, f08, f09, f0A, f0B, f0C, f0D, f0E, f0F, f10, f11, f12, f13;
-    short f14, f16, f18;
-} SvmCur;
-
-typedef struct {
-    short f00, f02, f04, f06, f08;
-    signed char f0A, f0B;
-    short f0C, f0E, f10, f12, f14, f16, f18, f1A;
-    signed char f1C, f1D;
-    char p1E[0x36 - 0x1E];
-} SvmVoice;
-
-extern s32 _spu_inTransfer;
-extern Prog *_svm_pg;
-extern VabHdr *_svm_vh;
-extern Tone *_svm_tn;
-extern signed char spuVmMaxVoice;
-extern SvmCur _svm_cur;
-extern SvmVoice _svm_voice[];
-extern int _SsVmVSetUp();
-extern int _SsVmKeyOff();
-extern unsigned char _SsVmAlloc();
-extern void _SsVmDoAllocate();
+extern s32 _SsVmAlloc();
 extern void vmNoiseOn();
 
-void _spu_setInTransfer(s32 mode);
-s32 _spu_getInTransfer(void);
-int _SsVmKeyOn(short a0, short a1, short a2, short a3, int a4_in, int a5_in);
+s32 _SsVmKeyOn(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in, s32 a4_in, s32 a5_in);
 
 void _spu_setInTransfer(s32 mode) {
     if (mode == 1) {
-        /* ASM_BARRIER: preserve the original assembler temporary for the mapped store. */
-        register s32 *base __asm__("$1");
-        /* ASM_BARRIER: finish the preceding state updates before binding the address. */
-        __asm__ volatile("" : : : "$1");
-        /* PAL RAM mapping for _spu_inTransfer. */
-        base = (s32 *)0x800A0000U;
-        /* ASM_BARRIER: allow the register-relative store in the branch delay slot. */
-        __asm__("" : "=r"(base) : "0"(base));
-        base[0x480C / 4] = 0;
+        _spu_inTransfer = 0;
     } else {
         _spu_inTransfer = 1;
     }
@@ -84,18 +36,22 @@ s32 _spu_getInTransfer(void) {
     return _spu_inTransfer != 1;
 }
 
-int _SsVmKeyOn(short a0, short a1, short a2, short a3, int a4_in, int a5_in)
+s32 _SsVmKeyOn(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in, s32 a4_in, s32 a5_in)
 {
+    short a0 = a0_in;
+    short a1 = a1_in;
+    short a2 = a2_in;
+    short a3 = a3_in;
     unsigned char sp10[0x80];
     unsigned char sp90[0x80];
     unsigned char n;
     unsigned char i;
     short v;
     int ret;
-    Ch *s5;
-    Prog *prog;
+    ChannelValueRecordB0 *s5;
+    SpuProgram *prog;
     Tone *tone;
-    Ch **tbl;
+    ChannelValueRecordB0 **tbl;
     int a4 = (unsigned short)a4_in;
     int a5 = (unsigned short)a5_in;
 
@@ -114,7 +70,7 @@ int _SsVmKeyOn(short a0, short a1, short a2, short a3, int a4_in, int a5_in)
         /* ASM_BARRIER: pins the product to $v0; with the identical arms (merged by
            post-reload cross-jumping) this keeps mult and div in separate flow blocks,
            so the highpart stays in HI and is reloaded via $t0 like the original */
-        register int t asm("$2") = a4 * ((Ch *)((s5->b17 << 1) + (int)s5))->h60[0];
+        register int t asm("$2") = a4 * ((ChannelValueRecordB0 *)((s5->unk17 << 1) + (int)s5))->unk60[0];
         if (t < 0) {
             _svm_cur.f04 = t / 127;
         } else {
@@ -122,11 +78,11 @@ int _SsVmKeyOn(short a0, short a1, short a2, short a3, int a4_in, int a5_in)
         }
     }
     _svm_cur.f05 = a5;
-    prog = (Prog *)(((int)a2 << 4) + (int)_svm_pg);
-    _svm_cur.f0A = prog->f01;
-    _svm_cur.f0B = prog->f04;
-    _svm_cur.f00 = prog->f00;
-    if (_svm_cur.f07 >= _svm_vh->h12) {
+    prog = (SpuProgram *)((a2 << 4) + (int)_svm_pg);
+    _svm_cur.f0A = prog->value01;
+    _svm_cur.f0B = prog->value04;
+    _svm_cur.f00 = prog->value00;
+    if (_svm_cur.f07 >= ((VabHdr *)_svm_vh)->h12) {
         return -1;
     }
     if (a4 == 0) {
@@ -136,32 +92,32 @@ int _SsVmKeyOn(short a0, short a1, short a2, short a3, int a4_in, int a5_in)
         for (i = 0; i < n; i++) {
             _svm_cur.f16 = sp10[i];
             _svm_cur.f0C = sp90[i];
-            tone = (Tone *)(((int)(unsigned short)((_svm_cur.f07 * 16) + _svm_cur.f0C) << 5) + (int)_svm_tn);
+            tone = (Tone *)(((unsigned short)((_svm_cur.f07 * 16) + _svm_cur.f0C) << 5) + (int)_svm_tn);
             _svm_cur.f0F = tone->f00;
             _svm_cur.f0D = tone->f02;
             _svm_cur.f0E = tone->f03;
             _svm_cur.f10 = tone->f04;
             _svm_cur.f11 = tone->f05;
             _svm_cur.f12 = tone->f01;
-            v = _SsVmAlloc(0);
+            v = (unsigned char)_SsVmAlloc(0);
             _svm_cur.f18 = v;
             if (v < spuVmMaxVoice) {
                 int a0_ext = a0;
-                _svm_voice[_svm_cur.f18].f1D = 1;
-                _svm_voice[_svm_cur.f18].f02 = 0;
-                _svm_voice[_svm_cur.f18].f10 = a0;
-                _svm_voice[_svm_cur.f18].f18 = _svm_cur.f01;
-                _svm_voice[_svm_cur.f18].f12 = _svm_cur.f07;
-                _svm_voice[_svm_cur.f18].f14 = a2;
+                _svm_voice[_svm_cur.f18].flags1D = 1;
+                _svm_voice[_svm_cur.f18].age02 = 0;
+                _svm_voice[_svm_cur.f18].match10 = a0;
+                _svm_voice[_svm_cur.f18].match18 = _svm_cur.f01;
+                _svm_voice[_svm_cur.f18].unk12 = _svm_cur.f07;
+                _svm_voice[_svm_cur.f18].match14 = a2;
                 if (a0_ext != 0x21) {
-                    _svm_voice[_svm_cur.f18].f08 = a4;
-                    _svm_voice[_svm_cur.f18].f0C = s5->b17;
+                    _svm_voice[_svm_cur.f18].unk08 = a4;
+                    _svm_voice[_svm_cur.f18].unk0C = s5->unk17;
                 }
-                _svm_voice[_svm_cur.f18].f0A = a5;
-                _svm_voice[_svm_cur.f18].f16 = _svm_cur.f0C;
-                _svm_voice[_svm_cur.f18].f0E = a3;
-                _svm_voice[_svm_cur.f18].f1A = _svm_cur.f0F;
-                _svm_voice[_svm_cur.f18].f00 = _svm_cur.f16;
+                _svm_voice[_svm_cur.f18].unk0A = a5;
+                _svm_voice[_svm_cur.f18].unk16 = _svm_cur.f0C;
+                _svm_voice[_svm_cur.f18].group0E = a3;
+                _svm_voice[_svm_cur.f18].priority1A = _svm_cur.f0F;
+                _svm_voice[_svm_cur.f18].value00 = _svm_cur.f16;
                 _SsVmDoAllocate();
                 if (_svm_cur.f16 == 0xFF) {
                     vmNoiseOn((unsigned char)_svm_cur.f18);

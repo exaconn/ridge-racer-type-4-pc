@@ -5,7 +5,7 @@
 #include "types.h"
 
 extern s32 DebugPrintStub();
-extern s32 func_800963DC(const char *);
+extern s32 PsyqPuts(const char *);
 
 extern const char DiskErrorPrefixStr[];
 extern const char StrCdComCodeFmt[];
@@ -16,15 +16,15 @@ extern s32 CD_debug;
 extern s32 CD_status;
 extern s32 CD_status1;
 extern s32 CD_nopen;
-extern u8 D_800A64A5;
+extern u8 CD_com;
 extern char *CD_comstr[];
-extern s32 D_800A654C[];
+extern s32 CD_comHasCompleteInt[];
 extern s32 D_800A664C[];
 extern volatile u8 *CD_reg0;
 extern volatile u8 *CD_REG1;
 extern volatile u8 *CD_REG2;
 extern volatile u8 *CD_reg3;
-extern volatile u8 D_800A6764[];
+extern volatile u8 CD_intr_status[];
 
 extern u8 CD_syncResult[];
 extern u8 CdReadyResult[];
@@ -71,7 +71,7 @@ s32 getintr(void) {
     *CD_REG2 = 7;
     {
         s32 t = intr;
-        if (t != 3 || D_800A664C[D_800A64A5] != 0) {
+        if (t != 3 || D_800A664C[CD_com] != 0) {
             if ((CD_status & 0x10) == 0 && (res[0] & 0x10) != 0) {
                 CD_nopen++;
             }
@@ -87,27 +87,27 @@ s32 getintr(void) {
                 DebugPrintStub(DiskErrorPrefixStr);
             }
             if (CD_debug > 0) {
-                DebugPrintStub(StrCdComCodeFmt, CD_comstr[D_800A64A5], CD_status, CD_status1);
+                DebugPrintStub(StrCdComCodeFmt, CD_comstr[CD_com], CD_status, CD_status1);
             }
         }
     }
     switch (intr) {
     case 3:
         if (err) {
-            D_800A6764[0] = 5;
+            CD_intr_status[0] = 5;
             COPY8(CD_syncResult, res);
             return 2;
         }
-        if (D_800A654C[D_800A64A5]) {
-            D_800A6764[0] = 3;
+        if (CD_comHasCompleteInt[CD_com]) {
+            CD_intr_status[0] = 3;
             COPY8(CD_syncResult, res);
             return 1;
         }
-        D_800A6764[0] = 2;
+        CD_intr_status[0] = 2;
         COPY8(CD_syncResult, res);
         return 2;
     case 2:
-        D_800A6764[0] = err ? 5 : 2;
+        CD_intr_status[0] = err ? 5 : 2;
         COPY8(CD_syncResult, res);
         return 2;
     case 1:
@@ -116,7 +116,7 @@ s32 getintr(void) {
         }
         {
             u8 v = err ? 5 : 1;
-            volatile u8 *p = D_800A6764;
+            volatile u8 *p = CD_intr_status;
             p[1] = v;
         }
         COPY8(CdReadyResult, res);
@@ -125,19 +125,19 @@ s32 getintr(void) {
         return 4;
     case 4:
         {
-            volatile u8 *p = D_800A6764;
+            volatile u8 *p = CD_intr_status;
             p[1] = p[2] = 4;
         }
         COPY8(D_80110328, res);
         COPY8(CdReadyResult, res);
         return 4;
     case 5:
-        D_800A6764[0] = D_800A6764[1] = 5;
+        CD_intr_status[0] = CD_intr_status[1] = 5;
         COPY8(CD_syncResult, res);
         COPY8(CdReadyResult, res);
         return 6;
     default:
-        func_800963DC(CdUnknownIntrMsg);
+        PsyqPuts(CdUnknownIntrMsg);
         DebugPrintStub(CD_fmt_intr_code, intr);
         return 0;
     }

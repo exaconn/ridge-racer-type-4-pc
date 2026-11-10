@@ -8,9 +8,9 @@ s32 _cardCmd59ParamBegin(s32 request, s32 parameter, u8 *buffer);
 s32 _cardCmd59Rx(s32 value) {
     s32 result;
     switch(CardRxCount) {
-    case 3: D_80114730=value & 255; break;
+    case 3: CardBytesRemaining=value & 255; break;
     case 4: *(u32 *)CardCmdResultPtrA=value & 255; break;
-    case 5: *(u32 *)CardCmdResultPtrA+=(u32)(value & 255)<<8; break;
+    case 5: *(u32 *)CardCmdResultPtrA+=(value & 255) * 0x100U; break;
     }
     result=0;
     return result;
@@ -37,7 +37,7 @@ s32 _cardCmd59ParamBegin(s32 request, s32 parameter, u8 *buffer) {
     /* ASM_BARRIER: Form command state 2 before callback materialization and parameter stores. */
     __asm__ volatile("" : "=r"(mode) : "0"(mode) : "$4", "memory");
     CardCommandReader = _cardCmd59ParamTx;
-    D_8011472C.buffer = buffer;
+    CardCmdParam.buffer = buffer;
     CardCmdBuffer = buffer;
     CardCurrentCommand = mode;
     CardWriteHandler = _cardRxStatusByte;

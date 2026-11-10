@@ -1,10 +1,10 @@
 #ifndef RR_CHANNEL_ADVANCE_H
 #define RR_CHANNEL_ADVANCE_H
 #include "rr/channels.h"
+#include "rr/serial.h"
 
-extern RrChannelRecordF0 PadChannelRecordArray[];
-extern s32 D_800ABCC0[];
-extern u16 *D_800ABD00;
+extern PadChannel PadChannelRecordArray[];
+extern s32 PadMultitapSlotIndex[];
 void _dirFailAuto(u8 *channel);
 /* The current index must select accessible record/flag storage and must not
  * overflow when incremented. Handlers may replace the index, bound and control

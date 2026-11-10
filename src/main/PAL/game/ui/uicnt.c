@@ -1,28 +1,15 @@
 #include "types.h"
-#include "m2c_macros.h"
+#include "rr/badge_rows.h"
+#include "game/ui/uicnt.h"
+#include "rr/menu_label_render.h"
 
-typedef struct {
-    short s0;
-    short s2;
-    short s4;
-    short s6;
-    char pad[0x14];
-} S_800F3AFC;
-
-extern S_800F3AFC *BadgeRows;
 extern int D_800AD564;
 extern int D_8009FE10[];
-extern int AddSpritePrim();
-extern int AddDrawModePrim();
 
-void func_80042F58(int a0, int a1, int a2);
-s32 AddOrSubtractByte(s32 arg0, s32 arg1, s32 arg2);
-void ByteToCodeChars(s32 arg0, void *arg1);
-s32 CodeCharsToByte(s32 arg0, s32 arg1);
-void XorBytes37(u8 *arg0, s32 arg1);
-u8 ChecksumBytes(u8 *p, int n);
+void DrawBadgeCountdownSprites(int a0, void *a1, int a2);
+s32 ChecksumBytes(u8 *p, int n);
 
-void func_80042F58(int a0, int a1, int a2) {
+void DrawBadgeCountdownSprites(int a0, void *a1, int a2) {
     char sp[8];
     int s4;
     int s2;
@@ -30,8 +17,8 @@ void func_80042F58(int a0, int a1, int a2) {
     int off;
     int rem;
 
-    s4 = BadgeRows[a2].s4 + 0x10;
-    s2 = BadgeRows[a2].s6 + 0x20;
+    s4 = BadgeRows[a2].x04 + 0x10;
+    s2 = BadgeRows[a2].y06 + 0x20;
     rem = D_800AD564 % 5;
     a1 = AddSpritePrim(a0, a1, s4, s2, &D_8009FE10[rem], 0x4424, 0);
     for (i = 0; i < 2; i++) {
@@ -53,8 +40,8 @@ s32 AddOrSubtractByte(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 void ByteToCodeChars(s32 arg0, void *arg1) {
-    M2C_FIELD(arg1, s8 *, 0) = (s8) ((arg0 & 0xF) + 0x41);
-    M2C_FIELD(arg1, s8 *, 1) = (s8) (((u32) (arg0 & 0xFF) >> 4) + 0x4B);
+    ((s8 *)arg1)[0] = (s8) ((arg0 & 0xF) + 0x41);
+    ((s8 *)arg1)[1] = (s8) (((u32) (arg0 & 0xFF) >> 4) + 0x4B);
 }
 
 s32 CodeCharsToByte(s32 arg0, s32 arg1) {
@@ -76,7 +63,7 @@ void XorBytes37(u8 *arg0, s32 arg1) {
     }
 }
 
-u8 ChecksumBytes(u8 *p, int n) {
+s32 ChecksumBytes(u8 *p, int n) {
     int i;
     u8 s = 0;
     for (i = 0; i < n; i++) {

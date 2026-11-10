@@ -1,18 +1,19 @@
 #ifndef RR_RACE_SETUP_H
 #define RR_RACE_SETUP_H
+#include "game/car/carstat.h"
+#include "game/data/cdfile2.h"
 #include "rr/race_types.h"
 #include "rr/standings.h"
-void SetupRenderer(s32);
+
 void SetModelTexturePage(s32);
 void InitRaceHudPackets(s32);
 void InitHudNumberTargets(s32);
-void func_80045830(void);
-void ApplyOptionsPadButtonMaps(void);
+void ResetLensFlareState(void);
 void PadRumbleStart(s32);
 void StopAllSoundAndReset(void);
 void SelectCourseBgmTrack(void);
 void BuildCameraMatrices(void);
-void func_80070440(void);
+void InitRearViewMirrorState(void);
 void ClearTrackObjectStates(s32);
 void DrawSync(s32);
 s32 func_80114988(void);
@@ -24,8 +25,8 @@ extern s32 D_800AC538;
 extern s32 RaceTimeRemaining;
 extern s16 D_800AC5D0;
 extern s32 VSyncThreshold;
-extern s32 D_800ACBF8;
-extern s16 D_800AD50C;
+extern s32 DrawSubOtFlag;
+extern s16 RearViewMirrorEnabled;
 extern s16 ReverseCourse;
 extern s32 SavedRaceState;
 extern s32 ModeFrame;
@@ -35,7 +36,7 @@ extern s16 CourseIndex;
 extern s32 NumLaps;
 extern s8 RacePaused;
 extern s32 BestLapTime;
-extern s16 D_800F4D44;
+extern s16 GameModeType;
 extern s32 RaceState;
 extern s32 TrackEventSfxEnabled;
 extern s16 D_80107178;
@@ -46,10 +47,10 @@ extern s32 D_8010C13C;
 #include "rr/race_setup_types.h"
 #include "game/camera/viewini.h"
 #include "game/race/raceinit.h"
-extern RrRaceSetupPair4 D_800F4C70,D_800F2AB4;
-extern RrRaceVehicle PlayerCars[2];
-extern s32 D_8010C0F8[3],D_8010C120[3],D_8010C140[3];
-extern s32 CourseBestLapTimes[48],CourseBestLap[16],D_800F3B00[8];
+extern RaceSetupPair4 D_800F4C70,D_800F2AB4;
+#include "rr/player_cars.h"
+extern s32 BestSplitTimes[3],SplitTimes[3],SplitDistances[3];
+extern s32 CourseBestLapTimes[48],CourseBestLap[16],CourseBestLapRecords[8];
 extern u8 CourseLapCounts[16];
 extern s32 LapFrameCounts[10];
 
@@ -60,6 +61,6 @@ extern s32 LapFrameCounts[10];
  * current/future vehicle flags and output state; both whole vehicles stay live.
  * The 8011 hooks are the overlay entry points used when entering mode4. */
 void SetupRace();
-RR_ASSERT_SIZE(RrRaceSetupPair4,4);
-RR_ASSERT_OFFSET(RrRaceSetupPair4,second,2);
+RR_ASSERT_SIZE(RaceSetupPair4,4);
+RR_ASSERT_OFFSET(RaceSetupPair4,second,2);
 #endif

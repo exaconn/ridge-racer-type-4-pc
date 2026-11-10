@@ -1,45 +1,59 @@
 /* RODATA 0x800103c0 0x1c */
 #include "scratchpad.h"
+#include "rr/frame_storage_types.h"
 #include "rr/gpu.h"
 #include "psyq/libgpu/primattr.h"
 #include "psyq/libgpu/settrans.h"
 #include "rr/race_setup.h"
 #include "rr/hud_number.h"
 #include "rr/draw_environment.h"
-#include "game/gfx/drawbuf.h"
+#include "rr/overlay662_draw_area.h"
+#include "rr/animated_glyph.h"
+#include "game/ui/badge1.h"
 
 struct P { unsigned addr:24; unsigned len:8; unsigned char r, g, b, code; short x; unsigned short y; unsigned char u, v; unsigned short clut; short w, h; };
 
-extern int AddPrim();
+typedef struct {
+    u16 x00;
+    u16 y02;
+    u16 w04;
+    u16 h06;
+    u8 u08;
+    u8 pad09;
+    u8 v0A;
+    u8 pad0B;
+    u16 clut0C;
+    u16 pad0E;
+    s32 semiTrans10;
+} HudSpriteDef14;
+
 extern char D_8009EBBC[];
 extern char D_8009EB1C[];
 extern char D_8009EC48[];
 extern char D_800D0160[];
-extern int *AddDrawModePrim();
-extern int SetDrawArea();
 
-void InitHudSpritePacket(unsigned char *a0, unsigned char *a1);
+void InitHudSpritePacket(struct P *a0, HudSpriteDef14 *a1);
 void SubmitRaceHudPackets();
 void DrawDigitString12();
 void DrawDigitString8();
 void DrawDigitString16();
 
-void InitHudSpritePacket(unsigned char *a0, unsigned char *a1) {
-    a0[3] = 4;
-    a0[7] = 0x64;
-    *(unsigned short *)(a0 + 8) = *(unsigned short *)(a1 + 0);
-    *(unsigned short *)(a0 + 0xA) = *(unsigned short *)(a1 + 2);
-    *(unsigned short *)(a0 + 0x10) = *(unsigned short *)(a1 + 4);
-    *(unsigned short *)(a0 + 0x12) = *(unsigned short *)(a1 + 6);
-    a0[0xC] = a1[8];
-    a0[0xD] = a1[0xA];
-    *(unsigned short *)(a0 + 0xE) = *(unsigned short *)(a1 + 0xC);
-    if (*(int *)(a1 + 0x10) != 0) {
-        a0[7] |= 2;
+void InitHudSpritePacket(struct P *a0, HudSpriteDef14 *a1) {
+    ((u8 *)a0)[3] = 4;
+    a0->code = 0x64;
+    *(u16 *)&a0->x = a1->x00;
+    a0->y = a1->y02;
+    *(u16 *)&a0->w = a1->w04;
+    *(u16 *)&a0->h = a1->h06;
+    a0->u = a1->u08;
+    a0->v = a1->v0A;
+    a0->clut = a1->clut0C;
+    if (a1->semiTrans10 != 0) {
+        a0->code |= 2;
     } else {
-        a0[7] &= 0xFD;
+        a0->code &= 0xFD;
     }
-    a0[7] |= 1;
+    a0->code |= 1;
 }
 
 void InitRaceHudPackets(int a0)
@@ -64,11 +78,11 @@ void InitRaceHudPackets(int a0)
     case 3:
     case 4:
     case 6:
-        if (D_80107178 == 2 && a0 == 4) goto l60;
-        if (a0 != 6) { n = 12; goto l64; }
-    l60:
-        n = 6;
-    l64:
+        if ((D_80107178 == 2 && a0 == 4) || a0 == 6) {
+            n = 6;
+        } else {
+            n = 12;
+        }
         tab = D_8009EC48;
         break;
     }
@@ -82,35 +96,34 @@ void InitRaceHudPackets(int a0)
     }
 }
 
-void SubmitRaceHudPackets(a0) int a0;
-{
+void SubmitRaceHudPackets(int a0) {
     short sp[4];
     int *s0;
     int a1, d, t;
     int *v;
     int *s1;
-    if (a0 == 1) goto L68;
-    if (a0 < 2) goto L58;
-    if (a0 < 5) goto L7C;
-L58:
-    a1 = 4;
-    s0 = (int *)(CurrentDrawBuf + 0x70);
-    goto LC0;
-L68:
-    a1 = 8;
-    s0 = (int *)(CurrentDrawBuf + 0x70);
-    goto LC0;
-L7C:
-    if (D_80107178 != 2 || a0 != 3) {
-        if (a0 != 4) goto Lb4;
+    switch (a0) {
+    case 0:
+    default:
+        a1 = 4;
+        s0 = (int *)(&CurrentDrawBuf->buffer.ordering70.words[0]);
+        break;
+    case 1:
+        a1 = 8;
+        s0 = (int *)(&CurrentDrawBuf->buffer.ordering70.words[0]);
+        break;
+    case 2:
+    case 3:
+    case 4:
+        if ((D_80107178 == 2 && a0 == 3) || a0 == 4) {
+            a1 = 6;
+            s0 = (int *)(&CurrentDrawBuf->buffer.ordering70.words[0]);
+        } else {
+            a1 = 0xC;
+            s0 = (int *)(&CurrentDrawBuf->buffer.secondaryOrderingB70.words[0]);
+        }
+        break;
     }
-    a1 = 6;
-    s0 = (int *)(CurrentDrawBuf + 0x70);
-    goto LC0;
-Lb4:
-    a1 = 0xC;
-    s0 = (int *)(CurrentDrawBuf + 0xB70);
-LC0:
     d = CurrentDrawBuf;
     v = (int *)(a1 * 0x14 + d + 0x22674);
     *v = (*v & 0xFF000000) | (*s0 & 0xFFFFFF);
@@ -129,16 +142,8 @@ LC0:
     }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define CurrentDrawBuf ((char *)CurrentDrawBuf)
-
-void DrawDigitString12(a0, a1, a2, a3)
-s32 a0;
-s32 a1;
-u8 *a2;
-s32 a3;
-{
-    RrSpritePacketSignedClut *p = *(RrSpritePacketSignedClut **)SCRATCHPAD;
+void DrawDigitString12(s32 a0, s32 a1, u8 *a2, s32 a3) {
+    SpritePacketSignedClut *p = *(SpritePacketSignedClut **)SCRATCHPAD;
     s32 t;
     s32 kb;
     s16 c;
@@ -170,25 +175,19 @@ s32 a3;
             p->v = kb;
             p->code |= 1;
             p->clut = a3;
-            p->addr = ((RrSpritePacketSignedClut *)(CurrentDrawBuf + 0x70))->addr;
-            ((RrSpritePacketSignedClut *)(CurrentDrawBuf + 0x70))->addr = (u32)p;
+            p->addr = ((SpritePacketSignedClut *)(&CurrentDrawBuf->buffer.ordering70.words[0]))->addr;
+            ((SpritePacketSignedClut *)(&CurrentDrawBuf->buffer.ordering70.words[0]))->addr = p;
             p++;
         } while (*a2 != 0);
     }
     SetDrawMode(p, 0, 1, 5, 0);
-    AddPrim(CurrentDrawBuf + 0x70, p);
-    *(RrSpritePacketSignedClut **)SCRATCHPAD = (RrSpritePacketSignedClut *)((char *)p + 0xC);
+    AddPrim(&CurrentDrawBuf->buffer.ordering70.words[0], p);
+    *(SpritePacketSignedClut **)SCRATCHPAD = (SpritePacketSignedClut *)((char *)p + 0xC);
 }
 
-#undef CurrentDrawBuf
 
-/* legacy typing of shared globals in this part of the unit */
-#define AddDrawModePrim ((s32 (*)())AddDrawModePrim)
-
-void DrawDigitString8(a0, a1, a2, a3, a4)
-RrSpritePacket *a0; s32 a1; s32 a2; u8 *a3; s32 a4;
-{
-    RrSpritePacket *p = *(RrSpritePacket **)SCRATCHPAD;
+void DrawDigitString8(SpritePacket *a0, s32 a1, s32 a2, u8 *a3, s32 a4) {
+    SpritePacket *p = *(SpritePacket **)SCRATCHPAD;
     s32 c, u;
     s32 kb;
     kb = 0xB4;
@@ -210,21 +209,15 @@ RrSpritePacket *a0; s32 a1; s32 a2; u8 *a3; s32 a4;
             p->code |= 1;
             p->clut = a4;
             p->addr = a0->addr;
-            a0->addr = (u32)p;
+            a0->addr = p;
             p++;
         } while (*a3 != 0);
     }
     *(s32 *)SCRATCHPAD = AddDrawModePrim(a0, p, 5);
 }
 
-#undef AddDrawModePrim
 
-/* legacy typing of shared globals in this part of the unit */
-#define AddDrawModePrim ((int (*)())AddDrawModePrim)
-
-void DrawDigitString16(a0, a1, a2, a3)
-struct P *a0; int a1; int a2; unsigned char *a3;
-{
+void DrawDigitString16(struct P *a0, int a1, int a2, unsigned char *a3) {
     struct P *p = *(struct P **)SCRATCHPAD;
     int c, u, kh;
     if (*a3 != 0) {
@@ -251,11 +244,9 @@ struct P *a0; int a1; int a2; unsigned char *a3;
             SetSemiTrans(p, 1);
             { int v58 = 0x58; p->u = u; p->v = v58; p->clut = 0x7FA4; }
             p->addr = a0->addr;
-            a0->addr = (unsigned)p;
+            a0->addr = p;
             p++;
         } while (*a3 != 0);
     }
     *(int *)SCRATCHPAD = AddDrawModePrim(a0, p, 0x59);
 }
-
-#undef AddDrawModePrim

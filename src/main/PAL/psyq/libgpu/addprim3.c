@@ -1,7 +1,10 @@
 #include "psyq/libgpu/addprim3.h"
-void AddPrims(unsigned *ot, unsigned p, unsigned *q) {
-    register unsigned lo asm("$7") = 0xFFFFFF;
-    unsigned hi = 0xFF000000;
-    *q = (*q & hi) | (*ot & lo);
-    *ot = (*ot & hi) | (p & lo);
+#include "rr/gpu_address.h"
+
+void AddPrims(u32 *ordering, const void *first, u32 *last) {
+    /* ASM_BARRIER: retained original low-address-mask binding. */
+    register u32 lo asm("$7") = 0xFFFFFF;
+    u32 hi = 0xFF000000;
+    *last = (*last & hi) | (*ordering & lo);
+    *ordering = (*ordering & hi) | (GpuDmaEncodeAddress(first) & lo);
 }

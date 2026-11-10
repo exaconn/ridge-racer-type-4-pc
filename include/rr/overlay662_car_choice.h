@@ -8,7 +8,7 @@
 #include "rr/string_tail_copy.h"
 #include "rr/menu_glyph.h"
 #include "rr/diagnostics.h"
-extern RrCourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[2][9];
 extern s16 ovl662_D_801272E4,ovl662_D_801272BC,ovl662_D_801272E2;
 extern char ovl662_D_801272C8[12];
 extern const char ovl662_D_80114888[];

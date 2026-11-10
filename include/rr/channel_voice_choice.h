@@ -11,6 +11,6 @@ extern u8 D_8011010F;
  * unreserved ages increment modulo16 bits and the selected row is reset. */
 s32 _SsVmAlloc(void);
 
-RR_ASSERT_OFFSET(RrChannelControlRow36, age02, 2);
-RR_ASSERT_OFFSET(RrChannelControlRow36, priority1A, 0x1A);
+RR_ASSERT_OFFSET(ChannelControlRow36, age02, 2);
+RR_ASSERT_OFFSET(ChannelControlRow36, priority1A, 0x1A);
 #endif

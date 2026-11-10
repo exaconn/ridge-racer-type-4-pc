@@ -5,52 +5,40 @@
 #include "psyq/libcd/dsstrm32.h"
 
 extern const char DmaStatusErrorFmt[];
-extern volatile s32 *D_800A6888;
-extern volatile s32 *DICR;
+extern volatile s32 *D_800A6888, *DICR;
 extern void DebugPrintStub(const char *, ...);
-
-void mem2mem(int *d, int *s, unsigned n);
-void dma_execute(s32 ch, s32 madr, s32 bcr_hi, s32 bcr_lo, volatile s32 chcr, u8 flag_in);
-s32 rsin(s32 a);
 
 void mem2mem(int *d, int *s, unsigned n) {
     unsigned i;
     for (i = 0; i < n; i++) *d++ = *s++;
 }
 
-void dma_execute(s32 ch, s32 madr, s32 bcr_hi, s32 bcr_lo, volatile s32 chcr, u8 flag_in) {
+void dma_execute(s32 ch, s32 madr, s32 bcr_hi, s32 bcr_lo, s32 chcr, u8 flag_in) {
     volatile s32 dummy;
     s32 i = 0;
     /* ASM_BARRIER: pin p to a1 */
     register volatile s32 *p __asm__("$5");
-    /* ASM_BARRIER: pin cond to v0 */
-    register s32 cond __asm__("$2");
+    s32 cond;
     /* ASM_BARRIER: pin bit24 to v1 */
     register s32 bit24 __asm__("$3") = 0x01000000;
     s32 flag = flag_in;
 
-    p = (volatile s32 *)(ch << 4);
-    if ((cond = *(volatile s32 *)((s32)p + 0x1F801088) & bit24)) {
+    p = (void *)(ch << 4);
+    if ((cond = p[0x1F801088 / 4] & bit24)) {
         do {
-            /* ASM_BARRIER: keep v0 live at loop entry so beqz does not steal target insn */
-            __asm__ volatile("" : : "r"(cond));
             if (i == 0x10000) {
-                DebugPrintStub(DmaStatusErrorFmt, *(volatile s32 *)((s32)p + 0x1F801088));
+                DebugPrintStub(DmaStatusErrorFmt, p[0x1F801088 / 4]);
                 goto after_loop;
             }
             i++;
-        } while ((cond = *(volatile s32 *)((s32)p + 0x1F801088) & bit24));
+        } while ((cond = p[0x1F801088 / 4] & bit24));
         {
-            /* ASM_BARRIER: mark a2 unused before join label so reorg puts 0x10000 in beqz delay slot */
-            register s32 dead_a2 __asm__("$6");
-            /* ASM_BARRIER: materialize dead_a2 on normal loop exit */
-            __asm__ volatile("" : "=r"(dead_a2));
+            s32 dead_a2;
         }
     }
 after_loop:
     {
-        /* ASM_BARRIER: pin mask to v0 */
-        register s32 mask __asm__("$2") = 1;
+        s32 mask = 1;
         /* ASM_BARRIER: pin dicr to v1 */
         register u8 *dicr __asm__("$3");
         if (flag == mask) {
@@ -73,19 +61,15 @@ after_loop:
         /* ASM_BARRIER: pin bcr to v0 */
         register s32 bcr __asm__("$2");
         /* ASM_BARRIER: pin d88 to a0 */
-        register volatile s32 *d88 __asm__("$4");
+        register s32 *d88 __asm__("$4");
         /* ASM_BARRIER: prevent combining sll and addiu into ori */
         __asm__ volatile("" : "=r"(shift) : "0"(shift));
         shift += 3;
         mask3 = 1;
-        /* ASM_BARRIER: order addiu a2 before addiu v1 */
-        __asm__ volatile("" : "=r"(shift), "=r"(mask3) : "0"(shift), "1"(mask3));
         mask3 <<= shift;
-        p = (volatile s32 *)0x1F801080;
+        p = (void *)0x1F801080;
         bcr = ch << 4;
-        /* ASM_BARRIER: order lui/ori a1 before sll v0 */
-        __asm__ volatile("" : "=r"(p), "=r"(bcr), "=r"(mask3) : "0"(p), "1"(bcr), "2"(mask3));
-        p = (volatile s32 *)(bcr + (s32)p);
+        p = (void *)(bcr + (s32)p);
         /* ASM_BARRIER: prevent constant folding of p + 1 */
         __asm__ volatile("" : "=r"(p), "=r"(mask3) : "0"(p), "1"(mask3));
         d88 = D_800A6888;
@@ -109,7 +93,7 @@ s32 rsin(s32 a) {
     if (a >= 0) {
         r = sin_1(a & 0xFFF);
     } else {
-        r = -sin_1((0U - (u32)a) & 0xFFFU);
+        r = -sin_1((0U - a) & 0xFFFU);
     }
     return r;
 }

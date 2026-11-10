@@ -3,7 +3,9 @@
 
 #include "types.h"
 
-void func_80051B28(void);
-void func_80051B38(void);
+void EnableEngineSoundUpdates(void);
+void DisableEngineSoundUpdates(void);
+void SoundLoopUpdate(void);
+
 
 #endif /* RR_GAME_SOUND_SNDLOOP2_H */

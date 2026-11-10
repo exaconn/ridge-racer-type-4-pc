@@ -1,7 +1,7 @@
 #include "types.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define SoundState (*(RrAudioOwner (*))&SoundState)
+#define SoundState (*(AudioOwner (*))&SoundState)
 
 #undef SoundState
 

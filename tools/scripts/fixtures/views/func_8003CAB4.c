@@ -1,14 +1,14 @@
 #include "rr/race_types.h"
 
-extern s16 D_800F4D44;
+extern s16 GameModeType;
 
 extern void SetupRace();
 
-extern unsigned short D_8009F914[];
+extern unsigned short GameTypeSceneIds[];
 
-extern unsigned short D_800AD50A;
+extern unsigned short ActiveSceneId;
 
-void func_8003CAB4(void) {
+void SetupRaceAndSceneId(void) {
     SetupRace();
-    D_800AD50A = D_8009F914[D_800F4D44];
+    ActiveSceneId = GameTypeSceneIds[GameModeType];
 }

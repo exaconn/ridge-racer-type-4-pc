@@ -1,8 +1,13 @@
+#include "game/gfx/fontdraw.h"
+#include "rr/gpu_scratch_types.h"
+#include "game/data/bankrec.h"
+#include "rr/frame_storage_types.h"
+#include "rr/menu_state_types.h"
 /* RODATA 0x800106b0 0x1c */
 #include "types.h"
 #include "scratchpad.h"
 #include "rr/player_status.h"
-#include "m2c_macros.h"
+#include "game/race/raceai2.h"
 #include "game/race/racegrid.h"
 #include "game/sound/sndcmd.h"
 #include "game/system/pad.h"
@@ -14,26 +19,22 @@
 #include "rr/driver_control.h"
 #include "rr/menu_background.h"
 #include "rr/audio_loop.h"
+#include "game/menu/menu8.h"
 #include "game/data/globals.h"
-#include "game/gfx/drawbuf.h"
-
-typedef struct { int k; short f; } E;
-
-struct w3g2s { char pad[0x17]; signed char a; char b; signed char c; short d; };
+#include "rr/menu_setup.h"
+#include "game/ui/badge1.h"
+#include "rr/screen_tiles.h"
+#include "game/sound/sndctrl.h"
 
 extern int FileWrite();
 extern int LinkReadHandle;
 extern int LinkWriteHandle;
-extern int ClearScreenOverlayState();
 extern int VSyncThreshold;
 extern int ModeFrame;
 extern short D_800F3A26;
 extern short ModeGroup;
-extern short D_800F4D8A;
+extern unsigned short D_800F4D8A;
 extern short LinkState;
-extern int SetMenuFrameOptions();
-extern int ExitOnLinkLost();
-extern int UpdateLinkHandshake();
 extern s16 MenuScriptId;
 extern char D_800ABEBE[];
 extern char D_800AC648[];
@@ -42,31 +43,23 @@ extern char CourseIndex[];
 extern char NumLaps[];
 extern char D_800F4DA0[];
 extern char D_8010C0A0[];
-extern short D_800AD50A;
+extern short ActiveSceneId;
 extern short D_800FFC10;
-extern int AddTextSprites();
-extern int AddDrawModePrim();
-extern int AddTilePrim();
-extern int AddScreenFadeTiles();
 extern char StrLinkError[];
 extern char PressStartStr[];
 extern short D_800AC5D0;
 extern int D_800F3A60;
 extern char StrLinkBattleEnd[];
-extern char D_800106A4[];
-extern int SoundSetMasterVolume();
+extern char PressStartText[];
 extern s32 MaskBitSetting;
-extern int func_801150CC();
-extern int func_80117C78();
-extern int func_801154D8();
-extern int func_80118634();
-extern int func_80115388();
+extern void func_801150CC();
+extern void func_80117C78();
+extern void func_801154D8();
+extern void func_80118634();
+extern void func_80115388();
 extern int D_8010C0E0;
 extern char ScreenFadeState;
-extern int ResetScreenCounters();
-extern signed char SelectionState[];
-extern E *RankTable[];
-extern int CarRecordPtrs;
+extern MenuSettings2C SelectionState;
 extern int TotalRaceTime;
 extern unsigned char D_8009F72C[];
 
@@ -76,17 +69,15 @@ void LinkWaitModeUpdate(void);
 void LinkExchangeModeUpdate(void);
 void LinkErrorModeUpdate();
 void LinkBattleEndModeUpdate(void);
-void StopRaceRumble(void);
 void StopRaceAudioAndRumble(void);
-void func_80036098(void);
-void func_80036174(void);
-void func_80036270(void);
-void func_80036330(void);
+void RaceAbortToMenuUpdate(void);
+void InitPostRaceScreen(void);
+void PostRaceScreenModeUpdate(void);
+void EvaluateGpQualifyingResult(void);
 void SortRaceRankTable(void);
 void EnterRaceResultScreen(void);
-void func_800365BC(void);
+void SortRankAndShowResults(void);
 void SortRankAndEnterResults(void);
-void FinishRace(void);
 
 void DrawLinkEntryScreen(s32 mode) {
     u8 text[4];
@@ -98,7 +89,7 @@ void DrawLinkEntryScreen(s32 mode) {
         /* Integer cursor retains native pointer width. Only the four in-owner
          * addresses are converted back to pointers; the final decrement is dead. */
         row=3;
-        address=(unsigned long)&text[3];
+        address=&text[3];
         do {
             *(u8*)address=0;
             row--;
@@ -109,7 +100,7 @@ void DrawLinkEntryScreen(s32 mode) {
             labelY=row*194+64;
             waitY=row*194+150;
             statusY=row*194+120;
-            text[0]=row+((s32)((u32)(D_800AD508^1)<<16)>>15)+49;
+            text[0]=row+((s32)((D_800AD508^1) * 0x10000U)>>15)+49;
             DrawBigFontString(12,labelY,StrPlayerLabel);
             DrawBigFontString(88,labelY,text);
             status=LinkEntryState[1-mode][row];
@@ -132,26 +123,21 @@ void DrawLinkEntryScreen(s32 mode) {
         text[1]=row%10+48;
         DrawBigFontString(44,244,text);
         DrawBigFontString(32,244,SecondsUntilCloseText);
-        remaining=(s32)(500U-(u32)RaceTimeRemaining);
-        DrawBigFontString(((s32)((u32)remaining<<8)/500)+32,224,D_80010674);
+        remaining=(500U-RaceTimeRemaining);
+        DrawBigFontString(((s32)(remaining * 0x100U)/500)+32,224,D_80010674);
     }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800AD508 (*(short (*))&D_800AD508)
-
-int LinkExchange(a0, a1, a2, a3) int a0, a1, a2, a3;
-{
+int LinkExchange(int a0, int a1, int a2, int a3) {
     int r;
-    if (D_800AD508 != 0) {
+    if (*(short *)&D_800AD508 != 0) {
         r = -1;
         if (FileWrite(LinkWriteHandle) == a2) {
-            if (a3 != 0) {
-                if (FileRead(LinkReadHandle, a0, a2) == a2) goto zero;
-neg:
-                return -1;
+            if (a3 == 0 || FileRead(LinkReadHandle, a0, a2) == a2) {
+                return 0;
             }
-            goto zero;
+neg:
+            return -1;
         }
         return r;
     }
@@ -160,23 +146,17 @@ neg:
         r = -1;
         if (FileWrite(LinkWriteHandle, a0, a2) != a2) return r;
     }
-zero:
     return 0;
 }
-
-#undef D_800AD508
-
-/* legacy typing of shared globals in this part of the unit */
-#define LinkEntryState (*(char (*)[])&LinkEntryState)
 
 void LinkWaitModeEnter(void) {
     unsigned a;
     SetDispMask(0);
     SetupDrawDispEnvs(0, 0, 0, 2);
-    LinkEntryState[0] = 1;
-    LinkEntryState[1] = 0;
-    LinkEntryState[2] = 1;
-    LinkEntryState[3] = 0;
+    LinkEntryState[0][0] = 1;
+    LinkEntryState[0][1] = 0;
+    LinkEntryState[1][0] = 1;
+    LinkEntryState[1][1] = 0;
     ClearScreenOverlayState();
     RaceTimeRemaining = 0x1F4;
     ModeFrame = 0;
@@ -195,11 +175,6 @@ void LinkWaitModeEnter(void) {
     }
 }
 
-#undef LinkEntryState
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800AD508 (*(s16 (*))&D_800AD508)
-
 void LinkWaitModeUpdate(void) {
     ModeFrame += 1;
     if (ExitOnLinkLost() != 1) {
@@ -209,72 +184,59 @@ void LinkWaitModeUpdate(void) {
             D_800F3A26 = 0x23;
             D_800F4D8A = 0;
         }
-        DrawLinkEntryScreen(D_800AD508);
-        AddPartialLine(CurrentDrawBuf + 0x70, 8, 0xF0, 0x138, 0xF0, ModeFrame * 8, 1, 8, 8, 8, 0);
-        AddPartialLine(CurrentDrawBuf + 0x70, 8, 0x10C, 0x138, 0x10C, ModeFrame * 8, 1, 8, 8, 8, 0);
+        DrawLinkEntryScreen((s16)D_800AD508);
+        AddPartialLine(&CurrentDrawBuf->buffer.ordering70.words[0], 8, 0xF0, 0x138, 0xF0, ModeFrame * 8, 1, 8, 8, 8, 0);
+        AddPartialLine(&CurrentDrawBuf->buffer.ordering70.words[0], 8, 0x10C, 0x138, 0x10C, ModeFrame * 8, 1, 8, 8, 8, 0);
         SetMenuFrameOptions(1, 1, 1);
         UpdateScreenFade(0x1003E);
     }
 }
 
-#undef D_800AD508
-
 void LinkExchangeModeUpdate(void) {
-    int s = LinkState;
-    if (s == 1) goto st1;
-    if (s < 2) {
-        if (s == 0) goto st0;
-        goto other;
+    switch (LinkState) {
+    case 0:
+        SetDispMask(0);
+        OpenLinkSerial();
+        _sio_control(3, 0, 0);
+        _sio_control(5, 0, 0);
+        _sio_control(3, 0, 0);
+        LinkState = 1;
+        return;
+    case 1:
+        if (LinkExchange(D_800ABEBE, D_800ABEBE - 2, 2, 1) == -1) { LinkState = 3; return; }
+        if (LinkExchange(D_8010C0A0, D_8010C0A0 - 0x18, 0x18, 1) == -1) { LinkState = 3; return; }
+        if (LinkExchange(D_800F4DA0, D_800F4DA0 - 8, 8, 1) == -1) { LinkState = 3; return; }
+        if (LinkExchange(D_800ACBD8, D_800ACBD8 - 8, 8, 1) == -1) { LinkState = 3; return; }
+        if (LinkExchange(CourseIndex, CourseIndex, 2, 0) == -1) { LinkState = 3; return; }
+        if (LinkExchange(D_800AC648, D_800AC648, 2, 0) == -1) { LinkState = 3; return; }
+        if (LinkExchange(NumLaps, NumLaps, 4, 0) == -1) { LinkState = 3; return; }
+        LinkState = 2;
+        CloseLinkSerial();
+        SetDispMask(1);
+        return;
+    case 2:
+        _sio_control(3, 0, 0);
+        D_800FFC10 = 0;
+        MenuScriptId = 0xA;
+        ActiveSceneId = 0x11A;
+        ModeGroup = 1;
+        D_800F3A26 = 0x23;
+        D_800F4D8A = 0;
+        return;
+    default:
+        CloseLinkSerial();
+        SetDispMask(1);
+        ModeGroup = 1;
+        D_800F3A26 = 0x2C;
+        D_800F4D8A = 0;
+        break;
     }
-    if (s == 2) goto st2;
-    goto other;
-st0:
-    SetDispMask(0);
-    OpenLinkSerial();
-    _sio_control(3, 0, 0);
-    _sio_control(5, 0, 0);
-    _sio_control(3, 0, 0);
-    LinkState = 1;
-    return;
-st1:
-    if (LinkExchange(D_800ABEBE, D_800ABEBE - 2, 2, 1) == -1) { LinkState = 3; return; }
-    if (LinkExchange(D_8010C0A0, D_8010C0A0 - 0x18, 0x18, 1) == -1) { LinkState = 3; return; }
-    if (LinkExchange(D_800F4DA0, D_800F4DA0 - 8, 8, 1) == -1) { LinkState = 3; return; }
-    if (LinkExchange(D_800ACBD8, D_800ACBD8 - 8, 8, 1) == -1) { LinkState = 3; return; }
-    if (LinkExchange(CourseIndex, CourseIndex, 2, 0) == -1) { LinkState = 3; return; }
-    if (LinkExchange(D_800AC648, D_800AC648, 2, 0) == -1) { LinkState = 3; return; }
-    if (LinkExchange(NumLaps, NumLaps, 4, 0) == -1) { LinkState = 3; return; }
-    LinkState = 2;
-    CloseLinkSerial();
-    SetDispMask(1);
-    return;
-st2:
-    _sio_control(3, 0, 0);
-    D_800FFC10 = 0;
-    MenuScriptId = 0xA;
-    D_800AD50A = 0x11A;
-    ModeGroup = 1;
-    D_800F3A26 = 0x23;
-    D_800F4D8A = 0;
-    return;
-other:
-    CloseLinkSerial();
-    SetDispMask(1);
-    ModeGroup = 1;
-    D_800F3A26 = 0x2C;
-    D_800F4D8A = 0;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define ModeFrame (*(unsigned int (*))&ModeFrame)
-#define D_800F3A26 (*(unsigned short (*))&D_800F3A26)
-#define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
-
-void LinkErrorModeUpdate()
-{
-  int s3 = D_800F4D8A;
-  unsigned int new_var;
-  int *g;
+void LinkErrorModeUpdate(void) {
+  int s3 = (unsigned short)D_800F4D8A;
+  void *new_var;
+  GpuScratchPointers *g;
   switch (s3)
   {
     case 0:
@@ -294,12 +256,12 @@ void LinkErrorModeUpdate()
     case 2:
       ModeFrame += 1;
       _sio_control(1, 1, 0);
-      g = (int *) SCRATCHPAD;
-      new_var = *g;
-      *g = AddDrawModePrim(CurrentDrawBuf + 0x70, AddTilePrim(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, new_var, 0x78, 0x100, StrLinkError, 0x7F38, 0, 1), 0x78, 0x114, PressStartStr, 0x7F38, 0, 1), 0, 0, 0x140, 0x200, 0x80, 0, 0), 0x5E);
+      g = (GpuScratchPointers *)SCRATCHPAD;
+      new_var = g->cursor;
+      g->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], new_var, 0x78, 0x100, StrLinkError, 0x7F38, 0, 1), 0x78, 0x114, PressStartStr, 0x7F38, 0, 1), 0, 0, 0x140, 0x200, 0x80, 0, 0), 0x5E);
       if (D_800F3A60 == 0)
     {
-      if (ModeFrame < 0xFB)
+      if (ModeFrame < 0xFBU)
       {
         return;
       }
@@ -313,8 +275,8 @@ void LinkErrorModeUpdate()
     {
       D_800AC5D0 = ((unsigned short) D_800AC5D0) - 1;
     }
-      AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x20 - D_800AC5D0) * 8, 0x45);
-      *((int *) SCRATCHPAD) = AddTilePrim(CurrentDrawBuf + 0x74, *((int *) SCRATCHPAD), 0, 0, 0x140, 0x200, (0x20 - D_800AC5D0) * 4, 0, 0);
+      AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x20 - D_800AC5D0) * 8, 0x45);
+      ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[1], ((GpuScratchPointers *)SCRATCHPAD)->cursor, 0, 0, 0x140, 0x200, (0x20 - D_800AC5D0) * 4, 0, 0);
       if (D_800AC5D0 <= 0)
     {
       ModeGroup = 1;
@@ -327,18 +289,10 @@ void LinkErrorModeUpdate()
 
 }
 
-#undef ModeFrame
-#undef D_800F3A26
-#undef D_800F4D8A
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
-#define ModeFrame (*(unsigned int (*))&ModeFrame)
-
 void LinkBattleEndModeUpdate(void)
 {
-  int s = D_800F4D8A;
-  int new_var;
+  int s = (unsigned short)D_800F4D8A;
+  void *new_var;
   switch (s)
   {
     case 0:
@@ -356,11 +310,11 @@ void LinkBattleEndModeUpdate(void)
 
     case 2:
       ModeFrame++;
-      new_var = *((int *) SCRATCHPAD);
-      *((int *) SCRATCHPAD) = AddDrawModePrim(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, new_var, 0x78, 0x100, StrLinkBattleEnd, 0x7F38, 0, 1), 0x78, 0x114, D_800106A4, 0x7F38, 0, 1), 0x3E);
+      new_var = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
+      ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], new_var, 0x78, 0x100, StrLinkBattleEnd, 0x7F38, 0, 1), 0x78, 0x114, PressStartText, 0x7F38, 0, 1), 0x3E);
       if (D_800F3A60 == 0)
     {
-      if (ModeFrame < 0xFB)
+      if (ModeFrame < 0xFBU)
       {
         return;
       }
@@ -374,7 +328,7 @@ void LinkBattleEndModeUpdate(void)
     {
       D_800AC5D0 = D_800AC5D0 - 1;
     }
-      AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x20 - D_800AC5D0) * 8, 0x45);
+      AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x20 - D_800AC5D0) * 8, 0x45);
       if (D_800AC5D0 <= 0)
     {
       ModeGroup = 1;
@@ -386,9 +340,6 @@ void LinkBattleEndModeUpdate(void)
   }
 
 }
-
-#undef D_800F4D8A
-#undef ModeFrame
 
 void StopRaceRumble(void) {
     PadRumbleStop(0);
@@ -403,84 +354,68 @@ void StopRaceAudioAndRumble(void) {
     MaskBitSetting = 0;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
-
-void func_80036098(void) {
-    if (D_800F4D8A == 0) {
+void RaceAbortToMenuUpdate(void) {
+    if ((unsigned short)D_800F4D8A == 0) {
         SetDispMask(0);
         StopRaceAudioAndRumble();
         VSyncThreshold = 0x80;
         D_800F4D8A = 1;
-    } else if (D_800F4D8A == 1) {
+    } else if ((unsigned short)D_800F4D8A == 1) {
         D_800F4D8A = 2;
-    } else if (D_800F4D8A == 2) {
+    } else if ((unsigned short)D_800F4D8A == 2) {
         MenuScriptId = 6;
         ModeGroup = 1;
         D_800F3A26 = 0x23;
         D_800F4D8A = 0;
     }
-    *(int *)SCRATCHPAD = AddTilePrim(CurrentDrawBuf + 0x70, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x100, 8, 8, 8);
+    *(int *)SCRATCHPAD = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], *(int *)SCRATCHPAD, 0, 0, 0x140, 0x100, 8, 8, 8);
 }
 
-#undef D_800F4D8A
-
-void func_80036174(void) {
+void InitPostRaceScreen(void) {
     SetupDrawDispEnvs(0, 0, 0, 2);
     VSyncThreshold = 0x80;
     ModeFrame = 0;
     D_8010C0E0 = 0;
     ScreenFadeState = 2;
     SoundCloseVabsAndReset();
-    switch (D_800F4D44) {
+    switch (GameModeType) {
     case 1:
         func_801150CC();
-        D_800AD50A = 0x130;
+        ActiveSceneId = 0x130;
         break;
     case 2:
     case 3:
         func_80117C78();
-        D_800AD50A = 0x13A;
+        ActiveSceneId = 0x13A;
         break;
     case 0:
         func_801154D8();
-        D_800AD50A = 0x136;
+        ActiveSceneId = 0x136;
         break;
     case 4:
         func_80118634();
-        D_800AD50A = 0x13E;
+        ActiveSceneId = 0x13E;
         break;
     case 6:
         func_80115388();
-        D_800AD50A = 0x153;
+        ActiveSceneId = 0x153;
         break;
     default:
-        D_800AD50A = 0x103;
+        ActiveSceneId = 0x103;
         break;
     }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define ModeFrame (*(u32 (*))&ModeFrame)
-
-void func_80036270(void) {
+void PostRaceScreenModeUpdate(void) {
     s32 temp_s0;
 
     ModeFrame += 1;
     UpdateScreenFade(1);
-    if ((u32) ModeFrame < 0x1C2U) {
-        if (D_800F3A60 != 0) {
-            goto block_2;
-        }
-        goto block_5;
-    }
-block_2:
-    if (D_8010C0E0 <= 0) {
+    if ((ModeFrame >= 0x1C2U || D_800F3A60 != 0) && D_8010C0E0 <= 0) {
         D_8010C0E0 += 1;
         ModeFrame = 0;
         return;
     }
-block_5:
     temp_s0 = D_8010C0E0;
     if (temp_s0 == 1) {
         if (D_800F3A60 != 0) {
@@ -493,42 +428,41 @@ block_5:
     }
 }
 
-#undef ModeFrame
-
-void func_80036330(void) {
-    int a2;
-    int a0;
-    int a1;
-    a2 = CarRecordPtrs + 0x1E8;
-    if (D_800AD4EF >= 0) {
-        a1 = 0;
-        if (D_800AD4EF >= 2) {
-            a1 = 2;
-            if (D_800AD4EF >= 4) {
-                goto b3;
+void EvaluateGpQualifyingResult(void) {
+    const s32 *targetFrames;
+    const s32 *selectedTime;
+    int rankIndex;
+    int stageBase;
+    targetFrames = CarRecordPtrs[0]->targetFrames1E8;
+    if (SelectionState.phase17 >= 0) {
+        stageBase = 0;
+        if (SelectionState.phase17 >= 2) {
+            stageBase = 2;
+            if (SelectionState.phase17 >= 4) {
+                stageBase = 4;
             }
         }
     } else {
-b3:
-        a1 = 4;
+        stageBase = 4;
     }
-    a0 = 0;
+    rankIndex = 0;
     do {
-        if (RankTable[a0]->f == 0) {
-            SelectionState[SelectionState[0x17]] = a0 + 1;
-            if (a0 == 0) {
-                if (a1 < 4) {
-                    if (FramesToMilliseconds(*(int *)(a2 + ((SelectionState[0x17] - a1) << 2)), 0, a2) > TotalRaceTime) {
-                        SelectionState[SelectionState[0x17]] = 0;
+        if (RankTable[rankIndex]->carIndex04 == 0) {
+            SelectionState.results00[SelectionState.phase17] = rankIndex + 1;
+            if (rankIndex == 0) {
+                if (stageBase < 4) {
+                    selectedTime = targetFrames + (SelectionState.phase17 - stageBase);
+                    if (FramesToMilliseconds(*selectedTime, 0) > TotalRaceTime) {
+                        SelectionState.results00[SelectionState.phase17] = 0;
                     }
                 }
             }
             break;
         }
-        a0 += 1;
-    } while (a0 < 8);
-    if (SelectionState[0x19] < 9) {
-        SelectionState[0x19] = SelectionState[SelectionState[0x17]];
+        rankIndex += 1;
+    } while (rankIndex < 8);
+    if (SelectionState.result19 < 9) {
+        SelectionState.result19 = SelectionState.results00[SelectionState.phase17];
     }
 }
 
@@ -537,39 +471,34 @@ void SortRaceRankTable(void) {
     int t[2];
     for (i = 0; i < 7; i++) {
         for (j = 7; i < j; j--) {
-            t[0] = RankTable[j - 1]->k;
-            t[1] = RankTable[j]->k;
-            if (t[0] < t[1] || (t[0] == t[1] && RankTable[j]->f == 0)) {
-                E *x = RankTable[j - 1];
-                E *y = RankTable[j];
+            t[0] = RankTable[j - 1]->score00;
+            t[1] = RankTable[j]->score00;
+            if (t[0] < t[1] || (t[0] == t[1] && RankTable[j]->carIndex04 == 0)) {
+                RankEntry8 *x = RankTable[j - 1];
+                RankEntry8 *y = RankTable[j];
                 RankTable[j] = x;
                 RankTable[j - 1] = y;
             }
         }
     }
-    if (D_800F4D44 == 1) {
-        func_80036330();
+    if (GameModeType == 1) {
+        EvaluateGpQualifyingResult();
     }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define SelectionState (*(struct w3g2s (*))&SelectionState)
-
 void EnterRaceResultScreen(void) {
-    struct w3g2s *p;
-    if (D_800F4D44 == 1) {
+    MenuSettings2C *p;
+    if (GameModeType == 1) {
         p = &SelectionState;
-        if (p->c > D_8009F72C[p->a / 2]) p->d = 5;
-        else p->d = 4;
+        if (p->result19 > D_8009F72C[p->phase17 / 2]) p->mode1A = 5;
+        else p->mode1A = 4;
     }
     ModeGroup = 1;
     D_800F3A26 = 0x17;
     D_800F4D8A = 0;
 }
 
-#undef SelectionState
-
-void func_800365BC(void) {
+void SortRankAndShowResults(void) {
     SortRaceRankTable();
     EnterRaceResultScreen();
 }

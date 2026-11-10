@@ -19,10 +19,10 @@ C=r'''
 #include <stdio.h>
 #include <string.h>
 #include "rr/overlay668_track_project.h"
-static struct {u8 pre[16];RrReplayCameraContextPrefix c;u8 post[16];} camera;
-static struct {u8 pre[16];RrTrackSample3C table[3][8];u8 post[16];} samples,saved;
+static struct {u8 pre[16];ReplayCameraContextPrefix c;u8 post[16];} camera;
+static struct {u8 pre[16];TrackSample3C table[3][8];u8 post[16];} samples,saved;
 #define RaceContext camera.c
-RrTrackSample3C *TrackNodes;
+TrackSample3C *TrackNodes;
 s32 TrackNodeCount;
 static u8 expected[0x4B8];
 static unsigned scenario,event;
@@ -42,7 +42,7 @@ s32 FindTrackNode(s32 *position,s32 node,s32 n){
  for(i=0;i<3;i++)position[i]=word(0xDEADBEEF+i);
  return scenario%8;
 }
-void ProjectToTrackSegment(RrTrackOffsetArgument x,RrTrackOffsetArgument z,s32 node,s16 *fraction,s16 *lateral,s32 *height){
+void ProjectToTrackSegment(TrackOffsetArgument x,TrackOffsetArgument z,s32 node,s16 *fraction,s16 *lateral,s32 *height){
  s16 a,b;u32 n=scenario%8;
  assert(event++==1&&node==(s32)n&&fraction==&camera.c.fraction49C&&lateral==&camera.c.lateral49E);
  memcpy(expected+0x498,&n,4);check();assert((uintptr_t)height>UINT32_MAX);
@@ -55,7 +55,7 @@ void ProjectToTrackSegment(RrTrackOffsetArgument x,RrTrackOffsetArgument z,s32 n
 '''
 TAIL=r'''
 int main(void){unsigned i,b,j;_Static_assert(sizeof(void*)==8,"full native pointers");
- _Static_assert(sizeof(RrTrackOffsetArgument)==4&&_Alignof(RrTrackOffsetArgument)==2,"PAL aggregate ABI");
+ _Static_assert(sizeof(TrackOffsetArgument)==4&&_Alignof(TrackOffsetArgument)==2,"PAL aggregate ABI");
  for(scenario=0;scenario<512;scenario++){
   memset(&camera,0xA5,sizeof camera);memset(&samples,0x5A,sizeof samples);change(0);
   for(i=0;i<3;i++)camera.c.position450[i]=initial[i]=values[(scenario+i*3)%8];

@@ -1,8 +1,9 @@
 #ifndef RR_PSYQ_LIBGTE_GTEMAT2_H
 #define RR_PSYQ_LIBGTE_GTEMAT2_H
 
-#include "types.h"
+#include "rr/matrix_words.h"
 
-int *MulRotMatrix0(unsigned short *a0, int *a1);
+/* Multiply by the current GTE rotation; retain output's translation words. */
+MatrixWords32 *MulRotMatrix0(const MatrixWords32 *right, MatrixWords32 *output);
 
 #endif /* RR_PSYQ_LIBGTE_GTEMAT2_H */

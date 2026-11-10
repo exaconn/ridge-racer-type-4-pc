@@ -22,8 +22,8 @@ class Overlay662BaseToolTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_tool_action.h"
 #include "rr/audio_pan.h"
-_Static_assert(sizeof(RrGarageWorkingStorage)==64,"complete work owner");
-static struct World {u32 guard[4];RrGarageSelectionPrefix garage;RrGarageWorkingStorage work;RrGarageRectangle rects[46],*table[46];u32 tail[4];} world,expected,map_checkpoint,sound_checkpoint,root_checkpoint;
+_Static_assert(sizeof(GarageWorkingStorage)==64,"complete work owner");
+static struct World {u32 guard[4];GarageSelectionPrefix garage;GarageWorkingStorage work;GarageRectangle rects[46],*table[46];u32 tail[4];} world,expected,map_checkpoint,sound_checkpoint,root_checkpoint;
 static unsigned scenario,expected_map,expected_sound,expected_root,map_calls,sound_calls,root_calls;
 static s32 mapped_mode,root_argument,root_result;
 #define ovl662_D_801276A8 world.garage
@@ -45,7 +45,7 @@ void TriggerSfx(s32 program,s32 level,s32 pan,s32 pitch,s32 voice){
  assert(expected_sound==1&&sound_calls++==0);assert(program==1&&level==127&&pan==64&&pitch==0x1E00&&voice==-1);
  assert(memcmp(&world,&sound_checkpoint,sizeof(world))==0);sound_effect(&world);
 }
-s32 func_80090758(s32 squared){assert(expected_root==1&&root_calls++==0&&squared==root_argument);assert(memcmp(&world,&root_checkpoint,sizeof(world))==0);root_effect(&world);return root_result;}
+s32 CordicSqrt(s32 squared){assert(expected_root==1&&root_calls++==0&&squared==root_argument);assert(memcmp(&world,&root_checkpoint,sizeof(world))==0);root_effect(&world);return root_result;}
 static void reference(s32 mode){unsigned j;
  if(mode<0){expected.garage.optionIndices98.flat[0]=4;return;}
  if(mode>0){
@@ -72,7 +72,7 @@ int main(void){unsigned path,j,k;uint64_t cases=0;
   for(j=0;j<16;j++)world.work.words[j]=next();world.work.words[0]=0xA5510000U|((scenario&1)?4U:0U);world.work.words[1]=0xABC00000U|((scenario&2)?1U:0U);
   for(j=0;j<46;j++){world.table[j]=&world.rects[j];for(k=0;k<4;k++)world.rects[j][k]=(u16)next();}
   world.rects[9][0]=world.rects[9][1]=0;world.rects[9][2]=320;world.rects[9][3]=480;
-  world.work.points.cursor14=(RrGaragePoint){(scenario&4)?146:-1,199};
+  world.work.points.cursor14=(GaragePoint){(scenario&4)?146:-1,199};
   switch(path){case 0:mode=word(0x80000000U|scenario|(scenario<<16));break;case 1:mode=0;break;case 2:mode=1;break;case 3:mode=2;break;case 4:mode=4;break;case 5:mode=8;break;case 6:mode=3;break;default:mode=scenario%4==0?65536:scenario%4==1?INT32_MAX:word(next());break;}
   expected_map=expected_sound=expected_root=map_calls=sound_calls=root_calls=0;
   memcpy(&expected,&world,sizeof(world));reference(mode);ovl662_func_8011FE84(mode);

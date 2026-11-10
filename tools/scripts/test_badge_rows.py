@@ -12,7 +12,8 @@ class BadgeRowsTest(unittest.TestCase):
         def header(name):
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',
                           (ROOT/'include/rr'/name).read_text(),flags=re.M)
-        body=(ROOT/'tools/scripts/fixtures/views/func_80030BEC.c').read_text()
+        from c_functions import definition_source, source_owners
+        body=definition_source(source_owners(ROOT/'src/main/PAL')['EmitBadgePatternSprites'].read_text(),'EmitBadgePatternSprites')
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r' asm\("\$\d+"\)','',body)
         body=re.sub(r'__asm__\("".*?\);',';',body)
@@ -38,6 +39,7 @@ class BadgeRowsTest(unittest.TestCase):
             return ','.join(str(x) for x in exe[start:start+size])
         code=r'''
 #include <assert.h>
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -45,13 +47,13 @@ class BadgeRowsTest(unittest.TestCase):
 #include <string.h>
 #include "types.h"
 '''+''.join(header(n) for n in ['gpu_scratch_types.h','gpu.h','ui_bar.h','animated_sprite_grid.h','icon_sprites.h','badge_row_types.h','badge_rows.h'])+r'''
-typedef union {u8 bytes[0x4000];struct {u8 pad[0x80];RrIconSpriteContext *value;} slot;} ContextPage;
-typedef union {u8 bytes[0x4000];struct {u8 pad[0x3B00];RrBadgeRow1C *value;} slot;} RowPage;
+typedef union {u8 bytes[0x4000];struct {u8 pad[0x80];FrameStorage *value;} slot;} ContextPage;
+typedef union {u8 bytes[0x4000];struct {u8 pad[0x3B00];BadgeRow1C *value;} slot;} RowPage;
 typedef struct {int kind;u32 *head;void *cursor;s32 args[10];} Call;
 typedef struct {
  ContextPage context_page;RowPage row_page;
- RrBadgeRow1C rows[2][12];RrIconSpriteContext contexts[2];
- s8 patterns[320];RrUiUvRect uv[260];
+ BadgeRow1C rows[2][12];FrameStorage contexts[2];
+ s8 patterns[320];UiUvRect uv[260];
  u8 arena[2048] __attribute__((aligned(8)));
  unsigned calls;Call trace[14];u8 suffix[32];
 } World;
@@ -80,7 +82,7 @@ static void hook(World *w,unsigned call) {
  for(int j=0;j<260;j++) {
   u8 *p=(u8 *)&w->uv[j];for(int k=0;k<4;k++)p[k]=mixed(key+j*4+k);
  }
- w->contexts[0].head70^=key;w->contexts[1].head70^=key>>3;
+ w->contexts[0].buffer.ordering70.words[0]^=key;w->contexts[1].buffer.ordering70.words[0]^=key>>3;
 }
 static void *emit(World *w,int kind,u32 *head,void *cursor,const s32 *args,int count) {
  unsigned call=w->calls++;assert(call<14);
@@ -98,7 +100,8 @@ static void *emit(World *w,int kind,u32 *head,void *cursor,const s32 *args,int c
 void *AddTilePrim(u32 *h,void *p,s32 x,s32 y,s32 w,s32 height,s32 r,s32 g,s32 b) {
  s32 a[]={x,y,w,height,r,g,b};return emit(actual,0,h,p,a,7);
 }
-void *AddSpriteWithDrawMode(u32 *h,void *p,s32 x,s32 y,s32 w,s32 height,s32 u,s32 v,u16 mode,u16 clut,u16 semi,u16 color) {
+void *AddSpriteWithDrawMode(u32 *h,void *p,s32 x,s32 y,s32 w,s32 height,s32 u,s32 v,u16 mode,u16 clut,s32 semiWord,s32 colorWord) {
+ u16 semi=(u16)semiWord,color=(u16)colorWord;
  s32 a[]={x,y,w,height,u,v,mode,clut,semi,color};return emit(actual,1,h,p,a,10);
 }
 void *AddDrawAreaPrim(u32 *h,void *p,s32 x,s32 y,s32 w,s32 height) {
@@ -107,19 +110,19 @@ void *AddDrawAreaPrim(u32 *h,void *p,s32 x,s32 y,s32 w,s32 height) {
 static void *reference(void *cursor,s32 style,s32 index) {
  for(int i=0;i<5;i++) {
   s8 *q=expected->patterns+16+style*8+i;s32 shift=q[4],glyph=q[0];
-  RrBadgeRow1C *p=(RrBadgeRow1C *)mapped(expected->row_page.slot.value+index+i,28);
-  u32 *head=&expected->context_page.slot.value->head70;
+  BadgeRow1C *p=(BadgeRow1C *)mapped(expected->row_page.slot.value+index+i,28);
+  u32 *head=&expected->context_page.slot.value->buffer.ordering70.words[0];
   s32 a[]={p->x08,(s32)p->y0A+p->extent0E-2,248,2,8,8,8};
   cursor=emit(expected,0,head,cursor,a,7);
   if(i<4) {
-   RrUiUvRect *uv=expected->uv+128+glyph;
-   p=(RrBadgeRow1C *)mapped(expected->row_page.slot.value+index+i,28);
-   head=&expected->context_page.slot.value->head70;
+   UiUvRect *uv=expected->uv+128+glyph;
+   p=(BadgeRow1C *)mapped(expected->row_page.slot.value+index+i,28);
+   head=&expected->context_page.slot.value->buffer.ordering70.words[0];
    s32 b[]={(s32)p->x08+shift,(s32)p->y06-2,uv->w,uv->h,uv->u,uv->v,74,0x2E28,1,128};
    cursor=emit(expected,1,head,cursor,b,10);
   }
-  p=(RrBadgeRow1C *)mapped(expected->row_page.slot.value+index+i,28);
-  head=&expected->context_page.slot.value->head70;
+  p=(BadgeRow1C *)mapped(expected->row_page.slot.value+index+i,28);
+  head=&expected->context_page.slot.value->buffer.ordering70.words[0];
   s32 c[]={p->x14,p->y16,p->w18,p->h1A};
   cursor=emit(expected,2,head,cursor,c,4);
  }
@@ -164,7 +167,7 @@ static void check_sprite_abi(void) {
  }
 }
 int main(void) {
- assert(sizeof(RrBadgeRow1C)==28);
+ assert(sizeof(BadgeRow1C)==28);
  assert(offsetof(ContextPage,slot.value)==0x80 && offsetof(RowPage,slot.value)==0x3B00);
  actual=malloc(sizeof(*actual));expected=malloc(sizeof(*expected));assert(actual&&expected);
  for(iteration=0;iteration<32768;iteration++) {
@@ -179,7 +182,7 @@ int main(void) {
   }
   void *start=iteration&1?(void *)(actual->arena+32):(void *)&actual->rows[0][2];
   memcpy(expected,actual,sizeof(*actual));
-  void *want=reference(start,style,index),*got=func_80030BEC(start,style,index);
+  void *want=reference(start,style,index),*got=EmitBadgePatternSprites(start,style,index);
   assert(got==want && actual->calls==14);
   if(memcmp(actual,expected,sizeof(*actual))){fprintf(stderr,"row case %u failed\n",iteration);abort();}
  }

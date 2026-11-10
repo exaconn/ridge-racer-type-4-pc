@@ -21,7 +21,7 @@ struct GpuQueue {
     int buf[21];
 };
 
-extern struct GpuSys D_800ABAC0;
+extern struct GpuSys GpuResetState;
 
 extern int D_800ABACC;
 
@@ -35,7 +35,7 @@ extern volatile int _qout;
 
 extern int GpuSavedIntrMask;
 
-extern volatile struct GpuQueue D_801128D8[];
+extern volatile struct GpuQueue GpuCommandQueue[];
 
 int _exeque(void) {
     int m0, m1;
@@ -49,14 +49,14 @@ int _exeque(void) {
         }
         while ((m1 = 0x04000000, (*GPU_STATUS & m1) == 0))
 ;
-        D_801128D8[_qout].op(D_801128D8[_qout].p0, D_801128D8[_qout].p1);
+        GpuCommandQueue[_qout].op(GpuCommandQueue[_qout].p0, GpuCommandQueue[_qout].p1);
         _qout = (_qout + 1) & 0x3F;
     }
     SetIntrMask(GpuSavedIntrMask);
     if (_qin == _qout && (*DMA2_CHCR & 0x01000000) == 0) {
         void (*fn)();
-        if (D_800ABAC0.unk8 != 0 && (fn = D_800ABAC0.unkC) != 0) {
-            struct GpuSys *sys = &D_800ABAC0;
+        if (GpuResetState.unk8 != 0 && (fn = GpuResetState.unkC) != 0) {
+            struct GpuSys *sys = &GpuResetState;
             *(volatile int *)&sys->unk8 = 0;
             fn();
         }

@@ -31,7 +31,7 @@ static void write_port(u32 *,u32);
 #include "rr/diagnostics.h"
 static const char invalid[]="invalid mode %d",recover[]="recover %s",message[]="timeout";
 typedef struct {
- u32 guard[4],rng,regs[4];RrStrQuantizationCommand quant;RrStrMatrixCommand matrix;u32 tail[4];
+ u32 guard[4],rng,regs[4];StrQuantizationCommand quant;StrMatrixCommand matrix;u32 tail[4];
 } State;
 typedef struct {s32 op,index;u32 value,hash,words[32];} Event;
 typedef struct {State s;unsigned count;Event events[12];} World;

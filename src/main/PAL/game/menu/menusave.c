@@ -4,11 +4,11 @@
 #include "rr/course_choice_types.h"
 #include "game/menu/menutran.h"
 #include "game/menu/menusave.h"
+#include "rr/menu_glyph.h"
+#include "game/menu/mnchoice.h"
 
-extern void UnpackChoiceGlyph(s8 *, s32);
-extern s32 PackChoiceGlyph(void *);
 
-extern RrCourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[2][9];
 extern u8 D_800AD4F4[];
 extern u8 D_800AD4F8[][4];
 
@@ -16,7 +16,7 @@ void UpdateSaveProgress(void) {
     u8 sp10[4];
     s32 old_count;
     s32 i, k;
-    RrMenuSettings2C *settings;
+    MenuSettings2C *settings;
     s32 glyph;
     s32 j;
     s32 found;
@@ -29,11 +29,11 @@ void UpdateSaveProgress(void) {
 
 #define MARK_PROGRESS(c) SaveProgress.prefix.progress.progress10[(c).bytes[0]][(c).bytes[1]] |= 1 << (c).bytes[2]
     MARK_PROGRESS(SelectionState.copies[0]);
-    SaveProgress.history6C[3] = *(RrSelectionRow *)&SelectionState.copies[0];
+    SaveProgress.history6C[3] = *(SelectionRow *)&SelectionState.copies[0];
     do {
-        settings = (RrMenuSettings2C *)((u8 *)&SelectionState + i * 4);
+        settings = (MenuSettings2C *)((u8 *)&SelectionState + i * 4);
         MARK_PROGRESS(settings->copies[1]);
-        SaveProgress.history6C[i] = *(RrSelectionRow *)&settings->copies[1];
+        SaveProgress.history6C[i] = *(SelectionRow *)&settings->copies[1];
         i++;
     } while (i < 3);
 

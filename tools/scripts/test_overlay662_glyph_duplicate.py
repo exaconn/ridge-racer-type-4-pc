@@ -19,10 +19,10 @@ class Overlay662GlyphDuplicateTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_setup.h"
-typedef struct {s32 args[10],phases[12],local;s16 selected;RrMenuChoice4 choice;RrMenuGlyphRow1C *root;RrBadgeRow1C *badge;} Event;
+typedef struct {s32 args[10],phases[12],local;s16 selected;MenuChoice4 choice;MenuGlyphRow1C *root;BadgeRow1C *badge;} Event;
 static struct World {
- u32 guard[4];RrMenuGlyphRow1C glyphs[3][12],*root;RrBadgeRow1C badges[3][2],*badge;
- s32 local;s16 selected;RrMenuChoice4 choice;unsigned calls;Event events[10];u32 tail[4];
+ u32 guard[4];MenuGlyphRow1C glyphs[3][12],*root;BadgeRow1C badges[3][2],*badge;
+ s32 local;s16 selected;MenuChoice4 choice;unsigned calls;Event events[10];u32 tail[4];
 } world,expected;
 static unsigned scenario,base,switching;
 #define GlyphRows world.root
@@ -35,7 +35,7 @@ static u32 rng=0x15EC4;
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static s16 half(u32 n){u16 bits=(u16)n;s16 v;memcpy(&v,&bits,2);return v;}
-static unsigned bank(RrMenuGlyphRow1C *root){unsigned b=0;while(root!=world.glyphs[b]){b++;assert(b<3);}return b;}
+static unsigned bank(MenuGlyphRow1C *root){unsigned b=0;while(root!=world.glyphs[b]){b++;assert(b<3);}return b;}
 static void event(struct World *w,const s32 a[10]){unsigned n=w->calls,j,b=bank(w->root),newbank=switching?(scenario+n+1)%3:b;Event *e;
  assert(n<10);e=&w->events[w->calls++];for(j=0;j<10;j++)e->args[j]=a[j];for(j=0;j<12;j++)e->phases[j]=w->glyphs[b][j].phase18;
  e->local=w->local;e->selected=w->selected;e->choice=w->choice;e->root=w->root;e->badge=w->badge;
@@ -43,7 +43,7 @@ static void event(struct World *w,const s32 a[10]){unsigned n=w->calls,j,b=bank(
  for(j=0;j<4;j++)w->choice.bytes[j]=(u8)(scenario+n+j*17);
  w->root=world.glyphs[newbank];w->badge=world.badges[(scenario+n)%3];
  for(j=0;j<12;j++){
-  RrMenuGlyphRow1C *g=&w->glyphs[newbank][j];g->glyph07=(u8)(scenario+n+j);
+  MenuGlyphRow1C *g=&w->glyphs[newbank][j];g->glyph07=(u8)(scenario+n+j);
   g->x08=half(scenario+j+n);g->y0A=half(scenario*73U+j+n);g->w0C=half(scenario*19U+j+n);g->h0E=half(scenario*251U+j+n);
   if(switching)g->phase18=word(scenario*0x87654321U+n+j);
  }
@@ -56,7 +56,7 @@ void InitGlyphRow(s32 index,s32 control,s32 glyph,s32 style){s32 a[10]={index,co
 void InitRect16Row(s32 index,s16 a,s16 b,s16 c,s16 d,s16 e,s16 f){s32 args[10]={index,a,b,c,d,e,f};assert(world.calls<8&&world.calls%2==1);event(&world,args);}
 void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==8);event(&world,args);}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls==9);event(&world,args);}
-static void reference(void){unsigned i,b;RrMenuGlyphRow1C *g;
+static void reference(void){unsigned i,b;MenuGlyphRow1C *g;
  expected.local=0;expected.selected=0;expected.choice.bytes[1]=0;
  for(i=0;i<4;i++){
   int64_t wide;u32 bits;
@@ -76,7 +76,7 @@ int main(void){unsigned b,j,k;
   memset(&world,0,sizeof(world));base=scenario%9;switching=(scenario>>4)&1;
   for(j=0;j<4;j++){world.guard[j]=next();world.tail[j]=next();world.choice.bytes[j]=(u8)next();}
   for(b=0;b<3;b++)for(j=0;j<12;j++){
-   RrMenuGlyphRow1C *g=&world.glyphs[b][j];for(k=0;k<sizeof(*g);k++)((u8*)g)[k]=(u8)next();
+   MenuGlyphRow1C *g=&world.glyphs[b][j];for(k=0;k<sizeof(*g);k++)((u8*)g)[k]=(u8)next();
    g->phase18=word(scenario%3==0?edges[(scenario+b+j)%8]:next());
   }
   world.local=word(next());world.selected=half(next());world.root=world.glyphs[scenario%3];world.badge=world.badges[(scenario+1)%3];

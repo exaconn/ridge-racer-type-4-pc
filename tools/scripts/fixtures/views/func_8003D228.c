@@ -6,9 +6,9 @@
 #undef BadgeRows
 
 /* legacy typing of shared globals in this part of the unit */
-#define AddSpritePrim (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32))&AddSpritePrim)
+#define AddSpritePrim (*(SpritePacket *(*)(u32*,SpritePacket*,s32,s32,UiUvRect*,u16,s32))&AddSpritePrim)
 
-#define GameQueueSprite (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32))&GameQueueSprite)
+#define GameQueueSprite (*(SpritePacket *(*)(u32*,SpritePacket*,s32,s32,s32,s32,s32,s32,s32))&GameQueueSprite)
 
 #undef AddSpritePrim
 

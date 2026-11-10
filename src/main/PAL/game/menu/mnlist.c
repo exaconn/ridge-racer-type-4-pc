@@ -1,66 +1,32 @@
+#include "game/menu/mnlist.h"
+#include "rr/runtime_settings.h"
+#include "game/system/pad.h"
+#include "rr/sprite_emit.h"
+#include "game/gfx/fontdraw.h"
+#include "game/data/bankrec.h"
+#include "game/ui/uitext.h"
+#include "rr/ui_bar.h"
+#include "rr/badge_row_types.h"
+#include "rr/menu_state_types.h"
+#include "rr/selection_types.h"
+#include "rr/badge_rows.h"
+#include "rr/menu_selection.h"
+#include "rr/string_tail_copy.h"
 /* RODATA 0x80010ecc 0x34 */
-typedef unsigned char u8;
 
-typedef struct R4
-{
-  u8 a;
-  u8 b;
-  u8 c;
-  u8 d;
-} R4;
 
-typedef signed char s8;
 
-typedef struct {
-    u8 a, b, c, d;
-} R4_1;
 
-typedef struct {
-    char pad0[0x17];
-    s8 b17;
-    char pad18[4];
-    u8 b1C;
-    u8 b1D;
-    char pad1E[0x2C - 0x1E];
-} S2C;
-
-typedef struct 
-{
-  char p[0x14];
-  short s;
-} S1;
-
-typedef struct 
-{
-  char p[0x10];
-  int w;
-} S3;
-
-typedef struct 
-{
-  char p[0x2B];
-  signed char c;
-} S2;
-
-extern int AddTextSprites();
-extern int AddDrawModePrim();
-extern int AddTilePrim();
-extern int AddSpritePrim();
-extern int CopyStringClearTail();
 extern int FormatDecimalDigits();
-extern R4 UiFontGlyphs[];
+extern UiUvRect UiFontGlyphs[];
 extern char D_8009FDBF[];
 extern char D_8009FDC0[];
 extern char D_8009FDC4[];
 extern u8 D_8009FDCC[];
 extern u8 D_8009FDD8[];
 extern u8 D_8009FDE4[];
-extern int D_800AC5D4;
-extern signed char *ImageRows;
-extern char *CarRecordPtrs[];
-extern char *BadgeRows;
-extern R4 SelectionRows[];
-extern int AddTileSemiTransPrim();
+extern SelectionRow SelectionRows[];
+extern void *AddTileSemiTransPrim();
 extern u8 D_8009FDF4[];
 extern u8 D_8009FDF8[];
 extern u8 D_8009FDFC[];
@@ -68,23 +34,13 @@ extern u8 D_8009FE00[];
 extern u8 D_8009FE04[];
 extern u8 D_8009FE08[];
 extern u8 D_8009FE0C[];
-extern S2C SaveSlotSelections[];
-extern short D_800F4D3C;
+extern MenuSettings2C SaveSlotSelections[];
+extern short GpSaveSlotCursor;
 extern char FractionText[];
-extern unsigned char D_8009FBEC[];
-extern char Options[];
-extern char PlayerControllers[];
 extern int D_800F4CB8;
 
-int func_80042254();
-int func_80042820();
-char *FormatCountOfTotal(int a, int b, int c);
-void func_80042DBC();
 
-int func_80042254(arg0, arg1, arg2)
-int arg0;
-int arg1;
-int arg2;
+void *DrawCarSpecBadgePanel(u32 *arg0, void *arg1, s32 arg2)
 {
   char sp28[8];
   int sp30;
@@ -110,25 +66,25 @@ int arg2;
   char *rec;
   u8 *e;
   signed char *f;
-  R4 *ent;
-  char *c;
+  SelectionRow *ent;
+  CarRecord *record;
   char *q;
   char *q8;
-  x = *((short *) ((BadgeRows + (arg2 * 0x1C)) + 4));
-  y = *((short *) ((BadgeRows + (arg2 * 0x1C)) + 6));
-  sp30 = *((short *) ((BadgeRows + (arg2 * 0x1C)) + 0xC));
-  sp3C = (SelectionRows[D_800AC5D4].b * 2) + 8;
-  sp38 = SelectionRows[D_800AC5D4].a * 2;
-  sp34 = (SelectionRows[D_800AC5D4].c ^ 0x27) == 0;
-  if ((SelectionRows[D_800AC5D4].c ^ 0x27) == 0)
+  x = BadgeRows[arg2].x04;
+  y = BadgeRows[arg2].y06;
+  sp30 = BadgeRows[arg2].width0C;
+  sp3C = (SelectionRows[D_800AC5D4].variant * 2) + 8;
+  sp38 = SelectionRows[D_800AC5D4].selection * 2;
+  sp34 = (SelectionRows[D_800AC5D4].parameter ^ 0x27) == 0;
+  if ((SelectionRows[D_800AC5D4].parameter ^ 0x27) == 0)
   {
-    if (SelectionRows[D_800AC5D4].a == 2)
+    if (SelectionRows[D_800AC5D4].selection == 2)
     {
       sp4C = D_8009FDC4;
     }
     else
     {
-      if (SelectionRows[D_800AC5D4].a == 0)
+      if (SelectionRows[D_800AC5D4].selection == 0)
       {
         CopyStringClearTail(D_8009FDBF, "D ");
       }
@@ -137,15 +93,15 @@ int arg2;
         CopyStringClearTail(D_8009FDBF, "G ");
       }
       q = D_8009FDC0;
-      FormatDecimalDigits(q, SelectionRows[D_800AC5D4].b + 1, 0);
+      FormatDecimalDigits(q, SelectionRows[D_800AC5D4].variant + 1, 0);
       sp4C = q - 8;
     }
   }
-  c = CarRecordPtrs[D_800AC5D4];
+  record = CarRecordPtrs[D_800AC5D4];
   sp48 = 0x11;
-  sp44 = ((u8) c[0x1F3]) + 1;
-  sp40 = *((short *) (c + 0x1F0));
-  if ((*((short *) (c + 0x1D2))) > 0)
+  sp44 = record->stage1F3 + 1;
+  sp40 = record->topSpeed1F0;
+  if (record->handling1C8.steeringMode0A > 0)
   {
     sp48 = 0x12;
   }
@@ -165,8 +121,8 @@ int arg2;
     e = D_8009FDD8 + i;
     arg1 = AddSpritePrim(arg0, arg1, x, y, &UiFontGlyphs[*e], 0x7FF8, 0);
     t3 = x + 2;
-    s2 = t3 + UiFontGlyphs[*e].c;
-    if (ImageRows[1] != 6)
+    s2 = t3 + UiFontGlyphs[*e].w;
+    if (ImageRows->f1 != 6)
     {
       switch (i)
       {
@@ -188,7 +144,7 @@ int arg2;
             f = ((signed char *) D_8009FDE4) + s1;
             arg1 = AddSpritePrim(arg0, arg1, s2, y, &UiFontGlyphs[*f], 0x7FF8, 0);
             t4 = s2 + 2;
-            s2 = t4 + UiFontGlyphs[*f].c;
+            s2 = t4 + UiFontGlyphs[*f].w;
           }
         }
         else
@@ -200,7 +156,7 @@ int arg2;
         case 3:
           if (sp34 == 0)
         {
-          arg1 = AddTextSprites(arg0, arg1, s2, y, CarRecordPtrs[D_800AC5D4] + 0x1F5, 0x7FF8, 2, 0);
+          arg1 = AddTextSprites(arg0, arg1, s2, y, CarRecordPtrs[D_800AC5D4]->name1F5, 0x7FF8, 2, 0);
         }
         else
         {
@@ -235,13 +191,13 @@ int arg2;
     if (i == 5)
     {
       y += 0x1C;
-      x = *((short *) ((BadgeRows + (arg2 * 0x1C)) + 4));
+      x = BadgeRows[arg2].x04;
     }
   }
 
   arg1 = AddDrawModePrim(arg0, arg1, 0x38);
   y = y - 8;
-  x = *((short *) ((BadgeRows + (arg2 * 0x1C)) + 4));
+  x = BadgeRows[arg2].x04;
   arg1 = AddTilePrim(arg0, arg1, x, y, sp30, 2, 0xFF, 0xFF, 0xFF);
   for (i = 0; i < 4; i++)
   {
@@ -261,14 +217,7 @@ int arg2;
   return arg1;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define FormatDecimalDigits ((void (*)())FormatDecimalDigits)
-#define UiFontGlyphs (*(R4_1 (*)[])&UiFontGlyphs)
-
-int func_80042820(arg0, arg1, arg2)
-int arg0;
-int arg1;
-int arg2;
+void *DrawGpSaveSlotsPanel(u32 *arg0, void *arg1, s32 arg2)
 {
     int sp28[3];
     char sp38[8];
@@ -279,9 +228,9 @@ int arg2;
     int j;
     char *p;
 
-    x = *(short *)(BadgeRows + arg2 * 0x1C + 4);
-    y = *(short *)(BadgeRows + arg2 * 0x1C + 6);
-    sp40 = *(short *)(BadgeRows + arg2 * 0x1C + 0xC);
+    x = BadgeRows[arg2].x04;
+    y = BadgeRows[arg2].y06;
+    sp40 = BadgeRows[arg2].width0C;
     y += 0x20;
 
     for (i = 0; i < 4; i++) {
@@ -299,17 +248,17 @@ int arg2;
 
     y -= 8;
     for (i = 0; i < 3; i++) {
-        x = *(short *)(BadgeRows + arg2 * 0x1C + 4) + 8;
+        x = BadgeRows[arg2].x04 + 8;
         FormatDecimalDigits(sp38, i + 1, 0);
         arg1 = AddTextSprites(arg0, arg1, x, y + D_8009FDF8[i + 1], sp38, 0x7FF8, 0, 0);
-        if ((sp28[2] = SaveSlotSelections[i].b17) != -1) {
-            sp28[0] = D_8009FE00[SaveSlotSelections[i].b1C & 3];
-            sp28[1] = D_8009FE04[SaveSlotSelections[i].b1D & 3];
-            sp28[2] = D_8009FE08[SaveSlotSelections[i].b17 / 2];
+        if ((sp28[2] = SaveSlotSelections[i].phase17) != -1) {
+            sp28[0] = D_8009FE00[SaveSlotSelections[i].copies[0].bytes[0] & 3];
+            sp28[1] = D_8009FE04[SaveSlotSelections[i].copies[0].bytes[1] & 3];
+            sp28[2] = D_8009FE08[SaveSlotSelections[i].phase17 / 2];
             for (j = 0; j < 3; j++) {
                 x += D_8009FDF4[j + 1];
                 arg1 = AddSpritePrim(arg0, arg1, x, y + D_8009FDF8[i + 1], &UiFontGlyphs[sp28[j]], 0x7FF8, 0);
-                if (j == 2 && SaveSlotSelections[i].b17 < 4) {
+                if (j == 2 && SaveSlotSelections[i].phase17 < 4) {
                     x += 0xE;
                     arg1 = AddSpritePrim(arg0, arg1, x, y + D_8009FDF8[i + 1], &UiFontGlyphs[38], 0x7FF8, 0);
                 }
@@ -320,18 +269,18 @@ int arg2;
                 arg1 = AddTilePrim(arg0, arg1, x, y + D_8009FDF8[i + 1] + 8, D_8009FE0C[j], 2, 0xFF, 0xFF, 0xFF);
             }
         }
-        if (i == D_800F4D3C) {
-            arg1 = AddTileSemiTransPrim(arg0, arg1, *(short *)(BadgeRows + arg2 * 0x1C + 4), y + D_8009FDF8[i + 1] - 4, sp40, 0x18, 0x20, 0x20, 0x20);
+        if (i == GpSaveSlotCursor) {
+            arg1 = AddTileSemiTransPrim(arg0, arg1, BadgeRows[arg2].x04, y + D_8009FDF8[i + 1] - 4, sp40, 0x18, 0x20, 0x20, 0x20);
         }
     }
 
     arg1 = AddDrawModePrim(arg0, arg1, 0x38);
     y += 0x1C;
-    x = *(short *)(BadgeRows + arg2 * 0x1C + 4);
+    x = BadgeRows[arg2].x04;
     arg1 = AddTilePrim(arg0, arg1, x, y, sp40, 2, 0xFF, 0xFF, 0xFF);
     y -= 0x1C;
     for (i = 0; i < 4; i++) {
-        x = *(short *)(BadgeRows + arg2 * 0x1C + 4);
+        x = BadgeRows[arg2].x04;
         for (j = 0; j < 3; j++) {
             x += D_8009FDF4[j + 1];
             arg1 = AddTilePrim(arg0, arg1, x, y + D_8009FDF8[i], 2, 0x10, 0xFF, 0xFF, 0xFF);
@@ -341,11 +290,6 @@ int arg2;
     return arg1;
 }
 
-#undef FormatDecimalDigits
-#undef UiFontGlyphs
-
-/* legacy typing of shared globals in this part of the unit */
-#define FormatDecimalDigits ((void (*)())FormatDecimalDigits)
 
 char *FormatCountOfTotal(int a, int b, int c) {
     int i = 7;
@@ -361,73 +305,66 @@ char *FormatCountOfTotal(int a, int b, int c) {
     return FractionText;
 }
 
-#undef FormatDecimalDigits
 
-void func_80042DBC(a0, a1, a2)
-int a0;
-int a1;
-int a2;
+void *DrawControllerConfigPanel(u32 *ordering, void *cursor, s32 row)
 {
-  char sp[8];
-  int i;
-  char *p;
-  int s3;
-  int s4;
-  /* ASM_BARRIER: pin a0 copy to $s5 to match original save-reg allocation */
-  register int aa asm("$21");
+  char text[8];
+  int character;
+  char *textCursor;
   int x;
-  int nv;
   int y;
-  int s2;
-  int idx;
-  int v1;
-  int r;
-  char *v0;
-  char *g;
-  aa = a0;
-  g = BadgeRows;
-  v0 = (char *) ((a2 * 0x1C) + ((int) g));
-  x = *((short *) (v0 + 4));
-  y = *((short *) (v0 + 6));
-  s3 = x + 8;
-  s4 = y + 0x24;
-  i = 7;
-  p = sp + 7;
+  /* ASM_BARRIER: pin ordering copy to $s5 to match original save-reg allocation */
+#ifdef __mips__
+  register u32 *order asm("$21");
+#else
+  u32 *order;
+#endif
+  int textX;
+  int layout;
+  int controller;
+  int protocol;
+  void *result;
+  order = ordering;
+  x = BadgeRows[row].x04 + 8;
+  y = BadgeRows[row].y06 + 0x24;
+  character = 7;
+  textCursor = text + 7;
   do
   {
-    *p = 0;
-    i--;
-    p--;
+    *textCursor = 0;
+    character--;
+    textCursor--;
   }
-  while (i >= 0);
-  idx = (D_800F4CB8 - 1) & 1;
-  if (idx < 0)
+  while (character >= 0);
+  controller = (D_800F4CB8 - 1U) & 1;
+  if (controller < 0)
   {
-    idx = 0;
+    controller = 0;
   }
-  v1 = ((S3 *) (PlayerControllers + (idx * 0x5C)))->w;
-  switch (v1)
+  protocol = PlayerControllers[controller].protocol10;
+  switch (protocol)
   {
     case 0:
 
     default:
-      s2 = *((short *) (Options + (idx * 4)));
+      layout = Options.config.f0[controller].buttonLayout00;
       break;
 
     case 1:
-      s2 = ((S1 *) ((idx * 16) + ((int) Options)))->s;
+      layout = Options.config.p[controller].buttonLayout0C;
       break;
 
     case 2:
-      s2 = ((S2 *) ((idx * 4) + ((int) Options)))->c;
+      layout = Options.config.w[controller].buttonLayout03;
       break;
 
   }
 
-  r = AddSpritePrim(aa, a1, s3, s4, D_8009FBEC, 0x7FF8, 0);
-  sp[0] = s2 + 0x41;
-  nv = s3 + 2;
-  AddDrawModePrim(aa, AddTextSprites(aa, r, nv + D_8009FBEC[2], s4, sp, 0x7FF8, 0, 0), 0x38);
-  /* ASM_BARRIER: keeps s3 live to the end (original save-reg order) */
-  __asm__ volatile("" : : "r"(s3));
+  result = AddSpritePrim(order, cursor, x, y, &D_8009FBEC, 0x7FF8, 0);
+  text[0] = layout + 0x41;
+  textX = x + 2;
+  result = AddDrawModePrim(order, AddTextSprites(order, result, textX + D_8009FBEC.w, y, text, 0x7FF8, 0, 0), 0x38);
+  /* ASM_BARRIER: keeps x live to the end (original save-reg order) */
+  __asm__ ("" : : "r"(x));
+  return result;
 }

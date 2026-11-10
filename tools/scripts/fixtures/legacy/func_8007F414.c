@@ -24,7 +24,7 @@ address_result:
     result = address;
     goto out;
 store:
-    ((RrSpuRegisterStorage *)_spu_RXX)->halves[index] = units;
+    ((SpuRegisterStorage *)_spu_RXX)->halves[index] = units;
     result = address;
 out:
     return (s32)result;

@@ -29,7 +29,7 @@ class Overlay662TransitionTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2]
         bodies='\n'.join((root/f'src/overlays/PAL/662/func_{a}.c').read_text() for a in ['8011AA84','80119DB4'])
         source=PREFIX+r'''
-typedef struct {u32 guard[4];RrGarageSelectionPrefix garage;u16 mode;s16 scene,phase;u32 tail[4];} State;
+typedef struct {u32 guard[4];GarageSelectionPrefix garage;u16 mode;s16 scene,phase;u32 tail[4];} State;
 typedef struct {s32 kind,arg;State state;} Event;
 static struct World {State s;u32 calls;Event events[3];u32 guard[4];} world,expected;
 static u32 resources[3][16];
@@ -81,7 +81,7 @@ int main(void){unsigned k;static const s32 edges[]={26,27,28,INT32_MAX,INT32_MIN
         encoder=(root/'tools/scripts/fixtures/legacy/func_80037040.c').read_text()
         body=(root/'src/overlays/PAL/662/func_80115474.c').read_text()
         source=PREFIX+r'''
-static struct World {u32 guard[4];RrMenuArenas arenas;void *published;RrMenuChoice4 choice;s16 glyph;u8 *mode;u8 backing[3][2];s32 counter;s8 flag1,flag2;u32 tail[4];} world,expected;
+static struct World {u32 guard[4];MenuArenas8 arenas;void *published;MenuChoice4 choice;s16 glyph;u8 *mode;u8 backing[3][2];s32 counter;s8 flag1,flag2;u32 tail[4];} world,expected;
 static u8 resources[3][64];
 #define MenuArenas world.arenas
 #define LoadCursor world.published

@@ -1,8 +1,10 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* GCC_VERSION: 2.7.2 */
-/* CC1_FLAGS: -fno-rerun-cse-after-loop */
+/* GCC_VERSION: 970318 */
 #include "rr/spu.h"
 #include "psyq/libspu/smutil.h"
+#include "psyq/libspu/spuregs2.h"
+#include "psyq/libspu/s_crwa.h"
+#include "psyq/libspu/srevattr.h"
 
 typedef struct {
     u32 mask;
@@ -13,21 +15,9 @@ typedef struct {
     s32 feedback;
 } SpuReverbAttr;
 
-typedef struct {
-    s32 mode;
-    s16 depth_left;
-    s16 depth_right;
-    s32 delay;
-    s32 feedback;
-} RevAttr;
-
-extern RevAttr _spu_rev_attr;
-extern s32 _spu_rev_offsetaddr;
-extern s32 _spu_rev_startaddr[];
-extern RrSpuRegisterPatch D_800A4E78[];
+extern SpuRegisterPatch SpuReverbPresetTable[];
 
 extern void _spu_FsetRXX();
-extern s32 SpuClearReverbWorkArea();
 extern void _spu_setReverbAttr();
 
 /* Byte copy of one reverb register preset (inlined at each use). */
@@ -37,8 +27,9 @@ static __inline__ void copy(u8 *dst, u8 *src, s32 n) {
     }
 }
 
-s32 SpuSetReverbModeParam(SpuReverbAttr *attr) {
-    RrSpuRegisterPatch patch;
+s32 SpuSetReverbModeParam(void *attr_in) {
+    SpuReverbAttr *attr = attr_in;
+    SpuRegisterPatch patch;
     s32 mask;
     s32 all;
     s32 mode_set;
@@ -47,8 +38,6 @@ s32 SpuSetReverbModeParam(SpuReverbAttr *attr) {
     s32 rev_on;
     s32 clear_mode;
     u32 mode;
-    /* ASM_BARRIER: pin the start-address table base to $s1 as in the original allocation */
-    register s32 *tbl asm("$17");
 
     rev_on = 0;
     mode_set = 0;
@@ -68,14 +57,13 @@ s32 SpuSetReverbModeParam(SpuReverbAttr *attr) {
         if (mode >= 10) {
             return -1;
         }
-        tbl = _spu_rev_startaddr;
-        if (_SpuIsInAllocateArea_(*(s32 *)((u8 *)_spu_rev_startaddr + (mode << 2))) != 0) {
+        if (_SpuIsInAllocateArea_(_spu_rev_startaddr[mode]) != 0) {
             return -1;
         }
         mode_set = 1;
         _spu_rev_attr.mode = mode;
-        _spu_rev_offsetaddr = tbl[_spu_rev_attr.mode];
-        copy((u8 *)&patch, (u8 *)&D_800A4E78[_spu_rev_attr.mode], 0x44);
+        _spu_rev_offsetaddr = _spu_rev_startaddr[_spu_rev_attr.mode];
+        copy((u8 *)&patch, (u8 *)&SpuReverbPresetTable[_spu_rev_attr.mode], 0x44);
         switch (_spu_rev_attr.mode) {
         case 7:
             _spu_rev_attr.feedback = 0x7F;
@@ -97,7 +85,7 @@ s32 SpuSetReverbModeParam(SpuReverbAttr *attr) {
         s32 d;
         delay_set = 1;
         if (!mode_set) {
-            copy((u8 *)&patch, (u8 *)&D_800A4E78[_spu_rev_attr.mode], 0x44);
+            copy((u8 *)&patch, (u8 *)&SpuReverbPresetTable[_spu_rev_attr.mode], 0x44);
             patch.mask = 0x0C011C00;
         }
         _spu_rev_attr.delay = attr->delay;
@@ -114,7 +102,7 @@ s32 SpuSetReverbModeParam(SpuReverbAttr *attr) {
         fb_set = 1;
         if (!mode_set) {
             if (!delay_set) {
-                copy((u8 *)&patch, (u8 *)&D_800A4E78[_spu_rev_attr.mode], 0x44);
+                copy((u8 *)&patch, (u8 *)&SpuReverbPresetTable[_spu_rev_attr.mode], 0x44);
                 patch.mask = 0x80;
             } else {
                 patch.mask |= 0x80;
@@ -131,17 +119,17 @@ s32 SpuSetReverbModeParam(SpuReverbAttr *attr) {
         }
     } else {
         if (all || (mask & 2)) {
-            ((volatile u16 *)_spu_RXX)[0x184 / 2] = attr->depth_left;
+            ((SpuRegisterStorage *)_spu_RXX)->halves[0x184 / 2] = attr->depth_left;
             _spu_rev_attr.depth_left = attr->depth_left;
         }
         if (all || (mask & 4)) {
-            ((volatile u16 *)_spu_RXX)[0x186 / 2] = attr->depth_right;
+            ((SpuRegisterStorage *)_spu_RXX)->halves[0x186 / 2] = attr->depth_right;
             _spu_rev_attr.depth_right = attr->depth_right;
         }
         goto skip;
     }
-    ((volatile u16 *)_spu_RXX)[0x184 / 2] = 0;
-    ((volatile u16 *)_spu_RXX)[0x186 / 2] = 0;
+    ((SpuRegisterStorage *)_spu_RXX)->halves[0x184 / 2] = 0;
+    ((SpuRegisterStorage *)_spu_RXX)->halves[0x186 / 2] = 0;
     _spu_rev_attr.depth_left = 0;
     _spu_rev_attr.depth_right = 0;
 skip:

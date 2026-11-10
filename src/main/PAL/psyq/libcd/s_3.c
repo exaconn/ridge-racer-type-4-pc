@@ -2,7 +2,11 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
-#include "m2c_macros.h"
+#include "rr/cd.h"
+#include "rr/cd_poll.h"
+#include "rr/library.h"
+#include "game/data/globals.h"
+#include "psyq/libcd/s_3.h"
 
 #define COPY8(dst_arr, src_arr) \
     { \
@@ -16,55 +20,29 @@
         } \
     }
 
-extern int DMACallback();
-extern int CD_datasync();
-extern s32 DebugPrintStub();
-extern s32 func_800963DC(const char *);
 extern const char DiskErrorPrefixStr[];
 extern const char StrCdComCodeFmt[];
 extern const char CdUnknownIntrMsg[];
 extern const char CD_fmt_intr_code[];
-extern s32 CD_debug;
-extern s32 CD_status;
-extern s32 CD_status1;
-extern s32 CD_nopen;
-extern u8 D_800A64A5;
-extern char *CD_comstr[];
-extern s32 D_800A654C[];
+extern s32 CD_comHasCompleteInt[];
 extern s32 D_800A664C[];
-extern volatile u8 *CD_reg0;
 extern volatile u8 *CD_REG1;
-extern volatile u8 *CD_REG2;
-extern volatile u8 *CD_reg3;
-extern volatile u8 D_800A6764[];
 extern u8 CD_syncResult[];
 extern u8 CdReadyResult[];
 extern u8 D_80110328[];
-extern s32 VSync(s32);
 extern s32 CheckCallback(void);
-extern void CD_flush(void);
-extern const char CdTimeoutPrefixStr[];
-extern const char CdTimeoutStatusFmt[];
 extern const char StrCdSync[];
-extern void (*CD_cbsync)(u8, u8 *);
-extern void (*CD_cbready)(u8, u8 *);
-extern char *CD_intstr[];
-extern s32 CD_timeout_deadline;
-extern s32 D_80110334;
-extern const char *CdWaitCallerName[];
 extern const char CdReadyNameStr[];
 
 void CdDataCallback(a0);
-void CdDataSync();
-unsigned char *CdIntToPos();
+unsigned char *CdIntToPos(s32 i, u8 *p);
 s32 CdPosToInt(void *arg0);
-s32 getintr(void);
 s32 CD_sync(s32 mode, u8 *result);
 s32 CD_ready(s32 mode, u8 *result);
 
 void CdDataCallback(a0) { DMACallback(3, a0); }
 
-void CdDataSync() { CD_datasync(); }
+void CdDataSync() { ((void (*)(void))CD_datasync)(); }
 
 unsigned char *CdIntToPos(i, p)
 int i;
@@ -90,9 +68,9 @@ s32 CdPosToInt(void *arg0) {
     u8 temp_a2;
     u8 temp_v1;
 
-    temp_v1 = M2C_FIELD(arg0, u8 *, 0);
-    temp_a2 = M2C_FIELD(arg0, u8 *, 1);
-    temp_a1 = M2C_FIELD(arg0, u8 *, 2);
+    temp_v1 = ((u8 *)arg0)[0];
+    temp_a2 = ((u8 *)arg0)[1];
+    temp_a1 = ((u8 *)arg0)[2];
     return (((((((temp_v1 >> 4) * 0xA) + (temp_v1 & 0xF)) * 0x3C) + (((temp_a2 >> 4) * 0xA) + (temp_a2 & 0xF))) * 0x4B) + (((temp_a1 >> 4) * 0xA) + (temp_a1 & 0xF))) - 0x96;
 }
 
@@ -125,12 +103,12 @@ s32 getintr(void) {
     *CD_REG2 = 7;
     {
         s32 t = intr;
-        if (t != 3 || D_800A664C[D_800A64A5] != 0) {
-            if ((CD_status & 0x10) == 0 && (res[0] & 0x10) != 0) {
+        if (t != 3 || D_800A664C[CD_com] != 0) {
+            if ((CD_status.word & 0x10) == 0 && (res[0] & 0x10) != 0) {
                 CD_nopen++;
             }
-            CD_status = *(volatile u8 *)res;
-            err = CD_status & 0x1D;
+            CD_status.word = *(volatile u8 *)res;
+            err = CD_status.word & 0x1D;
             CD_status1 = res[1];
         }
     }
@@ -141,27 +119,27 @@ s32 getintr(void) {
                 DebugPrintStub(DiskErrorPrefixStr);
             }
             if (CD_debug > 0) {
-                DebugPrintStub(StrCdComCodeFmt, CD_comstr[D_800A64A5], CD_status, CD_status1);
+                DebugPrintStub(StrCdComCodeFmt, CD_comstr[CD_com], CD_status.word, CD_status1);
             }
         }
     }
     switch (intr) {
     case 3:
         if (err) {
-            D_800A6764[0] = 5;
+            CD_intr_status[0] = 5;
             COPY8(CD_syncResult, res);
             return 2;
         }
-        if (D_800A654C[D_800A64A5]) {
-            D_800A6764[0] = 3;
+        if (CD_comHasCompleteInt[CD_com]) {
+            CD_intr_status[0] = 3;
             COPY8(CD_syncResult, res);
             return 1;
         }
-        D_800A6764[0] = 2;
+        CD_intr_status[0] = 2;
         COPY8(CD_syncResult, res);
         return 2;
     case 2:
-        D_800A6764[0] = err ? 5 : 2;
+        CD_intr_status[0] = err ? 5 : 2;
         COPY8(CD_syncResult, res);
         return 2;
     case 1:
@@ -170,7 +148,7 @@ s32 getintr(void) {
         }
         {
             u8 v = err ? 5 : 1;
-            volatile u8 *p = D_800A6764;
+            volatile u8 *p = CD_intr_status;
             p[1] = v;
         }
         COPY8(CdReadyResult, res);
@@ -179,35 +157,35 @@ s32 getintr(void) {
         return 4;
     case 4:
         {
-            volatile u8 *p = D_800A6764;
+            volatile u8 *p = CD_intr_status;
             p[1] = p[2] = 4;
         }
         COPY8(D_80110328, res);
         COPY8(CdReadyResult, res);
         return 4;
     case 5:
-        D_800A6764[0] = D_800A6764[1] = 5;
+        CD_intr_status[0] = CD_intr_status[1] = 5;
         COPY8(CD_syncResult, res);
         COPY8(CdReadyResult, res);
         return 6;
     default:
-        func_800963DC(CdUnknownIntrMsg);
+        PsyqPuts(CdUnknownIntrMsg);
         DebugPrintStub(CD_fmt_intr_code, intr);
         return 0;
     }
 }
 
-static inline int check_alarm(char **ac, char **sc, volatile u8 *st) {
-    if (VSync(-1) > CD_timeout_deadline || D_80110334++ > 0x3C0000) {
-        func_800963DC(CdTimeoutPrefixStr);
+static inline int check_alarm(const char **ac, const char **sc, volatile u8 *st) {
+    if (VSync(-1) > CD_timeout_deadline || CD_timeout_count++ > 0x3C0000) {
+        PsyqPuts(CdTimeoutPrefixStr);
         {
             u8 s0_ = st[0];
             u8 s1_ = st[1];
-            char *x5 = sc[s1_];
+            const char *x5 = sc[s1_];
             DebugPrintStub(
                 CdTimeoutStatusFmt,
                 CdWaitCallerName[0],
-                ac[D_800A64A5],
+                ac[CD_com],
                 sc[s0_],
                 x5
             );
@@ -218,7 +196,7 @@ static inline int check_alarm(char **ac, char **sc, volatile u8 *st) {
     return 0;
 }
 
-static inline void cd_poll_cb(volatile u8 *st, volatile u8 *st1) {
+static inline void cd_poll_cb(volatile u8 *st, u8 *st1) {
     u8 saved = *CD_reg0 & 3;
     s32 res;
     while ((res = getintr()) != 0) {
@@ -237,18 +215,18 @@ s32 CD_sync(s32 mode, u8 *result) {
     u8 *src;
     u8 *dst;
     s32 i;
-    char **ac;
-    char **sc;
+    const char **ac;
+    const char **sc;
     volatile u8 *st;
-    volatile u8 *st1;
+    u8 *st1;
 
     s32 t = VSync(-1);
     CD_timeout_deadline = t + 0x3C0;
-    D_80110334 = 0;
+    CD_timeout_count = 0;
     CdWaitCallerName[0] = StrCdSync;
     ac = CD_comstr;
     sc = CD_intstr;
-    st = D_800A6764;
+    st = CD_intr_status;
     st1 = st + 1;
     do {
         if (check_alarm(ac, sc, st) != 0) {
@@ -273,66 +251,30 @@ s32 CD_sync(s32 mode, u8 *result) {
     return 0;
 }
 
-static inline int check_alarm_1(char **ac, char **sc, volatile u8 *st) {
-    if (VSync(-1) > CD_timeout_deadline || D_80110334++ > 0x3C0000) {
-        func_800963DC(CdTimeoutPrefixStr);
-        {
-            u8 s0_ = st[0];
-            u8 s1_ = st[1];
-            char *x5 = sc[s1_];
-            DebugPrintStub(
-                CdTimeoutStatusFmt,
-                CdWaitCallerName[0],
-                ac[D_800A64A5],
-                sc[s0_],
-                x5
-            );
-        }
-        CD_flush();
-        return -1;
-    }
-    return 0;
-}
-
-static inline void cd_poll_cb_1(volatile u8 *st, volatile u8 *st1) {
-    u8 saved = *CD_reg0 & 3;
-    s32 res;
-    while ((res = getintr()) != 0) {
-        if ((res & 4) && CD_cbready != 0) {
-            CD_cbready(*st1, CdReadyResult);
-        }
-        if ((res & 2) && CD_cbsync != 0) {
-            CD_cbsync(*st, CD_syncResult);
-        }
-    }
-    *CD_reg0 = saved;
-}
-
 s32 CD_ready(s32 mode, u8 *result) {
     s32 ret;
     u8 *src;
     u8 *dst;
     s32 i;
-    char **ac;
-    char **sc;
-    volatile u8 *st;
-    volatile u8 *st1;
-    volatile u8 *st2;
+    const char **ac;
+    const char **sc;
+    volatile u8 *st, *st2;
+    u8 *st1;
 
     CD_timeout_deadline = VSync(-1) + 0x3C0;
-    D_80110334 = 0;
+    CD_timeout_count = 0;
     CdWaitCallerName[0] = CdReadyNameStr;
     ac = CD_comstr;
     sc = CD_intstr;
-    st = D_800A6764;
+    st = CD_intr_status;
     st1 = st + 1;
     st2 = st + 2;
     do {
-        if (check_alarm_1(ac, sc, st) != 0) {
+        if (check_alarm(ac, sc, st) != 0) {
             return -1;
         }
         if (CheckCallback() != 0) {
-            cd_poll_cb_1(st, st1);
+            cd_poll_cb(st, st1);
         }
         ret = *st2;
         if (ret != 0) {

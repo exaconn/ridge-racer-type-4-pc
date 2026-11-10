@@ -25,7 +25,7 @@ s32 SsUtSetVVol(s32 input, s32 left, s32 right) {
 
         index = (s16)voice;
         offset = index * 16;
-        ((RrSpuCachedVolumeEntry *)((u8 *)_svm_sreg_dirty.voices + offset))->right = right_scaled;
+        ((SpuCachedVolumeEntry *)((u8 *)_svm_sreg_dirty.voices + offset))->right = right_scaled;
         left_value = (s16)left;
 
         left_scaled = left_value * 128;
@@ -37,7 +37,7 @@ s32 SsUtSetVVol(s32 input, s32 left, s32 right) {
         base += index;
         flags = base[-0x1E8];
         left_scaled += left_value;
-        ((RrSpuCachedVolumeEntry *)((u8 *)_svm_sreg_dirty.voices + offset))->left = left_scaled;
+        ((SpuCachedVolumeEntry *)((u8 *)_svm_sreg_dirty.voices + offset))->left = left_scaled;
         _svm_sreg_dirty.flags[index] = flags | 3;
         return result;
     }

@@ -8,7 +8,7 @@
         _spu_RXX->control[index] = patch->values[index]; \
     }
 
-void _spu_setReverbAttr(RrSpuRegisterPatch *patch) {
+void _spu_setReverbAttr(SpuRegisterPatch *patch) {
     s32 mask = patch->mask;
     s32 all = mask == 0;
     APPLY_PATCH(0, 0x00000001U);

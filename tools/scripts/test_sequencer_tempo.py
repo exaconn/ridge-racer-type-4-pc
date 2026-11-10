@@ -30,11 +30,11 @@ typedef uint32_t u32; typedef int32_t s32;
 ''' + header + r'''
 static struct World {
     u32 guard0[8];
-    RrLibStateB0 records[4][6];
+    LibStateB0 records[4][6];
     u8 streams[4][6][16];
     u32 guard1[8];
 } world, initial, expected;
-RrLibStateB0 *_ss_score[32];
+LibStateB0 *_ss_score[32];
 u32 VBLANK_MINUS;
 s32 _SsReadDeltaValue(s32, s32);
 ''' + '\n'.join(bodies) + r'''
@@ -42,7 +42,7 @@ static u32 seed=0x61a4e04;
 static u32 random32(void) { seed ^= seed<<13; seed ^= seed>>17; seed ^= seed<<5; return seed; }
 static void half(s16 *p,u32 v) { u16 h=v; memcpy(p,&h,2); }
 static void word(s32 *p,u32 v) { memcpy(p,&v,4); }
-static void reference(RrLibStateB0 *s) {
+static void reference(LibStateB0 *s) {
     u32 tempo=0,period,factor,product,threshold,q,n,rem,v,delta;
     int i;
     for(i=0;i<3;i++) tempo=(tempo<<8)|*s->c0++;
@@ -73,11 +73,11 @@ static void reference(RrLibStateB0 *s) {
 int main(void) {
     unsigned iteration,mode,bank,row,b,r,i;
     assert(sizeof(void*)==8 && (uintptr_t)&world>UINT32_MAX);
-    assert(offsetof(RrLibStateB0,c0)==0);
+    assert(offsetof(LibStateB0,c0)==0);
     assert(sizeof(world.records[0][0].h48[0])==2);
     assert(sizeof(world.records[0][0].w94)==4);
     for(iteration=0;iteration<393224;iteration++) {
-        RrLibStateB0 *s;
+        LibStateB0 *s;
         u8 *stream;
         u32 tempo,period,frequency;
         for(i=0;i<sizeof(world);i++) ((u8*)&world)[i]=(u8)random32();

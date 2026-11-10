@@ -18,8 +18,8 @@ class SpuCommonTest(unittest.TestCase):
 #include <stddef.h>
 #include <string.h>
 #include "rr/spu_common.h"
-RrSpuRegisterBank *_spu_RXX;
-static struct {u32 guard[4];RrSpuRegisterStorage bank;u32 tail[4];} actual;
+SpuRegisterBank *_spu_RXX;
+static struct {u32 guard[4];SpuRegisterStorage bank;u32 tail[4];} actual;
 static u16 expected[256];
 static u32 rng=0x82674U;
 static unsigned seen[6],sweeps[2][8],clamps[2][3],externalWrites[4][2],controls[4][3];
@@ -34,7 +34,7 @@ static u16 volume(s16 value,s16 mode,int sweep,unsigned side){s32 v=value;
  if(v<0){v=0;clamps[side][0]++;}else if(v>127){v=127;clamps[side][2]++;}else clamps[side][1]++;
  return (u16)((0x7000U+(u32)mode*4096U)|(u32)v);
 }
-static void model(const RrSpuCommonAttributes28 *a){unsigned all=a->mask==0,i;u32 flags[4]={0x100,0x200,0x1000,0x2000};u16 bits[4]={4,1,8,2};s32 values[4]={a->cd.reverb,a->cd.mix,a->external.reverb,a->external.mix};s16 vols[4]={a->cd.volume.left,a->cd.volume.right,a->external.volume.left,a->external.volume.right};u32 masks[4]={0x40,0x80,0x400,0x800};
+static void model(const SpuCommonAttributes28 *a){unsigned all=a->mask==0,i;u32 flags[4]={0x100,0x200,0x1000,0x2000};u16 bits[4]={4,1,8,2};s32 values[4]={a->cd.reverb,a->cd.mix,a->external.reverb,a->external.mix};s16 vols[4]={a->cd.volume.left,a->cd.volume.right,a->external.volume.left,a->external.volume.right};u32 masks[4]={0x40,0x80,0x400,0x800};
  seen[all]++;
  if(all||(a->mask&1)){expected[192]=volume(a->master.left,a->mode.left,all||(a->mask&4),0);seen[2]++;}else seen[3]++;
  if(all||(a->mask&2)){expected[193]=volume(a->master.right,a->mode.right,all||(a->mask&8),1);seen[4]++;}else seen[5]++;
@@ -44,9 +44,9 @@ static void model(const RrSpuCommonAttributes28 *a){unsigned all=a->mask==0,i;u3
  }
 }
 static s32 booleanValue(unsigned which){switch(which%5){case 0:return 0;case 1:return INT32_MIN;case 2:return INT32_MAX;case 3:return -1;default:return word(next());}}
-int main(void){unsigned n,phase,i,j;uint64_t cases=0;RrSpuCommonAttributes28 a,saved;RrSpuRegisterBank *root;u32 guards[4],tails[4];
- _Static_assert(sizeof(RrSpuRegisterStorage)==512,"complete bank");_Static_assert(sizeof(a)==40,"complete attributes");
- _Static_assert(offsetof(RrSpuCommonAttributes28,cd)==16,"CD fields");_Static_assert(offsetof(RrSpuCommonAttributes28,external)==28,"external fields");
+int main(void){unsigned n,phase,i,j;uint64_t cases=0;SpuCommonAttributes28 a,saved;SpuRegisterBank *root;u32 guards[4],tails[4];
+ _Static_assert(sizeof(SpuRegisterStorage)==512,"complete bank");_Static_assert(sizeof(a)==40,"complete attributes");
+ _Static_assert(offsetof(SpuCommonAttributes28,cd)==16,"CD fields");_Static_assert(offsetof(SpuCommonAttributes28,external)==28,"external fields");
  assert((uintptr_t)&actual.bank>UINT32_MAX);assert((uintptr_t)&a>UINT32_MAX);
  for(n=0;n<65536;n++)for(phase=0;phase<10;phase++){
   memset(&a,0,sizeof(a));

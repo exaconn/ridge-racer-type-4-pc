@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80056258();
+void UpdateCarShowcaseCamera(int a0);
 
 #endif /* RR_GAME_CAMERA_CAMFX_H */

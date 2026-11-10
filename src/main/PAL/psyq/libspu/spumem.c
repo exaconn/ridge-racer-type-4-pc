@@ -5,7 +5,7 @@
 
 short SsVabOpenHeadSticky(int a0, short a1, int a2);
 short SsVabFakeHead(int a0, short a1, int a2);
-int VsGetAddr(a0, a1);
+int VsGetAddr(int a0, int a1);
 
 /* -g retains lexical block labels used by stock MASPSX to place load delays.
  * Keep the pointer snapshot scope before the zero-size loop. */
@@ -19,14 +19,14 @@ void _spu_gcSPU(void) {
   register u32 free_bit=0x80000000U;
   register u32 deleted=0x2FFFFFFFU;
   register u32 mask=0x0FFFFFFFU;
-  register RrSpuAllocation *base=_spu_memList;
+  register SpuAllocation *base=_spu_memList;
   register s32 limit=n;
   /* ASM_BARRIER: keep this phase value in the original MIPS register. */
-  register RrSpuAllocation *cur asm("$7")=base;
+  register SpuAllocation *cur asm("$7")=base;
   /* ASM_BARRIER: keep this phase value in the original MIPS register. */
   register s32 j asm("$6");
-  register RrSpuAllocation *scan;
-  register RrSpuAllocation *next;
+  register SpuAllocation *scan;
+  register SpuAllocation *next;
   register u32 other;
   /* ASM_BARRIER: keep this phase value in the original MIPS register. */
   register u32 next_address asm("$2");
@@ -38,14 +38,14 @@ void _spu_gcSPU(void) {
    if(cur->address_flags&free_bit) {
     j=i+1;
     scaled=j*8;
-    scan=(RrSpuAllocation *)((unsigned long)scaled+(unsigned long)base);
+    scan=(SpuAllocation *)(scaled+(unsigned long)base);
     for(;;) {
      u32 flags=scan->address_flags;scan++;
      if(flags!=deleted)break;
      j++;
     }
     scaled=j*8;
-    next=(RrSpuAllocation *)((unsigned long)scaled+(unsigned long)base);
+    next=(SpuAllocation *)(scaled+(unsigned long)base);
     other=next->address_flags;
     if(other&free_bit) {
      next_address=other&mask;
@@ -71,8 +71,8 @@ void _spu_gcSPU(void) {
  if(n>=0) {
   register u32 deleted=0x2FFFFFFFU;
   register s32 limit=n;
-  register RrSpuAllocation *cur;
-  { RrSpuAllocation *snapshot=_spu_memList; cur=snapshot; }
+  register SpuAllocation *cur;
+  { SpuAllocation *snapshot=_spu_memList; cur=snapshot; }
   do {if(cur->size==0)cur->address_flags=deleted;i++;cur++;}while(i<=limit);
  }
  /* Exchange-sort live records by the numeric address. */
@@ -83,14 +83,13 @@ void _spu_gcSPU(void) {
    register u32 end_bit=0x40000000U;
    /* ASM_BARRIER: keep this phase value in the original MIPS register. */
    register u32 mask asm("$12");
-   register RrSpuAllocation *base;
-   register RrSpuAllocation *cur;
+   register SpuAllocation *base;
+   register SpuAllocation *cur;
    /* ASM_BARRIER: keep this phase value in the original MIPS register. */
-   register RrSpuAllocation *inner asm("$8");
+   register SpuAllocation *inner asm("$8");
    /* ASM_BARRIER: keep this phase value in the original MIPS register. */
-   register RrSpuAllocation *scan asm("$4");
-   /* ASM_BARRIER: keep this phase value in the original MIPS register. */
-   register s32 j asm("$6");
+   register SpuAllocation *scan asm("$4");
+   s32 j;
    register s32 bound;
    register u32 flags;
    register u32 other;
@@ -106,13 +105,11 @@ void _spu_gcSPU(void) {
 sort_loop:
     if(cur->address_flags&end_bit)goto sort_done;
     j=i+1;
-    /* ASM_BARRIER: preserve the phase boundary and arithmetic schedule. */
-    __asm__("" : "+r"(j));
     check=(limit<j);
     if(!check) {
      scaled=j*8;
      inner=cur;
-     bound=_spu_AllocLastNum;scan=(RrSpuAllocation *)((unsigned long)scaled+(unsigned long)base);
+     bound=_spu_AllocLastNum;scan=(SpuAllocation *)(scaled+(unsigned long)base);
 inner_loop:
       other=scan->address_flags;
       if(other&end_bit)goto inner_done;
@@ -144,15 +141,15 @@ sort_done:;
    register u32 end_bit=0x40000000U;
    register u32 deleted=0x2FFFFFFFU;
    /* ASM_BARRIER: keep this phase value in the original MIPS register. */
-   register RrSpuAllocation *base asm("$6")=_spu_memList;
-   register RrSpuAllocation *cur=base;
+   register SpuAllocation *base asm("$6")=_spu_memList;
+   register SpuAllocation *cur=base;
    u32 flags;
 compact_loop:
     flags=cur->address_flags;
     if(flags&end_bit)goto compact_done;
     if(flags!=deleted)goto compact_next;
     {
-     register RrSpuAllocation *end=(RrSpuAllocation *)((unsigned long)(last*8)+(unsigned long)base);
+     register SpuAllocation *end=(SpuAllocation *)((last*8)+(unsigned long)base);
      u32 size;
      cur->address_flags=end->address_flags;
      size=end->size;
@@ -168,27 +165,23 @@ compact_done:;
  }
  /* Fold trailing free records into the terminal record. */
  n=_spu_AllocLastNum;
- i=(s32)((u32)n-1U);
+ i=(n-1U);
  /* ASM_BARRIER: preserve the phase boundary and arithmetic schedule. */
  __asm__("" : "+r"(i));
  if(i>=0) {
-  /* ASM_BARRIER: keep this phase value in the original MIPS register. */
-  register u32 free_bit asm("$8");
+  u32 free_bit;
   register u32 mask;
   register u32 end_bit;
-  register RrSpuAllocation *base;
-  register RrSpuAllocation *cur;
-  /* ASM_BARRIER: keep this phase value in the original MIPS register. */
-  register s32 scaled asm("$2");
+  register SpuAllocation *base;
+  register SpuAllocation *cur;
+  s32 scaled;
   register u32 flags;
   register s32 last;
   register u32 size;
   register u32 address;
   scaled=i*8;
   free_bit=0x80000000U;mask=0x0FFFFFFFU;end_bit=0x40000000U;
-  base=_spu_memList;cur=(RrSpuAllocation *)((unsigned long)scaled+(unsigned long)base);
-  /* ASM_BARRIER: preserve the phase boundary and arithmetic schedule. */
-  __asm__("" : "+r"(free_bit));
+  base=_spu_memList;cur=(SpuAllocation *)(scaled+(unsigned long)base);
 tail_loop:
    flags=cur->address_flags;
    if(!(flags&free_bit))goto tail_done;
@@ -200,7 +193,7 @@ tail_loop:
    _spu_AllocLastNum=i;
    i--;
    cur->size=size+base[last].size;
-   cur=(RrSpuAllocation *)((unsigned long)cur-sizeof(RrSpuAllocation));
+   cur=(SpuAllocation *)((unsigned long)cur-sizeof(SpuAllocation));
    if(i>=0)goto tail_loop;
 tail_done:;
  }

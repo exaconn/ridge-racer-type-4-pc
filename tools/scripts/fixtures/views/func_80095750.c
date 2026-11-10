@@ -33,9 +33,9 @@
 
 extern char MoveImageNameStr[];
 
-extern RrLibGraphicsDriverPrefix *GpuFuncTable;
+extern LibGraphicsDriverPrefix *GpuFuncTable;
 
-s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y) {
+s32 MoveImage2(GpuRectangle *rect,s32 x,s32 y) {
     /* ASM_BARRIER: Keep each DMA status read in the original polling temporary. */
     register u32 status __asm__("$2");
     checkRECT(MoveImageNameStr,rect);
@@ -57,12 +57,12 @@ test:
         return -1;
     build:
         {
-            RrGpuMovePayload *payload;
+            GpuMovePayload12 *payload;
             /* ASM_BARRIER: Form destination Y in the original height-test delay slot. */
             register u32 destination __asm__("$2")=(u32)y<<16;
             u32 position=rect->words[0];
             /* ASM_BARRIER: Retain the captured driver until packet publication completes. */
-            register RrLibGraphicsDriverPrefix *driver __asm__("$3")=GpuFuncTable;
+            register LibGraphicsDriverPrefix *driver __asm__("$3")=GpuFuncTable;
             destination|=(u32)x&65535;
             /* ASM_BARRIER: Capture the source position and driver before forming the packet address. */
             __asm__("" : : "r"(position),"r"(driver) : "$4");

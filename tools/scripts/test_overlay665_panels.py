@@ -12,6 +12,7 @@ class PanelsTest(unittest.TestCase):
                            for a in ('80116070', '80115CFC'))
         source = r'''
 #include <assert.h>
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -24,13 +25,13 @@ class PanelsTest(unittest.TestCase):
 typedef struct {u32 words[5];} GlyphStorage;
 typedef struct {u32 words[7];} PairStorage;
 typedef struct {
- GlyphStorage glyphs[8];RrGpuSingleCommandPacket first;
- PairStorage pairs[16];RrGpuSingleCommandPacket second;u32 tail[4];
+ GlyphStorage glyphs[8];GpuSingleCommandPacket first;
+ PairStorage pairs[16];GpuSingleCommandPacket second;u32 tail[4];
 } PacketStream;
 typedef struct {
- u32 guard[4],rng;RrOverlay665VisualState visual;RrProjectionScratchPrefix scratch;
- PacketStream streams[3];RrFrameOrderingPrefix frames[3];RrBadgeRow1C badges[3][8];RrMenuTextState text[3];
- RrUiUvRect uv;s32 arena,frameRoot,badgeRoot,textRoot,accept,local;
+ u32 guard[4],rng;Overlay665VisualState visual;ProjectionScratchPrefix scratch;
+ PacketStream streams[3];FrameStorage frames[3];BadgeRow1C badges[3][8];MenuTextState text[3];
+ UiUvRect uv;s32 arena,frameRoot,badgeRoot,textRoot,accept,local;
  s16 fade;u8 work[12];unsigned glyphCalls,pairCalls;u32 tail[4];
 } State;
 typedef struct {s32 op,args[10];u32 hash;} Event;
@@ -40,8 +41,8 @@ static World world,initial,expected;static u16 textData[32];static unsigned scen
 #define ovl665_D_80119760 world.s.local
 #define ScreenFadeState world.s.work
 #define BadgeRows world.s.badges[world.s.badgeRoot]
-#define D_800AC590 (&world.s.text[world.s.textRoot])
-#define CurrentDrawBuf ((RrIconSpriteContext*)&world.s.frames[world.s.frameRoot])
+#define CardDialogueStatePtr (&world.s.text[world.s.textRoot])
+#define CurrentDrawBuf ((FrameStorage*)&world.s.frames[world.s.frameRoot])
 #define D_800F3A60 world.s.accept
 #define D_800AC5D0 world.s.fade
 #define ovl665_D_80119028 world.s.uv
@@ -61,14 +62,14 @@ static void effect(void){unsigned i,j;
  world.s.arena=next()%3;world.s.frameRoot=next()%3;world.s.badgeRoot=next()%3;world.s.textRoot=next()%3;
  world.s.visual.layout0C=phases[next()%7];world.s.visual.scene00=word(next());world.s.visual.reset2C=word(next());world.s.local=word(next());world.s.fade=fades[next()%7];world.s.accept=next()%2;
  for(i=0;i<3;i++){
-  world.s.frames[i].ordering70[0]=next();world.s.text[i].p=textData;world.s.text[i].b4=(s8)next();world.s.text[i].st=(s8)next();
+  world.s.frames[i].buffer.ordering70.words[0]=next();world.s.text[i].p=textData;world.s.text[i].b4=(s8)next();world.s.text[i].st=(s8)next();
   world.s.badges[i][0].half02=half(next());world.s.badges[i][0].state10=states[next()%4];world.s.badges[i][0].x04=half(next());world.s.badges[i][0].y06=half(next());
   world.s.visual.view74.position00.words[i]=word(next());
  }
  world.s.visual.view74.rotation10=half(next());world.s.visual.view74.rotation12=half(next());world.s.visual.view74.rotation14=half(next());
  world.s.uv.u=next();world.s.uv.v=next();world.s.uv.w=next();world.s.uv.h=next();
  for(j=0;j<12;j++)world.s.work[j]=next();
- world.s.scratch.pointers.order=world.s.frames[world.s.frameRoot].ordering70;
+ world.s.scratch.pointers.order=world.s.frames[world.s.frameRoot].buffer.ordering70.words;
  world.s.scratch.pointers.cursor=world.s.glyphCalls<8?glyph_cursor():pair_cursor();
 }
 static Event *event(s32 op){size_t i;u32 h=2166136261U,n;const u8 *p=(const u8*)&world.s;Event *e;assert(world.calls<40);
@@ -81,13 +82,13 @@ void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){
 void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){Event *v=event(3);s32 args[]={a,b,c,d,e,f,g};memcpy(v->args,args,sizeof(args));change();}
 void SetMenuFrameOptions(s32 a,s32 b,s32 c){Event *e=event(4);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
 void ovl665_func_80115C8C(void){event(5);change();}
-void func_8005B2D4(s32 mode){event(6)->args[0]=mode;change();}
+void SetPresentationDrawEnabled(s32 mode){event(6)->args[0]=mode;change();}
 void PlaySfx(s32 sound){event(7)->args[0]=sound;change();}
-void AddScreenFadeTiles(u32 *head,s32 intensity,u32 mode){Event *e=event(8);assert(head==world.s.frames[world.s.frameRoot].ordering70);e->args[0]=intensity;e->args[1]=mode;*head^=(u32)intensity;change();}
+void AddScreenFadeTiles(u32 *head,s32 intensity,u32 mode){Event *e=event(8);assert(head==world.s.frames[world.s.frameRoot].buffer.ordering70.words);e->args[0]=intensity;e->args[1]=mode;*head^=(u32)intensity;change();}
 void ovl665_func_80114A24(void){event(9);change();}
-void *AddSpritePrim(u32 *head,void *cursor,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
+void *AddSpritePrim(u32 *head,void *cursor,s32 x,s32 y,const UiUvRect *uv,u16 clut,s32 color){
  Event *e=event(10);unsigned n=world.s.glyphCalls,i;GlyphStorage *p;int arena=-1;
- assert(n<8&&head==world.s.frames[world.s.frameRoot].ordering70&&uv==&world.s.uv);
+ assert(n<8&&head==world.s.frames[world.s.frameRoot].buffer.ordering70.words&&uv==&world.s.uv);
  for(i=0;i<3;i++)if(cursor==&world.s.streams[i].glyphs[n])arena=i;assert(arena>=0);p=&world.s.streams[arena].glyphs[n];
  e->args[0]=arena;e->args[1]=x;e->args[2]=y;e->args[3]=clut;e->args[4]=color;memcpy(&e->args[5],uv,4);
  /* Typed GPU service simulation; these words deliberately are opaque, not
@@ -104,10 +105,10 @@ void DrawHudDigit(s32 glyph,s32 x,s32 y,s32 color){
  world.s.pairCalls++;change();world.s.scratch.pointers.cursor=pair_cursor();
 }
 void UpdateBadgeRowAnim(s32 row){event(12)->args[0]=row;change();}
-void UpdateDialogue(s32 x,s32 y,RrMenuTextState *text){Event *e=event(13);assert(text==D_800AC590);e->args[0]=x;e->args[1]=y;change();}
+void UpdateDialogue(s32 x,s32 y,MenuTextState *text){Event *e=event(13);assert(text==CardDialogueStatePtr);e->args[0]=x;e->args[1]=y;change();}
 void UpdateScreenFade(s32 flags){event(14)->args[0]=flags;change();}
-static void command(RrGpuSingleCommandPacket *p,u32 value){
- u32 *head=world.s.frames[world.s.frameRoot].ordering70;u32 old=*head;
+static void command(GpuSingleCommandPacket *p,u32 value){
+ u32 *head=world.s.frames[world.s.frameRoot].buffer.ordering70.words;u32 old=*head;
  p->tag=0x01000000U+(old&0xFFFFFFU);p->command=value;
  *head=(old&0xFF000000U)+(u32)((uintptr_t)p%0x1000000U);
  world.s.scratch.pointers.cursor=(u8*)(p+1);
@@ -119,19 +120,19 @@ static void reference(void){unsigned i;State *s=&world.s;
   for(i=0;i<3;i++)s->visual.view74.position00.words[i]=0;s->visual.view74.rotation10=0;s->visual.view74.rotation12=0;s->visual.view74.rotation14=0;s->visual.reset2C=0;SetMenuFrameOptions(1,1,0);return;
  }
  {s32 phase=s->visual.layout0C;
-  if(phase==0){ovl665_func_80115C8C();func_8005B2D4(0);s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
+  if(phase==0){ovl665_func_80115C8C();SetPresentationDrawEnabled(0);s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
   else if(phase==1){if(BadgeRows[0].state10==3)s->visual.layout0C=2;}
   else if(phase==2){if(s->accept){PlaySfx(1);BadgeRows[0].state10=4;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}}
-  else if(phase==3){s->fade=half((s32)s->fade-1);AddScreenFadeTiles(s->frames[s->frameRoot].ordering70,(64-(s32)s->fade)*4,69);if(s->fade<=0&&BadgeRows[0].state10==11){ovl665_func_80114A24();s->visual.layout0C=0;s->visual.scene00=wrap((int64_t)s->visual.scene00-1);return;}}
+  else if(phase==3){s->fade=half((s32)s->fade-1);AddScreenFadeTiles(s->frames[s->frameRoot].buffer.ordering70.words,(64-(s32)s->fade)*4,69);if(s->fade<=0&&BadgeRows[0].state10==11){ovl665_func_80114A24();s->visual.layout0C=0;s->visual.scene00=wrap((int64_t)s->visual.scene00-1);return;}}
  }
  {void *cursor=s->scratch.pointers.cursor;
-  for(i=0;i<8;i++)cursor=AddSpritePrim(s->frames[s->frameRoot].ordering70,cursor,24+36*i,144,&s->uv,32568,255-(i*223+6)/7);
+  for(i=0;i<8;i++)cursor=AddSpritePrim(s->frames[s->frameRoot].buffer.ordering70.words,cursor,24+36*i,144,&s->uv,32568,255-(i*223+6)/7);
   s->scratch.pointers.cursor=cursor;command(cursor,0xE1000239U);
  }
  for(i=0;i<8;i++){DrawHudDigit(0,28+36*i,192,128);DrawHudDigit(i+1,34+36*i,192,128);}
- command((RrGpuSingleCommandPacket*)s->scratch.pointers.cursor,0xE1000238U);
- D_800AC590->b4=27;UpdateBadgeRowAnim(0);
- if(BadgeRows[0].state10==3){s32 x=BadgeRows[0].x04,y=BadgeRows[0].y06;UpdateDialogue(x+10,y+40,D_800AC590);}
+ command((GpuSingleCommandPacket*)s->scratch.pointers.cursor,0xE1000238U);
+ CardDialogueStatePtr->b4=27;UpdateBadgeRowAnim(0);
+ if(BadgeRows[0].state10==3){s32 x=BadgeRows[0].x04,y=BadgeRows[0].y06;UpdateDialogue(x+10,y+40,CardDialogueStatePtr);}
  UpdateScreenFade(65660);
 }
 int main(void){unsigned i,j;

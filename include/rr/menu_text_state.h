@@ -13,11 +13,11 @@ typedef struct {
     s32 i18;
     u8 b1C,b1D,b1E,b1F;
     s32 arr[0xC8];
-} RrMenuTextState;
-extern RrMenuTextState *D_800AC590;
+} MenuTextState;
+extern MenuTextState *CardDialogueStatePtr;
 void SkipDialoguePage(void *state);
-void UpdateDialogue(s32 x,s32 y,RrMenuTextState *state);
-RR_ASSERT_SIZE(RrMenuTextState,0x340);
-RR_ASSERT_OFFSET(RrMenuTextState,i18,0x18);
-RR_ASSERT_OFFSET(RrMenuTextState,arr,0x20);
+void UpdateDialogue(s32 x,s32 y,MenuTextState *state);
+RR_ASSERT_SIZE(MenuTextState,0x340);
+RR_ASSERT_OFFSET(MenuTextState,i18,0x18);
+RR_ASSERT_OFFSET(MenuTextState,arr,0x20);
 #endif

@@ -1,9 +1,8 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* GCC_VERSION: 2.7.2 */
-/* CC1_FLAGS: -fsigned-char */
 #include "psyq/libcd/dsread.h"
 #include "psyq/libcd/cdfile.h"
 #include "psyq/libcd/dsfile.h"
+#include "game/data/globals.h"
 
 typedef struct {
     int x;
@@ -13,23 +12,8 @@ typedef struct {
 /* GCC_VERSION: 2.7.2 */
 /* CC1_FLAGS: -fsigned-char */
 
-typedef struct {
-    unsigned char pos[4];
-    int size;
-    char name[16];
-} CdlFILE;
-
-struct DirPath {
-    int a;
-    int b;
-    int c;
-    char name[32];
-};
-
-extern int CD_debug;
-extern struct DirPath DS_pathTable[];
-extern CdlFILE DsDirFileCache[];
-extern const char D_80011CA4[];
+extern CdDirPath2C DS_pathTable[];
+extern const char CdCacheFileDirNotFoundMsg[];
 extern const char CdCacheFileSearchMsg[];
 extern unsigned short D_80011CE0;
 extern short D_80011CE4;
@@ -46,12 +30,12 @@ int DS_cachefile(int dir) {
     unsigned char *p;
     int i;
 
-    if (dir == D_800A67A0) {
+    if (dir == DS_cachedDir) {
         return 1;
     }
     if (cd_read(1, DS_pathTable[dir].a, CdIsoSectorBuf) != 1) {
         if (CD_debug > 0) {
-            DebugPrintStub(D_80011CA4);
+            DebugPrintStub(CdCacheFileDirNotFoundMsg);
             return -1;
         }
         return -1;
@@ -65,9 +49,9 @@ int DS_cachefile(int dir) {
         if (p[0] == 0) {
             break;
         }
-        *(U4 *)&sp18 = *(U4 *)(p + 2);
+        *(U4 *)&sp18 = ((U4 *)(p + 2))[0];
         CdIntToPos(sp18, DsDirFileCache[i].pos);
-        *(U4 *)&DsDirFileCache[i].size = *(U4 *)(p + 10);
+        *(U4 *)&DsDirFileCache[i].size = ((U4 *)(p + 2))[2];
         switch (i) {
         case 0:
             __builtin_memcpy(DsDirFileCache[0].name, &D_80011CE0, 2);
@@ -96,7 +80,7 @@ int DS_cachefile(int dir) {
             break;
         }
     }
-    D_800A67A0 = dir;
+    DS_cachedDir = dir;
     if (i < 0x40) {
         DsDirFileCache[i].name[0] = 0;
     }

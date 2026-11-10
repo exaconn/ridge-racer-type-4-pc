@@ -37,7 +37,7 @@
 
 #undef GPU_STATUS
 
-u32 get_tw(RrGpuRectangleFields *a0)
+u32 get_tw(GpuRectangleFields *a0)
 {
   int v[4];
   int new_var;

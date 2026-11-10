@@ -7,9 +7,9 @@
 typedef struct {
     volatile u32 pending;
     volatile u32 mask;
-} RrInterruptRegisters;
+} InterruptRegisters;
 
-extern RrInterruptRegisters *I_STAT_PadVsync, *I_STAT_Card, *I_STAT_Sio, *I_STAT_Pad;
+extern InterruptRegisters *I_STAT_PadVsync, *I_STAT_Card, *I_STAT_Sio, *I_STAT_Pad;
 /* Exchange the interrupt mask; return the previous zero-extended 16-bit value. */
 s32 SetIntrMask(s32 value);
 s32 _padVsyncHookCheck(void);
@@ -17,7 +17,7 @@ s32 _cardChkVsyncIrq(void);
 s32 _cardChkSioIrq(void);
 s32 _sio_irq_check(void);
 
-RR_ASSERT_SIZE(RrInterruptRegisters, 8);
-RR_ASSERT_OFFSET(RrInterruptRegisters, mask, 4);
+RR_ASSERT_SIZE(InterruptRegisters, 8);
+RR_ASSERT_OFFSET(InterruptRegisters, mask, 4);
 
 #endif

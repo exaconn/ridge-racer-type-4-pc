@@ -1,7 +1,7 @@
 #include "rr/softfloat.h"
 
 s32 __ltdf2(u64 left, u64 right) {
-    register union {u64 bits; RrWide64 words;} a __asm__("$8"),b __asm__("$6");
+    register union {u64 bits; Wide64 words;} a __asm__("$8"),b __asm__("$6");
     u32 magnitude=0x7FFF0000;
     s32 leftExponent;
     s32 rightFraction;

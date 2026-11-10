@@ -3,7 +3,7 @@
 #include "rr/menu_label_render.h"
 #include "rr/save_progress.h"
 #include "rr/menu_choice.h"
-extern RrUiUvRect UiFontGlyphs[];
+extern UiUvRect UiFontGlyphs[];
 extern s32 ScreenFrame;
 extern s8 ovl662_D_8012621C[7];
 extern u16 ovl662_D_801272D8[4],ovl662_D_801272FC;

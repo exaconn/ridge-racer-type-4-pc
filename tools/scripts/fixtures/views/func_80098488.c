@@ -8,9 +8,9 @@ extern void setRC2wait(s32);
 
 extern s32 _padClrIntSio0(void);
 
-void _padSioStageStep(RrChannelRecordF0 *channel) {
+void _padSioStageStep(ChannelRecordF0 *channel) {
     s32 *stage=&PadRecvStage;
-    RrChannelStageCallback callback=PadRecvStageTable[*stage];
+    ChannelStageCallback callback=PadRecvStageTable[*stage];
     s32 result,value;
     *stage+=1;
     result=callback(channel);

@@ -1,6 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/wide.h"
-s32 _comp_mant(RrWide64 left,RrWide64 right) {
+s32 _comp_mant(Wide64 left,Wide64 right) {
     /* ASM_BARRIER: Keep the selected result in the common return register. */
     register s32 result __asm__("$2");
     if((u32)right.hi<(u32)left.hi) goto greater;
@@ -20,10 +20,10 @@ done:
     return result;
 }
 
-#define RR_SHIFT_VALUE (*(RrWide64 *)&value)
-RrWide64 *_dbl_shift_us(RrWide64 *result,s32 right,RrWide64 value,s32 raw_count) {
+#define RR_SHIFT_VALUE (*(Wide64 *)&value)
+Wide64 *_dbl_shift_us(Wide64 *result,s32 right,Wide64 value,s32 raw_count) {
     register s32 count=raw_count;
-    register RrWide64 *out=result;
+    register Wide64 *out=result;
     /* ASM_BARRIER: Keep the iteration variable in the original argument register. */
     register s32 i __asm__("$4");
     if(!right) {

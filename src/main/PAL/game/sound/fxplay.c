@@ -1,24 +1,17 @@
 #include "types.h"
-#include "m2c_macros.h"
+#include "rr/audio_state_types.h"
 #include "game/camera/campath.h"
 #include "game/sound/sndvab.h"
 #include "psyq/libsnd/ssopenq.h"
 #include "game/sound/fxramp2.h"
-#include "game/sound/sndvab.h"
 #include "psyq/libsnd/sspause.h"
 #include "psyq/libsnd/sspause2.h"
 #include "psyq/libspu/smalloc2.h"
 #include "rr/bios_devices.h"
+#include "rr/overlay665_audio_options.h"
+#include "game/sound/cdmain.h"
 
-extern int SeqSetVolume();
 extern struct { s32 a, b, c; } D_800A0CD8[];
-extern struct {
-    char pad[0x24]; s16 h[1];
-    char p2[0x2858 - 0x26]; s32 w[1];
-    char p3[0x2864 - 0x285C]; s32 x2864, x2868, x286C;
-    char p4[0x287C - 0x2870]; s32 x287C;
-} SoundState;
-extern int SeqFadeVolume();
 extern s16 D_800F761C;
 
 void SeqStartTrack(int a0);
@@ -28,17 +21,17 @@ void SeqMusicResume(void);
 
 void SeqStartTrack(int a0) {
     int arr[2] = {0x6C, 0x7F};
-    if (SoundState.x2868 != a0) {
+    if (SoundState.seqTrack2868 != a0) {
         SeqMuteVolume();
-        SoundState.x2868 = a0;
-        SoundState.x2864 = (s16)SsSeqOpen(SoundState.w[a0], SoundState.h[a0 + 2]);
-        SsSetMarkCallback((s16)SoundState.x2864, 0, SeqMarkCallback);
+        SoundState.seqTrack2868 = a0;
+        SoundState.seqHandle2864 = (s16)SsSeqOpen(SoundState.seqAddr2858[a0], SoundState.bank24[a0 + 2]);
+        SsSetMarkCallback((s16)SoundState.seqHandle2864, 0, SeqMarkCallback);
         ReverbReset();
         SetReverbDepthBoth(0x32);
-        SsSeqPlay((s16)SoundState.x2864, 1, 0);
+        SsSeqPlay((s16)SoundState.seqHandle2864, 1, 0);
         SeqSetVolume((s16)arr[a0]);
-        func_80096434(&SoundState.x286C, 0x1C);
-        SoundState.x287C = D_800A0CD8[a0].a;
+        PsyqBzero(&SoundState.seqTick286C, 0x1C);
+        SoundState.seqTempo287C = D_800A0CD8[a0].a;
         RestartMotionSequence();
     }
 }

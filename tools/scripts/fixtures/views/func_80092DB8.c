@@ -136,7 +136,7 @@
 #undef GpuFuncTable
 
 /* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((RrLibGraphicsDriverPrefix *)GpuFuncTable)
+#define GpuFuncTable ((LibGraphicsDriverPrefix *)GpuFuncTable)
 
 #undef GpuFuncTable
 
@@ -170,10 +170,10 @@ extern char StrRectFmt[];
 
 extern char D_80011EC8[];
 
-void checkRECT(const char *name,RrGpuRectangle *rectangle) {
+void checkRECT(const char *name,GpuRectangle *rectangle) {
     const char *label=name;
-    RrGpuRectangle *rect=rectangle;
-    RrGpuDebugSettings *settings=&D_800ABAC2;
+    GpuRectangle *rect=rectangle;
+    GpuDebugSettings *settings=&D_800ABAC2;
     const char *format;
     switch(settings->level) {
     case 1: {

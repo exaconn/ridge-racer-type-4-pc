@@ -6,6 +6,8 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
+from test_cd_disc_probe import native_body
 from test_library_saved_state import State
 
 Hook=C.CFUNCTYPE(None,C.c_int32,C.c_int32,C.c_int32)
@@ -18,28 +20,28 @@ class InterruptCallbackExchangeTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
         header=(root/'include/rr/library.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(root/'tools/scripts/fixtures/views/func_8008B7A0.c').read_text().replace('#include "rr/library.h"','')
-        body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
+        owners=source_owners(root/'src/main/PAL')
+        body=native_body(definition_source(owners['setIntr'].read_text(),'setIntr'))
         observed=body.replace('setIntr','observed_exchange')
         sites={'raw=*I_MASK;':'raw=test_read(I_MASK);','*I_MASK=0;':'test_write(I_MASK,0);','*I_MASK=saved;':'test_write(I_MASK,saved);'}
         for old,new in sites.items():
             assert observed.count(old)==1
             observed=observed.replace(old,new)
-        wrapper=(root/'tools/scripts/fixtures/views/func_8008B394.c').read_text().replace('#include "rr/library.h"','')
+        wrapper=native_body(definition_source(owners['InterruptCallback'].read_text(),'InterruptCallback'))
         code='''#include <stdint.h>
 #include <stddef.h>
 typedef uint8_t u8; typedef int8_t s8; typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 #define RR_FIELD_OFFSET(type,field) offsetof(type,field)
 '''+header+'''
-RrLibSavedState D_800A52C8;
+LibSavedState IntrDispatchState;
 u16 ports[6];volatile u16 *I_MASK=&ports[1];
 s32 called[3],io_count,io_kind[32],io_port[32];u32 io_value[32];
 void (*on_bios)(s32,s32,s32);
 void callback_a(void) {called[0]++;}
 void callback_b(void) {called[1]++;}
 void callback_c(void) {called[2]++;}
-void invoke(RrLibInterruptCallback callback) {callback();}
+void invoke(LibInterruptCallback callback) {callback();}
 s32 ChangeClearPAD(s32 disabled) {if(on_bios)on_bios(0,disabled,0);return -123;}
 s32 ChangeClearRCnt(s32 counter,s32 disabled) {if(on_bios)on_bios(1,counter,disabled);return -234;}
 void io(s32 kind,volatile u16 *p,u16 value) {
@@ -47,17 +49,17 @@ void io(s32 kind,volatile u16 *p,u16 value) {
 }
 u16 test_read(volatile u16 *p) {u16 value=*p;io(0,p,value);return value;}
 void test_write(volatile u16 *p,u16 value) {io(1,p,value);*p=value;}
-RrLibInterruptDriverPrefix driver={0,0,setIntr,0};
-RrLibInterruptDriverPrefix *IntrDriverTablePtr=&driver;
-unsigned long native_size=sizeof(RrLibSavedState);
-unsigned long native_offsets[]={offsetof(RrLibSavedState,callbacks),offsetof(RrLibSavedState,enabled_mask),offsetof(RrLibSavedState,callback_data)};
+LibInterruptDriverPrefix driver={0,0,setIntr,0};
+LibInterruptDriverPrefix *IntrDriverTablePtr=&driver;
+unsigned long native_size=sizeof(LibSavedState);
+unsigned long native_offsets[]={offsetof(LibSavedState,callbacks),offsetof(LibSavedState,enabled_mask),offsetof(LibSavedState,callback_data)};
 '''+body+observed+wrapper
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))
         assert C.c_ulong.in_dll(cls.lib,'native_size').value==C.sizeof(State)
         assert list((C.c_ulong*3).in_dll(cls.lib,'native_offsets'))==[State.callbacks.offset,State.enabled_mask.offset,State.callback_data.offset]
-        cls.state=State.in_dll(cls.lib,'D_800A52C8');cls.ports=(C.c_uint16*6).in_dll(cls.lib,'ports')
+        cls.state=State.in_dll(cls.lib,'IntrDispatchState');cls.ports=(C.c_uint16*6).in_dll(cls.lib,'ports')
         cls.port=C.c_void_p.in_dll(cls.lib,'I_MASK');cls.hook=C.c_void_p.in_dll(cls.lib,'on_bios')
         cls.callbacks=[C.cast(getattr(cls.lib,name),C.c_void_p).value for name in ('callback_a','callback_b','callback_c')]
         cls.called=(C.c_int32*3).in_dll(cls.lib,'called');cls.io_count=C.c_int32.in_dll(cls.lib,'io_count')

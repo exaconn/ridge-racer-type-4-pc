@@ -25,10 +25,10 @@ class OverlayGarageActionsTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_actions.h"
-typedef struct {s32 kind,id,code,index,args[5];RrGarageActionPrefix *record;} Event;
+typedef struct {s32 kind,id,code,index,args[5];GarageActionPrefix *record;} Event;
 static struct World {
- u32 before[8];RrGarageSelectionPrefix state;
- RrGarageActionPrefix records[16],*table[16];
+ u32 before[8];GarageSelectionPrefix state;
+ GarageActionPrefix records[16],*table[16];
  u32 sound_index,sound_record,sound_kind,next_index,next_record,next_kind;
  u32 calls,actions,sounds;Event log[3];u32 after[8];
 } world,expected;
@@ -59,11 +59,11 @@ static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 static s32 word(u32 raw){s32 value;memcpy(&value,&raw,4);return value;}
 static void model_action(s32 code){
  ptrdiff_t index=expected.table[expected.state.current60]-world.records;
- RrGarageStep callback;assert(index>=0 && index<16);callback=expected.records[index].callback;
+ GarageStep callback;assert(index>=0 && index<16);callback=expected.records[index].callback;
  assert(callback==action_a || callback==action_b);action_effect(&expected,callback==action_a?1:2,code);
 }
 int main(void){unsigned k,i;
- assert(sizeof(RrGarageActionPrefix)==sizeof(RrGarageStep));
+ assert(sizeof(GarageActionPrefix)==sizeof(GarageStep));
  for(k=0;k<131072;k++){
   u32 flags=k<65536?k:(next()&0xffff0000U)|(k-65536);
   memset(&world,0,sizeof(world));

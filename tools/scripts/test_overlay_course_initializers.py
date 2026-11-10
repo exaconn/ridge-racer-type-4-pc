@@ -38,10 +38,10 @@ class CourseInitializersTest(unittest.TestCase):
 #include "rr/diagnostics.h"
 static char player2[12]="PLAYER 2";
 static const char format661[]="job_vs_car_info0\n",format666[]="job_ex_crs_info0\n";
-union Selection {RrSelectionRows complete;RrMenuChoice4 prefix;RrCurrentSelection owner;};
+union Selection {SelectionRows32 complete;MenuChoice4 prefix;CurrentSelection owner;};
 struct State {
- u32 guard[4];RrSaveProgressRecord7C save;char names[24];union Selection choice;
- RrCourseChoice4 source[2][9],versus[2][2][9],extra[4][9];
+ u32 guard[4];SaveProgressRecord7C save;char names[24];union Selection choice;
+ CourseChoice4 source[2][9],versus[2][2][9],extra[4][9];
  s16 selections[2],rows[2],columns[2],counts[4];
  s16 clearABEC8,clearAC648,clearF3914,clearF3826,modeAC59C,flag,position,selected;u16 course;
  s32 laps,marker;u32 tail[4];
@@ -76,7 +76,7 @@ static void effect(unsigned n){
  for(i=0;i<2;i++){
   w->s.selections[i]=(s16)(value+i);w->s.rows[i]=(s16)(value+i+1);w->s.columns[i]=(s16)(value+i+2);
   for(j=0;j<9;j++){
-   RrCourseChoice4 *p=&w->s.source[i][j];
+   CourseChoice4 *p=&w->s.source[i][j];
    p->glyph=(s16)((scenario+j*43+n*71)%32000);p->second=(s8)(value+j*13);p->first=(s8)(value+j*17);
    if((scenario&7)==0)p->glyph=(s16)(((scenario/8)%4)*40+(j<((scenario>>5)%10)?j:39));
    else if((scenario&7)==1)p->glyph=(s16)(39+((scenario+j)%4)*40);

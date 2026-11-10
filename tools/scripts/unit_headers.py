@@ -6,7 +6,8 @@ callers include it instead of repeating a local prototype.
 
 A function is exported when another unit declares it locally and its signature uses only builtin /
 types.h types. Callers are rewritten one by one; a caller that no longer matches at relocated
-Levenshtein distance 0 (checked with fd.py) is restored. Headers nobody ended up including are removed.
+Levenshtein distance 0 (checked after full relocation by verify_c_unit.py) is restored.
+Headers nobody ended up including are removed.
 
 usage: unit_headers.py [--dry-run] [--jobs N]
 """
@@ -17,13 +18,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from tumerge import parse, KNR
+from c_functions import function_definitions, known_functions
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / 'src/main/PAL'
 INC = ROOT / 'include'
 KEYWORDS = {'struct', 'union', 'enum', 'extern', 'const', 'volatile', 'unsigned', 'signed', 'char', 'short', 'int', 'long', 'void',
             'float', 'double'}
-FUNC = re.compile(r'func_[0-9A-Fa-f]{8}$')
+FUNC = re.compile(r'(?:' + '|'.join(map(re.escape, sorted(known_functions()))) + r')$')
 
 
 def strip_comments(t):
@@ -99,14 +101,13 @@ def usable(proto, name, known):
 
 
 def fd_ok(p):
-    r = subprocess.run([str(ROOT / '.venv/bin/python'), str(ROOT / 'tools/scripts/fd.py'), str(p), '--no-asm'],
+    r = subprocess.run([str(ROOT / '.venv/bin/python'), str(ROOT / 'tools/scripts/verify_c_unit.py'), str(p)],
                        capture_output=True, text=True, cwd=ROOT)
     out = r.stdout + r.stderr
-    ds = re.findall(r'Levenshtein: (\d+)', out)
+    ds = re.findall(r'relocated Levenshtein (\d+)', out)
     bad = re.search(r'conflicting types|error:|\berror\b.*\n|previous declaration|undeclared', out)
-    _, items = parse(Path(p).read_text())
-    nfunc = sum(1 for k, _, _ in items if k == 'func')
-    return r.returncode == 0 and not bad and len(ds) >= nfunc and all(d == '0' for d in ds)
+    nfunc = len(function_definitions(Path(p).read_text()))
+    return r.returncode == 0 and not bad and nfunc > 0 and len(ds) == nfunc and all(d == '0' for d in ds)
 
 
 def multi_declared(items):

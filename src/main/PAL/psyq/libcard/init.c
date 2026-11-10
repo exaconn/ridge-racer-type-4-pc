@@ -1,8 +1,8 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
-#include "m2c_macros.h"
 #include "psyq/libapi/pad1.h"
+#include "psyq/libcard/init.h"
 #include "rr/memory.h"
 #include "rr/spu_tick_control.h"
 
@@ -14,10 +14,6 @@ int StartCARD2();
 int StopCARD2();
 /* extern */
 int _ExitCard();
-
-void InitCARD(s32 arg0);
-void StartCARD(void);
-void StopCARD(void);
 
 void InitCARD(s32 arg0) {
     s32 var_s0;
@@ -35,9 +31,6 @@ void InitCARD(s32 arg0) {
     ExitCriticalSection();
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define ChangeClearPAD ((int (*)(int))ChangeClearPAD)
-
 /* extern */
 void StartCARD(void) {
     EnterCriticalSection();
@@ -45,8 +38,6 @@ void StartCARD(void) {
     ChangeClearPAD(0);
     ExitCriticalSection();
 }
-
-#undef ChangeClearPAD
 
 /* extern */
 void StopCARD(void) {

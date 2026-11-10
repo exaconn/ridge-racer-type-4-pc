@@ -31,7 +31,7 @@ class InterruptDispatchTest(unittest.TestCase):
 #define RR_IRQ_ACK16(port,value) ack_actual((port),(u16)(value))
 #include "rr/interrupt_dispatch.h"
 typedef struct {u16 status,statusUpper,mask,maskUpper;u32 guard;} Registers;
-typedef struct {u32 guard[4];RrLibSavedState saved;Registers regs[2];
+typedef struct {u32 guard[4];LibSavedState saved;Registers regs[2];
  volatile u16 *statusRoot,*maskRoot;s32 stalled;
  u32 mode,acks,callbacks,prints,bios,injected,inactiveReturn;u32 tail[4];} World;
 static World actual,expected;
@@ -42,7 +42,7 @@ static Event events[128];static unsigned count,cursor;
 static u32 seed=0x8b5d0;static unsigned paths[12],pendingSeen[2048],modeSeen[256];
 static void call_callback(unsigned id);
 '''+wrappers+r'''
-static RrLibInterruptCallback callbacks[22]={'''+','.join('callback'+str(i) for i in range(22))+r'''};
+static LibInterruptCallback callbacks[22]={'''+','.join('callback'+str(i) for i in range(22))+r'''};
 static u32 next(void){u32 x=seed;x^=x<<13;x^=x>>17;x^=x<<5;return seed=x;}
 static s32 signed32(u32 x){s32 y;memcpy(&y,&x,4);return y;}
 static s32 increment(s32 x){return signed32((u32)((int64_t)x+1));}
@@ -50,7 +50,7 @@ static unsigned port_id(const World *w,const volatile u16 *p){unsigned i;
  for(i=0;i<2;i++)if(p==&w->regs[i].status)return i;assert(0);return 0;}
 static unsigned mask_id(const World *w,const volatile u16 *p){unsigned i;
  for(i=0;i<2;i++)if(p==&w->regs[i].mask)return i;assert(0);return 0;}
-static unsigned callback_id(RrLibInterruptCallback p){unsigned i;for(i=0;i<22;i++)if(p==callbacks[i])return i;assert(0);return 0;}
+static unsigned callback_id(LibInterruptCallback p){unsigned i;for(i=0;i<22;i++)if(p==callbacks[i])return i;assert(0);return 0;}
 static void compare(const World *a,const World *e){
  assert(!memcmp(a->guard,e->guard,sizeof(a->guard)));assert(!memcmp(&a->saved,&e->saved,sizeof(a->saved)));
  assert(!memcmp(a->regs,e->regs,sizeof(a->regs)));assert(!memcmp(a->tail,e->tail,sizeof(a->tail)));
@@ -92,7 +92,7 @@ static void bios_effect(World *w){w->bios++;
    w->saved.enabled_mask=(u16)(((w->saved.enabled_mask<<1)|(w->saved.enabled_mask>>10))&2047);}
  }
 }
-#define D_800A52C8 (actual.saved)
+#define IntrDispatchState (actual.saved)
 #define I_STAT (actual.statusRoot)
 #define I_MASK (actual.maskRoot)
 #define IntrStuckCount (actual.stalled)
@@ -112,7 +112,7 @@ static void model(void){unsigned batch,repeat=0,i,bank;u16 pending;s32 old;
  assert(batch<2048);pendingSeen[batch]++;
  while(batch){assert(++repeat<16);pending=(u16)batch;
   for(i=0;i<11;i++)if(pending&(1U<<i)){
-   RrLibInterruptCallback cb;bank=port_id(&expected,expected.statusRoot);
+   LibInterruptCallback cb;bank=port_id(&expected,expected.statusRoot);
    emit(0,bank,(u16)(65535U-(1U<<i)),0);acknowledge(&expected,bank,(u16)(65535U-(1U<<i)));
    cb=expected.saved.callbacks[i];if(cb){unsigned id=callback_id(cb);emit(1,id,0,0);callback_effect(&expected,id);paths[1]++;}
    else paths[2]++;
@@ -136,10 +136,10 @@ static void model(void){unsigned batch,repeat=0,i,bank;u16 pending;s32 old;
 int main(void){unsigned n,i,pattern;uint64_t cases=0;
  static const s32 counters[10]={-1,0,1,2047,2048,2049,2050,INT32_MIN,INT32_MAX,0x7ffff800};
  _Static_assert(offsetof(Registers,mask)==4,"hardware register spacing");
- _Static_assert(offsetof(RrLibSavedState,callbacks)==8,"native callback alignment");
- _Static_assert(sizeof(((RrLibSavedState*)0)->callbacks)/sizeof(RrLibInterruptCallback)==11,"full callback owner");
- _Static_assert(offsetof(RrLibSavedState,enabled_mask)==8+11*sizeof(RrLibInterruptCallback),"native mask");
- _Static_assert(sizeof(RrLibSavedState)==112,"complete native saved state");
+ _Static_assert(offsetof(LibSavedState,callbacks)==8,"native callback alignment");
+ _Static_assert(sizeof(((LibSavedState*)0)->callbacks)/sizeof(LibInterruptCallback)==11,"full callback owner");
+ _Static_assert(offsetof(LibSavedState,enabled_mask)==8+11*sizeof(LibInterruptCallback),"native mask");
+ _Static_assert(sizeof(LibSavedState)==112,"complete native saved state");
  assert((uintptr_t)&actual>UINT32_MAX);assert((uintptr_t)callback0>UINT32_MAX);
  for(n=0;n<524288;n++){
   unsigned char *p=(unsigned char*)&actual;for(i=0;i<sizeof(actual);i++)p[i]=(u8)next();

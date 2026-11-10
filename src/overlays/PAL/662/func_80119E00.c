@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "rr/overlay662_palette_controller.h"
 
 void ovl662_func_80119E00(void) {
@@ -10,12 +11,12 @@ void ovl662_func_80119E00(void) {
     u16 previous;
     s32 rowPhase;
     s16 key;
-    RrUiRow24 *acceptRow;
-    RrUiRow24 *closingRow;
-    RrUiRow24 *cancelRow;
+    UiRow24 *acceptRow;
+    UiRow24 *closingRow;
+    UiRow24 *cancelRow;
 
-    ModeFrame = (u32)ModeFrame + 1;
-    ScreenFrame = (u32)ScreenFrame + 1;
+    ModeFrame = ModeFrame + 1U;
+    ScreenFrame = ScreenFrame + 1U;
     switch ((u16)D_800F4D8A) {
     case 0:
         if (ovl662_D_801272E8 == 0) SetMenuFrameOptions(1,1,1);
@@ -53,7 +54,7 @@ void ovl662_func_80119E00(void) {
         if (rowPhase == 2) {
             badgePhase = BadgeRows->state10;
             if (badgePhase == 3) {
-                if (PlayerControllers[0].a != 0) {
+                if (PlayerControllers[0].action28 != 0) {
                     UiRows[(s16)MenuCursor].cells[0] = 1;
                     if ((s16) MenuCursor == 0) {
                         if (ovl662_D_801272E2 < 0x19) {
@@ -63,7 +64,7 @@ void ovl662_func_80119E00(void) {
                             ovl662_D_80127398 = 0;
                             D_800F4D8A = (u16) badgePhase;
                             do {
-                                acceptRow = (RrUiRow24 *)(index * sizeof(RrUiRow24) + (unsigned long)UiRows);
+                                acceptRow = (UiRow24 *)(index * sizeof(UiRow24) + (unsigned long)UiRows);
                                 if (acceptRow->byte14 == 2) {
                                     acceptRow->byte14 = 3U;
                                 }
@@ -80,7 +81,7 @@ void ovl662_func_80119E00(void) {
                         ovl662_D_801272D4 = (s16) rowPhase;
                         BadgeRows->state10 = 4;
                         do {
-                            closingRow = (RrUiRow24 *)(index * sizeof(RrUiRow24) + (unsigned long)UiRows);
+                            closingRow = (UiRow24 *)(index * sizeof(UiRow24) + (unsigned long)UiRows);
                             if (closingRow->byte14 == 2) {
                                 closingRow->byte14 = 3U;
                             }
@@ -88,7 +89,7 @@ void ovl662_func_80119E00(void) {
                         } while (index < 2);
                         goto closeMenu;
                     }
-                } else if (PlayerControllers[0].b != 0) {
+                } else if (PlayerControllers[0].action2C != 0) {
                     if (ovl662_D_801272E8 == 0) {
                         PlaySfx(2);
                         index = 0;
@@ -96,7 +97,7 @@ void ovl662_func_80119E00(void) {
                         ovl662_D_80127398 = 0;
                         BadgeRows->state10 = 4;
                         do {
-                            cancelRow = (RrUiRow24 *)(index * sizeof(RrUiRow24) + (unsigned long)UiRows);
+                            cancelRow = (UiRow24 *)(index * sizeof(UiRow24) + (unsigned long)UiRows);
                             if (cancelRow->byte14 == 2) {
                                 cancelRow->byte14 = 3U;
                             }
@@ -122,12 +123,13 @@ closeMenu:
         if (ovl662_D_801272E8 == 0) SetMenuFrameOptions(0,1,1);
         else SetMenuFrameOptions(0,1,0);
         if ((UiRows->byte14 == 5) && (BadgeRows->state10 == 11)) {
-            if (ovl662_D_801272E8 != 0) goto publishScene;
+            if (ovl662_D_801272E8 == 0) {
 enterPalette:
-            ovl662_func_80118ED8();
-            break;
+                ovl662_func_80118ED8();
+            } else {
 publishScene:
-            ModeGroup=3;D_800F3A26=1;D_800F4D8A=0;
+                ModeGroup=3;D_800F3A26=1;D_800F4D8A=0;
+            }
             break;
         }
         goto drawMenu;
@@ -140,7 +142,7 @@ drawMenu:
             }
         } else {
             ovl662_func_80119898(ovl662_D_801272D4 - 1);
-            DrawMenuStepArrows(0xA0, 0xC0, 0x30, 0, (s32) (s16) ovl662_D_801272BE, 0, (s32) ovl662_D_8012739A);
+            DrawMenuStepArrows(0xA0, 0xC0, 0x30, 0, (s16) ovl662_D_801272BE, 0, ovl662_D_8012739A);
         }
         index = 0;
         if (MenuItemCount > 0) {

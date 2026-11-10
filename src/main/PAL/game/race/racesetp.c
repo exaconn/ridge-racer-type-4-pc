@@ -10,26 +10,25 @@ void SetupRace(void)
     register s32 offset0 __asm__("$2");
     s32 offset1;
 
-    RrRaceVehicle *vehicle;
+    RaceVehicle *vehicle;
     s32 *rank;
     s32 *selectedCount;
     s32 *result;
     s32 third;
     s32 vehicleIndex;
-    register s32 resetIndex __asm__("$17");
     u8 *participant;
     u32 course;
     s32 vehicleFlags;
     s32 *vector;
-    if (D_800F4D44 == 4)
+    if (GameModeType == 4)
     {
         func_80114988();
         func_80114AF8(0x7E900);
     }
     DrawSync(0);
     ApplyOptionsPadButtonMaps();
-    InitRaceCars(D_800F4D44);
-    if (((D_800F4D44 < 2) || (D_800F4D44 == 6)) || ((D_800F4D44 == 4) && (D_80107178 == 2)))
+    InitRaceCars(GameModeType);
+    if (((GameModeType < 2) || (GameModeType == 6)) || ((GameModeType == 4) && (D_80107178 == 2)))
     {
         TrackEventSfxEnabled = 1;
     }
@@ -37,13 +36,14 @@ void SetupRace(void)
     {
         TrackEventSfxEnabled = 0;
     }
-    if (D_800F4D44 != 5)
+    if (GameModeType != 5)
     {
         vehicleIndex = 0;
         vehicle = PlayerCars;
         do
         {
-            /* Keep the complete owner address through this traversal. */
+            /* Note: Keep the complete owner address through this traversal. */
+            /* ASM_BARRIER: preserve original register scheduling. */
             __asm__("" : "+r"(vehicle));
             vehicleFlags = (s16) vehicle->flags1E4;
 
@@ -57,24 +57,24 @@ void SetupRace(void)
         }
         while (vehicleIndex < 2);
     }
-    func_8006E794();
+    InitCourseViewState();
     SetupRenderer(5);
     D_8010C13C = 0;
     D_8010C12C = 2;
-    D_8010C120[1] = 0;
-    D_8010C120[0] = 0;
-    D_8010C120[2] = -1;
-    D_8010C140[2] = (s32) TrackLength;
+    SplitTimes[1] = 0;
+    SplitTimes[0] = 0;
+    SplitTimes[2] = -1;
+    SplitDistances[2] = TrackLength;
     third = TrackLength / 3;
-    D_8010C140[0] = third;
+    SplitDistances[0] = third;
     vectors = (u8 *) (&CourseBestLapTimes);
-    D_8010C140[1] = (s32) (third * 2);
+    SplitDistances[1] = (third * 2);
     vector = (s32 *) (((CourseIndex * 12) + (ReverseCourse * 96)) + vectors);
-    D_8010C0F8[0] = (s32) vector[0];
-    D_8010C0F8[1] = (s32) vector[1];
+    BestSplitTimes[0] = vector[0];
+    BestSplitTimes[1] = vector[1];
     RaceState = SavedRaceState;
-    D_8010C0F8[2] = (s32) vector[2];
-    if (D_800F4D44 == 0)
+    BestSplitTimes[2] = vector[2];
+    if (GameModeType == 0)
     {
         countRoot = (u8 *)&CourseBestLap;
 
@@ -84,10 +84,11 @@ void SetupRace(void)
         selectedCount = (s32 *)(offset0+countRoot);
         goto publish_count;
     }
-    if (D_800F4D44 == 1)
+    if (GameModeType == 1)
     {
-        otherRoot = (u8 *)&D_800F3B00;
-        /* Retain the full table address before forming its byte offset. */
+        otherRoot = (u8 *)&CourseBestLapRecords;
+        /* Note: Retain the full table address before forming its byte offset. */
+        /* ASM_BARRIER: preserve original register scheduling. */
         __asm__("" : : "r"(otherRoot));
 
         offset0 = CourseIndex * 4;
@@ -98,30 +99,19 @@ void SetupRace(void)
     }
     D_8010C134 = -1;
 
-    if (D_800F4D44 >= 2)
+    if ((GameModeType < 2) || (GameModeType == 6))
     {
-        resetIndex = 0;
-        if (D_800F4D44 == 6)
-        {
-            goto publish_participants;
-        }
-    }
-    else
-    {
-    publish_participants:
         courseIndex = CourseIndex;
         byteRoot = CourseLapCounts;
 
-        if (D_800F4D44 == 1)
+        if (GameModeType == 1)
         {
             courseIndex += 8;
         }
         participant = courseIndex + byteRoot;
-        NumLaps = (s32) (*participant);
-        /* Initialized-value metadata retains the original store order. */
-        __asm__("" : : "m"(NumLaps));
-        resetIndex = 0;
+        NumLaps = (*participant);
     }
+    vehicleIndex = 0;
     minusOne = -1;
 
     rank = LapTimes;
@@ -131,10 +121,10 @@ void SetupRace(void)
         *result = 0;
         *rank = minusOne;
         rank++;
-        resetIndex += 1;
+        vehicleIndex += 1;
         result++;
     }
-    while (resetIndex < 0xA);
+    while (vehicleIndex < 0xA);
     TotalRaceTime = -1;
     course = (u16) CourseIndex;
     if (((course - 2U) < 3U) || (((s16) course) == 7))
@@ -145,23 +135,23 @@ void SetupRace(void)
     {
         D_800ABEF0 = 0;
     }
-    func_80045830();
-    if ((D_800F4D44 == 0) || (D_800F4D44 == 5))
+    ResetLensFlareState();
+    if ((GameModeType == 0) || (GameModeType == 5))
     {
-        D_800AD50C = 0;
+        RearViewMirrorEnabled = 0;
         D_800AC538 = 0;
-        D_800ACBF8 = 0;
+        DrawSubOtFlag = 0;
     }
     else
     {
-        func_80070440();
-        D_800AD50C = 1;
+        InitRearViewMirrorState();
+        RearViewMirrorEnabled = 1;
         D_800AC538 = 0;
-        D_800ACBF8 = 1;
+        DrawSubOtFlag = 1;
     }
     BuildCameraMatrices();
-    InitRaceHudPackets(D_800F4D44);
-    InitHudNumberTargets(D_800F4D44);
+    InitRaceHudPackets(GameModeType);
+    InitHudNumberTargets(GameModeType);
     ScreenFrame = 0;
     ModeFrame = 0;
     D_800AC5D0 = 0;
@@ -169,7 +159,7 @@ void SetupRace(void)
     PauseCursor = 0;
     D_80107190 = 0x80;
     RaceTimeRemaining = 0x3A98;
-    if ((D_800F4D44 != 1) && (D_800F4D44 != 6))
+    if ((GameModeType != 1) && (GameModeType != 6))
     {
         RaceTimeRemaining = 0xAFC8;
     }

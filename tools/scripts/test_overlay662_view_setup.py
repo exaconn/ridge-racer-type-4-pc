@@ -19,8 +19,8 @@ class GarageViewSetupTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_setup.h"
-typedef struct {s32 args[10];RrMenuGlyphRow1C *glyph;RrBadgeRow1C *badge;s32 frame,counter,word;s16 half,setting,selected;u8 choice;} Event;
-static struct World {u32 guard[4];s32 frame,counter,word;s16 half,setting,selected;RrMenuChoice4 choice;RrMenuGlyphRow1C *glyph;RrBadgeRow1C *badge;RrMenuGlyphRow1C glyphs[3][4];RrBadgeRow1C badges[3];u32 calls;Event events[7];u32 tail[4];} world,expected;
+typedef struct {s32 args[10];MenuGlyphRow1C *glyph;BadgeRow1C *badge;s32 frame,counter,word;s16 half,setting,selected;u8 choice;} Event;
+static struct World {u32 guard[4];s32 frame,counter,word;s16 half,setting,selected;MenuChoice4 choice;MenuGlyphRow1C *glyph;BadgeRow1C *badge;MenuGlyphRow1C glyphs[3][4];BadgeRow1C badges[3];u32 calls;Event events[7];u32 tail[4];} world,expected;
 #define ModeFrame world.frame
 #define ScreenFrame world.counter
 #define ovl662_D_801272C0 world.word
@@ -36,7 +36,7 @@ static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 static s16 half(u32 raw){u16 bits=raw;s16 value;memcpy(&value,&bits,2);return value;}
 static s32 word(u32 raw){s32 value;memcpy(&value,&raw,4);return value;}
 static void effect(struct World *v,unsigned step){
- unsigned id=(scenario+step+1)%3;RrMenuGlyphRow1C *g=&v->glyphs[id][0];
+ unsigned id=(scenario+step+1)%3;MenuGlyphRow1C *g=&v->glyphs[id][0];
  v->glyph=world.glyphs[id];v->badge=&world.badges[id];
  v->frame=word(scenario*0x9e3779b9U+step);v->counter=word(scenario^0xa1234567U^step);v->word=word(scenario^0xb1234567U^step);
  v->half=half(scenario+step);v->setting=half(scenario*40503U+step*17U);v->selected=half(scenario*73U+step);v->choice.bytes[0]=(u8)(scenario+step+23);
@@ -57,7 +57,7 @@ void InitRect16Row(s32 index,s16 a,s16 b,s16 c,s16 d,s16 e,s16 f){s32 args[10]={
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls==5);event(&world,args);}
 void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==6);event(&world,args);}
 static void reference(void){
- unsigned i,id;RrMenuGlyphRow1C *g;
+ unsigned i,id;MenuGlyphRow1C *g;
  expected.frame=0;expected.counter=0;expected.word=0;expected.half=0;expected.setting=2;expected.choice.bytes[0]=2;expected.selected=0;
  for(i=0;i<4;i++){s32 args[10]={(s32)i,-2,0,1};event(&expected,args);}
  id=(scenario+4)%3;g=&expected.glyphs[id][0];

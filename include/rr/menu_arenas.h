@@ -4,11 +4,11 @@
 #include "rr/menu_arena_types.h"
 
 /* Two resident pointer cells; the second is refreshed by menu resource loading. */
-extern RrMenuArenas MenuArenas;
+#include "rr/menu_arena_state.h"
 extern u8 *CdDirectoryBuffer;
 void InitMenuArenas(void);
 void ovl662_func_80116020(void);
 void ovl662_func_80116148(void);
-RR_ASSERT_SIZE(RrMenuArenas,8);
-RR_ASSERT_OFFSET(RrMenuArenas,second,4);
+RR_ASSERT_SIZE(MenuArenas8,8);
+RR_ASSERT_OFFSET(MenuArenas8,second,4);
 #endif

@@ -23,7 +23,7 @@ class Overlay662ToolGroupTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_tool_action.h"
 #include "rr/audio_pan.h"
-static struct World {u32 guard[4];RrGarageSelectionPrefix garage;RrGarageWorkingStorage work;RrGarageButton buttons[46];RrGarageRectangle *table[46];u32 tail[4];} world,expected,map_checkpoint,sound_checkpoint;
+static struct World {u32 guard[4];GarageSelectionPrefix garage;GarageWorkingStorage work;GarageButton buttons[46];GarageRectangle *table[46];u32 tail[4];} world,expected,map_checkpoint,sound_checkpoint;
 static unsigned scenario,family,slot,initial_byte,expected_map,expected_sound,map_calls,sound_calls,seen[5][256];static s32 mapped_mode;
 #define ovl662_D_801276A8 world.garage
 #define ovl662_D_80127668 world.work
@@ -45,7 +45,7 @@ static u32 rng=0x20004;
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static void map_effect(struct World *w){w->garage.optionIndices98.flat[0]=word(scenario^0x87654321U);w->garage.selectorsB8[2]=word(scenario^0x12345678U);w->garage.config1E=255;w->work.words[0]^=0xA5678901U;}
-static void sound_effect(struct World *w){unsigned n=(unsigned)((RrGarageButton*)w->table[slot]-world.buttons);assert(n<46);
+static void sound_effect(struct World *w){unsigned n=(unsigned)((GarageButton*)w->table[slot]-world.buttons);assert(n<46);
  w->table[slot]=&world.buttons[(n+1)%46].rectangle;w->garage.active21=(u8)(scenario+41);w->garage.config1D=(u8)(scenario+43);w->garage.config1E=(u8)(scenario+47);w->garage.saved64[0]=word(scenario^0x12345678U);w->work.words[0]^=0x98765432U;
 }
 void ovl662_func_8011E5C0(s32 mode){assert(expected_map==1&&map_calls++==0&&mode==mapped_mode);assert(memcmp(&world,&map_checkpoint,sizeof(world))==0);map_effect(&world);}
@@ -63,7 +63,7 @@ static void reference(s32 mode){unsigned j,m,n,value;
  if(!(scenario&4)||!(scenario&2))return;
  if(scenario&1){expected.garage.saved64[0]=expected.garage.current60;for(j=0;j<4;j++)expected.garage.saved64[j+1]=expected.garage.selectorsB8[j];}
  else{expected.garage.optionIndices98.flat[negative_index[family]]=(s32)negative_value[family];expected.garage.optionIndices98.flat[second_index[family]]=(s32)second_value[family];memcpy(expected.garage.saved64,defaults[family],sizeof(defaults[family]));}
- if(family==0||family==3){n=(unsigned)((RrGarageButton*)expected.table[slot]-world.buttons);expected.buttons[n].timer0E=7;}
+ if(family==0||family==3){n=(unsigned)((GarageButton*)expected.table[slot]-world.buttons);expected.buttons[n].timer0E=7;}
  if(family==0)expected.garage.active21=initial_byte==0?1:0;
  else if(family==3){value=(initial_byte*2)%256;expected.garage.config1D=(u8)(value>=9?1:value);}
  else expected.garage.config1E=(u8)(family==4?3:family);
@@ -77,7 +77,7 @@ int main(void){unsigned path,j,n;uint64_t cases=0;void (*functions[5])(s32)={ovl
   for(j=0;j<16;j++)world.work.words[j]=next();world.work.words[0]=0xA5510000U|((scenario&1)?4U:0U);world.work.words[1]=0xABC00000U|((scenario&2)?1U:0U);
   for(j=0;j<46;j++){world.buttons[j].key0C=(s16)j;world.buttons[j].timer0E=(s16)(100+j);world.table[j]=&world.buttons[j].rectangle;}
   n=(scenario+slot)%46;world.table[slot]=&world.buttons[n].rectangle;world.buttons[n].rectangle[2]=320;world.buttons[n].rectangle[3]=480;
-  world.work.points.cursor14=(RrGaragePoint){(scenario&4)?146:-1,199};
+  world.work.points.cursor14=(GaragePoint){(scenario&4)?146:-1,199};
   switch(path){case 0:mode=word(0x80000000U|scenario|(scenario<<16));break;case 1:mode=0;break;case 2:mode=1;break;case 3:mode=2;break;case 4:mode=4;break;case 5:mode=8;break;case 6:mode=3;break;default:mode=scenario%4==0?65536:scenario%4==1?INT32_MAX:word(next());break;}
   expected_map=expected_sound=map_calls=sound_calls=0;memcpy(&expected,&world,sizeof(world));reference(mode);functions[family](mode);
   assert(map_calls==expected_map&&sound_calls==expected_sound);assert(memcmp(&world,&expected,sizeof(world))==0);assert((uintptr_t)world.table[slot]>UINT32_MAX);cases++;

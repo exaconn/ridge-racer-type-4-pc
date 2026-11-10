@@ -3,11 +3,11 @@
 #include "types.h"
 typedef struct {
     u8 selection, variant, parameter, reserved;
-} RrSelectionRow;
+} SelectionRow;
 
 typedef struct {
     u8 primary, variant, pad02[2];
-    RrSelectionRow rows[7];
-} RrSelectionRows;
+    SelectionRow rows[7];
+} SelectionRows32;
 
 #endif

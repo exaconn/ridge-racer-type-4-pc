@@ -1,13 +1,12 @@
 #include "types.h"
 #include "rr/audio_loop.h"
-#include "m2c_macros.h"
 #include "game/sound/sndloop2.h"
 
-extern s32 D_800F6670;
+extern s32 EngineSoundUpdateEnabled;
 
 void SoundLoopUpdate(void) {
-    RrAudioLoopState *state=&SoundState;
-    RrAudioSettings *settings=&Options.audio;
+    AudioState *state=&SoundState;
+    AudioSettings *settings=&Options.audio;
     /* ASM_BARRIER: retain this phase value in its original MIPS register. */
     register u16 left asm("$19"),right asm("$18");
     s32 rp,lp;
@@ -35,8 +34,8 @@ void SoundLoopUpdate(void) {
         right=l;
     }
     if(state->muted04) {right=0;left=right;}
-    if(D_800F4D44==5) {right=0;left=right;}
-    rinput=(s32)((u32)right<<16);
+    if(GameModeType==5) {right=0;left=right;}
+    rinput=(right * 0x10000U);
 
     gain=state->gain18;
     rinput>>=16;
@@ -49,7 +48,7 @@ void SoundLoopUpdate(void) {
     rdiv=rp>>7;
     if(lp<0)lp+=127;
 
-    rdiv=(s32)((u32)rdiv<<16);
+    rdiv=(rdiv * 0x10000U);
 
     volume=settings->volume31;
     rv=(rdiv>>16)*volume;
@@ -72,7 +71,7 @@ void SoundLoopUpdate(void) {
 
     i=0;
     if(lresult>0) {
-        RrAudioLoopState *live=state;
+        AudioState *live=state;
         /* ASM_BARRIER: retain this phase value in its original MIPS register. */
         register s32 voice_word asm("$17");
         /* ASM_BARRIER: retain this phase value in its original MIPS register. */
@@ -83,7 +82,7 @@ void SoundLoopUpdate(void) {
         pitch=live->pitch19FC;
 
         voice_word=0x60000;
-        first=(s32)((u32)pitch<<9)>>16;
+        first=(s32)(pitch<<9)>>16;
         second=pitch&127;
         do {
             /* ASM_BARRIER: retain this phase value in its original MIPS register. */
@@ -97,10 +96,10 @@ void SoundLoopUpdate(void) {
 
             voice=i+6;
 
-            left_high=(s32)((u32)left<<16);
+            left_high=(left * 0x10000U);
             out_left=left_high>>16;
 
-            right_high=(s32)((u32)right<<16);
+            right_high=(right * 0x10000U);
             SetVoiceVolumeScaled(voice,out_left,right_high>>16);
             out_voice=voice_word>>16;
 
@@ -109,17 +108,17 @@ void SoundLoopUpdate(void) {
             __asm__("" : : "r"(i));
 
             i++;
-            SsUtChangePitch(out_voice,live->bank26,live->program1A04,group,0,first,second);
+            SsUtChangePitch(out_voice,live->bank24[1],live->program1A04,group,0,first,second);
             /* ASM_BARRIER: preserve this arithmetic or helper boundary. */
             __asm__("" : "+r"(left_high), "+r"(right_high));
             voice_word+=0x10000;
         }while(i<2);
         {
-            RrAudioLoopState *after=&SoundState;
+            AudioState *after=&SoundState;
             if(!after->active1A00) {
                 s32 key=60;
 
-                SsUtKeyOnV(6,after->bank26,after->program1A04,0,key,0,left_high>>16,right_high>>16);
+                SsUtKeyOnV(6,after->bank24[1],after->program1A04,0,key,0,left_high>>16,right_high>>16);
                 /* ASM_BARRIER: preserve this arithmetic or helper boundary. */
                 __asm__("" : : "r"(left_high));
                 after->active1A00=1;
@@ -131,10 +130,10 @@ void SoundLoopUpdate(void) {
     }
 }
 
-void func_80051B28(void) {
-    D_800F6670 = 1;
+void EnableEngineSoundUpdates(void) {
+    EngineSoundUpdateEnabled = 1;
 }
 
-void func_80051B38(void) {
-    D_800F6670 = 0;
+void DisableEngineSoundUpdates(void) {
+    EngineSoundUpdateEnabled = 0;
 }

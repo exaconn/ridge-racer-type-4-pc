@@ -21,7 +21,7 @@ class Overlay662ProgressInitializerTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_progress_init.h"
-typedef struct {u32 guard[4];s32 frame,counter;s16 current,limit;s8 flag1,flag2;RrMenuArenas arenas;u8 *base;void *published,*saved;RrSaveProgressRecord7C save;u16 counts[4][4],rows[4],total;u32 tail[4];} State;
+typedef struct {u32 guard[4];s32 frame,counter;s16 current,limit;s8 flag1,flag2;MenuArenas8 arenas;u8 *base;void *published,*saved;SaveProgressRecord7C save;u16 counts[4][4],rows[4],total;u32 tail[4];} State;
 typedef struct {s32 kind,args[10];State state;} Event;
 static struct World {State s;u32 calls;Event events[5];u32 guard[4];} world,expected;
 static u8 resources[3][0x2D100],original[3][0x2D100];
@@ -34,7 +34,7 @@ static u8 resources[3][0x2D100],original[3][0x2D100];
 #define MenuArenas world.s.arenas
 #define CdDirectoryBuffer world.s.base
 #define LoadCursor world.s.published
-#define D_800F4D40 world.s.saved
+#define MenuArenaBase world.s.saved
 #define SaveProgress world.s.save
 #define ovl662_D_80127328 world.s.counts
 #define ovl662_D_801272D8 world.s.rows

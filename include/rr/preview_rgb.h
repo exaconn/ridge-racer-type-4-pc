@@ -5,21 +5,21 @@
  * byte is natural tail padding and has no color meaning. */
 typedef struct {
     u8 r, g, b;
-} __attribute__((aligned(4))) RrPreviewRgb3;
+} __attribute__((aligned(4))) PreviewRgb3;
 typedef struct {
     u8 r, g, b;
-} RrRgbChannels;
+} RgbChannels;
 /* Preview services pass RGB in one aligned argument word. The channel view
  * describes the three color bytes; argument adds the ABI's unused tail padding.
  * Both structures have the same common initial sequence. */
 typedef union {
-    RrRgbChannels channels;
-    RrPreviewRgb3 argument;
-} RrPreviewColor;
-RR_ASSERT_SIZE(RrPreviewRgb3, 4);
-RR_ASSERT_OFFSET(RrPreviewRgb3, r, 0);
-RR_ASSERT_OFFSET(RrPreviewRgb3, g, 1);
-RR_ASSERT_OFFSET(RrPreviewRgb3, b, 2);
-RR_ASSERT_SIZE(RrRgbChannels, 3);
-RR_ASSERT_SIZE(RrPreviewColor, 4);
+    RgbChannels channels;
+    PreviewRgb3 argument;
+} PreviewColor;
+RR_ASSERT_SIZE(PreviewRgb3, 4);
+RR_ASSERT_OFFSET(PreviewRgb3, r, 0);
+RR_ASSERT_OFFSET(PreviewRgb3, g, 1);
+RR_ASSERT_OFFSET(PreviewRgb3, b, 2);
+RR_ASSERT_SIZE(RgbChannels, 3);
+RR_ASSERT_SIZE(PreviewColor, 4);
 #endif

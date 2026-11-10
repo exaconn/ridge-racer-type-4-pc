@@ -7,5 +7,7 @@ extern s32 D_800AC66C;
 void SoundQueueUpdate();
 void SoundCloseVabsAndReset(void);
 void SoundInitForRace(void);
+void StopAllSoundAndReset(void);
+
 
 #endif /* RR_GAME_SOUND_SNDCMD_H */

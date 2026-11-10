@@ -1,75 +1,70 @@
 /* CC1_FLAGS: -mno-split-addresses */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "psyq/libpad/padstat2.h"
-struct C { char p0[0x14]; int f14; int (*f18)(); char p1c[0x14]; unsigned char *f30; char p34[8]; unsigned char *f3c; char p40[4]; unsigned char f44, f45, f46, f47, f48, f49, f4a; char p4b[5]; unsigned char f50; char p51[0x97]; unsigned char fE8; };
+#include "rr/channel_init.h"
 
-extern int (*D_800ABC6C)();
-
-void _padPacketDone();
-void _dirFailAuto();
-
-void _padPacketDone(a0) struct C *a0; {
+void _padPacketDone(void *raw) {
+    PadChannel *a0=raw;
     unsigned int t;
     int a1;
     unsigned char b;
     int i;
-    t = a0->f3c[0];
+    t = a0->packet[0];
     if ((t & 0xF0) == 0) {
-        a0->f30[0] = 0xFF;
-        a0->f30[1] = 0;
-        a0->fE8 = 0;
-        *((unsigned char *)a0 + 0x35) = 0;
-        D_800ABC6C();
+        a0->input30[0] = 0xFF;
+        a0->input30[1] = 0;
+        a0->responseE8 = 0;
+        a0->pad35 = 0;
+        PadResetChannelFn(a0);
         return;
     }
-    a1 = a0->fE8;
-    a0->fE8 = t >> 4;
+    a1 = a0->responseE8;
+    a0->responseE8 = t >> 4;
     if ((t >> 4) == 0xF) {
-        a0->fE8 = a1;
+        a0->responseE8 = a1;
     } else {
-        a0->f30[0] = 0;
-        a0->f30[1] = a0->f3c[0];
-        *((unsigned char *)a0 + 0x35) = *(volatile unsigned char *)&a0->f44;
-        for (i = 2; i < a0->f44; i++) a0->f30[i] = a0->f3c[i];
+        a0->input30[0] = 0;
+        a0->input30[1] = a0->packet[0];
+        a0->pad35 = *(volatile unsigned char *)&a0->b44;
+        for (i = 2; i < a0->b44; i++) a0->input30[i] = a0->packet[i];
     }
-    if (a0->f3c[1] == 0) {
-        if (a0->f46 == 1 && a0->f14 == 0) goto l10;
-        if (a0->f50 != 0) goto l10;
+    if (a0->packet[1] == 0) {
+        if (a0->phase == 1 && a0->update14 == 0) goto l10;
+        if (a0->b50 != 0) goto l10;
         goto l11;
     }
 l10:
-    if (a0->fE8 != a1) {
+    if (a0->responseE8 != a1) {
 l11:
-        D_800ABC6C(a0, a1);
+        PadResetChannelFn(a0);
     }
-    b = a0->f46;
-    a0->f4a = 0;
+    b = a0->phase;
+    a0->retry4A = 0;
     if (b != 0xFF) {
-        if (b != 0 && *((unsigned char *)a0 + 0x37) == 0) return;
+        if (b != 0 && a0->command37 == 0) return;
         if ((unsigned char)(b - 2) < 0xFC) {
-            if (a0->f3c[0] != 0xF3) { D_800ABC6C(a0); return; }
+            if (a0->packet[0] != 0xF3) { PadResetChannelFn(a0); return; }
         }
         {
-            /* ASM_BARRIER: keep switch value in $v1 so constant 1 is allocated to $a0. */
-            register unsigned char sw asm("$3");
+            unsigned char sw;
             int one;
-            switch (sw = a0->f46, one = 1, sw) {
+            switch (sw = a0->phase, one = 1, sw) {
             case 0:
-                a0->f49 = one;
-                a0->f46 += 1;
+                a0->state49 = one;
+                a0->phase += 1;
                 break;
             case 1:
-                a0->f47 = 0;
-                a0->f46 += 1;
+                a0->state47 = 0;
+                a0->phase += 1;
                 break;
             case 0xFE:
-                a0->f46 = 0xFF;
+                a0->phase = 0xFF;
                 break;
             default: {
                 /* ASM_BARRIER: keep the callback return value in $v0 across the join label. */
                 register int v asm("$2");
-                if (a0->f18 != 0) v = a0->f18(a0); else v = _padRecvAtLoadInfo(a0);
-                a0->f46 += v;
+                if (a0->complete18 != 0) v = a0->complete18(a0); else v = _padRecvAtLoadInfo(a0);
+                a0->phase += v;
                 break;
             }
             }
@@ -77,32 +72,33 @@ l11:
     }
 }
 
-void _dirFailAuto(a0) unsigned char *a0; {
-  int v = a0[0x46];
+void _dirFailAuto(u8 *raw) {
+  PadChannel *a0=(PadChannel *)raw;
+  int v = a0->phase;
   unsigned int t;
-  *(int *)(a0 + 0x4C) = *(int *)(a0 + 0x4C) + 1;
+  a0->type4C = a0->type4C + 1;
   if (v != 0) {
     if (v == 1) {
-      t = a0[0x4A];
+      t = a0->retry4A;
       if (t >= 0xB) {
-        a0[0x49] = 2;
-        a0[0x46] = 0xFF;
+        a0->state49 = 2;
+        a0->phase = 0xFF;
         return;
       }
-      a0[0x4A] = t + 1;
+      a0->retry4A = t + 1;
       return;
     }
-    t = a0[0x4A];
+    t = a0->retry4A;
     if (t < 0xB) {
-      a0[0x4A] = t + 1;
+      a0->retry4A = t + 1;
       return;
     }
-    if (a0[0x49] != 0) D_800ABC6C(a0);
+    if (a0->state49 != 0) PadResetChannelFn(a0);
   }
-  if (**(unsigned char **)(a0 + 0x3C) != 0xF3) {
-    (*(unsigned char **)(a0 + 0x30))[0] = 0xFF;
-    (*(unsigned char **)(a0 + 0x30))[1] = 0;
-    a0[0xE8] = 0;
-    a0[0x35] = 0;
+  if (*a0->packet != 0xF3) {
+    a0->input30[0] = 0xFF;
+    a0->input30[1] = 0;
+    a0->responseE8 = 0;
+    a0->pad35 = 0;
   }
 }

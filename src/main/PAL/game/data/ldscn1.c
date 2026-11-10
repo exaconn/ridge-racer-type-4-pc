@@ -1,3 +1,6 @@
+#include "rr/work_arena.h"
+#include "rr/load_cursor.h"
+#include "game/camera/campath.h"
 /* RODATA 0x800107c4 0x74 */
 #include "game/data/bankrec.h"
 #include "game/data/cdfile2.h"
@@ -6,69 +9,52 @@
 #include "game/menu/mntrow.h"
 #include "game/sound/sndcmd.h"
 #include "game/car/carmove1.h"
-#include "game/data/cdfile2.h"
-#include "game/data/trkld1.h"
 #include "game/menu/menuslot.h"
 #include "game/data/ldscn1.h"
 #include "game/data/ldscn4.h"
 #include "game/menu/mnrows.h"
 #include "game/race/raceinfo.h"
 #include "game/data/cdfile1.h"
-#include "game/data/cdfile2.h"
 #include "rr/audio_loop.h"
-#include "game/data/ldscn1.h"
-typedef struct { char p[7]; char b; } Z;
+#include "rr/menu_text_state.h"
+#include "game/course/trkintp2.h"
+#include "game/gfx/clut.h"
+#include "game/sound/fxplay.h"
 
-extern int RaceLoadReset();
 extern short RaceContext[];
 extern unsigned char LoadState;
 extern int CdDirectoryBuffer;
-extern int LoadCursor;
-extern int D_800F4D40;
-extern int MenuArenas;
-extern int InitMenuArenas();
+extern int MenuArenaBase;
 extern int D_800F4D74;
 extern short CourseIndex;
-extern int UploadCarClut();
 extern struct { short a; short b; } PlayerCourseChoices[];
 extern char *D_800F3B24;
 extern char D_800F3B28[];
 extern unsigned char SelectionRows[][4];
-extern int LoadTimList();
-extern char D_800FFC48[];
-extern int InitMotionController();
-extern int func_8005B2D4();
-extern int SeqStartTrack();
-extern int LoadTimImage();
-extern struct { char pad[4]; signed char f4; char pad2[0x1B]; int f20; } *Dialogue;
+extern MenuTextState *Dialogue;
 extern int D_800F4CA8;
-extern struct { char pad[0x17]; signed char f17; char pad2[2]; short f1A; unsigned char f1C; } SelectionState;
+extern struct { s8 choices[4]; u8 opaque04[0x10]; u8 rank, index, byte16; signed char f17; u8 byte18, byte19; short f1A; unsigned char f1C; } SelectionState;
 extern int D_800AD564;
 extern unsigned char D_800AD4F4;
 extern char D_80104DB0[];
-extern Z *D_800AC590;
 extern char *TrackNodes;
 extern int TrackNodeCount;
 extern char D_8010C220[];
 
-int func_8003A79C(void);
-int func_8003A874(void);
-int func_8003A9E8(void);
-int func_8003AAE8(void);
+int LoadDefaultRaceStep(void);
+int LoadModeMenuAssetsStep(void);
+int LoadMenuSoundStep(void);
 int LoadSceneStep(void);
 int LoadAllCarsStep(void);
 int LoadCarRangeStep(int arg0, int arg1);
-int func_8003B040(void);
+int LoadIndexedTimStep(void);
 int LoadResultsSceneStep(void);
 int LoadCarClutStep(void);
-int LoadTimListStep(void);
 int LoadGlyphRowsStep(void);
-int LoadDialogueStep(void);
-int func_8003B934(void);
+int LoadMenuCarModelsStep(void);
 int LoadTrackNodesStep(void);
-int func_8003BBBC(void);
 
-int func_8003A79C(void) {
+int LoadDefaultRaceStep(void) {
     int r = 0;
     int i;
     switch (LoadState) {
@@ -95,29 +81,26 @@ int func_8003A79C(void) {
     return r;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define LoadIndex (*(unsigned char (*))&LoadIndex)
-
-int func_8003A874(void) {
+int LoadModeMenuAssetsStep(void) {
     int r = 0;
     int v;
     switch (LoadState) {
     case 0:
-        if (D_800F4D44 == 4) {
+        if (GameModeType == 4) {
             r = 1;
-            MenuArenas = D_800F4D40;
-            LoadCursor = D_800F4D40;
+            MenuArenas.first = MenuArenaBase;
+            LoadCursor = MenuArenaBase;
             break;
         }
-        if (D_800F4D44 == 5 && D_800F4D2C == 6) {
+        if (GameModeType == 5 && D_800F4D2C == 6) {
             r = 1;
-            LoadCursor = D_800F4D40;
+            LoadCursor = MenuArenaBase;
             break;
         }
         LoadState = 1;
         LoadCursor = CdDirectoryBuffer;
-        LoadIndex = *(unsigned char *)&D_800F4D44;
-        if (*(unsigned char *)&D_800F4D44 >= 5) {
+        LoadIndex = *(unsigned char *)&GameModeType;
+        if (*(unsigned char *)&GameModeType >= 5) {
             LoadIndex = 0;
         }
     case 1:
@@ -131,20 +114,14 @@ int func_8003A874(void) {
             LoadCursor += v;
     case 3:
             r = 1;
-            D_800F4D40 = LoadCursor;
+            MenuArenaBase = LoadCursor;
         }
         break;
     }
     return r;
 }
 
-#undef LoadIndex
-
-/* legacy typing of shared globals in this part of the unit */
-#define LoadIndex (*(unsigned char (*))&LoadIndex)
-#define D_800F4D2C (*(unsigned char (*))&D_800F4D2C)
-
-int func_8003A9E8(void) {
+int LoadOpeningMovieTimStep(void) {
     int r = 0;
     int v;
     switch (LoadState) {
@@ -164,7 +141,7 @@ int func_8003A9E8(void) {
             LoadState = 3;
             t = LoadCursor + v;
             LoadCursor = t;
-            D_800F4D40 = t;
+            MenuArenaBase = t;
     case 3:
             r = 1;
         }
@@ -173,19 +150,16 @@ int func_8003A9E8(void) {
     return r;
 }
 
-#undef LoadIndex
-#undef D_800F4D2C
-
-int func_8003AAE8(void) {
+int LoadMenuSoundStep(void) {
     int r = 0;
     switch (LoadState) {
     case 0:
         LoadState = 1;
-        LoadCursor = D_800F4D40;
+        LoadCursor = MenuArenaBase;
         RaceLoadReset();
     case 1:
-        if (func_8004E184()) {
-            D_800F4D40 = LoadCursor;
+        if (LoadMenuSoundVabStep()) {
+            MenuArenaBase = LoadCursor;
             SoundCloseVabsAndReset();
             LoadState = 2;
             InitMenuArenas();
@@ -218,9 +192,6 @@ int LoadSceneStep(void) {
     }
     return r;
 }
-
-/* legacy typing of shared globals in this part of the unit */
-#define LoadIndex (*(unsigned char (*))&LoadIndex)
 
 int LoadAllCarsStep(void) {
     int s0;
@@ -268,18 +239,13 @@ l5:
         break;
     case 5:
         s1 = 1;
-        if (D_800F4D44 == 4) MenuArenas = LoadCursor;
+        if (GameModeType == 4) MenuArenas.first = LoadCursor;
         break;
     default:
         break;
     }
     return s1;
 }
-
-#undef LoadIndex
-
-/* legacy typing of shared globals in this part of the unit */
-#define LoadIndex (*(unsigned char (*))&LoadIndex)
 
 int LoadCarRangeStep(int arg0, int arg1) {
     int r;
@@ -313,7 +279,7 @@ int LoadCarRangeStep(int arg0, int arg1) {
                 a1 = -1;
             }
         }
-        if (D_800F4D44 != 1) {
+        if (GameModeType != 1) {
             UploadCarClut(q3, a1, arg0);
         }
         LoadIndex++;
@@ -332,16 +298,11 @@ int LoadCarRangeStep(int arg0, int arg1) {
     return q4;
 }
 
-#undef LoadIndex
-
-/* legacy typing of shared globals in this part of the unit */
-#define LoadIndex (*(unsigned char (*))&LoadIndex)
-
-int func_8003B040(void) {
+int LoadIndexedTimStep(void) {
     int r = 0;
     switch (LoadState) {
     case 0:
-        LoadCursor = (int)D_800FFC48;
+        LoadCursor = D_800FFC48;
         LoadState = 1;
         LoadIndex = 0;
     case 1:
@@ -361,14 +322,12 @@ int func_8003B040(void) {
     return r;
 }
 
-#undef LoadIndex
-
 int LoadResultsSceneStep(void) {
     int r = 0;
     switch (LoadState) {
     case 0:
         LoadState = 1;
-        func_8005B2D4(0);
+        SetPresentationDrawEnabled(0);
         LoadIndex = 0;
     case 1:
         if (CdFileReadStart(GetR4FileIndex(1, 0xF), LoadCursor)) {
@@ -384,10 +343,10 @@ int LoadResultsSceneStep(void) {
         }
         break;
     case 3:
-        if (func_8004E70C()) {
+        if (LoadTrackVabsStep()) {
             InitMotionController();
             SoundCloseVabsAndReset();
-            if (D_800F4D44 == 1) {
+            if (GameModeType == 1) {
                 goto s7;
             }
             LoadState = 5;
@@ -411,14 +370,11 @@ s7:
     return r;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F3B24 (*(int (*))&D_800F3B24)
-
 int LoadCarClutStep(void) {
     int r = 0;
     switch (LoadState) {
     case 0:
-        if (D_800F4D44 == 1) {
+        if (GameModeType == 1) {
             LoadState = 3;
         } else {
             LoadState = 1;
@@ -440,8 +396,6 @@ int LoadCarClutStep(void) {
     }
     return r;
 }
-
-#undef D_800F3B24
 
 int LoadTimListStep(void) {
     int r = 0;
@@ -495,9 +449,6 @@ int LoadGlyphRowsStep(void) {
     return r;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define LoadIndex (*(unsigned char (*))&LoadIndex)
-
 int LoadDialogueStep(void) {
     int s3 = 0;
     int s0, s1, s2, a0, v0, k;
@@ -537,7 +488,7 @@ int LoadDialogueStep(void) {
             SetupDialogueTable(LoadDestCursor);
             LoadState = 3;
             LoadDestCursor += s2;
-            Dialogue->f20 = LoadDestCursor;
+            Dialogue->arr[0] = LoadDestCursor;
         }
         break;
     case 3:
@@ -554,7 +505,7 @@ int LoadDialogueStep(void) {
     case 5:
         s2 = D_800AD4F4 * 9 + 0x1C;
         a0 = LoadIndex;
-        s0 = D_800ACBFC[Dialogue->f4 * 8 + a0];
+        s0 = D_800ACBFC[Dialogue->b4 * 8 + a0];
         if (s0 != -1) {
             if (D_800F4CA8 == 0) {
                 s1 = 8;
@@ -588,7 +539,7 @@ int LoadDialogueStep(void) {
                 LoadDestCursor = LoadDestCursor + s2;
             }
             LoadIndex = LoadIndex + 1;
-            s0 = D_800ACBFC[Dialogue->f4 * 8 + LoadIndex];
+            s0 = D_800ACBFC[Dialogue->b4 * 8 + LoadIndex];
             if (LoadIndex == 8 || s0 == -1) {
                 LoadState = 7;
             } else {
@@ -603,9 +554,7 @@ int LoadDialogueStep(void) {
     return s3;
 }
 
-#undef LoadIndex
-
-int func_8003B934(void) {
+int LoadMenuCarModelsStep(void) {
     int r = 0;
     char *s;
     int a1;
@@ -624,14 +573,14 @@ int func_8003B934(void) {
             LoadTimImage(s);
             s += 0x4E20;
             LoadState = 3;
-            D_800AC590 = (Z *)s;
+            CardDialogueStatePtr = (MenuTextState *)s;
             InitDialogueState(s);
     case 3:
             if (D_800F4CA8 == 2) {
                 a1 = 0x44;
             } else if (D_800F4CA8 == 4) {
                 a1 = 0x46;
-                D_800AC590->b = 2;
+                CardDialogueStatePtr->b7 = 2;
             } else {
                 a1 = 0x45;
             }
@@ -658,7 +607,7 @@ int LoadTrackNodesStep(void) {
     case 0:
         LoadIndex = 0;
         LoadState = 1;
-        D_8010BFC8 = 0;
+        TrackPreviewTick = 0;
     case 1:
         if (CdFileReadStart(GetR4FileIndex(1, CourseIndex + 0x38), LoadCursor) != 0) {
             LoadState = 2;
@@ -677,12 +626,7 @@ int LoadTrackNodesStep(void) {
     return r;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define LoadTimList ((void (*)())LoadTimList)
-#define RaceLoadReset ((void (*)())RaceLoadReset)
-#define SoundCloseVabsAndReset ((void (*)())SoundCloseVabsAndReset)
-
-int func_8003BBBC(void) {
+int LoadSplashAssetsStep(void) {
     int r = 0;
     int t;
     switch (LoadState) {
@@ -718,7 +662,7 @@ int func_8003BBBC(void) {
         if (t != 0) {
             LoadCursor += t;
             LoadState = 6;
-            D_800F4D40 = LoadCursor;
+            MenuArenaBase = LoadCursor;
             case 6:
             r = 1;
         }
@@ -726,7 +670,3 @@ int func_8003BBBC(void) {
     }
     return r;
 }
-
-#undef LoadTimList
-#undef RaceLoadReset
-#undef SoundCloseVabsAndReset

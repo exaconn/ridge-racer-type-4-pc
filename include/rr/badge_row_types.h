@@ -11,6 +11,6 @@ typedef struct {
     s16 state10;
     u8 pad12[2];
     s16 x14, y16, w18, h1A;
-} RrBadgeRow1C;
+} BadgeRow1C;
 
 #endif

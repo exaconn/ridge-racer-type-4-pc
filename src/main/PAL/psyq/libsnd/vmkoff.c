@@ -1,61 +1,37 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/channels.h"
+#include "rr/spu.h"
 #include "psyq/libsnd/vmkoff.h"
-
-extern signed char _svm_cur[];
-extern char *_svm_tn;
 
 void _SsVmSeqKeyOff(s32 input);
 
 void _SsVmSeqKeyOff(s32 input) {
-    register s32 maximum=spuVmMaxVoice;
-    register u32 index;
-    s32 wanted;
-    u32 one;
-    s32 next;
-    /* ASM_BARRIER: Read the active count before initializing the saved loop counter. */
-    __asm__("" : "+r"(maximum) : : "$16");
-    index=0;
-    /* ASM_BARRIER: Retain a byte-index computation for the initial loop entry. */
-    __asm__("" : "+r"(index));
-    if(maximum>0) {
-        one=1;
-        wanted=(s16)input;
-        next=(u8)index;
-again: {
-            s32 i=next;
-            if(!(_snd_vmask & (one << i)) && _svm_voice[i].match10==wanted) {
-                D_80110118=(u8)index;
+    s16 wanted = input;
+    u8 i;
+    for (i = 0; i < spuVmMaxVoice; i++) {
+        if ((_snd_vmask & (1 << i)) == 0) {
+            if (_svm_voice[i].match10 == wanted) {
+                _svm_cur.f18 = i;
                 _SsVmKeyOffNow(0);
             }
-            index++;
-        }
-        {
-            s32 limit=spuVmMaxVoice;
-            s32 test;
-            /* ASM_BARRIER: Reload the count before the independent byte comparison. */
-            __asm__("" : : "r"(limit) : "$2");
-            test=(u8)index;
-            /* ASM_BARRIER: Separate the comparison byte from the next body's byte index. */
-            __asm__("" : "+r"(test));
-            next=(u8)index;
-            if(test<limit)goto again;
         }
     }
 }
 
-unsigned char _SsVmSelectToneAndVag(a0, a1) char *a0; char *a1; {
-  unsigned char n = 0; signed char i = 0;
-  if (_svm_cur[0] > 0) {
-    do {
-      int ie = i;
-      char *t = (char *)(((_svm_cur[7] << 4) + ie) * 32 + (int)_svm_tn);
-      if (!(t[6] > _svm_cur[2]) && !(t[7] < _svm_cur[2])) {
-        a1[n] = t[0x16];
-        a0[n++] = i;
-      }
-      i++;
-    } while (i < _svm_cur[0]);
-  }
-  return n; }
+unsigned char _SsVmSelectToneAndVag(u8 *a0, u8 *a1) {
+    u8 n = 0;
+    s8 i = 0;
+    if (_svm_cur.f00 > 0) {
+        do {
+            int ie = i;
+            u8 *t = (u8 *)(((_svm_cur.f07 << 4) + ie) * 32 + (int)_svm_tn);
+            if (!(t[6] > _svm_cur.f02) && !(t[7] < _svm_cur.f02)) {
+                a1[n] = t[0x16];
+                a0[n++] = i;
+            }
+            i++;
+        } while (i < _svm_cur.f00);
+    }
+    return n;
+}

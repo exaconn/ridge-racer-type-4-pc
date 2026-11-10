@@ -22,7 +22,7 @@ class Overlay662ClearToolTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_tool_action.h"
 #include "rr/audio_pan.h"
-static struct World {u32 guard[4];RrGarageSelectionPrefix garage;RrGarageWorkingStorage work;RrGarageButton buttons[46];RrGarageRectangle *table[46];u32 images[4][512],palettes[2][8],tail[4];} world,expected,map_checkpoint,sound_checkpoint;
+static struct World {u32 guard[4];GarageSelectionPrefix garage;GarageWorkingStorage work;GarageButton buttons[46];GarageRectangle *table[46];u32 images[4][512],palettes[2][8],tail[4];} world,expected,map_checkpoint,sound_checkpoint;
 static unsigned scenario,expected_map,expected_sound,map_calls,sound_calls,audio_mode;static s32 mapped_mode;
 #define ovl662_D_801276A8 world.garage
 #define ovl662_D_80127668 world.work
@@ -81,7 +81,7 @@ int main(void){unsigned path,j,k,active,layer,selected;uint64_t cases=0;
   for(j=0;j<16;j++)world.work.words[j]=next();world.work.words[0]=0xA5510000U|((scenario&4)?4U:0U);world.work.words[1]=0xABC00000U|((scenario&32)?1U:0U);
   for(j=0;j<46;j++)world.table[j]=&world.buttons[j].rectangle;
   world.buttons[5].rectangle[2]=320;world.buttons[5].rectangle[3]=480;world.buttons[5].timer0E=-123;world.buttons[6].timer0E=99;
-  world.work.points.cursor14=(RrGaragePoint){(scenario&16)?146:-1,199};
+  world.work.points.cursor14=(GaragePoint){(scenario&16)?146:-1,199};
   switch(path){case 0:mode=word(0x80000000U|scenario|(scenario<<16));break;case 1:mode=0;break;case 2:mode=1;break;case 3:mode=2;break;case 4:mode=4;break;case 5:mode=8;break;case 6:mode=3;break;default:mode=scenario%4==0?65536:scenario%4==1?INT32_MAX:word(next());break;}
   expected_map=expected_sound=map_calls=sound_calls=0;memcpy(&expected,&world,sizeof(world));reference(mode);ovl662_func_8011F678(mode);
   assert(map_calls==expected_map&&sound_calls==expected_sound);assert(memcmp(&world,&expected,sizeof(world))==0);assert((uintptr_t)world.images>UINT32_MAX);cases++;

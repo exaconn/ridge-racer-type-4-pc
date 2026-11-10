@@ -20,7 +20,7 @@ class AvailableCarsTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4||offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_available_cars.h"
 static u8 resources[2][0x2D100];
-static struct World {u32 guard[4];s32 frame,clock;s16 phase,pick,count,row,layout,scene,state;u16 enabled;u8 *resource;void *ui,*screen;RrMenuArenas arenas;RrMenuChoice4 choice;RrSaveProgressRecord7C save;RrCourseChoice4 courses[2][9];s16 status[20];RrGarageAvailableCar cars[20];RrMenuGridPoint grid[4];u32 tail[4];} world,expected;
+static struct World {u32 guard[4];s32 frame,clock;s16 phase,pick,count,row,layout,scene,state;u16 enabled;u8 *resource;void *ui,*screen;MenuArenas8 arenas;MenuChoice4 choice;SaveProgressRecord7C save;CourseChoice4 courses[2][9];s16 status[20];GarageAvailableCar cars[20];MenuGridPoint grid[4];u32 tail[4];} world,expected;
 static struct Event {unsigned id;u32 args[10];struct World before;} events[350];
 static unsigned count,seen,serial,n,profile;static int reference_run;
 #define ModeFrame world.frame
@@ -35,7 +35,7 @@ static unsigned count,seen,serial,n,profile;static int reference_run;
 #define ModeGroup world.enabled
 #define CdDirectoryBuffer world.resource
 #define LoadCursor world.ui
-#define D_800F4D40 world.screen
+#define MenuArenaBase world.screen
 #define MenuArenas world.arenas
 #define SelectionRows world.choice
 #define SaveProgress world.save

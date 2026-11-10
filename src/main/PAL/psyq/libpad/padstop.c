@@ -1,15 +1,23 @@
 /* GCC_VERSION: 2.7.2 */
+#include "psyq/libpad/padstop.h"
 #include "rr/channel_advance.h"
 
-int _padChannelToPort();
-char *_padPortToChannel();
+s32 _padChannelToPort(void *channel) {
+    s32 i = 0;
+    s32 port = 0x10;
+    PadChannel *record = PadChannelRecordArray;
 
-int _padChannelToPort(a0) char *a0; {
-  int i; int r; char *p; i = 0; r = 0x10; p = PadChannelRecordArray; for (; i < 2; i++) { if (a0 == p) return r; r += 0x10; p += 0xF0; } return 0xFF;
+    for (; i < 2; i++) {
+        if (channel == record) return port;
+        port += 0x10;
+        record++;
+    }
+    return 0xFF;
 }
 
-char *_padPortToChannel(a0) int a0; {
-    char *p = PadChannelRecordArray;
-    if (a0 & 0xF0) p += 0xF0;
-    return p;
+void *_padPortToChannel(s32 selector) {
+    PadChannel *record = PadChannelRecordArray;
+
+    if (selector & 0xF0) record++;
+    return record;
 }

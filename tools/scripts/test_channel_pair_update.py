@@ -22,14 +22,14 @@ class ChannelPairUpdateTest(unittest.TestCase):
         body = body.replace('#include "rr/channels.h"', '')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
-        body = body.replace('(RrChannelValueRecordB0 **)0x80110000U', '(test_table + 0xF98 / 4)')
+        body = body.replace('(ChannelValueRecordB0 **)0x80110000U', '(test_table + 0xF98 / 4)')
         source = '''#include <stdint.h>
 typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-RrChannelValueRecordB0 test_states[16];
-RrChannelValueRecordB0 *test_table[16 + 0xF98 / 4];
+ChannelValueRecordB0 test_states[16];
+ChannelValueRecordB0 *test_table[16 + 0xF98 / 4];
 void (*test_callback)(s32,s32,s32,s32);
 void _SsVmSetSeqVol(s32 bank,s32 left,s32 right,s32 mode) {
  test_callback(bank,left,right,mode);

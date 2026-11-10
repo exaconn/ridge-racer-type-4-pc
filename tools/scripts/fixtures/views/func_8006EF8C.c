@@ -8,26 +8,26 @@
 #undef LightMatrix
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80060C70 ((int (*)())func_80060C70)
+#define SubmitCourseHorizon ((int (*)())SubmitCourseHorizon)
 
-#define func_8006E834 ((int (*)())func_8006E834)
+#define BuildViewSegmentObjectList ((int (*)())BuildViewSegmentObjectList)
 
-#define func_80071348 ((int (*)())func_80071348)
+#define ApplySegmentVisibilityMask ((int (*)())ApplySegmentVisibilityMask)
 
-#undef func_80060C70
+#undef SubmitCourseHorizon
 
-#undef func_8006E834
+#undef BuildViewSegmentObjectList
 
-#undef func_80071348
+#undef ApplySegmentVisibilityMask
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8006E834 ((int (*)())func_8006E834)
+#define BuildViewSegmentObjectList ((int (*)())BuildViewSegmentObjectList)
 
-#define func_80060C70 ((int (*)())func_80060C70)
+#define SubmitCourseHorizon ((int (*)())SubmitCourseHorizon)
 
-#undef func_8006E834
+#undef BuildViewSegmentObjectList
 
-#undef func_80060C70
+#undef SubmitCourseHorizon
 
 typedef struct {
     s16 f0;
@@ -70,7 +70,7 @@ extern s32 CurrentDrawBuf;
 
 extern s32 DrawBufIndex;
 
-extern s32 D_800F4CE0;
+extern s32 RearViewMirrorY;
 
 extern void SetGeomOffset(s32, s32);
 
@@ -105,13 +105,13 @@ void SetupViewport(s32 a0) {
     s2->f6C = D_800A3BE0[a0];
     v1 = D_800A3BF0[a0];
     if (s1) {
-        v1 += D_800F4CE0;
+        v1 += RearViewMirrorY;
     }
     s2->f6E = v1;
     s2->f70 = D_800A3C00[a0];
     v1 = D_800A3C10[a0];
     if (s1) {
-        v1 += D_800F4CE0;
+        v1 += RearViewMirrorY;
     }
     s2->f72 = v1;
     p = &D_800A3C20[DrawBufIndex][a0];
@@ -119,7 +119,7 @@ void SetupViewport(s32 a0) {
         s2->f64 = 0;
     } else {
         s2->f64 = 1;
-        a0_val = D_800F4CE0;
+        a0_val = RearViewMirrorY;
         if (a0_val < 0) {
             a0_val = 0;
         }

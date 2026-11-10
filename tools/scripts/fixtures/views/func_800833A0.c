@@ -5,10 +5,10 @@
 void _SsSeqGetEof(s32 bankInput,s32 rowInput) {
     s16 bank=bankInput,row=rowInput;
     s32 bits=(s32)((u32)bank<<16);
-    RrChannelStreamB0 **table=_ss_score;
+    ChannelStreamB0 **table=_ss_score;
     /* Keep table indexing proportional to the native pointer width. */
-    RrChannelStreamB0 **slot=(RrChannelStreamB0 **)((u8*)table+(long)(bits>>14)*(long)(sizeof(*table)/sizeof(u32)));
-    RrChannelStreamB0 *record=&(*slot)[row];
+    ChannelStreamB0 **slot=(ChannelStreamB0 **)((u8*)table+(long)(bits>>14)*(long)(sizeof(*table)/sizeof(u32)));
+    ChannelStreamB0 *record=&(*slot)[row];
     s32 elapsed=record->elapsed21+1;
     s32 duration=record->duration20;
     record->elapsed21=elapsed;

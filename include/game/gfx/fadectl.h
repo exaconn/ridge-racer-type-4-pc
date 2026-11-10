@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8005C7A4(void);
+void ResetDemoFadeState(void);
 
 #endif /* RR_GAME_GFX_FADECTL_H */

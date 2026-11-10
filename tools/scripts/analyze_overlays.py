@@ -27,12 +27,14 @@ SPANS = {
 ALIASES = {669: 660, 670: 659, 671: 661, 672: 667}
 
 
-def padding_spans(blob):
+def padding_spans(blob, overlays=None):
     """Read declared NOP gaps, checking their extent and original contents."""
     config = yaml.safe_load((ROOT / 'configs/PAL/code_layout.yaml').read_text())['overlay_padding']
     sectors = struct.unpack_from('<951I', blob, 4)
     result = {}
     for index, ranges in config.items():
+        if overlays is not None and index not in overlays:
+            continue
         start, end = SPANS[index]
         result[index] = []
         previous = BASE + start

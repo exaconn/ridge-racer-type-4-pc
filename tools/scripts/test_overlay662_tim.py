@@ -19,8 +19,8 @@ class Overlay662TimTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_tim.h"
-typedef union {RrGarageTimImage tim;struct{u8 prefix;RrGarageTimBytes file;}at1;struct{u8 prefix[2];RrGarageTimBytes file;}at2;struct{u8 prefix[3];RrGarageTimBytes file;}at3;} SourceViews;
-static struct World{u32 head[4];RrGarageSelectionPrefix garage;RrGarageTimImage output;SourceViews source[2];RrPalette16 palette[2];u32 images[2][512];u32 tail[4];}world,expected;
+typedef union {GarageTimImage tim;struct{u8 prefix;GarageTimBytes file;}at1;struct{u8 prefix[2];GarageTimBytes file;}at2;struct{u8 prefix[3];GarageTimBytes file;}at3;} SourceViews;
+static struct World{u32 head[4];GarageSelectionPrefix garage;GarageTimImage output;SourceViews source[2];Palette16 palette[2];u32 images[2][512];u32 tail[4];}world,expected;
 #define ovl662_D_801276A8 world.garage
 #define D_800F3B28 world.output
 '''+bodies+r'''

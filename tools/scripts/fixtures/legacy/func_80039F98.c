@@ -2,7 +2,7 @@
 #include "rr/selection.h"
 void UpdateSelectionRank(void) {
  register u8 *first_page=(u8 *)0x800B0000U;
- register RrSelectionStatePrefix *first;
+ register SelectionStatePrefix *first;
  /* ASM_BARRIER: reuse V0 for word intermediates whose lifetimes end before publication. */
  register s32 word asm("$2");
  register s32 phase;
@@ -14,7 +14,7 @@ void UpdateSelectionRank(void) {
  register s32 sum;
  /* ASM_BARRIER: materialize the initial page before forming the state pointer. */
  __asm__("" : "+r"(first_page));
- first=(RrSelectionStatePrefix *)(first_page-0x2B28);
+ first=(SelectionStatePrefix *)(first_page-0x2B28);
  word=first->phase;
  phase=word;
  if(word>0) {
@@ -40,15 +40,15 @@ void UpdateSelectionRank(void) {
   if(group==1) {word=D_800AD4EC;group=word+1;}
   {
    register u8 *middle_page=(u8 *)0x800B0000U;
-   register RrSelectionStatePrefix *middle;
+   register SelectionStatePrefix *middle;
    /* ASM_BARRIER: repeat the state address after selecting the threshold group. */
    __asm__("" : "+r"(middle_page));
-   middle=(RrSelectionStatePrefix *)(middle_page-0x2B28);
+   middle=(SelectionStatePrefix *)(middle_page-0x2B28);
    i=0;
    if(middle->phase<4) {
     s8 *thresholds=D_8009F82C;
     /* ASM_BARRIER: hold the configuration pointer separately from threshold values. */
-    register RrSelectionStatePrefix *config asm("$9");
+    register SelectionStatePrefix *config asm("$9");
 
     register s32 next;
     /* ASM_BARRIER: retain the bucket adjustment base in T2. */
@@ -85,12 +85,12 @@ publish_state:
    /* ASM_BARRIER: materialize the configuration page in V0. */
    register u8 *publish_page asm("$2")=(u8 *)0x800B0000U;
    /* ASM_BARRIER: reuse the dead page temporary for the configuration pointer. */
-   register RrSelectionStatePrefix *publish asm("$2");
-   RrSelectionRow *target;
+   register SelectionStatePrefix *publish asm("$2");
+   SelectionRow *target;
    register u32 index;
    /* ASM_BARRIER: form a fresh state pointer for publication. */
    __asm__("" : "+r"(publish_page));
-   publish=(RrSelectionStatePrefix *)(publish_page-0x2B28);
+   publish=(SelectionStatePrefix *)(publish_page-0x2B28);
    index=publish->index;
    /* ASM_BARRIER: read the history index before materializing the row page. */
    __asm__("" : "+r"(index) : : "$17");
@@ -98,25 +98,25 @@ publish_state:
    publish->rank=i;
    /* ASM_BARRIER: publish rank before advancing the captured history index. */
    __asm__("" : "+r"(rows_page), "+r"(index) : "m"(publish->rank));
-   target=(RrSelectionRow *)((unsigned long)(index*4)+(unsigned long)publish+0x20);
-   __builtin_memcpy(target,&publish->current,sizeof(RrSelectionRow));
+   target=(SelectionRow *)((unsigned long)(index*4)+(unsigned long)publish+0x20);
+   __builtin_memcpy(target,&publish->current,sizeof(SelectionRow));
    publish->current.parameter=level;
    /* ASM_BARRIER: publish the new parameter before forming the displayed record address. */
    __asm__("" : "+r"(rows_page) : "m"(publish->current.parameter));
    /* ASM_BARRIER: pass the short-lived copy destination in T6. */
-   {register RrSelectionRow *published_row asm("$14")=(RrSelectionRow *)(rows_page+0x4D98);
+   {register SelectionRow *published_row asm("$14")=(SelectionRow *)(rows_page+0x4D98);
    /* ASM_BARRIER: consume the T6 copy address while preserving the original page for the callback. */
    __asm__("" : "+r"(rows_page) : "r"(published_row));
-   __builtin_memcpy(published_row,&publish->current,sizeof(RrSelectionRow));}
+   __builtin_memcpy(published_row,&publish->current,sizeof(SelectionRow));}
 
    {register s32 check=publish->phase;
    i=1;
-   if(check==6) {func_8003989C();i=1;}}
+   if(check==6) {SelectTeamCarGroup();i=1;}}
   }
 
-  {register RrSelectionRows *rows_base;
-  RrSelectionRow *row;
-  rows_base=(RrSelectionRows *)(rows_page+0x4D98);
+  {register SelectionRows32 *rows_base;
+  SelectionRow *row;
+  rows_base=(SelectionRows32 *)(rows_page+0x4D98);
   /* ASM_BARRIER: retain the row base before adding the first-row offset. */
   __asm__("" : "+r"(rows_base));
   row=rows_base->rows;

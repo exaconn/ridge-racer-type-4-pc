@@ -25,14 +25,14 @@ class UiRowInitializationTest(unittest.TestCase):
         source = '''#include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-typedef uint8_t u8;typedef int16_t s16;typedef uint32_t u32;typedef int32_t s32;
+typedef uint8_t u8;typedef int16_t s16;typedef uint16_t u16;typedef uint32_t u32;typedef int32_t s32;
 #define RR_FIELD_OFFSET(T,F) offsetof(T,F)
 ''' + header + '''
 s32 UiRowCount;
 u8 *test_page;
 s32 test_initialize(void) {return posix_memalign((void **)&test_page,65536,65536);}
 void test_release(void) {free(test_page);}
-unsigned long test_row_size(void) {return sizeof(RrUiRow24);}
+unsigned long test_row_size(void) {return sizeof(UiRow24);}
 ''' + body
         directory = Path(cls.temp.name)
         (directory/'row.c').write_text(source)

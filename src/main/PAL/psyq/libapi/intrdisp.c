@@ -1,5 +1,6 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
+#include "rr_asm.h"
 #include "rr/interrupt_dispatch.h"
 #include "rr/library.h"
 #include "psyq/libapi/intrdisp.h"
@@ -10,16 +11,15 @@ extern s32 ChangeClearRCnt(s32,s32);
 extern void ResetEntryInt();
 extern void HookEntryInt(void *data);
 
-RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback);
-RrLibSavedState *stopIntr(void);
-RrLibSavedState *restartIntr(void);
-void memclr();
+LibInterruptCallback setIntr(s32 id,LibInterruptCallback callback);
+LibSavedState *stopIntr(void);
+LibSavedState *restartIntr(void);
 
 void trapIntr(void) {
-    RrLibSavedState *state=&D_800A52C8;
-    RrLibInterruptCallback *base;
+    LibSavedState *state=&IntrDispatchState;
+    LibInterruptCallback *base;
     register u32 one __asm__("$19");
-    RrLibInterruptCallback *callbacks;
+    LibInterruptCallback *callbacks;
     u32 pending;
     u32 next;
     register s32 index __asm__("$17");
@@ -30,14 +30,15 @@ void trapIntr(void) {
     {
         register volatile u16 *status __asm__("$4")=I_STAT;
         u32 enabled=state->enabled_mask;
-        volatile u16 *mask;
+        u16 *mask;
         register u32 statusValue __asm__("$4");
-        register u32 maskValue __asm__("$2");
+        u32 maskValue;
         state->dispatching02=1;
         mask=I_MASK;
         statusValue=*status;
         maskValue=*mask;
         /* Preserve the initialized register values through mask composition. */
+        /* ASM_BARRIER: Preserve the requested callback across kernel calls. */
         __asm__("" : : "r"(enabled),"r"(statusValue));
         enabled&=statusValue;
         next=maskValue&enabled;
@@ -53,7 +54,7 @@ void trapIntr(void) {
 again:
                 if(index>=11)goto reread;
                 if(pending&1) {
-                    RrLibInterruptCallback callback;
+                    LibInterruptCallback callback;
                     RR_IRQ_ACK16(I_STAT,~(one<<index));
                     callback=*callbacks;
                     if(callback) callback();
@@ -66,10 +67,11 @@ again:
 reread:
             {
                 register volatile u16 *status __asm__("$4")=I_STAT;
-                u32 enabled=D_800A52C8.enabled_mask;
+                u32 enabled=IntrDispatchState.enabled_mask;
                 volatile u16 *mask=I_MASK;
                 register u32 statusValue __asm__("$4")=*status;
                 register u32 maskValue __asm__("$2")=*mask;
+                /* ASM_BARRIER: Preserve the requested callback across kernel calls. */
                 __asm__("" : : "r"(enabled),"r"(statusValue));
                 enabled&=statusValue;
                 next=maskValue&enabled;
@@ -78,42 +80,41 @@ reread:
         } while(next);
     }
     {
-        volatile u16 *status=I_STAT;
-        volatile u16 *mask=I_MASK;
+        volatile u16 *status=I_STAT, *mask=I_MASK;
         if(*status & *mask) {
             s32 *counter=&IntrStuckCount;
             u32 count=(u32)*counter;
-            s32 previous=(s32)count;
+            s32 previous=count;
             count++;
-            *counter=(s32)count;
+            *counter=count;
             if(previous>=0x801) {
+                /* ASM_BARRIER: Preserve the requested callback across kernel calls. */
                 DebugPrintStub(({const char *format=IntrTimeoutFmt; __asm__("" : "+r"(format));format;}),*status,*mask);
                 IntrStuckCount=0;
                 RR_IRQ_ACK16(I_STAT,0);
             }
         } else IntrStuckCount=0;
     }
-    D_800A52C8.dispatching02=0;
+    IntrDispatchState.dispatching02=0;
     ReturnFromException();
 }
 
-RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback) {
+LibInterruptCallback setIntr(s32 id,LibInterruptCallback callback) {
     s32 selector=id;
-    /* ASM_BARRIER: Preserve the requested callback across kernel calls. */
-    register RrLibInterruptCallback requested __asm__("$18")=callback;
-    RrLibInterruptCallback *base;
-    RrLibInterruptCallback *entry;
-    RrLibInterruptCallback previous;
-    RrLibSavedState *state;
+    LibInterruptCallback requested=callback;
+    LibInterruptCallback *base;
+    LibInterruptCallback *entry;
+    LibInterruptCallback previous;
+    LibSavedState *state;
     u32 saved;
     s32 disabled;
     /* ASM_BARRIER: Capture both full arguments before reusing argument registers for addresses. */
     __asm__("" : "+r"(selector), "+r"(requested));
-    base=D_800A52C8.callbacks;
-    entry=(RrLibInterruptCallback *)((unsigned long)((u32)selector*sizeof(*base))+(unsigned long)base);
+    base=IntrDispatchState.callbacks;
+    entry=(LibInterruptCallback *)((selector*sizeof(*base))+(unsigned long)base);
     previous=*entry;
     if(requested==previous) goto out;
-    state=(RrLibSavedState *)((unsigned long)base-RR_FIELD_OFFSET(RrLibSavedState,callbacks));
+    state=(LibSavedState *)((unsigned long)base-RR_FIELD_OFFSET(LibSavedState,callbacks));
     if(!state->active) goto out;
     {
         u16 raw=*I_MASK;
@@ -127,12 +128,10 @@ RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback) {
         state->enabled_mask |= bit;
     } else {
         u32 bit;
-        /* ASM_BARRIER: Keep the null callback's table store independent of its saved register. */
-        __asm__("" : "+r"(requested));
         bit=~(1U<<selector);
         *entry=0;
         saved &= bit;
-        *(u16 *)((unsigned long)base+RR_FIELD_OFFSET(RrLibSavedState,enabled_mask)-RR_FIELD_OFFSET(RrLibSavedState,callbacks)) &= bit;
+        *(u16 *)((unsigned long)base+RR_FIELD_OFFSET(LibSavedState,enabled_mask)-RR_FIELD_OFFSET(LibSavedState,callbacks)) &= bit;
     }
     if(selector==0) {
         disabled=requested==0;
@@ -147,12 +146,8 @@ out:
     return previous;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define I_MASK ((unsigned short *)I_MASK)
-#define I_STAT ((unsigned short *)I_STAT)
-
-RrLibSavedState *stopIntr(void) {
-  RrLibSavedState *p = &D_800A52C8;
+LibSavedState *stopIntr(void) {
+  LibSavedState *p = &IntrDispatchState;
   unsigned short *a, *c; int *b; int t;
   if (p->active == 0) return 0;
   EnterCriticalSection();
@@ -169,14 +164,8 @@ RrLibSavedState *stopIntr(void) {
   p->active = 0;
   return p; }
 
-#undef I_MASK
-#undef I_STAT
-
-/* legacy typing of shared globals in this part of the unit */
-#define I_MASK ((u16 *)I_MASK)
-
-RrLibSavedState *restartIntr(void) {
-    RrLibSavedState *state = &D_800A52C8;
+LibSavedState *restartIntr(void) {
+    LibSavedState *state = &IntrDispatchState;
     if (state->active != 0) return 0;
     HookEntryInt(state->callback_data);
     state->active = 1;
@@ -184,15 +173,12 @@ RrLibSavedState *restartIntr(void) {
     {
         s32 *destination = DPCR_Intr;
         s32 value = state->register32;
-        /* ASM_BARRIER: retain the original load-delay nop before the call/store pair. */
-        __asm__ volatile("nop");
+        RR_NOP_DEP();
         *destination = value;
     }
     ExitCriticalSection();
     return state;
 }
-
-#undef I_MASK
 
 void memclr(p, n) int *p; int n; {
     while (n--) *p++ = 0;

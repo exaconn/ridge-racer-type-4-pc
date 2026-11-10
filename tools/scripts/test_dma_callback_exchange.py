@@ -35,16 +35,16 @@ typedef uint8_t u8;typedef int8_t s8;typedef uint16_t u16;typedef int16_t s16;
 typedef uint32_t u32;typedef int32_t s32;
 #define RR_FIELD_OFFSET(type,field) offsetof(type,field)
 '''+header+'''
-RrLibInterruptCallback InterruptCallbackTable[8];
+LibInterruptCallback InterruptCallbackTable[8];
 u32 ports[5];volatile u32 *DICR_VSync=&ports[1];
 s32 called[3],io_count,io_kind[4],io_port[4];u32 io_value[4];
-RrLibInterruptCallback io_slot[4];s32 selected;
+LibInterruptCallback io_slot[4];s32 selected;
 void (*on_read)(void);
 void a(void){called[0]++;}void b(void){called[1]++;}void c(void){called[2]++;}
 void trapIntrDMA(void){called[2]++;}
-s32 setup_count,setup_selector;RrLibInterruptCallback setup_callback;
-u32 setup_word;RrLibInterruptCallback setup_slots[8];
-RrLibInterruptCallback InterruptCallback(s32 selector,RrLibInterruptCallback callback){
+s32 setup_count,setup_selector;LibInterruptCallback setup_callback;
+u32 setup_word;LibInterruptCallback setup_slots[8];
+LibInterruptCallback InterruptCallback(s32 selector,LibInterruptCallback callback){
     s32 i;setup_count++;setup_selector=selector;setup_callback=callback;setup_word=*DICR_VSync;
     for(i=0;i<8;i++)setup_slots[i]=InterruptCallbackTable[i];return a;
 }

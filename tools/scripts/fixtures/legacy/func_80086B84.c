@@ -2,7 +2,7 @@
 #include "rr/spu.h"
 
 void SpuGetVoiceVolume(u32 voice, u16 *left, u16 *right) {
-    RrSpuVoiceRegisters *registers = (RrSpuVoiceRegisters *)(voice * 16 + (unsigned long)_spu_RXX);
+    SpuVoiceRegisters *registers = (SpuVoiceRegisters *)(voice * 16 + (unsigned long)_spu_RXX);
     u16 raw_left = registers->left;
     u16 raw_right = registers->right;
     u32 value = raw_left & 0xFFFF;

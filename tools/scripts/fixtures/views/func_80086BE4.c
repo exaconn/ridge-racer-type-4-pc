@@ -57,27 +57,27 @@ s32 _SsVmAlloc(void) {
         ix=(u8)index;
         do {
             if(!(reserved&(one<<ix))) {
-                tmp=ix*(sizeof(RrChannelControlRow36)/2);
+                tmp=ix*(sizeof(ChannelControlRow36)/2);
                 offset=tmp*2;
                 if(( {
                     register u8 *page=(u8 *)0x80110000U;
                     /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
                     __asm__("" : "+r"(page));
                     page+=( offset );
-                    *( s8 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> flags1D );
+                    *( s8 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> flags1D );
                 }
                 ) ==0 && ( {
                     register u8 *page=(u8 *)0x80110000U;
                     /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
                     __asm__("" : "+r"(page));
                     page+=( offset );
-                    *( u16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> value06 );
+                    *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> value06 );
                 }
                 ) ==0) {
                     chosen=index;
                     break;
                 }
-                offset=(u8)index*sizeof(RrChannelControlRow36);
+                offset=(u8)index*sizeof(ChannelControlRow36);
                 cutoff=(u16)priority;
                 signed_priority= ( {
                     /* ASM_BARRIER: retain this field page in its original temporary until the row access. */
@@ -85,7 +85,7 @@ s32 _SsVmAlloc(void) {
                     /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
                     __asm__("" : "+r"(page));
                     page+=( offset );
-                    *( s16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> priority1A );
+                    *( s16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> priority1A );
                 }
                 );
                 /* ASM_BARRIER: retain the scheduling boundary between field capture and the next comparison. */
@@ -96,7 +96,7 @@ s32 _SsVmAlloc(void) {
                     /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
                     __asm__("" : "+r"(page));
                     page+=( offset );
-                    *( u16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> priority1A );
+                    *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> priority1A );
                 }
                 );
                 if(signed_priority<cutoff) {
@@ -108,7 +108,7 @@ s32 _SsVmAlloc(void) {
                         /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
                         __asm__("" : "+r"(page));
                         page+=( offset );
-                        *( u16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> value06 );
+                        *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> value06 );
                     }
                     );
                     /* ASM_BARRIER: retain the scheduling boundary between field capture and the next comparison. */
@@ -119,7 +119,7 @@ s32 _SsVmAlloc(void) {
                         /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
                         __asm__("" : "+r"(page));
                         page+=( offset );
-                        *( u16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> age02 );
+                        *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> age02 );
                     }
                     );
                     ties=1;
@@ -132,7 +132,7 @@ s32 _SsVmAlloc(void) {
                         /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
                         __asm__("" : "+r"(page));
                         page+=( offset );
-                        *( u16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> value06 );
+                        *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> value06 );
                     }
                     );
                     ties++;
@@ -143,7 +143,7 @@ s32 _SsVmAlloc(void) {
                             /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
                             __asm__("" : "+r"(page));
                             page+=( offset );
-                            *( u16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> age02 );
+                            *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> age02 );
                         }
                         );
                         best_gate=gate;
@@ -157,7 +157,7 @@ s32 _SsVmAlloc(void) {
                             /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
                             __asm__("" : "+r"(page));
                             page+=( offset );
-                            *( s16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> age02 );
+                            *( s16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> age02 );
                         }
                         );
                         /* ASM_BARRIER: retain the scheduling boundary between field capture and the next comparison. */
@@ -168,7 +168,7 @@ s32 _SsVmAlloc(void) {
                             /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
                             __asm__("" : "+r"(page));
                             page+=( offset );
-                            *( u16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> age02 );
+                            *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> age02 );
                         }
                         );
                         if((s32)best_age<signed_age) {
@@ -208,13 +208,13 @@ s32 _SsVmAlloc(void) {
             do {
                 if(!(mask&(one2<<ix))) {
                     /* ASM_BARRIER: retain the captured selection accumulator in its original temporary. */
-                    register s32 off asm("$2")=ix*sizeof(RrChannelControlRow36);
+                    register s32 off asm("$2")=ix*sizeof(ChannelControlRow36);
                     register u32 v= ( {
                         register u8 *page=(u8 *)0x80110000U;
                         /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
                         __asm__("" : "+r"(page));
                         page+=( off );
-                        *( u16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> age02 );
+                        *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> age02 );
                     }
                     );
                     v++;
@@ -224,7 +224,7 @@ s32 _SsVmAlloc(void) {
                         /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
                         __asm__("" : "+r"(page));
                         page+=( off );
-                        *( u16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> age02 )=( v );
+                        *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> age02 )=( v );
                     }
                     while(0);
                 }
@@ -236,14 +236,14 @@ s32 _SsVmAlloc(void) {
             }
             while(loop_test<count2);
         }
-        offset=(u8)chosen*sizeof(RrChannelControlRow36);
+        offset=(u8)chosen*sizeof(ChannelControlRow36);
         do {
             /* ASM_BARRIER: retain this field page in its original temporary until the row access. */
             register u8 *page asm("$1")=(u8 *)0x80110000U;
             /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
             __asm__("" : "+r"(page));
             page+=( offset );
-            *( u16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> age02 )=( 0 );
+            *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> age02 )=( 0 );
         }
         while(0);
         initial=D_8011010F;
@@ -253,7 +253,7 @@ s32 _SsVmAlloc(void) {
             /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
             __asm__("" : "+r"(page));
             page+=( offset );
-            *( u16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> pad1E[12] )=( 0 );
+            *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> pad1E[12] )=( 0 );
         }
         while(0);
         do {
@@ -262,7 +262,7 @@ s32 _SsVmAlloc(void) {
             /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
             __asm__("" : "+r"(page));
             page+=( offset );
-            *( u16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> pad1E[0] )=( 0 );
+            *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> pad1E[0] )=( 0 );
         }
         while(0);
         initial=(s8)initial;
@@ -272,7 +272,7 @@ s32 _SsVmAlloc(void) {
             /* ASM_BARRIER: capture the PAL row page before applying its index and field offset. */
             __asm__("" : "+r"(page));
             page+=( offset );
-            *( s16 *)((u8 *)&((RrChannelControlRow36 *)(page-0x6F8))-> priority1A )=( initial );
+            *( s16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> priority1A )=( initial );
         }
         while(0);
     }

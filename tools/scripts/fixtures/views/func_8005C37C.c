@@ -1,7 +1,7 @@
 #include "rr/fade_sprite.h"
 
-extern RrSpritePacket *AddSpritePrim(u32 *, RrSpritePacket *, s32, s32,
-                                  RrUiUvRect *, u16, s32);
+extern SpritePacket *AddSpritePrim(u32 *, SpritePacket *, s32, s32,
+                                  UiUvRect *, u16, s32);
 
 void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
     register s32 xstage = x;
@@ -14,13 +14,13 @@ void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
     register s32 selector;
     register s32 scale;
     /* ASM_BARRIER: keep the scratchpad pointer in s0 through the sprite helper. */
-    register RrGpuScratchPointers *scratch __asm__("$16");
-    register RrFadeSpriteContext **slot;
+    register GpuScratchPointers *scratch __asm__("$16");
+    register FadeSpriteContext **slot;
     /* ASM_BARRIER: the input cursor dies at the helper call; its returned
      * packet starts a separate t0 lifetime after that call. */
-    register RrGpuSingleCommandPacket *p __asm__("$8");
-    register RrSpritePacket *cursor __asm__("$8");
-    register RrFadeSpriteContext *context;
+    register GpuSingleCommandPacket *p __asm__("$8");
+    register SpritePacket *cursor __asm__("$8");
+    register FadeSpriteContext *context;
     register u32 command;
     /* ASM_BARRIER: use a1 for the low-address mask only after the helper. */
     register u32 low __asm__("$5");
@@ -53,11 +53,11 @@ void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
     if (product < 0) {
         scale = (s32)((u32)product + 255U) >> 8;
     }
-    scratch = (RrGpuScratchPointers *)0x1F800000U;
+    scratch = (GpuScratchPointers *)0x1F800000U;
     if (scale > 0) {
-        cursor = (RrSpritePacket *)scratch->cursor;
+        cursor = (SpritePacket *)scratch->cursor;
         slot = &CurrentDrawBuf;
-        p = (RrGpuSingleCommandPacket *)AddSpritePrim(
+        p = (GpuSingleCommandPacket *)AddSpritePrim(
             ({
                 ordering = &(*slot)->head98;
                 /* ASM_BARRIER: finish a0 within argument evaluation, leaving

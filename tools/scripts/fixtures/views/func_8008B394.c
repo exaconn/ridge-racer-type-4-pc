@@ -19,6 +19,6 @@
 
 #undef IntrDriverTablePtr
 
-RrLibInterruptCallback InterruptCallback(s32 channel, RrLibInterruptCallback callback) {
+LibInterruptCallback InterruptCallback(s32 channel, LibInterruptCallback callback) {
     return IntrDriverTablePtr->install(channel, callback);
 }

@@ -5,6 +5,8 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source, name_at
+from test_cd_disc_probe import native_body
 
 
 class SpuProgramSelectionTest(unittest.TestCase):
@@ -24,14 +26,14 @@ u8 test_flag_storage[65536+0x200];
 #define test_flag_page (test_flag_storage+32768)
 void *test_flags(void) {return test_flag_page;}
 u8 *test_data_page[0x60/sizeof(u8 *)+16];
-RrSpuProgram *test_program_page[0x20/sizeof(RrSpuProgram *)+16];
+SpuProgram *test_program_page[0x20/sizeof(SpuProgram *)+16];
 u8 *_svm_vab_tn[16];
-RrSpuProgram test_programs[65536+16];
+SpuProgram test_programs[65536+16];
 u8 test_data[16][8],test_tones[16][8];
 s16 kMaxPrograms;
-typedef union {RrSpuProgram program;struct {u8 pad[8];RrSpuSelectionPrefix state;} view;} SelectionAlias;
-typedef union {RrSpuProgram program;struct {u8 pad[8];u8 *pointer;} view;} DataAlias;
-typedef union {RrSpuProgram program;struct {u8 pad[8];RrSpuProgram *pointer;} view;} ProgramAlias;
+typedef union {SpuProgram program;struct {u8 pad[8];SpuSelectionPrefix state;} view;} SelectionAlias;
+typedef union {SpuProgram program;struct {u8 pad[8];u8 *pointer;} view;} DataAlias;
+typedef union {SpuProgram program;struct {u8 pad[8];SpuProgram *pointer;} view;} ProgramAlias;
 SelectionAlias test_selection;
 DataAlias test_selected_data,test_selected_tones;
 ProgramAlias test_selected_program;
@@ -56,10 +58,10 @@ void *test_alias(s32 which) {
  if(which==2)return &test_selected_program.program;
  return &test_selected_tones.program;
 }
-void test_current_table(RrSpuProgram *program) {_svm_pg=program;}
+void test_current_table(SpuProgram *program) {_svm_pg=program;}
 void *test_pointer_storage(void) {return &_svm_pg;}
-void test_table(s32 bank,RrSpuProgram *program) {
- test_program_page[0x20/sizeof(RrSpuProgram *)+bank]=program;
+void test_table(s32 bank,SpuProgram *program) {
+ test_program_page[0x20/sizeof(SpuProgram *)+bank]=program;
 }
 void test_reset(void) {
  s32 i;
@@ -71,15 +73,17 @@ void test_reset(void) {
  for(i=0;i<16;i++) {
   test_flag_page[0x120+i]=1;
   test_data_page[0x60/sizeof(u8 *)+i]=test_data[i];
-  test_program_page[0x20/sizeof(RrSpuProgram *)+i]=test_programs+32768+i;
+  test_program_page[0x20/sizeof(SpuProgram *)+i]=test_programs+32768+i;
   _svm_vab_tn[i]=test_tones[i];
  }
  kMaxPrograms=32767;
  _svm_vh=test_data[0];_svm_pg=test_programs+32768;_svm_tn=test_tones[0];
 }
 '''
+        owners=source_owners(root/'src/main/PAL')
         body = ((root/'tools/scripts/fixtures/views/func_8008A564.c').read_text() +
-                (root/'src/main/PAL/psyq/libsnd/ssatr2.c').read_text() +
+                '\n'.join(native_body(definition_source(owners[name].read_text(),name))
+                          for name in ('_SsVmSetProgVol','_SsVmGetProgVol','_SsVmSetProgPan','_SsVmGetProgPan')) + '\n' +
                 (root/'tools/scripts/fixtures/views/func_80084FB4.c').read_text())
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
@@ -89,8 +93,8 @@ void test_reset(void) {
         body = body.replace('=0x80110000U;', '=(unsigned long)test_flag_page;')
         assert body.count('(u8 **)0x80110000U') == 1
         body = body.replace('(u8 **)0x80110000U', 'test_data_page')
-        assert body.count('(RrSpuProgram **)0x80110000U') == 1
-        body = body.replace('(RrSpuProgram **)0x80110000U', 'test_program_page')
+        assert body.count('(SpuProgram **)0x80110000U') == 1
+        body = body.replace('(SpuProgram **)0x80110000U', 'test_program_page')
         directory = Path(cls.temp.name)
         (directory/'function.c').write_text(source+body)
         result = subprocess.run(['cc','-shared','-fPIC','-O2',str(directory/'function.c'),
@@ -120,7 +124,7 @@ void test_reset(void) {
         cls.copy=cls.lib.SsUtGetProgAtr
         cls.copy.argtypes=[C.c_int32,C.c_int16,C.POINTER(C.c_uint8)]
         cls.copy.restype=C.c_int32
-        cls.accessors = [getattr(cls.lib,'func_'+name) for name in ('80089624','80089694','800896E4','80089754')]
+        cls.accessors = [getattr(cls.lib,name_at(int(name,16))) for name in ('80089624','80089694','800896E4','80089754')]
         for index, function in enumerate(cls.accessors):
             function.argtypes = [C.c_int16,C.c_int16]+([C.c_int32] if index%2==0 else [])
             function.restype = C.c_int32

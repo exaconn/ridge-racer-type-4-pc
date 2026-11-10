@@ -1,42 +1,27 @@
+#include "rr/track_lighting.h"
+#include "rr/matrix_workspace.h"
 #include "psyq/libgte/gtemat7.h"
 #include "game/gfx/gfxmtx.h"
 #include "game/menu/mnrows.h"
 #include "game/ui/uidraw.h"
-#include "rr/course_choices.h"
+#include "game/ui/uitext.h"
 #include "rr/badge_rows.h"
 #include "rr/bios_devices.h"
 #include "rr/audio_cd_controller.h"
-typedef struct { unsigned short a, b, c, d; } W8;
-
-typedef struct { unsigned short a, b, c; } W6;
-
-typedef struct { unsigned char a, b, c, d; } B4;
-
-extern unsigned char D_8009F924[];
-extern B4 D_8009F928[];
-extern W8 D_8009F934[];
-extern W6 LightMatrix[];
-extern char *D_800F4D90;
-
-void SetLightColorsScaled(int a0);
-void SetLightColorsFromRow();
-int func_8003D108();
-int AllocBadgeRows(int a0);
 
 void SetLightColorsScaled(int a0)
 {
-    short sp[3][3];
-    int pad[2];
+    MatrixWords32 colors;
     int i;
     int x;
 
     for (i = 0; i < 3; i++) {
-        LightMatrix[i].a = D_8009F934[i].a;
-        LightMatrix[i].b = D_8009F934[i].b;
-        LightMatrix[i].c = D_8009F934[i].c;
-        sp[0][i] = D_8009F928[i].a << 4;
-        sp[1][i] = D_8009F928[i].b << 4;
-        sp[2][i] = D_8009F928[i].c << 4;
+        LightMatrix.matrix.fields.rotation00[i][0] = D_8009F934[i].x;
+        LightMatrix.matrix.fields.rotation00[i][1] = D_8009F934[i].y;
+        LightMatrix.matrix.fields.rotation00[i][2] = D_8009F934[i].z;
+        colors.fields.rotation00[0][i] = D_8009F928[i].red << 4;
+        colors.fields.rotation00[1][i] = D_8009F928[i].green << 4;
+        colors.fields.rotation00[2][i] = D_8009F928[i].blue << 4;
     }
     x = D_8009F924[0] * a0;
     {
@@ -45,34 +30,30 @@ void SetLightColorsScaled(int a0)
         y >>= 8;
         SetBackColor(x, y, (D_8009F924[2] * a0) >> 8);
     }
-    SetColorMatrix(sp);
+    SetColorMatrix(&colors);
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define LightMatrix (*(unsigned short (*)[])&LightMatrix)
-
-void SetLightColorsFromRow(a0) int a0;
+void SetLightColorsFromRow(s32 index)
 {
-    short sp[14];
-    short *s0;
+    MatrixWords32 colors;
+    u16 *s0;
     int i = 0;
-    char *base;
-    unsigned short *a3 = LightMatrix;
+    unsigned short *a3 = LightMatrix.halves;
     unsigned char *a1;
-    unsigned char *a2;
-    base = D_800F4D90;
-    a1 = (unsigned char *)(a0 * 0x2C + (int)base);
-    a2 = a1;
+    unsigned short *a2;
+    TrackLighting2C *base = TrackLightTable;
+    a1 = (unsigned char *)(index * sizeof(*base) + (unsigned long)base);
+    a2 = (unsigned short *)a1;
 L:
     {
-        short *v;
-        s0 = sp;
-        v = (short *)((int)s0 + i * 2);
+        u16 *v;
+        s0 = colors.halves;
+        v = s0 + i;
         i++;
-        a3[0] = *(unsigned short *)(a2 + 0x10);
-        a3[1] = *(unsigned short *)(a2 + 0x12);
-        a3[2] = *(unsigned short *)(a2 + 0x14);
-        a2 += 8;
+        a3[0] = a2[8];
+        a3[1] = a2[9];
+        a3[2] = a2[10];
+        a2 += 4;
         v[0] = a1[4] << 4;
         v[3] = a1[5] << 4;
         v[6] = a1[6] << 4;
@@ -81,71 +62,66 @@ L:
     }
     if (i < 3) goto L;
     {
-        char *b2 = D_800F4D90;
-        unsigned char *q = (unsigned char *)(a0 * 0x2C + (int)b2);
-        SetBackColor(q[0x28], q[0x29], q[0x2A], a3);
+        TrackLighting2C *current = TrackLightTable;
+        unsigned char *q = (unsigned char *)(index * sizeof(*current) + (unsigned long)current);
+        SetBackColor(q[0x28], q[0x29], q[0x2A]);
     }
-    SetColorMatrix(s0);
+    SetColorMatrix(&colors);
 }
 
-#undef LightMatrix
-
-int func_8003D108(a0) int a0;
+int StepMenuCameraTransition(int flags)
 {
-    int r = 3;
-    int i;
-    int n;
-    char *p;
-    if (a0 & 1) {
-        i = 0;
-        n = BadgeRowCount;
-        if (n > 0) {
-            int c = 0xB;
-            int m = n;
-            p = BadgeRows;
+    u16 ready = MENU_TRANSITION_ALL;
+    int index;
+    int rowCount;
+    const BadgeRow1C *badge;
+    if (flags & MENU_TRANSITION_BADGES) {
+        index = 0;
+        rowCount = BadgeRowCount;
+        if (rowCount > 0) {
+            int settledState = 0xB;
+            int limit = rowCount;
+            badge = BadgeRows;
             do {
-                short t = *(short *)(p + 0x10);
-                if (t != 0 && t != c) {
-                    r &= 0xFFFE;
+                short state = badge->state10;
+                if (state != 0 && state != settledState) {
+                    ready &= ~MENU_TRANSITION_BADGES;
                     break;
                 }
-                i++;
-                p += 0x1C;
-            } while (i < m);
+                index++;
+                badge++;
+            } while (index < limit);
         }
     }
-    if (a0 & 2) {
-        i = 0;
-        n = ImageRowCount;
-        if (n > 0) {
-            int c = 5;
-            int m = n;
-            a0 = (int)ImageRows;
+    if (flags & MENU_TRANSITION_IMAGES) {
+        const ImageRow20 *image;
+        index = 0;
+        rowCount = ImageRowCount;
+        if (rowCount > 0) {
+            int settledState = 5;
+            int limit = rowCount;
+            image = ImageRows;
             do {
-                signed char t = *(char *)(a0 + 1);
-                if (t != 0) {
-                    i++;
-                    if (t != c) {
-                        r &= 0xFFFD;
+                signed char state = image->f1;
+                if (state != 0) {
+                    index++;
+                    if (state != settledState) {
+                        ready &= ~MENU_TRANSITION_IMAGES;
                         break;
                     }
-                } else i++;
-                a0 += 0x14;
-            } while (i < m);
+                } else index++;
+                image++;
+            } while (index < limit);
         }
     }
-    return r;
+    return ready;
 }
-
-/* legacy typing of shared globals in this part of the unit */
-#define BadgeRows (*(int (*))&BadgeRows)
 
 int AllocBadgeRows(int a0) {
     int n = BadgeRowCount * 28;
-    BadgeRows = a0;
-    func_80096434(a0, n);
-    DebugPrintStub(D_80010874, n);
+    BadgeRows = (BadgeRow1C *)a0;
+    PsyqBzero(a0, n);
+    DebugPrintStub(StrSizeEqLdFmt, n);
     return n;
 }
 
-#undef BadgeRows

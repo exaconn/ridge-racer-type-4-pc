@@ -1,12 +1,12 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channels.h"
-s32 _padSetMainMode(RrChannelPatchCommand *raw,s32 first_raw,s32 second_raw) {
+s32 _padSetMainMode(ChannelPatchCommand *raw,s32 first_raw,s32 second_raw) {
  /* ASM_BARRIER: Retain the channel and both original words across the readiness callback. */
- register RrChannelPatchCommand *channel __asm__("$16")=raw;
+ register ChannelPatchCommand *channel __asm__("$16")=raw;
  register s32 first __asm__("$17")=first_raw;
  register s32 second __asm__("$18")=second_raw;
  register s32 copy __asm__("$19");
- register RrChannelStatusCallback ready;
+ register ChannelStatusCallback ready;
  s32 result;
 
  /* ASM_BARRIER: Save arguments before loading readiness, leaving the saved comparison copy late. */

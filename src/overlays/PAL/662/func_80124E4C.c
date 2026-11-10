@@ -1,10 +1,11 @@
+#include "game/system/pad.h"
 #include "rr/overlay662_pixel_dispatch.h"
 
 void ovl662_func_80124E4C(void)
 {
-    RrGaragePixelEdit4 operation;
+    GaragePixelEdit4 operation;
     u8 *pixel;
-    RrGarageSelectionPrefix *state;
+    GarageSelectionPrefix *state;
     s32 x;
     register s32 y __asm__("$4");
     register u32 coordX __asm__("$4");
@@ -42,18 +43,18 @@ void ovl662_func_80124E4C(void)
         } else {
             operation.previous = *pixel & 15;
         }
-        if (PlayerControllers[0].type01 != 0x12 &&
-            (PlayerControllers[0].buttons02 & 2) && (PlayerControllers[0].buttons02 & 1)) {
+        if (PlayerControllers[0].input00.fields.type != 0x12 &&
+            (PlayerControllers[0].input00.fields.buttons & 2) && (PlayerControllers[0].input00.fields.buttons & 1)) {
             operation.replacement = 0;
         } else {
             operation.replacement = ovl662_D_801276A8.config22;
         }
         if (operation.previous != operation.replacement) {
             ovl662_func_8011D120();
-            packed = (u32)operation.y << 8;
-            packed = (u32)operation.x | packed;
-            packed |= (u32)operation.previous << 16;
-            FloodFill4bpp(pixel, packed | ((u32)operation.replacement << 24));
+            packed = operation.y * 0x100U;
+            packed = operation.x | packed;
+            packed |= operation.previous * 0x10000U;
+            FloodFill4bpp(pixel, packed | (operation.replacement * 0x1000000U));
         }
     }
 }

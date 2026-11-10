@@ -21,8 +21,8 @@ class Overlay662ScrollbarTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_scrollbar.h"
-RrGarageSelectionPrefix ovl662_D_801276A8;
-static RrGarageSelectionPrefix saved;
+GarageSelectionPrefix ovl662_D_801276A8;
+static GarageSelectionPrefix saved;
 static u32 pixels[8];
 '''+body+r'''
 static s16 half(u32 bits){u16 h=(u16)bits;s16 value;memcpy(&value,&h,2);return value;}
@@ -40,8 +40,8 @@ int main(void){unsigned zoom,coord,axis;uint64_t cases=0;
    ovl662_D_801276A8.reset08[1]=half(coord*73U+17);
    memcpy(&saved,&ovl662_D_801276A8,sizeof(saved));
    for(axis=0;axis<2;axis++){
-    struct {u16 before;RrGpuRectangleFields rect;u16 after;} output;
-    RrGpuRectangleFields expected;
+    struct {u16 before;GpuRectangleFields rect;u16 after;} output;
+    GpuRectangleFields expected;
     int64_t extent=axis?224:112,denominator=zoom/2;
     int64_t length=extent/denominator;
     int64_t position=axis?87:90;

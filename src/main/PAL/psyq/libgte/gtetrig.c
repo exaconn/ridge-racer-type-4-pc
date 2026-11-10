@@ -12,7 +12,7 @@ void SetFogNear(s32 arg0, s32 arg1);
 s32 rcos(s32 angle) {
     s32 a=angle;
     s32 result;
-    if(a<0) a=(s32)(0U-(u32)a);
+    if(a<0) a=(0U-a);
     a &= 0xFFF;
     if(a<0x801) {
         if(a<0x401) {result=SinTable[0x400-a];goto out;}

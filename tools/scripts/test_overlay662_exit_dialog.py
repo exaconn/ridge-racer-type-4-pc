@@ -4,6 +4,7 @@ import re,subprocess
 s=Path('src/overlays/PAL/662/func_80121074.c').read_text();s=re.sub(r'^extern .*\n','',s,flags=re.M)
 source=r'''
 #include <assert.h>
+#include "game/system/pad.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -18,13 +19,13 @@ source=r'''
 #include "rr/overlay662_tool_action.h"
 #include "rr/menu_text_state.h"
 #include "rr/tables.h"
-static struct World {u32 guard[4];RrGarageSelectionPrefix garage;RrGarageWorkingStorage working;RrMenuItemState5C input[2];RrUiRow24 rows[2][2];RrUiRow24 *row;RrBadgeRow1C badges[2];RrBadgeRow1C *badge;RrMenuTextState texts[2];RrMenuTextState *text;s32 accept,exit;s16 scene,enable,state;u32 tail[4];} world,expected;
+static struct World {u32 guard[4];GarageSelectionPrefix garage;GarageWorkingStorage working;ControllerState5C input[2];UiRow24 rows[2][2];UiRow24 *row;BadgeRow1C badges[2];BadgeRow1C *badge;MenuTextState texts[2];MenuTextState *text;s32 accept,exit;s16 scene,enable,state;u32 tail[4];} world,expected;
 #define ovl662_D_801276A8 world.garage
 #define ovl662_D_80127668 world.working
 #define PlayerControllers world.input
 #define UiRows world.row
 #define BadgeRows world.badge
-#define D_800AC590 world.text
+#define CardDialogueStatePtr world.text
 #define D_800F3A60 world.accept
 #define ovl662_D_801272E8 world.exit
 #define D_800F3A26 world.scene
@@ -38,15 +39,15 @@ static void service(unsigned kind,s32 a){struct World *w=reference_run?&expected
  else{coverage[kind]++;assert(seen<count);struct Event *e=&events[seen++];assert(e->kind==kind&&e->a==a&&memcmp(w,&e->before,sizeof(*w))==0);}
  unsigned bank=(scenario+order+1)&1;w->row=world.rows[bank];w->badge=&world.badges[bank];w->text=&world.texts[bank];
  w->garage.flagsD1^=0xA5;w->garage.stateD2+=(u8)(profile+order+1);w->garage.fade00^=0x12345678;w->garage.dirtyD3^=1;
- w->working.words[0]^=0x17;w->working.words[1]^=3;w->working.words[4]^=0x89ABCDEF;w->accept^=1;w->input[0].buttons0A^=0x5000;
+ w->working.words[0]^=0x17;w->working.words[1]^=3;w->working.words[4]^=0x89ABCDEF;w->accept^=1;w->input[0].edges08.fields.repeat^=0x5000;
  w->texts[bank].b4^=5;w->texts[bank].st^=3;w->badges[bank].half02^=7;w->badges[bank].state10^=1;w->rows[bank][0].byte14^=5;w->rows[bank][1].cells[0]^=0xD7;
 }
 void ovl662_func_8011E5C0(s32 a){assert(a==0||a==1);service(0,a);}
 s32 ovl662_func_8011E734(s32 a){assert(a==18);service(1,a);return profile&1;}
 void ovl662_func_8011E694(void){service(2,0);}void PlaySfx(s32 a){assert(a==0||a==1);service(3,a);}
-static RrUiRow24 *rows(struct World *w){return w->rows[w->row==world.rows[1]];}
-static RrBadgeRow1C *badge(struct World *w){return &w->badges[w->badge==&world.badges[1]];}
-static RrMenuTextState *text(struct World *w){return &w->texts[w->text==&world.texts[1]];}
+static UiRow24 *rows(struct World *w){return w->rows[w->row==world.rows[1]];}
+static BadgeRow1C *badge(struct World *w){return &w->badges[w->badge==&world.badges[1]];}
+static MenuTextState *text(struct World *w){return &w->texts[w->text==&world.texts[1]];}
 static void reference(s32 mode){struct World *w=&expected;
  if(mode<0)return;
  if(mode>0){
@@ -58,9 +59,9 @@ static void reference(s32 mode){struct World *w=&expected;
   if(flags==0){if(w->garage.fade00==0){exits[0]++;w->working.words[0]&=~9U;w->garage.fade00=-1;w->enable=1;w->scene=39;w->state=0;}return;}
   unsigned phase=rows(w)[0].byte14;
   if(phase==2){if(badge(w)->state10!=3)return;w->garage.flagsD1=flags|4;if(text(w)->st!=4)return;
-   if(w->input[0].type01!=18){
-    if(w->input[0].buttons0A&0x1000){if(w->garage.stateD2!=0){w->garage.stateD2=0;service(3,0);}}
-    else if(w->input[0].buttons0A&0x4000){if(w->garage.stateD2!=1){w->garage.stateD2=1;service(3,0);}}
+   if(w->input[0].input00.fields.type!=18){
+    if(w->input[0].edges08.fields.repeat&0x1000){if(w->garage.stateD2!=0){w->garage.stateD2=0;service(3,0);}}
+    else if(w->input[0].edges08.fields.repeat&0x4000){if(w->garage.stateD2!=1){w->garage.stateD2=1;service(3,0);}}
     if(w->accept){w->garage.stateD2=(u8)(w->garage.stateD2+2);service(3,1);}
    }
    unsigned choice=w->garage.stateD2;if(choice<4)choices[choice]++;
@@ -81,7 +82,7 @@ int main(void){assert(sizeof(void*)==8);static const s32 modes[]={-1,(-214748364
  for(scenario=0;scenario<65536;scenario++)for(profile=0;profile<8;profile++){
   memset(&world,0xA6,sizeof(world));world.row=world.rows[0];world.badge=&world.badges[0];world.text=&world.texts[0];
   for(unsigned bank=0;bank<2;bank++){world.rows[bank][0].byte14=scenario%12;world.badges[bank].state10=profile&2?3:11;world.texts[bank].st=profile&1?4:-1;world.texts[bank].p=(u16*)world.rows[bank];}
-  world.working.words[0]=scenario;world.working.words[1]=scenario>>4;world.input[0].type01=(scenario>>5)&1?18:0;world.input[0].buttons0A=scenario;world.accept=(scenario>>6)&1;
+  world.working.words[0]=scenario;world.working.words[1]=scenario>>4;world.input[0].input00.fields.type=(scenario>>5)&1?18:0;world.input[0].edges08.fields.repeat=scenario;world.accept=(scenario>>6)&1;
   world.garage.dirtyD3=(scenario>>7)&1;world.garage.flagsD1=scenario>>4;world.garage.stateD2=scenario>>8;world.garage.fade00=(scenario>>12)&1?0:64;world.garage.selectorsB8[1]=scenario&1;world.garage.optionIndices98.flat[5]=scenario%6;
   s32 mode=profile<4?0:modes[scenario%10];expected=world;count=seen=serial=0;reference_run=1;reference(mode);serial=0;reference_run=0;ovl662_func_80121074(mode);
   assert(count==seen&&memcmp(&world,&expected,sizeof(world))==0);assert((uintptr_t)world.row>UINT32_MAX&&(uintptr_t)world.badge>UINT32_MAX&&(uintptr_t)world.text>UINT32_MAX);

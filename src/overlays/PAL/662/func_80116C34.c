@@ -1,12 +1,13 @@
 #include "rr/overlay662_car_bars.h"
+#include "rr/frame_storage_types.h"
 
 #ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((RrGpuScratchPointers *)0x1F800000U)
+#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
 #endif
 
 void ovl662_func_80116C34(s32 selected)
 {
-    RrUiUvRect strip;
+    UiUvRect strip;
     void *result;
     u32 *head;
     void *initial;
@@ -19,7 +20,7 @@ void ovl662_func_80116C34(s32 selected)
     strip.w = 240;
     strip.h = 24;
     strip.u = 0;
-    head = &CurrentDrawBuf->head70;
+    head = &CurrentDrawBuf->buffer.ordering70.words[0];
     initial = RR_GPU_SCRATCH->cursor;
     cursor = AddSpritePrim(head, initial, 40, y, &strip, 0x7FA4, 1);
 
@@ -36,7 +37,7 @@ void ovl662_func_80116C34(s32 selected)
                 g = 189;
                 b = 0;
             }
-            cursor = AddTilePrim(&CurrentDrawBuf->head70, cursor,
+            cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor,
                                   x + 1, y, 10, 22, r, g, b);
         }
         x += 12;
@@ -44,11 +45,11 @@ void ovl662_func_80116C34(s32 selected)
         status++;
     } while (index < 20);
 
-    result = AddDrawModePrim(&CurrentDrawBuf->head70, cursor, 0x39);
+    result = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 0x39);
     RR_GPU_SCRATCH->cursor = result;
     if (ovl662_D_80127300[(SelectionRows.bytes[2] % 20) & 255] == 2) {
-        result = AddSpritePrim(&CurrentDrawBuf->head70, result, 142, 256,
+        result = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], result, 142, 256,
                               &ovl662_D_80126214, 0x7CBB, 0);
-        RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->head70, result, 0x38);
+        RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], result, 0x38);
     }
 }

@@ -26,10 +26,10 @@ class AudioPanTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,s)
 #define RR_ASSERT_OFFSET(t,f,o)
 #include "rr/audio_pan.h"
-_Static_assert(sizeof(RrAudioSettings)==52,"settings size");
-_Static_assert(offsetof(RrAudioSettings,volume31)==49,"volume");
-_Static_assert(offsetof(RrAudioSettings,mono32)==50,"mono");
-typedef struct {s16 table[128];RrRuntimeSettings settings;s16 gain;u16 banks[3];u8 canary[18];} World;
+_Static_assert(sizeof(AudioSettings)==52,"settings size");
+_Static_assert(offsetof(AudioSettings,volume31)==49,"volume");
+_Static_assert(offsetof(AudioSettings,mono32)==50,"mono");
+typedef struct {s16 table[128];RuntimeSettings settings;s16 gain;u16 banks[3];u8 canary[18];} World;
 typedef struct {s32 kind,args[8];World snapshot;} Entry;
 static World initial,actual,expected,*w;
 static Entry entries[2],saved[2];

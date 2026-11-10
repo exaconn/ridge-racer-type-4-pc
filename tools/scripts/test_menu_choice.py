@@ -24,24 +24,24 @@ class MenuChoiceTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,o)
 #define RR_ASSERT_SIZE(t,s)
 #include "rr/menu_choice.h"
-_Static_assert(sizeof(RrUiRow24)==36,"UI row");
-_Static_assert(offsetof(RrUiRow24,cells)==12,"cells");
-_Static_assert(offsetof(RrUiRow24,byte14)==20,"accept byte");
-_Static_assert(offsetof(RrUiRow24,byte16)==22,"selection byte");
-_Static_assert(sizeof(RrMenuGlyphRow1C)==28,"glyph stride");
-_Static_assert(offsetof(RrMenuGlyphRow1C,flags00)==0,"flags");
-_Static_assert(offsetof(RrMenuGlyphRow1C,control02)==2,"control");
-_Static_assert(offsetof(RrMenuGlyphRow1C,phase18)==24,"phase");
+_Static_assert(sizeof(UiRow24)==36,"UI row");
+_Static_assert(offsetof(UiRow24,cells)==12,"cells");
+_Static_assert(offsetof(UiRow24,byte14)==20,"accept byte");
+_Static_assert(offsetof(UiRow24,byte16)==22,"selection byte");
+_Static_assert(sizeof(MenuGlyphRow1C)==28,"glyph stride");
+_Static_assert(offsetof(MenuGlyphRow1C,flags00)==0,"flags");
+_Static_assert(offsetof(MenuGlyphRow1C,control02)==2,"control");
+_Static_assert(offsetof(MenuGlyphRow1C,phase18)==24,"phase");
 _Static_assert(sizeof(unsigned long)>=sizeof(void*),"full pointer arithmetic");
-_Static_assert(sizeof(RrMenuChoice4)==4,"packed choice");
-_Static_assert(_Alignof(RrMenuChoice4)==1,"byte alignment");
-_Static_assert(sizeof(RrMenuSettings2C)==44,"settings owner");
-_Static_assert(offsetof(RrMenuSettings2C,mode1A)==26,"mode");
-_Static_assert(offsetof(RrMenuSettings2C,copies)==28,"records");
-_Static_assert(sizeof(RrBadgeRow1C)==28,"control row");
-_Static_assert(offsetof(RrBadgeRow1C,state10)==16,"state");
+_Static_assert(sizeof(MenuChoice4)==4,"packed choice");
+_Static_assert(_Alignof(MenuChoice4)==1,"byte alignment");
+_Static_assert(sizeof(MenuSettings2C)==44,"settings owner");
+_Static_assert(offsetof(MenuSettings2C,mode1A)==26,"mode");
+_Static_assert(offsetof(MenuSettings2C,copies)==28,"records");
+_Static_assert(sizeof(BadgeRow1C)==28,"control row");
+_Static_assert(offsetof(BadgeRow1C,state10)==16,"state");
 typedef union {uint64_t align;u8 bytes[288];} UiOwner;
-typedef struct {RrMenuChoice4 choice;RrMenuSettings2C settings;RrBadgeRow1C rows[2];UiOwner ui[2];RrMenuGlyphRow1C slots[4];u8 highlight[2][8];s16 selected;u16 buttons;s32 event,accepted;int rowbank,uibank,hintbank;void *resource,*current;u8 canary[24];} World;
+typedef struct {MenuChoice4 choice;MenuSettings2C settings;BadgeRow1C rows[2];UiOwner ui[2];MenuGlyphRow1C slots[4];u8 highlight[2][8];s16 selected;u16 buttons;s32 event,accepted;int rowbank,uibank,hintbank;void *resource,*current;u8 canary[24];} World;
 typedef struct {int kind;s32 args[3];World snapshot;} Entry;
 static World actual,expected,*w;
 static Entry entries[8],actual_entries[8];
@@ -56,11 +56,11 @@ static uint64_t arena[32][8];
 #define D_800F3A60 (w->accepted)
 #define SelectionState (w->settings)
 #define BadgeRows (&w->rows[w->rowbank])
-#define UiRows ((RrUiRow24 *)w->ui[w->uibank].bytes)
+#define UiRows ((UiRow24 *)w->ui[w->uibank].bytes)
 #define GlyphRows (w->slots)
 #define Dialogue (w->highlight[w->hintbank])
 #define LoadCursor (w->current)
-#define D_800F4D40 (w->resource)
+#define MenuArenaBase (w->resource)
 '''
         reference=r'''
 static void emit(int kind,s32 a,s32 b,s32 c){
@@ -81,7 +81,7 @@ static void emit(int kind,s32 a,s32 b,s32 c){
  if(kind==3)w->resource=arena[(seed+7)%32];
 }
 void PlaySfx(s32 mode){assert(mode==0||mode==1);emit(mode,mode,0,0);}
-void func_80039920(void){emit(2,0,0,0);}
+void UpdateUnlockedCarMask(void){emit(2,0,0,0);}
 void ResetScreenCounters(void){emit(3,0,0,0);}
 void SetMenuFrameOptions(s32 a,s32 b,s32 c){emit(4,a,b,c);}
 static void put16(u8 *p,u16 v){memcpy(p,&v,2);}
@@ -123,7 +123,7 @@ int main(void){
   actual.choice.bytes[1]=(u8)(k*17U);actual.buttons=(u16)k;actual.accepted=k&4;
   actual.rows[0].state10=k%5;actual.rows[1].state10=3;
   actual.resource=arena[k%32];actual.current=arena[(k+1)%32];expected=actual;
-  bind(&actual);func_80036D40();int actual_count=count;memcpy(actual_entries,entries,sizeof(entries));
+  bind(&actual);StepResultsMenuChoice();int actual_count=count;memcpy(actual_entries,entries,sizeof(entries));
   bind(&expected);reference();
   if(count!=actual_count || memcmp(entries,actual_entries,sizeof(entries)) || memcmp(&actual,&expected,sizeof(actual))){fprintf(stderr,"case%u mutation%d failed actual calls%d expected%d\n",k,mutation,actual_count,count);return 1;}
  }

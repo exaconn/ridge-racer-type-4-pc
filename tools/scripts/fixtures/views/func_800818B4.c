@@ -4,9 +4,9 @@
 
 #include "rr_asm.h"
 
-typedef RrLibControllerCallback Control;
+typedef LibControllerCallback RaceVehicleControl;
 
-extern RrLibStateB0 *_ss_score[];
+extern LibStateB0 *_ss_score[];
 
 void _SsSetControlChange(s32 bank, s32 row, s32 control) {
 /* ASM_BARRIER: Retain the original scratch or argument register through controller dispatch. */
@@ -22,10 +22,10 @@ register u32 bits __asm__("$2");
     s32 index, offset;
     s32 code;
     register s32 threshold;
-    RrLibStateB0 *state;
+    LibStateB0 *state;
     u8 *cursor;
     u32 value;
-    Control callback;
+    RaceVehicleControl callback;
     bits = (u32)bank<< 16;
     normalized_bank = (s32)bits>> 16;
     index = normalized_bank*(s32)sizeof(void *);
@@ -33,7 +33,7 @@ register u32 bits __asm__("$2");
     __asm__("" : "=r"(row) : "0"(row), "r"(index));
     bits = (u32)row<< 16;
     normalized_row = (s32)bits>> 16;
-    offset = normalized_row*(s32)sizeof(RrLibStateB0);
+    offset = normalized_row*(s32)sizeof(LibStateB0);
     /* ASM_BARRIER: Complete record offsets and canonical selectors before the indexed table load. */
     __asm__ volatile("" : : "r"(index), "r"(offset), "r"(normalized_bank), "r"(normalized_row) : "memory");
     state = _ss_score[normalized_bank]+normalized_row;

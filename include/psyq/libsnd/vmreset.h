@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int _SsVmInit();
+void _SsVmInit();
 
 #endif /* RR_PSYQ_LIBSND_VMRESET_H */

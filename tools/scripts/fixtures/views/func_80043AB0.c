@@ -1,11 +1,11 @@
 #include "rr/track_interpolation.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80096424 ((void (*)())func_80096424)
+#define PsyqStrcpy ((void (*)())PsyqStrcpy)
 
 #define PasswordBytes (*(unsigned char (*)[])&PasswordBytes)
 
-#undef func_80096424
+#undef PsyqStrcpy
 
 #undef PasswordBytes
 
@@ -34,15 +34,15 @@
 
 #undef ApplyMatrix
 
-void GetTrackPointAhead(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
+void GetTrackPointAhead(RaceVehicle *vehicle, s32 *output, s32 distance) {
     s16 current_y;
     s32 fraction;
     s32 index, length;
     /* ASM_BARRIER: use v1 for the PAL count page before loading vehicle fields. */
     register u8 *page __asm__("$3");
     s32 neighbour;
-    RrTrackSample3C *next;
-    RrTrackSample3C *current;
+    TrackSample3C *next;
+    TrackSample3C *current;
 
     if (ReverseCourse == 0) {
         index = vehicle->trackNodeF0 - ((s32) (distance - vehicle->trackFraction170) >> 0xA);

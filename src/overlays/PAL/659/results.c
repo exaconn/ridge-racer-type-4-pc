@@ -1,11 +1,12 @@
 #include "rr/overlay659.h"
+#include "rr/frame_storage_types.h"
 
 void ovl659_init_results(void) {
     s32 i;
     s32 offset;
 
     ovl659_rank_standings();
-    InitMenuTextRows(D_800FFC48);
+    InitMenuTextRows((MenuTextRow60 *)D_800FFC48);
     MenuCursor = 0;
     MenuItemCount = 2;
     offset = 0;
@@ -35,7 +36,7 @@ void ovl659_update_results(void) {
     s16 timer;
     s32 ready;
 
-    ModeFrame = (s32)((u32)ModeFrame + 1U);
+    ModeFrame = (ModeFrame + 1U);
     switch (D_800F4D8A) {
     case 0:
         group = 0;
@@ -69,10 +70,10 @@ void ovl659_update_results(void) {
                 MenuTextRows[rowOffset + 2].state.d34 = -1;
                 break;
             }
-            if (i + lapOffset == PlayerCars[0].steering288.finish20) {
-                func_80041320(i + rowOffset, 1, -1);
+            if (i + lapOffset == PlayerCars[0].control.dynamics94.steering.finish20) {
+                SetMenuTextRowStyle(i + rowOffset, 1, -1);
             } else {
-                func_80041320(i + rowOffset, 0, -1);
+                SetMenuTextRowStyle(i + rowOffset, 0, -1);
             }
             FormatDecimalDigits((char *)&MenuTextRows[i + rowOffset].bytes[32], i + lapOffset + 1, 0);
             FormatRaceTime((char *)&MenuTextRows[i + rowOffset].bytes[35], LapTimes[i + lapOffset]);
@@ -84,9 +85,9 @@ void ovl659_update_results(void) {
             D_800F4D8A = 7;
         } else if (MenuTextRows[38].signedBytes[3] >= 14) {
             SetMenuFrameOptions(1, 1, 0);
-            func_80041320(MenuCursor + 37, 0, 0);
+            SetMenuTextRowStyle(MenuCursor + 37, 0, 0);
             StepMenuValue(0, 2, (char *)&MenuCursor, MenuItemCount, 0);
-            func_80041320(MenuCursor + 37, 1, 1);
+            SetMenuTextRowStyle(MenuCursor + 37, 1, 1);
             if (D_800F3A60 != 0) {
                 SetMenuFrameOptions(0, 1, 0);
                 PlaySfx(1);
@@ -105,7 +106,7 @@ void ovl659_update_results(void) {
     case 4:
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (64 - timer) * 4, 69);
         group = 1;
         if (D_800AC5D0 <= 0) {
             MenuScriptId = 0;
@@ -174,9 +175,9 @@ void ovl659_update_results(void) {
     }
     UpdateScreenFade(0x1000C);
     if (ovl659_preview_timer == -2) {
-        func_8003662C(ModeFrame);
+        DrawResultsStandingsOverlay(ModeFrame);
     } else {
-        func_8003662C(ovl659_preview_timer);
+        DrawResultsStandingsOverlay(ovl659_preview_timer);
     }
     if (group >= 0) {
         i = 0;
@@ -186,7 +187,7 @@ void ovl659_update_results(void) {
         } while (i < 11);
     }
     if (MenuTextRows[0].signedBytes[2] >= 3 && D_800F4D8A < 6) {
-        func_800411D4();
+        DrawResultsRankIcons();
     }
 }
 
@@ -202,7 +203,7 @@ void ovl659_rank_standings(void) {
     s32 l, r;
     u16 *slot, *prior;
     u16 index;
-    RrRaceVehicle *vehicle;
+    RaceVehicle *vehicle;
     n = 6;
     i = 0;
     destination = values;
@@ -237,9 +238,9 @@ void ovl659_rank_standings(void) {
     rank = TotalRaceTime;
     if (rank == -1) {
         vehicle = PlayerCars;
-        vehicle->steering288.finish20 = rank;
-        if (vehicle->steering288.count22 > 0)
-            LapTimes[vehicle->steering288.count22 - 1] = rank;
+        vehicle->control.dynamics94.steering.finish20 = rank;
+        if (vehicle->control.dynamics94.steering.count22 > 0)
+            LapTimes[vehicle->control.dynamics94.steering.count22 - 1] = rank;
     } else {
         D_800AC1A0 = indices[0];
     }

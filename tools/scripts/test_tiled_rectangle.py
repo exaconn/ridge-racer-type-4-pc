@@ -17,9 +17,9 @@ class TiledRectangleTest(unittest.TestCase):
         body=re.sub(r' asm\("\$\d+"\)','',body)
         body=re.sub(r'__asm__\("".*?\);',';',body)
         assert body.count('*(u8 **)0x1F800000U')==1
-        assert body.count('(RrGpuScratchPointers *)0x1F800000U')==1
+        assert body.count('(GpuScratchPointers *)0x1F800000U')==1
         body=body.replace('*(u8 **)0x1F800000U','actual->scratch.cursor')
-        body=body.replace('(RrGpuScratchPointers *)0x1F800000U','&actual->scratch')
+        body=body.replace('(GpuScratchPointers *)0x1F800000U','&actual->scratch')
         code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -31,7 +31,7 @@ class TiledRectangleTest(unittest.TestCase):
 '''+''.join(header(n) for n in ['gpu_scratch_types.h','gpu.h','animated_sprite_grid.h','tiled_rectangle.h'])+r'''
 enum {MAX_TILES=129*129,WORDS=1024+MAX_TILES*6+16};
 typedef struct {
- u8 guard0[32];RrGpuScratchPointers scratch;RrGpuRectangleFields rectangle;
+ u8 guard0[32];GpuScratchPointers scratch;GpuRectangleFields rectangle;
  u32 wire[WORDS];u8 guard1[32];
 } World;
 static World *actual,*expected;
@@ -53,7 +53,7 @@ static void link(void *packet,u32 *head,int length) {
  write_value(packet,read_value(head,4),4);write_value((u8 *)packet+3,length,1);
  write_value(head,(u32)(uintptr_t)packet,4);write_value((u8 *)head+3,0,1);
 }
-static void reference(RrGpuRectangleFields *rectangle,s32 intensity,u32 *head) {
+static void reference(GpuRectangleFields *rectangle,s32 intensity,u32 *head) {
  u8 *packet=expected->scratch.cursor;
  u32 shade=intensity<0?0:intensity>255?255:(u32)intensity;
  u32 color=0x66000000U|shade*0x010101U;
@@ -120,12 +120,12 @@ int main(void) {
    unsigned count=tile_count(actual->rectangle.x,actual->rectangle.y,actual->rectangle.w,actual->rectangle.h);
    actual->scratch.order=(u32 *)(begin+8+count*24)-703;
   }
-  RrGpuRectangleFields *rectangle=&actual->rectangle;
+  GpuRectangleFields *rectangle=&actual->rectangle;
   if(n<4096 && n%17==0) {
    /* Includes halfword-aligned descriptors and descriptors changed by output.
     * Height/Y are captured once; width/X are read again for each tile row. */
    static const int offsets[]={0,2,8,10,32,34};
-   rectangle=(RrGpuRectangleFields *)(begin+offsets[(n/17)%6]);
+   rectangle=(GpuRectangleFields *)(begin+offsets[(n/17)%6]);
    rectangle->x=-1;rectangle->y=250;rectangle->w=63;rectangle->h=300;
   }
   s32 intensity=intensities[(n/31)%8];

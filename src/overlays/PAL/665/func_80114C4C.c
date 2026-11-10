@@ -1,4 +1,6 @@
+#include "game/system/pad.h"
 #include "rr/overlay665_menu.h"
+#include "rr/frame_storage_types.h"
 void ovl665_func_80114C4C(void) {
     s32 i;
     /* Preserve the original signed two-stage range check. */
@@ -7,29 +9,29 @@ void ovl665_func_80114C4C(void) {
     case 0:
         if(D_800AC5D0>0) {
             D_800AC5D0--;
-            AddScreenFadeTiles(&((RrFrameOrderingPrefix*)CurrentDrawBuf)->ordering70[702],D_800AC5D0*4,69);
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[702],D_800AC5D0*4,69);
         }
         if(UiRows[0].byte14==2 && D_800AC5D0==0) {
             UiRows[ovl665_D_80119768.selection08].cells[0]=0;
             StepMenuValue(0,2,(char*)&ovl665_D_80119768.selection08,7,0);
             UiRows[ovl665_D_80119768.selection08].cells[0]=2;
-            if(PlayerControllers[0].a) {
+            if(PlayerControllers[0].action28) {
                 if(ovl665_D_80119768.selection08==1 && ovl665_func_8011629C(1)<0) {
                     PlaySfx(4);
                 } else {
                     PlaySfx(1);
                     UiRows[ovl665_D_80119768.selection08].cells[0]=1;
                     D_800AC5D0=64;
-                    ovl665_D_80119768.layout0C=(s32)((u32)ovl665_D_80119768.layout0C+1U);
+                    ovl665_D_80119768.layout0C=(ovl665_D_80119768.layout0C+1U);
                 }
-            } else if(PlayerControllers[0].b) {
+            } else if(PlayerControllers[0].action2C) {
                 PlaySfx(2);
                 ovl665_D_80119768.selection08=6;
                 D_800AC5D0=64;
-                ovl665_D_80119768.layout0C=(s32)((u32)ovl665_D_80119768.layout0C+1U);
+                ovl665_D_80119768.layout0C=(ovl665_D_80119768.layout0C+1U);
             }
         }
-        func_8005B2D4(1);
+        SetPresentationDrawEnabled(1);
         break;
     case 1:
         for(i=0;i<8;i++) {
@@ -38,17 +40,17 @@ void ovl665_func_80114C4C(void) {
         if(ovl665_D_80119768.selection08>=5 || ovl665_D_80119768.selection08==3) {
             SeqFadeVolume(0,(s16)(D_800AC5D0-4));
         }
-        ovl665_D_80119768.layout0C=(s32)((u32)ovl665_D_80119768.layout0C+1U);
+        ovl665_D_80119768.layout0C=(ovl665_D_80119768.layout0C+1U);
         break;
     case 2:
         D_800AC5D0--;
-        AddScreenFadeTiles(&((RrFrameOrderingPrefix*)CurrentDrawBuf)->ordering70[0],(64-D_800AC5D0)*4,69);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0],(64-D_800AC5D0)*4,69);
         if(D_800AC5D0<=0) {
-            func_8005B2D4(0);
+            SetPresentationDrawEnabled(0);
             ovl665_D_80119768.exit34.word=0;
             ovl665_D_80119768.layout0C=0;
             ovl665_D_80119768.detail10=0;
-            ovl665_D_80119768.scene00=(s32)((u32)ovl665_D_80119768.scene00+1U);
+            ovl665_D_80119768.scene00=(ovl665_D_80119768.scene00+1U);
             choice=ovl665_D_80119768.selection08;
             if(choice<2) {
                 if(choice>=0)ovl665_func_80116070();

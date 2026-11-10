@@ -25,7 +25,7 @@ s32 SsUtKeyOff(s32 voice,s32 bank,s32 program,s32 instrument,s32 group_input) {
         _snd_ev_flag=1;
         if((u16)voice<24) {
             initial_voice=(s16)incoming;
-            offset=initial_voice*sizeof(RrChannelControlRow36);
+            offset=initial_voice*sizeof(ChannelControlRow36);
             /* ASM_BARRIER: consume the row offset before materializing its page. */
             __asm__("" : : "r"(offset) : "$3");
             value=({
@@ -75,7 +75,7 @@ s32 SsUtKeyOff(s32 voice,s32 bank,s32 program,s32 instrument,s32 group_input) {
                 vmNoiseOff((u8)voice);
             }else{
 reset:
-                D_80110118=voice;
+                _svm_voice_cursor=voice;
                 _SsVmKeyOffNow(0);
             }
             result=0;

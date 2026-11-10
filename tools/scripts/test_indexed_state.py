@@ -31,12 +31,12 @@ u32 test_history_words[0x20000 / 4];
 u32 test_ram[0x14000];
 u32 *D_800ABC30;
 u32 *GPU_STATUS;
-''' + header + '\nRrChannelControlRow36 test_rows[320];\n'
+''' + header + '\nChannelControlRow36 test_rows[320];\n'
         for name in ('_getctl', 'StopRCnt', '_ctl', 'vmNoiseOff'):
             body = (root / 'tools/scripts/fixtures/legacy' / (name + '.c')).read_text()
             body = body.replace('#include "types.h"', '')
             body = body.replace('#include "rr/channels.h"', '')
-            body = body.replace('extern RrChannelControlRow36 _svm_voice[];', '#define _svm_voice test_rows')
+            body = body.replace('extern ChannelControlRow36 _svm_voice[];', '#define _svm_voice test_rows')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+", ', '', body)
             body = re.sub(r' : "\$[0-9]+"', '', body)

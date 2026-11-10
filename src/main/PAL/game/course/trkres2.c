@@ -1,17 +1,15 @@
 #include "types.h"
 #include "rr/steering.h"
 #include "rr/track_resources.h"
-#include "m2c_macros.h"
 #include "game/course/trkres2.h"
 
-extern s32 CarSpecTable;
+extern RaceSpecEntry30 *CarSpecTable;
 
-void BuildRateCurve(RrCurve24 *curve, s32 displacement, s32 duration, s32 initialRate);
-s32 EvalRateCurve(const RrCurve24 *curve, s32 time, s32 *output);
-int AlignUp4(int a);
+void BuildRateCurve(Curve24 *curve, s32 displacement, s32 duration, s32 initialRate);
+s32 EvalRateCurve(const Curve24 *curve, s32 time, s32 *output);
 
 /* Build a two-phase rate curve in twelve-bit fixed-point units. */
-void BuildRateCurve(RrCurve24 *curve, s32 displacement, s32 duration, s32 initialRate)
+void BuildRateCurve(Curve24 *curve, s32 displacement, s32 duration, s32 initialRate)
 {
     s32 half = duration / 2;
     s32 scaledDisplacement = displacement * 4096;
@@ -26,7 +24,7 @@ void BuildRateCurve(RrCurve24 *curve, s32 displacement, s32 duration, s32 initia
     curve->secondAcceleration = -middleRate / half;
 }
 
-s32 EvalRateCurve(const RrCurve24 *curve, s32 time, s32 *output)
+s32 EvalRateCurve(const Curve24 *curve, s32 time, s32 *output)
 {
     s32 half;
     s32 rate;
@@ -54,19 +52,19 @@ int AlignUp4(int a) {
     return v;
 }
 
-void RelocateTrackLookupTables(RrLookupTables32 *tables)
+void RelocateTrackLookupTables(LookupTables32 *tables)
 {
     RaceContext.lookupTables = tables;
-    tables->auxiliary10 = (void *)((unsigned long)tables->auxiliary10 + (unsigned long)tables);
-    RaceContext.lookupTables->auxiliary14 = (void *)((unsigned long)RaceContext.lookupTables->auxiliary14 + (unsigned long)tables);
-    RaceContext.lookupTables->table0 = (RrTrackEventEntry *)((unsigned long)RaceContext.lookupTables->table0 + (unsigned long)tables);
-    RaceContext.lookupTables->table1 = (RrTrackEventEntry *)((unsigned long)RaceContext.lookupTables->table1 + (unsigned long)tables);
-    RaceContext.lookupTables->table2 = (RrTrackEventEntry *)((unsigned long)RaceContext.lookupTables->table2 + (unsigned long)tables);
-    RaceContext.lookupTables->table3 = (RrTrackEventEntry *)((unsigned long)RaceContext.lookupTables->table3 + (unsigned long)tables);
-    RaceContext.lookupTables->auxiliary28 = (void *)((unsigned long)RaceContext.lookupTables->auxiliary28 + (unsigned long)tables);
+    tables->auxiliary10 = (void *)(tables->auxiliary10 + (unsigned long)tables);
+    RaceContext.lookupTables->auxiliary14 = (void *)(RaceContext.lookupTables->auxiliary14 + (unsigned long)tables);
+    RaceContext.lookupTables->table0 = (TrackEventEntry *)((unsigned long)RaceContext.lookupTables->table0 + (unsigned long)tables);
+    RaceContext.lookupTables->table1 = (TrackEventEntry *)((unsigned long)RaceContext.lookupTables->table1 + (unsigned long)tables);
+    RaceContext.lookupTables->table2 = (TrackEventEntry *)((unsigned long)RaceContext.lookupTables->table2 + (unsigned long)tables);
+    RaceContext.lookupTables->table3 = (TrackEventEntry *)((unsigned long)RaceContext.lookupTables->table3 + (unsigned long)tables);
+    RaceContext.lookupTables->auxiliary28 = (void *)(RaceContext.lookupTables->auxiliary28 + (unsigned long)tables);
 }
 
-void SetTrackLaneOffsets(RrTrackLaneOffset8 *offsets)
+void SetTrackLaneOffsets(TrackLaneOffset8 *offsets)
 {
     TrackLaneOffsets = offsets;
 }
@@ -78,7 +76,7 @@ void SetTrackStartNode(s32 *startNode)
 
 void SetTrackWorkspace(u8 *workspace)
 {
-    RrTrackResourceContext *context = &RaceContext;
+    TrackResourceContext *context = &RaceContext;
     context->workspace554 = workspace;
     workspace += 0xA00;
     context->workspace558 = workspace;
@@ -88,14 +86,14 @@ void SetTrackWorkspace(u8 *workspace)
     context->cameraNodes550 = workspace;
 }
 
-void LoadTrackResource(RrTrackResourceFile *file)
+void LoadTrackResource(TrackResourceFile *file)
 {
-    RelocateTrackLookupTables((RrLookupTables32 *)((u8 *)file + file->lookupOffset04));
-    SetTrackLaneOffsets((RrTrackLaneOffset8 *)((u8 *)file + file->laneOffset08));
+    RelocateTrackLookupTables((LookupTables32 *)((u8 *)file + file->lookupOffset04));
+    SetTrackLaneOffsets((TrackLaneOffset8 *)((u8 *)file + file->laneOffset08));
     SetTrackStartNode((s32 *)((u8 *)file + file->startNodeOffset0C));
     SetTrackWorkspace((u8 *)file + file->workspaceOffset10);
 }
 
-void SetCarSpecTable(s32 arg0) {
+void SetCarSpecTable(RaceSpecEntry30 *arg0) {
     CarSpecTable = arg0;
 }

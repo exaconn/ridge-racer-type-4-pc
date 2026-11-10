@@ -1,14 +1,14 @@
 /* RODATA 0x8001085c 0x18 */
 #include "game/data/cdfile2.h"
+#include "rr/load_cursor.h"
 #include "game/data/ldscn4.h"
 #include "game/data/ldscn5.h"
 #include "game/data/cdfile1.h"
-#include "game/data/cdfile2.h"
 #include "rr/course_choices.h"
-extern void LoadTimList();
+#include "game/course/trkintp2.h"
 extern unsigned char LoadState;
 
-int func_8003BEA8(int a) {
+int LoadCoursePreviewStep(int a) {
     int r = 0;
     switch (LoadState) {
     case 0:

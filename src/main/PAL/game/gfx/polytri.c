@@ -12,21 +12,11 @@ typedef struct {
 } __attribute__((packed)) U4;
 
 typedef struct {
-    unsigned short v0[4];
-    unsigned short v1[4];
-    unsigned short v2[4];
-    int pad[5];
-    int c0;
-    int c1;
-    int c2;
-} InTri;
-
-typedef struct {
-    char pad0[0x78];
+    s32 unk00[0x78 / 4];
     U4 sxy0;
     U4 sxy1;
     U4 sxy2;
-    char pad84[0xB4 - 0x84];
+    s32 unk84[(0xB4 - 0x84) / 4];
     unsigned short v0[6];
     unsigned short v1[6];
     unsigned short v2[6];
@@ -43,24 +33,12 @@ typedef struct {
 } PolyG3;
 
 typedef struct {
-    unsigned short v0[4];
-    unsigned short v1[4];
-    unsigned short v2[4];
-    unsigned short v3[4];
-    int pad[6];
-    int c0;
-    int c1;
-    int c2;
-    int c3;
-} InQuad;
-
-typedef struct {
-    char pad0[0x78];
+    s32 unk00[0x78 / 4];
     U4 sxy0;
     U4 sxy1;
     U4 sxy2;
     U4 sxy3;
-    char pad88[0xB4 - 0x88];
+    s32 unk88[(0xB4 - 0x88) / 4];
     unsigned short v0[6];
     unsigned short v1[6];
     unsigned short v2[6];
@@ -86,18 +64,13 @@ typedef struct {
     int f4;
     int f8;
 } S_SP7C;
-extern Car PlayerCars[];
+extern RaceVehicle PlayerCars[];
 extern int ReplayState;
 extern short ReverseCourse;
 extern int TrackLength;
 extern int NumLaps;
-extern S_ECB0 *TrackObjectDefs;
-extern S_ECB4 *TrackObjectStates;
 
-void EmitSemiTransG3List(InTri *a0, int a1, int a2);
-void EmitSemiTransG4List(InQuad *a0, int a1, int a2);
-
-void EmitSemiTransG3List(InTri *a0, int a1, int a2) {
+void EmitSemiTransG3List(SemiTransTri38 *a0, int a1, int a2) {
     int sp20;
     int sp24;
     int i;
@@ -109,15 +82,15 @@ void EmitSemiTransG3List(InTri *a0, int a1, int a2) {
     Sp7C *sp = (Sp7C *)(SCRATCHPAD + 0x7C);
 
     for (i = 0; i < a1; i++, a0++) {
-        sp->v0[0] = a0->v0[0];
-        sp->v0[1] = a0->v0[1];
-        sp->v0[2] = a0->v0[2];
-        sp->v1[0] = a0->v1[0];
-        sp->v1[1] = a0->v1[1];
-        sp->v1[2] = a0->v1[2];
-        sp->v2[0] = a0->v2[0];
-        sp->v2[1] = a0->v2[1];
-        sp->v2[2] = a0->v2[2];
+        sp->v0[0] = (u16)a0->v0.vx;
+        sp->v0[1] = (u16)a0->v0.vy;
+        sp->v0[2] = (u16)a0->v0.vz;
+        sp->v1[0] = (u16)a0->v1.vx;
+        sp->v1[1] = (u16)a0->v1.vy;
+        sp->v1[2] = (u16)a0->v1.vz;
+        sp->v2[0] = (u16)a0->v2.vx;
+        sp->v2[1] = (u16)a0->v2.vy;
+        sp->v2[2] = (u16)a0->v2.vz;
         otz = RotAverage3(sp->v0, sp->v1, sp->v2, &sp->sxy0, &sp->sxy1, &sp->sxy2, &sp20, &sp24) >> (hw[0x18] + a2);
         if (otz > 0 && otz < 0x1C0) {
             if (a2 == 2) {
@@ -127,9 +100,9 @@ void EmitSemiTransG3List(InTri *a0, int a1, int a2) {
             pkt->sxy0 = sp->sxy0;
             pkt->sxy1 = sp->sxy1;
             pkt->sxy2 = sp->sxy2;
-            pkt->c0 = a0->c0;
-            pkt->c1 = a0->c1;
-            pkt->c2 = a0->c2;
+            pkt->c0 = *(int *)&a0->c0;
+            pkt->c1 = *(int *)&a0->c1;
+            pkt->c2 = *(int *)&a0->c2;
             pkt->tag = 0x06000000;
             ((char *)pkt)[7] = 0x32;
             ot = ot_base + (otz + 0x80);
@@ -141,10 +114,10 @@ void EmitSemiTransG3List(InTri *a0, int a1, int a2) {
             pkt = (PolyG3 *)((char *)pkt + 8);
         }
     }
-    hw[0] = (int)pkt;
+    hw[0] = pkt;
 }
 
-void EmitSemiTransG4List(InQuad *a0, int a1, int a2) {
+void EmitSemiTransG4List(SemiTransQuad48 *a0, int a1, int a2) {
     int sp28;
     int sp2C;
     int i;
@@ -156,18 +129,18 @@ void EmitSemiTransG4List(InQuad *a0, int a1, int a2) {
     Sp7C_1 *sp = (Sp7C_1 *)(SCRATCHPAD + 0x7C);
 
     for (i = 0; i < a1; i++, a0++) {
-        sp->v0[0] = a0->v0[0];
-        sp->v0[1] = a0->v0[1];
-        sp->v0[2] = a0->v0[2];
-        sp->v1[0] = a0->v1[0];
-        sp->v1[1] = a0->v1[1];
-        sp->v1[2] = a0->v1[2];
-        sp->v2[0] = a0->v2[0];
-        sp->v2[1] = a0->v2[1];
-        sp->v2[2] = a0->v2[2];
-        sp->v3[0] = a0->v3[0];
-        sp->v3[1] = a0->v3[1];
-        sp->v3[2] = a0->v3[2];
+        sp->v0[0] = (u16)a0->v0.vx;
+        sp->v0[1] = (u16)a0->v0.vy;
+        sp->v0[2] = (u16)a0->v0.vz;
+        sp->v1[0] = (u16)a0->v1.vx;
+        sp->v1[1] = (u16)a0->v1.vy;
+        sp->v1[2] = (u16)a0->v1.vz;
+        sp->v2[0] = (u16)a0->v2.vx;
+        sp->v2[1] = (u16)a0->v2.vy;
+        sp->v2[2] = (u16)a0->v2.vz;
+        sp->v3[0] = (u16)a0->v3.vx;
+        sp->v3[1] = (u16)a0->v3.vy;
+        sp->v3[2] = (u16)a0->v3.vz;
         otz = RotAverage4(sp->v0, sp->v1, sp->v2, sp->v3, &sp->sxy0, &sp->sxy1, &sp->sxy2, &sp->sxy3, &sp28, &sp2C) >> (hw[0x18] + a2);
         if (otz > 0 && otz < 0x1C0) {
             if (a2 == 2) {
@@ -178,10 +151,10 @@ void EmitSemiTransG4List(InQuad *a0, int a1, int a2) {
             pkt->sxy1 = sp->sxy1;
             pkt->sxy2 = sp->sxy2;
             pkt->sxy3 = sp->sxy3;
-            pkt->c0 = a0->c0;
-            pkt->c1 = a0->c1;
-            pkt->c2 = a0->c2;
-            pkt->c3 = a0->c3;
+            pkt->c0 = *(int *)&a0->c0;
+            pkt->c1 = *(int *)&a0->c1;
+            pkt->c2 = *(int *)&a0->c2;
+            pkt->c3 = *(int *)&a0->c3;
             pkt->tag = 0x08000000;
             ((char *)pkt)[7] = 0x3A;
             ot = ot_base + (otz + 0x80);
@@ -193,7 +166,7 @@ void EmitSemiTransG4List(InQuad *a0, int a1, int a2) {
             pkt = (PolyG4 *)((char *)pkt + 8);
         }
     }
-    hw[0] = (int)pkt;
+    hw[0] = pkt;
 }
 
 void UpdateTrackObjectActivation(void) {
@@ -206,30 +179,30 @@ void UpdateTrackObjectActivation(void) {
 
     sp->f0 = FindTrackNodeAtXZ(hw[2], hw[4]);
     for (i = 0; i < TrackObjectCount; i++) {
-        if (b0->f18 >= 0 && b0->f18 != PlayerCars[0].sub1F4.unkB6) {
+        if (b0->f18 >= 0 && b0->f18 != PlayerCars[0].control.dynamics94.steering.count22) {
             if (b0->f10 > 0) {
                 b4->f24 = 0;
             }
             continue;
         }
         if (b0->f2C != 0x3F) {
-            if (D_800F4D44 == 1 && ReplayState < 2) {
+            if (GameModeType == 1 && ReplayState < 2) {
                 if (!(b0->f2C & 1)) {
                     continue;
                 }
-            } else if (D_800F4D44 == 1 && ReplayState == 2) {
+            } else if (GameModeType == 1 && ReplayState == 2) {
                 if (!(b0->f2C & 2)) {
                     continue;
                 }
-            } else if (D_800F4D44 == 0 && ReplayState < 2) {
+            } else if (GameModeType == 0 && ReplayState < 2) {
                 if (!(b0->f2C & 4)) {
                     continue;
                 }
-            } else if (D_800F4D44 == 0 && ReplayState == 2) {
+            } else if (GameModeType == 0 && ReplayState == 2) {
                 if (!(b0->f2C & 8)) {
                     continue;
                 }
-            } else if (D_800F4D44 == 6) {
+            } else if (GameModeType == 6) {
                 if (b0->f2C == 0xA) {
                     if (ReplayState != 2) {
                         continue;
@@ -237,7 +210,7 @@ void UpdateTrackObjectActivation(void) {
                 } else if (!(b0->f2C & 0x10)) {
                     continue;
                 }
-            } else if (D_800F4D44 == 5) {
+            } else if (GameModeType == 5) {
                 if (b0->f2C != 0x20) {
                     continue;
                 }
@@ -251,7 +224,7 @@ void UpdateTrackObjectActivation(void) {
         sp->f8 = b0->f20;
         if (b0->f10 > 0) {
             if (b0->f18 == -3) {
-                if ((PlayerCars[0].sub1F4.unkB6 < 6 && (TrackLength * 4 + ((TrackLength * 59) >> 6)) >= PlayerCars[0].w184) ||
+                if ((PlayerCars[0].control.dynamics94.steering.count22 < 6 && (TrackLength * 4 + ((TrackLength * 59) >> 6)) >= PlayerCars[0].first) ||
                     (sp->f4 < sp->f0 && sp->f0 <= sp->f8)) {
                     b4->f24 = 0;
                     b4->f8 = 0;
@@ -260,29 +233,19 @@ void UpdateTrackObjectActivation(void) {
                 }
                 continue;
             }
-            if (sp->f4 >= sp->f8) {
-                if (sp->f4 >= sp->f0 && sp->f0 >= sp->f8) {
-                    goto set_active;
-                }
-            } else {
-                if (sp->f4 >= sp->f0 || sp->f0 > sp->f8) {
-                    goto set_active;
-                }
-            }
-            if (b0->f18 == -2) {
-            set_active:
+            if ((sp->f4 >= sp->f8 ? (sp->f4 >= sp->f0 && sp->f0 >= sp->f8) : (sp->f4 >= sp->f0 || sp->f0 > sp->f8)) || b0->f18 == -2) {
                 b4->f24 = 1;
             } else {
                 b4->f24 = 0;
                 continue;
             }
-        } else if (b0->f14 > 0 && b4->f24 == 0 && sp->f4 == sp->f0 && PlayerCars[0].unk1EA == 0 && ReverseCourse == 0) {
+        } else if (b0->f14 > 0 && b4->f24 == 0 && sp->f4 == sp->f0 && PlayerCars[0].half1EA == 0 && ReverseCourse == 0) {
             b4->f24 = 1;
         }
-        if (D_800F4D44 == 2 || D_800F4D44 == 3) {
+        if (GameModeType == 2 || GameModeType == 3) {
             if (b0->f0 == 0 && (b0->f4 % 10) == 0) {
-                if (PlayerCars[0].sub1F4.unkB6 == 0) {
-                    if (PlayerCars[1].sub1F4.unkB6 == 0) {
+                if (PlayerCars[0].control.dynamics94.steering.count22 == 0) {
+                    if (PlayerCars[1].control.dynamics94.steering.count22 == 0) {
                         b4->f24 = 1;
                     } else {
                         b4->f24 = 0;
@@ -291,20 +254,20 @@ void UpdateTrackObjectActivation(void) {
                     b4->f24 = 0;
                 }
             } else if (b0->f0 == 1 && (b0->f4 % 10) == 0) {
-                if (((NumLaps - 1) * TrackLength + ((TrackLength * 29) >> 5)) < PlayerCars[0].w184 ||
-                    ((NumLaps - 1) * TrackLength + ((TrackLength * 29) >> 5)) < PlayerCars[1].w184) {
+                if (((NumLaps - 1) * TrackLength + ((TrackLength * 29) >> 5)) < PlayerCars[0].first ||
+                    ((NumLaps - 1) * TrackLength + ((TrackLength * 29) >> 5)) < PlayerCars[1].first) {
                     b4->f24 = 1;
                 } else {
                     b4->f24 = 0;
                 }
             }
-        } else if ((D_800F4D44 == 4 || D_800F4D44 == 5) &&
+        } else if ((GameModeType == 4 || GameModeType == 5) &&
                    (((b0->f4 % 10) == 0 && (b0->f0 == 0 || b0->f0 == 1)) ||
                     (b0->f8 == 0xA && b0->f4 == 0) ||
                     b0->fC == 4)) {
             b4->f24 = 0;
         } else if (b0->f0 == 1 && (b0->f4 % 10) == 0) {
-            if (((NumLaps - 1) * TrackLength + ((TrackLength * 29) >> 5)) > PlayerCars[0].w184) {
+            if (((NumLaps - 1) * TrackLength + ((TrackLength * 29) >> 5)) > PlayerCars[0].first) {
                 b4->f24 = 0;
             }
         }

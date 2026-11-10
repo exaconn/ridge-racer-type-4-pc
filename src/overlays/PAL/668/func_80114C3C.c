@@ -1,17 +1,18 @@
+#include "game/system/pad.h"
 #include "rr/overlay668_playback_step.h"
 
-#define STR_STATE ((RrStrPlaybackState *)initialContext->activeB8)
+#define STR_STATE ((StrPlaybackState *)initialContext->activeB8)
 
 void ovl668_func_80114C3C(void)
 {
     s32 timer;
     u32 frame;
-    RrCdLocation *location;
-    RrStrContextPrefix *context;
+    CdLocation *location;
+    StrContextPrefix *context;
     s32 pixels;
-    RrStrContextPrefix *initialContext;
+    StrContextPrefix *initialContext;
 
-    timer = (s32)((u32)ModeFrame + 1U);
+    timer = (ModeFrame + 1U);
     ModeFrame = timer;
     if (timer == 4) SetDispMask(1);
     initialContext = &RaceContext;
@@ -21,8 +22,8 @@ void ovl668_func_80114C3C(void)
     location = &context->currentC0;
     ovl668_func_80116478(STR_STATE->buffers18[STR_STATE->display24.word08], pixels / 2);
 retry:
-    if (ovl668_func_801150D8(&((RrStrPlaybackState *)context->activeB8)->display24) == -1) {
-        frame = (u32)StGetBackloc(location);
+    if (ovl668_func_801150D8(&((StrPlaybackState *)context->activeB8)->display24) == -1) {
+        frame = StGetBackloc(location);
         DebugPrintStub(ovl668_D_8011487C, frame);
         if (frame >= context->thresholdC8) {
             context->stopD0 = 1;
@@ -33,14 +34,14 @@ retry:
         goto retry;
     }
 complete:
-    ovl668_func_8011535C(&((RrStrPlaybackState *)RaceContext.activeB8)->display24, 0);
+    ovl668_func_8011535C(&((StrPlaybackState *)RaceContext.activeB8)->display24, 0);
     DrawSync(0);
     ovl668_func_80116298(1);
     if (RaceContext.stopD0 == 1) {
         RaceContext.phaseB4 = 2;
         SsSetSerialVol(0, 0, 0);
     }
-    if (PlayerControllers[0].buttons08 & 0x800) {
+    if (PlayerControllers[0].edges08.fields.pressed & 0x800) {
         SsSetSerialVol(0, 0, 0);
         RaceContext.phaseB4 = 2;
     }

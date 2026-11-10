@@ -3,8 +3,8 @@
 s32 __fixdfsi(u64 value)
 {
     /* Keep the input pair live across the error and shift calls. */
-    register union {u64 bits;RrWide64 words;} input __asm__("$16");
-    RrWide64 mantissa;
+    register union {u64 bits;Wide64 words;} input __asm__("$16");
+    Wide64 mantissa;
     s32 exponent,shift,result;
     /* Capture the mantissa before the exponent and sign gates. */
     s32 scaled;
@@ -20,9 +20,9 @@ s32 __fixdfsi(u64 value)
             mantissa.hi=(input.words.hi&0xFFFFF)|0x100000;
             mantissa.lo=input.words.lo;
             /* Retain the original initialized stack-pair argument read. */
-            mantissa=_dbl_shift(0,*(volatile RrWide64 *)&mantissa,10);
+            mantissa=_dbl_shift(0,*(volatile Wide64 *)&mantissa,10);
             scaled=mantissa.hi;
-            if((u32)(exponent-0x3FE)<32U&&scaled!=0) {
+            if((exponent-0x3FE)<32U&&scaled!=0) {
                 /* The exponent gate proves that -shift is in0..31. */
                 scaled=scaled>>-shift;
                 goto signed_result;
@@ -31,7 +31,7 @@ s32 __fixdfsi(u64 value)
             goto done;
 signed_result:
             result=scaled;
-            if(input.words.hi<0) result=(s32)(0U-(u32)result);
+            if(input.words.hi<0) result=(0U-result);
         }
     }
 done:

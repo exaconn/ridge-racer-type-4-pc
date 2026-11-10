@@ -14,7 +14,7 @@ class CheckpointTest(unittest.TestCase):
 #include <stdio.h>
 #include <limits.h>
 #include "rr/overlay661_checkpoint.h"
-typedef struct {u32 prefix[4];RrRaceCheckpointVehicle vehicle;u32 suffix[4];
+typedef struct {u32 prefix[4];RaceVehicle vehicle;u32 suffix[4];
  s32 length,target,state,flag,latch;s16 timer,pending;u32 tail[4];} Environment;
 typedef struct {Environment pre;unsigned id;s32 a,b;} Event;
 static Environment actual,expected;static Event events[4];
@@ -25,10 +25,10 @@ static s32 sign32(u32 x){s32 result;memcpy(&result,&x,4);return result;}
 static s16 sign16(u16 x){s16 result;memcpy(&result,&x,2);return result;}
 static void mutate(Environment *e,unsigned id){
  if(mutation&1){e->vehicle.first=sign32((u32)e->vehicle.first+0xfedcba98U);
-  e->vehicle.control.steering94.count22=sign16((u16)(scenario*17U+id));}
+  e->vehicle.control.dynamics94.steering.count22=sign16((u16)(scenario*17U+id));}
  /* All callback profiles preserve the documented valid-message domain. */
  if(mutation&7){int message=6+(int)((scenario+id)%19);
-  e->target=e->vehicle.control.steering94.count22+9-message;}
+  e->target=e->vehicle.control.dynamics94.steering.count22+9-message;}
  if(mutation&2){e->length=sign32(0xdeadbeefU);e->state=-12345;e->flag=77;e->timer=-123;}
  if(mutation&4)e->pending=0;
  if(mutation&8){e->pending=1;e->target=INT_MIN;}
@@ -57,12 +57,12 @@ static void *sequence(s32 a,s32 b){service(2,a,b);return 0;}
 #define RaceVoiceFlags (actual.latch)
 '''+body+r'''
 static void model(void){
- int lap=expected.vehicle.control.steering94.count22;s32 target,id;
+ int lap=expected.vehicle.control.dynamics94.steering.count22;s32 target,id;
  s32 sum=sign32((u32)expected.vehicle.first+(u32)expected.vehicle.second);
  s32 threshold=sign32((u32)((int64_t)lap*expected.length));u32 bit;
  if(sum>=threshold && lap<=expected.target){
   paths[0]++;target=expected.target;lap=sign16((u16)(lap+1));
-  expected.vehicle.control.steering94.count22=(s16)lap;expected.pending=0;
+  expected.vehicle.control.dynamics94.steering.count22=(s16)lap;expected.pending=0;
   if(lap==target){paths[1]++;expect_event(0,0,0);}
   else if(lap>target&&expected.state<4){
    paths[2]++;expected.pending=-1;expected.state=4;expected.timer=75;
@@ -71,7 +71,7 @@ static void model(void){
  }else paths[4]++;
  if(expected.pending==0){
   paths[5]++;
-  id=sign32(9U-((u32)expected.target-(u32)(s32)expected.vehicle.control.steering94.count22));
+  id=sign32(9U-((u32)expected.target-(u32)(s32)expected.vehicle.control.dynamics94.steering.count22));
   if(id>=6){
    if(id==9){id=15;paths[6]++;}
    assert(id<RR_SEQUENCE_TABLE_COUNT);messages[id]++;
@@ -90,7 +90,7 @@ int main(void){unsigned raw,phase,i;uint64_t cases=0;
  for(raw=0;raw<65536;raw++)for(phase=0;phase<48;phase++){
   unsigned char *bytes=(unsigned char *)&actual;int lap=sign16((u16)raw);s32 threshold;
   for(i=0;i<sizeof(actual);i++)bytes[i]=(unsigned char)(i*37U+raw+phase);
-  scenario=raw+phase;actual.vehicle.control.steering94.count22=(s16)lap;
+  scenario=raw+phase;actual.vehicle.control.dynamics94.steering.count22=(s16)lap;
   actual.length=sign32(next());actual.target=lap+(int)(phase%4)-1;
   actual.state=(phase/4)&1?3:4;actual.flag=sign32(next());actual.timer=sign16((u16)next());
   actual.pending=phase%3==0?0:phase%3==1?-1:1;

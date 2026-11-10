@@ -21,7 +21,7 @@ void *ovl663_draw_race_records(u32 *ordering, void *cursor, s32 row) {
     y = BadgeRows[row].y06 + 40;
     do {
         if (i == ovl663_selected_record) {
-            if (rcos((s32)(((u32)ScreenFrame << 7) - 682U)) < 0)
+            if (rcos(((ScreenFrame * 128U) - 682U)) < 0)
                 clut = 32761;
             else
                 clut = 32760;
@@ -49,7 +49,7 @@ void *ovl663_draw_race_records(u32 *ordering, void *cursor, s32 row) {
     cursor = AddTilePrim(ordering, cursor, x, y - 2, 1, 116, 255, 255, 255);
     cursor = AddDrawModePrim(ordering, cursor, 56);
     x += 16;
-    cursor = func_80032EC8(ordering, cursor, x, y, D_800AC648 & 7);
+    cursor = EmitSpinningWheelIcon(ordering, cursor, x, y, D_800AC648 & 7);
     cursor = AddSpritePrim(ordering, cursor, x + 8, rowY + 112, &ovl663_record_badges[group],
                            group + 30180, 0);
     return AddDrawModePrim(ordering, cursor, 89);
@@ -61,7 +61,7 @@ void *ovl663_draw_lap_records(u32 *ordering, void *cursor, s32 row) {
     y = BadgeRows[row].y06 + 40;
     do {
         if (i == ovl663_selected_record) {
-            if (rcos((s32)(((u32)ScreenFrame << 7) - 682U)) < 0)
+            if (rcos(((ScreenFrame * 128U) - 682U)) < 0)
                 clut = 32761;
             else
                 clut = 32760;
@@ -89,7 +89,7 @@ void *ovl663_draw_lap_records(u32 *ordering, void *cursor, s32 row) {
     cursor = AddTilePrim(ordering, cursor, x, y - 2, 1, 116, 255, 255, 255);
     cursor = AddDrawModePrim(ordering, cursor, 56);
     x += 16;
-    cursor = func_80032EC8(ordering, cursor, x, y, D_800AC648 & 7);
+    cursor = EmitSpinningWheelIcon(ordering, cursor, x, y, D_800AC648 & 7);
     cursor = AddSpritePrim(ordering, cursor, x + 8, rowY + 112, &ovl663_record_badges[group],
                            group + 30180, 0);
     return AddDrawModePrim(ordering, cursor, 89);

@@ -3,43 +3,25 @@
 #include "rr/library.h"
 #include "rr/timing.h"
 #include "psyq/libgpu/gpuenv.h"
-
-extern RrLibGraphicsDriverPrefix *GpuFuncTable;
+#include "rr/gpu_reset.h"
 
 int StoreImage2();
-s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y);
+s32 MoveImage2(GpuRectangle *rect,s32 x,s32 y);
 
-/* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((int *)GpuFuncTable)
-#define checkRECT ((int (*)())checkRECT)
-#define VSync ((int (*)())VSync)
-#define DMACallback ((int (*)())DMACallback)
-#define get_alarm ((int (*)())get_alarm)
-#define GPU_DmaDoneRequeue ((int (*)())GPU_DmaDoneRequeue)
-
-int StoreImage2(a0, a1)
-int a0;
-int a1;
+int StoreImage2(GpuRectangle *rect, void *dst)
 {
-    checkRECT(StrStoreImage, a0);
+    checkRECT(StrStoreImage, rect);
     GpuTimeoutDeadline = VSync(-1) + 0xF0;
     GpuAlarmCount = 0;
     while ((*DMA2_CHCR & 0x1000000) || (*GPU_STATUS & 0x4000000) == 0) {
         if (get_alarm()) return -1;
     }
     DMACallback(2, GPU_DmaDoneRequeue);
-    ((int (*)())GpuFuncTable[7])(a0, a1);
+    GpuFuncTable->download1C(rect, dst);
     return 0;
 }
 
-#undef GpuFuncTable
-#undef checkRECT
-#undef VSync
-#undef DMACallback
-#undef get_alarm
-#undef GPU_DmaDoneRequeue
-
-s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y) {
+s32 MoveImage2(GpuRectangle *rect,s32 x,s32 y) {
     /* ASM_BARRIER: Keep each DMA status read in the original polling temporary. */
     register u32 status __asm__("$2");
     checkRECT(MoveImageNameStr,rect);
@@ -61,13 +43,13 @@ test:
         return -1;
     build:
         {
-            RrGpuMovePayload *payload;
+            GpuMovePayload12 *payload;
             /* ASM_BARRIER: Form destination Y in the original height-test delay slot. */
-            register u32 destination __asm__("$2")=(u32)y<<16;
+            register u32 destination __asm__("$2")=y * 0x10000U;
             u32 position=rect->words[0];
             /* ASM_BARRIER: Retain the captured driver until packet publication completes. */
-            register RrLibGraphicsDriverPrefix *driver __asm__("$3")=GpuFuncTable;
-            destination|=(u32)x&65535;
+            register LibGraphicsDriverPrefix *driver __asm__("$3")=GpuFuncTable;
+            destination|=x&65535;
             /* ASM_BARRIER: Capture the source position and driver before forming the packet address. */
             __asm__("" : : "r"(position),"r"(driver) : "$4");
             payload=&GpuMovePayload;

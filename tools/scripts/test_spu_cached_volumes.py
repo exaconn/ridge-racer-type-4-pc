@@ -35,7 +35,7 @@ typedef int16_t s16;
 typedef uint32_t u32;
 typedef int32_t s32;
 ''' + header + '''
-struct { RrSpuVolumeCache cache; u8 extra[0x200]; } test_holder;
+struct { SpuVolumeCache cache; u8 extra[0x200]; } test_holder;
 #define _svm_sreg_dirty test_holder.cache
 '''
         for name in ('800869F0', '80086B00'):

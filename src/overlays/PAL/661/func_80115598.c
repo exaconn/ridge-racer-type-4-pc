@@ -1,8 +1,9 @@
 #include "rr/overlay661_layout.h"
+#include "rr/load_cursor.h"
 void ovl661_func_80115598(s32 mode) {
     s32 i,y,z;
-    RrRaceVehicle *vehicle;
-    RrProjectionScratchPrefix *scratch;
+    RaceVehicle *vehicle;
+    ProjectionScratchPrefix *scratch;
     void *arena;
     register s32 rotation __asm__("$2");
     ModeFrame=0;
@@ -47,24 +48,24 @@ void ovl661_func_80115598(s32 mode) {
     InitPreviewImageRows();
     /* Allocation metadata for the real pointer cell; emits no instruction. */
     __asm__("" : "+m"(LoadCursor));
-    arena=D_800F4D40;
+    arena=MenuArenaBase;
     ovl661_D_80118438=0;
     LoadCursor=arena;
     if(!(D_800AC5D4&1))MenuArenas.first=arena;
     else LoadCursor=MenuArenas.first;
     i=0;y=10;z=308;vehicle=PlayerCars;
     scratch=RR_PROJECTION_SCRATCH;
-    scratch->word18=120;
-    scratch->word08=-16;
-    scratch->word0C=-248;
-    scratch->word1C=0;
-    scratch->word20=0;
-    scratch->word10=-96;
+    scratch->pose08.angles10.xyz.x=120;
+    scratch->pose08.position00.words[0]=-16;
+    scratch->pose08.position00.words[1]=-248;
+    scratch->pose08.angles10.xyz.y=0;
+    scratch->pose08.angles10.xyz.z=0;
+    scratch->pose08.position00.words[2]=-96;
     do {
         __asm__("" : "+r"(vehicle));
         ResetCarState(vehicle);
-        vehicle->pos20[1]=y;
-        vehicle->pos20[2]=z;
+        vehicle->position20.words[1]=y;
+        vehicle->position20.words[2]=z;
         rotation=2048;
         vehicle->rot54=rotation;
         __asm__("" : "+r"(i) : : "memory");

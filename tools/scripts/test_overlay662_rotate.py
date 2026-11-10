@@ -6,7 +6,7 @@ class RotateTest(unittest.TestCase):
  def test_pixels_and_service_order(self):
   root=Path(__file__).resolve().parents[2]
   body=(root/'src/overlays/PAL/662/func_8011ED20.c').read_text()
-  body=re.sub(r'__asm__\("(?:v1|t9)"\)','',body)
+  body=re.sub(r'__asm__\("(?:v1|t9|\$3|\$25)"\)','',body)
   code=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -21,7 +21,7 @@ class RotateTest(unittest.TestCase):
 #include "rr/overlay662_buttons.h"
 #include "rr/overlay662_options.h"
 #include "rr/menu_choice.h"
-static struct World {u32 guard[4];RrGarageSelectionPrefix g;RrGarageWorkingStorage w;RrGarageButton buttons[2];RrGarageRectangle *table[2];u32 images[4][512];u32 tail[4];} world,expected;
+static struct World {u32 guard[4];GarageSelectionPrefix g;GarageWorkingStorage w;GarageButton buttons[2];GarageRectangle *table[2];u32 images[4][512];u32 tail[4];} world,expected;
 static struct Event {unsigned id;int arg;struct World before;} events[5];
 static unsigned count,seen,scenario;static int reference_run;
 #define ovl662_D_801276A8 world.g
@@ -49,7 +49,7 @@ void PlaySfx(s32 n){service(3,n);}
 void ovl662_func_8011E5C0(s32 n){service(4,n);}
 static unsigned slot(u32 *p){for(unsigned i=0;i<4;i++)if(p==world.images[i])return i;assert(0);return 0;}
 static void reference(s32 command){
- RrGarageSelectionPrefix *g=&expected.g;
+ GarageSelectionPrefix *g=&expected.g;
  if(command<0){g->optionIndices98.flat[0]=1;g->optionIndices98.flat[3]=0;return;}
  if(command>0){
  switch(command){case 1:g->optionIndices98.flat[0]=0;g->selectorsB8[3]=0;service(4,0);break;

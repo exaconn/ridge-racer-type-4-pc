@@ -3,17 +3,17 @@
 
 #include "types.h"
 
-/* Car-physics work area in the scratchpad (0x1F800080). */
+/* RaceVehicle-physics work area in the scratchpad (0x1F800080). */
 typedef struct T16 { s32 a; s32 pa; s32 c; s32 pc; } T16;
 
 typedef struct SP {
-    char p0[8]; s32 idx;
-    char p1[0x34 - 0xC]; s32 w34; s32 cnt; s32 r3c; s32 r40;
-    char p2[0x64 - 0x44];
+    s32 w0, w4; s32 idx;
+    s32 wC[10]; s32 w34; s32 cnt; s32 r3c; s32 r40;
+    s32 w44[8];
     u16 h64, h66, h68, h6a, h6c, h6e, h70, h72, h74, h76;
     s32 w78;
-    char p3[0x80 - 0x7C]; s32 w80;
-    char p4[0x110 - 0x84];
+    s32 w7c; s32 w80;
+    s32 w84[35];
     T16 t110[4];
     s16 s150[16];
 } SP;
@@ -51,7 +51,7 @@ typedef struct T16_1 {
 } T16_1;
 
 typedef struct SP_1 {
-    Car *p0;
+    RaceVehicle *p0;
     s32 w4;
     s32 w8;
     s32 wC;
@@ -70,7 +70,7 @@ typedef struct SP_1 {
     s32 w38;
     s32 w3C;
     s32 w40;
-    char pad44[0xB8 - 0x44];
+    s32 w44[29];
     s16 sB8;
     s16 sBA;
     s16 sBC;
@@ -80,7 +80,7 @@ typedef struct SP_1 {
     s16 sC4;
     s16 sC6;
     s16 sC8;
-    char padCA[0xDA - 0xCA];
+    s16 sCA[8];
     s16 sDA;
     s16 sDC;
     s16 sDE;
@@ -88,11 +88,11 @@ typedef struct SP_1 {
     s16 sE2;
     s16 sE4;
     s16 sE6;
-    char padE8[0xF8 - 0xE8];
+    s32 wE8[4];
     s16 sF8;
     s16 sFA;
     s16 sFC;
-    char padFE[2];
+    s16 sFE;
     s32 w100;
     s32 w104;
     s32 w108;
@@ -115,9 +115,17 @@ typedef struct SP_1 {
     s16 s172;
     s16 s174;
     s16 s176;
-    char pad178[8];
+    s32 w178[2];
     Z52 z180[4];
     s16 s250[2][4];
 } SP_1;
+
+typedef struct ScratchCarPad {
+    u8 reserved00[0x7C];
+    s32 wheelBufIdx7C;
+    u8 reserved80[0x100];
+    Vector pos180;
+    Vector wheels190[4];
+} ScratchCarPad;
 
 #endif

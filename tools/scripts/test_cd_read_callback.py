@@ -40,10 +40,10 @@ class CdReadCallbackTest(unittest.TestCase):
 ''' + ''.join(header(n) for n in ['library.h','cd_read_request.h','cd_read_callback.h','cd.h']) + r'''
 typedef struct {
     u8 guard0[32];
-    RrLibReadRequestState state;
+    LibReadRequestState state;
     u32 flags;
-    RrCdDataNotify notify;
-    RrLibCompletionCallback registered[3];
+    CdDataNotify notify;
+    LibCompletionCallback registered[3];
     u8 buffers[2][4096];
     int tick_index;
     u8 guard1[32];
@@ -63,7 +63,7 @@ typedef struct {
     s32 argument;
     u32 words;
     const void *pointer;
-    RrLibCompletionCallback callback;
+    LibCompletionCallback callback;
     u8 header[12];
     World snapshot;
 } Event;
@@ -80,7 +80,7 @@ static void completion2(void){completion_effect^=4;}
 static void notification0(s32,u8*),notification1(s32,u8*);
 const char CdReadSectorErrorMsg[]="CdRead: sector mismatch\n";
 #define CdReadState actual.state
-#define D_800A67B8 (*(RrCdPositionView*)&actual.state.position08)
+#define D_800A67B8 (*(CdPositionView*)&actual.state.position08)
 #define D_800A67D0 actual.state.completed20
 #define CD_read_dma_mode actual.flags
 ''' + body + '\n' + decoder + r'''
@@ -95,7 +95,7 @@ static void *mapped(World *world,const void *pointer) {
     assert(offset<sizeof(actual));return (u8*)world+offset;
 }
 static void record(int model,int kind,int channel,s32 argument,u32 words,
-                   const void *pointer,RrLibCompletionCallback callback,const u8 *header) {
+                   const void *pointer,LibCompletionCallback callback,const u8 *header) {
     Event event;memset(&event,0,sizeof(event));
     event.kind=kind;event.channel=channel;event.argument=argument;event.words=words;
     event.pointer=pointer;event.callback=callback;
@@ -104,14 +104,14 @@ static void record(int model,int kind,int channel,s32 argument,u32 words,
     int index=model?expected_count++:actual_count++;assert(index<32);
     if(model)expected_log[index]=event;else actual_log[index]=event;
 }
-static void set_notify(int model,RrCdDataNotify callback) {
+static void set_notify(int model,CdDataNotify callback) {
     World *w=model?&expected:&actual;w->notify=callback;
-    if(!model)*(RrCdDataNotify*)(native_page.bytes+0x63F0)=callback;
+    if(!model)*(CdDataNotify*)(native_page.bytes+0x63F0)=callback;
 }
-static RrLibCompletionCallback set(int model,int channel,RrLibCompletionCallback callback) {
+static LibCompletionCallback set(int model,int channel,LibCompletionCallback callback) {
     World *w=model?&expected:&actual;
     record(model,SET,channel,0,0,0,callback,0);
-    RrLibCompletionCallback old=w->registered[channel];w->registered[channel]=callback;
+    LibCompletionCallback old=w->registered[channel];w->registered[channel]=callback;
     if(plan.mutations&1) {
         if(channel==2&&callback==cb_data)w->flags=plan.header_flags;
         w->state.restore.notify34=actual.buffers[1]+3000;
@@ -205,14 +205,14 @@ static void notify(int model,int channel,s32 event,u8 *pointer) {
 }
 static void notification0(s32 event,u8 *pointer){notify(0,0,event,pointer);}
 static void notification1(s32 event,u8 *pointer){notify(0,1,event,pointer);}
-RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback c){return set(0,0,c);}
-RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback c){return set(0,1,c);}
-RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback c){return set(0,2,c);}
+LibCompletionCallback CdSyncCallback(LibCompletionCallback c){return set(0,0,c);}
+LibCompletionCallback CdReadyCallback(LibCompletionCallback c){return set(0,1,c);}
+LibCompletionCallback CdDataCallback(LibCompletionCallback c){return set(0,2,c);}
 s32 CdGetSector(u8 *p,u32 n){return read_data(0,0,p,n);}
 s32 CdGetSector2(u8 *p,u32 n){return read_data(0,1,p,n);}
 void CdDataSync(s32 mode){sync_transfer(0,mode);}
 s32 CdPosToInt(void *p){return decode(0,p);}
-s32 func_800963DC(const char *s,...){return diagnostic(0,s);}
+s32 PsyqPuts(const char *s,...){return diagnostic(0,s);}
 s32 VSync(s32 mode){return clock_tick(0,mode);}
 s32 cd_read_retry(s32 mode){return restart(0,mode);}
 s32 CdControlF(s32 c,const u8 *p){return command(0,c,p);}
@@ -258,7 +258,7 @@ static void reference(s32 event,u8 *data) {
         if(expected.flags&1)set(1,2,expected.state.restore.saved30);
         set(1,0,cd_read_restore_sync);
         command(1,9,0);
-        RrCdDataNotify callback=expected.notify;
+        CdDataNotify callback=expected.notify;
         expected.state.finished24=1;
         if(callback)notify(1,callback==notification0?0:1,
                            expected.state.remaining14==0?2:5,data);
@@ -276,7 +276,7 @@ static void check(s32 event,s32 remaining,u32 step,u32 flags,u32 start,u32 seed)
     actual.state.completed20=(u32)actual_decode(plan.header)+(plan.match?0:1);
     actual.flags=flags;actual.tick_index=0;
     actual.notify=(seed%3)==0?0:(seed%3)==1?notification0:notification1;
-    *(RrCdDataNotify*)(native_page.bytes+0x63F0)=actual.notify;
+    *(CdDataNotify*)(native_page.bytes+0x63F0)=actual.notify;
     memcpy(&expected,&actual,sizeof(actual));actual_count=expected_count=0;
     assert((uintptr_t)actual.buffers>UINT32_MAX&&(uintptr_t)notification0>UINT32_MAX);
     input_data=(seed&4)?0:actual.buffers[0]+3000;
@@ -304,9 +304,9 @@ static void configure(u32 seed) {
 }
 int main(int argc,char **argv) {
     assert(argc==2&&sizeof(void*)>4);
-    assert(RR_READ_COMPLETED_OWNER_OFFSET==offsetof(RrLibReadRequestState,completed20));
-    assert(RR_READ_POSITION_OWNER_OFFSET==offsetof(RrLibReadRequestState,position08));
-    assert(offsetof(RrCdPositionView,step10)==offsetof(RrLibReadRequestState,step10)-offsetof(RrLibReadRequestState,position08));
+    assert(RR_READ_COMPLETED_OWNER_OFFSET==offsetof(LibReadRequestState,completed20));
+    assert(RR_READ_POSITION_OWNER_OFFSET==offsetof(LibReadRequestState,position08));
+    assert(offsetof(CdPositionView,step10)==offsetof(LibReadRequestState,step10)-offsetof(LibReadRequestState,position08));
     const s32 pending[]={(-2147483647-1),-1,0,1,2147483647};
     const u32 steps[]={0,4,512,582,585};
     const u32 times[]={0,1,0x7FFFFFFFU,0x80000000U,0xFFFFFFFFU};

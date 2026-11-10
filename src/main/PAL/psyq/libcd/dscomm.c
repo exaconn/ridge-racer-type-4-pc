@@ -8,26 +8,25 @@
 #include "psyq/libcd/s_3.h"
 #include "psyq/libcd/dsread2.h"
 #include "rr/overlay668_stream.h"
+#include "rr/audio_cd_controller.h"
 
 #define RR_READ_OWNER_OFFSET \
-    (sizeof(RrLibReadRequestState)-sizeof(RrLibReadRestoreTail))
-#define RR_PAIR_OWNER_OFFSET (RR_READ_OWNER_OFFSET+sizeof(RrLibCompletionCallback))
+    (sizeof(LibReadRequestState)-sizeof(LibReadRestoreTail))
+#define RR_PAIR_OWNER_OFFSET (RR_READ_OWNER_OFFSET+sizeof(LibCompletionCallback))
 #define RR_PAIR_TAIL(pair) \
-    ((volatile RrLibReadRestoreTail*)((u8*)(pair)-sizeof(RrLibCompletionCallback)))
+    ((volatile LibReadRestoreTail*)((u8*)(pair)-sizeof(LibCompletionCallback)))
 #define RR_PAIR_REQUEST(pair) \
-    ((volatile RrLibReadRequestState*)((u8*)(pair)-RR_PAIR_OWNER_OFFSET))
+    ((volatile LibReadRequestState*)((u8*)(pair)-RR_PAIR_OWNER_OFFSET))
 #define RR_PAIR_PENDING(pair) (RR_PAIR_REQUEST(pair)->finished24)
 
-extern RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback);
-extern s32 CdPosToInt(void *);
-extern s32 func_800963DC(const char *,...);
+extern LibCompletionCallback CdDataCallback(LibCompletionCallback);
+extern s32 PsyqPuts(const char *,...);
 extern const char CdReadSectorErrorMsg[];
 extern void cb_data(void);
-extern void CdFlush(void);
 extern const char StrCdReadShellOpen[];
 extern const char StrCdReadRetry[];
 extern volatile u32 D_800A67BC;
-extern RrLibCompletionCallback volatile D_800A67DC;
+extern LibCompletionCallback volatile D_800A67DC;
 
 void cb_read(s32 event,u8 *data);
 void cb_data(void);
@@ -35,14 +34,11 @@ s32 CdRead(s32 sectors,u8 *buffer,u32 mode);
 
 void cb_read(s32 event,u8 *data) {
     u8 header[12];
-    register volatile RrLibReadRequestState *initial=&CdReadState;
-    register volatile RrLibReadRequestState *state;
-    register volatile RrLibReadRequestState *transfer;
-    register volatile RrLibReadRequestState *failed;
+    register volatile LibReadRequestState *initial=&CdReadState, *state, *transfer, *failed;
     register u32 *completed;
-    register volatile RrCdPositionView *position;
-    register volatile RrCdPositionView *deferred;
-    RrCdDataNotify notify;
+    register CdPositionView *position;
+    register CdPositionView *deferred;
+    CdDataNotify notify;
     s32 now;
     register u8 *notify_page;
 
@@ -66,9 +62,9 @@ void cb_read(s32 event,u8 *data) {
                 completed=&D_800A67D0;
                 /* ASM_BARRIER: capture the complete counter address before load. */
                 __asm__("" : "+r"(completed));
-                if ((u32)now!=*completed) {
-                    func_800963DC(CdReadSectorErrorMsg);
-                    failed=(RrLibReadRequestState *)((u8 *)completed-
+                if (now!=*completed) {
+                    PsyqPuts(CdReadSectorErrorMsg);
+                    failed=(LibReadRequestState *)((u8 *)completed-
                                                      RR_READ_COMPLETED_OWNER_OFFSET);
                     failed->remaining14=-1;
                 }
@@ -89,13 +85,13 @@ void cb_read(s32 event,u8 *data) {
                 /* ASM_BARRIER: retain one captured window across the transfer. */
                 __asm__("" : "+r"(position));
                 CdGetSector(position->position08,position->step10);
-                transfer=(RrLibReadRequestState *)((u8 *)position-
+                transfer=(LibReadRequestState *)((u8 *)position-
                                                    RR_READ_POSITION_OWNER_OFFSET);
                 transfer->position08=position->position08+(position->step10<<2);
-                transfer->remaining14=(s32)((u32)transfer->remaining14-1U);
+                transfer->remaining14=(transfer->remaining14-1U);
                 /* The object is ordinary; qualify the load for a fresh value,
                  * then allow its publication in the unconditional jump delay. */
-                ((RrLibReadRequestState *)transfer)->completed20=transfer->completed20+1U;
+                ((LibReadRequestState *)transfer)->completed20=transfer->completed20+1U;
             }
         }
     } else {
@@ -123,23 +119,16 @@ void cb_read(s32 event,u8 *data) {
         CdControlF(9,0);
         /* PAL page+0x63F0 contains the data notification function pointer. */
         notify_page=(u8 *)0x800A0000U;
-        notify=*(RrCdDataNotify *)(notify_page+0x63F0);
-        ((RrLibReadRequestState *)state)->finished24=1;
+        notify=*(CdDataNotify *)(notify_page+0x63F0);
+        ((LibReadRequestState *)state)->finished24=1;
         if (notify) {
             notify(state->remaining14==0?2:5,data);
         }
     }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define CdReadState (*(RrLibTransferState38 (*))&CdReadState)
-#define CdReadyCallback ((void (*)(RrLibCompletionCallback))CdReadyCallback)
-#define CdDataCallback ((void (*)(RrLibCompletionCallback))CdDataCallback)
-#define CdSyncCallback ((void (*)(RrLibCompletionCallback))CdSyncCallback)
-#define cd_read_restore_sync ((void (*)(void))cd_read_restore_sync)
-
 void cb_data(void) {
-    register volatile RrLibTransferState38 *state = &CdReadState;
+    register volatile LibTransferState38 *state = &CdReadState;
     /* ASM_BARRIER: Keep the complete state address in its saved register. */
     __asm__("" : "=r"(state) : "0"(state));
     state->position08 += state->step10 << 2;
@@ -147,39 +136,31 @@ void cb_data(void) {
     state->completed20 += 1;
     if (state->remaining14 == 0) {
         u8 *page;
-        RrLibNotificationCallback callback;
+        LibNotificationCallback callback;
         CdReadyCallback(state->restore2C);
         if (CD_read_dma_mode & 1) CdDataCallback(state->restore30);
         CdSyncCallback(cd_read_restore_sync);
         CdControlF(9, 0);
         /* PAL mapping: page + 0x63F0 is &CD_cbread. */
         page = (u8 *)0x800A0000U;
-        callback = *(RrLibNotificationCallback *)(page + 0x63F0);
+        callback = *(LibNotificationCallback *)(page + 0x63F0);
         /* Ordinary state publication permits the original branch-delay store. */
-        ((RrLibTransferState38 *)state)->finished24 = 1;
+        ((LibTransferState38 *)state)->finished24 = 1;
         if (callback != 0) callback(2, state->notify_arg34);
     }
 }
 
-#undef CdReadState
-#undef CdReadyCallback
-#undef CdDataCallback
-#undef CdSyncCallback
-#undef cd_read_restore_sync
-
 s32 cd_read_retry(s32 restart) {
     u8 mode_byte;
     register u32 requested;
-    register RrLibReadRequestState *state;
+    register LibReadRequestState *state;
     /* ASM_BARRIER: keep the captured mode address in s1 and preserve the raw
      * restart argument in s2 through the command and status helpers. */
-    register volatile u32 *mode_slot __asm__("$17");
-    register s32 retry __asm__("$18") = restart;
-    register volatile RrLibReadRequestState *shell_state;
-    register volatile RrLibReadRequestState *failed_state;
+    register u32 *mode_slot __asm__("$17");
+    register volatile LibReadRequestState *shell_state, *failed_state;
     u32 timestamp;
     s32 completed;
-    register RrLibCompletionCallback callback;
+    register LibCompletionCallback callback;
     /* ASM_BARRIER: a0/a1 stage independent command/null-parameter values;
      * neither bound value is used across a call that can overwrite it. */
     register s32 command __asm__("$4");
@@ -192,7 +173,7 @@ s32 cd_read_retry(s32 restart) {
     }
     if (CdStatus() & 0x10) {
         if (!(VSync(-1) & 63)) {
-            func_800963DC(StrCdReadShellOpen);
+            PsyqPuts(StrCdReadShellOpen);
         }
         CdControlF(1, 0);
         timestamp = VSync(-1);
@@ -201,11 +182,11 @@ s32 cd_read_retry(s32 restart) {
         shell_state->remaining14 = -1;
         return shell_state->remaining14;
     }
-    if (retry != 0) {
-        /* ASM_BARRIER: keep retry-only diagnostic address formation in this
+    if (restart != 0) {
+        /* ASM_BARRIER: keep restart-only diagnostic address formation in this
          * branch instead of copying it into its predecessor's delay slot. */
         __asm__("" : );
-        func_800963DC(StrCdReadRetry);
+        PsyqPuts(StrCdReadRetry);
         command = 9;
         parameters = 0;
         /* ASM_BARRIER: stage the null parameter after the command value. */
@@ -224,7 +205,7 @@ s32 cd_read_retry(s32 restart) {
     requested = *mode_slot;
     mode_byte = requested;
     requested &= 255;
-    if (requested != CdMode() || retry != 0) {
+    if (requested != CdMode() || restart != 0) {
         if (!CdControl(14, &mode_byte, 0)) {
 failed:
             /* ASM_BARRIER: retain one shared failure block with fresh state
@@ -238,7 +219,7 @@ failed:
     completed = CdPosToInt(CdLastPos());
     /* ASM_BARRIER: the success-state address is formed after decoding. */
     __asm__("" : : : "$16");
-    callback = (RrLibCompletionCallback)cb_read;
+    callback = (LibCompletionCallback)cb_read;
     state = &CdReadState;
     /* ASM_BARRIER: stage the callback address before the state address, then
      * publish the decoded sector in the callback setter's delay slot. */
@@ -253,23 +234,20 @@ failed:
     state->position08 = state->buffer04;
     CdControlF(command, 0);
     state->remaining14 = state->sectors00;
-    ((volatile RrLibReadRequestState *)state)->retry18 = VSync(-1);
-    return ((volatile RrLibReadRequestState *)state)->remaining14;
+    ((volatile LibReadRequestState *)state)->retry18 = VSync(-1);
+    return ((volatile LibReadRequestState *)state)->remaining14;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define cd_read_restore_sync ((void (*)(void))cd_read_restore_sync)
-
 void CdReadBreak(void) {
-    volatile RrLibReadRequestState *root;
+    volatile LibReadRequestState *root;
     /* ASM_BARRIER: form the completion-publication address in its original temporary. */
-    register RrLibReadRequestState *publish __asm__("$2");
+    register LibReadRequestState *publish __asm__("$2");
     /* ASM_BARRIER: retain the callback slot while deriving its containing record. */
-    register RrLibCompletionCallback *saved __asm__("$16");
-    RrLibCompletionCallback restored;
+    register LibCompletionCallback *saved __asm__("$16");
+    LibCompletionCallback restored;
     /* ASM_BARRIER: retain the callback-pair address through the stop sequence. */
-    register RrLibCompletionCallback volatile *pair __asm__("$17");
-    volatile s32 *pending_a,*pending_b;
+    register LibCompletionCallback *pair __asm__("$17");
+    s32 *pending_a,*pending_b;
     u32 first_tick,second_tick;
     s32 decision;
     if(CD_read_dma_mode&1)CdDataSync(0);
@@ -285,19 +263,19 @@ first_timeout:
     /* ASM_BARRIER: materialize the saved-callback slot before its first load. */
     __asm__("" : "+r"(saved));
     restored=*saved;
-    root=(RrLibReadRequestState*)((u8*)saved-RR_READ_OWNER_OFFSET);
+    root=(LibReadRequestState*)((u8*)saved-RR_READ_OWNER_OFFSET);
     CdSyncCallback(restored);
     decision=-1;
     /* The field's object type is ordinary s32. This publication follows callback
      * restoration and retains the original branch-delay store. */
-    ((RrLibReadRequestState*)root)->finished24=0;
+    ((LibReadRequestState*)root)->finished24=0;
     goto after_first_wait;
 second_timeout:
     saved=&CdReadSavedSyncCallback;
     /* ASM_BARRIER: materialize the saved-callback slot before the second timeout load. */
     __asm__("" : "+r"(saved));
     restored=*saved;
-    root=(RrLibReadRequestState*)((u8*)saved-RR_READ_OWNER_OFFSET);
+    root=(LibReadRequestState*)((u8*)saved-RR_READ_OWNER_OFFSET);
     CdSyncCallback(restored);
     root->finished24=0;
     goto done;
@@ -306,7 +284,7 @@ begin_first_wait:
     if(root->finished24!=0) {
         pending_a=&root->finished24;
 first_poll:
-        if((u32)VSync(-1)-first_tick>=121U)goto first_timeout;
+        if(VSync(-1)-first_tick>=121U)goto first_timeout;
         if(*pending_a!=0)goto first_poll;
     }
     decision=0;
@@ -321,14 +299,14 @@ after_first_wait:
         if(CD_read_dma_mode&1)CdDataCallback(RR_PAIR_TAIL(pair)->saved30);
         CdSyncCallback(cd_read_restore_sync);
         CdControlF(9,0);
-        publish=(RrLibReadRequestState*)((u8*)pair-RR_PAIR_OWNER_OFFSET);
-        ((volatile RrLibReadRequestState*)publish)->finished24=1;
+        publish=(LibReadRequestState*)((u8*)pair-RR_PAIR_OWNER_OFFSET);
+        ((volatile LibReadRequestState*)publish)->finished24=1;
         if(RR_PAIR_PENDING(pair)!=0) {
             second_tick=VSync(-1);
             if(RR_PAIR_PENDING(pair)!=0) {
                 pending_b=&RR_PAIR_PENDING(pair);
 second_poll:
-                if((u32)VSync(-1)-second_tick>=121U)goto second_timeout;
+                if(VSync(-1)-second_tick>=121U)goto second_timeout;
                 if(*pending_b!=0)goto second_poll;
             }
         }
@@ -337,11 +315,6 @@ done:
     return;
 }
 
-#undef cd_read_restore_sync
-
-/* legacy typing of shared globals in this part of the unit */
-#define CdControlB ((s32 (*)(s32,const u8*,u8*))CdControlB)
-
 s32 CdRead(s32 sectors,u8 *buffer,u32 mode) {
     s32 count=sectors;
     u8 *destination=buffer;
@@ -349,19 +322,19 @@ s32 CdRead(s32 sectors,u8 *buffer,u32 mode) {
     register u32 format __asm__("$18");
     u32 start;
     /* ASM_BARRIER: retain the complete request address across callback setters. */
-    register RrLibReadRequestState *state __asm__("$16");
-    volatile s32 *pending;
+    register LibReadRequestState *state __asm__("$16");
+    s32 *pending;
     /* ASM_BARRIER: use the original constructor argument register for case stores. */
-    register RrLibReadRequestState *control __asm__("$4");
+    register LibReadRequestState *control __asm__("$4");
     u32 mode_stage=mode;
     s32 command,kind;
-    RrLibCompletionCallback *restore_slot;
-    RrLibCompletionCallback restored;
+    LibCompletionCallback *restore_slot;
+    LibCompletionCallback restored;
     u32 default_step;
-    RrLibCompletionCallback zero;
+    LibCompletionCallback zero;
     s32 result,busy;
     /* ASM_BARRIER: materialize the complete fallback address in its temporary. */
-    register RrLibReadRequestState *fallback __asm__("$3");
+    register LibReadRequestState *fallback __asm__("$3");
     const u8 *parameters;
     pending=&D_800A67D4;
     /* ASM_BARRIER: capture the pending flag's complete address before polling. */
@@ -372,7 +345,7 @@ s32 CdRead(s32 sectors,u8 *buffer,u32 mode) {
         start=VSync(-1);
         if(*pending!=0) {
 wait:
-            if((u32)VSync(-1)-start>=121U)goto timeout;
+            if(VSync(-1)-start>=121U)goto timeout;
             if(*pending!=0)goto wait;
         }
     }
@@ -390,10 +363,10 @@ timeout:
         /* ASM_BARRIER: capture the saved-callback slot before deriving its owner. */
         __asm__("" : "+r"(restore_slot));
         restored=*restore_slot;
-        state=(RrLibReadRequestState*)((u8*)restore_slot-
-              (sizeof(RrLibReadRequestState)-sizeof(RrLibReadRestoreTail)));
+        state=(LibReadRequestState*)((u8*)restore_slot-
+              (sizeof(LibReadRequestState)-sizeof(LibReadRestoreTail)));
         CdSyncCallback(restored);
-        ((volatile RrLibReadRequestState*)state)->finished24=0;
+        ((volatile LibReadRequestState*)state)->finished24=0;
         goto setup;
     case 0:
         control->step10=0x200;
@@ -435,4 +408,3 @@ timeout:
     return result;
 }
 
-#undef CdControlB

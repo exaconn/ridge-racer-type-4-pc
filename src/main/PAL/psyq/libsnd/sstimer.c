@@ -12,12 +12,12 @@ void SsSetTickMode(s32 mode)
         /* Both word accesses remain inside the complete timer owner. */
         base=(u8 *)&_snd_seq_tick_env+4;
         *(s32 *)base=1;
-        *(s32 *)(base-4)=mode&0xFFF;
+        ((s32 *)base)[-1]=mode&0xFFF;
     } else {
         /* Both word accesses remain inside the complete timer owner. */
         base=(u8 *)&_snd_seq_tick_env+4;
         *(s32 *)base=0;
-        *(s32 *)(base-4)=mode;
+        ((s32 *)base)[-1]=mode;
     }
     if(_snd_seq_tick_env.selector<6) {
         switch(_snd_seq_tick_env.selector) {

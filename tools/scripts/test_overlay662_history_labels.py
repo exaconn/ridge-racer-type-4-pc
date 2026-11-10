@@ -24,15 +24,15 @@ class HistoryLabelsTest(unittest.TestCase):
 #include "rr/overlay662_history_labels.h"
 typedef struct {
  u32 guard0[4],rng;
- RrBadgeRow1C rows[4];RrSaveProgressRecord7C save;RrMenuChoice4 choice;
- RrUiUvRect uv[128];s16 counts[4][4],number,total;
+ BadgeRow1C rows[4];SaveProgressRecord7C save;MenuChoice4 choice;
+ UiUvRect uv[128];s16 counts[4][4],number,total;
  s32 tick;u32 guard1[4];
 } State;
 typedef struct {s32 op,x,y,a,b,c;size_t cursor;u8 data[8];} Event;
 typedef struct {State s;Event events[12];unsigned count;} World;
 static World actual,reference,initial,*w;
 static u8 arena[512];static u32 ordering[4];static char ratio[8];
-RrBadgeRow1C *BadgeRows;
+BadgeRow1C *BadgeRows;
 #define SaveProgress w->s.save
 #define SelectionRows w->s.choice
 #define UiFontGlyphs w->s.uv
@@ -58,13 +58,13 @@ static Event *event(s32 op,void *cursor){
  return e;
 }
 s32 rsin(s32 angle){Event *e=event(1,0);s32 v=(s32)(next()%3)-1;e->a=angle;e->b=v;change();return v;}
-void *AddSpritePrim(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
+void *AddSpritePrim(u32 *ot,void *p,s32 x,s32 y,const UiUvRect *uv,u16 clut,s32 color){
  Event *e=event(2,p);assert(ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=color;memcpy(e->data,uv,4);change();return (u8*)p+20;
 }
 void *AddTextSprites(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 spacing,s32 color){
  Event *e=event(3,p);size_t n=strlen(text);assert(n<8&&ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=spacing;e->c=color;memcpy(e->data,text,n+1);change();return (u8*)p+20*n;
 }
-void *AddDrawModePrim(u32 *ot,void *p,u16 mode){Event *e=event(4,p);assert(ot==ordering);e->a=mode;change();return (u8*)p+12;}
+void *AddDrawModePrim(u32 *ot,GpuDrawModePacket *mode_packet,u16 mode){ void *p = (void *)mode_packet;Event *e=event(4,p);assert(ot==ordering);e->a=mode;change();return (u8*)p+12;}
 char *FormatCountOfTotal(s32 first,s32 second,s32 digits){
  Event *e=event(5,0);assert(digits==1);e->a=first;e->b=second;
  ratio[0]='0'+first/10;ratio[1]='0'+first%10;ratio[2]='/';ratio[3]='0'+second/10;ratio[4]='0'+second%10;ratio[5]=0;change();return ratio;
@@ -74,7 +74,7 @@ static void expected(unsigned kind,u32 *ot,void *p,s32 row){
  const s8 *keys=kind==0?ovl662_D_80126218:kind==1?ovl662_D_80126224:kind==2?ovl662_D_80126228:ovl662_D_8012622C;
  if(kind<2){
   for(i=0;i<4;i++){
-   RrSelectionRow h=w->s.save.history6C[i];
+   SelectionRow h=w->s.save.history6C[i];
    if(w->s.choice.bytes[0]==h.selection&&w->s.choice.bytes[1]==h.variant&&(kind||w->s.choice.bytes[2]==h.parameter)){
     flag=rsin((s32)(((u32)w->s.tick*128-682U)&4094U))<0;break;
    }
@@ -97,14 +97,14 @@ static void expected(unsigned kind,u32 *ot,void *p,s32 row){
  AddDrawModePrim(ot,p,56);
 }
 int main(void){unsigned scenario,kind,i;void (*functions[4])(u32*,void*,s32)={ovl662_func_80117654,ovl662_func_80117AA4,ovl662_func_80117C98,ovl662_func_80117DFC};
- assert((uintptr_t)arena>UINT32_MAX);_Static_assert(sizeof(RrSaveProgressRecord7C)==124,"full save");
+ assert((uintptr_t)arena>UINT32_MAX);_Static_assert(sizeof(SaveProgressRecord7C)==124,"full save");
  for(scenario=0;scenario<65536;scenario++)for(kind=0;kind<4;kind++){
   memset(&initial,0,sizeof(initial));w=&initial;w->s.rng=0x17654+scenario*17+kind;change();
   for(i=0;i<4;i++){
    w->s.rows[i].x04=(s16)next();w->s.rows[i].y06=(s16)next();
    w->s.save.history6C[i].selection=next()%4;w->s.save.history6C[i].variant=next()%4;w->s.save.history6C[i].parameter=next()%99;
   }
-  if(scenario%5<4){RrSelectionRow *h=&w->s.save.history6C[scenario%5];h->selection=w->s.choice.bytes[0];h->variant=w->s.choice.bytes[1];h->parameter=w->s.choice.bytes[2];}
+  if(scenario%5<4){SelectionRow *h=&w->s.save.history6C[scenario%5];h->selection=w->s.choice.bytes[0];h->variant=w->s.choice.bytes[1];h->parameter=w->s.choice.bytes[2];}
   w->s.tick=(s32)next();actual=reference=initial;
   w=&actual;BadgeRows=w->s.rows;functions[kind](ordering,arena,scenario%4);
   w=&reference;BadgeRows=w->s.rows;expected(kind,ordering,arena,scenario%4);

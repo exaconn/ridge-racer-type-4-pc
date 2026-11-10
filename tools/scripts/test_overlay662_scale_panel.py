@@ -19,7 +19,7 @@ class Overlay662ScalePanelTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4||sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4||offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_scale_panel.h"
-typedef struct {u32 guard[4];RrGarageSelectionPrefix garage;RrGpuScratchPointers scratch;u32 tail[4];} State;
+typedef struct {u32 guard[4];GarageSelectionPrefix garage;GpuScratchPointers scratch;u32 tail[4];} State;
 typedef struct {unsigned kind,cursor,bank,head;u32 args[10],hash;} Event;
 typedef struct {State s;Event events[6];unsigned calls;} World;
 static World actual,reference,initial,*w;
@@ -36,9 +36,9 @@ static u8 *service(unsigned kind,u32 *order,u8 *cursor,const u32 *args,unsigned 
  if(mutation){w->s.scratch.order=heads[1]+scenario%128;w->s.scratch.cursor=(u8*)arena+768;w->s.garage.config1C=0;w->s.garage.reset08[0]=(s16)~scenario;w->s.garage.reset08[1]=(s16)(scenario*13);w->s.garage.shadeD0=(u8)~scenario;}
  return cursor+(4*(w->calls+1));
 }
-RrGpuLineF4Packet *ovl662_func_8011AEC4(u32 *o,RrGpuLineF4Packet *p,u32 x,u32 y,u32 width,u32 height,u32 r,u32 g,u32 b){u32 args[]={x,y,width,height,r,g,b};return (RrGpuLineF4Packet*)service(1,o,(u8*)p,args,7);}
+GpuLineF4Packet *ovl662_func_8011AEC4(u32 *o,GpuLineF4Packet *p,u32 x,u32 y,u32 width,u32 height,u32 r,u32 g,u32 b){u32 args[]={x,y,width,height,r,g,b};return (GpuLineF4Packet*)service(1,o,(u8*)p,args,7);}
 u8 *ovl662_func_8011ABB4(u32 *o,u8 *p,u32 x,u32 y,u32 width,u32 height){u32 args[]={x,y,width,height};return service(2,o,p,args,4);}
-RrGpuPolyFT4Packet *ovl662_func_8011B1CC(u32 *o,RrGpuPolyFT4Packet *p,u32 x,u32 y,u32 width,u32 height,u32 u,u32 v,u32 uw,u32 vh,u32 clut,u32 page){u32 args[]={x,y,width,height,u,v,uw,vh,clut,page};return (RrGpuPolyFT4Packet*)service(3,o,(u8*)p,args,10);}
+GpuPolyFT4Packet *ovl662_func_8011B1CC(u32 *o,GpuPolyFT4Packet *p,u32 x,u32 y,u32 width,u32 height,u32 u,u32 v,u32 uw,u32 vh,u32 clut,u32 page){u32 args[]={x,y,width,height,u,v,uw,vh,clut,page};return (GpuPolyFT4Packet*)service(3,o,(u8*)p,args,10);}
 ''' + body + r'''
 static s16 narrow(unsigned bits){u16 u=bits;s16 v;memcpy(&v,&u,2);return v;}
 static void expected(void){State *s=&w->s;u32 *order=s->scratch.order+136;u32 width=64/(s->garage.config1C/2),height=128/(s->garage.config1C/2);

@@ -18,10 +18,11 @@ class Overlay659StandingsTest(unittest.TestCase):
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
+#include <stddef.h>
 #include "types.h"
 /* Native stand-in for resident vehicle storage, with its real size/alignment. */
 #include "rr/race_types.h"
-RrRaceVehicle PlayerCars[2];
+RaceVehicle PlayerCars[2];
 s32 LapTimes[10], TotalRaceTime;
 u16 D_800AC1A0;
 ''' + body + r'''
@@ -39,13 +40,13 @@ static void check(const s32 input[6], s32 rank, s16 count) {
     for (unsigned i = 6; i < 10; i++) LapTimes[i] = (s32)(0x5A000000U + i);
     memcpy(expected_times, LapTimes, sizeof(expected_times));
     memset(PlayerCars, 0xA5, sizeof(PlayerCars));
-    memcpy((u8 *)PlayerCars + 0x2AA, &count, sizeof(count));
+    PlayerCars[0].control.dynamics94.steering.count22=count;
     memcpy(expected_vehicle, PlayerCars, sizeof(expected_vehicle));
     TotalRaceTime = rank; D_800AC1A0 = 0xBEEF;
     u16 selected = 0xBEEF;
     if (rank == -1) {
         s16 marker = -1;
-        memcpy(expected_vehicle + 0x2A8, &marker, sizeof(marker));
+        memcpy(expected_vehicle + offsetof(RaceVehicle,control.dynamics94.steering.finish20), &marker, sizeof(marker));
         if (count > 0) expected_times[count-1] = -1;
     } else {
         selected = 0;

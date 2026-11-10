@@ -54,7 +54,7 @@ extern char LoadIndex;
 
 extern unsigned char LoadState;
 
-extern short D_800F4D44;
+extern short GameModeType;
 
 extern int RequestCarLoad();
 
@@ -102,7 +102,7 @@ int LoadCarRangeStep(int arg0, int arg1) {
                 a1 = -1;
             }
         }
-        if (D_800F4D44 != 1) {
+        if (GameModeType != 1) {
             UploadCarClut(q3, a1, arg0);
         }
         LoadIndex++;

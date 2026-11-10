@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void CatPrim(s32 *arg0, s32 arg1);
+void CatPrim(u32 *tag, const void *next);
 
 #endif /* RR_PSYQ_LIBGPU_ADDPRIM4_H */

@@ -22,23 +22,23 @@ class SpuTransferStopTest(unittest.TestCase):
 typedef uint8_t u8; typedef int16_t s16; typedef uint16_t u16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-RrSpuRegisterBank test_banks[2];
-RrSpuRegisterBank *_spu_RXX=&test_banks[0];
+SpuRegisterBank test_banks[2];
+SpuRegisterBank *_spu_RXX=&test_banks[0];
 s32 _spu_dmaIsRead;
 void (*volatile _spu_transferCallback)(void);
 u32 test_count, test_log[4000][3], test_busy, test_reads, test_written;
 u32 test_replace_after_delay, test_callback_mutation;
-u32 test_layout[]={sizeof(RrSpuRegisterBank),offsetof(RrSpuRegisterBank,spu_control)};
+u32 test_layout[]={sizeof(SpuRegisterBank),offsetof(SpuRegisterBank,spu_control)};
 static void record(u32 op,u32 value,u32 bank) {
  if(test_count<4000) {test_log[test_count][0]=op;test_log[test_count][1]=value;test_log[test_count][2]=bank;}
  test_count++;
 }
-u32 test_read_control(RrSpuRegisterBank *bank) {
+u32 test_read_control(SpuRegisterBank *bank) {
  u32 value=bank->spu_control;
  if(test_written && test_reads++<test_busy) value|=0x30;
  record(1,value,(u32)(bank-test_banks));return value;
 }
-void test_write_control(RrSpuRegisterBank *bank,u32 value) {
+void test_write_control(SpuRegisterBank *bank,u32 value) {
  record(2,value,(u32)(bank-test_banks));bank->spu_control=value;test_written=1;
 }
 void test_callback(void) {

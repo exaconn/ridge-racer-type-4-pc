@@ -15,7 +15,7 @@ void SpuFree(u32 address) {
         u32 end_marker = 0x40000000U;
         u32 freed = address | 0x80000000U;
         s32 limit = count;
-        RrSpuAllocation *entry;
+        SpuAllocation *entry;
 
         /* ASM_BARRIER: materialize loop invariants before loading the cursor. */
         __asm__ volatile("" : : "r"(end_marker), "r"(freed), "r"(limit));

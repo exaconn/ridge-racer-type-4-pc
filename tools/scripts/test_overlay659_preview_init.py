@@ -19,17 +19,17 @@ source = r'''
 #define RR_ASSERT_SIZE(t,n)
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/overlay659_preview_init.h"
-_Static_assert(sizeof(RrRaceVehicle)==0x320,"vehicle layout");
-_Static_assert(sizeof(RrMenuSettings2C)==0x2C,"settings layout");
-_Static_assert(sizeof(RrUiRow24)==0x24,"UI layout");
-_Static_assert(offsetof(RrUiRow24,cells)==12,"cell offset");
-_Static_assert(offsetof(RrMenuSettings2C,phase17)==23,"selection offset");
-_Static_assert(offsetof(RrRaceVehicle,pos20)==32,"position offset");
-_Static_assert(offsetof(RrRaceVehicle,rot54)==84,"rotation offset");
+_Static_assert(sizeof(RaceVehicle)==(sizeof(void*)==4?0x320:0x330),"vehicle layout");
+_Static_assert(sizeof(MenuSettings2C)==0x2C,"settings layout");
+_Static_assert(sizeof(UiRow24)==0x24,"UI layout");
+_Static_assert(offsetof(UiRow24,cells)==12,"cell offset");
+_Static_assert(offsetof(MenuSettings2C,phase17)==23,"selection offset");
+_Static_assert(offsetof(RaceVehicle,position20)==32,"position offset");
+_Static_assert(offsetof(RaceVehicle,rot54)==84,"rotation offset");
 static u8 resources[3][32];
 typedef struct {
  u32 guard[4];s32 frame,tick;s16 selection,mode,scene;u16 phase,enable;
- RrMenuSettings2C settings;RrUiRow24 rows[2][7];RrRaceVehicle vehicles[2];
+ MenuSettings2C settings;UiRow24 rows[2][7];RaceVehicle vehicles[2];
  s32 scratch[16];void *published;u8 *resource;unsigned root;u32 tail[4];
 } State;
 static State actual,reference,*w;
@@ -63,7 +63,7 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
  u32 v=(scenario+17*kind+31*n)*0x9E3779B9U;
  w->frame=word(v);w->tick=word(~v);w->phase=(u16)v;w->selection=half(v>>7);w->mode=half(v);w->enable=(u16)(v>>3);w->scene=half(v>>16);
  w->root=(scenario+n)&1;w->resource=resources[(scenario+n)%3];w->published=resources[(scenario+n+1)%3];w->settings.phase17=byte(scenario+13*n);
- for(unsigned i=0;i<2;i++)for(unsigned j=0;j<3;j++)w->vehicles[i].pos20[j]=word(v+j+i*13);
+ for(unsigned i=0;i<2;i++)for(unsigned j=0;j<3;j++)w->vehicles[i].position20.words[j]=word(v+j+i*13);
  for(unsigned i=0;i<2;i++)w->vehicles[i].rot54=word(v+i);
  for(unsigned i=0;i<2;i++)for(unsigned j=0;j<8;j++)w->rows[i][3].cells[j]=(u8)(v+i+j);
  for(unsigned j=0;j<16;j++)w->scratch[j]=word(v+j);
@@ -76,7 +76,7 @@ void InitMenuArenas(void){service(3);}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){
  const s32 args[10]={a,b,c,d,e,f,g,h,i,j};record(4,args);effect(4);
 }
-void ResetCarState(RrRaceVehicle *p){assert(p==w->vehicles&&(uintptr_t)p>UINT32_MAX);service(5);}
+void ResetCarState(RaceVehicle *p){assert(p==w->vehicles&&(uintptr_t)p>UINT32_MAX);service(5);}
 s32 LoadTrackNodesStep(void){static const u32 returns[]={0,1,2,0xFFFFFFFFU,0x10001,0xFFFF0001,0x80000000,0x80000001};service(6);return word(returns[scenario%8]);}
 void CdAudioInit(void){service(7);}
 void CdAudioSelectTrack(s32 a,s32 b){const s32 args[10]={a,b};record(8,args);effect(8);}
@@ -94,8 +94,8 @@ static void expected(void){unsigned phase=w->phase;paths[phase<3?phase:3]++;
   memset(w->rows[w->root][3].cells,0,8);int selected=w->settings.phase17;
   if(selected>=0&&selected<8)w->rows[w->root][3].cells[selected]=2;
   w->scratch[6]=512;w->scratch[7]=0;w->scratch[8]=0;w->scratch[2]=0;w->scratch[3]=-416;w->scratch[4]=0;
-  memset(w->vehicles[1].pos20,0,sizeof(w->vehicles[1].pos20));service(5);
-  w->vehicles[0].pos20[1]=10;w->vehicles[0].pos20[2]=308;w->vehicles[0].rot54=2560;w->phase=1;
+  memset(w->vehicles[1].position20.words,0,sizeof(w->vehicles[1].position20.words));service(5);
+  w->vehicles[0].position20.words[1]=10;w->vehicles[0].position20.words[2]=308;w->vehicles[0].rot54=2560;w->phase=1;
  }else if(phase==1){s32 result=LoadTrackNodesStep();completion[result==1]++;if(result==1)w->phase=2;
  }else if(phase==2){service(7);const s32 args[10]={0,2};record(8,args);effect(8);w->enable=1;w->scene=18;w->phase=0;}
  const s32 args[10]={0x1002E};record(9,args);effect(9);

@@ -39,9 +39,9 @@ class CdReadBeginTest(unittest.TestCase):
 ''' + header('library.h') + header('cd_read_request.h') + header('cd.h') + r'''
 typedef struct {
     u8 prefix[32];
-    RrLibReadRequestState state;
+    LibReadRequestState state;
     u32 flags;
-    RrLibCompletionCallback registered[3];
+    LibCompletionCallback registered[3];
     u8 buffers[3][64];
     u8 packets[2][4];
     int tick_index, packet_index;
@@ -57,7 +57,7 @@ typedef struct {
 typedef struct {
     int kind;
     s32 arg;
-    RrLibCompletionCallback callback;
+    LibCompletionCallback callback;
     const void *pointer;
     int mode_byte;
     World snapshot;
@@ -78,7 +78,7 @@ const char StrCdReadRetry[]="CdRead: retry...\n";
 ''' + body + '\n' + decoder + r'''
 enum {SET0,SET1,SET2,STATUS,CLOCK,LOG,CONTROL,RESET,MODE,PACKET,DECODE,TRANSFER};
 static s32 bits(u32 word){s32 value;memcpy(&value,&word,4);return value;}
-static void record(int model,int kind,s32 arg,RrLibCompletionCallback callback,
+static void record(int model,int kind,s32 arg,LibCompletionCallback callback,
                    const void *pointer,int mode_byte) {
     Event event;memset(&event,0,sizeof(event));
     event.kind=kind;event.arg=arg;event.callback=callback;
@@ -87,10 +87,10 @@ static void record(int model,int kind,s32 arg,RrLibCompletionCallback callback,
     int index=model?expected_count++:actual_count++;assert(index<32);
     if(model)expected_log[index]=event;else actual_log[index]=event;
 }
-static RrLibCompletionCallback set(int model,int slot,RrLibCompletionCallback callback) {
+static LibCompletionCallback set(int model,int slot,LibCompletionCallback callback) {
     World *world=model?&expected:&actual;
     record(model,SET0+slot,0,callback,0,-1);
-    RrLibCompletionCallback previous=world->registered[slot];
+    LibCompletionCallback previous=world->registered[slot];
     world->registered[slot]=callback;
     if(plan.mutate) {
         if(slot==1&&!callback)world->flags=plan.clear_flags;
@@ -185,12 +185,12 @@ static s32 transfer(int model,s32 command,const u8 *parameters) {
     }
     return 0; // This result is deliberately ignored, including zero.
 }
-RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback c){return set(0,0,c);}
-RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback c){return set(0,1,c);}
-RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback c){return set(0,2,c);}
+LibCompletionCallback CdSyncCallback(LibCompletionCallback c){return set(0,0,c);}
+LibCompletionCallback CdReadyCallback(LibCompletionCallback c){return set(0,1,c);}
+LibCompletionCallback CdDataCallback(LibCompletionCallback c){return set(0,2,c);}
 u8 CdStatus(void){return status(0);}
 s32 VSync(s32 a){return clock_tick(0,a);}
-s32 func_800963DC(const char *s,...){return diagnostic(0,s);}
+s32 PsyqPuts(const char *s,...){return diagnostic(0,s);}
 u8 *CdLastPos(void){return packet(0);}
 s32 CdControl(s32 c,const u8 *p,u8 *r){return control(0,c,p,r);}
 void CdFlush(void){reset(0);}
@@ -228,7 +228,7 @@ static s32 reference(s32 restart) {
         }
     }
     expected.state.completed20=(u32)decode(1,packet(1));
-    set(1,1,(RrLibCompletionCallback)cb_read);
+    set(1,1,(LibCompletionCallback)cb_read);
     if(expected.flags&1)set(1,2,cb_data);
     expected.state.position08=expected.state.buffer04;
     transfer(1,6,0);

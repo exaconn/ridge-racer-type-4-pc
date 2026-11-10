@@ -4,6 +4,8 @@
 #include "types.h"
 
 void InitParticles(void);
+int FindFreeParticle(void);
+void SpawnParticlePair(void);
 void UpdateParticle(int a0);
 void DrawParticle(int a0);
 

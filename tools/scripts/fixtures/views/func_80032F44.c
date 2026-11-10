@@ -6,7 +6,7 @@ extern int D_8009F654[];
 
 extern int D_8009F66C[];
 
-extern short D_800F4D44;
+extern short GameModeType;
 
 extern short CourseIndex;
 
@@ -16,7 +16,7 @@ extern int NumLaps;
 
 extern short D_8009F678[];
 
-extern int D_800F3B00[];
+extern int CourseBestLapRecords[];
 
 extern int CourseBestTotalTimes[];
 
@@ -40,7 +40,7 @@ extern int DrawDigitString16();
 
 extern char *FormatMillisecondsTime();
 
-extern int func_80032EC8();
+extern int EmitSpinningWheelIcon();
 
 void DrawCourseInfoPanel(int arg0, int arg1) {
     char sp28[8];
@@ -69,8 +69,8 @@ void DrawCourseInfoPanel(int arg0, int arg1) {
     p = AddDrawModePrim(CurrentDrawBuf + 0x70, p, 0x59);
     *(int *)0x1F800000 = AddTilePrim(CurrentDrawBuf + 0x70, p, 0x10, 0xE0, 2, 0x88, 0x4C, 0x4C, 0x4C);
 
-    if (D_800F4D44 < 2) {
-        NumLaps = CourseLapCounts[CourseIndex + (D_800F4D44 == 1 ? 8 : 0)];
+    if (GameModeType < 2) {
+        NumLaps = CourseLapCounts[CourseIndex + (GameModeType == 1 ? 8 : 0)];
     }
 
     i = 7;
@@ -93,9 +93,9 @@ void DrawCourseInfoPanel(int arg0, int arg1) {
     if (arg1 == 0) {
         for (i = 0; i < 2; i++) {
             int val;
-            if (D_800F4D44 == 1) {
+            if (GameModeType == 1) {
                 if (i == 0) {
-                    val = D_800F3B00[CourseIndex];
+                    val = CourseBestLapRecords[CourseIndex];
                 } else {
                     val = CourseBestTotalTimes[CourseIndex];
                 }
@@ -127,5 +127,5 @@ void DrawCourseInfoPanel(int arg0, int arg1) {
         }
     }
 
-    *(int *)0x1F800000 = func_80032EC8(CurrentDrawBuf + 0x70, *(int *)0x1F800000, 0x16, 0xE4, arg0);
+    *(int *)0x1F800000 = EmitSpinningWheelIcon(CurrentDrawBuf + 0x70, *(int *)0x1F800000, 0x16, 0xE4, arg0);
 }

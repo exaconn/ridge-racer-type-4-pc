@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-short _spu_note2pitch(unsigned int, int, unsigned int, int);
+u32 _spu_note2pitch(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
 #endif /* RR_PSYQ_LIBSND_VMPITCH_H */

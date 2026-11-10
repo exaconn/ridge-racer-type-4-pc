@@ -1,64 +1,60 @@
 #include "game/car/carphys1.h"
+#include "rr/race_types.h"
 #include "rr/menu_overlay_runtime.h"
 #include "game/car/carphys2.h"
-extern int AngleDiffSigned();
-#define S(p, o) (*(short *)((p) + (o)))
-#define U(p, o) (*(unsigned short *)((p) + (o)))
-#define W(p, o) (*(int *)((p) + (o)))
-void UpdateCarHeading(a0)
-char *a0;
-{
-    char *s1;
-    char *s2;
+#include "game/course/trkintp.h"
+void UpdateCarHeading(RaceVehicle *a0) {
+    VehicleHandlingPrefix *s1;
+    RaceVehicleControl *s2;
     int v1, a1, d;
-    register int v asm("$2");
+    register int v asm("$2"); /* ASM_BARRIER: pin v to $2 */
     int t;
-    s2 = a0 + 0x1F4;
-    s1 = *(char **)(s2 + 0x1C);
-    v1 = W(a0, 0x1E0) * rcos(S(a0, 0x1D4) - W(a0, 0x54));
+    s2 = &a0->control;
+    s1 = s2->handling1C;
+    v1 = a0->physicsFlags1E0 * rcos(a0->heading1D4 - a0->rot54);
     if (v1 < 0) v1 += 0xFFF;
-    U(a0, 0x1D8) = U(a0, 0x1D8) + (v1 >> 12);
-    if (S(s1, 0xA) == 0) {
-        if (S(s2, 0x3C) > 0) {
-            S(a0, 0x1D4) = U(a0, 0x1D4) + ((AngleDiffSigned(S(a0, 0x1D4), GetTrackTargetHeading(a0)) * S(s2, 0x3C)) >> 2) / 60;
+    a0->input = (unsigned short)a0->input + (v1 >> 12);
+    if (s1->steeringMode0A == 0) {
+        if (s2->laneTarget3C > 0) {
+            a0->heading1D4 = (unsigned short)a0->heading1D4 + ((AngleDiffSigned(a0->heading1D4, GetTrackTargetHeading(a0)) * s2->laneTarget3C) >> 2) / 60;
         }
     }
-    a1 = AngleDiffSigned(S(a0, 0x1D4), W(a0, 0x54));
-    if (S(s1, 0xA) > 0) {
-        if (S(a0, 0x1DE) < 0) {
-            if (S(a0, 0x1D8) < 0x3C0) {
-                v = S(a0, 0x1DC);
-                t = S(s1, 0x1C);
+    a1 = AngleDiffSigned(a0->heading1D4, a0->rot54);
+    if (s1->steeringMode0A > 0) {
+        if (a0->steerRoll1DE < 0) {
+            if (a0->input < 0x3C0) {
+                v = a0->steerPitch1DC;
+                t = s1->headingDamping1C;
                 if (v < 0) v = -v;
                 v >>= 4;
             } else {
-                v = S(a0, 0x1DC);
-                t = S(s1, 0x1C);
+                v = a0->steerPitch1DC;
+                t = s1->headingDamping1C;
                 if (v < 0) v = -v;
                 v >>= 3;
             }
         } else {
-            v = S(a0, 0x1DC);
-            t = S(s1, 0x1C);
+            v = a0->steerPitch1DC;
+            t = s1->headingDamping1C;
             if (v < 0) v = -v;
             v >>= 2;
         }
         d = v / (t + 1) + 4;
     } else {
-        d = S(s2, 0x3C) + 4;
-        t = S(s1, 0x1C);
+        d = s2->laneTarget3C + 4;
+        t = s1->headingDamping1C;
         if (t > 0) {
-            v = S(a0, 0x1DC);
+            v = a0->steerPitch1DC;
             if (v < 0) v = -v;
             d += v / t;
         }
     }
-    if (S(a0, 0x1B8) == 0) {
+    if (a0->steeringLock1B8 == 0) {
         if (a1 < d && -d < a1) {
-            S(a0, 0x1D4) = U(a0, 0x1D4) + (a1 >> 1);
+            a0->heading1D4 = (unsigned short)a0->heading1D4 + (a1 >> 1);
         } else {
-            S(a0, 0x1D4) = U(a0, 0x1D4) + a1 / d;
+            a0->heading1D4 = (unsigned short)a0->heading1D4 + a1 / d;
         }
     }
-    U(a0, 0x1D4) = U(a0, 0x1D4) & 0xFFF;
+    a0->heading1D4 = (unsigned short)a0->heading1D4 & 0xFFF;
 }

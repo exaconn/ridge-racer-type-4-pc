@@ -10,6 +10,7 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
 
 
 class Vec(C.Structure):
@@ -23,26 +24,29 @@ class GteSquareTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
         header=(root/'include/rr/geometry.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(root/'src/main/PAL/psyq/libgte/gtecolo4.c').read_text()
+        owners=source_owners(root/'src/main/PAL')
+        body='\n'.join(definition_source(owners[name].read_text(),name) for name in ('Square12','Square0'))
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         assert body.count('__asm__("" : : "r"(output) : "$2");')==2
         body=body.replace('__asm__("" : : "r"(output) : "$2");','')
         code='''#include <stdint.h>
-typedef int16_t s16;typedef int32_t s32;
+#include <assert.h>
+typedef int16_t s16;typedef int32_t s32;typedef uint32_t u32;
 '''+header+'''
 s32 ir[3],mac[3],trace[4],count;
 const void *loaded;void *stored;
-void load(const RrVec3i *p) {
+void load(const Vec3i *p) {
     s32 i;const s32 words[3]={p->x,p->y,p->z};
     loaded=p;count=0;trace[count++]=1;
     for(i=0;i<3;i++){s32 low=(uint32_t)words[i]&65535;ir[i]=low<32768?low:low-65536;}
 }
 void square(s32 shift) {s32 i;trace[count++]=shift?12:2;for(i=0;i<3;i++)mac[i]=(ir[i]*ir[i])>>shift;}
-void store(RrVec3i *p) {stored=p;trace[count++]=3;p->x=mac[0];p->y=mac[1];p->z=mac[2];}
+void store(Vec3i *p) {stored=p;trace[count++]=3;p->x=mac[0];p->y=mac[1];p->z=mac[2];}
 #define RR_GTE_LWC2_IR(p) load(p)
 #define RR_NOP_DEP() (trace[count++]=0)
 #define RR_GTE_SQR12() square(12)
 #define RR_GTE_SQR0() square(0)
+#define RR_GTE_CMD_1NOP(cmd) do { assert((cmd)==0x4AA80428U||(cmd)==0x4AA00428U); RR_NOP_DEP(); square((cmd)==0x4AA80428U?12:0); } while (0)
 #define RR_GTE_SWC2_MAC123(p) store(p)
 '''+body
         (d/'f.c').write_text(code)

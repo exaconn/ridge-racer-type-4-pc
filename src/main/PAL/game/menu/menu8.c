@@ -1,19 +1,33 @@
 /* RODATA 0x80010550 0x60 */
 #include "types.h"
+#include "rr/frame_storage_types.h"
+#include "rr/load_cursor.h"
 #include "scratchpad.h"
-#include "m2c_macros.h"
 #include "rr/selection.h"
+#include "rr/ui.h"
+#include "rr/badge_row_types.h"
+#include "rr/menu_text_state.h"
 #include "game/data/ldscn1.h"
 #include "game/gfx/gfxotag.h"
 #include "game/menu/menutran.h"
+#include "game/menu/menu8.h"
+#include "game/system/pad.h"
 #include "game/ui/barsel0.h"
 #include "game/data/globals.h"
-#include "game/gfx/drawbuf.h"
+#include "rr/menu_background.h"
+#include "rr/course_choices.h"
+#include "game/ui/badge1.h"
+#include "rr/badge_rows.h"
+#include "game/course/trkintp2.h"
+#include "rr/screen_tiles.h"
+#include "game/gfx/sprefct.h"
+#include "game/ui/uidraw.h"
+#include "game/ui/uibar.h"
 
 typedef struct {
-    u8 pad0[0x16];
+    u8 unk00[0x16];
     s16 unk16;
-    u8 pad18[0x4];
+    u8 unk18[0x4];
     s8 unk1C;
     s8 unk1D;
     s8 unk1E;
@@ -21,83 +35,40 @@ typedef struct {
     s32 unk20;
 } Struct800FF68C;
 
-typedef struct {
-    u8 pad0[2];
-    s16 unk2;
-    u8 pad4[0x18];
-} Struct800F3AFC;
-
-struct S { int a; short b; short c; };
-
-struct E { int a; short b; short c; };
-
-typedef struct { char b[0x17]; signed char b17; char r[0x2C - 0x18]; } w3g2S;
+typedef struct { char b[0x17]; signed char b17; char r[0x2C - 0x18]; } SaveSlotSelection;
 
 extern unsigned char D_800AD4F5;
 extern signed char *Dialogue;
-extern short D_800FFC18;
-extern s32 AddDrawModePrim(s32, s32, s32);
-extern s32 AddTilePrim(s32, s32, s32, s32, s32, s32, s32, s32, s32);
-extern s32 AddJitterSprites(s32, s32, void *, s32, s32, s32);
-extern s32 AddTileSemiTransPrim(s32, s32, s32, s32, s32, s32, s32, s32, s32);
-extern void InitRect16Row(s32, s32, s32, s32, s32, s32, s32);
-extern s32 UpdateRect16Row(s32);
-extern void LoadTimImage(s32);
+extern short CardMenuOperation;
+extern void *AddJitterSprites(s32, void *, void *, s32, s32, s32);
 extern u8 D_8009F3F8[];
 extern u8 D_8009F404[];
 extern int SetMenuFrameOptions();
-extern int UpdateDialogue();
-extern int SkipDialoguePage();
-extern int UpdateBadgeRowAnim();
-extern struct S RankEntries[];
-extern struct S *RankTable[];
 extern short NumCars;
-extern int ClearScreenOverlayState();
-extern int InitBadgeRow();
+extern void ClearScreenOverlayState(void);
 extern s8 ScreenFadeState;
 extern s16 D_800F3A26;
 extern s16 ModeGroup;
-extern s16 D_800F4D3C;
-extern s16 D_800F4D8A;
-extern int AddScreenFadeTiles();
-extern int UpdateScreenFade();
-extern int SetMenuFrameOptions();
+extern s16 GpSaveSlotCursor;
+extern u16 D_800F4D8A;
 extern int StepMenuValue();
-extern int UpdateDialogue();
-extern int ResetScreenCounters();
-extern int UpdateBadgeRowAnim();
-extern int PlaySfx();
-extern struct { char pad[4]; char b4; char pad5; signed char b6; char pad2[0xC - 7]; } *D_800AC590;
+extern void PlaySfx();
 extern short D_800AC5D0;
 extern short MenuScriptId;
-extern int LoadCursor;
 extern int D_800F4D74;
-extern w3g2S SaveSlotSelections[];
-extern struct { char pad[0x28]; int w28, w2C; } PlayerControllers;
-extern struct { char pad[8]; short s8, sA; char padC[4]; short s10; char pad12[0x2C - 0x12]; short s2C; } *BadgeRows;
-extern char *UiRows;
+extern SaveSlotSelection SaveSlotSelections[];
+extern BadgeRow1C *BadgeRows;
 extern unsigned short D_800F3A42;
 extern int D_8010BFC0;
-extern int UpdateScreenFade();
-extern void InitUiRow(int,int,int,int,int,int,int,int,int,int,...);
 extern s16 MenuCursor;
 extern s32 ModeFrame;
-extern s16 D_800FFC00;
+extern s16 CardActivePort;
 
 void SelectDialogueScript(int a0, int a1);
-void UpdateDialoguePanel(void);
-void UpdateDialogueBox(void);
-void func_80031DA0(void);
-void func_80031DA8(void);
-void ResetRankEntries();
-void ResetRankEntriesForCars(void);
-void func_80031F1C(void);
-void func_80031FE8(void);
-void func_8003244C(void);
-void func_800324F8(void);
-
-/* legacy typing of shared globals in this part of the unit */
-#define UpdateSelectionRank ((int (*)())UpdateSelectionRank)
+void GpSaveSlotMenuEnter(void);
+void GpSaveSlotMenuUpdate(void);
+void StepReplaySavePrompt(void);
+void YesNoPromptModeEnter(void);
 
 void SelectDialogueScript(int a0, int a1) {
     int sw;
@@ -108,7 +79,7 @@ void SelectDialogueScript(int a0, int a1) {
 
     sw = D_800AD4F2;
     Dialogue[7] = 1;
-    *(short *)(Dialogue + 0x16) = 0;
+    ((short *)Dialogue)[0x16 / 2] = 0;
     Dialogue[0x1E] = -2;
     switch (sw) {
     case 0:
@@ -153,9 +124,9 @@ void SelectDialogueScript(int a0, int a1) {
         case 7:
             a1 = 0;
             i = 0;
-            sw = (int)SelectionState;
+            sw = SelectionState;
             do {
-                a1 += *(signed char *)(i + sw + 0xC);
+                a1 += ((signed char *)(i + sw))[0xC];
                 i++;
             } while (i < 4);
             if (a1 == 0xC) {
@@ -171,176 +142,155 @@ void SelectDialogueScript(int a0, int a1) {
         u = a3 * 5;
         t = a1 + 4;
         P[4] = u + t;
-        v = D_800AD4EF;
-        if (v == 3) goto L814;
-        if (v < 4) {
-            if (v == 1) goto L814;
+        switch (D_800AD4EF) {
+        case 1:
+        case 3:
+        case 6:
+            D_800AD4F2 = 6;
+            ((int (*)())UpdateSelectionRank)(P, a1, sw, a3);
+            PendingModeId = 0x12A;
+            break;
+        default:
             PendingModeId = 0x10F;
-        } else {
-            if (v == 6) {
-L814:
-                D_800AD4F2 = 6;
-                UpdateSelectionRank(P, a1, sw, a3);
-                PendingModeId = 0x12A;
-            } else PendingModeId = 0x10F;
+            break;
         }
         if (D_800AD4EF == 7) PendingModeId = 0x205;
         break;
     case 6:
         Dialogue[4] = 0x25 - D_800AD4EC;
         PendingModeId = 0x111;
-        D_800FFC18 = 3;
+        CardMenuOperation = 3;
         break;
     }
 }
 
-#undef UpdateSelectionRank
-
-/* legacy typing of shared globals in this part of the unit */
-#define BadgeRows ((Struct800F3AFC *)BadgeRows)
-#define Dialogue ((Struct800FF68C *)Dialogue)
-
 void UpdateDialoguePanel(void) {
-    s32 var_a1;
+    void *var_a1;
     s32 temp_v0;
     s32 temp_s2;
 
-    temp_v0 = Dialogue->unk1E;
-    temp_s2 = Dialogue->unk1F;
+    temp_v0 = ((Struct800FF68C *)Dialogue)->unk1E;
+    temp_s2 = ((Struct800FF68C *)Dialogue)->unk1F;
     switch (temp_v0) {
     case -2:
-        Dialogue->unk1F = 0;
-        Dialogue->unk1E = -4;
-        Dialogue->unk1D = -1;
-        Dialogue->unk1C = -1;
+        ((Struct800FF68C *)Dialogue)->unk1F = 0;
+        ((Struct800FF68C *)Dialogue)->unk1E = -4;
+        ((Struct800FF68C *)Dialogue)->unk1D = -1;
+        ((Struct800FF68C *)Dialogue)->unk1C = -1;
         break;
     case -4:
         InitRect16Row(0, 0x78, 0x60, 0x50, 0xB4, 0, 0);
-        Dialogue->unk1E = -5;
+        ((Struct800FF68C *)Dialogue)->unk1E = -5;
         break;
     case -5:
         if (UpdateRect16Row(0) != 0) {
-            Dialogue->unk1E = -1;
+            ((Struct800FF68C *)Dialogue)->unk1E = -1;
         }
         break;
     case -3:
         break;
     case -1:
         {
-            s32 a1 = *(s32 *)SCRATCHPAD;
-            *(s32 *)SCRATCHPAD = AddDrawModePrim(
-                CurrentDrawBuf + 0x74,
-                AddTileSemiTransPrim(CurrentDrawBuf + 0x74, a1, 0x78, 0x60, 0x50, 0xB4, (u16)temp_s2, (u16)temp_s2, (u16)temp_s2),
+            void *a1 = *(void **)SCRATCHPAD;
+            *(void **)SCRATCHPAD = AddDrawModePrim(
+                &CurrentDrawBuf->buffer.ordering70.words[1],
+                AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.words[1], a1, 0x78, 0x60, 0x50, 0xB4, (u16)temp_s2, (u16)temp_s2, (u16)temp_s2),
                 0x45);
             if ((u16)temp_s2 >= 0x7C) {
-                Dialogue->unk1E = 2;
-                Dialogue->unk1F = 0;
-                BadgeRows[Dialogue->unk16].unk2 = 1;
+                ((Struct800FF68C *)Dialogue)->unk1E = 2;
+                ((Struct800FF68C *)Dialogue)->unk1F = 0;
+                BadgeRows[((Struct800FF68C *)Dialogue)->unk16].half02 = 1;
             } else {
-                Dialogue->unk1F += 8;
+                ((Struct800FF68C *)Dialogue)->unk1F += 8;
             }
             UpdateRect16Row(0);
         }
         break;
     case 0:
-        var_a1 = *(s32 *)SCRATCHPAD;
+        var_a1 = *(void **)SCRATCHPAD;
         if ((u16)temp_s2 >= 3) {
-            var_a1 = AddJitterSprites(CurrentDrawBuf + 0x70, var_a1, D_8009F3F8, 1, 0xFF, 2);
+            var_a1 = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], var_a1, D_8009F3F8, 1, 0xFF, 2);
         }
-        *(s32 *)SCRATCHPAD = AddTilePrim(CurrentDrawBuf + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
+        *(void **)SCRATCHPAD = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[1], var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         if ((u16)temp_s2 >= 0x15) {
-            Dialogue->unk1E = 1;
-            Dialogue->unk1F = 0;
+            ((Struct800FF68C *)Dialogue)->unk1E = 1;
+            ((Struct800FF68C *)Dialogue)->unk1F = 0;
         } else {
-            Dialogue->unk1F += 1;
+            ((Struct800FF68C *)Dialogue)->unk1F += 1;
         }
         if (temp_s2 == 1) {
-            u8 temp_a0 = Dialogue->unk1C;
-            if ((u32)(temp_a0 - 1) < 5U) {
-                LoadTimImage(Dialogue->unk20 + (((s8)temp_a0 - 1) << 14));
+            u8 temp_a0 = ((Struct800FF68C *)Dialogue)->unk1C;
+            if ((temp_a0 - 1) < 5U) {
+                LoadTimImage(((Struct800FF68C *)Dialogue)->unk20 + (((s8)temp_a0 - 1) << 14));
             }
         }
         break;
     case 1:
         {
             s32 two = 2;
-            *(s32 *)SCRATCHPAD = AddTilePrim(
-                CurrentDrawBuf + 0x7C,
+            *(void **)SCRATCHPAD = AddTilePrim(
+                &CurrentDrawBuf->buffer.ordering70.words[3],
                 AddJitterSprites(
-                    CurrentDrawBuf + 0x70,
-                    AddJitterSprites(CurrentDrawBuf + 0x70, *(s32 *)SCRATCHPAD, D_8009F404, 1, temp_s2, 1),
+                    &CurrentDrawBuf->buffer.ordering70.words[0],
+                    AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], *(void **)SCRATCHPAD, D_8009F404, 1, temp_s2, 1),
                     D_8009F3F8, 1, (0x80 - temp_s2) * 2, two),
                 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
-            if ((u32)temp_s2 >= 0x80U) {
-                Dialogue->unk1F = 0;
-                Dialogue->unk1E = two;
+            if (temp_s2 >= 0x80U) {
+                ((Struct800FF68C *)Dialogue)->unk1F = 0;
+                ((Struct800FF68C *)Dialogue)->unk1E = two;
             } else {
-                Dialogue->unk1F += 8;
+                ((Struct800FF68C *)Dialogue)->unk1F += 8;
             }
         }
         break;
     case 2:
     default:
-        var_a1 = *(s32 *)SCRATCHPAD;
-        if (Dialogue->unk1C >= 0) {
-            var_a1 = AddJitterSprites(CurrentDrawBuf + 0x70, var_a1, D_8009F404, 0, 0x80, 1);
+        var_a1 = *(void **)SCRATCHPAD;
+        if (((Struct800FF68C *)Dialogue)->unk1C >= 0) {
+            var_a1 = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], var_a1, D_8009F404, 0, 0x80, 1);
         }
-        *(s32 *)SCRATCHPAD = AddTilePrim(CurrentDrawBuf + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
+        *(void **)SCRATCHPAD = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[1], var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         break;
     }
 }
 
-#undef BadgeRows
-#undef Dialogue
-
-/* legacy typing of shared globals in this part of the unit */
-#define BadgeRows (*(s32 (*))&BadgeRows)
-#define Dialogue ((void *)Dialogue)
-
 void UpdateDialogueBox(void) {
-    void *temp_v0;
+    BadgeRow1C *temp_v0;
 
-    if (M2C_FIELD(((M2C_FIELD(Dialogue, s16 *, 0x16) * 0x1C) + BadgeRows), s16 *, 0x10) == 3) {
+    if (((BadgeRow1C *)((((s16 *)Dialogue)[11] * 0x1C) + (s32)BadgeRows))->state10 == 3) {
         SetMenuFrameOptions(1, 1, 0);
         SkipDialoguePage(Dialogue);
-        temp_v0 = (M2C_FIELD(Dialogue, s16 *, 0x16) * 0x1C) + BadgeRows;
-        UpdateDialogue(M2C_FIELD(temp_v0, s16 *, 8) + 0xA, M2C_FIELD(temp_v0, s16 *, 0xA) + 0x28, Dialogue);
+        temp_v0 = (BadgeRow1C *)((((s16 *)Dialogue)[11] * 0x1C) + (s32)BadgeRows);
+        UpdateDialogue(temp_v0->x08 + 0xA, temp_v0->y0A + 0x28, (MenuTextState *)Dialogue);
     }
-    UpdateBadgeRowAnim(M2C_FIELD(Dialogue, s16 *, 0x16));
+    UpdateBadgeRowAnim(((s16 *)Dialogue)[11]);
 }
 
-#undef BadgeRows
-#undef Dialogue
-
-void func_80031DA0(void) {
+void DialogueWaitEnterHook(void) {
 }
 
-void func_80031DA8(void) {
+void DialogueWaitExitHook(void) {
 }
 
-void ResetRankEntries() {
+void ResetRankEntries(void) {
     int i = 0;
-    struct S **q = RankTable;
-    struct S *p = RankEntries;
-    do { p->a = 0; p->b = i; *q++ = p; i++; p++; } while (i < 8);
+    RankEntry8 **q = RankTable;
+    RankEntry8 *p = RankEntries;
+    do { p->score00 = 0; p->carIndex04 = i; *q++ = p; i++; p++; } while (i < 8);
 }
-
-/* legacy typing of shared globals in this part of the unit */
-#define RankEntries (*(struct E (*)[])&RankEntries)
-#define RankTable (*(struct E *(*)[])&RankTable)
 
 void ResetRankEntriesForCars(void) {
     int i = 0;
-    struct E *e;
-    struct E **t;
+    RankEntry8 *e;
+    RankEntry8 **t;
     int n;
     if (NumCars > 0) {
         n = NumCars;
         t = RankTable;
         e = RankEntries;
         do {
-            e->a = 0;
-            e->b = i;
+            e->score00 = 0;
+            e->carIndex04 = i;
             *t = e;
             t++;
             i++;
@@ -349,18 +299,15 @@ void ResetRankEntriesForCars(void) {
     }
 }
 
-#undef RankEntries
-#undef RankTable
-
 void InitSelectionRows(void) {
     s32 a2 = 0;
     s32 a1;
-    RrSelectionRow *a0;
-    RrSelectionRow *v1;
-    RrSelectionRows *b;
+    SelectionRow *a0;
+    SelectionRow *v1;
+    SelectionRows32 *b;
     unsigned char *page;
     const u8 *choices, *variants;
-    const RrSelectionConfigView *config;
+    const SelectionConfigView *config;
     u8 t;
     s32 x;
     unsigned char *stage;
@@ -370,7 +317,7 @@ void InitSelectionRows(void) {
     page=(unsigned char *)0x800F0000U;
     /* ASM_BARRIER: Materialize the state page after the initial row index. */
     __asm__("" : "+r"(page) : "r"(a2));
-    b=(RrSelectionRows *)(page+0x4D98);
+    b=(SelectionRows32 *)(page+0x4D98);
     /* ASM_BARRIER: Retain the full frame pointer separately from its page. */
     __asm__("" : "+r"(b));
     stage=(unsigned char *)0x800A0000U;
@@ -384,31 +331,31 @@ void InitSelectionRows(void) {
     stage=(unsigned char *)0x800B0000U;
     /* ASM_BARRIER: Expose the configuration page before adding its signed offset. */
     __asm__("" : "+r"(stage));
-    config=(const RrSelectionConfigView *)(stage-0x2B28);
+    config=(const SelectionConfigView *)(stage-0x2B28);
     /* ASM_BARRIER: Form lookup bases before initializing the byte offset. */
     __asm__("" : : "r"(choices), "r"(variants), "r"(config) : "$5");
-    a1=RR_FIELD_OFFSET(RrSelectionRows,rows);
+    a1=RR_FIELD_OFFSET(SelectionRows32,rows);
     do {
         x = page[0x4D98];
         offset=x*8;
         offset=a2+offset;
-        t=*(unsigned char *)((unsigned long)offset+(unsigned long)choices);
-        a0 = (RrSelectionRow *)((unsigned long)a1+(unsigned long)b);
+        t=*(unsigned char *)(offset+(unsigned long)choices);
+        a0 = (SelectionRow *)(a1+(unsigned long)b);
         a0->selection = t;
         if (t == page[0x4D98]) {
             a0->variant = b->variant;
         } else {
-            a0->variant = *(unsigned char *)((unsigned long)a0->selection+(unsigned long)variants);
+            a0->variant = *(unsigned char *)(a0->selection+(unsigned long)variants);
             /* ASM_BARRIER: Retain the original row-pointer recomputation after the variant store. */
             __asm__("" : "+r"(a0));
-            a0 = (RrSelectionRow *)((unsigned long)a1+(unsigned long)b);
+            a0 = (SelectionRow *)(a1+(unsigned long)b);
         }
         if (a0->selection != page[0x4D98]) {
             if (a0->variant == b->variant) {
-                a0->variant = *(unsigned char *)((unsigned long)page[0x4D98]+(unsigned long)variants);
+                a0->variant = *(unsigned char *)(page[0x4D98]+(unsigned long)variants);
             }
         }
-        v1 = (RrSelectionRow *)((unsigned long)a1+(unsigned long)b);
+        v1 = (SelectionRow *)(a1+(unsigned long)b);
         /* ASM_BARRIER: Keep the current row and index before publishing its attribute. */
         __asm__("" : : "r"(v1), "r"(a2));
         attribute=config->parameter;
@@ -416,89 +363,80 @@ void InitSelectionRows(void) {
         __asm__("" : "+r"(attribute) : "r"(a2));
         a2 += 1;
         v1->parameter = attribute;
-        a1 += sizeof(RrSelectionRow);
+        a1 += sizeof(SelectionRow);
     } while (a2 < 7);
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define BadgeRows ((void *)BadgeRows)
-
-void func_80031F1C(void) {
+void GpSaveSlotMenuEnter(void) {
     ClearScreenOverlayState();
     ScreenFadeState = 2;
-    D_800F4D3C = 0;
+    GpSaveSlotCursor = 0;
     InitBadgeRow(1, 0x80, 0x58, 0xA8, 0x80, 0, 0x701);
-    M2C_FIELD(BadgeRows, s16 *, 0x1E) = 1;
+    BadgeRows[1].half02 = 1;
     InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
-    M2C_FIELD(BadgeRows, s16 *, 2) = 1;
+    BadgeRows->half02 = 1;
     SetMenuFrameOptions(0, 1, 1);
     ModeGroup = 1;
     D_800F3A26 = 0xE;
     D_800F4D8A = 0;
 }
 
-#undef BadgeRows
-
-/* legacy typing of shared globals in this part of the unit */
-#define SelectionState (*(w3g2S (*))&SelectionState)
-#define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
-
-void func_80031FE8(void) {
+void GpSaveSlotMenuUpdate(void) {
     int s0;
     switch (D_800F4D8A) {
     case 0:
-        *(UiRows + D_800F4D3C * 0x24 + 0xC) = 0;
-        StepMenuValue(0, 2, &D_800F4D3C, 3, 0);
-        *(UiRows + D_800F4D3C * 0x24 + 0xC) = 2;
-        if (BadgeRows->s10 == 3) {
-            s0 = D_800AC590->b6;
+        UiRows[GpSaveSlotCursor].cells[0] = 0;
+        StepMenuValue(0, 2, &GpSaveSlotCursor, 3, 0);
+        UiRows[GpSaveSlotCursor].cells[0] = 2;
+        if (BadgeRows->state10 == 3) {
+            s0 = CardDialogueStatePtr->st;
             if (s0 == 4) {
                 SetMenuFrameOptions(1, 1, 1);
-                if (PlayerControllers.w28 != 0) {
-                    if (SaveSlotSelections[D_800F4D3C].b17 > 0) {
+                if (PlayerControllers[0].action28 != 0) {
+                    if (SaveSlotSelections[GpSaveSlotCursor].b17 > 0) {
                         PlaySfx(1);
                         D_800F4D8A = 1;
                         D_800AC5D0 = 0x40;
                         ResetScreenCounters();
                         LoadCursor = D_800F4D74;
-                        BadgeRows->s10 = s0;
-                        BadgeRows->s2C = s0;
+                        BadgeRows->state10 = s0;
+                        BadgeRows[1].state10 = s0;
                     } else {
                         PlaySfx(4);
                     }
-                } else if (PlayerControllers.w2C != 0) {
+                } else if (PlayerControllers[0].action2C != 0) {
                     PlaySfx(2);
                     D_800F4D8A = 2;
                     D_800AC5D0 = 0x40;
                     ResetScreenCounters();
                     LoadCursor = D_800F4D74;
                     LoadTimListStep(0);
-                    BadgeRows->s10 = s0;
-                    BadgeRows->s2C = s0;
+                    BadgeRows->state10 = s0;
+                    BadgeRows[1].state10 = s0;
                 }
             }
         }
-        goto common;
+        break;
     case 1:
         SetMenuFrameOptions(0, 1, 1);
         if (D_800AC5D0 > 0) D_800AC5D0 = D_800AC5D0 - 1;
-        AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             if (LoadTimListStep(1) == 1) {
-                SelectionState = SaveSlotSelections[D_800F4D3C];
+                *(SaveSlotSelection *)SelectionState = SaveSlotSelections[GpSaveSlotCursor];
                 ModeGroup = 1;
                 D_800F3A26 = 0xF;
                 D_800F4D8A = 0;
                 return;
             }
         }
-        goto common;
+        break;
     case 2:
         SetMenuFrameOptions(0, 1, 1);
         if (D_800AC5D0 > 0) D_800AC5D0 = D_800AC5D0 - 1;
-        AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
-            func_8002F688();
+            UpdateGrandPrixStageProgress();
             MenuScriptId = 1;
             ModeGroup = 1;
             D_800F3A26 = 0x23;
@@ -506,21 +444,18 @@ void func_80031FE8(void) {
             return;
         }
     default:
-    common:
-        UpdateBadgeRowAnim(0);
-        UpdateBadgeRowAnim(1);
-        if (BadgeRows->s10 == 3) {
-            D_800AC590->b4 = 0x1C;
-            UpdateDialogue(BadgeRows->s8 + 0xA, BadgeRows->sA + 0x28, D_800AC590);
-        }
-        UpdateScreenFade(0x10086);
+        break;
     }
+    UpdateBadgeRowAnim(0);
+    UpdateBadgeRowAnim(1);
+    if (BadgeRows->state10 == 3) {
+        CardDialogueStatePtr->b4 = 0x1C;
+        UpdateDialogue(BadgeRows->x08 + 0xA, BadgeRows->y0A + 0x28, CardDialogueStatePtr);
+    }
+    UpdateScreenFade(0x10086);
 }
 
-#undef SelectionState
-#undef D_800F4D8A
-
-void func_8003244C(void) {
+void StepReplaySavePrompt(void) {
     if (D_800F3A42 & 0x1000) {
         D_8010BFC0 = D_8010BFC0 - 1;
     } else if (D_800F3A42 & 0x4000) {
@@ -538,13 +473,10 @@ void func_8003244C(void) {
     }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define BadgeRows ((void *)BadgeRows)
-
-void func_800324F8(void) {
+void YesNoPromptModeEnter(void) {
     ModeFrame = 0;
-    D_800FFC00 = 0;
-    D_800FFC18 = 3;
+    CardActivePort = 0;
+    CardMenuOperation = 3;
     MenuCursor = 0;
     InitUiRow(0, 0x8C, 0x88, 0x1C, 0x20, 0, 0, 1, 0, 0x68);
     InitUiRow(1, 0x8C, 0xB0, 0x1C, 0x20, 0, 0, 1, 0, 0x69);
@@ -552,8 +484,6 @@ void func_800324F8(void) {
     ModeGroup = 1;
     D_800F3A26 = 0x2B;
     D_800F4D8A = 0;
-    M2C_FIELD(BadgeRows, s16 *, 2) = 1;
+    BadgeRows->half02 = 1;
     UpdateScreenFade(0x10086);
 }
-
-#undef BadgeRows

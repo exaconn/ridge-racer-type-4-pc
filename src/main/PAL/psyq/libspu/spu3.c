@@ -30,7 +30,7 @@ body:
         register u32 value __asm__("$3") = work.accumulator;
         work.accumulator=value*13;
     }
-    *(s32 *)&work.counter=*(volatile s32 *)&work.counter+1;
+    *(s32 *)&work.counter=work.counter+1;
 test:
     if(*(s32 *)&work.counter<60) goto body;
 }

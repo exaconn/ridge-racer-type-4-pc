@@ -1,6 +1,6 @@
 #include "rr/record_banks.h"
 
-void func_800293D0(s32 layout,s32 mode) {
+void SetupRaceMemoryArena(s32 layout,s32 mode) {
     /* ASM_BARRIER: keep each loop's index in the consumed mode register. */
     register s32 i __asm__("$5");
     register u32 factor;
@@ -8,12 +8,12 @@ void func_800293D0(s32 layout,s32 mode) {
     /* ASM_BARRIER: finish each shared arena address before copying its base. */
     register u8 *loaded __asm__("$2");
     register u8 *bankbase;
-    register RrBankRecord320 **source_slots;
+    register BankRecord320 **source_slots;
     register u32 offset;
-    register RrBankRecord320 **bank_source_slots;
+    register BankRecord320 **bank_source_slots;
     register u8 **bank_slots;
     register u32 bank_offset;
-    RrBankRecord320 **restore_source,**restore_dest;
+    BankRecord320 **restore_source,**restore_dest;
     s32 bound;
     register u8 *read_page;
     u8 *bound_page;
@@ -55,7 +55,7 @@ void func_800293D0(s32 layout,s32 mode) {
             ReplayInputs[0]=base;
             ReplayInputs[1]=base+0x2A34;
             do {
-                *source_slots=(RrBankRecord320 *)((unsigned long)offset+
+                *source_slots=(BankRecord320 *)((unsigned long)offset+
                                                 (unsigned long)base);
                 source_slots++;
                 i++;
@@ -77,7 +77,7 @@ void func_800293D0(s32 layout,s32 mode) {
                 u32 product;
                 product=factor*scaled;
                 *bank_slots=(u8 *)((unsigned long)product+(unsigned long)bankbase);
-                *bank_source_slots=(RrBankRecord320 *)((unsigned long)bank_offset+
+                *bank_source_slots=(BankRecord320 *)((unsigned long)bank_offset+
                                                      (unsigned long)bankbase);
                 bank_source_slots++;
                 bank_offset+=0x320;
@@ -92,7 +92,7 @@ void func_800293D0(s32 layout,s32 mode) {
             ReplayLength=3600;
             ReplayInputs[0]=base;
             do {
-                *source_slots=(RrBankRecord320 *)((unsigned long)offset+
+                *source_slots=(BankRecord320 *)((unsigned long)offset+
                                                 (unsigned long)base);
                 source_slots++;
                 i++;

@@ -1,11 +1,14 @@
 """Actual HUD number and glyph body, captured metadata, native aliases and UBSan."""
 from pathlib import Path
 import re,subprocess,tempfile,unittest
+from c_functions import definition_source, source_owners
 root=Path(__file__).resolve().parents[2]
 header=(root/'include/rr/hud_number.h').read_text();header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-body=(root/'tools/scripts/fixtures/views/func_800217D0.c').read_text();body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M);body=re.sub(r' asm\("\$\d+"\)','',body);body=re.sub(r'__asm__\("".*?\);',';',body)
-body,n=re.subn(r'\(RrGpuScratchPointers \*\)0x1F800000U','&scratch',body);assert n==2
-helper=(root/'tools/scripts/fixtures/views/func_80021568.c').read_text().replace('EmitHudGlyph12','native_glyph').replace('(s32) arg1','(uintptr_t) arg1')
+owners=source_owners(root/'src/main/PAL')
+def current_body(name):return definition_source(owners[name].read_text(),name)
+body=current_body('DrawHudNumber5')
+body,n=re.subn(r'\(GpuScratchPointers \*\)SCRATCHPAD','&scratch',body);assert n==2
+helper=current_body('EmitHudGlyph12').replace('EmitHudGlyph12','native_glyph').replace('(s32) arg1','(uintptr_t) arg1')
 assert helper.count('(uintptr_t) arg1')==1
 def h(name):return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',(root/'include/rr'/name).read_text(),flags=re.M)
 code=r'''
@@ -16,9 +19,9 @@ code=r'''
 #include <stdio.h>
 #include "types.h"
 '''+h('gpu_scratch_types.h')+h('gpu.h')+h('animated_sprite_grid.h')+header+helper+r'''
-typedef struct {RrNumberTarget rows[4];u32 heads[4];u32 arena[96];u8 guard[32];} World;
+typedef struct {NumberTarget rows[4];u32 heads[4];u32 arena[96];u8 guard[32];} World;
 static World actual,expected;
-static RrGpuScratchPointers scratch;
+static GpuScratchPointers scratch;
 #define HudNumberTargets actual.rows
 s32 DrawBufIndex;
 static s32 number,x,y;static int selected,bank,iteration,variant;
@@ -37,7 +40,7 @@ static void mutate(void) {
 }
 void *EmitHudGlyph12(u32 *order,void *packet,s32 px,s32 py,s32 glyph,s32 clut) {
  u8 *p=packet;
- RrSpritePacket *q=(RrSpritePacket *)map(p);u32 *head=(u32 *)map(captured_order);
+ SpritePacket *q=(SpritePacket *)map(p);u32 *head=(u32 *)map(captured_order);
  assert(iteration<5 && order==captured_order && p==cursor);
  assert(px==x+(iteration-1)*8 && py==y && glyph==digits[iteration] && clut==0x7EFA);
  if(iteration)assert(scratch.cursor==(u8 *)actual.arena+320);
@@ -49,7 +52,7 @@ void *EmitHudGlyph12(u32 *order,void *packet,s32 px,s32 py,s32 glyph,s32 clut) {
  assert(!memcmp(&actual,&expected,sizeof(actual)));
  cursor=p+20;iteration++;mutate();return cursor;
 }
-u8 *AddDrawModePrim(u32 *order,u8 *p,u16 page) {
+void *AddDrawModePrim(u32 *order,GpuDrawModePacket *mode_packet,u16 page){ u8 *p = (u8 *)mode_packet;
  assert(iteration==5 && order==captured_order && p==cursor && page==5);
  assert(scratch.cursor==(u8 *)actual.arena+320);
  returned=p+12+variant*4;return returned;
@@ -61,7 +64,7 @@ int main(void) {
  s32 values[]={INT32_MIN,INT32_MAX,-10001,-10000,-1000,-1,0,1,999,1000,9999,10000,10001};
  s16 positions[]={-32768,-32767,-1,0,1,32766,32767};
  unsigned n,j,k;u8 *bytes=(u8 *)&actual;
- assert(sizeof(RrNumberTarget)==sizeof(void *)*5);
+ assert(sizeof(NumberTarget)==sizeof(void *)*5);
  for(n=0;n<65536;n++) {
   for(j=0;j<sizeof(actual);j++)bytes[j]=next();
   selected=n%4;bank=(n/4)%4;variant=n&1;DrawBufIndex=bank;

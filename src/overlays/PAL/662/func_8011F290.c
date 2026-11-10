@@ -43,7 +43,7 @@ void ovl662_func_8011F290(s32 mode) {
             ovl662_D_801276A8.saved64[4] = 1;
         }
         ovl662_func_8011D120();
-        ((RrGarageButton *)ovl662_D_801273B8[3])->timer0E = 7;
+        ((GarageButton *)ovl662_D_801273B8[3])->timer0E = 7;
         PlaySfx(1);
         if (ovl662_D_801276A8.layer23 == 0) {
             src = ovl662_D_801276A8.image38[ovl662_D_801276A8.active21 == 0];
@@ -55,7 +55,7 @@ void ovl662_func_8011F290(s32 mode) {
         for (i = 0; i < 64; i++) {
             u32 *row;
             j = 0;
-            row = (u32 *)(((63 - i) << 5) + (RrGarageImageAddress)src);
+            row = (u32 *)(((63 - i) << 5) + (GarageImageAddress)src);
             do {
                 *dst++ = *row++;
                 j++;

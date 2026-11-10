@@ -1,6 +1,6 @@
 #include "rr/color_conversion.h"
 
-void HsvToRgb(const RrHsvColor input,RrRgbColor output) {
+void HsvToRgb(const HsvColor input,RgbColor output) {
     s32 s=input[1];
     s32 hue=input[0];
     s32 v=input[2];

@@ -9,11 +9,11 @@ void _SsContNrpn2(s32 bank, s32 row, s32 payload) {
     /* ASM_BARRIER: Retain the original register for selector snapshots, lookup, or call scheduling. */
     register u32 value __asm__("$7") = payload;
     /* ASM_BARRIER: Retain the original register for selector snapshots, lookup, or call scheduling. */
-    register RrLibStateB0 **table __asm__("$1");
+    register LibStateB0 **table __asm__("$1");
     /* ASM_BARRIER: Retain the original register for selector snapshots, lookup, or call scheduling. */
     register s32 index __asm__("$3");
-    RrLibStateB0 *base;
-    RrLibStateB0 *state;
+    LibStateB0 *base;
+    LibStateB0 *state;
     s32 normalized_bank, normalized_row, units;
     u32 count, masked_count;
     /* ASM_BARRIER: Retain the original register for selector snapshots, lookup, or call scheduling. */
@@ -30,10 +30,10 @@ void _SsContNrpn2(s32 bank, s32 row, s32 payload) {
     units = normalized_row * 11;
     /* ASM_BARRIER: Finish selector arithmetic before materializing the PAL page. */
     __asm__ volatile("" : : "r"(index), "r"(units) : "$1");
-    table = (RrLibStateB0 **)0x80110000U;
+    table = (LibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL lookup page without folding its signed low offset. */
     __asm__("" : "+r"(table));
-    table = (RrLibStateB0 **)((u8 *)table + index);
+    table = (LibStateB0 **)((u8 *)table + index);
     base = table[-0xF98 / 4];
     state = base + normalized_row;
     switch (value & 255) {

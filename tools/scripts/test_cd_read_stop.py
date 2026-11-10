@@ -19,8 +19,8 @@ class CdReadStopTest(unittest.TestCase):
         body=(ROOT/'tools/scripts/fixtures/legacy/func_8008ED54.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
-        assert body.count("extern RrLibCompletionCallback volatile D_800A67DC;\n")==1
-        body=body.replace("extern RrLibCompletionCallback volatile D_800A67DC;\n", "")
+        assert body.count("extern LibCompletionCallback volatile D_800A67DC;\n")==1
+        body=body.replace("extern LibCompletionCallback volatile D_800A67DC;\n", "")
         code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -31,9 +31,9 @@ class CdReadStopTest(unittest.TestCase):
 ''' + header('library.h') + header('cd_read_request.h') + header('cd_read_stop.h') + header('cd.h') + r'''
 typedef struct {
     u8 prefix[32];
-    RrLibReadRequestState state;
+    LibReadRequestState state;
     u32 flags;
-    RrLibCompletionCallback registered[3];
+    LibCompletionCallback registered[3];
     u8 buffers[2][64];
     int tick_index;
     u8 suffix[32];
@@ -45,7 +45,7 @@ typedef struct {
 typedef struct {
     int kind;
     s32 argument;
-    RrLibCompletionCallback callback;
+    LibCompletionCallback callback;
     const u8 *parameters;
     World snapshot;
 } Entry;
@@ -66,7 +66,7 @@ void cd_read_restore_sync(void){callback_effect^=16;}
 ''' + body + r'''
 enum {SYNC,CLOCK,SET0,SET1,SET2,COMMAND};
 static s32 bits(u32 value){s32 result;memcpy(&result,&value,4);return result;}
-static void record(int model,int kind,s32 argument,RrLibCompletionCallback callback,const u8 *parameters) {
+static void record(int model,int kind,s32 argument,LibCompletionCallback callback,const u8 *parameters) {
     Entry entry;memset(&entry,0,sizeof(entry));
     entry.kind=kind;entry.argument=argument;entry.callback=callback;entry.parameters=parameters;
     memcpy(&entry.snapshot,model?&expected:&actual,sizeof(World));
@@ -90,10 +90,10 @@ static s32 tick(int model,s32 argument) {
     if(plan.replace_mask&(1U<<index))world->state.restore.saved28=cb3;
     return bits(plan.ticks[index]);
 }
-static RrLibCompletionCallback setter(int model,int channel,RrLibCompletionCallback callback) {
+static LibCompletionCallback setter(int model,int channel,LibCompletionCallback callback) {
     World *world=model?&expected:&actual;
     record(model,SET0+channel,0,callback,0);
-    RrLibCompletionCallback previous=world->registered[channel];world->registered[channel]=callback;
+    LibCompletionCallback previous=world->registered[channel];world->registered[channel]=callback;
     if(channel==1&&plan.flip_flags)world->flags=plan.new_flags;
     if(plan.mutate) {
         if(channel==0) {
@@ -119,9 +119,9 @@ static s32 command(int model,s32 argument,const u8 *parameters) {
 }
 void CdDataSync(s32 arg){sync_transfer(0,arg);}
 s32 VSync(s32 arg){return tick(0,arg);}
-RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback c){return setter(0,0,c);}
-RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback c){return setter(0,1,c);}
-RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback c){return setter(0,2,c);}
+LibCompletionCallback CdSyncCallback(LibCompletionCallback c){return setter(0,0,c);}
+LibCompletionCallback CdReadyCallback(LibCompletionCallback c){return setter(0,1,c);}
+LibCompletionCallback CdDataCallback(LibCompletionCallback c){return setter(0,2,c);}
 s32 CdControlF(s32 c,const u8 *p){return command(0,c,p);}
 /* Separate algorithm: one generic deadline wait, then the stop specification.
  * A timeout returns true; a natural completion returns false. */
@@ -192,8 +192,8 @@ static void check(int scenario,s32 pending,u32 flags,int mutate,int flip,int syn
 }
 int main(int argc,char **argv) {
     assert(argc==2);assert(sizeof(void*)>4);
-    size_t pair=offsetof(RrLibReadRequestState,restore)+offsetof(RrLibReadRestoreTail,saved2C);
-    assert(pair==sizeof(RrLibReadRequestState)-sizeof(RrLibReadRestoreTail)+sizeof(RrLibCompletionCallback));
+    size_t pair=offsetof(LibReadRequestState,restore)+offsetof(LibReadRestoreTail,saved2C);
+    assert(pair==sizeof(LibReadRequestState)-sizeof(LibReadRestoreTail)+sizeof(LibCompletionCallback));
     assert(&RR_PAIR_PENDING(&actual.state.restore.saved2C)==&actual.state.finished24);
     assert((const void*)RR_PAIR_TAIL(&actual.state.restore.saved2C)==(const void*)&actual.state.restore);
     assert((uintptr_t)cb0>0xFFFFFFFFU&&(uintptr_t)actual.buffers>0xFFFFFFFFU);

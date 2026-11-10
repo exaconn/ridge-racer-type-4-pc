@@ -2,17 +2,17 @@
 #include "rr/hud_rotating_quad.h"
 #include "rr/trig.h"
 void DrawHudRotatingQuad(s32 phase,s32 index) {
-    RrHudQuadColor colors[4];
+    HudQuadColor colors[4];
     s32 angle,sine;
     s32 cosine;
     s32 i;
-    RrHudQuadColor *color;
-    RrHudQuadCorner *corner;
-    RrNumberTarget *target;
+    HudQuadColor *color;
+    HudQuadCorner *corner;
+    NumberTarget *target;
     u32 *head;
-    register RrHudQuadEmission *packet __asm__("$8");
+    register HudQuadEmission *packet __asm__("$8");
     u8 *output;
-    register RrNumberTarget (*base)[] __asm__("$4");
+    register NumberTarget (*base)[] __asm__("$4");
     unsigned long row;
     register u32 x __asm__("$13");
     register u32 y __asm__("$4");
@@ -34,9 +34,9 @@ void DrawHudRotatingQuad(s32 phase,s32 index) {
     cosine=rcos(angle);
     i=0;color=colors;corner=D_8009EE38;
     base=&HudNumberTargets;
-    row=(unsigned long)index*sizeof(RrNumberTarget);
-    target=(RrNumberTarget *)((u8 *)base+row);
-    packet=(RrHudQuadEmission *)RR_HUD_QUAD_SCRATCH->cursor;
+    row=(unsigned long)index*sizeof(NumberTarget);
+    target=(NumberTarget *)((u8 *)base+row);
+    packet=(HudQuadEmission *)RR_HUD_QUAD_SCRATCH->cursor;
     /* Full native-width addresses retain the original sum order. */
     head=*(u32 **)((unsigned long)DrawBufIndex*sizeof(u32 *)+row+(unsigned long)base);
     x=(u16)target->x;y=(u16)target->y;
@@ -47,7 +47,7 @@ void DrawHudRotatingQuad(s32 phase,s32 index) {
         *(s16 *)(output+2)=(s16)(y+(u32)((s32)((u32)sine*(u32)(s32)corner->x+(u32)cosine*(u32)(s32)corner->y)/4096));
         output+=4;
         /* Keep the initialized color destination after the XY writes. */
-        *(RrHudQuadColor *)output=*color;
+        *(HudQuadColor *)output=*color;
         color++;corner++;i++;output+=4;
     }while(i<4);
     linkMask=0xFFFFFF;

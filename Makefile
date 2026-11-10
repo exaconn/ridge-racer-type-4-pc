@@ -17,6 +17,7 @@ ASM_SRCS := $(shell find asm/$(VERSION) -name '*.s' -not -path '*/nonmatchings/*
 C_SRCS   := $(shell find src/main/$(VERSION) -name '*.c' 2>/dev/null)
 HEADERS  := $(shell find include -name '*.h' 2>/dev/null)
 MASPSX_SRCS := tools/maspsx/maspsx.py $(wildcard tools/maspsx/maspsx/*.py)
+CC1_BINS := $(addprefix tools/toolchain/,gcc-2.8.1/cc1 gcc-2.7.2/cc1 gcc-970318/cc1)
 OBJS     := $(ASM_SRCS:%.s=$(BUILD)/%.s.o) $(C_SRCS:%.c=$(BUILD)/%.c.o)
 
 .PHONY: all split build check clean
@@ -25,13 +26,14 @@ all: check
 split:
 	$(PY) tools/scripts/gen_config.py $(VERSION)
 	$(PY) -m splat split $(CFG)
+	$(PY) tools/scripts/normalize_asm_symbols.py $(VERSION)
 	$(PY) tools/scripts/normalize_bios_stubs.py $(VERSION)
 
 $(BUILD)/%.s.o: %.s include/macro.inc include/bios_calls.inc include/gte_macros.inc
 	@mkdir -p $(dir $@)
 	$(AS) -EL -G0 -march=r3000 -no-pad-sections -Iinclude -o $@ $<
 
-$(BUILD)/%.c.o: %.c $(HEADERS) tools/scripts/cc.sh $(MASPSX_SRCS)
+$(BUILD)/%.c.o: %.c $(HEADERS) tools/scripts/cc.sh $(MASPSX_SRCS) $(CC1_BINS)
 	@mkdir -p $(dir $@)
 	tools/scripts/cc.sh $< $@
 
@@ -60,5 +62,5 @@ views:
 	.venv/bin/python tools/scripts/legacy_views.py
 # Unit tests written against single-function files read build/legacy/<func>.c
 test: views
-	@for t in tools/scripts/test_*.py; do .venv/bin/python $$t >/dev/null 2>&1 || echo "FAIL $$t"; done
+	.venv/bin/python tools/scripts/run_tests.py
 .PHONY: views test

@@ -4,17 +4,20 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
 
 ROOT=Path(__file__).resolve().parents[2]
 
 
 class AudioLoopTest(unittest.TestCase):
     def test_actual_loop_and_promoted_volume_wrapper(self):
-        s=(ROOT/'tools/scripts/fixtures/legacy/func_800518E0.c').read_text()
+        owner=source_owners(ROOT/'src/main/PAL')['SoundLoopUpdate']
+        s=definition_source(owner.read_text(),'SoundLoopUpdate')
         s=re.sub(r'^#include.*\n','',s,flags=re.M)
         s=re.sub(r' asm\("\$\d+"\)','',s)
         s=re.sub(r'__asm__\(""[^;]*;',';',s)
-        helper=(ROOT/'tools/scripts/fixtures/legacy/func_8004FE7C.c').read_text()
+        owner=source_owners(ROOT/'src/main/PAL')['SetVoiceVolumeScaled']
+        helper=definition_source(owner.read_text(),'SetVoiceVolumeScaled')
         helper=re.sub(r'^#include.*\n','',helper,flags=re.M)
         prefix=r'''
 #include <assert.h>
@@ -28,20 +31,20 @@ class AudioLoopTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,s)
 #define RR_ASSERT_OFFSET(t,f,o)
 #include "rr/audio_loop.h"
-_Static_assert(sizeof(RrAudioLoopState)==0x1A08,"state extent");
-_Static_assert(offsetof(RrAudioLoopState,muted04)==4,"mute");
-_Static_assert(offsetof(RrAudioLoopState,master08)==8,"master alias");
-_Static_assert(offsetof(RrAudioLoopState,gain18)==24,"gain");
-_Static_assert(offsetof(RrAudioLoopState,bank26)==38,"bank");
-_Static_assert(offsetof(RrAudioLoopState,left19F8)==0x19F8,"left");
-_Static_assert(offsetof(RrAudioLoopState,right19FA)==0x19FA,"right");
-_Static_assert(offsetof(RrAudioLoopState,pitch19FC)==0x19FC,"pitch");
-_Static_assert(offsetof(RrAudioLoopState,active1A00)==0x1A00,"active");
-_Static_assert(offsetof(RrAudioLoopState,program1A04)==0x1A04,"program");
-_Static_assert(sizeof(RrAudioSettings)==52,"settings");
-_Static_assert(offsetof(RrAudioSettings,volume31)==49,"volume");
-_Static_assert(offsetof(RrAudioSettings,mono32)==50,"mono");
-typedef struct {RrAudioLoopState audio;RrRuntimeSettings settings;s16 mode;u8 canary[26];} World;
+_Static_assert(sizeof(AudioState)==0xA8D0,"state extent");
+_Static_assert(offsetof(AudioState,muted04)==4,"mute");
+_Static_assert(offsetof(AudioState,master08)==8,"master alias");
+_Static_assert(offsetof(AudioState,gain18)==24,"gain");
+_Static_assert(offsetof(AudioState,bank24[1])==38,"bank");
+_Static_assert(offsetof(AudioState,left19F8)==0x19F8,"left");
+_Static_assert(offsetof(AudioState,right19FA)==0x19FA,"right");
+_Static_assert(offsetof(AudioState,pitch19FC)==0x19FC,"pitch");
+_Static_assert(offsetof(AudioState,active1A00)==0x1A00,"active");
+_Static_assert(offsetof(AudioState,program1A04)==0x1A04,"program");
+_Static_assert(sizeof(AudioSettings)==52,"settings");
+_Static_assert(offsetof(AudioSettings,volume31)==49,"volume");
+_Static_assert(offsetof(AudioSettings,mono32)==50,"mono");
+typedef struct {AudioState audio;RuntimeSettings settings;s16 mode;u8 canary[26];} World;
 typedef struct {int kind;u32 args[8];World snapshot;} Entry;
 static World initial,actual,expected,*w;
 static Entry entries[8],actual_entries[8];
@@ -49,7 +52,7 @@ static unsigned seed;
 static int mutation,count;
 #define SoundState (w->audio)
 #define Options (w->settings)
-#define D_800F4D44 (w->mode)
+#define GameModeType (w->mode)
 #define VoiceVolumeScale (w->audio.master08)
 '''
         reference=r'''
@@ -61,7 +64,7 @@ static u32 emit(int kind,u32 a,u32 b,u32 c,u32 d,u32 e,u32 f,u32 g,u32 hh){
   w->audio.master08=(s32)(seed^((sequence+1U)*0x9E3779B9U));
   w->audio.gain18=(s16)(u16)(seed+sequence*127U);
   w->audio.left19F8^=0xABCD;w->audio.right19FA^=0x7F81;
-  w->audio.bank26=(s16)((u16)w->audio.bank26+257U);
+  w->audio.bank24[1]=(s16)((u16)w->audio.bank24[1]+257U);
   w->audio.program1A04=(s16)((u16)w->audio.program1A04+513U);
   w->audio.pitch19FC^=0xA57F8311U+sequence;
   w->audio.active1A00=(seed&4)?-77:0;
@@ -126,7 +129,7 @@ int main(void){
   actual.audio.left19F8=(u16)k;actual.audio.right19FA=(u16)(k*31337U+0x1234U);
   actual.audio.master08=(s32)seed;actual.audio.gain18=(s16)(u16)(k*251U);
   actual.audio.muted04=k%17?0:((s32)seed|1);
-  actual.audio.bank26=(s16)(u16)seed;actual.audio.program1A04=(s16)(u16)(seed>>16);
+  actual.audio.bank24[1]=(s16)(u16)seed;actual.audio.program1A04=(s16)(u16)(seed>>16);
   actual.audio.pitch19FC=seed^(seed>>13);
   actual.audio.active1A00=k%3?((s32)seed|1):0;
   actual.settings.audio.volume31=(u8)(k*17U);actual.settings.audio.mono32=k&1?(s16)(u16)(seed|1):0;

@@ -11,5 +11,5 @@ extern s32 TrackLength;
  * and positive track length when rows are active. The context result pointer
  * names the complete canonical standings table. Ties retain the first match.
  * Inactive counts allow a null table and do not access the track length. */
-s32 FindNearestCarAhead(RrRaceVehicle *vehicle);
+s32 FindNearestCarAhead(RaceVehicle *vehicle);
 #endif

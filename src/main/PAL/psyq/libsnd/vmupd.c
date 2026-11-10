@@ -1,46 +1,25 @@
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channels.h"
 #include "rr/spu.h"
 #include "psyq/libsnd/vmnote2.h"
+#include "psyq/libsnd/vmupd.h"
 #include "game/data/globals.h"
 
-typedef struct {
-    s8 f00, f01, f02, f03, f04;
-    u8 f05;
-    s8 f06, f07, f08, f09, f0A;
-    u8 f0B;
-    s8 f0C, f0D;
-    u8 f0E;
-    s8 f0F, f10, f11;
-    u8 f12;
-    s8 f13;
-    s16 f14, f16, f18;
-} SvmCur;
-
 extern u16 D_8010F90C[];
-extern s16 _svm_sreg_buf[];
 extern s16 D_8010FE3A[];
 extern s16 D_8010FE3C[];
-extern SvmCur _svm_cur;
-extern char D_8010F916[];
-extern char D_8010F918[];
-extern char D_8010F91C[];
-extern char D_8010F91E[];
-extern char D_8010F920[];
-extern signed char D_80110107;
-extern char D_8011010C[];
 
-void _SsVmKeyOnNow(s16 arg0, s16 arg1);
-int _SsVmPBVoice(short a0, short a1, short a2, short a3, int a4);
+void _SsVmKeyOnNow(u8 arg0, u16 arg1);
+s16 _SsVmPBVoice(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in, s32 a4);
 
-void _SsVmKeyOnNow(s16 arg0, s16 arg1) {
+void _SsVmKeyOnNow(u8 arg0, u16 arg1) {
     u32 vol;
     u32 a3;
     u32 left, right;
     u16 voice_off;
     s32 v;
-    RrChannelValueRecordB0 *rec;
+    ChannelValueRecordB0 *rec;
     u8 pan;
     u16 low_mask, high_mask;
 
@@ -88,9 +67,9 @@ void _SsVmKeyOnNow(s16 arg0, s16 arg1) {
         right = (right * right) / 16383U;
     }
     D_8010FE3C[voice_off] = arg1;
-    _svm_sreg_buf[voice_off] = left;
+    ((s16 *)_svm_sreg_buf)[voice_off] = left;
     D_8010FE3A[voice_off] = right;
-    ((u8 *)&_svm_sreg_dirty)[_svm_cur.f18] |= 7;
+    _svm_sreg_dirty.flags[_svm_cur.f18] |= 7;
     D_8010F90C[_svm_cur.f18 * 27] = arg1;
     if (_svm_cur.f18 < 0x10) {
         low_mask = 1 << _svm_cur.f18;
@@ -114,73 +93,49 @@ void _SsVmKeyOnNow(s16 arg0, s16 arg1) {
     _svm_okof2 &= ~_svm_okon2;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define _svm_sreg_dirty (*(char (*)[])&_svm_sreg_dirty)
-#define D_8010FE3C (*(char (*)[])&D_8010FE3C)
-#define _svm_tn (*(int (*))&_svm_tn)
+typedef struct {
+    u8 pad00[0xC];
+    u8 f0C;
+    u8 f0D;
+    u8 pad0E[0x20 - 0xE];
+} SvmTonePB;
 
-int _SsVmPBVoice(short a0, short a1, short a2, short a3, int a4) {
-    short t0;
-    int a;
-    unsigned short s;
-    int e;
-    unsigned short idx;
+s16 _SsVmPBVoice(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in, s32 a4) {
+    s16 a0 = a0_in;
+    s16 a1 = a1_in;
+    s16 a2 = a2_in;
+    s16 a3 = a3_in;
+    s16 t0;
+    u16 s;
+    s32 e;
+    u16 idx;
     t0 = a4 - 0x40;
-    a = a0 * 0x36;
-    if (*(short *)(D_8010F918 + a) == a1) {
-        if (*(short *)(D_8010F920 + a) == a2) {
-            if (*(short *)(D_8010F91C + a) == a3) {
-                int d1, d2, d3, d4, d5, d6, d7, d8, d9;
-                short ret;
-                int v0 = D_80110107;
-                /* ASM_BARRIER: force load order of D_80110107, D_8010F91E, and D_8010F916 */
-                __asm__ volatile("" : "+r"(v0));
-                idx = *(unsigned short *)(D_8010F91E + a);
-                /* ASM_BARRIER: force load of D_8010F916 before shift/add into idx */
-                __asm__ volatile("" : "+r"(idx));
-                s = *(unsigned short *)(D_8010F916 + a);
-                /* ASM_BARRIER: keep s load scheduled before shift/add */
-                __asm__ volatile("" : "+r"(s), "+r"(v0), "+r"(idx));
+    if (_svm_voice[a0].match10 == a1) {
+        if (_svm_voice[a0].match18 == a2) {
+            if (_svm_voice[a0].match14 == a3) {
+                s32 v0 = _svm_cur.f07;
+                idx = _svm_voice[a0].unk16;
+                s = _svm_voice[a0].group0E;
                 idx += v0 * 16;
                 if (t0 > 0) {
-                    int x1 = t0 * *(unsigned char *)((idx << 5) + _svm_tn + 0xD);
-                    int sign;
-                    int q;
-                    /* ASM_BARRIER: reserve $t0 across division so mfhi conflicts with $t0 */
-                    register int r8 __asm__("$8");
-                    /* ASM_BARRIER: start $t0 live range before sign shift */
-                    __asm__ volatile("" : "=r"(r8));
-                    sign = x1 >> 31;
-                    q = x1 / 63;
-                    /* ASM_BARRIER: keep sign and $t0 live across division so sra gets $v1 and mfhi gets $t2 */
-                    __asm__ volatile("" : : "r"(sign), "r"(r8));
-                    s += q;
-                    e = (x1 - q * 63) * 2;
+                    s32 x1 = t0 * ((SvmTonePB *)_svm_tn)[idx].f0D;
+                    s += x1 / 63;
+                    e = (x1 - (x1 / 63) * 63) * 2;
                 } else if (t0 < 0) {
-                    int x2 = t0 * *(unsigned char *)((idx << 5) + _svm_tn + 0xC);
+                    s32 x2 = t0 * ((SvmTonePB *)_svm_tn)[idx].f0C;
                     s = s + (x2 / 64) - 1;
-                    e = ((x2 - ((x2 / 64) << 6)) * 2) + 0x7F;
+                    v0 = (x2 - ((x2 / 64) << 6)) * 2;
+                    e = v0 + 0x7F;
                 } else {
                     e = 0;
                 }
-                *(unsigned char *)D_8011010C = *(unsigned char *)(D_8010F91E + a0 * 0x36);
-                *(short *)(D_8011010C + 0xC) = a0;
-                ret = note2pitch2(s, e & 0xFFFF);
-                *(short *)(D_8010FE3C + a0 * 16) = ret;
-                /* ASM_BARRIER: prevent scheduling _svm_sreg_dirty load before D_8010FE3C store */
-                __asm__ volatile("");
-                *(unsigned char *)(_svm_sreg_dirty + a0) |= 4;
-                /* ASM_BARRIER: keep ret ($v0) live across _svm_sreg_dirty update and allocate d9 to $t2 so mfhi picks $t2 */
-                __asm__ volatile("" : "=r"(d1), "=r"(d2), "=r"(d3), "=r"(d4), "=r"(d5), "=r"(d6), "=r"(d7), "=r"(d8), "=r"(d9) : "r"(ret));
-                /* ASM_BARRIER: end live range of d1..d9 */
-                __asm__ volatile("" : : "r"(d1), "r"(d2), "r"(d3), "r"(d4), "r"(d5), "r"(d6), "r"(d7), "r"(d8), "r"(d9));
+                _svm_cur.f0C = _svm_voice[a0].unk16;
+                _svm_cur.f18 = a0;
+                *(s16 *)_svm_sreg_buf[a0].pad04 = note2pitch2(s, e & 0xFFFF);
+                _svm_sreg_dirty.flags[a0] |= 4;
                 return 1;
             }
         }
     }
     return 0;
 }
-
-#undef _svm_sreg_dirty
-#undef D_8010FE3C
-#undef _svm_tn

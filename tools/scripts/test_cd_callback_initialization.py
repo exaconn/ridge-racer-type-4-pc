@@ -26,8 +26,8 @@ typedef uint32_t u32; typedef int32_t s32;
 u32 test_page[0x10000/4];
 #define CD_read_dma_mode test_page[0x63F4/4]
 char test_text[0x1900];
-RrLibDataCallback CD_cbsync,CD_cbready;
-RrLibNotificationCallback CD_cbread;
+LibDataCallback CD_cbsync,CD_cbready;
+LibNotificationCallback CD_cbread;
 s32 primary[5],secondary[5],attempts,secondary_calls,prints,events;
 u32 event_class[8],event_spec[8];
 const char *printed;
@@ -43,7 +43,7 @@ int DeliverEvent(int kind,int spec) {
     event_class[events]=(u32)kind;event_spec[events++]=(u32)spec;return -999;
 }
 '''
-        for name in ('CdInit','CdInitAttempt','def_cbsync','def_cbready','def_cbread'):
+        for name in ('CdInitAttempt','CdInit','def_cbsync','def_cbready','def_cbread'):
             body=(root/'tools/scripts/fixtures/views'/f'{name}.c').read_text()
             body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
             body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)

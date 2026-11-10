@@ -18,7 +18,7 @@ class GarageColorPanelTest(unittest.TestCase):
         blob=(root/'disc/PAL/R4.BIN').read_bytes()
         start=struct.unpack_from('<I',blob,4+662*4)[0]*2048+0x80126260-0x80114878
         rows=[struct.unpack_from('<iHHBBHiI',blob,start+20*i) for i in range(72)]
-        original='static const RrGarageSpriteRecord original[72]={\n'+',\n'.join('{'+','.join(map(str,row))+'}' for row in rows)+'\n};\n'
+        original='static const GarageSpriteRecord original[72]={\n'+',\n'.join('{'+','.join(map(str,row))+'}' for row in rows)+'\n};\n'
         source=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -30,9 +30,9 @@ class GarageColorPanelTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_palette.h"
-typedef union {u8 bytes[512];u32 words[128];struct {RrGpuTilePacket tile;RrSpritePacket sprites[2];u8 digits[456];} sequence;} Arena;
+typedef union {u8 bytes[512];u32 words[128];struct {GpuTilePacket tile;SpritePacket sprites[2];u8 digits[456];} sequence;} Arena;
 typedef struct {s32 channel,value;u8 *cursor;u32 *order;} Event;
-static struct World {u32 guard[4];RrGpuScratchPointers scratch;RrGarageSelectionPrefix state;RrGaragePalette palettes[3];RrGarageSpriteRecord records[72];RrGarageSpriteRecord *lookup[72];u32 order[704];Arena arena;u32 calls;Event events[3];u32 tail[4];} world,expected;
+static struct World {u32 guard[4];GpuScratchPointers scratch;GarageSelectionPrefix state;GaragePalette palettes[3];GarageSpriteRecord records[72];GarageSpriteRecord *lookup[72];u32 order[704];Arena arena;u32 calls;Event events[3];u32 tail[4];} world,expected;
 #define RR_GPU_SCRATCH (&world.scratch)
 #define ovl662_D_801276A8 world.state
 #define ovl662_D_80126260 world.records
@@ -44,7 +44,7 @@ static s16 half(u32 value){u16 raw=value;s16 result;memcpy(&result,&raw,2);retur
 static void put16(void *base,unsigned offset,u32 value){u8 *p=base;p[offset]=(u8)value;p[offset+1]=(u8)(value>>8);}
 static void put32(void *base,unsigned offset,u32 value){u8 *p=base;unsigned i;for(i=0;i<4;i++)p[offset+i]=(u8)(value>>(8*i));}
 static u32 get32(const void *base,unsigned offset){const u8 *p=base;return (u32)p[offset]|((u32)p[offset+1]<<8)|((u32)p[offset+2]<<16)|((u32)p[offset+3]<<24);}
-static RrGarageSpriteRecord *by_key(struct World *v,unsigned key){unsigned i;for(i=0;i<72;i++)if(v->records[i].key0C==(s32)key)return &v->records[i];assert(0);return 0;}
+static GarageSpriteRecord *by_key(struct World *v,unsigned key){unsigned i;for(i=0;i<72;i++)if(v->records[i].key0C==(s32)key)return &v->records[i];assert(0);return 0;}
 /* Unrecovered channel-renderer boundary: the original emits three20-byte
  * sprites. Record arguments and consume that footprint; palette mutations
  * independently verify the caller's captured channel values. */
@@ -68,7 +68,7 @@ static void ref_link(unsigned offset,unsigned head){
  expected.order[head]=(expected.order[head]&0xff000000U)|((uintptr_t)(world.arena.bytes+offset)&0xffffffU);
 }
 static void ref_sprite(unsigned offset,unsigned key,s32 x,s32 y){
- u8 *p=expected.arena.bytes+offset;RrGarageSpriteRecord *r=by_key(&expected,key);
+ u8 *p=expected.arena.bytes+offset;GarageSpriteRecord *r=by_key(&expected,key);
  p[3]=4;p[7]=(r->flags10&1)?0x67:0x65;put16(p,8,(u32)x);put16(p,10,(u32)y);
  put16(p,16,r->width04);put16(p,18,r->height06);p[12]=r->u08;p[13]=r->v09;put16(p,14,r->clut0A);
  ref_link(offset,128+r->depth00);expected.scratch.cursor=world.arena.bytes+offset+20;
@@ -95,7 +95,7 @@ int main(void){unsigned k,i,active,index;u16 color;
   world.state.halfC8=half(k*40503U+17U);world.state.halfCA=half(k*73U+11U);
   memcpy(world.records,original,sizeof(original));
   for(i=0;i<72;i++)world.lookup[world.records[i].key0C]=&world.records[i];
-  for(i=0;i<2;i++){RrGarageSpriteRecord *r=by_key(&world,i?46:70);r->flags10=next();r->width04=(u16)next();r->height06=(u16)next();r->clut0A=(u16)next();r->u08=(u8)next();r->v09=(u8)next();r->depth00=4+(next()&7);}
+  for(i=0;i<2;i++){GarageSpriteRecord *r=by_key(&world,i?46:70);r->flags10=next();r->width04=(u16)next();r->height06=(u16)next();r->clut0A=(u16)next();r->u08=(u8)next();r->v09=(u8)next();r->depth00=4+(next()&7);}
   world.scratch.cursor=world.arena.bytes;world.scratch.order=world.order;world.calls=0;
   assert((uintptr_t)world.state.palette48[active]>UINT32_MAX && (uintptr_t)world.scratch.cursor>UINT32_MAX);
   memcpy(&expected,&world,sizeof(world));reference(color);

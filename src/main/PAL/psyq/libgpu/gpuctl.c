@@ -1,5 +1,4 @@
 #include "types.h"
-#include "m2c_macros.h"
 #include "psyq/libgpu/gpuctl.h"
 #include "rr/bios_devices.h"
 

@@ -2,7 +2,8 @@
 from pathlib import Path
 import re,subprocess,tempfile,unittest
 root=Path(__file__).resolve().parents[2]
-src=(root/'tools/scripts/fixtures/legacy/func_8002018C.c').read_text();src=re.sub(r'^#include[^\n]*\n|extern[^;]*;','',src,flags=re.M)
+from c_functions import definition_source, source_owners
+src=definition_source(source_owners(root/'src/main/PAL')['AddJitterSprites'].read_text(),'AddJitterSprites');src=re.sub(r'^#include[^\n]*\n|extern[^;]*;','',src,flags=re.M)
 src=re.sub(r' asm\("\$\d+"\)','',src);src=re.sub(r'__asm__\("".*?\);','',src)
 header=''
 helpers=''
@@ -14,6 +15,7 @@ for n,new in [('80095B94','native_init'),('80095AF4','native_semi'),('80095A44',
  helpers+=s+'\n'
 fixture=r'''
 #include <assert.h>
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -23,9 +25,9 @@ fixture=r'''
 #include "rr/sprite_effect.h"
 ''' + header +helpers+r'''
 static union {u32 align;u8 bytes[4096];} arena;
-static union {u32 align;u8 bytes[256];} contexts[4];
-u8 *CurrentDrawBuf;
-static RrSpriteEffectSource descriptor;
+static FrameStorage contexts[4];
+FrameStorage *CurrentDrawBuf;
+static SpriteEffectSource descriptor;
 static u32 ordering;
 static u32 *expected_ordering;
 static int iteration,phase,count,semi,variant,rng_calls;
@@ -39,7 +41,7 @@ static void mutate(int n) {
  descriptor.x=(s16)(seed&0xFFFF);descriptor.y=(s16)(seed>>16);
  descriptor.page=(u16)(seed^0x8012U);descriptor.clut=(u16)(seed^0xFFFFU);
  descriptor.uv.u=seed;descriptor.uv.v=seed>>8;descriptor.uv.w=seed>>16;descriptor.uv.h=seed>>24;
- CurrentDrawBuf=contexts[n&3].bytes;
+ CurrentDrawBuf=&contexts[n&3];
 }
 void SetSprt(void *p) {
  assert(phase==0 && p==expected_cursor);
@@ -59,7 +61,7 @@ s32 PsyqRand(void) {
  return bits(raw);
 }
 void SetSemiTrans(void *p,s32 mode) {
- RrSpritePacket *sprite=p;s32 y;
+ SpritePacket *sprite=p;s32 y;
  assert(p==expected_cursor && mode==semi && phase==(count==1?1:2));
  if(count==1)jitter=0;
  if(iteration==0)y=descriptor.y+(jitter>=0?jitter/2:-((-jitter+1)/2));
@@ -74,7 +76,7 @@ void SetSemiTrans(void *p,s32 mode) {
  native_semi(p,mode);phase=3;mutate(2);expected_color=strength;
 }
 void AddPrim(u32 *ot,u32 *p) {
- RrSpritePacket *sprite=(RrSpritePacket *)p;
+ SpritePacket *sprite=(SpritePacket *)p;
  assert(phase==(count==1?3:4) && ot==expected_ordering && p==(u32 *)expected_cursor);
  assert(sprite->r==(u8)expected_color && sprite->g==(u8)expected_color && sprite->b==(u8)expected_color);
  assert(sprite->clut==descriptor.clut && sprite->code==(semi?0x66:0x64));
@@ -82,9 +84,9 @@ void AddPrim(u32 *ot,u32 *p) {
  assert((*expected_ordering&0xFFFFFFU)==((uintptr_t)p&0xFFFFFFU));
  phase=5;mutate(4);
 }
-u8 *AddDrawModePrim(u32 *ot,u8 *cursor,u16 page) {
+void *AddDrawModePrim(u32 *ot,GpuDrawModePacket *mode_packet,u16 page){ u8 *cursor = (u8 *)mode_packet;
  u16 expected=iteration?(u16)((descriptor.page&255)|0x60):descriptor.page;
- assert(phase==5 && ot==(u32 *)(CurrentDrawBuf+0x70));
+ assert(phase==5 && ot==(u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]));
  assert(cursor==expected_cursor+20 && page==expected);
  /* Deliberate opaque-helper return variation proves full-width cursor threading. */
  expected_cursor=cursor+12+(variant?(iteration&1)*4:0);
@@ -120,7 +122,7 @@ int main(void) {
  s32 counts[]={INT32_MIN,-1,0,1,2,3,4,7};
  s32 semis[]={0,1,-1,INT32_MIN,INT32_MAX};
  unsigned i,j,k,r;
- assert(sizeof(RrSpriteEffectSource)==12 && offsetof(RrSpriteEffectSource,uv)==8);
+ assert(sizeof(SpriteEffectSource)==12 && offsetof(SpriteEffectSource,uv)==8);
  for(i=0;i<8;i++)for(j=0;j<11;j++)for(k=0;k<5;k++)for(r=0;r<32;r++)run(counts[i],powers[j],semis[k],0x89ABC000U|r,r%6);
  /* Inactive paths must not inspect pointer arguments. */
  assert(AddJitterSprites(0,0,0,INT32_MIN,INT32_MAX,0)==0);

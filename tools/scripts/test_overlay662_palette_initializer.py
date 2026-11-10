@@ -20,8 +20,8 @@ class Overlay662PaletteInitializerTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4||offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_palette_initializer.h"
 typedef struct {
- u32 guard[4];RrSaveProgressRecord7C save;RrCourseChoice4 courses[2][9];RrBadgeRow1C badges[2][2];
- RrMenuArenas arenas;void *published,*palette0,*palette1;
+ u32 guard[4];SaveProgressRecord7C save;CourseChoice4 courses[2][9];BadgeRow1C badges[2][2];
+ MenuArenas8 arenas;void *published,*palette0,*palette1;
  s32 frame,pulse,local,mode;s16 flag,layout,current,count,selection,course,index,reset;
  u8 map[25];unsigned root;u32 tail[4];
 } State;

@@ -22,7 +22,7 @@ void _SsVmSeqKeyOff(s32 input) {
 again: {
             s32 i=next;
             if(!(_snd_vmask & (one << i)) && _svm_voice[i].match10==wanted) {
-                D_80110118=(u8)index;
+                _svm_voice_cursor=(u8)index;
                 _SsVmKeyOffNow(0);
             }
             index++;

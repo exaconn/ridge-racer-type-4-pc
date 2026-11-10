@@ -5,10 +5,10 @@
 #include "rr/bios_devices.h"
 
 static __inline__ s32 save_first_file_handler(void) {
-    RrBiosDevice *device, *end, *limit;
+    BiosDevice *device, *end, *limit;
 
-    device = *(RrBiosDevice **)0x150;
-    end = device + (*(u32 *)0x154 / sizeof(RrBiosDevice));
+    device = *(BiosDevice **)0x150;
+    end = device + (*(u32 *)0x154 / sizeof(BiosDevice));
     if (device < end) {
         limit = end;
         do {
@@ -25,7 +25,7 @@ static __inline__ s32 save_first_file_handler(void) {
 void *firstfile(char *path, void *directory) {
     char *output;
     s8 *input;
-    RrBiosDevice *device, *end, *limit;
+    BiosDevice *device, *end, *limit;
 
     input = (s8 *)path;
     output = D_801143C0;
@@ -40,8 +40,8 @@ void *firstfile(char *path, void *directory) {
     }
 
     /* Re-read the descriptor: comparison callbacks may replace the table. */
-    device = *(RrBiosDevice **)0x150;
-    end = device + (*(u32 *)0x154 / sizeof(RrBiosDevice));
+    device = *(BiosDevice **)0x150;
+    end = device + (*(u32 *)0x154 / sizeof(BiosDevice));
     if (device < end) {
         limit = end;
         do {

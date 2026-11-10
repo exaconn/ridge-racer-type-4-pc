@@ -27,8 +27,8 @@ class Overlay661LayoutTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay661_layout.h"
 typedef struct {
- u32 guard[4];RrRaceVehicle cars[2];RrProjectionScratchPrefix scratch;
- RrMenuArenas arenas;RrSelectionRows choice;RrMenuGridPoint grid[4];RrCourseChoice4 table[2][2][9];s16 counts[2][2],groups[2],courses[2];s32 player;
+ u32 guard[4];RaceVehicle cars[2];ProjectionScratchPrefix scratch;
+ MenuArenas8 arenas;SelectionRows32 choice;MenuGridPoint grid[4];CourseChoice4 table[2][2][9];s16 counts[2][2],groups[2],courses[2];s32 player;
  u8 *resource;void *published,*base;s32 frame,pulse;
  s16 index,local,count,selection,selectionFlag,course,mode,flag;s8 clear1,clear2;u8 map[8];u32 tail[4];
 } State;
@@ -42,7 +42,7 @@ static u8 resources[3][0x2D100],arenas[3][128],packets[128];static u32 orders[32
 #define RR_PROJECTION_SCRATCH (&w->s.scratch)
 #define CdDirectoryBuffer w->s.resource
 #define MenuArenas w->s.arenas
-#define D_800F4D40 w->s.base
+#define MenuArenaBase w->s.base
 #define LoadCursor w->s.published
 #define SelectionRows w->s.choice
 #define PlayerCourseChoices w->s.grid
@@ -71,7 +71,7 @@ static void effect(unsigned n){unsigned i,j;u32 v=scenario*0x9e3779b9U+n*47;unsi
  w->s.resource=resources[(scenario+n)%3]+scenario%32;w->s.base=arenas[(scenario+n+1)%3]+scenario%32;w->s.published=arenas[(scenario+n+2)%3];
  w->s.arenas.first=arenas[(scenario+n)%3];w->s.arenas.second=arenas[(scenario+n+1)%3];
  w->s.scratch.pointers.cursor=packets+(scenario+n)%128;w->s.scratch.pointers.order=orders+(scenario+n)%32;
- w->s.scratch.word08=word(v);w->s.scratch.word0C=word(v+1);w->s.scratch.word10=word(v+2);w->s.scratch.word14=word(v+3);w->s.scratch.word18=word(v+4);w->s.scratch.word1C=word(v+5);w->s.scratch.word20=word(v+6);
+ w->s.scratch.pose08.position00.words[0]=word(v);w->s.scratch.pose08.position00.words[1]=word(v+1);w->s.scratch.pose08.position00.words[2]=word(v+2);w->s.scratch.pose08.position00.words[3]=word(v+3);w->s.scratch.pose08.angles10.xyz.x=word(v+4);w->s.scratch.pose08.angles10.xyz.y=word(v+5);w->s.scratch.pose08.angles10.xyz.z=word(v+6);
  w->s.frame=word(v+7);w->s.pulse=word(v+8);w->s.index=(scenario+n)%9;w->s.local=half(v+9);w->s.count=half(v+10);w->s.selection=half(v+11);w->s.selectionFlag=half(v+12);w->s.course=half(v+13);w->s.mode=half(v+14);w->s.flag=half(v+15);w->s.clear1=v;w->s.clear2=v+1;
  for(i=0;i<4;i++){((u8*)&w->s.choice)[i]=v+i;w->s.grid[i].first=half(v+i);w->s.grid[i].second=half(v+i+1);}
  for(i=0;i<8;i++)w->s.map[i]=v+i;
@@ -94,7 +94,7 @@ void InitMenuArenas(void){event(2);change();}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){Event *v=event(3);s32 args[]={a,b,c,d,e,f,g,h,i,j};memcpy(v->args,args,sizeof(args));change();}
 void SetupRenderer(s32 shift){Event *e=event(4);e->args[0]=shift;change();}
 void InitPreviewImageRows(void){event(5);change();}
-void ResetCarState(RrRaceVehicle *car){Event *e=event(6);assert(car==w->s.cars||car==w->s.cars+1);e->args[0]=car-w->s.cars;assert((uintptr_t)car>UINT32_MAX);change();}
+void ResetCarState(RaceVehicle *car){Event *e=event(6);assert(car==w->s.cars||car==w->s.cars+1);e->args[0]=car-w->s.cars;assert((uintptr_t)car>UINT32_MAX);change();}
 void SetMenuFrameOptions(s32 a,s32 b,s32 c){Event *e=event(7);e->args[0]=a;e->args[1]=b;e->args[2]=c;if(w==&actual){assert(w->s.count>=0&&w->s.count<=9);seenCounts|=1U<<w->s.count;}change();}
 static void reset(void){w->s.clear1=0;w->s.clear2=0;w->s.pulse=0;}
 void UnpackChoiceGlyph(s8 *out,s32 glyph){unsigned p=w->s.player,g=w->s.groups[p],c=w->s.courses[p];assert(p<2&&g<2&&c<9);seenChoices[p][g][c]++;real_glyph(out,glyph);}
@@ -103,12 +103,12 @@ static void expected(void){unsigned i,p,g;State *s=&w->s;
  s->frame=0;s->pulse=0;s->flag=0;s->mode=3;reset();s->arenas.second=s->resource+0x2D000;InitMenuArenas();s->player=kind;s->published=s->arenas.second;
  for(i=0;i<26;i++)InitUiRow(rows[i][0],rows[i][1],rows[i][2],rows[i][3],rows[i][4],rows[i][5],rows[i][6],rows[i][7],rows[i][8],i==22?s->selection:rows[i][9]);
  SetupRenderer(5);s->flag=0;s->mode=3;reset();InitPreviewImageRows();s->local=0;s->published=s->base;if(!(s->player&1))s->arenas.first=s->base;else s->published=s->arenas.first;
- s->scratch.word18=120;s->scratch.word08=-16;s->scratch.word0C=-248;s->scratch.word1C=0;s->scratch.word20=0;s->scratch.word10=-96;
- for(i=0;i<2;i++){ResetCarState(s->cars+i);s->cars[i].pos20[1]=10;s->cars[i].pos20[2]=308;s->cars[i].rot54=2048;}
+ s->scratch.pose08.angles10.xyz.x=120;s->scratch.pose08.position00.words[0]=-16;s->scratch.pose08.position00.words[1]=-248;s->scratch.pose08.angles10.xyz.y=0;s->scratch.pose08.angles10.xyz.z=0;s->scratch.pose08.position00.words[2]=-96;
+ for(i=0;i<2;i++){ResetCarState(s->cars+i);s->cars[i].position20.words[1]=10;s->cars[i].position20.words[2]=308;s->cars[i].rot54=2048;}
  for(p=0;p<2;p++)for(g=0;g<2;g++){unsigned n=0;while(n<9&&s->table[p][g][n].glyph!=-1){if(n==8&&s->table[p][g][8].glyph!=359)break;n++;}s->counts[p][g]=n;}
  if(!s->counts[kind][1])s->groups[kind]=0;
  p=s->player&1;if(s->courses[p]>=s->counts[p][s->groups[p]])s->courses[p]=0;
- {RrCourseChoice4 c=s->table[p][s->groups[p]][s->courses[p]];int t=c.glyph/160;u8 *out=(u8*)&s->choice+4*s->player;out[0]=(u8)t;out[1]=(u8)(c.glyph/40-4*t);out[2]=(u8)(c.glyph%40);s->grid[s->player].first=c.first;s->grid[s->player].second=c.second;}
+ {CourseChoice4 c=s->table[p][s->groups[p]][s->courses[p]];int t=c.glyph/160;u8 *out=(u8*)&s->choice+4*s->player;out[0]=(u8)t;out[1]=(u8)(c.glyph/40-4*t);out[2]=(u8)(c.glyph%40);s->grid[s->player].first=c.first;s->grid[s->player].second=c.second;}
 }
 int main(void){unsigned i;assert((uintptr_t)resources>UINT32_MAX);
  for(scenario=0;scenario<65536;scenario++)for(kind=0;kind<2;kind++)for(mutation=0;mutation<2;mutation++){

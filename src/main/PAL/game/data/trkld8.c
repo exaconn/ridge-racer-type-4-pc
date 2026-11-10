@@ -1,5 +1,6 @@
 /* RODATA 0x800110c0 0x18 */
 #include "game/data/cdfile2.h"
+#include "rr/load_cursor.h"
 #include "game/gfx/motion1.h"
 #include "game/sound/cdpos.h"
 #include "psyq/libcd/s_1.h"
@@ -8,25 +9,24 @@
 #include "game/data/trkld8.h"
 #include "game/course/trkres2.h"
 #include "game/data/cdfile1.h"
-#include "game/data/cdfile2.h"
 #include "rr/course_choices.h"
 #include "rr/sequencer_init.h"
 #include "rr/spu_tick.h"
 #include "rr/bios_devices.h"
-extern int LoadTimList();
+#include "rr/audio_state_types.h"
+#include "game/course/trkintp2.h"
 extern short D_800AD520;
 extern int D_800AD564;
 extern short CourseIndex;
-extern int D_800F4D40;
+extern int MenuArenaBase;
 extern char D_800F74B0[];
 extern char RaceContext[];
-extern struct { char pad[0x24]; short h[8]; char pad2[0x2860 - 0x34]; short a, b; } SoundState;
-extern int SsSetSerialAttr();
-extern int SsSetSerialVol();
-extern int func_80055300();
-extern int CdAudioInit();
+extern void SsSetSerialAttr(signed char a0, signed char a1, signed char a2);
+extern int SsSetSerialVol(signed char a0, int a1, int a2);
+extern void InitSceneOverlayState(void);
+extern void CdAudioInit(void);
 
-int func_8004EA8C(void) {
+int LoadIntroSceneStep(void) {
     int v;
     int t;
     int u;
@@ -46,7 +46,7 @@ int func_8004EA8C(void) {
                 CourseIndex = 8;
                 LoadCursor = w;
                 RaceLoadCursor = w;
-                D_800F4D40 = w;
+                MenuArenaBase = w;
                 RaceLoadStepIndex += 1;
             }
     default:
@@ -82,8 +82,9 @@ int func_8004EA8C(void) {
     }
 }
 
-void SoundSystemInit() {
+void SoundSystemInit(void) {
     char *s1;
+    /* ASM_BARRIER: keep SPU table cursor in $s0 across init calls */
     register char *s0 asm("$16");
     int i; int n; short m;
     CdReset(1);
@@ -95,22 +96,22 @@ void SoundSystemInit() {
     s1 = s0 - 0x26F8;
     SsStart();
     SsSetMVol(0x7F, 0x7F);
-    func_80096434(s1, 0xA8D0);
-    func_80096434(RaceContext, 0x57C);
+    PsyqBzero(s1, 0xA8D0);
+    PsyqBzero(RaceContext, 0x57C);
     s0 -= 0x1498;
-    func_80055300();
+    InitSceneOverlayState();
     ResetSlotOrder();
-    *(int *)(s1 + 8) = 0x80;
+    ((AudioState *)s1)->master08 = 0x80;
     n = -1;
     for (i = 3; i >= 0; i--) {
-        *(int *)(s0 + 0x3C) = n;
+        *(AudioBankStorage32 *)&((AudioState *)s0)->slots38[0].bank04 = n;
         s0 -= 0x620;
     }
     m = -1;
     for (i = 7; i >= 0; i--)
-        SoundState.h[i] = m;
-    SoundState.a = -1;
-    SoundState.b = -1;
+        SoundState.bank24[i] = m;
+    SoundState.seqInit2860 = -1;
+    SoundState.seqInit2862 = -1;
     CdAudioInit();
     CdAudioFindStreamFile();
 }

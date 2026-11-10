@@ -1,68 +1,54 @@
 /* RODATA 0x800102cc 0x24 */
 #include "types.h"
+#include "rr/frame_storage_types.h"
+#include "rr/load_cursor.h"
 #include "scratchpad.h"
-#include "m2c_macros.h"
 #include "rr/frame_loop.h"
+#include "rr/gpu_scratch_types.h"
 #include "game/data/cdfile2.h"
 #include "game/system/frmenv.h"
 #include "game/system/pad.h"
 #include "game/effect/spfade.h"
 #include "psyq/libgpu/gpuenv.h"
+#include "psyq/libgpu/gpudisp.h"
 #include "game/system/frmtask.h"
 #include "game/data/cdfile1.h"
-#include "game/data/cdfile2.h"
 #include "game/sound/sndslot.h"
-#include "psyq/libgpu/gpuenv.h"
 #include "rr/course_choices.h"
 #include "rr/menu_background.h"
 #include "rr/driver_control.h"
-#include "rr/overlay668_playback_step.h"
 #include "rr/overlay668_stream.h"
+#include "game/sound/cdstart.h"
+#include "game/course/trkintp2.h"
+#include "rr/screen_tiles.h"
+#include "game/sound/cdplay.h"
 
 extern s16 D_800AC5D0;
-extern s32 D_8010BF84;
+extern s32 FrmTaskState;
 extern short *D_8010BF80;
 extern int D_800F3A60;
-extern int CdAudioInit();
-extern int CdAudioSelectTrack();
-extern int CdAudioBeginPlay();
-extern int LoadTimList();
-extern int SetMenuFrameOptions();
-extern int AddScreenFadeTiles();
-extern int CdAudioFade();
-extern int EmitPresetSprite();
-extern int EmitSpriteGrid();
-extern void *PutDispEnv(void *);
+extern void CdAudioInit(void);
+extern void SetMenuFrameOptions();
+extern void EmitSpriteGrid();
 
-void func_8001E344(void);
-void func_8001E390(void);
+void FrmTaskModeEnter(void);
+void FrmTaskModeUpdate(void);
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F3A26 (*(s16 (*))&D_800F3A26)
-#define ModeGroup (*(s16 (*))&ModeGroup)
-
-void func_8001E344(void) {
-    D_8010BF84 = 0;
+void FrmTaskModeEnter(void) {
+    FrmTaskState = 0;
     D_800AC5D0 = -1;
     ModeGroup = 0;
     D_800F3A26 = 6;
     D_800F4D8A = 0;
 }
 
-#undef D_800F3A26
-#undef ModeGroup
 
-void func_8001E378(void) {
-    D_8010BF84 = 0;
+void ResetFrmTaskState(void) {
+    FrmTaskState = 0;
     D_800AC5D0 = -1;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define CurrentDrawBuf (*(int (*))&CurrentDrawBuf)
-#define ModeGroup (*(short (*))&ModeGroup)
-#define D_800F3A26 (*(short (*))&D_800F3A26)
-
-void func_8001E390(void) {
+void FrmTaskModeUpdate(void) {
     short *p;
     short *q;
     short *r;
@@ -71,16 +57,16 @@ void func_8001E390(void) {
     int *d_;
     int v;
 
-    switch (D_8010BF84) {
+    switch (FrmTaskState) {
     case 0:
         v = GetR4FileIndex(0, 0x15);
         if (CdFileReadStart(v, LoadCursor)) {
-            D_8010BF84 = 1;
+            FrmTaskState = 1;
         }
         return;
     case 1:
         if (CdFileBytesLoaded()) {
-            D_8010BF84 = 2;
+            FrmTaskState = 2;
         }
         return;
     case 2:
@@ -88,10 +74,10 @@ void func_8001E390(void) {
         CdAudioSelectTrack(0, 0x24);
         CdAudioBeginPlay(0);
         LoadTimList(LoadCursor);
-        D_8010BF84 = 7;
+        FrmTaskState = 7;
         q = (short *)LoadCursor;
         D_8010BF80 = q;
-        LoadCursor = (int)q + 0x10;
+        LoadCursor = (u8 *)q + 0x10;
         q[1] = 0;
         q[2] = 0;
         q[3] = 0;
@@ -110,12 +96,12 @@ void func_8001E390(void) {
             }
             goto common;
         }
-        D_8010BF84 = 8;
+        FrmTaskState = 8;
     case 8:
         SetMenuFrameOptions(1, 1, 0);
         if (D_800AC5D0 > 0) {
             D_800AC5D0--;
-            AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - D_800AC5D0) * 4, 0x45);
             if (D_800AC5D0 == 0) {
                 ModeGroup = 1;
                 D_800F3A26 = 3;
@@ -139,29 +125,26 @@ void func_8001E390(void) {
         p = D_8010BF80;
         EmitSpriteGrid(p[3]);
         g = (int *)SCRATCHPAD;
-        *(int *)(g[0] + 4) = 0xE100022A;
+        ((int *)g[0])[1] = 0xE100022A;
         s_ = (int *)g[1];
         d_ = (int *)g[0];
         *d_ = *s_;
-        *(char *)(g[0] + 3) = 1;
+        ((char *)g[0])[3] = 1;
         *(int *)g[1] = g[0];
-        *(char *)(g[1] + 3) = 0;
+        ((char *)g[1])[3] = 0;
         *(int *)SCRATCHPAD += 8;
         UpdateScreenFade(0x1000C);
         D_8010BF80[0]++;
     }
 }
 
-#undef CurrentDrawBuf
-#undef ModeGroup
-#undef D_800F3A26
 
 void MainLoop(void) {
     s32 threshold;
     register u8 *bank_page;
     u32 bank;
-    u8 *frame;
-    func_8007D710();
+    FrameStorage *frame;
+    MainLoopStartupHook();
     SetVideoMode(1);
     ResetCallback();
     bank_page=(u8 *)0x800F0000U;
@@ -176,31 +159,24 @@ void MainLoop(void) {
     FrameCounter=0;
     for (;;) {
         {
-            /* ASM_BARRIER: prepare the real ordering-table length before its address. */
-            register s32 length asm("$5")=0x2C0;
+            s32 length=0x2C0;
             /* ASM_BARRIER: materialize the frame arena in V1 before indexing it. */
-            register RrFrameStorage *frames asm("$3");
-            register u8 *frame_page;
-            register u8 **scratch;
+            register FrameStorage *frames asm("$3");
+            register GpuScratchPointers *scratch;
             register u32 *ordering;
-            /* ASM_BARRIER: keep the arena address after the length preparation. */
-            __asm__("" : "+r"(length) : : "$3");
-            frame_page=(u8 *)0x800B0000U;
+            frames=D_800ADAF0;
             bank=FrameCounter;
-            /* ASM_BARRIER: read the counter before completing the arena address. */
-            __asm__("" : "+r"(frame_page), "+r"(bank));
-            frames=(RrFrameStorage *)(frame_page-0x2510);
             bank &=1;
-            frame=(u8 *)((unsigned long)bank*sizeof(RrFrameStorage)+(unsigned long)frames);
-            ordering=(u32 *)(frame+0x70);
+            frame=&frames[bank];
+            ordering=frame->buffer.ordering70.words;
             CurrentDrawBuf=frame;
-            *(s32 *)(bank_page+0x4BF0)=bank;
-            scratch=(u8 **)SCRATCHPAD;
-            scratch[1]=(u8 *)ordering;
-            scratch[0]=frame+0x1670;
+            ((s32 *)bank_page)[0x4BF0/4]=bank;
+            scratch=(GpuScratchPointers *)SCRATCHPAD;
+            scratch->order=ordering;
+            scratch->cursor=frame->buffer.packets1670;
             ClearOTagR(ordering,length);
         }
-        ClearOTagR((u32 *)(CurrentDrawBuf+0xB70),0x2C0);
+        ClearOTagR(CurrentDrawBuf->buffer.secondaryOrderingB70.words,0x2C0);
         CdFileStep();
         SoundUpdate();
         ModeFuncTable[ModeGroup][D_800F3A26]();
@@ -208,10 +184,10 @@ void MainLoop(void) {
         threshold=VSyncThreshold;
         do {} while (VSync(1)<threshold);
         VSync(0);
-        PutDispEnv(CurrentDrawBuf+0x5C);
-        PutDrawEnv(CurrentDrawBuf);
-        DrawOTag(CurrentDrawBuf+0xB6C);
-        if(D_800ACBF8) DrawOTag(CurrentDrawBuf+0x166C);
+        PutDispEnv(&CurrentDrawBuf->buffer.environment00.display5C);
+        PutDrawEnv(&CurrentDrawBuf->buffer.environment00.draw00);
+        DrawOTag(&CurrentDrawBuf->buffer.ordering70.words[703]);
+        if(DrawSubOtFlag) DrawOTag(&CurrentDrawBuf->buffer.secondaryOrderingB70.words[703]);
         PadUpdate();
         FrameCounter++;
     }

@@ -3,14 +3,14 @@
 #include "rr/library.h"
 #include "rr/audio_cd_controller.h"
 
-extern int D_800A63C4;
-extern char D_80011878[];
+extern int DmaChannelRegsBase;
+extern char DmaBusErrorFmt[];
 extern char DmaMadrDebugFmt[];
 
-RrLibInterruptCallback setIntrDMA(s32 channel,RrLibInterruptCallback callback);
-void DMA_memclr(RrLibInterruptCallback *callbacks, s32 count);
+LibInterruptCallback setIntrDMA(s32 channel,LibInterruptCallback callback);
+void DMA_memclr(LibInterruptCallback *callbacks, s32 count);
 
-RrLibInterruptExchange startIntrDMA(void) {
+LibInterruptExchange startIntrDMA(void) {
     DMA_memclr(InterruptCallbackTable, 8);
     /* The ordinary write view permits the original call-delay store. */
     *(u32 *)DICR_VSync = 0;
@@ -21,7 +21,7 @@ RrLibInterruptExchange startIntrDMA(void) {
 void trapIntrDMA(void) {
     unsigned int s1;
     int i;
-    RrLibInterruptCallback *bp;
+    LibInterruptCallback *bp;
     unsigned int one, m;
     s1 = (*DICR_VSync >> 24) & 0x7F;
     if (s1 != 0) {
@@ -43,25 +43,25 @@ void trapIntrDMA(void) {
         } while (s1 != 0);
     }
     if ((*DICR_VSync & 0xFF000000) == 0x80000000 || (*DICR_VSync & 0x8000)) {
-        DebugPrintStub(D_80011878, *DICR_VSync);
+        DebugPrintStub(DmaBusErrorFmt, *DICR_VSync);
         i = 0;
         do {
-            DebugPrintStub(DmaMadrDebugFmt, i, *(int *)(i * 16 + D_800A63C4));
+            DebugPrintStub(DmaMadrDebugFmt, i, *(int *)(i * 16 + DmaChannelRegsBase));
             i++;
         } while (i < 7);
     }
 }
 
-RrLibInterruptCallback setIntrDMA(s32 channel,RrLibInterruptCallback callback) {
+LibInterruptCallback setIntrDMA(s32 channel,LibInterruptCallback callback) {
     s32 i=channel;
-    RrLibInterruptCallback *entry=InterruptCallbackTable;
+    LibInterruptCallback *entry=InterruptCallbackTable;
     /* ASM_BARRIER: Retain the previous callback for the common return. */
-    register RrLibInterruptCallback old __asm__("$7");
-    RrLibInterruptCallback value;
+    register LibInterruptCallback old __asm__("$7");
+    LibInterruptCallback value;
     /* ASM_BARRIER: Keep the device word base in the consumed argument register. */
     register volatile u32 *control __asm__("$5");
-    RrLibInterruptCallback result;
-    entry=(RrLibInterruptCallback *)((unsigned long)entry+(u32)i*sizeof(*entry));
+    LibInterruptCallback result;
+    entry=(LibInterruptCallback *)((unsigned long)entry+i*sizeof(*entry));
     old=*entry;
     value=callback;
     result=old;
@@ -92,14 +92,12 @@ RrLibInterruptCallback setIntrDMA(s32 channel,RrLibInterruptCallback callback) {
             *control=word&~(1U<<shift);
         }
         result=old;
-        /* ASM_BARRIER: Keep the changed-callback return separate from the equality gate. */
-        __asm__("" : "+r"(result));
     }
     return result;
 }
 
-void DMA_memclr(RrLibInterruptCallback *callbacks, s32 count) {
-    u32 remaining=(u32)count-1;
+void DMA_memclr(LibInterruptCallback *callbacks, s32 count) {
+    u32 remaining=count-1;
     if(count) {
         do {
             *callbacks=0;

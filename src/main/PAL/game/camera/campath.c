@@ -1,94 +1,66 @@
+#include "game/camera/viewcam.h"
 #include "types.h"
 #include "scratchpad.h"
+#include "rr_asm.h"
 #include "rr/game_motion.h"
-#include "m2c_macros.h"
+#include "rr/matrix_words.h"
 #include "game/demo/opening.h"
 #include "game/camera/camrun.h"
-#include "game/demo/opening.h"
 #include "game/gfx/motion1.h"
 #include "game/gfx/ring.h"
 #include "game/camera/campath.h"
 #include "rr/bios_devices.h"
+#include "rr/overlay665_render.h"
 
 typedef struct {
-    s16 vx, vy, vz, p0;
-    s32 sxy;
-    s32 p1;
-    s32 e0, e1, e2;
-    s32 p2;
-    s32 z0, z1, z2;
-    s32 p3;
-    s16 r0, r1, r2, p4;
-    char m1[0x20];
-    char m2[0x20];
-    s32 fl;
-    s32 dep;
-} w3t1_F;
-
-struct Q {
-    char pad0[8]; int f8; char pad1[0x20 - 0xC]; unsigned char c20, c21, c22; char pad23; unsigned char c24, c25, c26; char pad27;
-    unsigned char c28, c29, c2a; char pad2b; short h2c, h2e, h30; char pad32[2]; short h34, h36, h38; char pad3a[2]; short h3c, h3e, h40; char pad42[2];
-    unsigned char c44, c45, c46; char pad47; int f48; char pad4c[0x60 - 0x4C]; int f60; short *f64; short f68, f6a; int f6c; int f70;
-};
-
-struct Q_1 { char pad[0x60]; int f60; int *f64; short f68, f6a; int f6c; int f70; };
+    PreviewVector8 vertex;
+    Vec2s screen;
+    s32 reserved0C;
+    Vector scale, position;
+    PreviewVector8 rotation;
+    MatrixWords32 lightMatrix, viewMatrix;
+    s32 flags, depth;
+} MotionMarkerWork;
 
 extern u16 D_800A1F90[];
-extern s32 SetupObjectLightMatrices();
-extern s32 ScaleMatrix();
-extern s32 SetGteObjectTransform();
-extern char D_800A1CE0[];
-extern struct { char pad[0x250]; char pad2[0x3D8 - 0x250]; struct Q *q; } RaceContext;
-extern short D_800A1E60[];
-extern int *D_800A1F88[];
 
-void func_8005AA2C(void);
-void InitMotionTrack(int a0);
-void InitMotionController(void);
-void RestartMotionSequence(void);
-void func_8005B2D4(s32 arg0);
-void func_8005B2E4(s32 arg0);
-void func_8005B2F4(s32 arg0);
-
-/* legacy typing of shared globals in this part of the unit */
-#define RaceContext (*(char (*)[])&RaceContext)
-
-void func_8005AA2C(void) {
-    w3t1_F f;
-    char *b = RaceContext;
-    char *c;
+void DrawPresentationTrackModel(void) {
+    MotionMarkerWork work;
+    PresentationController *controller;
     u16 *row;
     s32 i, j, x, y, v;
-    c = *(char **)(b + 0x3D8);
-    f.z0 = 0;
-    f.z1 = 0;
-    f.z2 = 0;
-    f.r0 = *(u16 *)(c + 0x170);
-    f.r1 = *(u16 *)(c + 0x172);
-    f.r2 = *(u16 *)(c + 0x174);
-    SetupObjectLightMatrices(&f.z0, c + 0x20, f.m1, f.m2);
-    v = *(s32 *)(*(char **)(b + 0x3D8) + 0x178);
-    f.e2 = v;
-    f.e1 = v;
-    f.e0 = v;
-    ScaleMatrix(f.m1, &f.e0);
-    SetGteObjectTransform((SCRATCHPAD + 0x7C), &f.z0, f.m1);
+    controller = RaceContext.controller3D8;
+    work.position.x = 0;
+    work.position.y = 0;
+    work.position.z = 0;
+    work.rotation.x = (u16)controller->track.position.x;
+    work.rotation.y = (u16)controller->track.position.y;
+    work.rotation.z = (u16)controller->track.position.z;
+    SetupObjectLightMatrices(&work.position.x, &controller->lighting20, work.lightMatrix.w, work.viewMatrix.w);
+    v = RaceContext.controller3D8->track.scale;
+    work.scale.z = v;
+    work.scale.y = v;
+    work.scale.x = v;
+    ScaleMatrix(work.lightMatrix.w, &work.scale.x);
+    SetGteObjectTransform(
+        (ObjectTransform38 *)(SCRATCHPAD + 0x7C),
+        (const s16 *)&work.position.x,
+        work.lightMatrix.w);
     row = D_800A1F90; i = 0; y = -0x438;
     do {
         j = 0;
         x = -0x438;
         do {
             if (*row & (0x8000 >> j)) {
-                f.vx = x;
-                f.vy = y;
-                f.vz = 0;
-                __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(&f.vx));
-                __asm__ volatile ("nop\n\tnop\n\t.word 0x4A180001");
-                __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(&f.sxy) : "memory");
-                __asm__ volatile ("swc2 $8, 0(%0)\n\tcfc2 $12, $31\n\tnop\n\tsw $12, 0(%0)" : : "r"(&f.fl) : "$12", "memory");
-                __asm__ volatile ("mfc2 $12, $19\n\tnop\n\tsra $12, $12, 2\n\tsw $12, 0(%0)" : : "r"(&f.dep) : "$12", "memory");
-                f.dep = f.dep >> 3;
-                func_8005A91C(((s16 *)&f.sxy)[0], ((s16 *)&f.sxy)[1], f.dep);
+                work.vertex.x = x;
+                work.vertex.y = y;
+                work.vertex.z = 0;
+                RR_GTE_RTPS_LDV(&work.vertex.x);
+                RR_GTE_SWC2_SXY2(&work.screen);
+                RR_GTE_STORE_IR0_THEN_FLAG(&work.flags);
+                RR_GTE_STORE_SZ3_SRA2(&work.depth);
+                work.depth = work.depth >> 3;
+                EmitProjectedMarkerSprt(work.screen.x, work.screen.y, work.depth);
             }
             j++;
             x += 0x90;
@@ -97,38 +69,32 @@ void func_8005AA2C(void) {
         i++;
         row++;
     } while (i < 16);
-    func_8005A9C4();
+    EmitOpeningDrawModePrim();
 }
 
-#undef RaceContext
-
-/* legacy typing of shared globals in this part of the unit */
-#define MotionController (*(int (*))&MotionController)
-
-void InitMotionTrack(int a0) {
-    int *p = (int *)(MotionController + 0x15C);
-    func_80096434(p, 0x2C);
-    p[1] = 0;
-    p[3] = (int)(D_800A1CE0 + (a0 << 5));
-    p[7] = 0x1000;
+void InitMotionTrack(int selection) {
+    MotionTrack44 *track = &RaceContext.controller3D8->track;
+    PsyqBzero(track, sizeof(*track));
+    track->disabled = 0;
+    track->key = &MotionTrackTable[selection];
+    track->scale = 0x1000;
 }
 
-#undef MotionController
-
-void UpdateMotionTrack(RrMotionClock20 *clock) {
+void UpdateMotionTrack(MotionClock20 *clock) {
     s16 counter, next;
-    s32 start, code, delta, units;
+    u32 delta;
+    s32 start, code, units;
     s32 rate;
     register s32 velocity __asm__("$4");
     u32 tempo;
-    RrMotionKey32 *key;
-    RrMotionKey32 *finishKey;
-    RrMotionKey32 *restKey;
-    register RrMotionKey32 *scaleKey __asm__("$4");
-    RrMotionTrack44 *track;
-    RrMotionControllerPrefix *controller;
+    MotionKey32 *key;
+    MotionKey32 *finishKey;
+    MotionKey32 *restKey;
+    register MotionKey32 *scaleKey __asm__("$4");
+    MotionTrack44 *track;
+    PresentationController *controller;
 
-    controller = MotionController;
+    controller = RaceContext.controller3D8;
     track = &controller->track;
     if (track->disabled == 0) {
         switch (controller->track.state) {
@@ -139,12 +105,10 @@ void UpdateMotionTrack(RrMotionClock20 *clock) {
                 code = track->key->timeCode;
                 units = (code >> 8) * 12 + (code & 255);
                 tempo = clock->tempo;
-                /* Capture the clock before doubling the decoded time. */
-                __asm__("" :: "r"(tempo));
                 units *= 2;
                 track->elapsed = 0;
-                track->duration = (s16)((tempo * (u32)units) / 1200U);
-                controller->track.state = (s32)((u32)controller->track.state + 1U);
+                track->duration = (s16)((tempo * units) / 1200U);
+                controller->track.state = (controller->track.state + 1U);
                 /* Fall through: the first interpolation step is immediate. */
         case 1:
                 key = track->key;
@@ -158,17 +122,19 @@ void UpdateMotionTrack(RrMotionClock20 *clock) {
                 scaleKey = key;
                 delta = scaleKey->toScale;
                 start = scaleKey->fromScale;
-                delta = (s32)(((u32)delta - (u32)start) *
-                              (u32)(s32)track->elapsed) / track->duration;
+                delta = (s32)((delta - start) *
+                              track->elapsed) / track->duration;
                 next = (u16)track->elapsed + 1;
                 track->elapsed = next;
-                track->scale = (s32)((u32)delta + (u32)start);
+                track->scale = (delta + start);
                 finishKey = key;
                 if (track->duration < next) {
                     /* Keep the first destination write before the key reload. */
+                    /* ASM_BARRIER: preserve original register scheduling. */
                     __asm__("" : "+r"(finishKey));
                     track->position.x = (u16)finishKey->to.x;
                     restKey = key;
+                    /* ASM_BARRIER: preserve original register scheduling. */
                     __asm__("" : "+r"(restKey) :: "memory");
                     track->position.y = (u16)restKey->to.y;
                     track->position.z = (u16)restKey->to.z;
@@ -188,14 +154,15 @@ void UpdateMotionTrack(RrMotionClock20 *clock) {
         case 2:
             /* Publish scale, damped velocity, then x/z/y in wire order. */
             velocity = track->velocity;
-            rate = (s32)((u32)velocity << 5);
+            rate = ((u32)velocity << 5);
             {
-                s32 current = track->scale;
+                u32 current = track->scale;
                 s32 carry = velocity;
+                /* ASM_BARRIER: preserve original register scheduling. */
                 __asm__("" :: "r"(current));
                 __asm__("" : "+r"(carry) : "r"(rate));
-                rate = (s32)((u32)rate - (u32)velocity);
-                track->scale = (s32)((u32)current + (u32)carry);
+                rate = ((u32)rate - velocity);
+                track->scale = (current + carry);
             }
             if (rate < 0) {
                 rate += 31;
@@ -204,14 +171,15 @@ void UpdateMotionTrack(RrMotionClock20 *clock) {
                 u16 x, y, z;
                 s32 damped;
                 x = (u16)track->position.x;
+                /* ASM_BARRIER: preserve original register scheduling. */
                 __asm__("" : "+r"(rate), "+r"(x));
                 damped = rate >> 5;
-                __asm__("" :: "r"(rate), "r"(damped));
                 track->velocity = damped;
                 z = (u16)track->position.z;
                 track->position.x = x + 16;
                 y = (u16)track->position.y;
                 track->position.z = z + 8;
+                /* ASM_BARRIER: preserve original register scheduling. */
                 __asm__("" :: "r"(y));
                 track->position.y = y + 8;
             }
@@ -220,107 +188,82 @@ void UpdateMotionTrack(RrMotionClock20 *clock) {
     }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define func_80096434 ((int (*)())func_80096434)
-
 void InitMotionController(void) {
-    RaceContext.q = (struct Q *)((char *)&RaceContext + 0x250);
-    func_80096434(RaceContext.q, 0x188);
-    RaceContext.q->f8 = -0x1388;
-    RaceContext.q->f48 = 0x1B8;
-    RaceContext.q->h2c = 0x1C1;
-    RaceContext.q->h2e = -0xDF8;
-    RaceContext.q->h30 = -0x79A;
-    RaceContext.q->c20 = 0xC0;
-    RaceContext.q->c21 = 0xC0;
-    RaceContext.q->c22 = 0xC0;
-    RaceContext.q->h34 = -0x64;
-    RaceContext.q->h36 = 0;
-    RaceContext.q->h38 = 0x64;
-    RaceContext.q->c24 = 0xC0;
-    RaceContext.q->c25 = 0xC0;
-    RaceContext.q->c26 = 0xC0;
-    RaceContext.q->h3c = -0xA4D;
-    RaceContext.q->h3e = -0x642;
-    RaceContext.q->h40 = 0xA86;
-    RaceContext.q->c28 = 0x20;
-    RaceContext.q->c29 = 0x20;
-    RaceContext.q->c2a = 0x20;
-    RaceContext.q->c44 = 0;
-    RaceContext.q->c45 = 0;
-    RaceContext.q->c46 = 0;
-    RaceContext.q->f64 = D_800A1E60;
-    RaceContext.q->f6c = RaceContext.q->f64[RaceContext.q->f68 * 4];
-    RaceContext.q->f70 = RaceContext.q->f64[RaceContext.q->f68 * 4 + 1];
-    switch (RaceContext.q->f6c) {
+    RaceContext.controller3D8 = &RaceContext.presentation250;
+    PsyqBzero(RaceContext.controller3D8, sizeof(PresentationController));
+    RaceContext.controller3D8->position.z = -0x1388;
+    RaceContext.controller3D8->viewDistance48 = 0x1B8;
+    RaceContext.controller3D8->lighting20.matrix.fields.vectors[0].x = 0x1C1;
+    RaceContext.controller3D8->lighting20.matrix.fields.vectors[0].y = -0xDF8;
+    RaceContext.controller3D8->lighting20.matrix.fields.vectors[0].z = -0x79A;
+    RaceContext.controller3D8->lighting20.matrix.fields.colors[0].red = 0xC0;
+    RaceContext.controller3D8->lighting20.matrix.fields.colors[0].green = 0xC0;
+    RaceContext.controller3D8->lighting20.matrix.fields.colors[0].blue = 0xC0;
+    RaceContext.controller3D8->lighting20.matrix.fields.vectors[1].x = -0x64;
+    RaceContext.controller3D8->lighting20.matrix.fields.vectors[1].y = 0;
+    RaceContext.controller3D8->lighting20.matrix.fields.vectors[1].z = 0x64;
+    RaceContext.controller3D8->lighting20.matrix.fields.colors[1].red = 0xC0;
+    RaceContext.controller3D8->lighting20.matrix.fields.colors[1].green = 0xC0;
+    RaceContext.controller3D8->lighting20.matrix.fields.colors[1].blue = 0xC0;
+    RaceContext.controller3D8->lighting20.matrix.fields.vectors[2].x = -0xA4D;
+    RaceContext.controller3D8->lighting20.matrix.fields.vectors[2].y = -0x642;
+    RaceContext.controller3D8->lighting20.matrix.fields.vectors[2].z = 0xA86;
+    RaceContext.controller3D8->lighting20.matrix.fields.colors[2].red = 0x20;
+    RaceContext.controller3D8->lighting20.matrix.fields.colors[2].green = 0x20;
+    RaceContext.controller3D8->lighting20.matrix.fields.colors[2].blue = 0x20;
+    RaceContext.controller3D8->lighting20.ambient[0] = 0;
+    RaceContext.controller3D8->lighting20.ambient[1] = 0;
+    RaceContext.controller3D8->lighting20.ambient[2] = 0;
+    RaceContext.controller3D8->script64 = D_800A1E60;
+    RaceContext.controller3D8->scriptOperation6C = RaceContext.controller3D8->script64[RaceContext.controller3D8->scriptIndex68].operation;
+    RaceContext.controller3D8->scriptArgument70 = RaceContext.controller3D8->script64[RaceContext.controller3D8->scriptIndex68].argument;
+    switch (RaceContext.controller3D8->scriptOperation6C) {
     case 0:
-        InitCameraMotion(RaceContext.q->f70);
+        InitCameraMotion(RaceContext.controller3D8->scriptArgument70);
         break;
     case 1:
-        func_8005D500(RaceContext.q->f70);
+        InitMotionPanel(RaceContext.controller3D8->scriptArgument70);
         break;
     case 2:
-        InitScrollTrack(RaceContext.q->f70);
+        InitScrollTrack(RaceContext.controller3D8->scriptArgument70);
         break;
     case 3:
-        InitMotionTrack(RaceContext.q->f70);
+        InitMotionTrack(RaceContext.controller3D8->scriptArgument70);
         break;
     }
 }
-
-#undef func_80096434
-
-/* legacy typing of shared globals in this part of the unit */
-#define RaceContext (*(struct { char pad[0x3D8]; struct Q_1 *q; } (*))&RaceContext)
 
 void RestartMotionSequence(void) {
-    RaceContext.q->f68 = 0;
-    RaceContext.q->f6a = 0;
-    RaceContext.q->f60 = 0;
-    RaceContext.q->f64 = D_800A1F88[D_800F7620];
-    RaceContext.q->f6c = ((short *)RaceContext.q->f64)[RaceContext.q->f68 * 4];
-    RaceContext.q->f70 = ((short *)RaceContext.q->f64)[RaceContext.q->f68 * 4 + 1];
-    switch (RaceContext.q->f6c) {
+    RaceContext.controller3D8->scriptIndex68 = 0;
+    RaceContext.controller3D8->scriptTimer6A = 0;
+    RaceContext.controller3D8->flags60 = 0;
+    RaceContext.controller3D8->script64 = MotionSequenceTable[MotionSequenceIndex];
+    RaceContext.controller3D8->scriptOperation6C = RaceContext.controller3D8->script64[RaceContext.controller3D8->scriptIndex68].operation;
+    RaceContext.controller3D8->scriptArgument70 = RaceContext.controller3D8->script64[RaceContext.controller3D8->scriptIndex68].argument;
+    switch (RaceContext.controller3D8->scriptOperation6C) {
     case 0:
-        InitCameraMotion(RaceContext.q->f70);
+        InitCameraMotion(RaceContext.controller3D8->scriptArgument70);
         break;
     case 1:
-        func_8005D500(RaceContext.q->f70);
+        InitMotionPanel(RaceContext.controller3D8->scriptArgument70);
         break;
     case 2:
-        InitScrollTrack(RaceContext.q->f70);
+        InitScrollTrack(RaceContext.controller3D8->scriptArgument70);
         break;
     case 3:
-        InitMotionTrack(RaceContext.q->f70);
+        InitMotionTrack(RaceContext.controller3D8->scriptArgument70);
         break;
     }
 }
 
-#undef RaceContext
-
-/* legacy typing of shared globals in this part of the unit */
-#define MotionController ((void *)MotionController)
-
-void func_8005B2D4(s32 arg0) {
-    M2C_FIELD(MotionController, s32 *, 0x54) = arg0;
+void SetPresentationDrawEnabled(s32 arg0) {
+    RaceContext.controller3D8->drawEnabled54 = arg0;
 }
 
-#undef MotionController
-
-/* legacy typing of shared globals in this part of the unit */
-#define MotionController ((void *)MotionController)
-
-void func_8005B2E4(s32 arg0) {
-    M2C_FIELD(MotionController, s32 *, 0x50) = arg0;
+void SetPresentationFullViewport(s32 arg0) {
+    RaceContext.controller3D8->fullViewport50 = arg0;
 }
 
-#undef MotionController
-
-/* legacy typing of shared globals in this part of the unit */
-#define MotionController ((void *)MotionController)
-
-void func_8005B2F4(s32 arg0) {
-    M2C_FIELD(MotionController, s32 *, 0x58) = arg0;
+void SetPresentationStencilEnabled(s32 arg0) {
+    RaceContext.controller3D8->stencilEnabled58 = arg0;
 }
-
-#undef MotionController

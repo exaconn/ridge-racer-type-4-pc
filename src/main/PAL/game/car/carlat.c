@@ -2,8 +2,8 @@
 #include "rr/track_lateral.h"
 #include "rr/vehicle_drive.h"
 
-s32 CalcSteerLimit(RrRaceVehicle *input) {
-    register RrRaceVehicle *vehicle=input;
+s32 CalcSteerLimit(RaceVehicle *input) {
+    register RaceVehicle *vehicle=input;
     register s32 raw=vehicle->input;
     s32 rounded=raw;
     register s32 fraction;
@@ -11,26 +11,24 @@ s32 CalcSteerLimit(RrRaceVehicle *input) {
     if(raw<0)rounded=raw+7;
     fraction=rounded>>3;
     if(raw) {
-        register s32 span=vehicle->span;
-        if(span>=fraction)goto interpolate;
-        value=16;goto blend;
-interpolate:
-        {
+        register s32 span=vehicle->control.span11A;
+        if(span<fraction) {
+            value=16;
+        } else {
             /* ASM_BARRIER: Read the signed maximum before preparing its scaled numerator. */
-            register s32 maximum_signed __asm__("$2")=vehicle->maximum;
+            register s32 maximum_signed __asm__("$2")=vehicle->control.maximum118;
             /* ASM_BARRIER: Retain the signed numerator and DIV guard operands. */
             register s32 scaled __asm__("$3")=(maximum_signed-16)*4096;
             s32 quotient=scaled/span;
-            s32 product=(s32)((s64)quotient*fraction);
-            register u32 maximum=(u16)vehicle->maximum;
+            s32 product=((s64)quotient*fraction);
+            register u32 maximum=(u16)vehicle->control.maximum118;
             /* ASM_BARRIER: Preserve the original signed divide-by-eight rounding temporary. */
     register s32 rounded_product=product>>12;
             if(product<0)rounded_product=(product+4095)>>12;
-            value=maximum-(u32)rounded_product;
+            value=maximum-rounded_product;
         }
-blend:;
         {
-            register s32 blend=vehicle->blend;
+            register s32 blend=vehicle->control.boostTimer44;
             if(blend>0) {
                 register s32 delta;
                 /* ASM_BARRIER: Retain the low wrapped product in the original rounding register. */
@@ -42,12 +40,12 @@ blend:;
                 /* ASM_BARRIER: Keep the quotient in the original multiply source register. */
             register s32 quotient __asm__("$3");
                 signed_value=(s16)value;
-                delta=(s32)vehicle->maximum-signed_value;
+                delta=vehicle->control.maximum118-signed_value;
                 product=delta*blend;
-                divisor=vehicle->divisor;
+                divisor=vehicle->control.divisor11C;
                 if(divisor<0)divisor=-divisor;
                 quotient=product/divisor;
-                value=(u32)value+(u32)quotient;
+                value=value+quotient;
             }
         }
     } else {
@@ -58,17 +56,16 @@ blend:;
     return (s16)value;
 }
 
-int ScanCurveAhead(a0, a1, a2, a3, a4) char *a0; int a1; int *a2; int *a3; int *a4;
-{
+int ScanCurveAhead(char *a0, int a1, int *a2, int *a3, int *a4) {
     int v0, v1, s0, s1, s2, s3, s4, s5, r0;
     int r1;
     int t;
-    v0 = *(short *)(a0 + 0x1D8) * 0xC;
+    v0 = ((RaceVehicle *)a0)->input * 0xC;
     if (v0 < 0) v0 += 0xF;
     v1 = v0 >> 4;
     if (v1 < 0x200) v1 = 0x200;
-    s0 = *(int *)(a0 + 0xF0);
-    s1 = -*(short *)(a0 + 0x1D4) + 0x400;
+    s0 = ((RaceVehicle *)a0)->trackNodeF0;
+    s1 = -((RaceVehicle *)a0)->heading1D4 + 0x400;
     s1 &= 0xFFF;
     s2 = v1;
     if (s1 & 0x800) s1 |= ~0xFFF;

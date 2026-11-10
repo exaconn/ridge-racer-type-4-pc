@@ -16,8 +16,8 @@ class Overlay662ButtonSpriteTest(unittest.TestCase):
         self.assertEqual(sorted(row[6] for row in buttons),list(range(46)))
         self.assertEqual(sorted(row[6] for row in sprites),list(range(72)))
         self.assertTrue(all(0<=row[4]<71 for row in buttons))
-        button_data='static const RrGarageButton original_buttons[46]={\n'+',\n'.join('{{'+','.join(map(str,r[:4]))+'},'+','.join(map(str,r[4:]))+'}' for r in buttons)+'\n};\n'
-        sprite_data='static const RrGarageSpriteRecord original_sprites[72]={\n'+',\n'.join('{'+','.join(map(str,r))+'}' for r in sprites)+'\n};\n'
+        button_data='static const GarageButton original_buttons[46]={\n'+',\n'.join('{{'+','.join(map(str,r[:4]))+'},'+','.join(map(str,r[4:]))+'}' for r in buttons)+'\n};\n'
+        sprite_data='static const GarageSpriteRecord original_sprites[72]={\n'+',\n'.join('{'+','.join(map(str,r))+'}' for r in sprites)+'\n};\n'
         child=(root/'src/overlays/PAL/662/func_8011B2D4.c').read_text()
         hint='    __asm__("" ::: "memory");\n'
         self.assertEqual(child.count(hint),1)
@@ -34,7 +34,7 @@ class Overlay662ButtonSpriteTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_buttons.h"
-static struct World {u32 guard[4];RrGpuScratchPointers scratch;RrGarageButton buttons[46];RrGarageRectangle *table[46];RrGarageSpriteRecord records[72];RrGarageSpriteRecord *lookup[72];u32 order[704];RrSpritePacket packets[4];u32 tail[4];} world,expected;
+static struct World {u32 guard[4];GpuScratchPointers scratch;GarageButton buttons[46];GarageRectangle *table[46];GarageSpriteRecord records[72];GarageSpriteRecord *lookup[72];u32 order[704];SpritePacket packets[4];u32 tail[4];} world,expected;
 #define RR_GPU_SCRATCH (&world.scratch)
 #define ovl662_D_801273B8 world.table
 #define ovl662_D_80126260 world.records
@@ -46,7 +46,7 @@ static s16 half(u32 raw){u16 bits=(u16)raw;s16 v;memcpy(&v,&bits,2);return v;}
 static void put16(void *base,unsigned at,u32 bits){u8 *p=base;p[at]=(u8)bits;p[at+1]=(u8)(bits>>8);}
 static void put32(void *base,u32 bits){u8 *p=base;unsigned i;for(i=0;i<4;i++)p[i]=(u8)(bits>>(i*8));}
 static void reference(unsigned index,unsigned packetIndex){
- RrGarageButton *button=&expected.buttons[index];s32 sprite=button->sprite08;RrGarageSpriteRecord *r;unsigned slot,depth;u32 head;u8 *p=(u8*)&expected.packets[packetIndex];
+ GarageButton *button=&expected.buttons[index];s32 sprite=button->sprite08;GarageSpriteRecord *r;unsigned slot,depth;u32 head;u8 *p=(u8*)&expected.packets[packetIndex];
  if(button->timer0E!=0){sprite++;if(button->timer0E>0)button->timer0E-=1;}
  assert(sprite>=0 && sprite<72);slot=(unsigned)(world.lookup[sprite]-world.records);r=&expected.records[slot];depth=(unsigned)(128+r->depth00);assert(depth<704);head=expected.order[depth];
  p[3]=4;p[7]=(r->flags10&1)?0x67:0x65;put16(p,8,button->rectangle[0]);put16(p,10,button->rectangle[1]);
@@ -55,7 +55,7 @@ static void reference(unsigned index,unsigned packetIndex){
  expected.scratch.cursor=(u8*)&world.packets[packetIndex+1];
 }
 int main(void){unsigned k,i,index,packetIndex;static const u16 boundaries[8]={0,1,2,0x7FFF,0x8000,0x8001,0xFFFE,0xFFFF};
- _Static_assert(sizeof(RrGarageButton)==16,"real button owner");
+ _Static_assert(sizeof(GarageButton)==16,"real button owner");
  for(k=0;k<65904;k++){
   u16 timerBits;
   for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();memcpy(world.buttons,original_buttons,sizeof(original_buttons));memcpy(world.records,original_sprites,sizeof(original_sprites));

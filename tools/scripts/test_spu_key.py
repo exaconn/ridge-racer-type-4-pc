@@ -6,9 +6,10 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class SpuKeyTest(unittest.TestCase):
  def test_direct_and_queued_masks_with_complete_bank_owners(self):
-  body=(ROOT/'tools/scripts/fixtures/views/func_80087814.c').read_text()
-  body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
-  body=re.sub(r'__asm__(?: volatile)?\(""[^;]*;', '',body)
+  from c_functions import definition_source, source_owners
+  owner=source_owners(ROOT/'src/main/PAL')['SpuSetKey'].read_text()
+  body=definition_source(owner,'SpuSetKey')
+  assert 'asm' not in body
   code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -17,9 +18,9 @@ class SpuKeyTest(unittest.TestCase):
 #include <stdio.h>
 #include <limits.h>
 #include "rr/spu_key.h"
-typedef struct {u32 guard[4];RrSpuRegisterStorage bank;u32 tail[4];} GuardedBank;
+typedef struct {u32 guard[4];SpuRegisterStorage bank;u32 tail[4];} GuardedBank;
 typedef struct {u32 guard[4];u16 pending[10];u32 flags,dirty,queued,direct;
- RrSpuRegisterBank *root;u32 tail[4];} Environment;
+ SpuRegisterBank *root;u32 tail[4];} Environment;
 static GuardedBank banks[2];static u16 expectedBank[2][256];
 static u32 bankGuard[2][4],bankTail[2][4];static Environment actual,expected;
 static u32 seed=0x87814;static unsigned paths[10];
@@ -63,9 +64,9 @@ static void compare(void){unsigned b,i;assert(!memcmp(&actual,&expected,sizeof(a
 }
 int main(void){unsigned n,phase,b,i;uint64_t cases=0;s32 mode;u32 mask;u8 high;
  static const u8 highs[6]={0,255,128,1,85,170};
- _Static_assert(sizeof(RrSpuRegisterStorage)==512,"complete bank owner");
+ _Static_assert(sizeof(SpuRegisterStorage)==512,"complete bank owner");
  _Static_assert(sizeof(actual.pending)==20,"complete ten-halfword cache");
- _Static_assert(offsetof(RrSpuRegisterBank,transfer_address)==0x1a6,"hardware layout");
+ _Static_assert(offsetof(SpuRegisterBank,transfer_address)==0x1a6,"hardware layout");
  assert((uintptr_t)&banks[0].bank>UINT32_MAX);assert((uintptr_t)&actual>UINT32_MAX);
  for(b=0;b<2;b++){
   for(i=0;i<4;i++){banks[b].guard[i]=bankGuard[b][i]=next();banks[b].tail[i]=bankTail[b][i]=next();}

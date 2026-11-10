@@ -39,7 +39,7 @@ typedef int32_t s32;
         source = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', source)
         source += '''
 s32 _spu_AllocBlockNum;
-RrSpuAllocation *_spu_memList;
+SpuAllocation *_spu_memList;
 void (*test_consolidate)(void);
 void _spu_gcSPU(void) { test_consolidate(); }
 '''

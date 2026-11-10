@@ -7,7 +7,7 @@ import subprocess
 from tempfile import TemporaryDirectory
 import unittest
 
-Control = C.CFUNCTYPE(None, C.c_int32, C.c_int32, C.c_int32)
+RaceVehicleControl = C.CFUNCTYPE(None, C.c_int32, C.c_int32, C.c_int32)
 Reset = C.CFUNCTYPE(None, C.c_int32, C.c_int32)
 ROUTES = {6: 'SsCtrlHandlerCC6', 7: 'D_8010EFE4', 10: 'D_8010EFE8',
           11: 'D_8010EFEC', 64: 'SsCtrlHandlerCC64', 91: 'D_8010F004',
@@ -31,12 +31,12 @@ typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + asm_header + '''
-RrLibStateB0 *test_table[0x4100];
-RrLibStateB0 test_records[9][17];
+LibStateB0 *test_table[0x4100];
+LibStateB0 test_records[9][17];
 u8 test_streams[9][17][32];
-u32 test_layout[] = {sizeof(RrLibStateB0), offsetof(RrLibStateB0,b26),
-                    offsetof(RrLibStateB0,w88), offsetof(RrLibStateB0,w90)};
-RrLibControllerResetCallback SsCtrlHandlerCC121;
+u32 test_layout[] = {sizeof(LibStateB0), offsetof(LibStateB0,b26),
+                    offsetof(LibStateB0,w88), offsetof(LibStateB0,w90)};
+LibControllerResetCallback SsCtrlHandlerCC121;
 void test_initialize(void) {
  s32 bank;
  memset(test_records,0xA5,sizeof(test_records));
@@ -52,14 +52,14 @@ void test_prepare(s32 bank,s32 row,const u8 *bytes,u32 count,u32 accumulator) {
  test_records[bank+4][row+8].w88=accumulator;
 }
 '''
-        source += '\n'.join('RrLibControllerCallback ' + name + ';' for name in ROUTES.values()) + '\n'
+        source += '\n'.join('LibControllerCallback ' + name + ';' for name in ROUTES.values()) + '\n'
         for name in ('800818B4', '80081E04'):
             body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
             body = body.replace('#include "rr_asm.h"', '')
             body = body.replace('#include "rr/library.h"', '')
-            body = body.replace('extern RrLibStateB0 *_ss_score[];', '')
+            body = body.replace('extern LibStateB0 *_ss_score[];', '')
             body = body.replace('_ss_score', '(test_table + 0x4000 - 0xF98 / 4)')
-            body = body.replace('(RrLibStateB0 **)0x80110000U', '(test_table + 0x4000)')
+            body = body.replace('(LibStateB0 **)0x80110000U', '(test_table + 0x4000)')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
             source += body
@@ -85,7 +85,7 @@ void test_prepare(s32 bank,s32 row,const u8 *bytes,u32 count,u32 accumulator) {
         self.events = []
         self.hooks = []
         for code, name in ROUTES.items():
-            self.hook(name, Control, lambda *args, code=code: self.events.append((code, args, bytes(self.records))))
+            self.hook(name, RaceVehicleControl, lambda *args, code=code: self.events.append((code, args, bytes(self.records))))
         self.hook('SsCtrlHandlerCC121', Reset, lambda *args: self.events.append((121, args, bytes(self.records))))
 
     def hook(self, name, kind, function):
@@ -147,7 +147,7 @@ void test_prepare(s32 bank,s32 row,const u8 *bytes,u32 count,u32 accumulator) {
             C.c_int32.from_buffer(self.records, offset + self.counter_offset).value = -77
             C.c_int32.from_buffer(self.records, offset + self.accumulator_offset).value = 123
             self.records[offset + self.byte_offset] = 99
-        self.hook(ROUTES[7], Control, mutate)
+        self.hook(ROUTES[7], RaceVehicleControl, mutate)
         expected = bytearray(self.records)
         expected[offset:offset + C.sizeof(C.c_void_p)] = struct.pack('P', stream + 2)
         expected[offset + self.counter_offset:offset + self.counter_offset + 4] = struct.pack('<i', -77)

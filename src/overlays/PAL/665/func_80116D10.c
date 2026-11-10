@@ -1,7 +1,11 @@
+#include "game/car/carstat.h"
 #include "rr/line_emit.h"
+#include "rr/frame_storage_types.h"
 #include "types.h"
+#include "game/system/pad.h"
+#include "rr/ui.h"
 
-/* Car / course setup controller (one player). */
+/* RaceVehicle / course setup controller (one player). */
 
 typedef struct {
     s16 x00, y02;
@@ -27,32 +31,10 @@ typedef struct {
 } Ovl665CarState;
 
 typedef struct {
-    u8 byte00, course01;
-    u8 pad02[6];
-    u16 buttons08;
-    u8 pad0A[0x12];
-    s16 option1C;
-    u8 pad1E[2];
-    s16 balance20;
-    u8 pad22[6];
-    s32 confirm28;
-    u8 pad2C[0x14];
-    u8 ready40;
-    s8 tilt41;
-    u8 pad42[0x1A];
-} Ovl665Pad5C;
-
-typedef struct {
     struct { s16 car00, colour02; } a[2];
     struct { s16 h[8]; } b[2];
     struct { s8 c[4]; } c[2];
 } Ovl665Settings;
-
-typedef struct {
-    u8 pad00[4];
-    u8 b4, b5, b6, b7;
-    u8 pad08[0x20];
-} Ovl665Entry28;
 
 typedef struct {
     u8 byte00, byte01;
@@ -63,21 +45,10 @@ typedef struct {
 } Ovl665Panel;
 
 typedef struct {
-    u8 pad00[0xC];
-    u8 cells[8];
-    u8 byte14, byte15, byte16;
-    u8 pad17[0xD];
-} Ovl665Row24;
-
-typedef struct {
     u8 pad00[4];
     u8 b4;
 } Ovl665Text;
 
-typedef struct {
-    u8 pad00[0x70];
-    u32 ordering70;
-} Ovl665Frame;
 
 typedef struct {
     u32 tag;
@@ -94,13 +65,9 @@ typedef struct {
 
 extern Ovl665CarState ovl665_D_80119768;
 extern s32 ovl665_D_80119760;
-extern Ovl665Pad5C PlayerControllers[2];
 extern Ovl665Settings Options;
-extern Ovl665Entry28 PadPorts[];
 extern Ovl665Panel *BadgeRows;
-extern Ovl665Row24 *UiRows;
-extern Ovl665Text *D_800AC590;
-extern Ovl665Frame *CurrentDrawBuf;
+extern Ovl665Text *CardDialogueStatePtr;
 extern s16 D_800AC5D0;
 extern s32 D_800AC5D4;
 extern s32 D_800F4CB8;
@@ -119,15 +86,14 @@ extern u8 ovl665_D_8011973C[];
 extern u8 ovl665_D_80119020[], ovl665_D_80119024[];
 extern s16 D_8009FFB8[];
 extern s16 PadRangeLimits[];
-extern s32 D_8009FFCC[];
+extern s32 WheelDeadzoneTable[];
 
 extern s32 PadGetState(s32);
 extern void PadSetMainMode(s32, s32, s32);
-extern s32 func_8004E8CC(void);
+extern s32 LoadTrophyModelStep(void);
 extern s32 ovl665_func_8011629C(s32);
-extern void func_8005B2D4(s32);
+extern void SetPresentationDrawEnabled(s32);
 extern void StepMenuValue(s32, s32, void *, s32, s32);
-extern void SetPadButtonMapLayout(s32, s32, s32, s32);
 /* Sound cue; several call sites pass the freshly computed offset as a
  * second (ignored) argument, so it is declared without a prototype. */
 extern void PlaySfx();
@@ -154,7 +120,6 @@ typedef struct {
 } Ovl665Scratch;
 
 #define SCRATCH ((Ovl665Scratch *)0x1F800000)
-#define CURSOR (*(void **)0x1F800000)
 
 #define CLOSE_ROWS(n)                                   \
     BadgeRows->state10 = 4;                            \
@@ -174,20 +139,20 @@ typedef struct {
 /* Links a texture-page command packet into the frame ordering list. */
 #define LINK_PACKET()                                                       \
     {                                                                       \
-        Ovl665Frame *frame;                                                 \
+        FrameStorage *frame;                                                 \
         packet = SCRATCH->cursor;                                           \
         ((u8 *)&packet->tag)[3] = 1;                                        \
         frame = CurrentDrawBuf;                                                 \
         packet->command = 0xE1000259;                                       \
-        packet->tag = (packet->tag & 0xFF000000) | (frame->ordering70 & 0xFFFFFF); \
-        frame->ordering70 = (frame->ordering70 & 0xFF000000) | ((u32)packet & 0xFFFFFF); \
+        packet->tag = (packet->tag & 0xFF000000) | (frame->buffer.ordering70.words[0] & 0xFFFFFF); \
+        frame->buffer.ordering70.words[0] = (frame->buffer.ordering70.words[0] & 0xFF000000) | ((u32)packet & 0xFFFFFF); \
         packet++;                                                           \
         SCRATCH->cursor = packet;                                           \
     }
 
 void ovl665_func_80116D10(s32 player) {
     Ovl665Colour4 *src;
-    Ovl665Entry28 *entry;
+    PadPort28 *entry;
     s32 changed;
     s32 i;
     s32 kind;
@@ -202,15 +167,15 @@ void ovl665_func_80116D10(s32 player) {
     Ovl665Line line;
     Ovl665Packet *packet;
 
-    ST.buttons28 = PlayerControllers[player].buttons08;
+    ST.buttons28 = PlayerControllers[player].edges08.fields.pressed;
     entry = &PadPorts[player];
     changed = 0;
     switch (ST.step0C) {
     case 0:
         if (ovl665_D_80119760 == 0) {
-            if (PlayerControllers[player].ready40 == 1) {
+            if (PlayerControllers[player].flag40 == 1) {
                 if (ST.ready2C == 0) {
-                    if (PlayerControllers[player].course01 != 0xE3) {
+                    if (PlayerControllers[player].input00.fields.type != 0xE3) {
                         if (PadGetState(player << 4) == 6) {
                             PadSetMainMode(player << 4, 1, 0);
                         }
@@ -224,7 +189,7 @@ void ovl665_func_80116D10(s32 player) {
             }
         }
         D_800AC5D4 = player;
-        if (func_8004E8CC() == 0) {
+        if (LoadTrophyModelStep() == 0) {
             break;
         }
         if (ovl665_D_80119760 == 0) {
@@ -248,7 +213,7 @@ void ovl665_func_80116D10(s32 player) {
                 ST.rotation86 = index;
                 break;
             case 3:
-                if (PlayerControllers[player].course01 != 0xE3) {
+                if (PlayerControllers[player].input00.fields.type != 0xE3) {
                     index = Options.a[player].car00;
                     src = ovl665_D_8011902C[index];
                     index <<= 12;
@@ -259,7 +224,7 @@ void ovl665_func_80116D10(s32 player) {
                     index <<= 12;
                 ST.rotation86 = index;
                 }
-                ST.course2A = PlayerControllers[player].course01;
+                ST.course2A = PlayerControllers[player].input00.fields.type;
                 break;
             }
             ST.view38 = ovl665_D_80119698[ST.kind18];
@@ -278,7 +243,7 @@ void ovl665_func_80116D10(s32 player) {
         ST.offset94 = 0;
         ST.offset96 = 0;
         ST.offset98 = 0;
-        func_8005B2D4(0);
+        SetPresentationDrawEnabled(0);
         ST.step0C++;
         break;
     case 1:
@@ -291,7 +256,7 @@ void ovl665_func_80116D10(s32 player) {
             }
             switch (ST.kind18) {
             case 1:
-                if (PlayerControllers[player].option1C != 0) {
+                if (PlayerControllers[player].kind1C != 0) {
                     UiRows[5].cells[0] = 1;
                     UiRows[Options.a[player].colour02 + 6].cells[0] = 0;
                     StepMenuValue(player * 4, 2, &Options.a[player].colour02, 2, 0);
@@ -312,7 +277,7 @@ void ovl665_func_80116D10(s32 player) {
                     SetPadButtonMapLayout(player, Options.a[player].car00, Options.b[player].h[6],
                                   Options.c[player].c[3]);
                 }
-                if (PlayerControllers[player].confirm28 != 0) {
+                if (PlayerControllers[player].action28 != 0) {
                     PlaySfx(1);
                     CLOSE_ROWS(5);
                     D_800AC5D0 = 64;
@@ -320,14 +285,14 @@ void ovl665_func_80116D10(s32 player) {
                     ST.next14 = 0;
                 }
                 ovl665_func_80116AA4(ovl665_D_80119290[Options.a[player].car00], ST.fade24);
-                cursor = CURSOR;
+                cursor = SCRATCH->cursor;
                 if (Options.a[player].car00 > 0) {
-                    cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
+                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
                 }
                 if (Options.a[player].car00 < 7) {
-                    cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
+                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
                 }
-                CURSOR = cursor;
+                SCRATCH->cursor = cursor;
                 break;
             case 2:
                 old = Options.b[player].h[6];
@@ -344,10 +309,10 @@ void ovl665_func_80116D10(s32 player) {
                     SetPadButtonMapLayout(player, Options.a[player].car00, Options.b[player].h[6],
                                   Options.c[player].c[3]);
                 }
-                value = PlayerControllers[player].balance20 * 3800 / 256 - 1900;
+                value = PlayerControllers[player].steering20 * 3800 / 256 - 1900;
                 ST.offset8C = value / 2;
                 ST.offset94 = -value / 2;
-                if (PlayerControllers[player].confirm28 != 0) {
+                if (PlayerControllers[player].action28 != 0) {
                     PlaySfx(1, value);
                     CLOSE_ROWS(5);
                     D_800AC5D0 = 64;
@@ -355,21 +320,21 @@ void ovl665_func_80116D10(s32 player) {
                     ST.next14 = 3;
                 }
                 ovl665_func_80116AA4(ovl665_D_801193E8[Options.b[player].h[6]], ST.fade24);
-                cursor = CURSOR;
+                cursor = SCRATCH->cursor;
                 if (Options.b[player].h[6] > 0) {
-                    cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
+                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
                 }
                 if (Options.b[player].h[6] < 7) {
-                    cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
+                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
                 }
-                CURSOR = cursor;
+                SCRATCH->cursor = cursor;
                 break;
             case 3:
-                if (ST.course2A != PlayerControllers[player].course01) {
+                if (ST.course2A != PlayerControllers[player].input00.fields.type) {
                     changed = 1;
-                    ST.course2A = PlayerControllers[player].course01;
+                    ST.course2A = PlayerControllers[player].input00.fields.type;
                 }
-                if (PlayerControllers[player].course01 != 0xE3) {
+                if (PlayerControllers[player].input00.fields.type != 0xE3) {
                     old = Options.a[player].car00;
                     StepMenuValue(player * 4 | 1, 1, &Options.a[player].car00, 8, 0);
                     if (old != Options.a[player].car00) {
@@ -387,7 +352,7 @@ void ovl665_func_80116D10(s32 player) {
                         COPY_COLOURS(src);
                         ST.fade24 = 0;
                     }
-                    if (PlayerControllers[player].confirm28 != 0) {
+                    if (PlayerControllers[player].action28 != 0) {
                         PlaySfx(1);
                         CLOSE_ROWS(5);
                         D_800AC5D0 = 64;
@@ -395,14 +360,14 @@ void ovl665_func_80116D10(s32 player) {
                         ST.next14 = 0;
                     }
                     ovl665_func_80116AA4(ovl665_D_80119558[Options.a[player].car00], ST.fade24);
-                    cursor = CURSOR;
+                    cursor = SCRATCH->cursor;
                     if (Options.a[player].car00 > 0) {
-                        cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
+                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
                     }
                     if (Options.a[player].car00 < 7) {
-                        cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
+                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
                     }
-                    CURSOR = cursor;
+                    SCRATCH->cursor = cursor;
                 } else {
                     old = Options.c[player].c[3];
                     StepMenuValue(player * 4 | 1, 1, &Options.c[player].c[3], 8, 0);
@@ -421,9 +386,9 @@ void ovl665_func_80116D10(s32 player) {
                         COPY_COLOURS(src);
                         ST.fade24 = 0;
                     }
-                    value = PlayerControllers[player].tilt41 * 16;
+                    value = (s8)PlayerControllers[player].position41 * 16;
                     ST.offset90 = value;
-                    if (PlayerControllers[player].confirm28 != 0) {
+                    if (PlayerControllers[player].action28 != 0) {
                         PlaySfx(1, value);
                         CLOSE_ROWS(5);
                         D_800AC5D0 = 64;
@@ -431,14 +396,14 @@ void ovl665_func_80116D10(s32 player) {
                         ST.next14 = 4;
                     }
                     ovl665_func_80116AA4(ovl665_D_801195F8[Options.c[player].c[3]], ST.fade24);
-                    cursor = CURSOR;
+                    cursor = SCRATCH->cursor;
                     if (Options.c[player].c[3] > 0) {
-                        cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
+                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
                     }
                     if (Options.c[player].c[3] < 7) {
-                        cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
+                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
                     }
-                    CURSOR = cursor;
+                    SCRATCH->cursor = cursor;
                 }
                 break;
             }
@@ -449,7 +414,7 @@ void ovl665_func_80116D10(s32 player) {
         }
         ST.angle1C = ST.angle1C * 15 / 16;
         ST.rotation86 = ST.angle1C;
-        if ((u32)(ST.angle1C + 128) > 256) {
+        if ((ST.angle1C + 128) > 256U) {
             ST.fade24 = 0;
         }
         LINK_PACKET();
@@ -457,7 +422,7 @@ void ovl665_func_80116D10(s32 player) {
         for (i = 0; i < 5; i++) {
             DrawUiRow(i);
         }
-        if (ST.kind18 == 1 && PlayerControllers[player].option1C != 0) {
+        if (ST.kind18 == 1 && PlayerControllers[player].kind1C != 0) {
             for (i = 5; i < 8; i++) {
                 DrawUiRow(i);
             }
@@ -466,7 +431,7 @@ void ovl665_func_80116D10(s32 player) {
     case 2:
         timer = D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering70, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (64 - timer) * 4, 69);
         if (D_800AC5D0 <= 0) {
             if (ST.next14 == 0) {
                 ovl665_func_80114A24();
@@ -495,20 +460,20 @@ void ovl665_func_80116D10(s32 player) {
             ST.view38 = ovl665_D_80119698[4];
             ST.rotation86 = 0;
             ST.angle1C = 0;
-            D_800AC590->b4 = 9;
+            CardDialogueStatePtr->b4 = 9;
             ST.detail10++;
             break;
         case 1:
-            value = PlayerControllers[player].balance20 * 3800 / 256 - 1900;
+            value = PlayerControllers[player].steering20 * 3800 / 256 - 1900;
             ST.offset8C = value / 2;
             ST.offset94 = -value / 2;
-            if (PlayerControllers[player].buttons08 & 0x800) {
+            if (PlayerControllers[player].edges08.fields.pressed & 0x800) {
                 PlaySfx(1, value);
-                Options.b[player].h[0] = entry->b4 - 128;
-                Options.b[player].h[1] = entry->b5;
-                Options.b[player].h[2] = entry->b6;
-                Options.b[player].h[3] = entry->b7;
-                D_800AC590->b4 = Options.b[player].h[4] + 10;
+                Options.b[player].h[0] = entry->analog04.bytes[0] - 128;
+                Options.b[player].h[1] = entry->analog04.bytes[1];
+                Options.b[player].h[2] = entry->analog04.bytes[2];
+                Options.b[player].h[3] = entry->analog04.bytes[3];
+                CardDialogueStatePtr->b4 = Options.b[player].h[4] + 10;
                 ST.view38 = ovl665_D_80119698[5];
                 ST.phase20 = 0;
                 ST.detail10++;
@@ -519,7 +484,7 @@ void ovl665_func_80116D10(s32 player) {
             old = Options.b[player].h[4];
             StepMenuValue(player * 4 | 1, 1, &Options.b[player].h[4], 4, 0);
             if (old != Options.b[player].h[4]) {
-                D_800AC590->b4 = Options.b[player].h[4] + 10;
+                CardDialogueStatePtr->b4 = Options.b[player].h[4] + 10;
             }
             value = rsin(ST.phase20) * ovl665_D_80119740[Options.b[player].h[4]] / 512;
             ST.offset8C = value;
@@ -529,9 +494,9 @@ void ovl665_func_80116D10(s32 player) {
             if (ST.phase20 >= 4096) {
                 ST.phase20 = phase - 4064;
             }
-            if (PlayerControllers[player].buttons08 & 0x840) {
+            if (PlayerControllers[player].edges08.fields.pressed & 0x840) {
                 PlaySfx(1, value);
-                D_800AC590->b4 = Options.b[player].h[5] + 14;
+                CardDialogueStatePtr->b4 = Options.b[player].h[5] + 14;
                 ST.view38 = ovl665_D_80119698[5];
                 ST.phase20 = 0;
                 ST.detail10++;
@@ -546,20 +511,20 @@ void ovl665_func_80116D10(s32 player) {
                 line.y0 = line.y1 = ST.view38.y02 - ovl665_D_80119724[Options.b[player].h[4] - 1];
                 AddLineF2Prim((const s16 *)&line, ovl665_D_8011973C, 0, 0);
             }
-            cursor = CURSOR;
+            cursor = SCRATCH->cursor;
             if (Options.b[player].h[4] > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
             }
             if (Options.b[player].h[4] < 3) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
             }
-            CURSOR = cursor;
+            SCRATCH->cursor = cursor;
             break;
         case 3:
             old = Options.b[player].h[5];
             StepMenuValue(player * 4 | 1, 1, &Options.b[player].h[5], 4, 0);
             if (old != Options.b[player].h[5]) {
-                D_800AC590->b4 = Options.b[player].h[5] + 14;
+                CardDialogueStatePtr->b4 = Options.b[player].h[5] + 14;
             }
             value = rsin(ST.phase20) * D_8009FFB8[Options.b[player].h[5]] / 512;
             ST.offset8C = value;
@@ -569,20 +534,20 @@ void ovl665_func_80116D10(s32 player) {
             if (ST.phase20 >= 4096) {
                 ST.phase20 = phase - 4064;
             }
-            if (PlayerControllers[player].buttons08 & 0x840) {
+            if (PlayerControllers[player].edges08.fields.pressed & 0x840) {
                 PlaySfx(1, value);
                 CLOSE_ROWS(5);
                 D_800AC5D0 = 64;
                 ST.step0C = 2;
             }
-            cursor = CURSOR;
+            cursor = SCRATCH->cursor;
             if (Options.b[player].h[5] > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
             }
             if (Options.b[player].h[5] < 3) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
             }
-            CURSOR = cursor;
+            SCRATCH->cursor = cursor;
             break;
         }
         if (ovl665_func_8011629C(player) < 0) {
@@ -605,16 +570,16 @@ void ovl665_func_80116D10(s32 player) {
             ST.view38 = ovl665_D_80119698[6];
             ST.rotation86 = 0;
             ST.angle1C = 0;
-            D_800AC590->b4 = 8;
+            CardDialogueStatePtr->b4 = 8;
             ST.detail10++;
             break;
         case 1:
-            value = PlayerControllers[player].tilt41 * 16;
+            value = (s8)PlayerControllers[player].position41 * 16;
             ST.offset90 = value;
-            if (PlayerControllers[player].buttons08 & 0x800) {
+            if (PlayerControllers[player].edges08.fields.pressed & 0x800) {
                 PlaySfx(1, value);
                 PadSetRumbleFlags(player, 3);
-                D_800AC590->b4 = Options.c[player].c[0] + 10;
+                CardDialogueStatePtr->b4 = Options.c[player].c[0] + 10;
                 ST.phase20 = 0;
                 ST.detail10++;
                 SetMenuFrameOptions(1, 1, 0);
@@ -624,39 +589,39 @@ void ovl665_func_80116D10(s32 player) {
             old = Options.c[player].c[0];
             StepMenuValue(player * 4 | 1, 1, &Options.c[player].c[0], 4, 0);
             if (old != Options.b[player].h[4]) {
-                D_800AC590->b4 = Options.c[player].c[0] + 10;
+                CardDialogueStatePtr->b4 = Options.c[player].c[0] + 10;
             }
-            value = rsin(ST.phase20) * D_8009FFCC[Options.c[player].c[0]] / 128;
+            value = rsin(ST.phase20) * WheelDeadzoneTable[Options.c[player].c[0]] / 128;
             ST.offset90 = value;
             phase = ST.phase20;
             ST.phase20 = phase + 32;
             if (ST.phase20 >= 4096) {
                 ST.phase20 = phase - 4064;
             }
-            if (PlayerControllers[player].confirm28 != 0) {
+            if (PlayerControllers[player].action28 != 0) {
                 PlaySfx(1, value);
-                D_800AC590->b4 = Options.c[player].c[1] + 18;
+                CardDialogueStatePtr->b4 = Options.c[player].c[1] + 18;
                 ST.phase20 = 0;
                 ST.detail10++;
             }
             if (Options.c[player].c[0] > 0) {
-                ovl665_func_801169BC(D_8009FFCC[Options.c[player].c[0]] << 5);
-                ovl665_func_801169BC(-D_8009FFCC[Options.c[player].c[0]] << 5);
+                ovl665_func_801169BC(WheelDeadzoneTable[Options.c[player].c[0]] << 5);
+                ovl665_func_801169BC(-WheelDeadzoneTable[Options.c[player].c[0]] << 5);
             }
-            cursor = CURSOR;
+            cursor = SCRATCH->cursor;
             if (Options.c[player].c[0] > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
             }
             if (Options.c[player].c[0] < 3) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
             }
-            CURSOR = cursor;
+            SCRATCH->cursor = cursor;
             break;
         case 3:
             old = Options.c[player].c[1];
             StepMenuValue(player * 4 | 1, 1, &Options.c[player].c[1], 5, 0);
             if (old != Options.c[player].c[1]) {
-                D_800AC590->b4 = Options.c[player].c[1] + 18;
+                CardDialogueStatePtr->b4 = Options.c[player].c[1] + 18;
             }
             value = rsin(ST.phase20) * PadRangeLimits[Options.c[player].c[1]] / 256;
             ST.offset90 = value;
@@ -665,26 +630,26 @@ void ovl665_func_80116D10(s32 player) {
             if (ST.phase20 >= 4096) {
                 ST.phase20 = phase - 4064;
             }
-            if (PlayerControllers[player].confirm28 != 0) {
+            if (PlayerControllers[player].action28 != 0) {
                 PlaySfx(1, value);
-                D_800AC590->b4 = Options.c[player].c[2] + 23;
+                CardDialogueStatePtr->b4 = Options.c[player].c[2] + 23;
                 ST.phase20 = 0;
                 ST.detail10++;
             }
-            cursor = CURSOR;
+            cursor = SCRATCH->cursor;
             if (Options.c[player].c[1] > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
             }
             if (Options.c[player].c[1] < 4) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
             }
-            CURSOR = cursor;
+            SCRATCH->cursor = cursor;
             break;
         case 4:
             old = Options.c[player].c[2];
             StepMenuValue(player * 4 | 1, 1, &Options.c[player].c[2], 3, 0);
             if (old != Options.c[player].c[2]) {
-                D_800AC590->b4 = Options.c[player].c[2] + 23;
+                CardDialogueStatePtr->b4 = Options.c[player].c[2] + 23;
             }
             wave = rsin(ST.phase20) * 21;
             value = wave * Options.c[player].c[2] / 256;
@@ -694,23 +659,23 @@ void ovl665_func_80116D10(s32 player) {
             if (ST.phase20 >= 4096) {
                 ST.phase20 = phase - 4064;
             }
-            if (PlayerControllers[player].confirm28 != 0) {
+            if (PlayerControllers[player].action28 != 0) {
                 PlaySfx(1, value);
                 CLOSE_ROWS(5);
                 D_800AC5D0 = 64;
                 ST.step0C = 2;
             }
-            cursor = CURSOR;
+            cursor = SCRATCH->cursor;
             if (Options.c[player].c[2] > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
             }
             if (Options.c[player].c[2] < 2) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
             }
-            CURSOR = cursor;
+            SCRATCH->cursor = cursor;
             break;
         }
-        if (ovl665_func_8011629C(player) < 0 || PlayerControllers[player].course01 != 0xE3) {
+        if (ovl665_func_8011629C(player) < 0 || PlayerControllers[player].input00.fields.type != 0xE3) {
             CLOSE_ROWS(8);
             D_800AC5D0 = 64;
             ST.step0C = 2;
@@ -727,7 +692,7 @@ void ovl665_func_80116D10(s32 player) {
     } else {
         UpdateBadgeRowAnim(0);
         if (BadgeRows->state10 == 3) {
-            UpdateDialogue(BadgeRows->x04 + 10, BadgeRows->y06 + 40, D_800AC590);
+            UpdateDialogue(BadgeRows->x04 + 10, BadgeRows->y06 + 40, CardDialogueStatePtr);
         }
         arg = 0x83;
     }

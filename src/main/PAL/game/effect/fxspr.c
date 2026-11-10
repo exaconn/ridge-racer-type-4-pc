@@ -1,23 +1,20 @@
+#include "game/gfx/fontdraw.h"
+#include "rr/gpu_address.h"
 #include "scratchpad.h"
+#include "rr/frame_storage_types.h"
 #include "game/effect/fxspr.h"
-#include "game/gfx/drawbuf.h"
+#include "game/gfx/fadespr.h"
+#include "rr/frame_loop.h"
+#include "rr/trig.h"
+#include "psyq/libc/rand.h"
 
-extern int rsin();
-extern int rcos();
-extern int PsyqRand();
-extern unsigned char *AddTextSprites();
-extern int FrameCounter;
+typedef struct { u32 tag; u32 code; } Pkt8;
+
 extern int D_800A2098[];
-extern int D_800A1FC8[];
+extern const char D_800A1FC8[13][16];
 extern unsigned int D_80011258;
-extern struct 
-{
-  char pad[0x438];
-  int f438;
-  char pad2[4];
-  int f440;
-} RaceContext;
-void func_8005C4E0(void)
+extern FadeRaceContext RaceContext;
+void DrawIntroRippleSprites(void)
 {
   int l[2];
   short h[2];
@@ -30,10 +27,11 @@ void func_8005C4E0(void)
   int w;
   int new_var;
   unsigned char *p;
-  char *d;
-  x = (RaceContext.f440 / 4) + (rsin(FrameCounter << 7) / 128);
+
+    u32 *head;
+  x = (RaceContext.f440 / 4) + (rsin(FrameCounter * 128U) / 128);
   l[0] = (x - 16) / 4;
-  y = (RaceContext.f440 / 2) + (rcos(FrameCounter << 7) / 128);
+  y = (RaceContext.f440 / 2) + (rcos(FrameCounter * 128U) / 128);
   l[1] = (y - 16) / 4;
   for (i = 0; i < 2; i++)
   {
@@ -52,7 +50,7 @@ void func_8005C4E0(void)
     {
       ax = (j / 2) + 0x9E;
       ay = ((j % 2) << 1) + 0xE4;
-      p = AddTextSprites(CurrentDrawBuf + 0x98, p, ax - D_800A2098[RaceContext.f438], h[i] + ay, D_800A1FC8 + (RaceContext.f438 * 4), 0x7F38, new_var = 1, (l[i] << new_var) | new_var);
+      p = AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[10], p, ax - D_800A2098[RaceContext.f438], h[i] + ay, D_800A1FC8[RaceContext.f438], 0x7F38, new_var = 1, (l[i] << new_var) | new_var);
     }
 
   }
@@ -60,9 +58,9 @@ void func_8005C4E0(void)
   w = D_80011258;
   *((unsigned char **) SCRATCHPAD) = p;
   p[3] = 1;
-  d = CurrentDrawBuf;
-  *((unsigned int *) (p + 4)) = (w & 0x9FF) | 0xE1000200;
-  *((unsigned int *) p) = ((*((unsigned int *) p)) & 0xFF000000) | ((*((unsigned int *) (d + 0x98))) & 0xFFFFFF);
-  *((unsigned int *) (d + 0x98)) = ((*((unsigned int *) (d + 0x98))) & 0xFF000000) | (((unsigned int) p) & 0xFFFFFF);
+    head = &CurrentDrawBuf->buffer.ordering70.words[10];
+  ((Pkt8 *)p)->code = (w & 0x9FF) | 0xE1000200;
+  *((unsigned int *) p) = ((*((unsigned int *) p)) & 0xFF000000) | (*head & 0xFFFFFF);
+  *head = (*head & 0xFF000000) | (GpuDmaEncodeAddress(p) & 0xFFFFFF);
   *((unsigned char **) SCRATCHPAD) = p + 8;
 }

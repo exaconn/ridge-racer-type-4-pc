@@ -18,7 +18,7 @@ class Overlay662GradientQuadTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_gradient.h"
-static struct World {u32 head[4];RrGarageSelectionPrefix state;RrPolyG4Storage packets[5];u32 ordering[4];u32 tail[4];} world,expected;
+static struct World {u32 head[4];GarageSelectionPrefix state;PolyG4Storage packets[5];u32 ordering[4];u32 tail[4];} world,expected;
 #define ovl662_D_801276A8 world.state
 ''' + (root/'src/overlays/PAL/662/func_8011B0CC.c').read_text() + r'''
 static u32 seed=0x1B0CC;
@@ -46,9 +46,9 @@ static void reference(unsigned mode,unsigned index,const u32 a[10]){
  *ot=(*ot&0xFF000000U)|((uintptr_t)&world.packets[index]&0xFFFFFFU);
 }
 int main(void){unsigned k,mode,i,index;u32 a[10];
- _Static_assert(sizeof(RrPolyG4Storage)==36,"one complete POLY_G4 owner");
+ _Static_assert(sizeof(PolyG4Storage)==36,"one complete POLY_G4 owner");
  for(k=0;k<65536;k++)for(mode=0;mode<13;mode++){
-  RrPolyG4Storage *returned;index=1+(k&1);
+  PolyG4Storage *returned;index=1+(k&1);
   for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();
   world.state.halfC8=half(k);world.state.halfCA=half(k*40503U);
   for(i=0;i<2;i++){world.state.image38[i]=world.ordering;world.state.image40[i]=world.ordering;world.state.palette48[i]=world.ordering;}

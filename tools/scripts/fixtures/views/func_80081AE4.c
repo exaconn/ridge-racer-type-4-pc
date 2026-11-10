@@ -7,9 +7,9 @@
 void _SsGetMetaEvent(s32 raw_bank, s32 raw_row) {
     s16 a0 = raw_bank;
     s16 a1 = raw_row;
-    register RrLibStateB0 **b = _ss_score;
-    RrLibStateB0 **q = b+a0;
-    RrLibStateB0 *c = *q+a1;
+    register LibStateB0 **b = _ss_score;
+    LibStateB0 **q = b+a0;
+    LibStateB0 *c = *q+a1;
     unsigned int a2, v0, lo, m;
     /* ASM_BARRIER: Preserve overlapping arithmetic lifetimes. */
     register u32 a3 asm("$7");

@@ -11,10 +11,10 @@ void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y) {
     register s32 offset;
     register u8 *page;
     /* ASM_BARRIER: retain the captured record in V1 through the copy. */
-    register RrMenuGrid38 *entry asm("$3");
-    register RrMenuGrid38 *next;
-    register RrMenuGrid38 *last;
-    const RrGridRow8 *row, *table;
+    register MenuGrid38 *entry asm("$3");
+    register MenuGrid38 *next;
+    register MenuGrid38 *last;
+    const GridRow8 *row, *table;
     register s32 step_y;
     s32 step_x;
     register s32 layout_offset;
@@ -26,10 +26,10 @@ void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y) {
     step_y = y;
     /* ASM_BARRIER: capture the full stack argument before its signed16 narrowing. */
     __asm__("" : "+r"(step_y));
-    entry = (RrMenuGrid38 *)((unsigned long)offset + (unsigned long)(*(RrMenuGrid38 **)(page + 0x3A28)));
+    entry = (MenuGrid38 *)((unsigned long)offset + (unsigned long)(*(MenuGrid38 **)(page + 0x3A28)));
     entry->columns2E = quotient * 3;
-    ((RrMenuGrid38 *)((unsigned long)offset + (unsigned long)(*(RrMenuGrid38 **)(page + 0x3A28))))->rows2F = six;
-    entry = (RrMenuGrid38 *)((unsigned long)offset + (unsigned long)(*(RrMenuGrid38 **)(page + 0x3A28)));
+    ((MenuGrid38 *)((unsigned long)offset + (unsigned long)(*(MenuGrid38 **)(page + 0x3A28))))->rows2F = six;
+    entry = (MenuGrid38 *)((unsigned long)offset + (unsigned long)(*(MenuGrid38 **)(page + 0x3A28)));
     step_y = (s16)step_y / (s32)entry->rows2F;
     step_x = (s16)x / (s32)((u32)count * (u32)entry->columns2E);
     layout_offset = layout * 8;
@@ -40,8 +40,8 @@ void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y) {
     entry->step_y0A = step_y;
     /* ASM_BARRIER: reload the record-pointer slot after publishing the dimensions. */
     __asm__("" : : : "memory");
-    next = (RrMenuGrid38 *)((unsigned long)offset + (unsigned long)(*(RrMenuGrid38 **)(page + 0x3A28)));
-    row = (const RrGridRow8 *)((u8 *)table + layout_offset);
+    next = (MenuGrid38 *)((unsigned long)offset + (unsigned long)(*(MenuGrid38 **)(page + 0x3A28)));
+    row = (const GridRow8 *)((u8 *)table + layout_offset);
     entry->step_x08 = step_x;
     first = row->first;
     second = row->second;
@@ -50,6 +50,6 @@ void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y) {
     entry->layout30.first = first;
     entry->layout30.second = second;
     ((u8 *)&next->layout30)[2] = (u32)((u8 *)&next->layout30)[2] / next->columns2E;
-    last = (RrMenuGrid38 *)((unsigned long)offset + (unsigned long)(*(RrMenuGrid38 **)(page + 0x3A28)));
+    last = (MenuGrid38 *)((unsigned long)offset + (unsigned long)(*(MenuGrid38 **)(page + 0x3A28)));
     ((u8 *)&last->layout30)[3] = (u32)((u8 *)&last->layout30)[3] / last->rows2F;
 }

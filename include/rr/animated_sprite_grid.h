@@ -3,17 +3,17 @@
 #include "rr/gpu.h"
 
 #include "rr/gpu_scratch_types.h"
-typedef struct {u8 pad00[14];u16 tick0E;} RrSpriteGridClock;
-typedef struct {u32 tag,command;} RrGpuSingleCommandPacket;
+typedef struct {u8 pad00[14];u16 tick0E;} SpriteGridClock;
+typedef struct {u32 tag,command;} GpuSingleCommandPacket;
 
 /* Requires aligned pointer slots, a 4-byte-aligned cursor with space for 15
  * sprite packets and one 8-byte command, and accessible heads after each order
  * pointer reload. Adds one modulo 16-bit tick, then advances phase by 5 for each
  * sprite. Raw intensity bits are OR-packed without clamping. Each list insertion
  * clears the ordering-head high byte. Finishes with command E100022A. */
-void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state);
+void EmitSpriteGrid(u32 intensity,SpriteGridClock *state);
 
-RR_ASSERT_SIZE(RrSpriteGridClock, 16);
-RR_ASSERT_OFFSET(RrSpriteGridClock, tick0E, 14);
-RR_ASSERT_SIZE(RrGpuSingleCommandPacket, 8);
+RR_ASSERT_SIZE(SpriteGridClock, 16);
+RR_ASSERT_OFFSET(SpriteGridClock, tick0E, 14);
+RR_ASSERT_SIZE(GpuSingleCommandPacket, 8);
 #endif

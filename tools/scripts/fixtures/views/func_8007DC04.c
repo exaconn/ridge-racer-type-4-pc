@@ -2,7 +2,7 @@
 
 #include "rr/wide.h"
 
-typedef RrWide64 U;
+typedef Wide64 U;
 
 U _dbl_shift(int dir, U v, int n) {
     register int i asm("$4");

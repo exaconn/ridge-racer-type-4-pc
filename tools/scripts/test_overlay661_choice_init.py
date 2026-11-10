@@ -25,8 +25,8 @@ class Overlay661ChoiceInitTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay661_init.h"
 #include "rr/overlay667_init.h"
-typedef struct {s32 frame,counter,bank;s16 current,limit,selected,mapped,flag;RrMenuGridPoint points[4];RrMenuArenas arenas;void *published;RrProjectionScratchPrefix scratch;RrSceneStatePrefix scene;s32 args[3];} Event;
-static struct World {u32 guard[4];s32 frame,counter,bank;s16 current,limit,selected,mapped,flag,modeCounter,selectionCounter;s8 flag1,flag2;RrMenuGridPoint points[4];RrMenuArenas arenas;void *published;RrProjectionScratchPrefix scratch;RrSceneStatePrefix scene;u32 calls;Event events[3];u8 arena[3][64];u32 order[16];u32 tail[4];} world,expected;
+typedef struct {s32 frame,counter,bank;s16 current,limit,selected,mapped,flag;MenuGridPoint points[4];MenuArenas8 arenas;void *published;ProjectionScratchPrefix scratch;SceneStatePrefix scene;s32 args[3];} Event;
+static struct World {u32 guard[4];s32 frame,counter,bank;s16 current,limit,selected,mapped,flag,modeCounter,selectionCounter;s8 flag1,flag2;MenuGridPoint points[4];MenuArenas8 arenas;void *published;ProjectionScratchPrefix scratch;SceneStatePrefix scene;u32 calls;Event events[3];u8 arena[3][64];u32 order[16];u32 tail[4];} world,expected;
 #define RR_GPU_PROJECTION_SCRATCH (&world.scratch)
 #define ModeFrame world.frame
 #define ScreenFrame world.counter
@@ -73,7 +73,7 @@ s32 PsyqRand(void){
 void SetMenuFrameOptions(s32 a,s32 b,s32 c){
  assert(world.calls==2 && a==0 && b==1 && c==1);
  assert(world.counter==0 && world.flag1==0 && world.flag2==0 && world.bank==0 && world.published==world.arenas.second);
- assert(world.scratch.word18==512 && world.scratch.word0C==-416 && world.scratch.word08==0 && world.scratch.word10==0 && world.scratch.word1C==0 && world.scratch.word20==0);
+ assert(world.scratch.pose08.angles10.xyz.x==512 && world.scratch.pose08.position00.words[1]==-416 && world.scratch.pose08.position00.words[0]==0 && world.scratch.pose08.position00.words[2]==0 && world.scratch.pose08.angles10.xyz.y==0 && world.scratch.pose08.angles10.xyz.z==0);
  event(&world,a,b,c);effect(&world,2);
 }
 static void reference(void){
@@ -82,7 +82,7 @@ static void reference(void){
  event(&expected,0,0,0);effect(&expected,1);expected.points[3].first=(random_value[1]&3)+12;
  expected.flag=expected.selected>=8;expected.mapped=codes[(u16)expected.selected&7];
  expected.counter=0;expected.flag1=0;expected.flag2=0;
- expected.scratch.word18=512;expected.scratch.word0C=-416;expected.scratch.word1C=0;expected.scratch.word20=0;expected.scratch.word08=0;expected.scratch.word10=0;
+ expected.scratch.pose08.angles10.xyz.x=512;expected.scratch.pose08.position00.words[1]=-416;expected.scratch.pose08.angles10.xyz.y=0;expected.scratch.pose08.angles10.xyz.z=0;expected.scratch.pose08.position00.words[0]=0;expected.scratch.pose08.position00.words[2]=0;
  expected.scene.words20[0]=0;expected.scene.words20[1]=0;expected.scene.words20[2]=0;expected.bank=0;expected.published=expected.arenas.second;
  event(&expected,0,1,1);effect(&expected,2);
 }
@@ -104,7 +104,7 @@ int main(void){unsigned k,i;const u32 edges[]={0,3,0x7fffffffU,0x80000000U,0xfff
   memcpy(&expected,&world,sizeof(world));
   expected.frame=0;expected.counter=0;expected.current=0;expected.limit=3;expected.modeCounter=0;
   expected.flag=expected.selected>=8;expected.mapped=codes[(u16)expected.selected&7];expected.flag1=0;expected.flag2=0;
-  expected.scratch.word18=512;expected.scratch.word0C=-416;expected.scratch.word1C=0;expected.scratch.word20=0;expected.scratch.word08=0;expected.scratch.word10=0;
+  expected.scratch.pose08.angles10.xyz.x=512;expected.scratch.pose08.position00.words[1]=-416;expected.scratch.pose08.angles10.xyz.y=0;expected.scratch.pose08.angles10.xyz.z=0;expected.scratch.pose08.position00.words[0]=0;expected.scratch.pose08.position00.words[2]=0;
   expected.scene.words20[0]=0;expected.scene.words20[1]=0;expected.scene.words20[2]=0;expected.bank=0;expected.selectionCounter=0;expected.published=expected.arenas.second;
   ovl667_func_80117EF8();assert(memcmp(&world,&expected,sizeof(world))==0);
  }

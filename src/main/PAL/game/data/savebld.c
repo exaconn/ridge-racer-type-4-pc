@@ -1,18 +1,16 @@
 /* RODATA 0x80011458 0x48 */
 #include "game/data/savebld.h"
 #include "game/data/savetype.h"
-extern Struct48 CourseChoiceTable;
-extern SaveBuf *SaveBuffer;
+#include "game/data/globals.h"
+extern CourseChoice4 CourseChoiceTable[2][9];
 extern Struct2C SelectionState;
-extern Struct40 Options;
 extern Struct10 RaceRecords[2][8][5];
 extern int CourseBestLapTimes[2][8][3];
-extern Struct7C SaveProgress;
 extern Struct840 *D_800F399C;
 extern Struct840 *D_800F39A0;
 extern int D_800F3B28[];
 extern int D_800F4D38;
-extern unsigned short D_800F4D3C;
+extern unsigned short GpSaveSlotCursor;
 extern Struct10 LapRecords[2][8][5];
 extern Struct2C D_8010B258[3];
 
@@ -36,25 +34,25 @@ void BuildSaveData(int arg0) {
         s3->f280 = SaveProgress;
         s3->f2FC = Options;
         for (a3 = 0; a3 < 9; a3++) {
-            s3->f33C[a3] = CourseChoiceTable.f24[a3];
+            s3->f33C[a3] = CourseChoiceTable[1][a3];
         }
         for (a3 = 0; a3 < 3; a3++) {
-            D_8010B258[a3].f10 = 0;
+            D_8010B258[a3].checksum10 = 0;
             t1 = 0;
-            for (t0 = 0; (unsigned int)t0 < 0x16; t0++) {
+            for (t0 = 0; t0 < 0x16U; t0++) {
                 t1 += ((short *)&D_8010B258[a3])[t0];
             }
-            D_8010B258[a3].f10 = t1;
+            D_8010B258[a3].checksum10 = t1;
             s3->f360[a3] = D_8010B258[a3];
         }
         if (arg0 == 3) {
-            SelectionState.f10 = 0;
+            SelectionState.checksum10 = 0;
             t1 = 0;
-            for (t0 = 0; (unsigned int)t0 < 0x16; t0++) {
+            for (t0 = 0; t0 < 0x16U; t0++) {
                 t1 += ((short *)&SelectionState)[t0];
             }
-            SelectionState.f10 = t1;
-            s3->f360[(short)((short)D_800F4D3C % 3)] = SelectionState;
+            SelectionState.checksum10 = t1;
+            s3->f360[(short)((short)GpSaveSlotCursor % 3)] = SelectionState;
         }
         for (a3 = 0; a3 < 2; a3++) {
             for (t0 = 0; t0 < 8; t0++) {
@@ -71,7 +69,7 @@ void BuildSaveData(int arg0) {
             s3->fEA4[a3] = D_800F3B28[a3];
         }
         t1 = 0;
-        for (a3 = 0; (unsigned int)a3 < 0x6A9; a3++) {
+        for (a3 = 0; a3 < 0x6A9U; a3++) {
             t1 += ((int *)s3)[a3];
         }
         s3->f1AA4 = t1;

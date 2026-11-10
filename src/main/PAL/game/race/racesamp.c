@@ -1,10 +1,12 @@
+#include "rr/vehicle_table.h"
+#include "rr/frame_storage_types.h"
+#include "game/data/bankrec.h"
 /* RODATA 0x80010700 0x1c */
 #include "types.h"
 #include "game/car/car.h"
 #include "game/car/grid.h"
 #include "scratchpad.h"
 #include "rr/track_sample_types.h"
-#include "m2c_macros.h"
 #include "game/car/carmove1.h"
 #include "game/menu/menu8.h"
 #include "game/course/trkintp.h"
@@ -13,141 +15,39 @@
 #include "game/car/carsetup.h"
 #include "rr/audio_loop.h"
 #include "game/car/aipath2.h"
+#include "game/car/bounds.h"
 #include "game/data/selection.h"
-#include "game/gfx/drawbuf.h"
+#include "game/race/racesamp.h"
+#include "game/ui/uitext.h"
+#include "rr/race_setup.h"
+#include "game/ui/badge1.h"
+#include "rr/menu_label_render.h"
+#include "game/course/trkclip.h"
+#include "game/math/rotmat.h"
+#include "game/ui/uibar.h"
+#include "game/ui/uidraw.h"
 
 typedef struct {
     int a, b, c, d;
 } Vec4;
 
-typedef struct {
-    unsigned short w0;
-    short w2;
-    unsigned short w4;
-    short w6;
-} Bounds08;
-
-typedef struct {
-    int f0;
-    int f4;
-    int f8;
-    char pad0C[0x20 - 0x0C];
-    int f20;
-    int f24;
-    int f28;
-    int f2C;
-    char pad30[0x50 - 0x30];
-    int f50;
-    int f54;
-    int f58;
-    char pad5C[0x70 - 0x5C];
-    Vec4 vec70;
-    short s80;
-    short s82;
-    short s84;
-    char pad86[2];
-    struct {
-        int f0;
-        int f4;
-        int f8;
-        int fC;
-    } sub88[4];
-    char padC8[0xDC - 0xC8];
-    short sDC;
-    short sDE;
-    short sE0;
-    short sE2;
-    short sE4;
-    short sE6;
-    short sE8;
-    short sEA;
-    char padEC[4];
-    int fF0;
-    int fF4;
-    short sF8;
-    short sFA;
-    short sFC;
-    short sFE;
-    char pad100[8];
-    int f108;
-    short s10C;
-    short s10E;
-    short s110;
-    short s112;
-    short s114;
-    short s116;
-    short s118;
-    short s11A;
-    short s11C;
-    short s11E;
-    short s120;
-    short s122;
-    short arr124[16];
-    short arr144[16];
-    unsigned short s164;
-    unsigned short s166;
-    unsigned short s168;
-    unsigned short s16A;
-    int f16C;
-    char pad170[0x18C - 0x170];
-    int f18C;
-    int f190;
-    char pad194[0x1A8 - 0x194];
-    short s1A8;
-    short s1AA;
-    short s1AC;
-    short s1AE;
-    short s1B0;
-    short s1B2;
-    short s1B4;
-    short s1B6;
-    char pad1B8[4];
-    short arr1BC[4];
-    short arr1C4[4];
-    char pad1CC[0x1D4 - 0x1CC];
-    short s1D4;
-    short s1D6;
-    char pad1D8[0x1E4 - 0x1D8];
-    short s1E4;
-    short s1E6;
-    char pad1E8[0x290 - 0x1E8];
-    int f290;
-} Car37618;
-
-extern int SetModelTexturePage();
-extern int InitBadgeRow();
-extern int InitRect16Row();
-extern int InitImageRow();
 extern s32 MaskBitSetting;
-extern int AddDrawModePrim();
-extern int AddSpritePrim();
 extern unsigned char D_8009F7CC[];
 extern unsigned char D_8009F7D0[];
 extern unsigned char D_8009F7D4[];
 extern unsigned char D_8009F7D8[];
 extern unsigned char D_8009F7DC[];
-extern struct { char pad[0x1D2]; short h1D2; char pad2[0x1F]; unsigned char b1F3; } *CarRecordPtrs[];
-extern Car *CarTable[];
-extern Car PlayerCars[];
-extern Car D_80106B58[];
-extern Car D_80106E78[];
-extern Car ComCars[];
+extern RaceVehicle PlayerCars[];
+extern RaceVehicle D_80106B58[];
+extern RaceVehicle D_80106E78[];
+extern RaceVehicle ComCars[];
 extern short NumCars;
 extern short D_800AD508;
-extern int FindTrackNode();
-extern int Atan2Table();
-extern int FindWheelTrackNodes();
 extern short ReverseCourse;
 extern struct {
-    char pad[0x53C];
+    u8 reserved00[0x53C];
     Grid53C *p53C;
 } RaceContext;
-extern Bounds08 *CarBoundsTable[];
-
-void InitPreviewImageRows(void);
-void DrawSelectionIconGrid(int arg0);
-void InitCarTable(int a);
-void PlaceCarOnGrid(Car37618 *p, int arg1);
 
 void InitPreviewImageRows(void) {
     SetModelTexturePage(0x19);
@@ -168,11 +68,11 @@ void DrawSelectionIconGrid(int arg0) {
     unsigned char *p = q[arg0];
     v[0] = t7[p[1]];
     v[1] = D_8009F7D0[p[1]];
-    v[2] = CarRecordPtrs[arg0]->h1D2 > 0 ? 0x18 : 0x19;
+    v[2] = CarRecordPtrs[arg0]->handling1C8.steeringMode0A > 0 ? 0x18 : 0x19;
     v[3] = D_8009F7D4[p[0]];
     v[4] = D_8009F7D8[p[0]];
     v[5] = D_8009F7DC[p[0]];
-    v[6] = CarRecordPtrs[arg0]->b1F3 + 0x14;
+    v[6] = CarRecordPtrs[arg0]->stage1F3 + 0x14;
     b = p[3];
     v[7] = b + 0x1A;
     v[8] = b + 0x1C;
@@ -195,18 +95,18 @@ void DrawSelectionIconGrid(int arg0) {
         int t = v[s0];
         buf[0] = (t % 16) * 16;
         buf[1] = (t / 16) << 5;
-        a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, (s0 % 3) * 0x14 + 0xF0, (s0 / 3) * 0x28 + 0x58, buf, 0x7FA4, 1);
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, (s0 % 3) * 0x14 + 0xF0, (s0 / 3) * 0x28 + 0x58, buf, 0x7FA4, 1);
         s0++;
     } while (s0 < 9);
-    *(int *)SCRATCHPAD = AddDrawModePrim(CurrentDrawBuf + 0x70, a1, 0x39);
+    *(int *)SCRATCHPAD = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, 0x39);
 }
 
 void InitCarTable(int a) {
     int i;
     int n;
     int v;
-    Car **p;
-    Car *q;
+    RaceVehicle **p;
+    RaceVehicle *q;
     switch (a) {
     case 1:
         NumCars = 8;
@@ -273,83 +173,83 @@ void InitCarTable(int a) {
     ResetRankEntriesForCars();
 }
 
-void PlaceCarOnGrid(Car37618 *p, int arg1) {
+void PlaceCarOnGrid(RaceVehicle *p, int arg1) {
     int i;
     int t;
     int *g = (int *)(SCRATCHPAD + 0x7C);
 
-    ResetVehicleShake();
-    if (D_800F4D44 == 0 && ReverseCourse == 1) {
-        p->fF0 = *TrackStartNode;
+    ResetVehicleShake(p);
+    if (GameModeType == 0 && ReverseCourse == 1) {
+        p->trackNodeF0 = *TrackStartNode;
         t = TrackNodeCount - 5;
-        p->f20 = TrackNodes[(p->fF0 + t) % TrackNodeCount].x08;
-        p->f24 = 0;
-        p->f28 = TrackNodes[(p->fF0 + t) % TrackNodeCount].z0C;
+        p->position20.vector.x = TrackNodes[(p->trackNodeF0 + t) % TrackNodeCount].x08;
+        p->position20.vector.y = 0;
+        p->position20.vector.z = TrackNodes[(p->trackNodeF0 + t) % TrackNodeCount].z0C;
     } else {
-        p->f20 = RaceContext.p53C->pos[arg1].x;
-        p->f24 = 0;
-        p->f28 = RaceContext.p53C->pos[arg1].z;
-        p->fF0 = RaceContext.p53C->f0;
+        p->position20.vector.x = RaceContext.p53C->pos[arg1].x;
+        p->position20.vector.y = 0;
+        p->position20.vector.z = RaceContext.p53C->pos[arg1].z;
+        p->trackNodeF0 = RaceContext.p53C->f0;
     }
-    p->f0 = p->f20 << 8;
-    p->f4 = 0;
-    p->f8 = p->f28 << 8;
-    p->fF0 = FindTrackNode(&p->f20, p->fF0, TrackNodeCount + 1);
-    p->sF8 = p->sFA = p->sFC = p->sFE = p->fF0;
-    p->f50 = 0;
-    p->f54 = ((0x800 - TrackNodes[p->fF0].heading12) - (ReverseCourse << 11)) & 0xFFF;
-    p->f58 = 0;
-    p->s1AE = 0;
-    p->s1D4 = p->s1D6 = p->f54;
-    if (p->s1E4 >= 0x10) {
-        p->f290 = p->s1D4;
+    p->posScaled00[0] = p->position20.vector.x << 8;
+    p->posScaled00[1] = 0;
+    p->posScaled00[2] = p->position20.vector.z << 8;
+    p->trackNodeF0 = FindTrackNode(&p->position20.vector.x, p->trackNodeF0, TrackNodeCount + 1);
+    p->wheelNodesF8[0] = p->wheelNodesF8[1] = p->wheelNodesF8[2] = p->wheelNodesF8[3] = p->trackNodeF0;
+    p->rot50 = 0;
+    p->rot54 = ((0x800 - TrackNodes[p->trackNodeF0].heading12) - (ReverseCourse << 11)) & 0xFFF;
+    p->rot58 = 0;
+    p->renderAngleZ1AE = 0;
+    p->heading1D4 = p->prevHeading1D6 = p->rot54;
+    if (*(s16 *)&p->flags1E4 >= 0x10) {
+        p->control.dynamics94.player.steeringHeading08 = p->heading1D4;
     }
-    i = p->s1E6 >> 1;
-    p->f108 = CarBoundsTable[i]->w6 * 4;
-    p->s10C = ((short)CarBoundsTable[i]->w0 + 5) * 2;
-    p->s10E = 0x28 - CarBoundsTable[i]->w4;
-    p->s110 = -((CarBoundsTable[i]->w0 + 5) * 4);
-    p->s112 = -((CarBoundsTable[i]->w4 - 0x14) * 4);
-    p->s114 = (CarBoundsTable[i]->w0 + 5) * 4;
-    p->s116 = -((CarBoundsTable[i]->w4 - 0x14) * 4);
-    p->s118 = -((CarBoundsTable[i]->w0 + 5) * 4);
-    p->s11A = -0x50;
-    p->s11C = (CarBoundsTable[i]->w0 + 5) * 4;
-    p->s11E = -0x50;
-    p->s120 = 0x400 - Atan2Table(p->s114 * 2, p->s116 + 0x50);
-    p->s122 = 0x400 - Atan2Table(p->s11C * 2, p->s11E - p->s116);
-    p->f16C = 0x10;
-    p->sDC = p->sDE = 0;
-    p->sE0 = p->sE2 = 0;
-    p->sE4 = p->sE6 = p->f108 << 6;
-    p->sE8 = p->sEA = p->f108 << 6;
-    p->s80 = p->f50;
-    p->s82 = p->f54;
-    p->s84 = p->f58;
-    p->vec70 = *(Vec4 *)&p->f20;
-    p->s1AC = p->s1A8 = p->s1B4 = p->s1B0 = 0;
-    p->s1AE = p->s1AA = p->s1B6 = p->s1B2 = 0;
-    p->s164 = p->s166 = 0;
+    i = p->slotIndex1E6 >> 1;
+    p->height108 = CarBoundsTable[i]->bodyHeight * 4;
+    p->width10C = ((short)*(u16 *)&CarBoundsTable[i]->halfWidth + 5) * 2;
+    p->halfSpan10E = 0x28 - CarBoundsTable[i]->halfLength;
+    p->footprint110.fields.corners[0].x = -((*(u16 *)&CarBoundsTable[i]->halfWidth + 5) * 4);
+    p->footprint110.fields.corners[0].y = -((CarBoundsTable[i]->halfLength - 0x14) * 4);
+    p->footprint110.fields.corners[1].x = (*(u16 *)&CarBoundsTable[i]->halfWidth + 5) * 4;
+    p->footprint110.fields.corners[1].y = -((CarBoundsTable[i]->halfLength - 0x14) * 4);
+    p->footprint110.fields.corners[2].x = -((*(u16 *)&CarBoundsTable[i]->halfWidth + 5) * 4);
+    p->footprint110.fields.corners[2].y = -0x50;
+    p->footprint110.fields.corners[3].x = (*(u16 *)&CarBoundsTable[i]->halfWidth + 5) * 4;
+    p->footprint110.fields.corners[3].y = -0x50;
+    p->footprint110.fields.heading10 = 0x400 - Atan2Table(p->footprint110.fields.corners[1].x * 2, p->footprint110.fields.corners[1].y + 0x50);
+    p->footprint110.fields.heading12 = 0x400 - Atan2Table(p->footprint110.fields.corners[3].x * 2, p->footprint110.fields.corners[3].y - p->footprint110.fields.corners[1].y);
+    p->sampleCount16C = 0x10;
+    p->wheelSuspensionDC[0] = p->wheelSuspensionDC[1] = 0;
+    p->wheelSuspensionDC[2] = p->wheelSuspensionDC[3] = 0;
+    p->wheelOffsetE4[0] = p->wheelOffsetE4[1] = p->height108 << 6;
+    p->wheelOffsetE4[2] = p->wheelOffsetE4[3] = p->height108 << 6;
+    p->ang80 = p->rot50;
+    p->ang82 = p->rot54;
+    p->ang84 = p->rot58;
+    *(Vec4 *)p->ir70 = *(Vec4 *)&p->position20;
+    p->renderAngleX1AC = p->wheelRotX1A8 = p->bumpPitch1B4 = p->shakePitch1B0 = 0;
+    p->renderAngleZ1AE = p->wheelRotZ1AA = p->shakeRollOffset1B6 = p->shakeRoll1B2 = 0;
+    p->pitchAverage164 = p->rollAverage166 = 0;
     for (i = 0; i < 10; i++) {
-        p->s164 += p->f50;
-        p->s166 += p->f58;
+        p->pitchAverage164 = (u16)p->pitchAverage164 + p->rot50;
+        p->rollAverage166 = (u16)p->rollAverage166 + p->rot58;
     }
-    p->s168 = p->s16A = 0;
+    p->pitchAverage168 = p->rollAverage16A = 0;
     for (i = 0; i < 10; i++) {
-        p->s168 += p->f50;
-        p->s16A += p->f58;
+        p->pitchAverage168 = (u16)p->pitchAverage168 + p->rot50;
+        p->rollAverage16A = (u16)p->rollAverage16A + p->rot58;
     }
     for (i = 0; i < 16; i++) {
-        p->arr124[i] = p->f50;
-        p->arr144[i] = p->f58;
+        p->xHistory124[i] = p->rot50;
+        p->zHistory144[i] = p->rot58;
     }
     for (i = 0; i < 4; i++) {
-        p->sub88[i].f4 = p->f24;
-        p->arr1BC[i] = 0;
-        p->arr1C4[i] = 0;
+        p->wheelPositions88[i].y = p->position20.vector.y;
+        p->wheelBumpState1BC[i] = 0;
+        p->wheelBumpVel1C4[i] = 0;
     }
     ComputeStartDistance(p, 0);
-    p->f190 = p->f18C;
+    p->word190 = p->word18C;
     IntegrateCarMotion(p);
     ComputeWheelOffsets(p);
     ConstrainCarToTrack(p);

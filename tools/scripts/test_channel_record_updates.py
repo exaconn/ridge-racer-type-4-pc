@@ -29,11 +29,11 @@ typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-_Static_assert(sizeof(RrLibStateB0) == 0xB0, "record stride");
-_Static_assert(__builtin_offsetof(RrLibStateB0, b17) == 0x17, "slot offset");
-_Static_assert(__builtin_offsetof(RrLibStateB0, w90) == 0x90, "result offset");
-RrLibStateB0 *test_table[0x4100];
-RrLibStateB0 test_records[9][17];
+_Static_assert(sizeof(LibStateB0) == 0xB0, "record stride");
+_Static_assert(__builtin_offsetof(LibStateB0, b17) == 0x17, "slot offset");
+_Static_assert(__builtin_offsetof(LibStateB0, w90) == 0x90, "result offset");
+LibStateB0 *test_table[0x4100];
+LibStateB0 test_records[9][17];
 void (*test_first)(void);
 void (*test_second)(void);
 s32 (*test_update)(s32, s32);
@@ -49,7 +49,7 @@ s32 _SsReadDeltaValue(s32 bank, s32 row) { return test_update(bank, row); }
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+", ', '', body)
             body = re.sub(r' : "\$[0-9]+"', '', body)
-            body = body.replace('(RrLibStateB0 **)0x80110000U', '(test_table + 0x4000)')
+            body = body.replace('(LibStateB0 **)0x80110000U', '(test_table + 0x4000)')
             source += body
         (directory / 'functions.c').write_text(source)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'functions.c'),

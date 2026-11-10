@@ -8,6 +8,6 @@
 extern u16 ModeGroup;
 extern s16 D_800F3A26,D_800F4D8A;
 void StopRaceAudioAndRumble(void);
-void ovl660_func_8011712C(void);
+void ovl660_exit_race(void);
 void ovl661_func_80114AA0(void);
 #endif

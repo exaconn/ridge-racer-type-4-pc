@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int _sio_write(int first, int second);
+int _sio_write(u8 *buffer, int length);
 
 #endif /* RR_PSYQ_LIBSIO_SIOSEND_H */

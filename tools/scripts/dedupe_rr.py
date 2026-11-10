@@ -9,10 +9,14 @@ from tumerge import parse
 import unit_headers as U
 
 OWN = {}
-for h in sorted((U.INC / 'rr').glob('*.h')):
-    t = U.strip_comments(h.read_text())
-    for m in re.finditer(r'^[^#\n][^;{}\n]*?\b((?:func|D)_[0-9A-Fa-f]{8})\b[^;{}]*;', t, re.M):
-        OWN.setdefault(m.group(1), h)
+for h in sorted((U.INC / 'rr').glob('*.h')) + sorted((U.INC / 'game').rglob('*.h')) + sorted((U.INC / 'psyq').rglob('*.h')):
+    try:
+        _, hitems = parse(h.read_text())
+    except Exception:
+        continue
+    for kind, text, name in hitems:
+        if kind == 'decl' and name and not text.lstrip().startswith(('typedef', 'struct', 'union', 'enum', 'static')):
+            OWN.setdefault(name, h)
 
 
 def process(c):

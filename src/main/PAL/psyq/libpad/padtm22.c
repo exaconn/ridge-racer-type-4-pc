@@ -1,11 +1,12 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
+#include "rr/counters.h"
 #include "psyq/libpad/padtm22.h"
 #include "rr/serial.h"
 
 void setRC2wait(s32 limit) {
     /* ASM_BARRIER: keep the zero-extended timer read in its original register. */
-    register s32 counter __asm__("$2") = *(volatile u16 *)0x1F801120;
+    register s32 counter __asm__("$2") = ((RootCounterRegisters *)0x1F801120)->count;
     /* ASM_BARRIER: retain the original assembler temporary for the mapped store. */
     register s32 *base __asm__("$1");
     RC2WaitLimit = limit;
@@ -18,24 +19,21 @@ void setRC2wait(s32 limit) {
     base[0x46B8 / 4] = counter;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define RC2WaitLimit (*(unsigned int (*))&RC2WaitLimit)
-
 int chkRC2wait() {
     unsigned int a0;
     /* ASM_BARRIER: pin MMIO pointer to $v1 (original keeps it in v1, accumulator in a0) */
-    register volatile unsigned short *p __asm__("$3");
+    register RootCounterRegisters *p __asm__("$3");
     unsigned int v0, lim, b;
-    a0 = *(volatile unsigned short *)0x1F801120 & 0xFFFF;
+    a0 = ((RootCounterRegisters *)0x1F801120)->count & 0xFFFF;
     if (a0 < PadRcnt2Start) {
-        p = (unsigned short *)0x1F801128;
-        if (*p != 0) {
-            a0 += *p;
+        p = (RootCounterRegisters *)0x1F801128;
+        if (p->count != 0) {
+            a0 += p->count;
         } else {
             a0 += 0x10000;
         }
     }
-    if (!(*(volatile unsigned short *)0x1F801124 & 0x200)) {
+    if (!(((RootCounterRegisters *)0x1F801124)->count & 0x200)) {
         b = PadRcnt2Start;
         lim = RC2WaitLimit;
         v0 = (a0 - b) >> 3;
@@ -47,4 +45,3 @@ int chkRC2wait() {
     return v0 >= lim;
 }
 
-#undef RC2WaitLimit

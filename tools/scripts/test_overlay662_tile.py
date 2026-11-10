@@ -19,8 +19,8 @@ class GarageTileTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_primitives.h"
-typedef union {RrGpuTilePacket packets[3];u32 words[12];} PacketOwner;
-typedef union {RrGarageSelectionPrefix state;struct {u8 pad[offsetof(RrGarageSelectionPrefix,halfC8)-8];PacketOwner storage;} view;} GarageOwner;
+typedef union {GpuTilePacket packets[3];u32 words[12];} PacketOwner;
+typedef union {GarageSelectionPrefix state;struct {u8 pad[offsetof(GarageSelectionPrefix,halfC8)-8];PacketOwner storage;} view;} GarageOwner;
 static struct World {u32 guard[4];GarageOwner garage;PacketOwner storage;u32 ordering;u32 tail[4];} world,e;
 #define ovl662_D_801276A8 world.garage.state
 ''' + body + r'''
@@ -46,11 +46,11 @@ static void reference(unsigned mode,unsigned which,const u32 a[7]){
 int main(void){unsigned k,i,mode,which;const u32 edge[]={0,1,0xffff,0x10000,0x7fffffff,0x80000000,0xffffffff,0xff,0x100,0x12345678,0x7fff,0x8000,0xffffff};u32 args[7];
  u32 endian=1;assert(*(u8*)&endian==1);
  for(k=0;k<262144;k++){
-  RrGpuTilePacket *returned,*packet;
+  GpuTilePacket *returned,*packet;
   for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();
   mode=k&1;which=(k/2)%13;
-  put16(&world.garage.state,offsetof(RrGarageSelectionPrefix,halfC8),k);
-  put16(&world.garage.state,offsetof(RrGarageSelectionPrefix,halfCA),k*40503U+17U);
+  put16(&world.garage.state,offsetof(GarageSelectionPrefix,halfC8),k);
+  put16(&world.garage.state,offsetof(GarageSelectionPrefix,halfCA),k*40503U+17U);
   for(i=0;i<7;i++)args[i]=(k&4)?next():edge[(k+i)%13];
   memcpy(&e,&world,sizeof(world));reference(mode,which,args);
   packet=&storage(&world,mode)->packets[0];assert((uintptr_t)packet>UINT32_MAX);

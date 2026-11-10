@@ -15,6 +15,7 @@ SOURCE=ROOT/'src/overlays/PAL/662/func_8011DA90.c'
 CASES=4096
 C=r'''
 #include <assert.h>
+#include "game/system/pad.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -26,7 +27,7 @@ C=r'''
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #define RR_GARAGE_GTE_LERP(f,s,d) interpolate(f,s,d)
 #include "rr/overlay662_garage_fade.h"
-typedef struct {u8 pre[16];RrGarageWorkingStorage work;RrMenuItemState5C pads[2];u8 post[16];} World;
+typedef struct {u8 pre[16];GarageWorkingStorage work;ControllerState5C pads[2];u8 post[16];} World;
 static World actual;
 static unsigned scenario,sound_calls,gte_calls;
 #define ovl662_D_80127668 actual.work
@@ -52,12 +53,12 @@ static void interpolate(u32 factor,const u32 *source,u32 *destination){
 '''
 TAIL=r'''
 int main(void){unsigned i;unsigned flags[4]={0,2,4,6};
- _Static_assert(sizeof(RrMenuItemState5C)==92,"full pad owner");
+ _Static_assert(sizeof(ControllerState5C)==92,"full pad owner");
  _Static_assert(sizeof(World)==280,"whole fixed-width world");
  for(scenario=0;scenario<4096;scenario++){
   for(i=0;i<sizeof actual;i++)((u8*)&actual)[i]=(u8)(scenario*29+i*7);
   actual.work.words[0]=flags[scenario%4];actual.work.words[10]=factors[(scenario/4)%8];actual.work.words[11]=steps[(scenario/32)%8];
-  actual.pads[0].type01=(scenario/256)%2?0x12:0x41;actual.pads[0].buttons02=(scenario/512)%2?4:0;
+  actual.pads[0].input00.fields.type=(scenario/256)%2?0x12:0x41;actual.pads[0].input00.fields.buttons=(scenario/512)%2?4:0;
   sound_calls=gte_calls=0;ovl662_func_8011DA90();assert(gte_calls==1);
   for(i=0;i<16;i++){assert(actual.pre[i]==(u8)(scenario*29+i*7));assert(actual.post[i]==(u8)(scenario*29+(264+i)*7));}
   printf("F ");dump();

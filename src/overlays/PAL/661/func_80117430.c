@@ -1,4 +1,7 @@
+#include "game/system/pad.h"
 #include "rr/overlay661_course_menu.h"
+#include "rr/frame_storage_types.h"
+#include "rr/load_cursor.h"
 
 void ovl661_func_80117430(void) {
     s32 var_a0_3;
@@ -10,11 +13,11 @@ void ovl661_func_80117430(void) {
     s32 temp_s0_2;
     s32 temp_s0_3;
     s32 temp_s1;
-    RrUiRow24 *temp_v1;
-    RrUiRow24 *temp_v1_3;
+    UiRow24 *temp_v1;
+    UiRow24 *temp_v1_3;
 
-    ModeFrame=(u32)ModeFrame+1;
-    ScreenFrame=(u32)ScreenFrame+1;
+    ModeFrame=ModeFrame+1U;
+    ScreenFrame=ScreenFrame+1U;
     if ((D_800F4D8A == 3) || (LoadTrackNodesStep() == 1)) {
         switch (D_800F4D8A) {
         case 0:
@@ -24,7 +27,7 @@ void ovl661_func_80117430(void) {
             if ((s16) temp_s0 != (s16) D_800AC648) {
                 ResetScreenCounters();
             } else {
-                func_80033368((s16) temp_s0, 1);
+                DrawCourseMapPreview((s16) temp_s0, 1);
             }
             CourseIndex = DecodeCourseIndex((s16) D_800AC648);
             UiRows[18+MenuCursor].cells[0] = 0;
@@ -40,18 +43,18 @@ void ovl661_func_80117430(void) {
                         *((u8 *)UiRows+var_s0+0x324) = 0;
                     }
                     var_s0 += 1;
-                } while (var_s0 < (s32) UiRows[22].byte02);
+                } while (var_s0 < UiRows[22].byte02);
             }
             temp_s0_2 = UiRows[18].byte14;
             var_s2 = 0;
             if (temp_s0_2 == 2) {
-                if (PlayerControllers[0].a != 0) {
+                if (PlayerControllers[0].action28 != 0) {
                     PlaySfx(1);
                     UiRows[18+MenuCursor].cells[0] = 1;
                     if ((s16) MenuCursor == 0) {
                         var_s0 = 0;
                         do {
-                            temp_v1 = (RrUiRow24 *)((unsigned long)(var_s0*36)+(unsigned long)UiRows+648);
+                            temp_v1 = (UiRow24 *)((var_s0*36)+(unsigned long)UiRows+648);
                             if (temp_v1->byte14 == 2) {
                                 temp_v1->byte14 = 7U;
                             }
@@ -59,7 +62,7 @@ void ovl661_func_80117430(void) {
                         } while (var_s0 < 4);
                         {
                             u8 *parameterTable = D_80118374;
-                            RrSelectionRows *choice = &SelectionRows;
+                            SelectionRows32 *choice = &SelectionRows;
                             u8 first = choice->primary;
                             u8 second = choice->variant;
                             u8 third = choice->rows[0].selection;
@@ -89,7 +92,7 @@ void ovl661_func_80117430(void) {
                     } else if ((s16) MenuCursor == 3) {
                         var_s2 = 1;
                     }
-                } else if (PlayerControllers[0].b != 0) {
+                } else if (PlayerControllers[0].action2C != 0) {
                     PlaySfx(2);
                     var_s2 = 1;
                 }
@@ -98,7 +101,7 @@ void ovl661_func_80117430(void) {
                     SetModelTexturePage(-1);
                     var_s0 = 0;
                     do {
-                        temp_v1_3 = (RrUiRow24 *)((unsigned long)(var_s0*36)+(unsigned long)UiRows+648);
+                        temp_v1_3 = (UiRow24 *)((var_s0*36)+(unsigned long)UiRows+648);
                         if (temp_v1_3->byte14 == 2) {
                             temp_v1_3->byte14 = 3U;
                         }
@@ -110,19 +113,19 @@ void ovl661_func_80117430(void) {
         default:
             goto block_63;
         case 3:
-            func_80033368((s16) D_800AC648, 1);
+            DrawCourseMapPreview((s16) D_800AC648, 1);
             if (D_800AC5D0 > 0) {
                 D_800AC5D0 = (u16) D_800AC5D0 - 1;
             }
-            AddScreenFadeTiles(&CurrentDrawBuf->head70, (0x40 - D_800AC5D0) * 4, 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - D_800AC5D0) * 4, 0x45);
             if (NumCars.halves[0] >= 3) {
-                D_800F4D44 = 3;
+                GameModeType = 3;
                 if (LoadCarRangeStep(2, NumCars.halves[0] - 2) == 1) {
                     MenuArenas.first = LoadCursor;
                     goto block_42;
                 }
             } else {
-                D_800F4D44 = 2;
+                GameModeType = 2;
 block_42:
                 if (D_800AC5D0 <= 0) {
                     SeqMuteVolume();
@@ -139,8 +142,8 @@ block_42:
             if (temp_s0_3 == 2) {
                 SetMenuFrameOptions(1, 1, 0);
                 UiRows[23].cells[0] = temp_s0_3;
-                StepMenuValue(1, 4, (char *)&NumLaps, 0xA, (s32) temp_s0_3);
-                if (PlayerControllers[0].a != 0) {
+                StepMenuValue(1, 4, (char *)&NumLaps, 0xA, temp_s0_3);
+                if (PlayerControllers[0].action28 != 0) {
                     PlaySfx(1);
                     UiRows[23].cells[0] = 1U;
                     UiRows[23].byte14 = 3U;
@@ -162,7 +165,7 @@ block_42:
                 } else {
                     StepMenuValue(1,2,(char *)&D_800ABEC8,4,0);
                 }
-                if (PlayerControllers[0].a != 0) {
+                if (PlayerControllers[0].action28 != 0) {
                     PlaySfx(1);
                     UiRows[24].cells[0] = 1;
                     UiRows[24].byte14 = 3U;
@@ -171,13 +174,11 @@ block_42:
                     MenuCursor = 2;
                 }
             } else if (temp_s1 == 5) {
-                goto block_57;
-            }
-            goto block_59;
 block_57:
-            D_800F4D8A=0;
+                D_800F4D8A=0;
+            }
 block_59:
-            func_80033368((s16) D_800AC648, 1);
+            DrawCourseMapPreview((s16) D_800AC648, 1);
             goto block_63;
         case 8:
             if (UiRows[18].byte14 == 5) {
@@ -200,8 +201,8 @@ block_64:
         DrawUiRow(var_s0 + 0x12);
         var_s0 += 1;
     } while (var_s0 < 5);
-    if ((UiRows[18].byte14 == 2) && ((u32) (D_800F4D8A - 4) >= 2U)) {
-        DrawMenuStepArrows(0xCE, 0xD0, 0x5E, 0, (s32) (s16) D_800AC648, -1, ovl661_D_80118414 + 1);
+    if ((UiRows[18].byte14 == 2) && ((D_800F4D8A - 4) >= 2U)) {
+        DrawMenuStepArrows(0xCE, 0xD0, 0x5E, 0, (s16) D_800AC648, -1, ovl661_D_80118414 + 1);
     }
     if (D_800F4D8A == 4) {
         var_a0_3 = 0x17;

@@ -20,9 +20,9 @@ class GarageSpriteClipTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_primitives.h"
 #include "rr/animated_sprite_grid.h"
-typedef union {u8 bytes[128];u32 words[32];RrSpritePacket packets[6];} Buffer;
+typedef union {u8 bytes[128];u32 words[32];SpritePacket packets[6];} Buffer;
 typedef struct {u8 *cursor,*published;u32 *ordering,*root;u32 args[6];} Event;
-static struct World {u32 guard[4];RrGpuScratchPointers scratch;RrGarageWorkingStorage work;u32 orders[3][704];Buffer buffers[3];u32 calls;Event events[2];u32 tail[4];} world,expected;
+static struct World {u32 guard[4];GpuScratchPointers scratch;GarageWorkingStorage work;u32 orders[3][704];Buffer buffers[3];u32 calls;Event events[2];u32 tail[4];} world,expected;
 #define RR_GPU_SCRATCH (&world.scratch)
 #define ovl662_D_80127668 world.work
 static unsigned root_id,buffer_id,offset;

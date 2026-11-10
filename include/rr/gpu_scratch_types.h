@@ -7,11 +7,11 @@
 typedef struct {
     u8 *cursor;
     u32 *order;
-} RrGpuScratchPointers;
+} GpuScratchPointers;
 
 #if defined(mips)
-RR_ASSERT_SIZE(RrGpuScratchPointers, 8);
-RR_ASSERT_OFFSET(RrGpuScratchPointers, order, 4);
+RR_ASSERT_SIZE(GpuScratchPointers, 8);
+RR_ASSERT_OFFSET(GpuScratchPointers, order, 4);
 #endif
 
 #endif

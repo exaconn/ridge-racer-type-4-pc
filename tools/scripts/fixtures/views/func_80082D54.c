@@ -22,7 +22,7 @@ void SsSeqCalledTbyT(void) {
     s32 row_shift;
     s32 bank_shift;
     s32 signed_bank;
-    RrLibStateB0 **entry,**records;
+    LibStateB0 **entry,**records;
     s32 row_limit,bank_limit;
     if(_snd_ev_flag!=1) {
         _snd_ev_flag=1;
@@ -46,26 +46,26 @@ void SsSeqCalledTbyT(void) {
                         __asm__("" : "+r"(row_shift));
                         offset=0;
                         do {
-                            if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&1) {
+                            if(((LibStateB0*)(offset+(unsigned long)*entry))->w98&1) {
                                 signed_row=row_shift>>16;
                                 _SsSndPlay(signed_bank,signed_row);
-                                if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x10)_SsSndCrescendo(signed_bank,signed_row);
-                                if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x20)_SsSndCrescendo(signed_bank,signed_row);
-                                if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x40)_SsSndTempo(signed_bank,signed_row);
-                                if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x80)_SsSndTempo(signed_bank,signed_row);
+                                if(((LibStateB0*)(offset+(unsigned long)*entry))->w98&0x10)_SsSndCrescendo(signed_bank,signed_row);
+                                if(((LibStateB0*)(offset+(unsigned long)*entry))->w98&0x20)_SsSndCrescendo(signed_bank,signed_row);
+                                if(((LibStateB0*)(offset+(unsigned long)*entry))->w98&0x40)_SsSndTempo(signed_bank,signed_row);
+                                if(((LibStateB0*)(offset+(unsigned long)*entry))->w98&0x80)_SsSndTempo(signed_bank,signed_row);
                             }
-                            if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&2)_SsSndPause(bank_shift>>16,row_shift>>16);
-                            if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&8)_SsSndReplay(bank_shift>>16,row_shift>>16);
-                            if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&4) {
+                            if(((LibStateB0*)(offset+(unsigned long)*entry))->w98&2)_SsSndPause(bank_shift>>16,row_shift>>16);
+                            if(((LibStateB0*)(offset+(unsigned long)*entry))->w98&8)_SsSndReplay(bank_shift>>16,row_shift>>16);
+                            if(((LibStateB0*)(offset+(unsigned long)*entry))->w98&4) {
                                 _SsSndStop(bank_shift>>16,row_shift>>16);
-                                ((RrLibStateB0*)(offset+(unsigned long)*entry))->w98=0;
+                                ((LibStateB0*)(offset+(unsigned long)*entry))->w98=0;
                             }
                             row_shift+=0x10000;
                             row_limit=_snd_seq_t_max;
                             /* ASM_BARRIER: Read the live row bound before incrementing its counter. */
                             __asm__("" : "+r"(row_limit));
                             row++;
-                            offset+=sizeof(RrLibStateB0);
+                            offset+=sizeof(LibStateB0);
                         }while(row<row_limit);
                     }
                 }

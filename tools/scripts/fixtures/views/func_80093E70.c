@@ -37,12 +37,12 @@
 
 #undef GPU_STATUS
 
-void SetDrawEnv2(u32 *arg0, RrFrameEnvironment *arg1) {
-    register RrFrameEnvironment *env=arg1;
+void SetDrawEnv2(u32 *arg0, FrameEnvironment *arg1) {
+    register FrameEnvironment *env=arg1;
     register u32 *output=arg0;
     /* ASM_BARRIER: retain the original width sign-extraction register. */
     register s32 high asm("$2");
-    RrGpuRectangle rect;
+    GpuRectangle rect;
     /* ASM_BARRIER: retain packet-offset and RGB arithmetic registers. */
     register u32 color_offset,xy_offset asm("$7"),size_offset;
     register u32 blue asm("$2"),green asm("$3");

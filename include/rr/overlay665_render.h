@@ -1,23 +1,22 @@
 #ifndef RR_OVERLAY665_RENDER_H
 #define RR_OVERLAY665_RENDER_H
 #include "rr/overlay665_visual.h"
+#include "game/gfx/model.h"
 #include "rr/renderer_setup.h"
+#include "game/camera/viewcam.h"
+#include "game/car/carbound.h"
 
 #include "rr/overlay665_render_types.h"
 
-extern s32 D_800F2FD8;
 void BuildCameraMatrices(void);
 void SetupViewport(s32);
 void SetGeomOffset(s32 x,s32 y);
-void func_8002E828(s32 scale,void *matrix);
 void SetupObjectLightMatrices(char *view,char *lighting,
-    RrMatrixWords32 *first,RrMatrixWords32 *second);
+    MatrixWords32 *first,MatrixWords32 *second);
 u32 *ScaleMatrix(u32 *matrix,s32 scale[3]);
 void SetGeomScreen(s32);
-void SelectModelBank();
-void SetGteObjectTransform(s16 *output,s16 *view,s32 *matrix);
 void BuildRotMatrixZ(s16 *matrix,s32 angle);
 void BuildRotMatrixX(void *matrix,s32 angle);
-void SubmitModelTwoTri(RrPreviewRenderScratch *scratch,s32 object,s32 blend,s32 depth);
+void SubmitModelTwoTri(PreviewRenderScratch *scratch,s32 object,s32 blend,s32 depth);
 void ovl665_func_8011643C(void);
 #endif

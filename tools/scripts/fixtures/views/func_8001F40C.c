@@ -46,9 +46,9 @@ void DrawBigFontString(a0, a1, a2)
 s32 a0, a1;
 u8 *a2;
 {
-    RrSpritePacket *s3, *s2;
+    SpritePacket *s3, *s2;
     s32 c, a, v, row, col, u, vv;
-    s3 = *(RrSpritePacket **)0x1F800000;
+    s3 = *(SpritePacket **)0x1F800000;
     s2 = s3;
     for (; *a2 != 0; a0 += 10) {
             a = *a2 - 0x20;

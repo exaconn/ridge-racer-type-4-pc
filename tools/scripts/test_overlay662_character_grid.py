@@ -22,7 +22,7 @@ class CharacterGridTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4||sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4||offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_character_grid.h"
-typedef struct {u32 guard[4],rng;RrBadgeRow1C rows[4];RrUiUvRect uv[128];s32 selection,tick;u32 tail[4];} State;
+typedef struct {u32 guard[4],rng;BadgeRow1C rows[4];UiUvRect uv[128];s32 selection,tick;u32 tail[4];} State;
 typedef struct {s32 op,args[9];size_t cursor;u32 hash;u8 text[4];} Event;
 typedef struct {State s;Event e[128];unsigned count;} World;
 static World actual,reference,initial,*w;
@@ -31,7 +31,7 @@ static unsigned selectedSeen[43],clutSeen[2],sineSeen[9];
 static const s32 sineValues[9]={INT32_MIN,-4096,-1,0,1,63,64,4096,INT32_MAX};
 u8 NameCharset[]=" 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!?&@";
 s8 ovl662_D_80126230[3]={0,1,2};
-RrBadgeRow1C *BadgeRows;
+BadgeRow1C *BadgeRows;
 #define UiFontGlyphs w->s.uv
 #define ScreenFrame w->s.tick
 #define ovl662_D_801273B4 w->s.selection
@@ -54,14 +54,14 @@ void *AddTextSprites(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 s
  assert(clut==32760||clut==32761);clutSeen[clut-32760]++;
  e->args[0]=x;e->args[1]=y;e->args[2]=clut;e->args[3]=spacing;e->args[4]=color;memcpy(e->text,text,4);change();return (u8*)p+20;
 }
-void *AddSpritePrim(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
+void *AddSpritePrim(u32 *ot,void *p,s32 x,s32 y,const UiUvRect *uv,u16 clut,s32 color){
  Event *e=event(3,p);assert(ot==ordering&&uv>=w->s.uv&&uv<w->s.uv+128);assert(clut==32760||clut==32761);clutSeen[clut-32760]++;
  e->args[0]=x;e->args[1]=y;e->args[2]=clut;e->args[3]=color;e->args[4]=uv-w->s.uv;memcpy(e->text,uv,4);change();return (u8*)p+20;
 }
 void *AddTilePrim(u32 *ot,void *p,s32 x,s32 y,s32 a,s32 b,s32 r,s32 g,s32 blue){
  Event *e=event(4,p);assert(ot==ordering);e->args[0]=x;e->args[1]=y;e->args[2]=a;e->args[3]=b;e->args[4]=r;e->args[5]=g;e->args[6]=blue;change();return (u8*)p+24;
 }
-void *AddDrawModePrim(u32 *ot,void *p,u16 mode){Event *e=event(5,p);assert(ot==ordering);e->args[0]=mode;change();return (u8*)p+12;}
+void *AddDrawModePrim(u32 *ot,GpuDrawModePacket *mode_packet,u16 mode){ void *p = (void *)mode_packet;Event *e=event(5,p);assert(ot==ordering);e->args[0]=mode;change();return (u8*)p+12;}
 ''' + body + r'''
 static void pulse(unsigned selected,s32 *clut,s32 *color){
  *clut=32760;*color=0;
@@ -84,7 +84,7 @@ static void expected(s32 row){s32 x=w->s.rows[row].x04+36,y=w->s.rows[row].y06+5
  AddDrawModePrim(ordering,p,56);
 }
 int main(void){unsigned i,j;uint64_t cases=0;
- assert(sizeof(RrCharacterGridAddress)==sizeof(void*)&&(uintptr_t)arena>UINT32_MAX);
+ assert(sizeof(CharacterGridAddress)==sizeof(void*)&&(uintptr_t)arena>UINT32_MAX);
  for(scenario=0;scenario<32768;scenario++)for(mutation=0;mutation<2;mutation++){
   memset(&initial,0,sizeof(initial));w=&initial;w->s.rng=0x17F54+scenario*17;
   for(i=0;i<4;i++){w->s.guard[i]=next();w->s.tail[i]=next();w->s.rows[i].x04=(s16)next();w->s.rows[i].y06=(s16)next();}

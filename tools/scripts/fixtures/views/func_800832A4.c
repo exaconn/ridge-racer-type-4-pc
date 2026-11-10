@@ -11,8 +11,8 @@ void _SsSeqPlay(s32 bank, s32 row) {
     /* ASM_BARRIER: Retain the original register across record lookup and counter updates. */
     register s32 index __asm__("$4");
     /* ASM_BARRIER: Retain the original register across record lookup and counter updates. */
-    register RrLibStateB0 **table __asm__("$3");
-    RrLibStateB0 *state;
+    register LibStateB0 **table __asm__("$3");
+    LibStateB0 *state;
     s32 units;
     s32 period;
     s16 delay;
@@ -28,11 +28,11 @@ void _SsSeqPlay(s32 bank, s32 row) {
     /* ASM_BARRIER: Complete both index calculations before materializing the PAL lookup page. */
     __asm__ volatile("" : : "r"(index), "r"(units) : "$3");
     /* PAL mapping: table[-0xF98 / 4] selects _ss_score[bank]. */
-    table = (RrLibStateB0 **)0x80110000U;
+    table = (LibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL lookup page without folding its signed low offset. */
     __asm__("" : "=r"(table) : "0"(table));
-    table = (RrLibStateB0 **)((u8 *)table + index);
-    state = (RrLibStateB0 *)((u8 *)table[-0xF98 / 4] + units * 16);
+    table = (LibStateB0 **)((u8 *)table + index);
+    state = (LibStateB0 *)((u8 *)table[-0xF98 / 4] + units * 16);
     /* h48[5] is the delay at 0x52; h48[6] is the period at 0x54. */
     period = state->h48[6];
     current = state->w90;

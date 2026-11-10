@@ -38,8 +38,8 @@ class HudRotatingQuadTest(unittest.TestCase):
 s32 real_lookup(s32);
 '''+helpers+r'''
 enum {ARENA=544,GUARD=16,ROWS=4};
-typedef struct {u32 before[4];RrNumberTarget targets[ROWS];u32 heads[ROWS][4];
- RrGpuScratchPointers scratch;RrHudQuadCorner corners[4];s32 bank;u32 after[4];} Environment;
+typedef struct {u32 before[4];NumberTarget targets[ROWS];u32 heads[ROWS][4];
+ GpuScratchPointers scratch;HudQuadCorner corners[4];s32 bank;u32 after[4];} Environment;
 static Environment actual,expected,pre[2];
 static u8 *arena,reference[ARENA],preArena[2][ARENA];
 static unsigned calls,profile,scenario,rowIndex,phaseHits[4096],selections[4][4],aliases[2];
@@ -121,8 +121,8 @@ static void model(s32 phase){s32 scaled;int64_t x,y,dx,dy;s32 sn,cs;u32 *head;un
 }
 int main(void){unsigned raw,r,b,i;uint64_t cases=0;s32 phase;
  assert(sizeof(void*)==8&&sizeof(unsigned long)==sizeof(void*));
- assert(sizeof(RrHudQuadColor)==4&&sizeof(RrHudQuadEmission)==40);
- assert(sizeof(RrNumberTarget)==40&&offsetof(RrNumberTarget,x)==32);
+ assert(sizeof(HudQuadColor)==4&&sizeof(HudQuadEmission)==40);
+ assert(sizeof(NumberTarget)==40&&offsetof(NumberTarget,x)==32);
  arena=malloc(ARENA);assert(arena&&((uintptr_t)arena>>32)&&((uintptr_t)&actual.targets>>32));
  for(raw=0;raw<65536;raw++)for(profile=0;profile<4;profile++){
   u8 *env=(u8 *)&actual;scenario=raw;rowIndex=(raw>>2)&3;

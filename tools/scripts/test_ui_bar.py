@@ -29,17 +29,17 @@ class UiBarTest(unittest.TestCase):
 ''' + header('gpu.h') + header('ui_bar.h') + r'''
 typedef struct {
     u8 prefix[32];
-    RrUiBarDescriptor descriptors[8];
-    RrUiUvRect glyphs[8];
+    UiBarDescriptor descriptors[8];
+    UiUvRect glyphs[8];
     u32 order;
-    RrSpritePacket pool[64];
+    SpritePacket pool[64];
     u8 suffix[32];
 } World;
 typedef struct {
     int kind;
     u32 *order;
-    RrSpritePacket *cursor;
-    RrUiUvRect *glyph;
+    SpritePacket *cursor;
+    UiUvRect *glyph;
     s32 args[7];
 } Entry;
 static World actual,expected;
@@ -49,11 +49,11 @@ static int actual_count,expected_count,selected_style,mutation;
 #define D_8009F94C actual.glyphs
 ''' + body + r'''
 static s32 wrap(u32 value) {s32 result;memcpy(&result,&value,4);return result;}
-static RrSpritePacket *next_cursor(int sequence) {
+static SpritePacket *next_cursor(int sequence) {
     return &actual.pool[(sequence*7+selected_style*3+11)%64];
 }
 static void effect(World *world,int sequence) {
-    RrUiBarDescriptor *d=&world->descriptors[selected_style];
+    UiBarDescriptor *d=&world->descriptors[selected_style];
     if(mutation==1&&sequence==1)d->count=3;
     if(mutation==2&&sequence==2)d->count=0;
     if(mutation==3&&sequence==2)d->count=5;
@@ -63,8 +63,8 @@ static void effect(World *world,int sequence) {
     if(mutation==6&&sequence==1)d->count=32767;
     if(mutation==6&&sequence==2)d->count=2;
 }
-static RrSpritePacket *append(int model,int kind,u32 *order,RrSpritePacket *cursor,
-                            RrUiUvRect *glyph,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g) {
+static SpritePacket *append(int model,int kind,u32 *order,SpritePacket *cursor,
+                            UiUvRect *glyph,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g) {
     Entry entry;memset(&entry,0,sizeof(entry));
     entry.kind=kind;entry.order=order;entry.cursor=cursor;entry.glyph=glyph;
     entry.args[0]=a;entry.args[1]=b;entry.args[2]=c;entry.args[3]=d;
@@ -73,11 +73,11 @@ static RrSpritePacket *append(int model,int kind,u32 *order,RrSpritePacket *curs
     if(model)expected_log[sequence]=entry;else actual_log[sequence]=entry;
     effect(model?&expected:&actual,sequence);return next_cursor(sequence);
 }
-RrSpritePacket *AddSpritePrim(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,
-                            RrUiUvRect *glyph,u16 clut,s32 mode) {
+SpritePacket *AddSpritePrim(u32 *order,SpritePacket *cursor,s32 x,s32 y,
+                            UiUvRect *glyph,u16 clut,s32 mode) {
     return append(0,0,order,cursor,glyph,x,y,clut,mode,0,0,0);
 }
-RrSpritePacket *GameQueueSprite(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,
+SpritePacket *GameQueueSprite(u32 *order,SpritePacket *cursor,s32 x,s32 y,
                             s32 width,s32 height,s32 u,s32 v,s32 clut) {
     return append(0,1,order,cursor,0,x,y,width,height,u,v,clut);
 }
@@ -85,9 +85,9 @@ void *AddTilePrim(u32 *order,void *cursor,s32 x,s32 y,s32 width,s32 height,
                    s32 r,s32 g,s32 b) {
     return append(0,2,order,cursor,0,x,y,width,height,r,g,b);
 }
-static RrSpritePacket *reference(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,int style) {
-    RrUiBarDescriptor *record=&expected.descriptors[style];
-    RrUiUvRect *glyph=&actual.glyphs[record->glyph];
+static SpritePacket *reference(u32 *order,SpritePacket *cursor,s32 x,s32 y,int style) {
+    UiBarDescriptor *record=&expected.descriptors[style];
+    UiUvRect *glyph=&actual.glyphs[record->glyph];
     cursor=append(1,0,order,cursor,glyph,wrap((u32)x+6),wrap((u32)y+5),0x7FFB,0,0,0,0);
     cursor=append(1,1,order,cursor,0,x,y,4,24,20,72,0x7E3B);
     int pieces=0;
@@ -110,10 +110,10 @@ static void check(int style,s16 count,s32 x,s32 y,int hook,u32 seed,int order_al
     selected_style=style;mutation=hook;actual_count=expected_count=0;
     memcpy(&expected,&actual,sizeof(actual));
     u32 *order=order_alias?(u32*)&actual.descriptors[style]:&actual.order;
-    RrSpritePacket *cursor=&actual.pool[seed%64];
+    SpritePacket *cursor=&actual.pool[seed%64];
     assert((uintptr_t)cursor>0xFFFFFFFFU);
-    RrSpritePacket *want=reference(order,cursor,x,y,style);
-    RrSpritePacket *got=DrawBadgeTitleBar(order,cursor,x,y,style);
+    SpritePacket *want=reference(order,cursor,x,y,style);
+    SpritePacket *got=DrawBadgeTitleBar(order,cursor,x,y,style);
     assert(got==want);
     assert(actual_count==expected_count);
     assert(!memcmp(actual_log,expected_log,actual_count*sizeof(Entry)));

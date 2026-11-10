@@ -17,7 +17,7 @@ s32 CdControl(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer
     /* ASM_BARRIER: Retain the byte command separately from its full input. */
     register s32 code __asm__("$19")=command&255;
     u32 *table;
-    RrLibDataCallback saved;
+    LibDataCallback saved;
     u32 *metadata;
     u32 offset;
     /* ASM_BARRIER: Retain the independent success/failure state. */
@@ -84,7 +84,7 @@ s32 CdControlF(s32 requested_command,const u8 *parameter_buffer) {
     register s32 code __asm__("$18");
     /* ASM_BARRIER: Retain the command metadata base before indexing it. */
     register u32 *table __asm__("$3");
-    RrLibDataCallback saved;
+    LibDataCallback saved;
     /* ASM_BARRIER: Retain the selected metadata entry across all raw device calls. */
     register u32 *metadata __asm__("$21");
     /* ASM_BARRIER: Form the metadata byte offset before preserving its selected pointer. */
@@ -105,10 +105,10 @@ s32 CdControlF(s32 requested_command,const u8 *parameter_buffer) {
 loop:
     {
         /* ASM_BARRIER: Use the original address temporary for callback clearing. */
-        register RrLibDataCallback *page __asm__("$1");
+        register LibDataCallback *page __asm__("$1");
         /* ASM_BARRIER: Finish retry setup before materializing the callback page. */
         __asm__("" : : : "$1");
-        page=(RrLibDataCallback *)0x800A0000U;
+        page=(LibDataCallback *)0x800A0000U;
         /* ASM_BARRIER: Expose callback clearing for the command-test delay slot. */
         __asm__("" : "+r"(page));
         page[0x6488/sizeof(*page)]=0;
@@ -162,7 +162,7 @@ s32 CdControlB(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffe
     register s32 remaining __asm__("$16")=3;
     s32 code;
     u32 *table;
-    RrLibDataCallback saved;
+    LibDataCallback saved;
     u32 *metadata;
     u32 offset;
     s32 outcome;
@@ -177,8 +177,8 @@ s32 CdControlB(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffe
 loop:
     {
         /* ASM_BARRIER: Retain the original address temporary for callback clearing. */
-        register RrLibDataCallback *page __asm__("$1");
-        page=(RrLibDataCallback *)0x800A0000U;
+        register LibDataCallback *page __asm__("$1");
+        page=(LibDataCallback *)0x800A0000U;
         /* ASM_BARRIER: Expose callback clearing in the command-test delay slot. */
         __asm__("" : "+r"(page));
         page[0x6488/sizeof(*page)]=0;

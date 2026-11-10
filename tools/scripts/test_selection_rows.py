@@ -37,12 +37,12 @@ typedef uint32_t u32; typedef int32_t s32;
 '''+header+'''
 u8 test_ram[0x10001],test_rom[0x10001],test_config[0x10001];
 u32 parameter_reads;uintptr_t parameter_pointer;
-u32 next_parameter(const RrSelectionConfigView *p) {
+u32 next_parameter(const SelectionConfigView *p) {
     parameter_pointer=(uintptr_t)p;
     return (u8)(p->parameter+parameter_reads++);
 }
-_Static_assert(sizeof(RrSelectionRows)==32,"native frame");
-_Static_assert(offsetof(RrSelectionRows,rows)==4,"native row start");
+_Static_assert(sizeof(SelectionRows32)==32,"native frame");
+_Static_assert(offsetof(SelectionRows32,rows)==4,"native row start");
 '''+body+observed
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)

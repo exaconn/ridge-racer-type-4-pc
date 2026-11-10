@@ -6,14 +6,14 @@
 
 /* PAL passes each signed offset in a four-byte aggregate aligned to two.
  * The upper halfword is padding; the projection reads only value. */
-typedef struct { s16 value; unsigned short :16; } RrTrackOffsetArgument;
+typedef struct { s16 value; unsigned short :16; } TrackOffsetArgument;
 
-void ProjectToTrackSegment(RrTrackOffsetArgument x, RrTrackOffsetArgument z, s32 node,
+void ProjectToTrackSegment(TrackOffsetArgument x, TrackOffsetArgument z, s32 node,
     s16 *fraction, s16 *lateral, s32 *remaining);
-void func_8004638C(RrRaceVehicle *vehicle);
-void UpdateCarTrackProjection(RrRaceVehicle *vehicle);
+void ComputeCarTrackSurfaceProj(RaceVehicle *vehicle);
+void UpdateCarTrackProjection(RaceVehicle *vehicle);
 
-RR_ASSERT_SIZE(RrTrackOffsetArgument,4);
-RR_ASSERT_OFFSET(RrTrackOffsetArgument,value,0);
+RR_ASSERT_SIZE(TrackOffsetArgument,4);
+RR_ASSERT_OFFSET(TrackOffsetArgument,value,0);
 
 #endif

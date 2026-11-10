@@ -10,6 +10,7 @@ class GarageAnalogMotionTest(unittest.TestCase):
         body=(root/'src/overlays/PAL/662/func_8011D338.c').read_text()
         source=r'''
 #include <assert.h>
+#include "game/system/pad.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -19,9 +20,9 @@ class GarageAnalogMotionTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_input.h"
-typedef union {s16 halves[2];RrGaragePoint point;} Accumulator;
-typedef union {RrMenuItemState5C rows[3];RrGaragePoint points[69];} Controller;
-static struct World {u32 guard[4];Controller controller;Accumulator accumulator;RrGaragePoint out;u32 tail[4];} w,e;
+typedef union {s16 halves[2];GaragePoint point;} Accumulator;
+typedef union {ControllerState5C rows[3];GaragePoint points[69];} Controller;
+static struct World {u32 guard[4];Controller controller;Accumulator accumulator;GaragePoint out;u32 tail[4];} w,e;
 #define PlayerControllers w.controller.rows
 #define ovl662_D_80126C14 w.accumulator.halves
 static unsigned calls;
@@ -30,19 +31,19 @@ void *PsyqMemset(void *p,s32 value,u32 count){assert(value==0 && count==4);calls
 static u32 seed=0x1d338;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 static s16 half(u32 value){u16 raw=value;s16 result;memcpy(&result,&raw,2);return result;}
-static RrGaragePoint *output(struct World *v,unsigned index){
+static GaragePoint *output(struct World *v,unsigned index){
  if(index==0)return &v->out;
  if(index==1)return &v->accumulator.point;
  if(index==2)return &v->controller.points[5];
  return &v->controller.points[0];
 }
 static void reference(unsigned index){
- int64_t movement[2]={0,0};unsigned i;const RrMenuItemState5C *row=&e.controller.rows[0];
- if(row->type01==0x73 && row->kind1C!=0 && row->flag40==0){
+ int64_t movement[2]={0,0};unsigned i;const ControllerState5C *row=&e.controller.rows[0];
+ if(row->input00.fields.type==0x73 && row->kind1C!=0 && row->flag40==0){
   for(i=0;i<2;i++){
-   int64_t axis=i?row->axis17:row->axis16,old=e.accumulator.halves[i];
+   int64_t axis=i?row->axes14.bytes[3]:row->axes14.bytes[2],old=e.accumulator.halves[i];
    if(axis>=112 && axis<=144){e.accumulator.halves[i]=0;continue;}
-   int64_t delta=(axis<112?axis-112:axis-143)*((row->buttons02&8)?4:1);
+   int64_t delta=(axis<112?axis-112:axis-143)*((row->input00.fields.buttons&8)?4:1);
    if((delta<0 && old<0) || (delta>0 && old>0))delta+=old;
    int64_t accumulated=half((u32)delta);
    movement[i]=(accumulated/112)*(i?2:1);
@@ -58,9 +59,9 @@ static void run(unsigned index){
  assert(calls==1 && memcmp(&w,&e,sizeof(w))==0);
 }
 static void setup(unsigned x,unsigned y,unsigned speed){
- memset(&w,0xA5,sizeof(w));w.controller.rows[0].type01=0x73;w.controller.rows[0].kind1C=-1;w.controller.rows[0].flag40=0;
- w.controller.rows[0].buttons02=(u16)((x*257U+y)&~8U)|(speed?8:0);
- w.controller.rows[0].axis16=x;w.controller.rows[0].axis17=y;
+ memset(&w,0xA5,sizeof(w));w.controller.rows[0].input00.fields.type=0x73;w.controller.rows[0].kind1C=-1;w.controller.rows[0].flag40=0;
+ w.controller.rows[0].input00.fields.buttons=(u16)((x*257U+y)&~8U)|(speed?8:0);
+ w.controller.rows[0].axes14.bytes[2]=x;w.controller.rows[0].axes14.bytes[3]=y;
 }
 int main(void){unsigned mode,x,y,k,i;const u16 edges[]={0,1,111,112,113,32766,32767,32768,32769,65423,65424,65425,65534,65535,7,65529};
  /* All65536 possible accumulator values crossed with every axis byte and speed.
@@ -77,7 +78,7 @@ int main(void){unsigned mode,x,y,k,i;const u16 edges[]={0,1,111,112,113,32766,32
  /* Every type and flag byte, including disabled and noncanonical kind values. */
  for(k=0;k<131072;k++){
   for(i=0;i<sizeof(w);i++)((u8*)&w)[i]=(u8)next();
-  w.controller.rows[0].type01=(k&1)?0x73:(u8)(k>>1);
+  w.controller.rows[0].input00.fields.type=(k&1)?0x73:(u8)(k>>1);
   w.controller.rows[0].flag40=(u8)(k>>9);
   if((k&7)==0)w.controller.rows[0].kind1C=0;
   run(k&3);

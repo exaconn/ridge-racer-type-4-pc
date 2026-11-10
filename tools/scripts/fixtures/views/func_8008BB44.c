@@ -4,7 +4,7 @@
 
 #include "rr/library.h"
 
-RrLibInterruptExchange startIntrDMA(void) {
+LibInterruptExchange startIntrDMA(void) {
     DMA_memclr(InterruptCallbackTable, 8);
     /* The ordinary write view permits the original call-delay store. */
     *(u32 *)DICR_VSync = 0;

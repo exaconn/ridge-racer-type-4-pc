@@ -7,8 +7,8 @@ void ovl662_func_80125DE0(u32 *source,u32 *destination,s32 x,s32 y)
     s32 i,j,shift,left;
     u32 first,second;
     {
-        register u32 *input asm("t1")=source;
-        register u32 *temporary asm("t0")=buffer;
+        register u32 *input asm("$9")=source;
+        register u32 *temporary asm("$8")=buffer;
         if(y>=0)cursor.row=y*8;
         else cursor.row=(y+64)*8;
         for(i=0;i<64;i++) {
@@ -22,8 +22,8 @@ void ovl662_func_80125DE0(u32 *source,u32 *destination,s32 x,s32 y)
         }
     }
     {
-        register u32 *temporary asm("t1")=buffer;
-        register u32 *output asm("t0")=destination;
+        register u32 *temporary asm("$9")=buffer;
+        register u32 *output asm("$8")=destination;
         x=-x;
         if(x<0)x+=64;
         shift=(x%8)*4;

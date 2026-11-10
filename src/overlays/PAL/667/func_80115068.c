@@ -10,9 +10,9 @@ void ovl667_func_80115068(void) {
         if (ovl667_func_80114E34() == 1) {
             ovl667_D_80118EFC = 0;
             ovl667_D_80118EF4 = 0;
-            ovl667_D_80118EF8 = (s32)((u32)ovl667_D_80118EF8 + 1U);
+            ovl667_D_80118EF8 = (ovl667_D_80118EF8 + 1U);
         } else {
-            ovl667_D_80118EFC = (s32)((u32)ovl667_D_80118EFC + 1U);
+            ovl667_D_80118EFC = (ovl667_D_80118EFC + 1U);
             if (ovl667_D_80118F09 == ovl667_D_80118F08) {
                 ovl667_D_80118F8D = (ovl667_D_80118F08 + 7) & 7;
             } else if (ovl667_D_80118F08 == ovl667_D_80118F09 + 1) {

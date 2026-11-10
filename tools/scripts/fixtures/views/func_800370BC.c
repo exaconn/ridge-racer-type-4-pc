@@ -2,7 +2,7 @@
 
 #include "rr/course_choice_types.h"
 
-s32 CountChoiceGlyphs(const RrCourseChoice4 *a0) {
+s32 CountChoiceGlyphs(const CourseChoice4 *a0) {
     int i;
     for (i = 0; i < 9; i++) {
         if (a0[i].glyph == -1) break;

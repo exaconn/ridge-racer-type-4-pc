@@ -22,11 +22,11 @@ class Overlay662ScreenInitTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_screen_init.h"
 static u8 arenas[3][0x2D001];
-typedef struct {s32 a[10];void *published;RrMenuArenas arenas;u16 mode;s16 scene,counter;} Event;
+typedef struct {s32 a[10];void *published;MenuArenas8 arenas;u16 mode;s16 scene,counter;} Event;
 static struct World {
  u32 guard[4];s32 frame,word;s16 local,setting,style;
  s8 flag0,flag1;u16 mode;s16 scene,counter;
- RrMenuArenas arenas;u8 *base;void *published,*resource;
+ MenuArenas8 arenas;u8 *base;void *published,*resource;
  unsigned calls;Event events[7];u32 tail[4];
 } world,expected;
 static unsigned scenario;
@@ -43,7 +43,7 @@ static unsigned scenario;
 #define MenuArenas world.arenas
 #define CdDirectoryBuffer world.base
 #define LoadCursor world.published
-#define D_800F4D40 world.resource
+#define MenuArenaBase world.resource
 '''+reset+body+r'''
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static void event(struct World *w,const s32 a[10]){unsigned n=w->calls,j;Event *e;

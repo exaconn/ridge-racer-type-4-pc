@@ -8,8 +8,8 @@ void _SsContMainVol(s32 raw_bank, s32 raw_row, s32 raw_value) {
     /* ASM_BARRIER: Retain the original register for selector, slot, or callback argument scheduling. */
     register s32 value __asm__("$16");
     /* ASM_BARRIER: Retain the original register for selector, slot, or callback argument scheduling. */
-    register RrLibStateB0 **table __asm__("$17");
-    register RrLibStateB0 *state;
+    register LibStateB0 **table __asm__("$17");
+    register LibStateB0 *state;
     register u32 slot;
     u8 *selected;
     u16 *pitch;
@@ -28,19 +28,19 @@ void _SsContMainVol(s32 raw_bank, s32 raw_row, s32 raw_value) {
     value = raw_value;
     /* ASM_BARRIER: Finish the selectors and preserve the unmasked input before materializing the lookup page. */
     __asm__ volatile("" : "+r"(value) : "r"(units), "r"(encoded), "r"(index) : "$17");
-    table = (RrLibStateB0 **)0x80110000U;
+    table = (LibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL lookup page without folding its signed low offset. */
     __asm__("" : "=r"(table) : "0"(table));
-    table = (RrLibStateB0 **)((u8 *)table + index);
-    state = (RrLibStateB0 *)((u8 *)table[-0xF98 / 4] + units);
+    table = (LibStateB0 **)((u8 *)table + index);
+    state = (LibStateB0 *)((u8 *)table[-0xF98 / 4] + units);
     pitch_arg = value & 255;
     slot = state->b17;
     selected = (u8 *)state + slot;
-    channel = selected[RR_FIELD_OFFSET(RrLibStateB0, b37)];
+    channel = selected[RR_FIELD_OFFSET(LibStateB0, b37)];
     _SsVmSetVol(encoded, state->b26,
                  channel, pitch_arg,
-                 selected[RR_FIELD_OFFSET(RrLibStateB0, b27)]);
+                 selected[RR_FIELD_OFFSET(LibStateB0, b27)]);
     pitch = (u16 *)(slot * sizeof(u16) + (unsigned long)state);
-    *(u16 *)((u8 *)pitch + RR_FIELD_OFFSET(RrLibStateB0, h60)) = value & 255;
+    *(u16 *)((u8 *)pitch + RR_FIELD_OFFSET(LibStateB0, h60)) = value & 255;
     state->w90 = _SsReadDeltaValue(bank, row);
 }

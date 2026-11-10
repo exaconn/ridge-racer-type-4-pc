@@ -1,25 +1,30 @@
+#include "game/system/pad.h"
 /* RODATA 0x8001160c 0x74 */
 /* Candidate module: menu transitions, 8007BD18..8007BFF4.
  * Contiguous functions indexed by the same menu state and entry table. */
 #include "rr/tables.h"
+#include "rr/frame_storage_types.h"
 #include "game/data/cardchk.h"
 #include "game/data/cardini.h"
 #include "game/menu/loadmenu.h"
-#include "game/data/cardini.h"
-#include "game/data/cardchk.h"
 #include "game/menu/menumode.h"
 #include "game/menu/menutra21.h"
 #include "game/menu/menutra22.h"
 #include "rr/course_choices.h"
 #include "rr/menu_selection.h"
-#include "game/gfx/drawbuf.h"
 #include "game/data/menuvars.h"
+#include "rr/ui.h"
+#include "rr/badge_row_types.h"
+#include "rr/menu_text_state.h"
+#include "rr/screen_tiles.h"
+#include "rr/string_tail_copy.h"
+#include "game/sound/cdmain.h"
+#include "game/data/ldscn1.h"
+#include "game/sound/fxplay.h"
 
-struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d; };
+extern BadgeRow1C *BadgeRows;
 
 typedef struct { char b[0x17]; signed char b17; char r[0x2C - 0x18]; } w8c5S;
-
-typedef struct { char pad[4]; unsigned char b; char pad2[3]; } E8;
 
 typedef struct { s16 a, b; } P2;
 
@@ -34,52 +39,42 @@ typedef struct
   short chk;
 } W10_H;
 
-extern RrEntry800A4258 D_800A4258[];
-extern RrMenuChoice D_800A44F4[];
+extern MenuChoice D_800A44F4[];
 extern s32 D_800A4510[];
 extern s16 D_800A4514[];
-extern RrMenuChoice D_800A4520[];
-extern s8 *D_800AC590;
-extern s16 D_800AC594;
+extern MenuChoice D_800A4520[];
+extern s16 MenuActiveControllerIndex;
 extern s32 ModeFrame;
 extern s16 MenuStateIndex;
-extern u8 D_800F3A24[];
-extern RrMenuItemState5C PlayerControllers[];
-extern s16 D_800FFC00;
+extern u8 CardPortPollStatus[];
+extern s16 CardActivePort;
 extern s16 D_8010948C;
 extern unsigned char D_800A4524[][4];
 extern unsigned short D_800F3AF8;
 extern unsigned short D_800F4D8A;
-extern unsigned short D_800FFC18;
+extern short CardMenuOperation;
 extern short D_80109478[];
 extern short D_8010948E;
 extern int StepMenuValue();
-extern int PlaySfx();
-extern int SeqFadeVolume();
-extern int AddScreenFadeTiles();
-extern int func_8003B934();
-extern int ClearScreenOverlayState();
-extern int SeqMuteVolume();
+extern void PlaySfx();
+extern void ClearScreenOverlayState();
 extern int func_80114920();
 extern int func_80115598();
 extern int func_801161A8();
 extern int func_8011512C();
 extern w8c5S SaveSlotSelections[];
 extern w8c5S D_8010B258[];
-extern struct { char pad[0x500]; unsigned char b500; } *UiRows;
-extern struct { char pad[0x10]; short h10; char pad2[0x1A]; short h2C; } *BadgeRows;
 extern short D_800AC5D0;
 extern short D_800F3A26;
 extern short LinkState;
 extern unsigned short D_800F3A1E;
-extern unsigned short D_800F4D44;
+extern unsigned short GameModeType;
 extern int D_800F4CA8;
-extern short D_800F4D3C;
+extern short GpSaveSlotCursor;
 extern int D_801272F0[];
 extern s16 D_800A4540[][2];
 extern char *SaveBuffer;
 extern int D_8010EFA8;
-extern int CopyStringClearTail();
 extern short D_800A45BC;
 extern short D_800A45BE;
 extern unsigned char CardFileCounts;
@@ -88,29 +83,28 @@ extern char CardTargetFileName[];
 extern int D_800A45C0;
 extern int D_800A45C4;
 extern unsigned char D_800A4478[];
-extern int UpdateDialogue();
 
-void func_8007BD18(void);
-void func_8007BDF8(void);
-void func_8007BEF8(void);
-void func_8007BF58(void);
-void func_8007BFF4();
-void func_8007C308(void);
-void func_8007C76C();
-void func_8007C848(void);
-void func_8007C8D4(void);
-void func_8007C944(void);
-int func_8007CB44();
-int func_8007CFC0();
+void RunCardSaveOrLoadStep(void);
+void StepCardConfirmPrompt(void);
+void WaitCardDialogueComplete(void);
+void RunCardFormatStep(void);
+void InitCardMenuSession();
+void CloseCardMenuUiRows(void);
+void StepCardSlotHeaderScan();
+void CheckCardPollStatusTransition(void);
+void CheckCardFileExistsTransition(void);
+void StepCardDataTransfer(void);
+int ScanBothCardPortsStep();
+int ReadCardSlotHeaderStep();
 
-void func_8007BD18(void) {
-    s32 i = D_800A4258[MenuStateIndex].i;
+void RunCardSaveOrLoadStep(void) {
+    s32 i = MenuStateTable[MenuStateIndex].tableIdx04;
     s32 a = D_800A44F4[i].a;
     s32 c = D_800A44F4[i].c;
     s32 b = D_800A44F4[i].b;
     s32 r;
-    if (c == 1) r = CardSaveStep(0, D_800FFC00);
-    else r = CardLoadStep(0, D_800FFC00);
+    if (c == 1) r = CardSaveStep(0, CardActivePort);
+    else r = CardLoadStep(0, CardActivePort);
     if (r == 4) {
         MenuStateIndex = a;
     } else if (r == 5) {
@@ -123,10 +117,10 @@ void func_8007BD18(void) {
     }
 }
 
-void func_8007BDF8(void)
+void StepCardConfirmPrompt(void)
 {
-  s32 a1 = *(D_800A4510 + D_800A4258[MenuStateIndex].i);
-  if ((&PlayerControllers[D_800AC594])->a != 0)
+  s32 a1 = *(D_800A4510 + MenuStateTable[MenuStateIndex].tableIdx04);
+  if ((&PlayerControllers[MenuActiveControllerIndex])->action28 != 0)
   {
     if (a1 == 0)
     {
@@ -134,15 +128,15 @@ void func_8007BDF8(void)
       if (MenuStateIndex == 0xC)
       {
         MenuStateIndex = D_80109458;
-        D_800F3A24[D_800FFC00] = 0x5A;
-        PollCardStatus(D_800FFC00, 0, 1);
+        CardPortPollStatus[CardActivePort] = 0x5A;
+        PollCardStatus(CardActivePort, 0, 1);
         return;
       }
       MenuStateIndex = 0;
     }
   }
   else
-    if ((&PlayerControllers[D_800AC594])->b != 0)
+    if ((&PlayerControllers[MenuActiveControllerIndex])->action2C != 0)
   {
     if (a1 == 0)
     {
@@ -152,46 +146,40 @@ void func_8007BDF8(void)
   }
 }
 
-void func_8007BEF8(void) {
-    s32 i = D_800A4258[MenuStateIndex].i;
+void WaitCardDialogueComplete(void) {
+    s32 i = MenuStateTable[MenuStateIndex].tableIdx04;
     s32 v = D_800A4514[i * 2];
-    if (D_800AC590[6] == 4) {
+    if (CardDialogueStatePtr->st == 4) {
         MenuStateIndex = v;
         ModeFrame -= 1;
     }
 }
 
-void func_8007BF58(void) {
+void RunCardFormatStep(void) {
     s32 k;
     s32 i;
     s32 a, b;
     for (k = 0x63; k >= 0; k--) ;
-    i = D_800A4258[MenuStateIndex].i;
+    i = MenuStateTable[MenuStateIndex].tableIdx04;
     a = D_800A4520[i].a;
     b = D_800A4520[i].c;
-    if (CardFormatSlot(D_800FFC00, 0) == 1) {
+    if (CardFormatSlot(CardActivePort, 0) == 1) {
         MenuStateIndex = a;
         return;
     }
     MenuStateIndex = b;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800A4258 (*(struct E (*)[])&D_800A4258)
-#define PlayerControllers (*(char (*)[])&PlayerControllers)
-#define PollCardStatus ((int (*)())PollCardStatus)
-
-void func_8007BFF4()
-{
+void InitCardMenuSession(void) {
     int arr[4];
     int i, c, flag, n;
-    struct E *base, *p;
+    MenuStateEntry8 *base, *p;
     unsigned char *q;
-    char *r, *b3;
+    ControllerState5C *r, *b3;
     signed char sb;
 
     D_801094A0 = 0;
-    D_800F3AF8 = D_800FFC18;
+    D_800F3AF8 = *(unsigned short *)&CardMenuOperation;
     switch ((short)D_800F3AF8) {
     case 0: MenuStateIndex = 0; break;
     case 1: case 5: MenuStateIndex = 0x20; break;
@@ -200,13 +188,13 @@ void func_8007BFF4()
     case 6: MenuStateIndex = 0x2A; D_800F3AF8 = 0x10; break;
     case 7: MenuStateIndex = 0x2B; D_800F3AF8 = 0x10; break;
     }
-    base = D_800A4258;
+    base = MenuStateTable;
     p = base + MenuStateIndex;
-    i = p->a;
-    c = p->c;
+    i = p->tableIdx04;
+    c = p->promptIdx06;
     D_8010948E = c;
     if (D_800F4D8A == 0) {
-        sb = p->d;
+        sb = p->defaultChoice07;
         if (sb >= 0) {
             D_80109478[c] = sb;
         }
@@ -228,50 +216,44 @@ void func_8007BFF4()
         }
     }
     if (flag) {
-        StepMenuValue(((unsigned short)D_800AC594 & 1) << 2, 2, D_80109478 + D_8010948E, n, 0);
+        StepMenuValue(((unsigned short)MenuActiveControllerIndex & 1) << 2, 2, D_80109478 + D_8010948E, n, 0);
     } else {
-        StepMenuValue((((unsigned short)D_800AC594 & 1) << 2) | 1, 2, D_80109478 + D_8010948E, n, 0);
+        StepMenuValue((((unsigned short)MenuActiveControllerIndex & 1) << 2) | 1, 2, D_80109478 + D_8010948E, n, 0);
     }
     b3 = PlayerControllers;
-    r = b3 + D_800AC594 * 0x5C;
-    if (*(int *)(r + 0x28) != 0) {
+    r = b3 + MenuActiveControllerIndex;
+    if (r->action28 != 0) {
         PlaySfx(1);
         D_800F4D8A = 0;
         MenuStateIndex = arr[D_80109478[D_8010948E]];
         if (MenuStateIndex != 0x43) {
-            D_800F3A24[D_800FFC00] = 0x5A;
-            PollCardStatus(D_800FFC00, 0, 1);
+            CardPortPollStatus[CardActivePort] = 0x5A;
+            PollCardStatus(CardActivePort, 0, 1);
         }
-    } else if (*(int *)(r + 0x2C) != 0) {
+    } else if (r->action2C != 0) {
         PlaySfx(2);
         D_800F4D8A = 0;
         MenuStateIndex = arr[n - 1];
     }
 }
 
-#undef D_800A4258
-#undef PlayerControllers
-#undef PollCardStatus
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800FFC18 (*(short (*))&D_800FFC18)
-
-void func_8007C308(void) {
+void CloseCardMenuUiRows(void) {
     int i;
     char *q;
-    if (UiRows->b500 == 2) {
+    if (UiRows[0x23].byte14 == 2) {
         for (i = 0; i < 4; i++) {
             q = (char *)(i * 0x24 + (int)UiRows) + 0x4C8;
             if (q[0x14] == 2) {
                 q[0x14] = 3;
             }
         }
-        BadgeRows->h10 = 4;
-        if (D_800FFC18 == 3 || D_800FFC18 == 6 || D_800FFC18 == 7) {
-            BadgeRows->h2C = 4;
+        BadgeRows->state10 = 4;
+        if (CardMenuOperation == 3 || CardMenuOperation == 6 || CardMenuOperation == 7) {
+            BadgeRows[1].state10 = 4;
         }
         D_800AC5D0 = 0x40;
-        if (D_800FFC18 == 0) {
+        if (CardMenuOperation == 0) {
             SeqFadeVolume(0, 0x3C);
         }
         ResetScreenCounters();
@@ -281,16 +263,16 @@ void func_8007C308(void) {
     if (D_800AC5D0 > 0) {
         D_800AC5D0 = D_800AC5D0 - 1;
     }
-    AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) << 2, 0x45);
-    if (func_8003B934() != 1) return;
+    AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - D_800AC5D0) << 2, 0x45);
+    if (LoadMenuCarModelsStep() != 1) return;
     if (D_800AC5D0 > 0) return;
-    if (UiRows->b500 != 5) return;
-    if (BadgeRows->h10 != 0xB) return;
+    if (UiRows[0x23].byte14 != 5) return;
+    if (BadgeRows->state10 != 0xB) return;
     for (i = 0; i < 3; i++) {
         SaveSlotSelections[i] = D_8010B258[i];
     }
     ClearScreenOverlayState();
-    switch (D_800FFC18) {
+    switch (CardMenuOperation) {
     case 0:
     default:
     case 4:
@@ -308,12 +290,12 @@ void func_8007C308(void) {
         }
         break;
     case 2:
-        if ((unsigned)(D_800F4D44 - 2) < 2) {
+        if ((GameModeType - 2) < 2U) {
             func_80115598(D_800AC5D4);
             ModeGroup = 1;
             D_800F3A26 = 0x38;
             D_800F4D8A = 0;
-        } else if ((short)D_800F4D44 == 4) {
+        } else if ((short)GameModeType == 4) {
             if (LinkState != -1) {
                 func_801161A8(D_800AC5D4);
                 ModeGroup = 1;
@@ -355,63 +337,51 @@ void func_8007C308(void) {
     }
 }
 
-#undef D_800FFC18
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800FFC18 (*(short (*))&D_800FFC18)
-
-void func_8007C76C()
-{
+void StepCardSlotHeaderScan(void) {
     short t;
     if (D_800F4D8A == 0) {
         D_801272F0[0] = -1;
         D_801272F0[1] = -1;
         D_801272F0[2] = -1;
-        D_800F4D3C = 0;
-        func_8007CFC0(0, 0);
+        GpSaveSlotCursor = 0;
+        ReadCardSlotHeaderStep(0, 0);
         D_800F4D8A = 1;
         return;
     }
-    if (func_8007CFC0(1, D_800F4D3C) != 0) {
-        t = (unsigned short)D_800F4D3C + 1;
-        D_800F4D3C = t;
+    if (ReadCardSlotHeaderStep(1, GpSaveSlotCursor) != 0) {
+        t = (unsigned short)GpSaveSlotCursor + 1;
+        GpSaveSlotCursor = t;
         if (t == 3) {
-            if (D_800FFC18 == 7) {
+            if ((short)CardMenuOperation == 7) {
                 MenuStateIndex = 0x2B;
             } else {
                 MenuStateIndex = 0x2A;
             }
-            D_800F4D3C = 0;
+            GpSaveSlotCursor = 0;
             D_800F4D8A = 0;
             return;
         }
-        func_8007CFC0(0, t);
+        ReadCardSlotHeaderStep(0, t);
     }
 }
 
-#undef D_800FFC18
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800A4258 (*(E8 (*)[])&D_800A4258)
-
-void func_8007C848(void) {
- E8 *e = D_800A4258; int s = MenuStateIndex;
- unsigned char *q = D_800A44A8 + e[s].b*4;
+void CheckCardPollStatusTransition(void) {
+ MenuStateEntry8 *e = MenuStateTable; int s = MenuStateIndex;
+ unsigned char *q = D_800A44A8 + e[s].tableIdx04*4;
  int x = q[0], y = q[1];
- unsigned c = D_800F3A24[D_800FFC00];
+ unsigned c = CardPortPollStatus[CardActivePort];
  register int d asm("$3"); /* ASM_BARRIER: pin reload value to v1 */
- if (c < 0x10 || x == (d = *(volatile unsigned char *)&D_800F3A24[D_800FFC00])) { MenuStateIndex = y; return; }
+ if (c < 0x10 || x == (d = *(volatile unsigned char *)&CardPortPollStatus[CardActivePort])) { MenuStateIndex = y; return; }
  if (d == 0x14 && s == 2) MenuStateIndex = 8;
 }
 
-#undef D_800A4258
 
-void func_8007C8D4(void) {
-    s32 i = D_800A4258[MenuStateIndex].i;
+void CheckCardFileExistsTransition(void) {
+    s32 i = MenuStateTable[MenuStateIndex].tableIdx04;
     s32 a = D_800A4540[i][0];
     s32 b = D_800A4540[i][1];
     if (MenuStateIndex == 0x3B) {
-        if (D_8010B2DC[D_800FFC00] == 1) {
+        if (D_8010B2DC[CardActivePort] == 1) {
             MenuStateIndex = a;
             return;
         }
@@ -421,10 +391,7 @@ void func_8007C8D4(void) {
     MenuStateIndex = a;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define SaveSlotSelections (*(W10_R (*)[])&SaveSlotSelections)
-
-void func_8007C944(void)
+void StepCardDataTransfer(void)
 {
   int r;
   int t0;
@@ -437,15 +404,15 @@ void func_8007C944(void)
   char *a2;
   W10_H *a3;
   signed char *e;
-  char pad[0x38];
+  char sp[0x38];
   if (D_800F4D8A == 0)
   {
-    func_8007CB44(0);
+    ScanBothCardPortsStep(0);
     D_8010EFA8 = 0;
     D_800F4D8A = 1;
     return;
   }
-  r = func_8007CB44(1);
+  r = ScanBothCardPortsStep(1);
   t1 = 0;
   if (r > 0)
   {
@@ -459,7 +426,7 @@ void func_8007C944(void)
       {
         if (v1 != new_var)
         {
-          a1 += *((unsigned short *) (a0 + 0x1F60));
+          a1 += ((unsigned short *) a0)[0x1F60 / 2];
         }
         v1++;
         a0 = a0 + 2;
@@ -496,16 +463,9 @@ void func_8007C944(void)
   }
 }
 
-#undef SaveSlotSelections
 
-/* legacy typing of shared globals in this part of the unit */
-#define PollCardStatus ((int (*)())PollCardStatus)
-#define SaveBuffer (*(int (*))&SaveBuffer)
-
-int func_8007CB44(a0)
-int a0;
-{
-    int pad[14];
+int ScanBothCardPortsStep(int a0) {
+    int sp[14];
     int ret;
     int i;
     int r;
@@ -517,15 +477,15 @@ int a0;
     ret = 0;
     switch (D_800A45BC) {
     case 0:
-        D_800F3A24[1] = 0x5A;
-        D_800F3A24[0] = 0x5A;
-        PollCardStatus(D_800FFC00, 0, 1);
+        CardPortPollStatus[1] = 0x5A;
+        CardPortPollStatus[0] = 0x5A;
+        PollCardStatus(CardActivePort, 0, 1);
         CopyStringClearTail(CardTargetFileName, CardSaveFileName);
         D_800A45BC = 1;
         break;
     case 1:
-        PollCardStatus(D_800FFC00, 0, 0);
-        if (D_800F3A24[0] < 0x10U) {
+        PollCardStatus(CardActivePort, 0, 0);
+        if (CardPortPollStatus[0] < 0x10U) {
             if (CardHasFile(CardFileCounts, CardTargetFileName) == 1) {
                 D_800A45BE = 0;
                 D_800A45BC = 2;
@@ -534,7 +494,7 @@ int a0;
             }
             break;
         }
-        v = D_800F3A24[0];
+        v = CardPortPollStatus[0];
         switch (v) {
         case 0x14:
         case 0x1E:
@@ -554,7 +514,7 @@ int a0;
     case 3:
         for (i = 0x63; i >= 0; i--) {
         }
-        r = CardReadFileAt(D_800FFC00, 0, CardTargetFileName, SaveBuffer + 0x1F00, 0x100, 0x300);
+        r = CardReadFileAt(CardActivePort, 0, CardTargetFileName, SaveBuffer + 0x1F00, 0x100, 0x300);
         if (r == -1) {
             if (D_800A45BE < 3) {
                 D_800A45BE = (unsigned short)D_800A45BE + 1;
@@ -592,17 +552,8 @@ int a0;
     return ret;
 }
 
-#undef PollCardStatus
-#undef SaveBuffer
 
-/* legacy typing of shared globals in this part of the unit */
-#define PollCardStatus ((int (*)())PollCardStatus)
-#define CardLoadStep ((int (*)())CardLoadStep)
-#define D_800F3AF8 (*(short (*))&D_800F3AF8)
-
-int LoadSaveFromCardStep(a0)
-int a0;
-{
+int LoadSaveFromCardStep(int a0) {
     int ret;
     int i;
     int v;
@@ -613,8 +564,8 @@ int a0;
     ret = 0;
     switch (D_800A45C0) {
     case 0:
-        D_800F3A24[1] = 0x5A;
-        D_800F3A24[0] = 0x5A;
+        CardPortPollStatus[1] = 0x5A;
+        CardPortPollStatus[0] = 0x5A;
         PollCardStatus(0, 0, 1);
         i = 0x17;
         p = CardTargetFileName + i;
@@ -629,7 +580,7 @@ int a0;
         break;
     case 1:
         PollCardStatus(0, 0, 0);
-        if (D_800F3A24[0] < 0x10U) {
+        if (CardPortPollStatus[0] < 0x10U) {
             if (CardHasFile(CardFileCounts, CardTargetFileName) == 1) {
                 CardLoadStep(2, 0);
                 D_800A45C0 = 2;
@@ -638,7 +589,7 @@ int a0;
             }
             break;
         }
-        v = D_800F3A24[0];
+        v = CardPortPollStatus[0];
         switch (v) {
         case 0x14:
         case 0x1E:
@@ -674,18 +625,8 @@ set1:
     return ret;
 }
 
-#undef PollCardStatus
-#undef CardLoadStep
-#undef D_800F3AF8
 
-/* legacy typing of shared globals in this part of the unit */
-#define PollCardStatus ((int (*)())PollCardStatus)
-#define CardLoadStep ((int (*)())CardLoadStep)
-#define D_800F3AF8 (*(short (*))&D_800F3AF8)
-
-int func_8007CFC0(a0, a1)
-int a0, a1;
-{
+int ReadCardSlotHeaderStep(int a0, int a1) {
     int ret;
     int v;
     if (a0 == 0) {
@@ -695,8 +636,8 @@ int a0, a1;
     switch (D_800A45C4) {
     default:
     case 0:
-        D_800F3A24[1] = 0x5A;
-        D_800F3A24[0] = 0x5A;
+        CardPortPollStatus[1] = 0x5A;
+        CardPortPollStatus[0] = 0x5A;
         PollCardStatus(0, 0, 1);
         D_800A45C4 = 1;
         CopyStringClearTail(CardTargetFileName, CardTargetFileNames[a1]);
@@ -704,7 +645,7 @@ int a0, a1;
         break;
     case 1:
         PollCardStatus(0, 0, 0);
-        if (D_800F3A24[0] < 0x10U) {
+        if (CardPortPollStatus[0] < 0x10U) {
             if (CardHasFile(CardFileCounts, CardTargetFileName) == 1) {
                 CardLoadStep(2, 0);
                 D_800A45C4 = 2;
@@ -713,7 +654,7 @@ int a0, a1;
             }
             break;
         }
-        v = D_800F3A24[0];
+        v = CardPortPollStatus[0];
         switch (v) {
         case 0x14:
         case 0x1E:
@@ -751,66 +692,54 @@ int a0, a1;
     return ret;
 }
 
-#undef PollCardStatus
-#undef CardLoadStep
-#undef D_800F3AF8
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800AC590 ((char *)D_800AC590)
-#define BadgeRows ((short *)BadgeRows)
-#define D_800FFC18 (*(short (*))&D_800FFC18)
-
-void func_8007D1B8(a0, a1, a2, a3, a4, a5) int a0; int a1; int a2; int a3; int a4; int a5; {
+void DrawCardMenuStatusText(int a0, int a1, int a2, int a3, int a4, int a5) {
     unsigned char *v1;
     int s0 = a1;
     if (a2 != 0) {
         int c14 = 0x14, c16 = 0x16, c4 = 4, c1 = 1;
         v1 = D_800A4478;
-        a3 = (int)v1 + c14;
-L1:
-        if (a5 != v1[1]) goto next;
-        if (a5 == c14) goto done;
-        if (a0 != c16 || s0 != c4 || a2 != c1) s0 = 0;
-        a0 = v1[0];
-        goto done;
-next:
-        v1 += 4;
-        if ((int)v1 < a3) goto L1;
-done:;
+        a3 = v1 + c14;
+        do {
+            if (a5 == v1[1]) {
+                if (a5 != c14) {
+                    if (a0 != c16 || s0 != c4 || a2 != c1) s0 = 0;
+                    a0 = v1[0];
+                }
+                break;
+            }
+            v1 += 4;
+        } while ((int)v1 < a3);
         if (a0 == 5) {
             if (D_801094A0 == 1) {
                 a0 = 0x1A;
-            } else if (D_800FFC18 == 2 && D_800FFC00 == 1) {
+            } else if (CardMenuOperation == 2 && CardActivePort == 1) {
                 a0 = 0x21;
             }
         }
     }
-    if (BadgeRows[8] == 3) {
+    if (((short *)BadgeRows)[8] == 3) {
         if (a0 == -1) {
-            if (D_800FFC18 == 3 || D_800FFC18 == 6 || D_800FFC18 == 7) a0 = 0x19;
+            if (CardMenuOperation == 3 || CardMenuOperation == 6 || CardMenuOperation == 7) a0 = 0x19;
         } else if (a0 == -128) {
-            a0 = (signed char)D_800AC590[4];
+            a0 = ((s8 *)CardDialogueStatePtr)[4];
         } else {
-            if (a0 == 0x12 && D_801094A0 == 1 && D_8010B2DC[D_800FFC00] == 1) {
+            if (a0 == 0x12 && D_801094A0 == 1 && D_8010B2DC[CardActivePort] == 1) {
                 a0 = 0x1C;
-            } else if (a0 == 0x15 && D_800FFC00 == 1) {
+            } else if (a0 == 0x15 && CardActivePort == 1) {
                 a0 = 0x22;
-            } else if (a0 == 0x25 && D_800FFC00 == 1) {
+            } else if (a0 == 0x25 && CardActivePort == 1) {
                 a0 = 0x26;
             } else if (a0 == 0x1F && D_80109490 == 0) {
                 a0 = 0x20;
             }
         }
         if (a0 >= 0) {
-            D_800AC590[4] = a0;
-            UpdateDialogue(BadgeRows[4] + 10, BadgeRows[5] + 0x28, D_800AC590, a3);
+            ((s8 *)CardDialogueStatePtr)[4] = a0;
+            ((void (*)())UpdateDialogue)(((short *)BadgeRows)[4] + 10, ((short *)BadgeRows)[5] + 0x28, CardDialogueStatePtr, a3);
         }
     }
-    func_8007D448(a4, ((s0 & 2) > 0) & (*(short *)(D_800AC590 + 0x12) >= 6));
-    func_8007D560(a4, (s0 & 4) > 0);
-    if (s0 & 8) func_8007D65C(D_800F4D3C);
+    UpdateCardSlotUiRows(a4, ((s0 & 2) > 0) & (((short *)CardDialogueStatePtr)[9] >= 6));
+    DrawCardMenuCommandRows(a4, (s0 & 4) > 0);
+    if (s0 & 8) DrawSaveSlotTableHeader(GpSaveSlotCursor);
 }
-
-#undef D_800AC590
-#undef BadgeRows
-#undef D_800FFC18

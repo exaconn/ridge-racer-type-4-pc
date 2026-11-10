@@ -18,6 +18,8 @@ class OverlayRodataVerifierTest(unittest.TestCase):
     def setUpClass(cls):
         cls.tmp=TemporaryDirectory();cls.addClassCleanup(cls.tmp.cleanup)
         cls.root=Path(cls.tmp.name);cls.address=0x80114998;cls.data_address=0x801148F8
+        (cls.root/'configs/PAL').mkdir(parents=True)
+        (cls.root/'configs/PAL/sym.main.txt').write_text('')
         (cls.root/'tools').symlink_to(ROOT/'tools',target_is_directory=True)
         (cls.root/'include').symlink_to(ROOT/'include',target_is_directory=True)
         cls.source=cls.root/'src/overlays/PAL/662/func_80114998.c';cls.source.parent.mkdir(parents=True)

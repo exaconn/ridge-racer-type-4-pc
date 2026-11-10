@@ -18,10 +18,10 @@ class ScrollPanelTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4||sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4||offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_scroll_panel.h"
-static struct World {u32 guard[4];RrGpuScratchPointers scratch;u32 orders[3][256];u32 arena[256];u32 tail[4];} world,expected;
+static struct World {u32 guard[4];GpuScratchPointers scratch;u32 orders[3][256];u32 arena[256];u32 tail[4];} world,expected;
 static struct Event {unsigned kind;u32 args[10];u8 *cursor;struct World before;} events[4];
 static unsigned count,seen,scenario;static int reference_run;static u32 *captured;
-static RrGpuRectangleFields rectangle;
+static GpuRectangleFields rectangle;
 #define RR_GPU_SCRATCH (&world.scratch)
 '''+body+r'''
 static u32 seed=0x1c37c;static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
@@ -29,7 +29,7 @@ static s16 half(u32 n){u16 v=(u16)n;s16 r;memcpy(&r,&v,2);return r;}
 static unsigned offset(const void *p){uintptr_t a=(uintptr_t)p,b=(uintptr_t)world.arena;assert(a>=b&&a<b+sizeof(world.arena));return (unsigned)(a-b);}
 static void effect(struct World *w,unsigned kind,const u32 *args,u8 *cursor){
  if(kind==0){w->scratch.cursor=(u8*)world.arena+64;w->scratch.order=world.orders[1];w->orders[0][140]^=0xABCDEF01U;return;}
- unsigned n=offset(cursor),length=kind==1?sizeof(RrGpuTilePacket):kind==2?sizeof(RrGpuLineF4Packet):sizeof(RrPolyG4Storage);
+ unsigned n=offset(cursor),length=kind==1?sizeof(GpuTilePacket):kind==2?sizeof(GpuLineF4Packet):sizeof(PolyG4Storage);
  assert(n+length<sizeof(w->arena));for(unsigned i=0;i<length;i++)((u8*)w->arena)[n+i]^=(u8)(args[i%10]+i+kind);
  w->orders[0][140]^=0xA0000000U|kind;w->scratch.cursor=(u8*)world.arena+768;w->scratch.order=world.orders[2];
 }
@@ -40,11 +40,11 @@ static void service(unsigned kind,u32 *ordering,u8 *cursor,const u32 *args){
  else{assert(seen<count);struct Event *e=&events[seen++];assert(e->kind==kind&&e->cursor==cursor&&memcmp(e->args,args,40)==0&&memcmp(&world,&e->before,sizeof(world))==0);}
  effect(w,kind,args,cursor);
 }
-void ovl662_func_8011C174(s32 mode,RrGpuRectangleFields *out){u32 args[10]={(u32)mode};service(0,0,0,args);*out=rectangle;}
-RrGpuTilePacket *ovl662_func_8011B034(u32 *o,RrGpuTilePacket *p,u32 x,u32 y,u32 w,u32 h,u32 r,u32 g,u32 b){u32 a[10]={x,y,w,h,r,g,b};service(1,o,(u8*)p,a);return (RrGpuTilePacket*)((u8*)p+sizeof(*p));}
-RrGpuLineF4Packet *ovl662_func_8011AEC4(u32 *o,RrGpuLineF4Packet *p,u32 x,u32 y,u32 w,u32 h,u32 r,u32 g,u32 b){u32 a[10]={x,y,w,h,r,g,b};service(2,o,(u8*)p,a);return (RrGpuLineF4Packet*)((u8*)p+sizeof(*p));}
-RrPolyG4Storage *ovl662_func_8011B0CC(u32 *o,RrPolyG4Storage *p,u32 x,u32 y,u32 w,u32 h,u32 r,u32 g,u32 b,u32 r1,u32 g1,u32 b1){u32 a[10]={x,y,w,h,r,g,b,r1,g1,b1};service(3,o,(u8*)p,a);return (RrPolyG4Storage*)((u8*)p+sizeof(*p));}
-static void emit(unsigned kind,u32 *args){u8 *cursor=expected.scratch.cursor;service(kind,captured,cursor,args);expected.scratch.cursor=cursor+(kind==1?sizeof(RrGpuTilePacket):kind==2?sizeof(RrGpuLineF4Packet):sizeof(RrPolyG4Storage));}
+void ovl662_func_8011C174(s32 mode,GpuRectangleFields *out){u32 args[10]={(u32)mode};service(0,0,0,args);*out=rectangle;}
+GpuTilePacket *ovl662_func_8011B034(u32 *o,GpuTilePacket *p,u32 x,u32 y,u32 w,u32 h,u32 r,u32 g,u32 b){u32 a[10]={x,y,w,h,r,g,b};service(1,o,(u8*)p,a);return (GpuTilePacket*)((u8*)p+sizeof(*p));}
+GpuLineF4Packet *ovl662_func_8011AEC4(u32 *o,GpuLineF4Packet *p,u32 x,u32 y,u32 w,u32 h,u32 r,u32 g,u32 b){u32 a[10]={x,y,w,h,r,g,b};service(2,o,(u8*)p,a);return (GpuLineF4Packet*)((u8*)p+sizeof(*p));}
+PolyG4Storage *ovl662_func_8011B0CC(u32 *o,PolyG4Storage *p,u32 x,u32 y,u32 w,u32 h,u32 r,u32 g,u32 b,u32 r1,u32 g1,u32 b1){u32 a[10]={x,y,w,h,r,g,b,r1,g1,b1};service(3,o,(u8*)p,a);return (PolyG4Storage*)((u8*)p+sizeof(*p));}
+static void emit(unsigned kind,u32 *args){u8 *cursor=expected.scratch.cursor;service(kind,captured,cursor,args);expected.scratch.cursor=cursor+(kind==1?sizeof(GpuTilePacket):kind==2?sizeof(GpuLineF4Packet):sizeof(PolyG4Storage));}
 static void reference(s32 mode){
  captured=world.orders[0]+140;
  if(mode==46||mode==47){

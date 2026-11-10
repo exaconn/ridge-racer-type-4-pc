@@ -32,8 +32,8 @@ u32 test_ram[0x10000 / 4];
 #define CD_cbsync test_ram[0x6488 / 4]
 #define CD_cbready test_ram[0x648C / 4]
 #define CD_status1 test_ram[0x6498 / 4]
-RrLibInterruptDriverPrefix test_driver, test_alternate_driver;
-RrLibInterruptDriverPrefix *IntrDriverTablePtr;
+LibInterruptDriverPrefix test_driver, test_alternate_driver;
+LibInterruptDriverPrefix *IntrDriverTablePtr;
 s32 test_handler_calls;
 void CdCommandCallback(void) { test_handler_calls++; }
 '''

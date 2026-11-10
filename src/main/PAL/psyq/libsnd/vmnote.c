@@ -1,6 +1,5 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
-#include "m2c_macros.h"
 #include "psyq/libsnd/vmmain.h"
 #include "rr/channels.h"
 
@@ -29,7 +28,7 @@ int a5;
     r = a4;
   }
   else
-    if (((unsigned) y) < ((unsigned) x))
+    if (((unsigned) y) < (x))
   {
     new_var = (y << 6) / x;
     r = a4;

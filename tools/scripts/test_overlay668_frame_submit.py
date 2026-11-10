@@ -23,18 +23,18 @@ C=r'''
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay668_frame_submit.h"
-static struct {u8 pre[16];RrStrDisplayConfig c;u8 post[16];} cfg;
-static struct {u8 pre[16];RrStrStreamPrefix s[3];u8 post[16];} streams, saved;
+static struct {u8 pre[16];StrDisplayConfig c;u8 post[16];} cfg;
+static struct {u8 pre[16];StrStreamPrefix s[3];u8 post[16];} streams, saved;
 static u8 backing[3][6][64],saved_backing[3][6][64];
-static RrLibQueueRecord32 queues[3],saved_queues[3];
-RrStrStreamPrefix *D_800AC708;
+static LibQueueRecord32 queues[3],saved_queues[3];
+StrStreamPrefix *D_800AC708;
 static unsigned scenario,polls,limit,event;
 static u8 expected[40];
 static const u32 selectors[6]={0,1,2,0xffffffffU,0x80000000U,0x10000};
 static const s32 results[6]={0,1,-1,65537,(-2147483647-1),2147483647};
 static void check(void){assert(!memcmp(&cfg.c,expected,40));}
 static void change(unsigned salt){unsigned i;for(i=0;i<40;i++)expected[i]=(u8)(scenario*17+polls*13+i*7+salt);memcpy(&cfg.c,expected,40);}
-u8 *ovl668_func_80115164(RrStrDisplayConfig *c){
+u8 *ovl668_func_80115164(StrDisplayConfig *c){
  u32 selector;assert(c==&cfg.c&&event==0);check();polls++;change(0);
  selector=selectors[(scenario/6+polls)%6];memcpy(expected,&selector,4);memcpy(&cfg.c,expected,40);
  D_800AC708=&streams.s[(scenario+polls)%3];
@@ -56,11 +56,11 @@ s32 StFreeRing(void *data){
 TAIL=r'''
 int main(void){unsigned i,j;const unsigned limits[6]={1,2,1999,2000,2001,17};
  _Static_assert(sizeof(void*)==8,"full native pointers");
- _Static_assert(sizeof(RrStrDisplayConfig)==40,"config owner");
- _Static_assert(offsetof(RrStrStreamPrefix,commands10)==16,"commands native");
- _Static_assert(offsetof(RrStrStreamPrefix,buffers18)==32,"buffers native");
- _Static_assert(offsetof(RrStrStreamPrefix,queue20)==48,"queue native");
- _Static_assert(sizeof(RrStrStreamPrefix)==56,"stream native");
+ _Static_assert(sizeof(StrDisplayConfig)==40,"config owner");
+ _Static_assert(offsetof(StrStreamPrefix,commands10)==16,"commands native");
+ _Static_assert(offsetof(StrStreamPrefix,buffers18)==32,"buffers native");
+ _Static_assert(offsetof(StrStreamPrefix,queue20)==48,"queue native");
+ _Static_assert(sizeof(StrStreamPrefix)==56,"stream native");
  for(scenario=0;scenario<300;scenario++){
   memset(&cfg,0xA5,sizeof cfg);memset(&streams,0x5A,sizeof streams);
   memset(backing,0x37,sizeof backing);memset(queues,0x63,sizeof queues);

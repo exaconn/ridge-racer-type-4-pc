@@ -1,14 +1,23 @@
-/* CC1_FLAGS: -mno-split-addresses */
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "psyq/libspu/s_snc.h"
 #include "rr/spu.h"
-int SpuSetNoiseClock(a0) int a0; {
-    /* ASM_BARRIER: pin the clamp result to $a1 to match the original register allocation */
-    int v;
-    int r;
-    int p;
-    v = a0; __asm__ volatile("" : "+r"(v)); /* ASM_BARRIER: keep the copy of a0 as a separate pseudo so the clamp tests the copy as the original does */
-    if (v < 0) r = 0; else { r = v; if (r >= 0x40) r = 0x3F; }
-    p = _spu_RXX;
-    *(unsigned short *)(p + 0x1AA) = (*(unsigned short *)(p + 0x1AA) & 0xC0FF) | ((r & 0x3F) << 8);
+
+s32 SpuSetNoiseClock(s32 a0) {
+    s32 v;
+    s32 r;
+
+    v = a0;
+    /* ASM_BARRIER: keep the copy of a0 as a separate pseudo so the clamp tests the copy as the original does */
+    __asm__ volatile("" : "+r"(v));
+    if (v < 0) {
+        r = 0;
+    } else {
+        r = v;
+        if (r >= 0x40) {
+            r = 0x3F;
+        }
+    }
+    _spu_RXX->spu_control = (_spu_RXX->spu_control & 0xC0FF) | ((r & 0x3F) << 8);
     return r;
 }

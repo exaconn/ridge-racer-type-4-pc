@@ -1,11 +1,11 @@
 #ifndef RR_OVERLAY662_PROGRESS_CONTROLLER_H
 #define RR_OVERLAY662_PROGRESS_CONTROLLER_H
+#include "game/system/pad.h"
 #include "rr/overlay662_setup.h"
 #include "rr/menu_transition.h"
 #include "rr/frame_environment.h"
 #include "rr/tables.h"
 #include "rr/overlay_menu.h"
-extern RrMenuItemState5C PlayerControllers[2];
 extern s16 D_800AC5D0;
 extern u16 ovl662_D_801272D8[4],ovl662_D_80127328[4][4];
 s32 LoadGlyphRowsStep(void);

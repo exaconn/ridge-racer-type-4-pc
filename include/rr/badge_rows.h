@@ -6,16 +6,22 @@
 
 #include "rr/badge_row_types.h"
 
-extern RrBadgeRow1C *BadgeRows;
+extern BadgeRow1C *BadgeRows;
 extern s8 D_8009F108[];
-extern RrUiUvRect D_8009F074[];
+extern UiUvRect D_8009F074[];
+
+typedef struct {
+    u8 reserved00[0x3AFC];
+    BadgeRow1C *rows3AFC;
+} __attribute__((packed)) BadgeRowPointerPage;
+RR_ASSERT_OFFSET(BadgeRowPointerPage, rows3AFC, 0x3AFC);
 
 /* The helpers thread full packet pointers. Coordinate arguments remain wide
  * until their wire16 stores, including sums of two signed16 row fields. */
 void *AddTilePrim(u32 *, void *, s32, s32, s32, s32, s32, s32, s32);
 void *AddTileGrid2x2(u32 *, void *, s32, s32, s32, s32, s32, s32, s32);
 void *AddSpriteWithDrawMode(u32 *, void *, s32, s32, s32, s32, s32, s32,
-                    u16, u16, u16, u16);
+                    u16, u16, s32, s32);
 void *AddDrawAreaPrim(u32 *, void *, s32, s32, s32, s32);
 
 /* Emits five row underlines/areas and four textured badges. Style selects an
@@ -25,21 +31,21 @@ void *AddDrawAreaPrim(u32 *, void *, s32, s32, s32, s32);
  * next cursor. Captures glyph/shift before the first helper, then reloads the
  * row/context pointers after every helper; UV bytes are read after the first.
  * Each helper input cursor and returned cursor must point into writable arenas. */
-void *func_80030BEC(void *cursor, s32 style, s32 index);
+void *EmitBadgePatternSprites(void *cursor, s32 style, s32 index);
 
-RR_ASSERT_SIZE(RrBadgeRow1C, 0x1C);
-RR_ASSERT_OFFSET(RrBadgeRow1C, status00, 0);
-RR_ASSERT_OFFSET(RrBadgeRow1C, half02, 2);
-RR_ASSERT_OFFSET(RrBadgeRow1C, x04, 4);
-RR_ASSERT_OFFSET(RrBadgeRow1C, y06, 6);
-RR_ASSERT_OFFSET(RrBadgeRow1C, width0C, 0xC);
-RR_ASSERT_OFFSET(RrBadgeRow1C, x08, 8);
-RR_ASSERT_OFFSET(RrBadgeRow1C, y0A, 0xA);
-RR_ASSERT_OFFSET(RrBadgeRow1C, extent0E, 0xE);
-RR_ASSERT_OFFSET(RrBadgeRow1C, state10, 0x10);
-RR_ASSERT_OFFSET(RrBadgeRow1C, x14, 0x14);
-RR_ASSERT_OFFSET(RrBadgeRow1C, y16, 0x16);
-RR_ASSERT_OFFSET(RrBadgeRow1C, w18, 0x18);
-RR_ASSERT_OFFSET(RrBadgeRow1C, h1A, 0x1A);
+RR_ASSERT_SIZE(BadgeRow1C, 0x1C);
+RR_ASSERT_OFFSET(BadgeRow1C, status00, 0);
+RR_ASSERT_OFFSET(BadgeRow1C, half02, 2);
+RR_ASSERT_OFFSET(BadgeRow1C, x04, 4);
+RR_ASSERT_OFFSET(BadgeRow1C, y06, 6);
+RR_ASSERT_OFFSET(BadgeRow1C, width0C, 0xC);
+RR_ASSERT_OFFSET(BadgeRow1C, x08, 8);
+RR_ASSERT_OFFSET(BadgeRow1C, y0A, 0xA);
+RR_ASSERT_OFFSET(BadgeRow1C, extent0E, 0xE);
+RR_ASSERT_OFFSET(BadgeRow1C, state10, 0x10);
+RR_ASSERT_OFFSET(BadgeRow1C, x14, 0x14);
+RR_ASSERT_OFFSET(BadgeRow1C, y16, 0x16);
+RR_ASSERT_OFFSET(BadgeRow1C, w18, 0x18);
+RR_ASSERT_OFFSET(BadgeRow1C, h1A, 0x1A);
 
 #endif

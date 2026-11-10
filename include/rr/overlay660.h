@@ -22,33 +22,33 @@ extern s32 ovl660_lap_record_rank;
 extern s16 ovl660_preview_bank;
 
 extern s32 D_800AD564;
-extern s16 D_800AD50A;
+extern s16 ActiveSceneId;
 extern s32 D_800F3A64, D_800F3A48;
-extern s16 D_800F3A1E, D_800FFC18;
+extern s16 D_800F3A1E, CardMenuOperation;
 void CopyStringClearTail(char *destination, char *source);
 void StepNameChar(char *text);
-void func_8003BFC8(s32 paused);
-s32 CountChoiceGlyphs(const RrCourseChoice4 *choices);
+void DrawRaceOverlaySprites(s32 paused);
+s32 CountChoiceGlyphs(const CourseChoice4 *choices);
 s32 EncodeRecordPassword(s32 course, s32 selection, s32 car, s32 mode, s32 value, u8 *output);
 
-void ovl660_func_80114910(void);
-void ovl660_func_80114920(void);
-void ovl660_func_80114C40(void);
-void ovl660_func_80114D38(void);
-void ovl660_func_801154D8(void);
+void ovl660_select_scene(void);
+void ovl660_init_menu(void);
+void ovl660_init_scene(void);
+void ovl660_update_menu(void);
+void ovl660_init_results(void);
 /* The results controller explicitly passes zero in a0. */
-s32 ovl660_func_801156A8(s32 reserved);
-void ovl660_func_8011572C(void);
-s32 ovl660_func_80115FA8(s32 mode, s32 time);
-void ovl660_func_801162D8(void);
-void ovl660_func_801163C4(void);
-void ovl660_func_80116530(void);
-void ovl660_func_8011712C(void);
-void ovl660_func_8011718C(void);
+s32 ovl660_update_retry_choice(s32 reserved);
+void ovl660_update_results(void);
+s32 ovl660_insert_record(s32 mode, s32 time);
+void ovl660_rank_standings(void);
+void ovl660_init_preview(void);
+void ovl660_update_preview(void);
+void ovl660_exit_race(void);
+void ovl660_update_race(void);
 
-typedef RrRaceFrameScratch Rr660FrameScratch;
+typedef RaceFrameScratch Rr660FrameScratch;
 #ifndef RR_660_FRAME_SCRATCH
-#define RR_660_FRAME_SCRATCH ((RrRaceFrameScratch *)0x1F800000U)
+#define RR_660_FRAME_SCRATCH ((RaceFrameScratch *)0x1F800000U)
 #endif
 
 #endif

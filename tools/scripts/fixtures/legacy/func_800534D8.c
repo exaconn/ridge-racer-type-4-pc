@@ -2,10 +2,10 @@
 #include "rr/audio_cd_controller.h"
 void CdAudioUpdate(void) {
     s32 ready;
-    RrAudioState *phaseState = &SoundState;
+    AudioState *phaseState = &SoundState;
     u8 filter[2];
-    RrCdLocation location;
-    RrAudioState *var_v0;
+    CdLocation location;
+    AudioState *var_v0;
     s32 temp_v1_2;
     s32 temp_a0;
     s32 temp_a1;

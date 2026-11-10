@@ -19,7 +19,7 @@ int get_alarm(void) {
         {
             s32 tick=*counter;
             old=tick;
-            tick=(u32)tick+1;
+            tick=tick+1U;
             *counter=tick;
         }
         if(old<=0xF0000) goto ok;
@@ -30,23 +30,19 @@ int get_alarm(void) {
         u32 head;
         format=GpuTimeoutFmt;
         *gpu;
-        /* ASM_BARRIER: Keep the discarded status read before reading queue indices. */
-        __asm__("" : : : "memory");
         head=_qin;
-        /* ASM_BARRIER: Read the queue head before preparing the remaining diagnostic operands. */
-        __asm__("" : "=r"(head) : "0"(head));
-        DebugPrintStub(format,(head-(u32)_qout)&63,
+        DebugPrintStub(format,(head-_qout)&63,
             *gpu,*DMA2_CHCR,*DMA2_MADR);
     }
     saved=SetIntrMask(0);
     _qout=0;
-    D_800ABBF8=saved;
+    GpuResetSavedIntrMask=saved;
     _qin=_qout;
     *DMA2_CHCR=0x401;
     *DPCR|=0x800;
     *GPU_STATUS=0x02000000;
     *GPU_STATUS=0x01000000;
-    SetIntrMask(D_800ABBF8);
+    SetIntrMask(GpuResetSavedIntrMask);
     result=-1;
     goto done;
 ok:

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int CardSaveStep();
+int CardSaveStep(short a0, int a1);
 
 #endif /* RR_GAME_MENU_SAVEMENU_H */

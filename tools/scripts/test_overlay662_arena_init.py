@@ -23,7 +23,7 @@ class GarageArenaInitTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4||offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_arena_init.h"
 typedef struct {
- u32 guard[4],rng;RrGarageSelectionPrefix garage;RrGpuRectangle rects[2];
+ u32 guard[4],rng;GarageSelectionPrefix garage;GpuRectangle rects[2];
  u8 *root;void *cursor,*first,*second;s32 stage;s16 phase,nextScene;u16 scene;u32 tail[4];
 } State;
 typedef struct {s32 kind,args[10];uintptr_t pointer;u32 hash;} Event;
@@ -64,7 +64,7 @@ u8 *ovl662_func_8011B2D4(s32 index,u8 *cursor,s32 x,s32 y){Event *e=event(1);e->
 void ovl662_func_8011E36C(s32 mode){event(2)->args[0]=mode;change();}
 void ovl662_func_8011D278(s32 mode){event(3)->args[0]=mode;change();}
 void ovl662_func_8011A414(void){event(4);change();}
-void StoreImage(RrGpuRectangle *rectangle,const u32 *pixels){Event *e=event(5);e->args[0]=rectangle-w->s.rects;assert(e->args[0]>=0&&e->args[0]<2);memcpy(e->args+1,rectangle,8);e->pointer=(uintptr_t)pixels;indexOf(pixels);change();}
+void StoreImage(GpuRectangle *rectangle,void *pixels){Event *e=event(5);e->args[0]=rectangle-w->s.rects;assert(e->args[0]>=0&&e->args[0]<2);memcpy(e->args+1,rectangle,8);e->pointer=(uintptr_t)pixels;indexOf(pixels);change();}
 void ovl662_func_8011D120(void){event(6);w->s.garage.dirtyD3=1;change();}
 void ClearScreenOverlayState(void){event(7);change();}
 void InitBadgeRow(s32 index,s32 first,s16 x,s32 y,u16 width,u16 mode,u16 flags){Event *e=event(8);e->args[0]=index;e->args[1]=first;e->args[2]=x;e->args[3]=y;e->args[4]=width;e->args[5]=mode;e->args[6]=flags;change();}
@@ -72,11 +72,11 @@ void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e0,s32 f,s32 g,s32 h,s32 i,s32 j,...)
 ''' + body + r'''
 static void expected(void){s32 stage=word((u32)w->s.stage+1U);unsigned i;
  w->s.stage=stage;
- if(stage==1){u8 *b;RrGarageSelectionPrefix *g=&w->s.garage;
+ if(stage==1){u8 *b;GarageSelectionPrefix *g=&w->s.garage;
   ovl662_func_8011B2D4(-1,0,0,0);ovl662_func_8011E36C(-1);ovl662_func_8011D278(-1);ovl662_func_8011A414();
   b=(u8*)((((uintptr_t)w->s.root)/4+1)*4);assert((uintptr_t)b%4==0);
   for(i=0;i<2;i++){
-   g->buffers24[i]=(u32*)(b+i*0x1080);g->tim2C[i]=(RrGarageTimBytes*)(b+0x840+i*0x1080);
+   g->buffers24[i]=(u32*)(b+i*0x1080);g->tim2C[i]=(GarageTimBytes*)(b+0x840+i*0x1080);
    g->image38[i]=(u32*)(b+0x40+i*0x1080);g->image40[i]=(u32*)(b+0x880+i*0x1080);
    g->palette48[i]=(u32*)(b+0x14+i*0x1080);g->paletteBackup50[i]=(u32*)(b+0x854+i*0x1080);
    g->paletteScratch58[i]=(u32*)(b+0x2900+i*32);
@@ -93,7 +93,7 @@ static void expected(void){s32 stage=word((u32)w->s.stage+1U);unsigned i;
  }
 }
 int main(void){unsigned path,i,j;uint64_t cases=0;
- assert(sizeof(void*)==8&&sizeof(RrGarageSelectionPrefix)==0x138&&offsetof(RrGarageSelectionPrefix,paletteScratch58)==0x90);
+ assert(sizeof(void*)==8&&sizeof(GarageSelectionPrefix)==0x138&&offsetof(GarageSelectionPrefix,paletteScratch58)==0x90);
  for(i=0;i<8192;i++)initialPool[i]=0x12345678U+i*73;
  for(scenario=0;scenario<4096;scenario++)for(path=0;path<8;path++)for(mutation=0;mutation<2;mutation++){
   memset(&initial,0,sizeof(initial));w=&initial;w->s.rng=0xA518+scenario*17+path;

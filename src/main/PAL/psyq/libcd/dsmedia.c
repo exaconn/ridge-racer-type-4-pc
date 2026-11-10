@@ -1,12 +1,11 @@
 #include "rr/cd.h"
 #include "rr/overlay668_stream.h"
+#include "rr/audio_cd_controller.h"
 
 extern s32 PsyqStrncmp(const void *,const void *,u32);
 extern s32 DebugPrintStub(const char *,...);
 extern char CdCommandErrorStr[];
 extern char StrIso9660Id[];
-
-int CdDiskReady();
 
 int CdDiskReady(a0)
 int a0;

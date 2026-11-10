@@ -29,8 +29,8 @@ static struct World {
  u32 guard[4];
  s32 peer,local,halt,command,rxcount,timeout,txcount,failures,pending,phase,serial;
  u8 read,write,selected,received,sent;
- RrOverlay667SerialRing ring;
- RrOverlay667ChoicePair incoming,outgoing,payload;
+ Overlay667SerialRing ring;
+ Overlay667ChoicePair incoming,outgoing,payload;
  u32 tail[4]; unsigned calls;u32 checkpoint;unsigned service;
 } actual,expected,initial,*w;
 static unsigned scenario,mutation;
@@ -124,8 +124,8 @@ static void reference_send(void) {
 int main(void) {
  unsigned i,kind,r;
  static const s32 results[]={0,1,2,-1,INT32_MIN,INT32_MAX};
- _Static_assert(sizeof(RrOverlay667SerialPacket)==12,"wire record");
- _Static_assert(_Alignof(RrOverlay667SerialPacket)==1,"unaligned wire data");
+ _Static_assert(sizeof(Overlay667SerialPacket)==12,"wire record");
+ _Static_assert(_Alignof(Overlay667SerialPacket)==1,"unaligned wire data");
  for(scenario=0;scenario<65536;scenario++)for(mutation=0;mutation<2;mutation++) {
   for(i=0;i<sizeof(initial);i++)((u8*)&initial)[i]=(u8)(scenario*13+i*29);
   initial.peer=word(edges[(scenario>>1)%10]);

@@ -20,7 +20,7 @@ class Overlay662PaletteEditTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_palette_edit.h"
-static struct World {u32 head[4];RrGarageSelectionPrefix garage;RrGarageWorkingStorage work;u32 image[4][512];RrPalette16 palette[2];s32 changed[3];u16 original[3];u32 tail[4];} world,expected;
+static struct World {u32 head[4];GarageSelectionPrefix garage;GarageWorkingStorage work;u32 image[4][512];Palette16 palette[2];s32 changed[3];u16 original[3];u32 tail[4];} world,expected;
 #define ovl662_D_801276A8 world.garage
 #define ovl662_D_80127668 world.work
 #define ovl662_D_80127780 world.changed[0]

@@ -3,20 +3,20 @@
 /* Keep the original table-relative cursors, while using the canonical native
  * record stride and array offset (the pointer-bearing row grows on a host). */
 #define RR_STANDING_PREFIX_SIZE \
-    (sizeof(RrRaceStandingsTable)-sizeof(((RrRaceStandingsTable*)0)->entries18))
+    (sizeof(RaceStandingsTable)-sizeof(((RaceStandingsTable*)0)->entries18))
 #define RR_STANDING_ROW(base) \
-    ((RrRaceStandingEntry0C*)((base)+RR_STANDING_PREFIX_SIZE))
+    ((RaceStandingEntry0C*)((base)+RR_STANDING_PREFIX_SIZE))
 
-s32 FindNearestCarAhead(RrRaceVehicle *vehicle) {
+s32 FindNearestCarAhead(RaceVehicle *vehicle) {
     s32 best=-1,index=0,selected,limit,count,fresh_count,id;
     s32 first_count,second_count,distance,half,negative_half;
     /* ASM_BARRIER: keep the captured track length in the consumed mode register. */
     register s32 circumference __asm__("$5");
-    RrRaceStandingsTable *table;
+    RaceStandingsTable *table;
     /* ASM_BARRIER: retain the second pass's table-relative cursor. */
     register u8 *cursor __asm__("$9");
     u8 *reference;
-    RrRaceDistanceContextPrefix *context;
+    RaceDistanceContextPrefix *context;
     s32 flags;
     /* ASM_BARRIER: retain context mode until the initial identifier is formed. */
     register s32 mode __asm__("$5");
@@ -26,7 +26,7 @@ s32 FindNearestCarAhead(RrRaceVehicle *vehicle) {
     flags=vehicle->flags1E4;
     mode=context->mode;
     input=vehicle->input;
-    table=(RrRaceStandingsTable*)context->result;
+    table=(RaceStandingsTable*)context->result;
     flags=(flags&15)+best;
     input++;
     limit=input*16;
@@ -39,7 +39,7 @@ lookup:
         if(selected==RR_STANDING_ROW(lookup_cursor)->unk00)selected=index;
         else {
             index++;
-            lookup_cursor+=sizeof(RrRaceStandingEntry0C);
+            lookup_cursor+=sizeof(RaceStandingEntry0C);
             if(index<first_count)goto lookup;
         }
     }
@@ -48,7 +48,7 @@ lookup:
     index=0;
     fresh_count=NumCars;
     if(fresh_count>0) {
-        reference=(u8*)table+selected*sizeof(RrRaceStandingEntry0C);
+        reference=(u8*)table+selected*sizeof(RaceStandingEntry0C);
         second_count=fresh_count;
         circumference=TrackLength;
         cursor=(u8*)table;
@@ -69,7 +69,7 @@ lookup:
                 }
             }
             index++;
-            cursor+=sizeof(RrRaceStandingEntry0C);
+            cursor+=sizeof(RaceStandingEntry0C);
         }while(index<second_count);
     }
     return best;

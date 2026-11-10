@@ -4,7 +4,7 @@
 #include "rr/cd.h"
 #include "game/sound/cdclose.h"
 #include "game/sound/cdstart.h"
-extern RrAudioState SoundState;
+extern AudioState SoundState;
 extern char XaRepeatMsg[];
 /* Physical alias: request26B4. */
 extern s32 D_800F746C;

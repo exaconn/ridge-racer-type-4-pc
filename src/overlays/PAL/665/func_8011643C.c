@@ -1,12 +1,15 @@
+#include "game/gfx/model.h"
+#include "psyq/libgte/gtemat4.h"
+#include "game/camera/viewcam.h"
 #include "rr/overlay665_render.h"
 #ifndef RR_PREVIEW_RENDER_SCRATCH
-#define RR_PREVIEW_RENDER_SCRATCH ((RrPreviewRenderScratch *)0x1F800000)
+#define RR_PREVIEW_RENDER_SCRATCH ((PreviewRenderScratch *)0x1F800000)
 #endif
 
 void ovl665_func_8011643C(void) {
-    RrPreviewRenderScratch *scratch = RR_PREVIEW_RENDER_SCRATCH;
-    RrPreviewMatrixWorkspace sp10;
-    RrPreviewMatrixWorkspace sp30;
+    PreviewRenderScratch *scratch = RR_PREVIEW_RENDER_SCRATCH;
+    PreviewMatrixWorkspace sp10;
+    PreviewMatrixWorkspace sp30;
     s32 scale[3];
     s32 temp_s6;
     s32 var_a1;
@@ -15,28 +18,28 @@ void ovl665_func_8011643C(void) {
     s32 var_a1_4;
     s32 var_a1_5;
     s32 var_a1_6;
-    RrPreviewLighting40 *temp_s0;
-    RrPreviewLighting40 *temp_s0_2;
-    RrPreviewLighting40 *temp_s0_3;
-    RrPreviewLighting40 *temp_s0_4;
-    RrPreviewView44 *temp_s1;
-    RrPreviewView44 *temp_s1_2;
-    RrPreviewView44 *temp_s4;
-    RrPreviewView44 *temp_s5;
-    RrPreviewView44 *temp_s5_2;
+    PreviewLighting40 *temp_s0;
+    PreviewLighting40 *temp_s0_2;
+    PreviewLighting40 *temp_s0_3;
+    PreviewLighting40 *temp_s0_4;
+    PreviewView44 *temp_s1;
+    PreviewView44 *temp_s1_2;
+    PreviewView44 *temp_s4;
+    PreviewView44 *temp_s5;
+    PreviewView44 *temp_s5_2;
 
-    temp_s6 = scratch->depth60;
-    scratch->depth60 = 3;
-    scratch->projection.word10 = 0;
-    scratch->projection.word0C = 0;
-    scratch->projection.word08 = 0;
-    scratch->projection.word20 = 0;
-    scratch->projection.word1C = 0;
-    scratch->projection.word18 = 0;
+    temp_s6 = scratch->scene.depthShift60;
+    scratch->scene.depthShift60 = 3;
+    scratch->scene.view.projection.pose08.position00.words[2] = 0;
+    scratch->scene.view.projection.pose08.position00.words[1] = 0;
+    scratch->scene.view.projection.pose08.position00.words[0] = 0;
+    scratch->scene.view.projection.pose08.angles10.xyz.z = 0;
+    scratch->scene.view.projection.pose08.angles10.xyz.y = 0;
+    scratch->scene.view.projection.pose08.angles10.xyz.x = 0;
     BuildCameraMatrices();
     SetupViewport(6);
     SetGeomOffset((s16)ovl665_D_80119768.centerX38, (s16)ovl665_D_80119768.centerY3A);
-    func_8002E828(2, scratch->matrix28.halves);
+    ScaleMatrixRow1(2, &scratch->scene.view.matrix28);
     switch (ovl665_D_80119768.kind18) {
     case 0:
             temp_s1 = &ovl665_D_80119768.view74;
@@ -45,17 +48,17 @@ void ovl665_func_8011643C(void) {
             scale[1] = ovl665_D_80119768.scale3C;
             scale[0] = ovl665_D_80119768.scale3C;
             ovl665_D_80119768.view74.rotation10 = (u16) ovl665_D_80119768.rotation44;
-            ovl665_D_80119768.view74.position00.words[2] = (s32) ovl665_D_80119768.position48;
+            ovl665_D_80119768.view74.position00.words[2] = ovl665_D_80119768.position48;
             SetupObjectLightMatrices((char *)temp_s1, (char *)temp_s0, &sp10.matrix, &sp30.matrix);
             ScaleMatrix(sp10.words, scale);
             SetGeomScreen(ovl665_D_80119768.depth40);
             ovl665_func_80116358(&sp10, &temp_s0->matrix);
             SelectModelBank(8);
-            SetGteObjectTransform(scratch->tail7C.projection.halves, temp_s1->position00.halves, (s32 *)sp10.words);
+            SetGteObjectTransform(&scratch->tail7C.projection, temp_s1->position00.halves, (s32 *)sp10.words);
             var_a1 = 1;
-            scratch->counter78 = 0;
+            scratch->scene.draw74.draw.counter = 0;
             SubmitModelTwoTri(scratch, var_a1, 0, 0);
-            goto block_33;
+            break;
     case 1:
     temp_s1_2 = &ovl665_D_80119768.view74;
     temp_s0_4 = &ovl665_D_80119768.lighting4C;
@@ -63,17 +66,17 @@ void ovl665_func_8011643C(void) {
     scale[1] = ovl665_D_80119768.scale3C;
     scale[0] = ovl665_D_80119768.scale3C;
     ovl665_D_80119768.view74.rotation10 = (u16) ovl665_D_80119768.rotation44;
-    ovl665_D_80119768.view74.position00.words[2] = (s32) ovl665_D_80119768.position48;
+    ovl665_D_80119768.view74.position00.words[2] = ovl665_D_80119768.position48;
     SetupObjectLightMatrices((char *)temp_s1_2, (char *)temp_s0_4, &sp10.matrix, &sp30.matrix);
     ScaleMatrix(sp10.words, scale);
     SetGeomScreen(ovl665_D_80119768.depth40);
     ovl665_func_80116358(&sp10, &temp_s0_4->matrix);
     SelectModelBank(8);
-    SetGteObjectTransform(scratch->tail7C.projection.halves, temp_s1_2->position00.halves, (s32 *)sp10.words);
-    scratch->counter78 = 0;
-    var_a1 = D_800F2FD8 < 1;
-SubmitModelTwoTri(scratch, var_a1, 0, 0);
- goto block_33;
+    SetGteObjectTransform(&scratch->tail7C.projection, temp_s1_2->position00.halves, (s32 *)sp10.words);
+    scratch->scene.draw74.draw.counter = 0;
+    var_a1 = ModelBankFormat < 1;
+    SubmitModelTwoTri(scratch, var_a1, 0, 0);
+    break;
 
     case 2:
 temp_s4 = &ovl665_D_80119768.view74;
@@ -82,56 +85,67 @@ temp_s4 = &ovl665_D_80119768.view74;
         scale[1] = ovl665_D_80119768.scale3C;
         scale[0] = ovl665_D_80119768.scale3C;
         ovl665_D_80119768.view74.rotation10 = (u16) ovl665_D_80119768.rotation44;
-        ovl665_D_80119768.view74.position00.words[2] = (s32) ovl665_D_80119768.position48;
+        ovl665_D_80119768.view74.position00.words[2] = ovl665_D_80119768.position48;
         SetupObjectLightMatrices((char *)temp_s4, (char *)temp_s0_3, &sp10.matrix, &sp30.matrix);
         ScaleMatrix(sp10.words, scale);
         SetGeomScreen(ovl665_D_80119768.depth40);
         SelectModelBank(8);
         BuildRotMatrixX(sp30.halves, ovl665_D_80119768.view74.rotation18);
-        MulMatrix2((s32 *)sp10.words, sp30.halves);
+        MulMatrix2(&sp10.matrix, &sp30.matrix);
         ovl665_func_80116358(&sp30, &temp_s0_3->matrix);
-        SetGteObjectTransform(RR_PREVIEW_RENDER_SCRATCH->tail7C.projection.halves, temp_s4->position00.halves, (s32 *)sp30.words);
+        SetGteObjectTransform(
+            &RR_PREVIEW_RENDER_SCRATCH->tail7C.projection,
+            temp_s4->position00.halves,
+            (s32 *)sp30.words);
         var_a1_4 = 1;
-        scratch->counter78 = 0;
-        if (D_800F2FD8 >= 3) {
+        scratch->scene.draw74.draw.counter = 0;
+        if (ModelBankFormat >= 3) {
             var_a1_4 = 2;
         }
         SubmitModelTwoTri(RR_PREVIEW_RENDER_SCRATCH, var_a1_4, 0, 0);
         if (ovl665_D_80119768.layout0C >= 2) {
             if (ovl665_D_80119768.detail10 >= 2) {
-                SetGteObjectTransform(RR_PREVIEW_RENDER_SCRATCH->tail7C.projection.halves, temp_s4->position00.halves, (s32 *)sp30.words);
+                SetGteObjectTransform(
+                    &RR_PREVIEW_RENDER_SCRATCH->tail7C.projection,
+                    temp_s4->position00.halves,
+                    (s32 *)sp30.words);
                 var_a1_5 = 1;
-                scratch->counter78 = 0;
-                if (D_800F2FD8 >= 7) {
+                scratch->scene.draw74.draw.counter = 0;
+                if (ModelBankFormat >= 7) {
                     var_a1_5 = 6;
                 }
                 SubmitModelTwoTri(RR_PREVIEW_RENDER_SCRATCH, var_a1_5, 0, 0);
             }
         }
         BuildRotMatrixX(sp30.halves, ovl665_D_80119768.view74.rotation20);
-        MulMatrix2((s32 *)sp10.words, sp30.halves);
+        MulMatrix2(&sp10.matrix, &sp30.matrix);
         ovl665_func_80116358(&sp30, &ovl665_D_80119768.lighting4C.matrix);
         temp_s5_2 = &ovl665_D_80119768.view74;
-        SetGteObjectTransform(RR_PREVIEW_RENDER_SCRATCH->tail7C.projection.halves, temp_s5_2->position00.halves, (s32 *)sp30.words);
+        SetGteObjectTransform(
+            &RR_PREVIEW_RENDER_SCRATCH->tail7C.projection,
+            temp_s5_2->position00.halves,
+            (s32 *)sp30.words);
         var_a1_6 = 1;
-        RR_PREVIEW_RENDER_SCRATCH->counter78 = 0;
-        if (D_800F2FD8 >= 4) {
+        RR_PREVIEW_RENDER_SCRATCH->scene.draw74.draw.counter = 0;
+        if (ModelBankFormat >= 4) {
             var_a1_6 = 3;
         }
         SubmitModelTwoTri(RR_PREVIEW_RENDER_SCRATCH, var_a1_6, 0, 0);
         if (ovl665_D_80119768.layout0C >= 2) {
             if (ovl665_D_80119768.detail10 >= 2) {
-                SetGteObjectTransform(RR_PREVIEW_RENDER_SCRATCH->tail7C.projection.halves, temp_s5_2->position00.halves, (s32 *)sp30.words);
+                SetGteObjectTransform(
+                    &RR_PREVIEW_RENDER_SCRATCH->tail7C.projection,
+                    temp_s5_2->position00.halves,
+                    (s32 *)sp30.words);
                 var_a1 = 1;
-                RR_PREVIEW_RENDER_SCRATCH->counter78 = 0;
-                if (D_800F2FD8 >= 8) {
+                RR_PREVIEW_RENDER_SCRATCH->scene.draw74.draw.counter = 0;
+                if (ModelBankFormat >= 8) {
                     var_a1 = 7;
                 }
                 SubmitModelTwoTri(RR_PREVIEW_RENDER_SCRATCH, var_a1, 0, 0);
-            goto block_33;
             }
         }
-        goto block_33;
+        break;
     case 3:
 temp_s5 = &ovl665_D_80119768.view74;
             temp_s0_2 = &ovl665_D_80119768.lighting4C;
@@ -139,46 +153,47 @@ temp_s5 = &ovl665_D_80119768.view74;
             scale[1] = ovl665_D_80119768.scale3C;
             scale[0] = ovl665_D_80119768.scale3C;
             ovl665_D_80119768.view74.rotation10 = (u16) ovl665_D_80119768.rotation44;
-            ovl665_D_80119768.view74.position00.words[2] = (s32) ovl665_D_80119768.position48;
+            ovl665_D_80119768.view74.position00.words[2] = ovl665_D_80119768.position48;
             SetupObjectLightMatrices((char *)temp_s5, (char *)temp_s0_2, &sp10.matrix, &sp30.matrix);
             ScaleMatrix(sp10.words, scale);
             SetGeomScreen(ovl665_D_80119768.depth40);
             ovl665_func_80116358(&sp10, &temp_s0_2->matrix);
             SelectModelBank(8);
-            SetGteObjectTransform(scratch->tail7C.projection.halves, temp_s5->position00.halves, (s32 *)sp10.words);
+            SetGteObjectTransform(&scratch->tail7C.projection, temp_s5->position00.halves, (s32 *)sp10.words);
             var_a1_2 = 1;
-            scratch->counter78 = 0;
-            if (D_800F2FD8 >= 5) {
+            scratch->scene.draw74.draw.counter = 0;
+            if (ModelBankFormat >= 5) {
                 var_a1_2 = 4;
             }
             SubmitModelTwoTri(scratch, var_a1_2, 0, 0);
             BuildRotMatrixZ((s16 *)sp30.halves, ovl665_D_80119768.view74.rotation1C + 0x400);
-            MulMatrix2((s32 *)sp10.words, sp30.halves);
+            MulMatrix2(&sp10.matrix, &sp30.matrix);
             ovl665_func_80116358(&sp30, &temp_s0_2->matrix);
-            SetGteObjectTransform(scratch->tail7C.projection.halves, temp_s5->position00.halves, (s32 *)sp30.words);
+            SetGteObjectTransform(&scratch->tail7C.projection, temp_s5->position00.halves, (s32 *)sp30.words);
             var_a1_3 = 1;
-            scratch->counter78 = 0;
-            if (D_800F2FD8 >= 6) {
+            scratch->scene.draw74.draw.counter = 0;
+            if (ModelBankFormat >= 6) {
                 var_a1_3 = 5;
             }
             SubmitModelTwoTri(scratch, var_a1_3, 0, 0);
             if (ovl665_D_80119768.layout0C >= 2) {
                 if (ovl665_D_80119768.detail10 >= 2) {
                     if (ovl665_D_80119768.detail10 < 4) {
-                        SetGteObjectTransform(scratch->tail7C.projection.halves, temp_s5->position00.halves, (s32 *)sp30.words);
+                        SetGteObjectTransform(
+                            &scratch->tail7C.projection,
+                            temp_s5->position00.halves,
+                            (s32 *)sp30.words);
                         var_a1 = 1;
-                        scratch->counter78 = 0;
-                        if (D_800F2FD8 >= 9) {
+                        scratch->scene.draw74.draw.counter = 0;
+                        if (ModelBankFormat >= 9) {
                             var_a1 = 8;
                         }
                         SubmitModelTwoTri(scratch, var_a1, 0, 0);
-                        goto block_33;
                     }
                 }
             }
-            goto block_33;
-    default:scratch->depth60=temp_s6;return;
+            break;
+    default:scratch->scene.depthShift60=temp_s6;return;
     }
-block_33:
-    scratch->depth60 = temp_s6;
+    scratch->scene.depthShift60 = temp_s6;
 }

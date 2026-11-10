@@ -31,7 +31,7 @@ class Overlay665VisualTest(unittest.TestCase):
         reset=re.sub(r'^extern[^\n]*;\n','',(root/'tools/scripts/fixtures/legacy/func_8003A198.c').read_text(),flags=re.M)
         body=(root/'src/overlays/PAL/665/func_80114918.c').read_text()
         source=PREFIX+r'''
-typedef struct {u32 guard[4];RrOverlay665VisualState visual;RrProjectionScratchPrefix scratch;s32 counter;s8 flag1,flag2;s32 mode;u16 selector;s16 scene,phase;u32 tail[4];} State;
+typedef struct {u32 guard[4];Overlay665VisualState visual;ProjectionScratchPrefix scratch;s32 counter;s8 flag1,flag2;s32 mode;u16 selector;s16 scene,phase;u32 tail[4];} State;
 typedef struct {s32 kind,args[4];void *buffer;State state;} Event;
 static struct World {State s;u32 calls;Event events[3];u32 guard[4];} world,expected;
 static u8 arenas[3][256];static u32 ordering[3][704];
@@ -52,7 +52,7 @@ static s16 half(u32 raw){u16 bits=(u16)raw;s16 v;memcpy(&v,&bits,2);return v;}
 static void effect(State *s,unsigned step){unsigned i;
  for(i=0;i<sizeof(s->visual);i++)((u8*)&s->visual)[i]=(u8)(scenario+step*73+i*17);
  s->scratch.pointers.cursor=arenas[(scenario+step)%3]+64+step;s->scratch.pointers.order=ordering[(scenario+step+1)%3];
- s->scratch.word08=word(scenario^0xA1234567U^step);s->scratch.word0C=word(scenario^0xB1234567U^step);s->scratch.word10=word(scenario^0xC1234567U^step);s->scratch.word14=word(scenario^0xD1234567U^step);s->scratch.word18=word(scenario^0xE1234567U^step);s->scratch.word1C=word(scenario^0xF1234567U^step);s->scratch.word20=word(scenario^0x91234567U^step);
+ s->scratch.pose08.position00.words[0]=word(scenario^0xA1234567U^step);s->scratch.pose08.position00.words[1]=word(scenario^0xB1234567U^step);s->scratch.pose08.position00.words[2]=word(scenario^0xC1234567U^step);s->scratch.pose08.position00.words[3]=word(scenario^0xD1234567U^step);s->scratch.pose08.angles10.xyz.x=word(scenario^0xE1234567U^step);s->scratch.pose08.angles10.xyz.y=word(scenario^0xF1234567U^step);s->scratch.pose08.angles10.xyz.z=word(scenario^0x91234567U^step);
  s->counter=word(scenario*0x9E3779B9U+step);s->flag1=(s8)step;s->flag2=(s8)(step+3);s->mode=word(scenario*0xABCDEF01U+step);s->selector=(u16)(scenario+step);s->scene=half(scenario*73U+step);s->phase=half(scenario*40503U+step);
 }
 static void observe(struct World *v,s32 kind,s32 a,s32 b,s32 c,s32 d){Event *e;unsigned step=v->calls;assert(step<3);e=&v->events[v->calls++];memset(e,0,sizeof(*e));e->kind=kind;e->args[0]=a;e->args[1]=b;e->args[2]=c;e->args[3]=d;e->buffer=kind==2?(void*)&world.s.visual:0;memcpy(&e->state,&v->s,sizeof(v->s));
@@ -60,18 +60,18 @@ static void observe(struct World *v,s32 kind,s32 a,s32 b,s32 c,s32 d){Event *e;u
 }
 void SetDispMask(s32 mode){assert(world.calls==0 && mode==0);observe(&world,0,mode,0,0,0);}
 void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags){assert(world.calls==1 && r==0 && g==0 && b==0 && flags==2);observe(&world,1,r,g,b,(s32)flags);}
-void func_80096434(void *buffer,s32 size){assert(world.calls==2 && buffer==&world.s.visual && size==160);observe(&world,2,size,0,0,0);}
+void PsyqBzero(void *buffer,s32 size){assert(world.calls==2 && buffer==&world.s.visual && size==160);observe(&world,2,size,0,0,0);}
 static void reference(void){unsigned i,j;State *s=&expected.s;static const s16 directions[3][3]={{4500,-4096,-8000},{8000,8000,-8000},{-2637,1602,2694}};static const u8 colors[3]={192,128,0};
  observe(&expected,0,0,0,0,0);observe(&expected,1,0,0,0,2);observe(&expected,2,160,0,0,0);
  for(i=0;i<3;i++)for(j=0;j<3;j++){s->visual.lighting4C.matrix.bytes[i*4+j]=colors[i];s->visual.lighting4C.matrix.signedHalves[6+i*4+j]=directions[i][j];}
  for(j=0;j<3;j++)s->visual.lighting4C.ambient[j]=64;
- s->scratch.word08=0;s->scratch.word0C=0;s->scratch.word10=0;s->scratch.word18=0;s->scratch.word1C=0;s->scratch.word20=0;
+ s->scratch.pose08.position00.words[0]=0;s->scratch.pose08.position00.words[1]=0;s->scratch.pose08.position00.words[2]=0;s->scratch.pose08.angles10.xyz.x=0;s->scratch.pose08.angles10.xyz.y=0;s->scratch.pose08.angles10.xyz.z=0;
  s->counter=0;s->flag1=0;s->flag2=0;s->mode=2;s->selector=2;s->scene=2;s->phase=0;
 }
 int main(void){unsigned k,i;
- _Static_assert(sizeof(RrOverlay665VisualState)==160 && offsetof(RrOverlay665VisualState,lighting4C)==0x4C,"real scalar visual owner");
- _Static_assert(offsetof(RrOverlay665VisualState,lighting4C)+offsetof(RrPreviewLightInputFields36,vectors)==0x58,"original direction rows");
- _Static_assert(offsetof(RrOverlay665VisualState,lighting4C)+offsetof(RrPreviewLighting40,ambient)==0x70,"original ambient bytes");
+ _Static_assert(sizeof(Overlay665VisualState)==160 && offsetof(Overlay665VisualState,lighting4C)==0x4C,"real scalar visual owner");
+ _Static_assert(offsetof(Overlay665VisualState,lighting4C)+offsetof(PreviewLightInputFields36,vectors)==0x58,"original direction rows");
+ _Static_assert(offsetof(Overlay665VisualState,lighting4C)+offsetof(PreviewLighting40,ambient)==0x70,"original ambient bytes");
  for(k=0;k<65536;k++){
   for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();scenario=k;world.calls=0;world.s.scratch.pointers.cursor=arenas[k%3]+32;world.s.scratch.pointers.order=ordering[(k+1)%3];
   assert((uintptr_t)world.s.scratch.pointers.cursor>UINT32_MAX && (uintptr_t)world.s.scratch.pointers.order>UINT32_MAX);
@@ -90,8 +90,8 @@ int main(void){unsigned k,i;
         trig=(root/'tools/scripts/fixtures/legacy/trig_sine.c').read_text()+(root/'tools/scripts/fixtures/legacy/func_800904F4.c').read_text()
         body=(root/'src/overlays/PAL/665/func_801169BC.c').read_text()
         source=PREFIX+r'''
-typedef struct {u16 points[4];u8 rgb[3];u8 pad;const u8 *color;s32 blend,depth;RrOverlay665VisualState before;} Event;
-static struct World {u32 guard[4];RrOverlay665VisualState visual;u8 color[4];u32 calls;Event event;u32 tail[4];} world,expected;
+typedef struct {u16 points[4];u8 rgb[3];u8 pad;const u8 *color;s32 blend,depth;Overlay665VisualState before;} Event;
+static struct World {u32 guard[4];Overlay665VisualState visual;u8 color[4];u32 calls;Event event;u32 tail[4];} world,expected;
 #define ovl665_D_80119768 world.visual
 #define ovl665_D_8011973C world.color
 static const s16 rom[4097]={''' + ','.join(map(str,table)) + r'''};

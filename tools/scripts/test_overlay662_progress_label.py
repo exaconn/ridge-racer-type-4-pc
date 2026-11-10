@@ -3,6 +3,7 @@ from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
 
 
 class ProgressLabelTest(unittest.TestCase):
@@ -10,7 +11,9 @@ class ProgressLabelTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         bodies = '\n'.join((root / f'src/overlays/PAL/662/func_{a}.c').read_text()
                            for a in ('80117854',))
-        formatter = (root / 'tools/scripts/fixtures/views/func_8002B814.c').read_text() + '\n' + (root / 'tools/scripts/fixtures/views/func_80042D28.c').read_text()
+        owners = source_owners(root / 'src/main/PAL')
+        formatter = '\n'.join(definition_source(owners[name].read_text(), name)
+                              for name in ('FormatDecimalDigits', 'FormatCountOfTotal'))
         source = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -24,8 +27,8 @@ class ProgressLabelTest(unittest.TestCase):
 #include "rr/overlay662_history_labels.h"
 typedef struct {
  u32 guard0[4],rng;
- RrBadgeRow1C rows[4];RrSaveProgressRecord7C save;RrMenuChoice4 choice;
- RrUiUvRect uv[128];u16 counts[4],total;
+ BadgeRow1C rows[4];SaveProgressRecord7C save;MenuChoice4 choice;
+ UiUvRect uv[128];u16 counts[4],total;
  s32 tick;u32 guard1[4];
 } State;
 typedef struct {s32 op,x,y,a,b,c;size_t cursor;u8 data[8];} Event;
@@ -33,7 +36,7 @@ typedef struct {State s;Event events[12];unsigned count;} World;
 static World actual,reference,initial,*w;
 static unsigned numberSeen[81],totalSeen[321],clutSeen[2];
 static u8 arena[1024];static u32 ordering[4];char FractionText[8];
-RrBadgeRow1C *BadgeRows;
+BadgeRow1C *BadgeRows;
 #define SaveProgress w->s.save
 #define SelectionRows w->s.choice
 #define UiFontGlyphs w->s.uv
@@ -57,7 +60,7 @@ static Event *event(s32 op,void *cursor){
  return e;
 }
 s32 rsin(s32 angle){Event *e=event(1,0);s32 v=(s32)(next()%3)-1;e->a=angle;e->b=v;change();return v;}
-void *AddSpritePrim(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
+void *AddSpritePrim(u32 *ot,void *p,s32 x,s32 y,const UiUvRect *uv,u16 clut,s32 color){
  Event *e=event(2,p);assert(ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=color;memcpy(e->data,uv,4);change();return (u8*)p+20;
 }
 void *AddTextSprites(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 spacing,s32 color){
@@ -66,7 +69,7 @@ void *AddTextSprites(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 s
  assert(clut==32760||clut==32761);clutSeen[clut-32760]++;
  e->x=x;e->y=y;e->a=clut;e->b=spacing;e->c=color;memcpy(e->data,text,n+1);change();return (u8*)p+20*n;
 }
-void *AddDrawModePrim(u32 *ot,void *p,u16 mode){Event *e=event(4,p);assert(ot==ordering);e->a=mode;change();return (u8*)p+12;}
+void *AddDrawModePrim(u32 *ot,GpuDrawModePacket *mode_packet,u16 mode){ void *p = (void *)mode_packet;Event *e=event(4,p);assert(ot==ordering);e->a=mode;change();return (u8*)p+12;}
 void *AddTilePrim(u32 *ot,void *p,s32 x,s32 y,s32 a,s32 b,s32 r,s32 g,s32 blue){
  Event *e=event(5,p);assert(ot==ordering&&r==255&&g==255&&blue==255);e->x=x;e->y=y;e->a=a;e->b=b;change();return (u8*)p+24;
 }
@@ -89,14 +92,14 @@ static void expected(u32 *ot,void *p,s32 row){
  AddDrawModePrim(ot,p,56);
 }
 int main(void){unsigned scenario,i;
- assert((uintptr_t)arena>UINT32_MAX);_Static_assert(sizeof(RrSaveProgressRecord7C)==124,"full save");
+ assert((uintptr_t)arena>UINT32_MAX);_Static_assert(sizeof(SaveProgressRecord7C)==124,"full save");
  for(scenario=0;scenario<65536;scenario++){
   memset(&initial,0,sizeof(initial));w=&initial;w->s.rng=0x17854+scenario*17;change();
   for(i=0;i<4;i++){
    w->s.rows[i].x04=(s16)next();w->s.rows[i].y06=(s16)next();
    w->s.save.history6C[i].selection=next()%4;w->s.save.history6C[i].variant=next()%4;w->s.save.history6C[i].parameter=next()%99;
   }
-  if(scenario%5<4){RrSelectionRow *h=&w->s.save.history6C[scenario%5];h->selection=w->s.choice.bytes[0];h->variant=w->s.choice.bytes[1];h->parameter=w->s.choice.bytes[2];}
+  if(scenario%5<4){SelectionRow *h=&w->s.save.history6C[scenario%5];h->selection=w->s.choice.bytes[0];h->variant=w->s.choice.bytes[1];h->parameter=w->s.choice.bytes[2];}
   w->s.tick=(s32)next();actual=reference=initial;
   w=&actual;BadgeRows=w->s.rows;ovl662_func_80117854(ordering,arena,scenario%4);
   w=&reference;BadgeRows=w->s.rows;expected(ordering,arena,scenario%4);

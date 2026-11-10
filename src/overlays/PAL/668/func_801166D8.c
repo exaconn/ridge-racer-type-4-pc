@@ -4,9 +4,9 @@
 void ovl668_func_801166D8(void *output,u32 words)
 {
     ovl668_func_801167F8();
-    *(volatile u32 *)ovl668_D_80116E58 |= 0x88;
-    *(volatile u32 *)ovl668_D_80116E34 = 0;
+    *(u32 *)ovl668_D_80116E58 |= 0x88;
+    *(u32 *)ovl668_D_80116E34 = 0;
     *ovl668_D_80116E2C = output;
-    *(volatile u32 *)ovl668_D_80116E30 = ((words >> 5) << 16) | 32;
-    *(volatile u32 *)ovl668_D_80116E34 = 0x01000200;
+    *(u32 *)ovl668_D_80116E30 = ((words >> 5) << 16) | 32;
+    *(u32 *)ovl668_D_80116E34 = 0x01000200;
 }

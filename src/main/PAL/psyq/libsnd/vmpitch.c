@@ -2,27 +2,25 @@
 #include "rr/spu.h"
 #include "rr/channel_pitch.h"
 #include "psyq/libsnd/vmnote2.h"
+#include "psyq/libsnd/vmpitch.h"
 
 u32 _spu_note2pitch(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 u32 _spu_pitch2note(s32 first,s32 second,u32 pitch);
 s32 SsUtChangePitch(s32 raw_input, s32 bank, s32 program, s32 group, s32 unused, u32 first_input, u32 second_input);
 
 u32 _spu_note2pitch(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    s32 sum;
+    u32 sum;
     s32 diff;
     s32 q;
     s32 shift;
     s32 rem;
-    /* ASM_BARRIER: Keep the adjusted remainder in $v1 before the halfword sign-extension shift. */
-    register s32 rem2 __asm__("$3");
-    /* ASM_BARRIER: Keep the negated shift count in $a0 for the rounding shift. */
-    register s32 neg_shift __asm__("$4");
-    /* ASM_BARRIER: Keep the scaled product in $a1 across the final shift and mask. */
-    register u32 res __asm__("$5");
+    s32 rem2;
+    s32 neg_shift;
+    u32 res;
 
     arg3 += arg1;
     sum = arg3 & 0xFFFF;
-    diff = (s16)((arg2 + ((u32)sum >> 7)) - arg0);
+    diff = (s16)((arg2 + (sum >> 7)) - arg0);
     arg3 = ({
         /* ASM_BARRIER: Keep the masked sum in $v1 for both the octave shift and fine mask. */
         register s32 s __asm__("$3") = sum;
@@ -42,7 +40,7 @@ u32 _spu_note2pitch(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     }
     /* ASM_BARRIER: Keep the unadjusted remainder live in $a0 so the positive path copies into $v1 in the delay slot. */
     __asm__("" : "+r"(rem2) : "r"(rem));
-    res = (s32)(SvmSemitoneTable[(s16)rem2] * SvmPitchFineTable[(u16)arg3]) >> 16;
+    res = (SvmSemitoneTable[(s16)rem2] * SvmPitchFineTable[(u16)arg3]) >> 16;
     if ((s16)shift >= 0) {
         res = 0x3FFF;
     } else {
@@ -84,12 +82,12 @@ u32 _spu_pitch2note(s32 first,s32 second,u32 pitch) {
  }
  {
   /* ASM_BARRIER: Reuse the result register for two consecutive, disjoint sums. */
-  register u32 next __asm__("$2")=(u32)(fine+1);
+  register u32 next __asm__("$2")=(fine+1);
   register u32 total __asm__("$2");
   register u32 part;
-  fine=(u32)second+next;
-  part=(u32)(top-12);
-  total=(u32)note+((u32)first+part*12U);
+  fine=second+next;
+  part=(top-12);
+  total=note+(first+part*12U);
   {
    /* ASM_BARRIER: Reuse the consumed first argument for the packed low halfword. */
    register u32 packed __asm__("$4")=(u16)fine;
@@ -130,7 +128,7 @@ s32 SsUtChangePitch(s32 raw_input, s32 bank, s32 program, s32 group, s32 unused,
     u8 flags;
     if ((u16)raw_voice >= 24) return -1;
     voice = (s16)raw_voice;
-    offset = voice * sizeof(RrChannelControlRow36);
+    offset = voice * sizeof(ChannelControlRow36);
     /* ASM_BARRIER: finish the row offset before replacing the incoming a0 value. */
     __asm__("" : : "r"(offset) : "$4");
     bank_page=(u8*)0x80110000U;
@@ -157,9 +155,9 @@ s32 SsUtChangePitch(s32 raw_input, s32 bank, s32 program, s32 group, s32 unused,
     byte_page=(u8*)0x80110000U;
     /* ASM_BARRIER: retain the PAL page for the row byte reloaded after selection. */
     __asm__("" : "+r"(byte_page));
-    ((RrSpuPitchRequest*)((u8*)state-8))->instrument00=*(byte_page+offset-0x6E2);
+    ((SpuPitchRequest*)((u8*)state-8))->instrument00=*(byte_page+offset-0x6E2);
     pitch = note2pitch2(pitch_first,second);
-    *(u16 *)((voice * sizeof(RrSpuCachedVolumeEntry)) + (unsigned long)_svm_sreg_dirty.voices[0].pad04) = pitch;
+    *(u16 *)((voice * sizeof(SpuCachedVolumeEntry)) + _svm_sreg_dirty.voices[0].pad04) = pitch;
     /* ASM_BARRIER: store pitch before reusing its offset register for fresh flags. */
     __asm__("" : : : "$3","memory");
     flags_page=(u8*)0x80110000U;

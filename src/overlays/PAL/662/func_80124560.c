@@ -20,7 +20,7 @@ void ovl662_func_80124560(void) {
         ovl662_D_80127668.words[0] |= 8;
         ovl662_func_8011E7C0(149, 391, 64, 12);
         ovl662_D_80127790 = 0;
-        ovl662_D_80127794 = (*(u16 *)((ovl662_D_801276A8.config22*2)+(RrPaletteAddress)(RrPalette16 *)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]) >> 10) & 0x1F;
+        ovl662_D_80127794 = (*(u16 *)((ovl662_D_801276A8.config22*2)+(PaletteAddress)(Palette16 *)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]) >> 10) & 0x1F;
     }
     val = (ovl662_D_80127668.halves[10] - 149) / 2;
     if (ovl662_D_80127794 != val) {
@@ -29,6 +29,6 @@ void ovl662_func_80124560(void) {
             ovl662_func_8011D120();
         }
     }
-    *(u16 *)((ovl662_D_801276A8.config22*2)+(RrPaletteAddress)(RrPalette16 *)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]) =
-        (*(u16 *)((ovl662_D_801276A8.config22*2)+(RrPaletteAddress)(RrPalette16 *)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]) & 0x83FF) | (val << 10);
+    *(u16 *)((ovl662_D_801276A8.config22*2)+(PaletteAddress)(Palette16 *)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]) =
+        (*(u16 *)((ovl662_D_801276A8.config22*2)+(PaletteAddress)(Palette16 *)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]) & 0x83FF) | (val << 10);
 }

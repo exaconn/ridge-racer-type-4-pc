@@ -3,8 +3,8 @@
 #include "psyq/libspu/smutil.h"
 
 s32 _SpuIsInAllocateArea(u32 address) {
-    RrSpuAllocation *initial=_spu_memList;
-    RrSpuAllocation *p;
+    SpuAllocation *initial=_spu_memList;
+    SpuAllocation *p;
     u32 value;
     u32 skip=0x80000000U;
     u32 end;
@@ -28,9 +28,6 @@ s32 _SpuIsInAllocateArea(u32 address) {
 out:
     return result;
 }
-
-/* legacy typing of shared globals in this part of the unit */
-#define _spu_memList ((unsigned int *)_spu_memList)
 
 int _SpuIsInAllocateArea_(a0)
 unsigned int a0;
@@ -59,4 +56,3 @@ zero:
     return 0;
 }
 
-#undef _spu_memList

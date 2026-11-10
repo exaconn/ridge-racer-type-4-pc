@@ -4,23 +4,21 @@
 #include "rr/spu_tone_snapshot.h"
 #include "rr/spu_voice_cache.h"
 #include "rr/bios_devices.h"
+#include "psyq/libsnd/vmcfg.h"
 /* func80050894 copies the complete program payload into a slot. */
-typedef struct B {char b[0x5BC];} RrAudioProgramData;
+typedef struct B {char b[0x5BC];} AudioProgramData;
 typedef struct {
  const u8 *bank00;
  const u16 *data04;
- RrAudioProgramData *group08;
+ AudioProgramData *group08;
  s32 slot0C;
-} RrAudioBankSetup;
-RR_ASSERT_SIZE(RrAudioBankSetup,0x10);
-RR_ASSERT_OFFSET(RrAudioBankSetup,slot0C,0x0C);
-/* Bank publication writes both the signed bank half and reserved upper half. */
-typedef s32 RrAudioBankStorage32 __attribute__((__may_alias__));
-extern RrAudioState SoundState;
+} AudioBankSetup;
+RR_ASSERT_SIZE(AudioBankSetup,0x10);
+RR_ASSERT_OFFSET(AudioBankSetup,slot0C,0x0C);
+extern AudioState SoundState;
 /* Alias of slots38 in the same owner; never a separate allocation. */
-extern RrAudioSlot620 SoundSlots[4];
-s32 SsVabClose(s16);
+extern AudioSlot620 SoundSlots[4];
 s32 SsVabOpenHeadSticky(const u8 *,s32,s32);
 s32 SsVabTransCompleted(s32);
-void SlotLoadCurves(RrAudioProgramData *,s32);
+void SlotLoadCurves(AudioProgramData *,s32);
 #endif

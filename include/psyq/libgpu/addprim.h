@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-unsigned short GetClut();
+u16 GetClut(s32 arg0, s32 arg1);
 
 #endif /* RR_PSYQ_LIBGPU_ADDPRIM_H */

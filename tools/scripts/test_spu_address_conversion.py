@@ -23,10 +23,10 @@ class SpuAddressConversionTest(unittest.TestCase):
 #include "rr/spu.h"
 s32 _spu_mem_mode, _spu_mem_mode_plus;
 u32 _spu_mem_mode_unit, _spu_mem_mode_unitM;
-RrSpuRegisterBank *_spu_RXX;
+SpuRegisterBank *_spu_RXX;
 static struct {
     u32 before[8];
-    RrSpuRegisterStorage bank;
+    SpuRegisterStorage bank;
     u32 after[8];
 } world;
 ''' + body + r'''

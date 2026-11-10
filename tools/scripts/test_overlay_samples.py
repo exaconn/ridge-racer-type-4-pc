@@ -21,6 +21,7 @@ class OverlaySamplesTest(unittest.TestCase):
         self.assertEqual(len(bodies), 9)
         harness = r'''
 #include <assert.h>
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <string.h>
 #include "types.h"
@@ -35,20 +36,20 @@ class OverlaySamplesTest(unittest.TestCase):
 #include "rr/race_types.h"
 #include "rr/badge_row_types.h"
 #include "rr/projection_state.h"
-s16 ModeGroup, D_800F3A26, D_800F4D8A, D_800AD50A;
-s32 ModeFrame; RrRaceVehicle PlayerCars[2];
-RrFrameStorage *CurrentDrawBuf, display_buffer;
-RrBadgeRow1C first, second, *BadgeRows;
+s16 ModeGroup, D_800F3A26, D_800F4D8A, ActiveSceneId;
+s32 ModeFrame; RaceVehicle PlayerCars[2];
+FrameStorage *CurrentDrawBuf, display_buffer;
+BadgeRow1C first, second, *BadgeRows;
 s16 *sample665_badges;
 u8 ScreenFadeState;
-RrGarageWorkingStorage ovl662_D_80127668;
+GarageWorkingStorage ovl662_D_80127668;
 s32 ovl667_D_80118EE0;
 u32 *ovl668_D_80116E54;
-RrProjectionScratchPrefix test_scratch;
+ProjectionScratchPrefix test_scratch;
 #define RR_PROJECTION_SCRATCH (&test_scratch)
 static int scenario, step;
 void StopRaceAudioAndRumble(void) { assert(scenario == 666 && step++ == 0); }
-void func_8003CAB4(void) {
+void SetupRaceAndSceneId(void) {
     assert((scenario == 659 && step == 0) || (scenario == 666 && step == 1));
     step++;
     ModeGroup = -8; D_800F3A26 = -9; D_800F4D8A = -10;
@@ -56,7 +57,7 @@ void func_8003CAB4(void) {
 }
 void AddScreenFadeTiles(void *a, s32 b, s32 c) {
     assert(scenario == 666 && step++ == 2);
-    assert(a == display_buffer.ordering.ordering70 && b == 255 && c == 69);
+    assert(a == display_buffer.ordering.ordering70.words && b == 255 && c == 69);
     assert(ModeGroup == 1 && D_800F3A26 == 82 && D_800F4D8A == 0);
 }
 void SetupRenderer(s32 a) {
@@ -65,10 +66,10 @@ void SetupRenderer(s32 a) {
 }
 void ResetCarState(void *p) {
     assert(scenario == 663 && step++ == 1 && p == PlayerCars);
-    RrProjectionScratchPrefix expected;
+    ProjectionScratchPrefix expected;
     memset(&expected, 0xA5, sizeof(expected));
-    expected.word18=120; expected.word08=-16; expected.word0C=-248;
-    expected.word1C=0; expected.word20=0; expected.word10=-96;
+    expected.pose08.angles10.xyz.x=120; expected.pose08.position00.words[0]=-16; expected.pose08.position00.words[1]=-248;
+    expected.pose08.angles10.xyz.y=0; expected.pose08.angles10.xyz.z=0; expected.pose08.position00.words[2]=-96;
     assert(!memcmp(&test_scratch,&expected,sizeof(expected)));
     memset(p, 0x5A, sizeof(PlayerCars));
 }
@@ -101,8 +102,8 @@ int main(void) {
     scenario = 659; step = 0;
     ovl659_exit_race();
     assert(step == 1 && ModeGroup == 1 && D_800F3A26 == 47 && D_800F4D8A == 0);
-    ovl660_func_80114910(); assert(D_800AD50A == 0x131);
-    ovl661_func_80117340(); assert(D_800AD50A == 0x137);
+    ovl660_select_scene(); assert(ActiveSceneId == 0x131);
+    ovl661_func_80117340(); assert(ActiveSceneId == 0x137);
     for (unsigned i = 0; i < 65536; i++) {
         memset(&ovl662_D_80127668, 0xA5, sizeof(ovl662_D_80127668));
         s32 args[4] = {(s32)(0x12340000U|i), (s32)(0xFFFF0000U|i),

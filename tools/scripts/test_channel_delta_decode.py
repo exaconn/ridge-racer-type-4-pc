@@ -29,17 +29,17 @@ typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-RrLibStateB0 *test_table[0x4100];
-RrLibStateB0 test_records[9][17];
+LibStateB0 *test_table[0x4100];
+LibStateB0 test_records[9][17];
 u8 test_streams[9][17][32];
-u32 test_record_size = sizeof(RrLibStateB0);
-u32 test_accumulator_offset = offsetof(RrLibStateB0, w88);
-u32 test_mode_offset = offsetof(RrLibStateB0, w98);
-u32 test_values_offset = offsetof(RrLibStateB0, h58);
-u32 test_byte_offset = offsetof(RrLibStateB0, b26);
-u32 test_counter_offset = offsetof(RrLibStateB0, w90);
-u32 test_slot_offset = offsetof(RrLibStateB0, b17);
-u32 test_slot_values_offset = offsetof(RrLibStateB0, b37);
+u32 test_record_size = sizeof(LibStateB0);
+u32 test_accumulator_offset = offsetof(LibStateB0, w88);
+u32 test_mode_offset = offsetof(LibStateB0, w98);
+u32 test_values_offset = offsetof(LibStateB0, h58);
+u32 test_byte_offset = offsetof(LibStateB0, b26);
+u32 test_counter_offset = offsetof(LibStateB0, w90);
+u32 test_slot_offset = offsetof(LibStateB0, b17);
+u32 test_slot_values_offset = offsetof(LibStateB0, b37);
 s32 (*test_stream_update)(s32, s32, s32, s32);
 s32 _SsVmPitchBend(s32 a, s32 b, s32 c, s32 d) { return test_stream_update(a,b,c,d); }
 void (*test_value_update)(s32, s32, s32, s32);
@@ -64,12 +64,12 @@ void test_prepare(s32 bank, s32 row, const u8 *input, u32 length, u32 accumulato
         body = '\n'.join((root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
                          for name in ('80081E04', '8008424C', '80080034', '80081804'))
         body = body.replace('#include "rr/library.h"', '')
-        body = body.replace('extern RrLibStateB0 *_ss_score[];', '')
+        body = body.replace('extern LibStateB0 *_ss_score[];', '')
         body = body.replace('_ss_score', '(test_table + 0x4000 - 0xF98 / 4)')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+", ', '', body)
         body = re.sub(r' : "\$[0-9]+"', '', body)
-        body = body.replace('(RrLibStateB0 **)0x80110000U', '(test_table + 0x4000)')
+        body = body.replace('(LibStateB0 **)0x80110000U', '(test_table + 0x4000)')
         source += body
         (directory / 'function.c').write_text(source)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),

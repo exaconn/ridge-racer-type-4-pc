@@ -1,6 +1,6 @@
 #include "rr/overlay662_primitives.h"
 
-RrGpuTilePacket *ovl662_func_8011AD3C(u32 *ordering, RrGpuTilePacket *packet, u32 x0, u32 y, u32 x1, u32 r, u32 g, u32 b)
+GpuTilePacket *ovl662_func_8011AD3C(u32 *ordering, GpuTilePacket *packet, u32 x0, u32 y, u32 x1, u32 r, u32 g, u32 b)
 {
     /* ASM_BARRIER: keep the origin X offset in $v1 while computing both endpoints. */
     register u32 baseX __asm__("$3") = (u16)ovl662_D_801276A8.halfC8;

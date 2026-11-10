@@ -19,6 +19,6 @@
 
 #undef IntrDriverTablePtr
 
-RrLibInterruptCallback DMACallback(s32 channel, RrLibInterruptCallback callback) {
+LibInterruptCallback DMACallback(s32 channel, LibInterruptCallback callback) {
     return IntrDriverTablePtr->exchange(channel,callback);
 }

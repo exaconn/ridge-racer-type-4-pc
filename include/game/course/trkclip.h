@@ -3,6 +3,7 @@
 
 #include "types.h"
 
-void func_80026A20(int a, int b, short *c);
+void GetTrackSegmentAndYaw(int node, int yaw, short *output);
+s32 FindTrackNode();
 
 #endif /* RR_GAME_COURSE_TRKCLIP_H */

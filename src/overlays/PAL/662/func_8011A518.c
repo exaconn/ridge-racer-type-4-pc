@@ -1,4 +1,5 @@
 #include "rr/overlay662_arena_init.h"
+#include "rr/load_cursor.h"
 
 void ovl662_func_8011A518(void)
 {
@@ -6,9 +7,9 @@ void ovl662_func_8011A518(void)
     register u8 *base __asm__("$3");
     u32 *clear;
     register u8 *second __asm__("$6");
-    RrGarageSelectionPrefix *owner;
+    GarageSelectionPrefix *owner;
     register u8 *allocated __asm__("$2");
-    stage=(s32)((u32)ovl662_D_8012625C+1U);
+    stage=(ovl662_D_8012625C+1U);
     ovl662_D_8012625C=stage;
     switch (stage) {
     case 1:
@@ -18,28 +19,28 @@ void ovl662_func_8011A518(void)
         ovl662_func_8011A414();
         base=D_800F4D74+4;
         owner=&ovl662_D_801276A8;
-        base-=((RrGarageArenaAddress)D_800F4D74&3U);
+        base-=((GarageArenaAddress)D_800F4D74&3U);
         second=base+0x840;
         /* Retain each publication of the shared arena cursor. */
-        *(void *volatile*)&LoadCursor=base;
+        *(void **)&LoadCursor=base;
         *(void *volatile*)&LoadCursor=second;
         allocated=base+0x1080;
-        *(void *volatile*)&LoadCursor=allocated;
+        *(void **)&LoadCursor=allocated;
         owner->buffers24[1]=(u32*)allocated;
         allocated=base+0x18C0;
-        *(void *volatile*)&LoadCursor=allocated;
-        owner->tim2C[1]=(RrGarageTimBytes*)allocated;
+        *(void **)&LoadCursor=allocated;
+        owner->tim2C[1]=(GarageTimBytes*)allocated;
         allocated=base+0x2100;
-        *(void *volatile*)&LoadCursor=allocated;
+        *(void **)&LoadCursor=allocated;
         owner->scratch34=(u32*)allocated;
         allocated=base+0x2900;
-        *(void *volatile*)&LoadCursor=allocated;
+        *(void **)&LoadCursor=allocated;
         owner->paletteScratch58[0]=(u32*)allocated;
         allocated=base+0x2920;
-        *(void *volatile*)&LoadCursor=allocated;
+        *(void **)&LoadCursor=allocated;
         owner->paletteScratch58[1]=(u32*)allocated;
         allocated=base+0x2940;
-        *(void *volatile*)&LoadCursor=allocated;
+        *(void **)&LoadCursor=allocated;
         allocated=base+0x40;
         owner->image38[0]=(u32*)allocated;
         allocated=base+0x880;
@@ -58,7 +59,7 @@ void ovl662_func_8011A518(void)
         owner->paletteBackup50[1]=(u32*)allocated;
         D_800F3918=base;
         owner->buffers24[0]=(u32*)base;
-        owner->tim2C[0]=(RrGarageTimBytes*)second;
+        owner->tim2C[0]=(GarageTimBytes*)second;
         D_800F3910=second;
         break;
     case 2:

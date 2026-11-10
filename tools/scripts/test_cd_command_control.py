@@ -5,7 +5,8 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
-from c_functions import source_owners
+from c_functions import source_owners, definition_source
+from test_cd_disc_probe import native_body
 
 Hook=C.CFUNCTYPE(C.c_int32,C.c_int32,C.c_void_p,C.c_void_p,C.c_int32)
 Sync=C.CFUNCTYPE(C.c_int32,C.c_int32,C.c_void_p)
@@ -21,22 +22,20 @@ class CdCommandControlTest(unittest.TestCase):
             header=(root/'include/rr'/file).read_text()
             headers+=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)+'\n'
         owners=source_owners(root/'src/main/PAL')
-        paths=dict.fromkeys(owners[name] for name in ('CdControl','CdSync'))
-        body='\n'.join(path.read_text() for path in paths)
-        assert body.count('(RrLibDataCallback *)0x800A0000U')==2
-        body=body.replace('(RrLibDataCallback *)0x800A0000U','callback_page')
-        body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
-        body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
-        body=re.sub(r'\s*:\s*"\$[0-9]+"(?:\s*,\s*"\$[0-9]+")*(?=\))','',body)
+        body='\n'.join(definition_source(owners[name].read_text(),name)
+                       for name in ('CdControl','CdControlF','CdControlB','CdSync'))
+        assert body.count('(LibDataCallback *)0x800A0000U')==2
+        body=body.replace('(LibDataCallback *)0x800A0000U','callback_page')
+        body=native_body(body)
         code='''#include <stdint.h>
 #include <stddef.h>
 typedef uint8_t u8;typedef int8_t s8;typedef uint16_t u16;typedef int16_t s16;
 typedef uint32_t u32;typedef int32_t s32;
 #define RR_FIELD_OFFSET(type,field) offsetof(type,field)
 '''+headers+'''
-u32 CD_com_info[34];RrCdDriveStatus CD_status;
-RrLibDataCallback callback_page[0x10000/sizeof(RrLibDataCallback)];
-#define CD_cbsync callback_page[0x6488/sizeof(RrLibDataCallback)]
+u32 CD_com_info[34];CdDriveStatus CD_status;
+LibDataCallback callback_page[0x10000/sizeof(LibDataCallback)];
+#define CD_cbsync callback_page[0x6488/sizeof(LibDataCallback)]
 s32 (*on_call)(s32,const u8 *,u8 *,s32);
 s32 (*on_sync)(s32,u8 *);
 s32 CD_sync(s32 mode,u8 *status){return on_sync(mode,status);}

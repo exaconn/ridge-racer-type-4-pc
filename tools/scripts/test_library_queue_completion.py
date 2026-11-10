@@ -39,22 +39,22 @@ typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-RrLibQueueRecord32 test_records[16];
+LibQueueRecord32 test_records[16];
 struct {
     u8 prefix[0x2EC]; s32 busy; u8 pad2F0[4]; s32 next, current;
-    u8 pad2FC[0x14]; RrLibQueueRecord32 *records;
-    u8 pad314[0x2750 - 0x310 - sizeof(RrLibQueueRecord32 *)];
-    RrLibPackedWord word; s32 value; u8 pad2758[8];
+    u8 pad2FC[0x14]; LibQueueRecord32 *records;
+    u8 pad314[0x2750 - 0x310 - sizeof(LibQueueRecord32 *)];
+    LibPackedWord word; s32 value; u8 pad2758[8];
     void (*callback)(void); u8 suffix[0x10000 - 0x2760 - sizeof(void (*)(void))];
 } test_page;
-_Static_assert(sizeof(RrLibQueueRecord32) == 0x20, "record stride");
+_Static_assert(sizeof(LibQueueRecord32) == 0x20, "record stride");
 _Static_assert(offsetof(__typeof__(test_page), current) == 0x2F8, "index offset");
 _Static_assert(offsetof(__typeof__(test_page), word) == 0x2750, "packed word offset");
 _Static_assert(offsetof(__typeof__(test_page), callback) == 0x2760, "callback offset");
-#define D_801102EC test_page.busy
+#define StStreamStarted test_page.busy
 #define StRingWriteIndex test_page.next
-#define D_801102F8 test_page.current
-#define D_80110310 test_page.records
+#define StRingFrameStartIndex test_page.current
+#define StRingHeaders test_page.records
 #define D_80112750 test_page.word
 #define D_80112754 test_page.value
 #define StDataReadyFunc test_page.callback

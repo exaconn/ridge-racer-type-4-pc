@@ -20,16 +20,16 @@ source=r'''
 #define RR_ASSERT_SIZE(t,n)
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/selection_initializer.h"
-_Static_assert(sizeof(RrRaceVehicle)==0x320,"vehicle owner");
-_Static_assert(sizeof(RrSelectionRows)==32,"complete selection owner");
-_Static_assert(sizeof(RrCourseChoice4)==4,"choice stride");
-_Static_assert(sizeof(RrMenuGridPoint)==4,"point stride");
+_Static_assert(sizeof(RaceVehicle)==(sizeof(void*)==4?0x320:0x330),"vehicle owner");
+_Static_assert(sizeof(SelectionRows32)==32,"complete selection owner");
+_Static_assert(sizeof(CourseChoice4)==4,"choice stride");
+_Static_assert(sizeof(MenuGridPoint)==4,"point stride");
 static u8 resources[3][0x30000];static u32 scratchOrder;
 typedef struct {
  u32 guard[4];s32 frame,tick,player;s16 selection,limit,course,active;
- u8 *base;void *buffer,*published;RrMenuArenas arenas;
- RrRaceVehicle vehicles[2];RrProjectionScratchPrefix scratch;RrSelectionRows selectionRows;
- RrCourseChoice4 table[2][2][9];s16 counts[2][2],group[2],index[2];RrMenuGridPoint point[4];u32 tail[4];
+ u8 *base;void *buffer,*published;MenuArenas8 arenas;
+ RaceVehicle vehicles[2];ProjectionScratchPrefix scratch;SelectionRows32 selectionRows;
+ CourseChoice4 table[2][2][9];s16 counts[2][2],group[2],index[2];MenuGridPoint point[4];u32 tail[4];
 } State;
 static State actual,reference,*w;
 #define ModeFrame w->frame
@@ -40,7 +40,7 @@ static State actual,reference,*w;
 #define D_800AC648 w->course
 #define D_8010C0B8 w->active
 #define CdDirectoryBuffer w->base
-#define D_800F4D40 w->buffer
+#define MenuArenaBase w->buffer
 #define LoadCursor w->published
 #define MenuArenas w->arenas
 #define PlayerCars w->vehicles
@@ -64,7 +64,7 @@ static void tableState(unsigned seed){for(unsigned g=0;g<2;g++)for(unsigned r=0;
  unsigned length=(scenario+seed+g*2+r)%10;
  for(unsigned j=0;j<9;j++){s16 glyph=half(scenario*31+seed*137+j*97);if(glyph==-1)glyph=0;
  if(j==8)glyph=length==9?0x167:0;if(j==length)glyph=-1;
- w->table[g][r][j]=(RrCourseChoice4){glyph,byte(scenario+seed+j+g),byte(scenario/256+seed+j+r)};}
+ w->table[g][r][j]=(CourseChoice4){glyph,byte(scenario+seed+j+g),byte(scenario/256+seed+j+r)};}
 }}
 static void record(unsigned kind,const s32 *args){assert(kind<8);
  if(referenceRun){assert(count<40);Event *e=&events[count++];e->kind=kind;memcpy(e->args,args,40);e->before=*w;}
@@ -77,8 +77,8 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
  w->arenas.first=resources[(scenario+n)%3]+512;w->arenas.second=resources[(scenario+n+1)%3]+768;
  for(unsigned i=0;i<2;i++){w->group[i]=(scenario+n+i)&1;w->index[i]=(scenario/4+n+i)%9;
   for(unsigned j=0;j<2;j++)w->counts[i][j]=(scenario+n+i+j)%10;
-  for(unsigned j=0;j<3;j++)w->vehicles[i].pos20[j]=word(v+i+j);w->vehicles[i].rot54=word(v+i);}
- w->scratch.word08=word(v);w->scratch.word0C=word(~v);w->scratch.word10=word(v>>1);w->scratch.word18=word(v+1);w->scratch.word1C=word(v+2);w->scratch.word20=word(v+3);
+  for(unsigned j=0;j<3;j++)w->vehicles[i].position20.words[j]=word(v+i+j);w->vehicles[i].rot54=word(v+i);}
+ w->scratch.pose08.position00.words[0]=word(v);w->scratch.pose08.position00.words[1]=word(~v);w->scratch.pose08.position00.words[2]=word(v>>1);w->scratch.pose08.angles10.xyz.x=word(v+1);w->scratch.pose08.angles10.xyz.y=word(v+2);w->scratch.pose08.angles10.xyz.z=word(v+3);
  tableState(n);
 }
 static void service(unsigned kind){const s32 args[10]={0};record(kind,args);effect(kind);}
@@ -87,8 +87,8 @@ void InitMenuArenas(void){service(1);}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){const s32 args[10]={a,b,c,d,e,f,g,h,i,j};record(2,args);effect(2);}
 void SetupRenderer(s32 a){const s32 args[10]={a};record(3,args);effect(3);}
 void InitPreviewImageRows(void){service(4);}
-void ResetCarState(RrRaceVehicle *p){unsigned i;for(i=0;i<2&&p!=&w->vehicles[i];i++){}assert(i<2&&(uintptr_t)p>UINT32_MAX);const s32 args[10]={i};record(5,args);effect(5);}
-s32 CountChoiceGlyphs(const RrCourseChoice4 *p){unsigned g,r;for(g=0;g<2;g++)for(r=0;r<2;r++)if(p==w->table[g][r])goto found;
+void ResetCarState(RaceVehicle *p){unsigned i;for(i=0;i<2&&p!=&w->vehicles[i];i++){}assert(i<2&&(uintptr_t)p>UINT32_MAX);const s32 args[10]={i};record(5,args);effect(5);}
+s32 CountChoiceGlyphs(const CourseChoice4 *p){unsigned g,r;for(g=0;g<2;g++)for(r=0;r<2;r++)if(p==w->table[g][r])goto found;
 found:assert(g<2&&r<2&&(uintptr_t)p>UINT32_MAX);const s32 args[10]={g,r};record(6,args);s32 count=0;for(;count<9;count++){if(p[count].glyph==-1)break;if(count==8&&p[8].glyph!=0x167)break;}effect(6);return count;}
 void UnpackChoiceGlyph(s8 *p,s32 glyph){unsigned i;for(i=0;i<4&&p!=(s8*)&w->selectionRows+4*i;i++){}assert(i<4&&(uintptr_t)p>UINT32_MAX);const s32 args[10]={i,glyph};record(7,args);encode_original(p,glyph);effect(7);}
 static void expected(s32 original){w->frame=0;w->tick=0;w->selection=0;w->limit=3;ResetScreenCounters();w->arenas.second=w->base+0x2D000;InitMenuArenas();w->player=original;w->published=w->arenas.second;
@@ -101,8 +101,8 @@ static void expected(s32 original){w->frame=0;w->tick=0;w->selection=0;w->limit=
  for(unsigned i=0;i<24;i++){s32 args[10];memcpy(args,rows[i],40);if(args[0]==21)args[9]=w->course;record(2,args);effect(2);}
  SetupRenderer(5);w->selection=0;w->limit=3;ResetScreenCounters();InitPreviewImageRows();w->active=0;w->published=w->buffer;resourceBranch[w->player&1]++;
  if((w->player&1)==0)w->arenas.first=w->buffer;else w->published=w->arenas.first;
- w->scratch.word18=120;w->scratch.word08=-16;w->scratch.word0C=-248;w->scratch.word1C=0;w->scratch.word20=0;w->scratch.word10=-96;
- for(unsigned i=0;i<2;i++){ResetCarState(&w->vehicles[i]);w->vehicles[i].pos20[1]=10;w->vehicles[i].pos20[2]=308;w->vehicles[i].rot54=2048;}
+ w->scratch.pose08.angles10.xyz.x=120;w->scratch.pose08.position00.words[0]=-16;w->scratch.pose08.position00.words[1]=-248;w->scratch.pose08.angles10.xyz.y=0;w->scratch.pose08.angles10.xyz.z=0;w->scratch.pose08.position00.words[2]=-96;
+ for(unsigned i=0;i<2;i++){ResetCarState(&w->vehicles[i]);w->vehicles[i].position20.words[1]=10;w->vehicles[i].position20.words[2]=308;w->vehicles[i].rot54=2048;}
  for(unsigned g=0;g<2;g++)for(unsigned r=0;r<2;r++)w->counts[g][r]=CountChoiceGlyphs(w->table[g][r]);
  unsigned old=original&1;oldGroup[old!=(w->player&1)]++;int reset=w->counts[old][1]==0;groupReset[reset]++;if(reset)w->group[old]=0;
  unsigned dest=w->player,g=dest&1;UnpackChoiceGlyph((s8*)&w->selectionRows+4*dest,w->table[g][w->group[g]][w->index[g]].glyph);

@@ -1,6 +1,6 @@
 #include "rr/overlay662_gradient.h"
 
-RrPolyG4Storage *ovl662_func_8011B0CC(u32 *ordering, RrPolyG4Storage *packet, u32 x, u32 y, u32 w, u32 h, u32 r0, u32 g0, u32 b0, u32 r1, u32 g1, u32 b1) {
+PolyG4Storage *ovl662_func_8011B0CC(u32 *ordering, PolyG4Storage *packet, u32 x, u32 y, u32 w, u32 h, u32 r0, u32 g0, u32 b0, u32 r1, u32 g1, u32 b1) {
     u16 baseX = ovl662_D_801276A8.halfC8;
     u16 baseY = ovl662_D_801276A8.halfCA;
     u16 x1;

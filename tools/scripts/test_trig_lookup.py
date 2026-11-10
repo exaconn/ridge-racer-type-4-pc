@@ -26,7 +26,8 @@ s16 test_rom[4097];
 #define SinTable (test_rom+0xC00)
 '''
         for source in ('trig_sine.c','func_800904F4.c'):
-            body=(root/'tools/scripts/fixtures/views'/source).read_text()
+            directory = 'legacy' if source == 'trig_sine.c' else 'views'
+            body=(root/'tools/scripts/fixtures'/directory/source).read_text()
             body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
             code+=body+'\n'
         (d/'f.c').write_text(code)

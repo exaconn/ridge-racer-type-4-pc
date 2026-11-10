@@ -1,7 +1,7 @@
 #ifndef RR_OVERLAY_EXTRA_LABELS_H
 #define RR_OVERLAY_EXTRA_LABELS_H
 #include "rr/menu_label_render.h"
-extern RrUiUvRect ovl663_record_label;
+extern UiUvRect ovl663_record_label;
 extern s32 ovl663_selected_record,ovl663_course_unlock_levels[9];
 #include "rr/overlay662_name_state.h"
 extern s32 ScreenFrame;

@@ -46,7 +46,7 @@ int main(void){unsigned k,i;
   for(i=0;i<6 && world.values[i]>=0;i++)
    if(world.values[i]<world.values[wanted])wanted=i;
   memcpy(&expected,&world,sizeof(world));expected.selected=wanted;
-  ovl660_func_801162D8();
+  ovl660_rank_standings();
   assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  return 0;

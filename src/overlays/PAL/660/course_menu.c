@@ -1,9 +1,11 @@
 #include "rr/overlay660.h"
+#include "rr/frame_storage_types.h"
+#include "rr/load_cursor.h"
 
-void ovl660_func_80114910(void) { D_800AD50A = 0x131; }
+void ovl660_select_scene(void) { ActiveSceneId = 0x131; }
 
-void ovl660_func_80114920(void) {
-    RrProjectionScratchPrefix *scratch;
+void ovl660_init_menu(void) {
+    ProjectionScratchPrefix *scratch;
     s32 selection;
     s16 *result;
     ModeFrame=0;
@@ -30,18 +32,18 @@ void ovl660_func_80114920(void) {
     InitUiRow(10,116,88,28,32,0,0,1,0,55);
     InitUiRow(11,116,128,28,32,0,0,1,0,56);
     scratch=RR_PROJECTION_SCRATCH;
-    scratch->word18=512;
-    scratch->word0C=-416;
-    scratch->word1C=0;
-    scratch->word20=0;
-    scratch->word08=0;
-    scratch->word10=0;
-    PlayerCars[0].pos20[0]=0;
-    PlayerCars[0].pos20[1]=0;
-    PlayerCars[0].pos20[2]=0;
+    scratch->pose08.angles10.xyz.x=512;
+    scratch->pose08.position00.words[1]=-416;
+    scratch->pose08.angles10.xyz.y=0;
+    scratch->pose08.angles10.xyz.z=0;
+    scratch->pose08.position00.words[0]=0;
+    scratch->pose08.position00.words[2]=0;
+    PlayerCars[0].position20.words[0]=0;
+    PlayerCars[0].position20.words[1]=0;
+    PlayerCars[0].position20.words[2]=0;
 }
 
-void ovl660_func_80114C40(void)
+void ovl660_init_scene(void)
 {
     s32 val;
 
@@ -61,7 +63,7 @@ void ovl660_func_80114C40(void)
     if (val & 0x100) {
         ovl660_available_course_count = 16;
     }
-    ovl660_func_80114920();
+    ovl660_init_menu();
     UnpackChoiceGlyph((s8*)&SelectionRows,CourseChoiceTable[0][0].glyph);
     ModeGroup = 1;
     D_800F3A26 = 50;
@@ -70,7 +72,7 @@ void ovl660_func_80114C40(void)
     SeqStartTrack(0);
 }
 
-void ovl660_func_80114D38(void) {
+void ovl660_update_menu(void) {
     s32 loopCount;
     s16 cancelTimer;
     s16 settingsTimer;
@@ -82,13 +84,13 @@ void ovl660_func_80114D38(void) {
     s32 cell;
     u16 previousCourse;
     u8 activeState;
-    RrUiRow24 *preview;
-    RrUiRow24 *settings;
-    RrUiRow24 *cancel;
-    RrUiRow24 *back;
+    UiRow24 *preview;
+    UiRow24 *settings;
+    UiRow24 *cancel;
+    UiRow24 *back;
 
-    ModeFrame = (s32)((u32)ModeFrame + 1U);
-    ScreenFrame = (s32)((u32)ScreenFrame + 1U);
+    ModeFrame = (ModeFrame + 1U);
+    ScreenFrame = (ScreenFrame + 1U);
     if (LoadTrackNodesStep() == 1) {
         switch (D_800F4D8A) {
         case 0:
@@ -98,25 +100,25 @@ void ovl660_func_80114D38(void) {
             if ((s16) previousCourse != (s16) D_800AC648) {
                 ResetScreenCounters();
             } else {
-                func_80033368((s16) previousCourse, 0);
+                DrawCourseMapPreview((s16) previousCourse, 0);
             }
             CourseIndex = DecodeCourseIndex((s16) D_800AC648);
             UiRows[MenuCursor].cells[0] = 0;
-            StepMenuValue(0, 2, (char *)&MenuCursor, (s32) MenuItemCount, 0);
+            StepMenuValue(0, 2, (char *)&MenuCursor, MenuItemCount, 0);
             UiRows[MenuCursor].cells[0] = 2;
             cell = 0;
             if (UiRows[3].byte02 != 0) {
                 do {
                     if (cell == (D_800AC648 & 7)) {
-                        UiRows[3].cells[(s32)cell] = (s8) (((u8 *)&ReverseCourse)[0] + 2);
+                        UiRows[3].cells[cell] = (s8) (((u8 *)&ReverseCourse)[0] + 2);
                         UiRows[3].byte16 = cell;
                     } else if (cell >= ovl660_available_course_count) {
-                        UiRows[3].cells[(s32)cell] = 1;
+                        UiRows[3].cells[cell] = 1;
                     } else {
-                        UiRows[3].cells[(s32)cell] = (u8) ((u8 *)&ReverseCourse)[0];
+                        UiRows[3].cells[cell] = (u8) ((u8 *)&ReverseCourse)[0];
                     }
                     cell += 1;
-                } while (cell < (s32) UiRows[3].byte02);
+                } while (cell < UiRows[3].byte02);
             }
             if (D_800F3A60 != 0) {
                 activeState = UiRows[0].byte14;
@@ -128,7 +130,7 @@ void ovl660_func_80114D38(void) {
                         previewIndex = 0;
                         UiRows[0].cells[0] = 1;
                         do {
-                            preview = (RrUiRow24 *)((unsigned long)(previewIndex*sizeof(RrUiRow24))+(unsigned long)UiRows);
+                            preview = (UiRow24 *)((previewIndex*sizeof(UiRow24))+(unsigned long)UiRows);
                             if (preview->byte14 == 2) {
                                 preview->byte14 = 3U;
                             }
@@ -141,7 +143,7 @@ void ovl660_func_80114D38(void) {
                         if (UiRowCount > 0) {
                             settingsIndex = 0;
                             do {
-                                settings = (RrUiRow24 *)((unsigned long)(settingsIndex*sizeof(RrUiRow24))+(unsigned long)UiRows);
+                                settings = (UiRow24 *)((settingsIndex*sizeof(UiRow24))+(unsigned long)UiRows);
                                 if (settings->byte14 == 2) {
                                     settings->byte14 = 3U;
                                 }
@@ -157,7 +159,7 @@ void ovl660_func_80114D38(void) {
                         if (UiRowCount > 0) {
                             cancelIndex = 0;
                             do {
-                                cancel = (RrUiRow24 *)((unsigned long)(cancelIndex*sizeof(RrUiRow24))+(unsigned long)UiRows);
+                                cancel = (UiRow24 *)((cancelIndex*sizeof(UiRow24))+(unsigned long)UiRows);
                                 if (cancel->byte14 == 2) {
                                     cancel->byte14 = 3U;
                                 }
@@ -182,7 +184,7 @@ check_back:
                     if (UiRowCount > 0) {
                         backIndex = 0;
                         do {
-                            back = (RrUiRow24 *)((unsigned long)(backIndex*sizeof(RrUiRow24))+(unsigned long)UiRows);
+                            back = (UiRow24 *)((backIndex*sizeof(UiRow24))+(unsigned long)UiRows);
                             if (back->byte14 == 2) {
                                 back->byte14 = 3U;
                             }
@@ -226,52 +228,46 @@ check_back:
             goto draw_course;
         case 3:
             if (UiRows[0].byte14 == 5) {
-                ovl660_func_801163C4();
+                ovl660_init_preview();
                 ModeGroup = 1;
                 D_800F3A26 = 0x33;
                 D_800F4D8A=0;
-                goto draw_rows;
             }
             break;
         case 8:
             cancelTimer = (u16)D_800AC5D0 - 1;
             D_800AC5D0 = (u16) cancelTimer;
-            AddScreenFadeTiles(((RrFrameOrderingPrefix *)(void *)CurrentDrawBuf)->ordering70, (0x40 - cancelTimer) * 4, 0x45);
+            AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words, (0x40 - cancelTimer) * 4, 0x45);
             if ((s16) D_800AC5D0 <= 0) {
                 SeqMuteVolume();
                 ModeGroup = 1;
                 D_800F3A26 = 3;
                 D_800F4D8A=0;
-                goto draw_rows;
             }
             break;
         case 10:
             settingsTimer = (u16)D_800AC5D0 - 1;
             D_800AC5D0 = (u16) settingsTimer;
-            AddScreenFadeTiles(((RrFrameOrderingPrefix *)(void *)CurrentDrawBuf)->ordering70, (0x40 - settingsTimer) * 4, 0x45);
+            AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words, (0x40 - settingsTimer) * 4, 0x45);
             if ((s16) D_800AC5D0 <= 0) {
-                D_800FFC18 = 1;
+                CardMenuOperation = 1;
                 D_800F3A1E = 0x132;
                 ModeGroup = 1;
                 D_800F3A26 = 0x47;
                 D_800F4D8A=0;
-                goto draw_rows;
             }
             break;
         }
-    }
-    else goto draw_course;
-    goto draw_rows;
-
+    } else {
 draw_course:
-    DrawCourseInfoPanel((s16)D_800AC648,0);
-draw_rows:
+        DrawCourseInfoPanel((s16)D_800AC648,0);
+    }
     DrawUiRow(0);
     DrawUiRow(1);
     DrawUiRow(2);
     DrawUiRow(3);
     if (UiRows[0].byte14 == 2) {
-        DrawMenuStepArrows(0xCE, 0xD0, 0x5E, 0, (s32) (s16) D_800AC648, -1, (s32)((u32)ovl660_available_course_count + 1U));
+        DrawMenuStepArrows(0xCE, 0xD0, 0x5E, 0, (s16) D_800AC648, -1, (ovl660_available_course_count + 1U));
     }
     UpdateScreenFade(0x10026);
 }

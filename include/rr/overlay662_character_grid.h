@@ -9,7 +9,7 @@ s32 rcos(s32 angle);
  * UV keys must be readable. Drawing services return full-width arena pointers
  * and may change selection, tick, row root and glyph widths between calls. */
 void ovl662_func_80117F54(u32 *order,void *cursor,s32 row);
-typedef unsigned long RrCharacterGridAddress;
-typedef char RrCharacterGridAddressWidth[
-    sizeof(RrCharacterGridAddress)==sizeof(void*) ? 1 : -1];
+typedef unsigned long CharacterGridAddress;
+typedef char CharacterGridAddressWidth[
+    sizeof(CharacterGridAddress)==sizeof(void*) ? 1 : -1];
 #endif

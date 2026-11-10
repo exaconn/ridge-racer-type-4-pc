@@ -21,8 +21,8 @@ class Overlay667EventsTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay667_events.h"
 typedef struct {u32 head[4];s32 counter,status,pending;u32 event0,event1;s32 file0,file1;u32 tail[4];} State;
-typedef struct {s32 kind;u32 args[3];const char *name;RrBiosEventCallback callback;State state;} Event;
-static struct World {State s;u32 calls;RrBiosEventCallback registered;Event events[6];u32 guard[4];} world,expected;
+typedef struct {s32 kind;u32 args[3];const char *name;BiosEventCallback callback;State state;} Event;
+static struct World {State s;u32 calls;BiosEventCallback registered;Event events[6];u32 guard[4];} world,expected;
 const char ovl667_D_8011487C[]="sio:";
 #define ovl667_D_80118EE0 world.s.counter
 #define ovl667_D_80118EE8 world.s.pending
@@ -46,16 +46,16 @@ static void effect(struct World *v){
   if(v==&world)assert(v->registered()==0);else callback_reference(s);
  }
 }
-static u32 observe(struct World *v,s32 kind,u32 a,u32 b,u32 c,const char *name,RrBiosEventCallback callback){
+static u32 observe(struct World *v,s32 kind,u32 a,u32 b,u32 c,const char *name,BiosEventCallback callback){
  Event *e;unsigned step=v->calls;assert(step<6);e=&v->events[v->calls++];memset(e,0,sizeof(*e));e->kind=kind;e->args[0]=a;e->args[1]=b;e->args[2]=c;e->name=name;e->callback=callback;memcpy(&e->state,&v->s,sizeof(v->s));
  if(callback)v->registered=callback;effect(v);return result(step);
 }
-RrBiosEventHandle OpenEvent(u32 eventClass,u32 specification,u32 mode,RrBiosEventCallback callback){
+BiosEventHandle OpenEvent(u32 eventClass,u32 specification,u32 mode,BiosEventCallback callback){
  assert(world.calls<2);assert(eventClass==0xF000000BU);
  return observe(&world,0,eventClass,specification,mode,0,callback);
 }
 s32 FileOpen(const char *name,s32 mode){assert(world.calls==2 || world.calls==3);assert(name==ovl667_D_8011487C && strcmp(name,"sio:")==0);return word(observe(&world,1,(u32)mode,0,0,name,0));}
-s32 EnableEvent(RrBiosEventHandle handle){assert(world.calls==4 || world.calls==5);return word(observe(&world,2,handle,0,0,0,0));}
+s32 EnableEvent(BiosEventHandle handle){assert(world.calls==4 || world.calls==5);return word(observe(&world,2,handle,0,0,0,0));}
 s32 _sio_control(s32 command,s32 operation,unsigned long argument){assert(world.calls<2 && argument==0);return word(observe(&world,3,(u32)command,(u32)operation,0,0,0));}
 static void reference_setup(void){
  expected.s.event0=observe(&expected,0,0xF000000BU,0x400,0x2000,0,0);
@@ -66,7 +66,7 @@ static void reference_setup(void){
 }
 static void initialize(void){unsigned i;for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();world.calls=0;world.registered=0;memcpy(&expected,&world,sizeof(world));}
 int main(void){unsigned k;u32 bits;
- assert((uintptr_t)ovl667_D_8011487C>UINT32_MAX && sizeof(RrBiosEventCallback)==sizeof(void*));
+ assert((uintptr_t)ovl667_D_8011487C>UINT32_MAX && sizeof(BiosEventCallback)==sizeof(void*));
  for(k=0;k<65536;k++){
   scenario=k;initialize();bits=k*65537U;
   if(k==0)bits=0x7FFFFFFFU;else if(k==1)bits=0xFFFFFFFFU;else if(k==2)bits=0x80000000U;

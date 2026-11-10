@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void _SsVmSetSeqVol(s32,s32,s32,s32);
+s16 _SsVmSetSeqVol(s32, s32, s32, s32);
 
 #endif /* RR_PSYQ_LIBSND_SSATR2_H */

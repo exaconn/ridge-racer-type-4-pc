@@ -7,39 +7,57 @@
 
 typedef struct {
     s16 x, y;
-} RrVec2s;
+} Vec2s;
+
+typedef struct {s16 x, y, z, pad06;} Vec3sFields8;
+/* Two word-aligned GTE input words, including the unused high Z halfword. */
+typedef union {
+    Vec3sFields8 fields;
+    s16 halves[4];
+    u32 words[2];
+    s32 signedWords[2];
+} Vec3s8;
 
 /* Three word-sized components; GTE IR loads consume each word's signed low 16 bits. */
 typedef struct {
     s32 x, y, z;
-} RrVec3i;
+} Vec3i;
 
 /* Full-word libgte vector layout. The fourth word is reserved by the SDK. */
 typedef struct {
     s32 x, y, z, pad;
-} RrVector;
+} Vector;
+
+typedef union {
+    Vector vector;
+    Vec3i xyz;
+    s32 words[4];
+} VectorWords16;
 
 /* SQR hardware helpers return MAC1..MAC3, with shift 12 and shift 0 respectively.
  * Input and output may overlap. GTE IR/MAC registers and FLAG are also modified. */
-RrVec3i *Square12(const RrVec3i *input, RrVec3i *output);
-RrVec3i *Square0(const RrVec3i *input, RrVec3i *output);
+Vec3i *Square12(const Vec3i *input, Vec3i *output);
+Vec3i *Square0(const Vec3i *input, Vec3i *output);
 
-RR_ASSERT_SIZE(RrVec3i, 12);
-RR_ASSERT_SIZE(RrVector, 16);
-RR_ASSERT_OFFSET(RrVector, z, 8);
-RR_ASSERT_OFFSET(RrVec3i, y, 4);
-RR_ASSERT_OFFSET(RrVec3i, z, 8);
+RR_ASSERT_SIZE(Vec3i, 12);
+RR_ASSERT_SIZE(Vec3s8, 8);
+RR_ASSERT_OFFSET(Vec3sFields8, z, 4);
+RR_ASSERT_SIZE(Vector, 16);
+RR_ASSERT_SIZE(VectorWords16, 16);
+RR_ASSERT_OFFSET(Vector, z, 8);
+RR_ASSERT_OFFSET(Vec3i, y, 4);
+RR_ASSERT_OFFSET(Vec3i, z, 8);
 
-typedef struct RrPairS32 {
+typedef struct PairS32 {
     s32 a, b;
-} RrPairS32;
+} PairS32;
 
-typedef struct RrPairS16 {
+typedef struct PairS16 {
     s16 a, b;
-} RrPairS16;
+} PairS16;
 
-RR_ASSERT_SIZE(RrVec2s, 0x4);
-RR_ASSERT_SIZE(RrPairS32, 0x8);
-RR_ASSERT_SIZE(RrPairS16, 0x4);
+RR_ASSERT_SIZE(Vec2s, 0x4);
+RR_ASSERT_SIZE(PairS32, 0x8);
+RR_ASSERT_SIZE(PairS16, 0x4);
 
 #endif

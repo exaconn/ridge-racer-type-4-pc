@@ -1,7 +1,9 @@
+#include "game/camera/campath.h"
+#include "rr/frame_storage_types.h"
+#include "game/camera/camrun.h"
 /* RODATA 0x80010448 0x18 */
 #include "types.h"
 #include "scratchpad.h"
-#include "m2c_macros.h"
 #include "rr/geometry.h"
 #include "rr/gpu.h"
 #include "rr/race.h"
@@ -14,7 +16,13 @@
 #include "rr/race_setup.h"
 #include "rr/menu_background.h"
 #include "game/data/ldscn1.h"
-#include "game/gfx/drawbuf.h"
+#include "game/system/pad.h"
+#include "game/ui/uipart1.h"
+#include "rr/trig.h"
+#include "game/course/trkintp.h"
+#include "rr/badge_rows.h"
+#include "game/ui/badgespr.h"
+#include "rr/animated_glyph.h"
 
 typedef struct { unsigned char c[4]; } B4;
 
@@ -49,27 +57,10 @@ typedef struct {
     short s1E;
 } S_F4CB0;
 
-typedef struct {
-    char pad[0x10];
-    int w10;
-    char pad14[0x48];
-} S_F3A38;
-
 typedef struct { u8 c[8]; } B8;
-
-typedef struct { char p[0xA]; unsigned short b; char q[0x5C - 0xC]; } E;
-
-typedef struct {
-    char pad[0x2A8];
-    short s2A8;
-    char pad2[0x76];
-} S_800ABEF8;
 
 extern S ScreenFadeState;
 extern B4 ScreenFadeColors[];
-extern int AddTileGrid2x2();
-extern int func_8005B2D4();
-extern int StepCameraScript();
 extern unsigned short D_80010440[];
 extern R4 D_8009EE70[];
 extern R4 D_8009EEC8;
@@ -77,33 +68,23 @@ extern signed char D_8009EF3C[][4];
 extern short D_8009EFD8[];
 extern short D_8009EFE8[];
 extern R4 D_8009EFF8;
-extern S_F3A38 PlayerControllers[];
-extern void *AddDrawAreaPrim();
-extern void *AddDrawModePrim();
-extern void *AddTilePrim();
 extern void *AddSpritePrim();
-extern void *AddSpriteWithDrawMode();
 extern void *AddTileSemiTransPrim();
-extern int rsin();
-extern struct { char pad[0xC]; unsigned char a; unsigned char b; short c; } MenuFrameState;
+extern S_F4CB0 MenuFrameState;
 extern s8 D_8009EFFC[];
 extern char D_80010460[];
 extern s32 MenuStepDirection;
-extern int PlaySfx();
+extern void PlaySfx();
 extern char RaceTimeDigits[];
 extern int NumLaps;
 extern int LapTimes[];
-extern int AddPrim();
 extern char TimeTextMMSS[];
 extern unsigned short D_8009F01C[];
 extern char D_8009F020[];
 extern int ReplayState;
-extern int AngleDiffAbs();
-extern int rcos();
 
 void ClearScreenOverlayState(void);
 void DrawMenuFrame(int arg0);
-void SetMenuFrameOptions();
 void DrawArrowTrianglePair();
 void DrawMenuStepArrows();
 void StepMenuValue();
@@ -117,19 +98,13 @@ void DrawLapTimeList(int a0);
 char *FormatFrameTimeMMSS();
 void DrawTimeRemaining(int a);
 void DrawTimeRemainingForPlayer(int a, int b);
-void FormatMillisecondsTime(int t);
-void ResetVehicleShake(void *arg0);
-void StartCollisionShake();
-void SetVehicleShake(void *arg0, s16 arg1, s16 arg2);
+char *FormatMillisecondsTime(int t);
 
-/* legacy typing of shared globals in this part of the unit */
-#define MenuFrameState (*(short (*))&MenuFrameState)
-
-void UpdateScreenFade(a0) int a0; {
+void UpdateScreenFade(int a0) {
     B4 sp;
     int a, t, a1;
     S *st = &ScreenFadeState;
-    *(CurrentDrawBuf + 0x18) = 0;
+    CurrentDrawBuf->buffer.environment00.draw00.background = 0;
     a = (a0 >> 1) & 1;
     st->c = a;
     if (a != st->d) ScreenFadeState.a = 0;
@@ -155,7 +130,7 @@ void UpdateScreenFade(a0) int a0; {
             st->b = 0;
         } else {
             if (t == 2) {
-                if (MenuFrameState == 0) SetDispMask(1);
+                if (MenuFrameState.s0 == 0) SetDispMask(1);
             }
             ScreenFadeState.b = ScreenFadeState.b + 1;
         }
@@ -166,32 +141,20 @@ void UpdateScreenFade(a0) int a0; {
     }
     {
         int t = *(int *)SCRATCHPAD;
-        *(int *)SCRATCHPAD = AddTileGrid2x2(CurrentDrawBuf + 0xB6C, t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
+        *(int *)SCRATCHPAD = AddTileGrid2x2(&CurrentDrawBuf->buffer.ordering70.words[703], t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
     }
     DrawMenuFrame(a0 >> 2);
     if (D_800F4D2C != 6 && D_800F4D2C != 8) {
-        func_8005B2D4(a0 & 1);
+        SetPresentationDrawEnabled(a0 & 1);
         StepCameraScript();
     }
 }
 
-#undef MenuFrameState
-
-/* legacy typing of shared globals in this part of the unit */
-#define ScreenFadeState (*(M2C_UNK (*))&ScreenFadeState)
-#define MenuFrameState (*(M2C_UNK (*))&MenuFrameState)
-
 void ClearScreenOverlayState(void) {
-    func_80096434(&MenuFrameState, 0x20);
-    func_80096434(&ScreenFadeState, 0xC);
+    PsyqBzero(&MenuFrameState, 0x20);
+    PsyqBzero(&ScreenFadeState, 0xC);
 }
 
-#undef ScreenFadeState
-#undef MenuFrameState
-
-/* legacy typing of shared globals in this part of the unit */
-#define ScreenFadeState (*(S_ACC68 (*))&ScreenFadeState)
-#define MenuFrameState (*(S_F4CB0 (*))&MenuFrameState)
 
 void DrawMenuFrame(int arg0) {
     R4 sp30;
@@ -289,8 +252,8 @@ void DrawMenuFrame(int arg0) {
 
     pc = D_80010440;
     sp40 = (((sp38 + 1) & 3) << 5) | 0x1E;
-    a1 = AddDrawAreaPrim(CurrentDrawBuf + 0x70, *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200);
-    a1 = AddSpriteWithDrawMode(CurrentDrawBuf + 0x70, a1, 0x10, 0x24, 0x20, 0x10, 0, 0x20, sp40, 0x7F38, 1, (unsigned short)s7);
+    a1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200);
+    a1 = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.words[0], a1, 0x10, 0x24, 0x20, 0x10, 0, 0x20, sp40, 0x7F38, 1, (unsigned short)s7);
     s1 = 0;
     s4 = 0x30;
     s5 = 0x24;
@@ -299,31 +262,31 @@ void DrawMenuFrame(int arg0) {
     c = D_8009EF3C[s6][0];
     while (c != -1) {
         r = &D_8009EE70[c];
-        a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, s4, s5, r, 0x7F38, ((unsigned short)s7 << 1) | 1);
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s4, s5, r, 0x7F38, ((unsigned short)s7 << 1) | 1);
         c = D_8009EF3C[s6][++s1];
         { int t = s4 + 2; s4 = t + r->w; }
     }
 
     if (MenuFrameState.w8 > 0) {
-        a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, s4, s5, &D_8009EEC8, 0x7F38, ((unsigned short)s7 << 1) | 1);
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s4, s5, &D_8009EEC8, 0x7F38, ((unsigned short)s7 << 1) | 1);
         D_8009EFF8.u = MenuFrameState.w8 * 8;
         { int t = s4 + 2; s4 = t + D_8009EEC8.w; }
-        a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, s4, s5, &D_8009EFF8, 0x7F38, 1, ((unsigned short)s7 << 1) | 1);
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s4, s5, &D_8009EFF8, 0x7F38, 1, ((unsigned short)s7 << 1) | 1);
     }
 
     a1 = AddTileSemiTransPrim(
-        CurrentDrawBuf + 0x70, a1, 8, 0x38, 0x130, 2,
+        &CurrentDrawBuf->buffer.ordering70.words[0], a1, 8, 0x38, 0x130, 2,
         col1 = *pc, col1, col1
     );
-    a1 = AddDrawModePrim(CurrentDrawBuf + 0x70, a1, sp40);
-    a1 = AddDrawAreaPrim(CurrentDrawBuf + 0x70, a1, MenuFrameState.s10, MenuFrameState.s12, MenuFrameState.s14, MenuFrameState.s16);
+    a1 = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, sp40);
+    a1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, MenuFrameState.s10, MenuFrameState.s12, MenuFrameState.s14, MenuFrameState.s16);
 
     for (j = 2; j < 7; j++) {
         s4 = D_8009EFD8[j];
         s5 = (j >= 2) ? 0x1BE : 0x1AA;
         sp30 = D_8009EE70[j];
         if ((unsigned int)(j - 3) < 2) {
-            s2 = (PlayerControllers[D_800AC5D4 & 1].w10 == 1);
+            s2 = (PlayerControllers[D_800AC5D4 & 1].protocol10 == 1);
             if (s2 == 1) {
                 sp30.u += 0x14;
                 if (j == 4) {
@@ -341,7 +304,7 @@ void DrawMenuFrame(int arg0) {
                 sp30.w -= 0x1E;
             }
         }
-        a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, s4, s5, &sp30, 0x7F38, ((unsigned short)s7 << 1) | 1);
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s4, s5, &sp30, 0x7F38, ((unsigned short)s7 << 1) | 1);
     }
 
     if (MenuFrameState.sE == 0) {
@@ -351,62 +314,54 @@ void DrawMenuFrame(int arg0) {
     }
     if (ScreenFadeState.a == 2) {
         j = sp38 + 0x7DBA;
-        a1 = AddTilePrim(CurrentDrawBuf + 0x70, a1, D_8009EFE8[7], y, 1, 0xC, 0xF0, 0x7A, 0x14);
-        a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, D_8009EFE8[7] + 8, s5, &D_8009EE70[s2], j, 0);
+        a1 = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, D_8009EFE8[7], y, 1, 0xC, 0xF0, 0x7A, 0x14);
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, D_8009EFE8[7] + 8, s5, &D_8009EE70[s2], j, 0);
     }
 
     col2 = *pc;
-    a1 = AddDrawModePrim(CurrentDrawBuf + 0x70, a1, sp40);
+    a1 = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, sp40);
     {
-        char *p;
+        u8 *p;
         int w, w2, w3, d;
         for (j = 3; j < 7; j++) {
-            a1 = AddTileSemiTransPrim(CurrentDrawBuf + 0x70, a1, D_8009EFE8[j], (j >= 3) ? y : 0x1A8, 1, 0xC, col2, col2, col2);
+            a1 = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, D_8009EFE8[j], (j >= 3) ? y : 0x1A8, 1, 0xC, col2, col2, col2);
             /* ASM_BARRIER: define p after last loop call so p is live-in to next block without crossing calls */
             __asm__("" : "=r"(p));
         }
         w = 0x130;
-        /* ASM_BARRIER: prevent constant folding of 0x130 into stack store */
-        __asm__("" : "+r"(w));
         /* ASM_BARRIER: create anti-dependency from p load to w2 birthing insn in sched1 */
         __asm__("" : "=r"(w2) : "0"(w), "r"(p));
         /* ASM_BARRIER: chain birthing insn w3 so 16(sp) store stall cycle is filled before a3=0x1B8 */
         __asm__("" : "=r"(w3) : "0"(w2));
         a1 = AddTileSemiTransPrim(
-            (p = CurrentDrawBuf) + 0x70, a1, 8, 0x1B8,
+            (p = CurrentDrawBuf->bytes) + 0x70, a1, 8, 0x1B8,
             (col3 = *pc, w3), 2,
             col3, col3, ({ /* ASM_BARRIER: keep w3 live past 16(sp) store so combine preserves w3 birthing insn */ __asm__("" : "=r"(d) : "r"(w3), "m"(*(char *)col3)); col3; })
         );
         if (MenuFrameState.bD != 1) {
-            a1 = AddTileSemiTransPrim(CurrentDrawBuf + 0x70, a1, 0xEE, 0x1C6, 0x16, 2, col3, col3, col3);
+            a1 = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, 0xEE, 0x1C6, 0x16, 2, col3, col3, col3);
         }
         if (MenuFrameState.bC != 1) {
-            a1 = AddTileSemiTransPrim(CurrentDrawBuf + 0x70, a1, 0xA8, 0x1C6, 0x12, 2, col3, col3, col3);
+            a1 = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, 0xA8, 0x1C6, 0x12, 2, col3, col3, col3);
             /* ASM_BARRIER: make REG_N_SETS > 1 to prevent birthing_insn_p boost in sched1 */
             __asm__ volatile("" : "+r"(col3), "=r"(p) : "m"(CurrentDrawBuf), "m"(CurrentDrawBuf), "m"(CurrentDrawBuf), "m"(CurrentDrawBuf), "m"(MenuFrameState.bC), "m"(MenuFrameState.bC));
         }
         /* ASM_BARRIER: extend live range of d so global-alloc assigns %hi(CurrentDrawBuf) to $s5 */
-        __asm__ volatile("" : : "r"(d));
-        a1 = AddDrawAreaPrim(CurrentDrawBuf + 0x70, a1, MenuFrameState.s18, MenuFrameState.s1A, MenuFrameState.s1C, MenuFrameState.s1E);
-        *(void **)SCRATCHPAD = AddDrawModePrim(CurrentDrawBuf + 0x70, a1, sp40);
+        __asm__ ("" : : "r"(d));
+        a1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, MenuFrameState.s18, MenuFrameState.s1A, MenuFrameState.s1C, MenuFrameState.s1E);
+        *(void **)SCRATCHPAD = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, sp40);
     }
 }
 
-#undef ScreenFadeState
-#undef MenuFrameState
+void SetMenuFrameOptions(s32 a, s32 b, s32 c) { MenuFrameState.sE = a; MenuFrameState.bC = b; MenuFrameState.bD = c; }
 
-void SetMenuFrameOptions(a, b, c) short a; int b; int c; { MenuFrameState.c = a; MenuFrameState.a = b; MenuFrameState.b = c; }
-
-/* legacy typing of shared globals in this part of the unit */
-#define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
-
-void DrawArrowTrianglePair(a0, a1, a2, a3, a4, a5) s32 a0; s32 a1; s32 a2; s32 a3; s32 a4; s32 a5; {
+void DrawArrowTrianglePair(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5) {
     s32 i, j, k, t0, sel, sg, off;
     register s32 s1 __asm__("$17"); /* ASM_BARRIER: pin i+1 to s1 so loop var i gets s2 (saved reg order) */
     s8 *tb;
-    RrVec2s *p, *bp;
+    Vec2s *p, *bp;
     char *ub;
-    struct { RrVec2s v[3]; s32 pad; B8 u; } w;
+    struct { Vec2s v[3]; s32 pad; B8 u; } w;
     i = 0;
     bp = w.v;
     tb = D_8009EFFC;
@@ -421,7 +376,7 @@ L1:
     off = j << 1;
     do {
         p->x = (*(s8 *)(off + (s32)tb) - a2) * sg + a0;
-        p->y = *(s8 *)(off + (s32)tb + 1) + a1;
+        p->y = ((s8 *)(off + tb))[1] + a1;
         off += 4;
         k++;
         p++;
@@ -430,32 +385,27 @@ L1:
     sel = 0;
     if (a5 == s1) sel = 0 < j;
     j++;
-    sg = CurrentDrawBuf + 0x70;
+    sg = &CurrentDrawBuf->buffer.ordering70.words[0];
     ub = (char *)&w.u;
-    t0 = func_8002071C(sg, t0, ((s32 *)w.v)[0], ((s32 *)w.v)[1], ((s32 *)w.v)[2], ub + sel * 4, 0);
+    t0 = EmitPolyF3(sg, t0, ((s32 *)w.v)[0], ((s32 *)w.v)[1], ((s32 *)w.v)[2], ub + sel * 4, 0);
     if (j < 2) goto L1;
     i = s1;
     if (i < 2) goto L0;
     *(s32 *)SCRATCHPAD = t0;
 }
 
-#undef CurrentDrawBuf
 
-/* legacy typing of shared globals in this part of the unit */
-#define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
-#define AddTilePrim ((s32 (*)())AddTilePrim)
-
-void DrawMenuStepArrows(p0, p1, p2, p3, p4, a5, a6) s32 p0; s32 p1; s32 p2; s32 p3; s32 p4; s32 a5; s32 a6; {
+void DrawMenuStepArrows(s32 p0, s32 p1, s32 p2, s32 p3, s32 p4, s32 a5, s32 a6) {
     s32 i, k, t0, g, sel, sg;
     register s32 one __asm__("$18"); /* ASM_BARRIER: pin s-reg order (saved reg priority) */
     s32 a3; 
     register s32 a4 __asm__("$20"); /* ASM_BARRIER: pin s-reg order (saved reg priority) */
     s32 a0, a1;
     s32 a2; 
-    RrVec2s *p, *bp;
+    Vec2s *p, *bp;
     char *ub;
     s8 *tb, *nv;
-    struct { RrVec2s v[3]; s32 pad; B8 u; } w;
+    struct { Vec2s v[3]; s32 pad; B8 u; } w;
     a0 = p0; a1 = p1; a2 = p2; a3 = p3;
     i = 0;
     bp = w.v;
@@ -478,42 +428,27 @@ L0:
         p++;
     } while (k < 3);
     if (a3 == one) g = 0;
-    if (g == one) {
+    if (g == one && i == 0) {
         sel = 1;
-        if (i != 0) goto B8;
     } else {
-B8:
         sel = 0;
         if (g == 2) sel = i == 1;
     }
     sel ^= a3;
-    if (a4 == a5) {
-        if (i != 0) goto B12;
-    } else {
-B12:
-        if (a4 == a6 - 1) {
-            if (i != one) goto B14;
-        } else {
-B14:
-            ub = (char *)&w.u;
-            t0 = func_8002071C(CurrentDrawBuf + 0x70, t0, ((s32 *)w.v)[0], ((s32 *)w.v)[1], ((s32 *)w.v)[2], ub + (sel << 2), 0);
-        }
+    if ((a4 != a5 || i != 0) && (a4 != a6 - 1 || i != one)) {
+        ub = (char *)&w.u;
+        t0 = EmitPolyF3(&CurrentDrawBuf->buffer.ordering70.words[0], t0, ((s32 *)w.v)[0], ((s32 *)w.v)[1], ((s32 *)w.v)[2], ub + (sel << 2), 0);
     }
     i++;
     if (i < 2) goto L0;
     *(s32 *)SCRATCHPAD = t0;
     if (a3 == 1) {
-        *(s32 *)SCRATCHPAD = AddTilePrim(CurrentDrawBuf + 0x70, t0, a0, a1 - 0xC, a3, 0x18, 0xFF, 0xFF, 0xFF);
+        *(s32 *)SCRATCHPAD = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], t0, a0, a1 - 0xC, a3, 0x18, 0xFF, 0xFF, 0xFF);
     }
 }
 
-#undef CurrentDrawBuf
-#undef AddTilePrim
 
-/* legacy typing of shared globals in this part of the unit */
-#define PlayerControllers (*(E (*)[])&PlayerControllers)
-
-void StepMenuValue(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4; {
+void StepMenuValue(int a0, int a1, char *a2, int a3, int a4) {
     int s0;
     int a;
     unsigned short b;
@@ -536,7 +471,7 @@ void StepMenuValue(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4;
         break;
     }
     if ((a0 & 1) == 0) {
-        b = PlayerControllers[a].b;
+        b = PlayerControllers[a].edges08.fields.repeat;
         if ((b & 0x8000) == 0) {
             if ((b & 0x2000) == 0) {
                 if (b & 0x1000) {
@@ -550,7 +485,7 @@ void StepMenuValue(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4;
             }
         }
     } else {
-        b = PlayerControllers[a].b;
+        b = PlayerControllers[a].edges08.fields.repeat;
         if ((b & 0x1000) == 0) {
           if ((b & 0x4000) == 0) {
             if (b & 0x8000) {
@@ -566,29 +501,28 @@ void StepMenuValue(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4;
           }
         }
         MenuStepDirection = 0;
-        goto M;
     }
-    goto M;
+    if (0) {
 L:
-    if ((a0 & 2) == 0) {
-        if (s0 < a3) {
-            if (s0 >= a4) {
-                PlaySfx(0, a);
+        if ((a0 & 2) == 0) {
+            if (s0 < a3) {
+                if (s0 >= a4) {
+                    PlaySfx(0, a);
+                } else {
+                    s0 = a4;
+                }
             } else {
-                s0 = a4;
+                s0 = a3 - 1;
             }
         } else {
-            s0 = a3 - 1;
-        }
-    } else {
-        PlaySfx(0, a);
-        if (s0 >= a3) {
-            s0 = a4;
-        } else if (s0 < a4) {
-            s0 = a3 - 1;
+            PlaySfx(0, a);
+            if (s0 >= a3) {
+                s0 = a4;
+            } else if (s0 < a4) {
+                s0 = a3 - 1;
+            }
         }
     }
-M:
     switch (a1) {
     case 2: *(short *)a2 = s0; break;
     case 4: *(int *)a2 = s0; break;
@@ -596,8 +530,6 @@ M:
     case -1: *(char *)a2 = s0; break;
     }
 }
-
-#undef PlayerControllers
 
 int FramesToMilliseconds(int a, int b)
 {
@@ -607,9 +539,7 @@ int FramesToMilliseconds(int a, int b)
     return q * 1000 + a;
 }
 
-void DrawRaceTime(a0, a1, b, a3, off)
-int a0; int a1; int b; int a3; int off;
-{
+void DrawRaceTime(int a0, int a1, int b, int a3, int off) {
     if (b >= 0) {
         int m = b / 1000;
         int r = m % 60;
@@ -648,14 +578,14 @@ void CopyStringClearTail(char *d, char *s)
     }
 }
 
-void CopyStringPadSpaces(d, s, n) char *d; unsigned char *s; int n; {
+void CopyStringPadSpaces(char *d, unsigned char *s, int n) {
     int i = 0;
     if (*s != 0) do { unsigned char c = *s; s++; d[i] = c; i++; } while (*s != 0);
     if (i < n) do { d[i] = 0x20; i++; } while (i < n);
     d[i] = 0;
 }
 
-void FormatDecimalDigits(a, b, c) char *a; int b; int c; {
+void FormatDecimalDigits(char *a, int b, int c) {
     int t;
     a[c] = b % 10 + 0x30;
     t = b / 10;
@@ -708,31 +638,27 @@ s = b / 1000; m = s / 60; r = s % 60; t = b % 1000;
   a[8] = 0x2D; a[7] = 0x2D; a[6] = 0x2D; a[4] = 0x2D; a[3] = 0x2D; a[1] = 0x2D; a[0] = 0x2D;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define PlayerCars (*(S_800ABEF8 (*)[])&PlayerCars)
-
 void DrawLapTimeList(int a0) {
     /* ASM_BARRIER: pin &PlayerCars[a0] base pointer to $a0 */
-    register S_800ABEF8 *p0 asm("a0");
-    /* ASM_BARRIER: reserve $v0 across NumLaps %hi address load so %hi(NumLaps) uses $v1 */
-    register int dummy asm("v0");
+    register RaceVehicle *p0 asm("$4");
+    int dummy;
     /* ASM_BARRIER: pin NumLaps value load to $v1 */
-    register int n asm("v1");
+    register int n asm("$3");
     int s7;
     int i;
     int s3;
     int v;
     int y;
-    RrSpritePacket *p;
+    SpritePacket *p;
 
-    s7 = PlayerCars[a0].s2A8;
+    s7 = PlayerCars[a0].control.dynamics94.steering.finish20;
     p0 = &PlayerCars[a0];
     /* ASM_BARRIER: combine PlayerCars[a0] address into $a0 and start $v0 live range before NumLaps %hi */
     __asm__("" : "+r"(p0), "=r"(dummy));
     v = NumLaps;
     /* ASM_BARRIER: order prologue stack stores before NumLaps %lo load and p0->s2A8 load in sched2 */
     __asm__("" : "=m"(*p0), "=m"(NumLaps) : "r"(dummy));
-    s7 = p0->s2A8;
+    s7 = p0->control.dynamics94.steering.finish20;
     n = NumLaps;
     if (n > 0) {
         i = 0;
@@ -747,7 +673,7 @@ void DrawLapTimeList(int a0) {
             v = LapTimes[i];
             y = i * 10 + 0x2C;
             DrawRaceTime(0xF0, y, v, s3, 0);
-            p = *(RrSpritePacket **)SCRATCHPAD;
+            p = *(SpritePacket **)SCRATCHPAD;
             p->len = 4;
             p->code = 0x64;
             p->x = 0xE7;
@@ -758,18 +684,16 @@ void DrawLapTimeList(int a0) {
             p->code |= 1;
             p->w = 0xC;
             p->h = 0xC;
-            AddPrim(CurrentDrawBuf + 0x70, p);
+            AddPrim(&CurrentDrawBuf->buffer.ordering70.words[0], p);
             p++;
-            *(RrSpritePacket **)SCRATCHPAD = p;
+            *(SpritePacket **)SCRATCHPAD = p;
             i++;
         } while (i < NumLaps);
     }
     DrawRaceTime(0xF0, 0x1C, BestLapTime, s3, 0);
 }
 
-#undef PlayerCars
-
-char *FormatFrameTimeMMSS(a) int a; {
+char *FormatFrameTimeMMSS(int a) {
     if (a >= 0) {
         int s = a / 25;
         int m = s / 60;
@@ -786,38 +710,37 @@ char *FormatFrameTimeMMSS(a) int a; {
 
 void DrawTimeRemaining(int a)
 {
-    char *p = CurrentDrawBuf + 0x226EC;
+    char *p = (CurrentDrawBuf->buffer.packets1670 + 0x2107C);
     int r = FormatFrameTimeMMSS(a);
     int i = a < 0x5DC;
     int t = D_8009F01C[i];
     int s = (NumLaps - 3) * 10 + 0x50;
-    DrawDigitString8(CurrentDrawBuf + 0x70, 0x111, s, r, t);
-    *(short *)(p + 0xA) = s;
+    DrawDigitString8(&CurrentDrawBuf->buffer.ordering70.words[0], 0x111, s, r, t);
+    ((short *)p)[5] = s;
 }
 
 void DrawTimeRemainingForPlayer(int a, int b)
 {
-    char *p = CurrentDrawBuf + (b * 120 + 0x226EC);
+    char *p = CurrentDrawBuf->buffer.packets1670 + (b * 120 + 0x2107C);
     char *q;
     int r;
     int i;
     int t;
     if (b == 0) {
-        q = CurrentDrawBuf + 0x70;
+        q = &CurrentDrawBuf->buffer.ordering70.words[0];
     } else {
-        q = CurrentDrawBuf + 0xB70;
+        q = &CurrentDrawBuf->buffer.secondaryOrderingB70.words[0];
     }
     r = FormatFrameTimeMMSS(a);
     i = a < 0x5DC;
     t = D_8009F01C[i];
-    DrawDigitString8(q, 0x111, *(short *)(p + 0xA), r, t);
+    DrawDigitString8(q, 0x111, ((short *)p)[5], r, t);
 }
 
-void FormatMillisecondsTime(int t)
+char *FormatMillisecondsTime(int t)
 {
     int a, b, c;
-    /* ASM_BARRIER: pins the D_8009F020 base to $v0 (original allocates it before the digit temporaries) */
-    register char *p asm("$2");
+    char *p;
 
     a = t / 1000;
     b = a / 60;
@@ -831,68 +754,69 @@ void FormatMillisecondsTime(int t)
     p[6] = a / 100 + '0';
     p[7] = a / 10 % 10 + '0';
     p[8] = a % 10 + '0';
+    return p;
 }
 
-void ResetVehicleShake(void *arg0) {
-    M2C_FIELD(arg0, s16 *, 0x1A0) = 0;
-    M2C_FIELD(arg0, s8 *, 0x1A4) = 0;
-    M2C_FIELD(arg0, s8 *, 0x1A5) = 0;
-    M2C_FIELD(arg0, s16 *, 0x1A2) = 0;
-    M2C_FIELD(arg0, s16 *, 0x19C) = 0;
-    M2C_FIELD(arg0, s16 *, 0x19E) = 0;
-    M2C_FIELD(arg0, s16 *, 0x198) = 0;
-    M2C_FIELD(arg0, s16 *, 0x19A) = 0;
-    M2C_FIELD(arg0, s16 *, 0x1B4) = 0;
-    M2C_FIELD(arg0, s16 *, 0x1B6) = 0;
-    M2C_FIELD(arg0, s16 *, 0x1B0) = 0;
-    M2C_FIELD(arg0, s16 *, 0x1B2) = 0;
-    M2C_FIELD(arg0, s16 *, 0x1B8) = 0;
-    M2C_FIELD(arg0, s16 *, 0x1BA) = 0;
+void ResetVehicleShake(RaceVehicle *vehicle) {
+    vehicle->impactFlags1A0 = 0;
+    vehicle->state1A4 = 0;
+    vehicle->stateTimer1A5 = 0;
+    vehicle->steerAngle1A2 = 0;
+    vehicle->shakeActive19C = 0;
+    vehicle->shakeTimer19E = 0;
+    vehicle->shakeX198 = 0;
+    vehicle->shakeY19A = 0;
+    vehicle->bumpPitch1B4 = 0;
+    vehicle->shakeRollOffset1B6 = 0;
+    vehicle->shakePitch1B0 = 0;
+    vehicle->shakeRoll1B2 = 0;
+    vehicle->steeringLock1B8 = 0;
+    vehicle->steerInput1BA = 0;
 }
 
-void StartCollisionShake(a0, a1) RrRaceVehicle *a0; int a1; {
-    short tv, s1, v1, s0;
-    int w, w2, z, sx, sy, sc;
-    unsigned short su;
-    a0->shakeActive19C = 1;
-    tv = 0x800 - a0->trackAngle1EC;
-    s1 = (tv + (a0->lateralVelF4 < 0 ? -0x400 : 0x400)) & 0xFFF;
-    if (a1 < 3) {
-        v1 = a0->input;
-        if (v1 > 0x320) {
-            su = 0x708;
-            if (v1 < 0x709) su = (unsigned short)a0->input;
-            w = (short)su * rsin((short)AngleDiffAbs(tv, a0->heading1D4));
-            s0 = w / 65536 + 4;
+void StartCollisionShake(RaceVehicle *vehicle, s32 impactKind) {
+    s16 reverseTrackHeading, perpendicularHeading, speed, strength;
+    int scaledSine, panCosine, pan, shakeX, shakeY, volume;
+    u16 boundedSpeed;
+    vehicle->shakeActive19C = 1;
+    reverseTrackHeading = 0x800 - vehicle->trackAngle1EC;
+    perpendicularHeading = (reverseTrackHeading + (vehicle->lateralVelF4 < 0 ? -0x400 : 0x400)) & 0xFFF;
+    if (impactKind < 3) {
+        speed = vehicle->input;
+        if (speed > 800) {
+            boundedSpeed = 1800;
+            if (speed < 1801) boundedSpeed = (u16)vehicle->input;
+            scaledSine = (s16)boundedSpeed * rsin((s16)AngleDiffAbs(reverseTrackHeading, vehicle->heading1D4));
+            strength = scaledSine / 65536 + 4;
         } else {
-            s0 = 0xC;
-            if (v1 < 0xF0) s0 = 0x1E;
+            strength = 12;
+            if (speed < 240) strength = 30;
         }
-        sx = (rsin(s1) * s0) >> 4;
-        sy = (rcos(s1) * s0) >> 4;
-        sc = 0x64;
-        a0->shakeTimer19E = 0x1E;
+        shakeX = (rsin(perpendicularHeading) * strength) >> 4;
+        shakeY = (rcos(perpendicularHeading) * strength) >> 4;
+        volume = 100;
+        vehicle->shakeTimer19E = 30;
     } else {
-        sx = (rsin(s1) * 8) >> 4;
-        sy = (rcos(s1) * 8) >> 4;
-        a0->shakeTimer19E = 0xF;
-        sc = 0x32;
+        shakeX = (rsin(perpendicularHeading) * 8) >> 4;
+        shakeY = (rcos(perpendicularHeading) * 8) >> 4;
+        vehicle->shakeTimer19E = 15;
+        volume = 50;
     }
-    a0->shakeX198 = sx;
-    a0->shakeY19A = sy;
-    if (a0->flags1E4 & 0x10) {
-        w2 = rcos(AngleDiffAbs(tv, a0->heading1D4)) >> 6;
-        if (a0->lateralVelF4 < 0) w2 = -w2;
-        z = w2 + 0x40;
-        if (a0 == &PlayerCars[0] || a0 == &PlayerCars[1]) {
-            if (ReplayState != 2) PlaySfxVolPan(0x21, sc, (short)z, -1);
+    vehicle->shakeX198 = shakeX;
+    vehicle->shakeY19A = shakeY;
+    if (vehicle->flags1E4 & 0x10) {
+        panCosine = rcos(AngleDiffAbs(reverseTrackHeading, vehicle->heading1D4)) >> 6;
+        if (vehicle->lateralVelF4 < 0) panCosine = -panCosine;
+        pan = panCosine + 0x40;
+        if (vehicle == &PlayerCars[0] || vehicle == &PlayerCars[1]) {
+            if (ReplayState != 2) PlaySfxVolPan(0x21, volume, (s16)pan, -1);
         }
     }
 }
 
-void SetVehicleShake(void *arg0, s16 arg1, s16 arg2) {
-    M2C_FIELD(arg0, s16 *, 0x19C) = 2;
-    M2C_FIELD(arg0, s16 *, 0x198) = arg1;
-    M2C_FIELD(arg0, s16 *, 0x19A) = arg2;
-    M2C_FIELD(arg0, s16 *, 0x19E) = 0xF;
+void SetVehicleShake(RaceVehicle *vehicle, s32 x, s32 y) {
+    vehicle->shakeActive19C = 2;
+    vehicle->shakeX198 = x;
+    vehicle->shakeY19A = y;
+    vehicle->shakeTimer19E = 15;
 }

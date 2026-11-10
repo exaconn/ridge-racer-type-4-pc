@@ -16,18 +16,25 @@ class IconSpritesTest(unittest.TestCase):
         def header(name):
             text=(ROOT/'include/rr'/name).read_text()
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-        body=(ROOT/'tools/scripts/fixtures/legacy/icon_sprites.c').read_text()
+        from c_functions import definition_source, source_owners
+        owner=source_owners(ROOT/'src/main/PAL')['EmitIconSpriteRow120']
+        text=owner.read_text();lines=text[text.index('#define RR_ICON_SPRITE_BODY'):].splitlines();macro=[]
+        for line in lines:
+            macro.append(line)
+            if not line.rstrip().endswith(chr(92)):break
+        body='\n'.join(macro)+'\n'+''.join(definition_source(text,n) for n in ('EmitIconSpriteRow120','EmitIconSpriteRow128'))
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         body=re.sub(r',?\s*"\$\d+"','',body)
-        assert body.count('(RrGpuScratchPointers*)0x1F800000U')==1
+        assert body.count('(GpuScratchPointers*)SCRATCHPAD')==1
         assert body.count('(u8*)0x800B0000U')==1
-        body=body.replace('(RrGpuScratchPointers*)0x1F800000U','&actual->scratch')
+        body=body.replace('(GpuScratchPointers*)SCRATCHPAD','&actual->scratch')
         # The translated page stays inside one byte array; subtracting33EC is
         # defined and lands on an eight-byte-aligned full native pointer slot.
         body=body.replace('(u8*)0x800B0000U','actual->ram+0x346C')
         code=r'''
 #include <assert.h>
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -35,13 +42,13 @@ class IconSpritesTest(unittest.TestCase):
 #include "types.h"
 ''' + header('gpu_scratch_types.h')+header('gpu.h') + header('animated_sprite_grid.h') + header('icon_sprites.h') + r'''
 typedef struct {
-    RrGpuScratchPointers scratch;
+    GpuScratchPointers scratch;
     u8 guard[32];
     u8 ram[0x4000] __attribute__((aligned(8)));
-    RrIconSpriteContext contexts[2];
+    FrameStorage contexts[2];
     u8 packets[192];
     u16 cluts[6];
-    u8 suffix[64];
+    u8 suffix[sizeof(FrameStorage)+64];
 } World;
 static World *actual,*expected;
 #define D_8001121C actual->cluts
@@ -57,8 +64,8 @@ static u32 read(const void *address,int size) {
 static void store(void *address,u32 value,int size) {
     u8 *bytes=locate(address,size);for(int i=0;i<size;i++)bytes[i]=value>>(8*i);
 }
-static RrIconSpriteContext *context(void) {
-    RrIconSpriteContext *pointer;memcpy(&pointer,expected->ram+0x80,sizeof(pointer));return pointer;
+static FrameStorage *context(void) {
+    FrameStorage *pointer;memcpy(&pointer,expected->ram+0x80,sizeof(pointer));return pointer;
 }
 static void reference(int variant,s32 index,s32 color) {
     u8 *p;memcpy(&p,&expected->scratch.cursor,sizeof(p));
@@ -68,39 +75,40 @@ static void reference(int variant,s32 index,s32 color) {
     u32 clut=read(&actual->cluts[index],2);
     store(p+4,color,1);store(p+5,color,1);store(p+6,color,1);
     store(p+12,(u32)index*24U+112U,1);store(p+13,172,1);
-    RrIconSpriteContext *captured=context();
+    FrameStorage *captured=context();
     store(p+14,clut,2);
-    store(p,(read(p,4)&0xFF000000U)|(read(&captured->head70,4)&0xFFFFFFU),4);
-    store(&captured->head70,(read(&captured->head70,4)&0xFF000000U)|((u32)(uintptr_t)p&0xFFFFFFU),4);
+    store(p,(read(p,4)&0xFF000000U)|(read(&captured->buffer.ordering70.words[0],4)&0xFFFFFFU),4);
+    store(&captured->buffer.ordering70.words[0],(read(&captured->buffer.ordering70.words[0],4)&0xFF000000U)|((u32)(uintptr_t)p&0xFFFFFFU),4);
     p+=20;memcpy(&expected->scratch.cursor,&p,sizeof(p));
     store(p+3,1,1);
     captured=context();
     store(p+4,0xE100023E,4);
-    store(p,(read(p,4)&0xFF000000U)|(read(&captured->head70,4)&0xFFFFFFU),4);
-    store(&captured->head70,(read(&captured->head70,4)&0xFF000000U)|((u32)(uintptr_t)p&0xFFFFFFU),4);
+    store(p,(read(p,4)&0xFF000000U)|(read(&captured->buffer.ordering70.words[0],4)&0xFFFFFFU),4);
+    store(&captured->buffer.ordering70.words[0],(read(&captured->buffer.ordering70.words[0],4)&0xFF000000U)|((u32)(uintptr_t)p&0xFFFFFFU),4);
     p+=8;memcpy(&expected->scratch.cursor,&p,sizeof(p));
 }
-static void slot(RrIconSpriteContext *pointer) {
+static void slot(FrameStorage *pointer) {
     memcpy(actual->ram+0x80,&pointer,sizeof(pointer));
 }
 static void initialize(u32 seed) {
     memset(actual,(u8)(seed^(seed>>8)),sizeof(*actual));
     actual->scratch.cursor=actual->packets;
     actual->scratch.order=0; /* This emitter uses the context, not scratch.order. */
-    actual->contexts[0].head70=seed*2654435761U;
-    actual->contexts[1].head70=~seed;
+    actual->contexts[0].buffer.ordering70.words[0]=seed*2654435761U;
+    actual->contexts[1].buffer.ordering70.words[0]=~seed;
     for(int i=0;i<6;i++)actual->cluts[i]=(u16)(seed*1717U+i*0x1234U);
     slot(&actual->contexts[0]);
 }
 static void check(int variant,int index,s32 color) {
     memcpy(expected,actual,sizeof(*actual));reference(variant,index,color);
-    if(variant)func_80059D34(index,color);else func_80059C28(index,color);
+    if(variant)EmitIconSpriteRow128(index,color);else EmitIconSpriteRow120(index,color);
     assert(!memcmp(actual,expected,sizeof(*actual)));
 }
 int main(int argc,char **argv) {
     assert(argc==2);
-    assert(sizeof(*actual)<65536);
-    assert(!posix_memalign((void**)&actual,65536,sizeof(*actual)));
+    assert(sizeof(*actual)<0x1000000);
+    assert(!posix_memalign((void**)&actual,0x1000000,sizeof(*actual)));
+    assert(((uintptr_t)actual>>24)==(((uintptr_t)actual+sizeof(*actual)-1)>>24));
     expected=malloc(sizeof(*expected));assert(expected);
     const s32 extremes[]={(-2147483647-1),-65536,-257,-256,-255,-1,0,1,127,128,255,256,257,65535,65536,2147483647};
     int mode=atoi(argv[1]);
@@ -125,7 +133,7 @@ int main(int argc,char **argv) {
             for(int offset=0;offset<28;offset+=4) {
                 initialize(index*17U+offset);
                 actual->scratch.cursor=actual->ram+0x500;
-                slot((RrIconSpriteContext*)(actual->ram+0x500+offset-0x70));
+                slot((FrameStorage*)(actual->ram+0x500+offset-0x70));
                 check(variant,index,-1);
             }
         }
@@ -135,7 +143,7 @@ int main(int argc,char **argv) {
             /* First head aliases the native context-pointer low word. The
              * head insertion preserves its upper byte and redirects the second
              * context capture to the first packet, whose head is112 bytes on. */
-            slot((RrIconSpriteContext*)(actual->ram+0x10));
+            slot((FrameStorage*)(actual->ram+0x10));
             check(variant,index,0x12345678);
         }
     }

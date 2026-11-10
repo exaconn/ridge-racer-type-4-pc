@@ -14,33 +14,32 @@ void ovl662_func_8011EFFC(s32 arg0) {
         ovl662_D_801276A8.optionIndices98.flat[3] = 1;
         return;
     }
-    if(arg0<=0) goto update;
-    if(arg0==2) goto key2;
-    if(arg0<3) {if(arg0==1) goto key1;goto done;}
-    if(arg0==4) goto key4;
-    if(arg0==8) goto key8;
-    goto done;
-key1:
-        ovl662_D_801276A8.optionIndices98.flat[0] = 0;
-        ovl662_D_801276A8.selectorsB8[3] = 0;
-        ovl662_func_8011E5C0(0);
-        return;
-key2:
-        ovl662_D_801276A8.optionIndices98.flat[0] = 2;
-        ovl662_D_801276A8.selectorsB8[3] = 2;
-        ovl662_func_8011E5C0(0);
-        return;
-key4:
-        ovl662_D_801276A8.optionIndices98.flat[3] = 0;
-        ovl662_D_801276A8.selectorsB8[2] = 0;
-        ovl662_func_8011E5C0(1);
-        return;
-key8:
-        ovl662_D_801276A8.selectorsB8[1] = 2;
-        ovl662_D_801276A8.selectorsB8[2] = 2;
-        ovl662_func_8011E5C0(1);
-        return;
-update:
+    if (arg0 > 0) {
+        switch (arg0) {
+        case 1:
+            ovl662_D_801276A8.optionIndices98.flat[0] = 0;
+            ovl662_D_801276A8.selectorsB8[3] = 0;
+            ovl662_func_8011E5C0(0);
+            return;
+        case 2:
+            ovl662_D_801276A8.optionIndices98.flat[0] = 2;
+            ovl662_D_801276A8.selectorsB8[3] = 2;
+            ovl662_func_8011E5C0(0);
+            return;
+        case 4:
+            ovl662_D_801276A8.optionIndices98.flat[3] = 0;
+            ovl662_D_801276A8.selectorsB8[2] = 0;
+            ovl662_func_8011E5C0(1);
+            return;
+        case 8:
+            ovl662_D_801276A8.selectorsB8[1] = 2;
+            ovl662_D_801276A8.selectorsB8[2] = 2;
+            ovl662_func_8011E5C0(1);
+            return;
+        default:
+            return;
+        }
+    }
         if ((ovl662_func_8011E734(2) == 0) && (ovl662_D_80127668.words[1] & 1)) {
             if (ovl662_D_80127668.words[0] & 4) {
                 ovl662_func_8011E694();
@@ -54,7 +53,7 @@ update:
                 ovl662_D_801276A8.saved64[4] = 1;
             }
             ovl662_func_8011D120();
-            ((RrGarageButton *)ovl662_D_801273B8[2])->timer0E = 7;
+            ((GarageButton *)ovl662_D_801273B8[2])->timer0E = 7;
             PlaySfx(1);
             var_t2 = 0;
             if (ovl662_D_801276A8.layer23 == 0) {
@@ -82,6 +81,4 @@ loop_23:
                 var_t0 += 8;
             } while (var_t2 < 0x40);
         }
-        return;
-done:;
 }

@@ -3,6 +3,10 @@
 
 #include "types.h"
 
-int _padSetActAlign();
+s32 _padSetActAlign(void *channel, u8 *layout);
+void _padSendActInfoCmd(void *channel);
+s32 _padRecvActInfoReply(void *channel);
+void _padActAlignUpdate(void *channel);
+s32 _padActAlignComplete(void *channel);
 
 #endif /* RR_PSYQ_LIBPAD_PADPATCH_H */

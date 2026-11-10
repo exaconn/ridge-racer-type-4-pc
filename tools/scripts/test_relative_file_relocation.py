@@ -5,14 +5,17 @@ import subprocess
 import tempfile
 import unittest
 
+from c_functions import definition_source, source_owners
+
 
 class RelativeFileRelocationTest(unittest.TestCase):
     def test_native_owner_and_wrapped_counts(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'tools/scripts/fixtures/views/func_8007026C.c').read_text().replace('#include "rr/relative_file.h"','')
+        owner=source_owners(root/'src/main/PAL')['RelocateRelativeFile']
+        body=definition_source(owner.read_text(),'RelocateRelativeFile')
         body=re.sub(r'\s+(?:asm|__asm__)\("\$\d+"\)', '', body)
         body=re.sub(r'__asm__\(""[^;]*;','',body)
-        names=['D_800F29E0','D_800F4D34','D_800ADAE8','D_800F4D28','D_800F4C60','D_800ABEA8','D_800F4C20','D_800ABE9C','D_800FFC40','D_800F4C30','D_800ABEA0','D_800F4C78','D_800ABEB8','D_800F4C6C','D_800ABEB4','D_800ACC04']
+        names=['RelFileSection00','RelFileSection01','D_800ADAE8','RelFileOffsetPtr3','D_800F4C60','RelFileSection05','RelFileOffsetPtr6','RelFileOffsetPtr7','D_800FFC40','RelFileOffsetPtr9','D_800ABEA0','RelFileSection11','RelFileOffsetPtr12','RelFileOffsetPtr13','D_800ABEB4','RelFileSection15']
         prefix=r'''
         #include <stdint.h>
         #include <stddef.h>
@@ -28,21 +31,23 @@ class RelativeFileRelocationTest(unittest.TestCase):
         static struct World {
          u32 before[16];
          struct File {
-          RrRelativeHeader header;
-          RrRelativeSlot entries[128];
+          RelativeHeader header;
+          RelativeSlot entries[128];
           u8 payload[128];
          } file;
-         RrRelativeHeader *root;
+         RelativeHeader *root;
          s32 count;
-         RrRelativeSlot *entries;
-         u8 *first,*second,*outputs[16];
+         RelativeSlot *entries;
+         u8 *first;
+         CourseViewRecord *second;
+         u8 *outputs[16];
          u32 after[16];
         } world,initial,expected;
         #define D_800F2EBC world.root
         #define D_800F39A4 world.count
         #define D_800F3820 world.entries
         #define D_800F391C world.first
-        #define D_800F2EB4 world.second
+        #define RelFileViewRecords world.second
         '''
         prefix+=''.join('#define '+n+' world.outputs['+str(i)+']\n' for i,n in enumerate(names))
         source=prefix+body+r'''
@@ -57,7 +62,7 @@ class RelativeFileRelocationTest(unittest.TestCase):
          return (u8*)&world+offsetof(struct World,file.header)+offset;
         }
         static void reference(void){
-         RrRelativeHeader *header=&world.file.header;
+         RelativeHeader *header=&world.file.header;
          u32 count=header->count,n=count*8U,i;
          u8 *a=address(header->first[0].relative);
          u8 *b=address(header->first[1].relative);
@@ -66,7 +71,7 @@ class RelativeFileRelocationTest(unittest.TestCase):
          header->first[1].absolute=b;
          world.first=b;
          header->first[2].absolute=address(header->first[2].relative);
-         world.second=header->first[2].absolute;
+         world.second=(CourseViewRecord*)header->first[2].absolute;
          for(i=0;i<16;i++) world.outputs[i]=address(header->offsets[i]);
          world.entries=world.file.entries;
          for(i=0;i<n;i++) world.file.entries[i].absolute=address(world.file.entries[i].relative);
@@ -75,7 +80,7 @@ class RelativeFileRelocationTest(unittest.TestCase):
          u32 k,i;
          assert(sizeof(void*)==8 && sizeof(unsigned long)==sizeof(void*));
          assert((uintptr_t)&world>UINT32_MAX);
-         assert(offsetof(struct File,entries)==sizeof(RrRelativeHeader));
+         assert(offsetof(struct File,entries)==sizeof(RelativeHeader));
          for(k=0;k<131072;k++){
           u32 records=k%17;
           for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();
@@ -86,7 +91,7 @@ class RelativeFileRelocationTest(unittest.TestCase):
           world.root=&world.file.header;
           world.count=0xdeadbeef;
           world.entries=world.file.entries+128;
-          world.first=world.second=world.file.payload;
+          world.first=world.file.payload;world.second=(CourseViewRecord*)world.file.payload;
           for(i=0;i<16;i++)world.outputs[i]=world.file.payload+i;
           memcpy(&initial,&world,sizeof(world));
           reference();memcpy(&expected,&world,sizeof(world));

@@ -1,7 +1,7 @@
 #include "rr/overlay662_garage.h"
 #include "rr/animated_sprite_grid.h"
 
-#define RR_GARAGE_SCRATCH ((RrGpuScratchPointers *)0x1F800000U)
+#define RR_GARAGE_SCRATCH ((GpuScratchPointers *)0x1F800000U)
 
 /* Local views of the overlay primitive helpers: this unit passes the
  * rectangle coordinates as signed 16-bit values. */
@@ -15,8 +15,8 @@ u8 *ovl662_func_8011B1CC(u32 *ordering, u8 *cursor, s16 x, s16 y, s16 w, s16 h,
  * image at the current zoom (config1C) and its frame. */
 void ovl662_func_8011C83C(s32 renderArgument)
 {
-    RrGpuScratchPointers *scratch;
-    RrGarageSelectionPrefix *garage;
+    GpuScratchPointers *scratch;
+    GarageSelectionPrefix *garage;
     u32 *order0, *order1, *order;
     u16 x, y, w, h;
     s16 size, size2;

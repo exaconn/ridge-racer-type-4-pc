@@ -3,8 +3,8 @@ u64 __floatsidf(s32 a0)
 {
     unsigned s3 = 0;
     int s2;
-    union { u64 bits; RrWide64 s; } r;
-    RrWide64 t;
+    union { u64 bits; Wide64 s; } r;
+    Wide64 t;
     /* ASM_BARRIER: Keep the sign accumulator distinct from literal zero results. */
     __asm__("" : "+r"(s3));
     s2 = 0x41D;

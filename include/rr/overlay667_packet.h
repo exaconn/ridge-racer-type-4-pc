@@ -6,24 +6,24 @@
  * choice records. XOR covers the entire eight-byte payload. */
 typedef struct {
     u8 flags00,checksum01,status02,phase03;
-    RrMenuChoice4 first04,second08;
-} RrOverlay667SerialPacket;
+    MenuChoice4 first04,second08;
+} Overlay667SerialPacket;
 /* Initialization clears aligned words; serial transfer and payload copy use
  * the byte-aligned record view. Both views belong to the same full owner. */
 typedef union {
-    RrOverlay667SerialPacket packet;
+    Overlay667SerialPacket packet;
     u32 words[3];
-} RrOverlay667SerialStorage;
+} Overlay667SerialStorage;
 typedef union {
-    RrOverlay667SerialPacket packets[8];
+    Overlay667SerialPacket packets[8];
     u32 words[24];
-} RrOverlay667SerialRing;
+} Overlay667SerialRing;
 typedef union {
-    RrMenuChoice4 choices[2];
+    MenuChoice4 choices[2];
     u32 words[2];
-} RrOverlay667ChoicePair;
-extern RrOverlay667SerialStorage ovl667_D_80118F80,ovl667_D_80118F10;
-extern RrOverlay667ChoicePair D_800F3AF0;
+} Overlay667ChoicePair;
+extern Overlay667SerialStorage ovl667_D_80118F80,ovl667_D_80118F10;
+extern Overlay667ChoicePair D_800F3AF0;
 extern u8 ovl667_D_80118F09,ovl667_D_80118EEF;
 extern s32 RaceState,ovl667_D_80118EEC;
 /* BIOS B0 service35: write count bytes, returning the transferred count. */
@@ -31,8 +31,8 @@ s32 FileWrite(s32 descriptor,const void *buffer,s32 count);
 s32 ovl667_func_80114D30(void);
 /* Eight stored serial records, from 80118F20 through 80118F7F. Ring indices
  * used for payload access must remain in0..7, including after service calls. */
-extern RrOverlay667SerialRing ovl667_D_80118F20;
-extern RrOverlay667ChoicePair D_800ACBE0,D_800ACBF0;
+extern Overlay667SerialRing ovl667_D_80118F20;
+extern Overlay667ChoicePair D_800ACBE0,D_800ACBF0;
 extern s32 ovl667_D_80118ED0,ovl667_D_80118ED4;
 extern s32 ovl667_D_80118EC8,ovl667_D_80118EF4;
 extern s32 ovl667_D_80118EF8,ovl667_D_80118EFC;
@@ -50,10 +50,10 @@ s32 ovl667_func_80114E34(void);
  * The transmitted phase is the low byte of the little-endian EEC word. */
 void ovl667_func_80115068(void);
 void ovl667_func_801151E0(void);
-RR_ASSERT_SIZE(RrOverlay667SerialPacket,12);
-RR_ASSERT_OFFSET(RrOverlay667SerialPacket,first04,4);
-RR_ASSERT_OFFSET(RrOverlay667SerialPacket,second08,8);
-RR_ASSERT_SIZE(RrOverlay667SerialStorage,12);
-RR_ASSERT_SIZE(RrOverlay667SerialRing,96);
-RR_ASSERT_SIZE(RrOverlay667ChoicePair,8);
+RR_ASSERT_SIZE(Overlay667SerialPacket,12);
+RR_ASSERT_OFFSET(Overlay667SerialPacket,first04,4);
+RR_ASSERT_OFFSET(Overlay667SerialPacket,second08,8);
+RR_ASSERT_SIZE(Overlay667SerialStorage,12);
+RR_ASSERT_SIZE(Overlay667SerialRing,96);
+RR_ASSERT_SIZE(Overlay667ChoicePair,8);
 #endif

@@ -1,7 +1,9 @@
+#include "game/system/pad.h"
 #include "rr/overlay662_progress_controller.h"
+#include "rr/frame_storage_types.h"
 #include "rr/course_choice_types.h"
 
-extern RrCourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[2][9];
 extern s16 MenuCursor;
 extern u8 D_800F4368[];
 void SetModelTexturePage(s32 mode);
@@ -28,7 +30,7 @@ void ovl662_func_80114C4C(void)
         UiRows[MenuCursor].cells[0] = 0;
         StepMenuValue(0, 2, (char *)&MenuCursor, 3, 0);
         UiRows[MenuCursor].cells[0] = state;
-        if (PlayerControllers[0].a) {
+        if (PlayerControllers[0].action28) {
             SetMenuFrameOptions(0, 1, 1);
             UiRows[MenuCursor].cells[0] = 1;
             if (MenuCursor == 0) {
@@ -67,7 +69,7 @@ void ovl662_func_80114C4C(void)
                 D_800AC5D0 = 64;
                 SeqFadeVolume(0, 60);
             }
-        } else if (PlayerControllers[0].b) {
+        } else if (PlayerControllers[0].action2C) {
             PlaySfx(2);
             SetModelTexturePage(-1);
             D_800F4D8A = 8;
@@ -83,7 +85,7 @@ void ovl662_func_80114C4C(void)
         break;
     case 3:
         D_800AC5D0--;
-        AddScreenFadeTiles(((RrFrameOrderingPrefix *)CurrentDrawBuf)->ordering70,
+        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,
                       (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             ModeGroup = 1;
@@ -93,7 +95,7 @@ void ovl662_func_80114C4C(void)
         break;
     case 4:
         D_800AC5D0--;
-        AddScreenFadeTiles(((RrFrameOrderingPrefix *)CurrentDrawBuf)->ordering70,
+        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,
                       (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             InitTimTemplate(D_800F4368);
@@ -105,7 +107,7 @@ void ovl662_func_80114C4C(void)
         break;
     case 8:
         D_800AC5D0--;
-        AddScreenFadeTiles(((RrFrameOrderingPrefix *)CurrentDrawBuf)->ordering70,
+        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,
                       (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             ModeGroup = 1;

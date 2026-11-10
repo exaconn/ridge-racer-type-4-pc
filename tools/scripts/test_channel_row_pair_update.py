@@ -25,8 +25,8 @@ typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-RrChannelValueRecordB0 test_records[9][17];
-RrChannelValueRecordB0 *test_table[0x4100];
+ChannelValueRecordB0 test_records[9][17];
+ChannelValueRecordB0 *test_table[0x4100];
 void (*test_callback)(s32,s32,s32,s32);
 void _SsVmSetSeqVol(s32 packed,s32 left,s32 right,s32 mode) {
  test_callback(packed,left,right,mode);
@@ -40,7 +40,7 @@ void test_initialize(void) {
 '''
         body = (root / 'tools/scripts/fixtures/views/func_80084154.c').read_text()
         body = body.replace('#include "rr/channels.h"', '')
-        body = body.replace('(RrChannelValueRecordB0 **)0x80110000U', '(test_table + 0x4000)')
+        body = body.replace('(ChannelValueRecordB0 **)0x80110000U', '(test_table + 0x4000)')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
         source += body

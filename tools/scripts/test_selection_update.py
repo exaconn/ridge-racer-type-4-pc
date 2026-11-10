@@ -18,9 +18,9 @@ code=r'''
 #define RR_ASSERT_OFFSET(t,f,o) _Static_assert(offsetof(t,f)==o,"native layout")
 #include "rr/selection.h"
 static u8 actual[0x3000],expected[0x3000],rom[2048];
-static struct {u8 prefix[0x4D98];RrSelectionRows value;u8 guard[16];} row_owner;
+static struct {u8 prefix[0x4D98];SelectionRows32 value;u8 guard[16];} row_owner;
 #define native_rows_value row_owner.value
-static RrSelectionRows expected_rows;
+static SelectionRows32 expected_rows;
 #define SelectionState ((s8*)actual)
 #define D_800AD4EC actual[0x14]
 #define SelectionRows native_rows_value
@@ -56,7 +56,7 @@ static void reference(void) {
 }
 int main(void) {
  unsigned phase,level,seed,k;u32 random;
- assert(sizeof(RrSelectionStatePrefix)==0x20);
+ assert(sizeof(SelectionStatePrefix)==0x20);
  assert(offsetof(typeof(row_owner),value)==0x4D98);
  memset(row_owner.prefix,0xD7,sizeof(row_owner.prefix));
  memset(row_owner.guard,0xE8,sizeof(row_owner.guard));

@@ -11,14 +11,14 @@ typedef struct {
     u8 pad06[2];
     volatile u16 target;
     u8 pad0A[6];
-} RrRootCounterRegisters;
+} RootCounterRegisters;
 
-extern RrRootCounterRegisters *RCNT_REGS;
+extern RootCounterRegisters *RCNT_REGS;
 /* The selector is its unsigned low halfword; selectors outside 0..2 return 0. */
 s32 GetRCnt(u32 selector);
 
-RR_ASSERT_SIZE(RrRootCounterRegisters, 0x10);
-RR_ASSERT_OFFSET(RrRootCounterRegisters, mode, 4);
-RR_ASSERT_OFFSET(RrRootCounterRegisters, target, 8);
+RR_ASSERT_SIZE(RootCounterRegisters, 0x10);
+RR_ASSERT_OFFSET(RootCounterRegisters, mode, 4);
+RR_ASSERT_OFFSET(RootCounterRegisters, target, 8);
 
 #endif

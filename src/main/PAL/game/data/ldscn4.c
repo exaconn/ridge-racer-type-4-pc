@@ -1,19 +1,19 @@
 /* RODATA 0x8001083c 0x1c */
 #include "game/data/cdfile2.h"
+#include "rr/load_cursor.h"
 #include "game/data/trkld6.h"
 #include "game/gfx/fadespr.h"
 #include "game/data/ldscn4.h"
 #include "game/data/cdfile1.h"
-#include "game/data/cdfile2.h"
 #include "rr/course_choices.h"
-extern void LoadTimList();
-extern void RaceLoadReset();
-extern int PsyqRand();
+#include "game/course/trkintp2.h"
+#include "game/data/trkld1.h"
+#include "psyq/libc/rand.h"
 extern int CdDirectoryBuffer;
-extern int D_800F4D40;
+extern int MenuArenaBase;
 extern unsigned char LoadState;
 
-int func_8003BD2C(void) {
+int LoadAttractTimStep(void) {
     int r = 0;
     int t;
     switch (LoadState) {
@@ -42,13 +42,13 @@ int func_8003BD2C(void) {
         if (t != 0) {
             LoadCursor += t;
             LoadState = 5;
-            D_800F4D40 = LoadCursor;
+            MenuArenaBase = LoadCursor;
             RaceLoadReset();
         }
         break;
     case 5:
-        if (func_8004E990() == 1) {
-            func_8005C13C(PsyqRand() & 1);
+        if (LoadAttractRaceStep() == 1) {
+            InitDemoFadeContext(PsyqRand() & 1);
             LoadState = 6;
     case 6:
             r = 1;

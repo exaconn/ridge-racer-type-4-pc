@@ -7,9 +7,9 @@
 #include "rr/cd.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6764 (*(u8 (*)[2])&D_800A6764)
+#define CD_intr_status (*(u8 (*)[2])&CD_intr_status)
 
-#undef D_800A6764
+#undef CD_intr_status
 
 s32 CD_getsector(u8 *a0, u32 a1) {
     volatile unsigned char *p;

@@ -1,5 +1,6 @@
 #include "rr/course_choices.h"
-extern RrCourseChoice4 ovl661_D_80118458[2][2][9];
+#include "rr/load_cursor.h"
+extern CourseChoice4 ovl661_D_80118458[2][2][9];
 extern s16 ovl661_D_80118450[2],ovl661_D_8011844C[2];
 void ovl661_func_80115F8C(void)
 {

@@ -2,7 +2,7 @@
 #define RR_OVERLAY662_PALETTE_EDIT_H
 #include "rr/overlay662_image_drag.h"
 #include "rr/palette16.h"
-/* Palette pointers address words[0] of a complete32-byte RrPalette16 owner.
+/* Palette pointers address words[0] of a complete32-byte Palette16 owner.
  * active21 is0/1 and config22 is0..15. Active horizontal clips give x149..212
  * (component0..31). Backup copies both512-word images and8 palette words. */
 extern s32 ovl662_D_80127780,ovl662_D_80127788,ovl662_D_80127790;

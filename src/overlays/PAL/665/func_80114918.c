@@ -1,15 +1,15 @@
 #include "rr/overlay665_visual.h"
 #ifndef RR_PROJECTION_SCRATCH
-#define RR_PROJECTION_SCRATCH ((RrProjectionScratchPrefix *)0x1F800000)
+#define RR_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)0x1F800000)
 #endif
 void ovl665_func_80114918(void)
 {
-    RrOverlay665VisualState *state;
-    RrProjectionScratchPrefix *scratch;
+    Overlay665VisualState *state;
+    ProjectionScratchPrefix *scratch;
     SetDispMask(0);
     SetupDrawDispEnvs(0,0,0,2);
     state=&ovl665_D_80119768;
-    func_80096434(state,160);
+    PsyqBzero(state,160);
     state->lighting4C.matrix.signedHalves[6]=4500;
     state->lighting4C.matrix.signedHalves[7]=-4096;
     state->lighting4C.matrix.signedHalves[8]=-8000;
@@ -20,8 +20,8 @@ void ovl665_func_80114918(void)
     state->lighting4C.matrix.bytes[8]=0;state->lighting4C.matrix.bytes[9]=0;state->lighting4C.matrix.bytes[10]=0;
     state->lighting4C.ambient[0]=64;state->lighting4C.ambient[1]=64;state->lighting4C.ambient[2]=64;
     scratch=RR_PROJECTION_SCRATCH;
-    scratch->word08=0;scratch->word0C=0;scratch->word10=0;
-    scratch->word18=0;scratch->word1C=0;scratch->word20=0;
+    scratch->pose08.position00.words[0]=0;scratch->pose08.position00.words[1]=0;scratch->pose08.position00.words[2]=0;
+    scratch->pose08.angles10.xyz.x=0;scratch->pose08.angles10.xyz.y=0;scratch->pose08.angles10.xyz.z=0;
     ResetScreenCounters();
     D_800F4CA8=2;ModeGroup=2;D_800F3A26=2;D_800F4D8A=0;
 }

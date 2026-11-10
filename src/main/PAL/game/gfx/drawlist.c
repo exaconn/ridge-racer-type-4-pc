@@ -1,6 +1,8 @@
 /* RODATA 0x800101f4 0xd8 */
 /* CC1_FLAGS: -fno-strength-reduce */
 #include "types.h"
+#include "rr/frame_storage_types.h"
+#include "rr/load_cursor.h"
 #include "scratchpad.h"
 #include "rr_asm.h"
 #include "rr/animated_sprite_grid.h"
@@ -10,122 +12,50 @@
 #include "game/gfx/skyrot1.h"
 #include "game/sound/cdstop.h"
 #include "game/effect/spfade.h"
-#include "game/gfx/skyrot1.h"
 #include "game/data/ldscn5.h"
-#include "game/gfx/skyrot1.h"
 #include "game/data/cdfile1.h"
-#include "game/data/cdfile2.h"
 #include "rr/sprite_preset.h"
 #include "rr/menu_background.h"
 #include "rr/memory.h"
 #include "game/gfx/gfxotag.h"
 #include "game/gfx/model.h"
 #include "game/gfx/polygt4.h"
-#include "game/gfx/drawbuf.h"
+#include "rr/badge_row_types.h"
+#include "rr/menu_text_state.h"
+#include "rr/course_choices.h"
+#include "rr/screen_tiles.h"
+#include "game/course/trkintp2.h"
+#include "game/camera/viewcam.h"
+#include "game/menu/mnrows.h"
+#include "game/data/ldscn1.h"
+#include "game/ui/uibar.h"
+#include "game/ui/uidraw.h"
+#include "game/sound/cdplay.h"
+#include "game/sound/cdstart.h"
 
 #define G D_8010BF78
 #define H BadgeRows
-#define K D_800AC590
-#define SPP (*(struct P **)SCRATCHPAD)
-#define SPO (*(struct P **)(SCRATCHPAD + 0x4))
+#define K CardDialogueStatePtr
 #define SPAD ((int *)SCRATCHPAD)
 #define CURSOR (scratch->cursor)
 #define ORDER (order_page->order)
 
-struct GS {
-    char pad0[0x40];
-    short *p40;
-    short s44;
-    short s46;
-    short s48;
-    short s4A;
-    short s4C;
-    short s4E;
-    short s50;
-    short s52;
-    short s54;
-    short s56;
-    short s58;
-    short s5A;
-    short s5C;
-    short s5E;
-    short s60;
-    short s62;
-    short s64;
-    short s66;
-    short s68;
-    short s6A;
-    short s6C;
-    short s6E;
-    short s70;
-    short s72;
-    short s74;
-    short s76;
-    short s78;
-    short s7A;
-    short s7C;
-    short s7E;
-    short s80;
-    short s82;
-    short s84;
-    short s86;
-    short s88;
-    short s8A;
-    short s8C;
-    short s8E;
-    short s90;
-    short s92;
-    short s94;
-    short s96;
-    short s98;
-    short s9A;
-    short s9C;
-    short s9E;
-    short sA0;
-    unsigned short uA2;
-    short sA4;
-    short sA6;
-    short sA8;
-    short sAA;
-    short sAC;
-    short sAE;
-    short sB0;
-};
 
 struct V16 { int w[4]; };
 
 struct SPD { struct P *cur; struct OT *ot; };
 
-struct HS { short s0; short s2; short s4; short s6; };
-
-struct KS { char pad[4]; unsigned char b4; };
-
-union H { struct P *p; struct { char pad[3]; unsigned char len; } b; };
+union H { struct P *p; struct { char link[3]; unsigned char len; } b; };
 
 struct P { union H h; int w[4]; };
 
 struct OT { int x; union H h; };
 
-extern int AddScreenFadeTiles();
-extern int ClearScreenOverlayState();
-extern int UpdateDialogue();
-extern int ResetScreenCounters();
-extern int InitMenuArenas();
-extern int func_8003B934();
-extern int InitBadgeRow();
-extern int UpdateBadgeRowAnim();
-extern int LoadTimImage();
+extern void ClearScreenOverlayState();
 extern int CdAudioInit();
-extern int CdAudioSelectTrack();
-extern int CdAudioBeginPlay();
-extern int CdAudioFade();
-extern int SetupViewport();
 extern int SetGeomOffset();
-extern struct GS *D_8010BF78;
-extern struct HS *BadgeRows;
-extern struct KS *D_800AC590;
+extern BadgeRow1C *BadgeRows;
 extern short D_800AC5D0;
-extern char *LoadCursor;
 extern char ScreenFadeState;
 extern short D_800F3A26;
 extern short MenuScriptId;
@@ -134,20 +64,20 @@ extern int D_800F4CA8;
 extern short D_800F4D8A;
 extern short D_8009E4EC;
 extern char *CdDirectoryBuffer;
-extern char D_800101EC[];
-extern char D_8009E510[];
-extern char D_8009E520[];
-extern char D_8009E530[];
+extern const Vec3s8 D_800101EC;
+extern const VectorWords16 D_8009E510;
+extern const VectorWords16 D_8009E520;
+extern const VectorWords16 D_8009E530;
 extern char D_8009E540[];
 
-void func_8001C14C();
-void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state);
+void StepIntroScene();
+void EmitSpriteGrid(u32 intensity,SpriteGridClock *state);
 
-void func_8001C14C() {
+void StepIntroScene(void) {
     int temp_s5;
-    register struct GS *g asm("$2"); /* ASM_BARRIER: pin G reload pointer to $v0 */
-    register struct GS *g_a0 asm("$4"); /* ASM_BARRIER: pin G reload pointer to $a0 in case 0x2F */
-    register struct GS *g_v1 asm("$3"); /* ASM_BARRIER: pin G reload pointer to $v1 in case 0x32 */
+    register IntroSceneState *g asm("$2"); /* ASM_BARRIER: pin G reload pointer to $v0 */
+    register IntroSceneState *g_a0 asm("$4"); /* ASM_BARRIER: pin G reload pointer to $a0 in case 0x2F */
+    register IntroSceneState *g_v1 asm("$3"); /* ASM_BARRIER: pin G reload pointer to $v1 in case 0x32 */
     int temp_a0;
     int temp_a0_10;
     int temp_a0_2;
@@ -174,7 +104,7 @@ void func_8001C14C() {
     short *temp_a1_7;
     short *temp_a1_8;
     short *temp_a1_9;
-    register int temp_t0 asm("$8"); /* ASM_BARRIER: pin clamped color temp to $t0 */
+    int temp_t0; /* ASM_BARRIER: pin clamped color temp to $t0 */
     int temp_v0;
     int temp_v1;
     int temp_v1_10;
@@ -194,12 +124,12 @@ void func_8001C14C() {
     int v0;
     struct V16 *dv;
     register char *src asm("$2"); /* ASM_BARRIER: pin src to $2 as in original copy sequence */
-    register int *st asm("$4"); /* ASM_BARRIER: pin state pointer to $a0 */
-    register int *st_v1 asm("$3"); /* ASM_BARRIER: pin state pointer to $v1 in case 0x2F */
+    int *st; /* ASM_BARRIER: pin state pointer to $a0 */
+    int *st_v1; /* ASM_BARRIER: pin state pointer to $v1 in case 0x2F */
     register int c80 asm("$3"); /* ASM_BARRIER: pin hoisted 0x80 constant to $v1 in case 0x2F */
     register int c8 asm("$2"); /* ASM_BARRIER: pin 8 constant to $v0 in case 0x32 */
     int *sp1, *sp2, *sp3, *sp4;
-    register int *tabq asm("$3"); /* ASM_BARRIER: pin GTE IR table pointer to $v1 */
+    int *tabq; /* ASM_BARRIER: pin GTE IR table pointer to $v1 */
     int *tabr;
     register int c_800060 asm("$7"); /* ASM_BARRIER: pin 0x800060 constant to $a3 in block_241 */
     register int c_800080 asm("$6"); /* ASM_BARRIER: pin 0x800080 constant to $a2 in block_241 */
@@ -213,46 +143,31 @@ void func_8001C14C() {
     int var_v0;
     int var_v0_2;
     int var_v0_3;
-    register int var_v0_4 asm("$2"); /* ASM_BARRIER: pin clamp result to $v0 */
+    int var_v0_4; /* ASM_BARRIER: pin clamp result to $v0 */
     char *temp_s0, *temp_s1, *temp_s2;
-    register struct P *temp_t1 asm("$9"); /* ASM_BARRIER: pin packet pointer to $t1 */
+    struct P *temp_t1; /* ASM_BARRIER: pin packet pointer to $t1 */
     struct SPD *spd, *spd2;
     int col;
-    temp_s5 = func_800534B4();
-    if (D_8010BF7C < 5) {
-        goto block_9;
+    temp_s5 = PollCdAudioStatus();
+    if (TitleSceneStage >= 5) {
+        if (D_800AC5D0 != 0) {
+            if (D_800AC5D0 == 4) {
+                CdAudioFade(0, 0x40);
+            } else if (D_800AC5D0 >= 0x100) {
+                D_800F4CA8 = 0;
+                MenuScriptId = 1;
+                ModeGroup = 1;
+                D_800F3A26 = 0x23;
+                D_800F4D8A = 0;
+            }
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], D_800AC5D0, 0x45);
+            D_800AC5D0 = (u16) D_800AC5D0 + 4;
+        } else if (Pad0Buttons & 0x800) {
+            D_800AC5D0 = 4;
+        }
     }
-    if (D_800AC5D0 == 0) {
-        goto block_7;
-    }
-    if (D_800AC5D0 != 4) {
-        goto block_4;
-    }
-    CdAudioFade(0, 0x40);
-    goto block_6;
-block_4:
-    if (D_800AC5D0 < 0x100) {
-        goto block_6;
-    }
-    D_800F4CA8 = 0;
-    MenuScriptId = 1;
-    ModeGroup = 1;
-    D_800F3A26 = 0x23;
-    D_800F4D8A = 0;
-block_6:
-    AddScreenFadeTiles(CurrentDrawBuf + 0x70, D_800AC5D0, 0x45);
-    D_800AC5D0 = (u16) D_800AC5D0 + 4;
-    goto block_9;
-block_7:
-    if (!(Pad0Buttons & 0x800)) {
-        goto block_9;
-    }
-    D_800AC5D0 = 4;
-block_9:
-    if ((u32) D_8010BF7C >= 0x36U) {
-        goto block_224;
-    }
-    switch (D_8010BF7C) {
+    if (TitleSceneStage < 0x36U) {
+    switch (TitleSceneStage) {
 case 0x0:
     LoadCursor = CdDirectoryBuffer;
     ClearScreenOverlayState();
@@ -261,41 +176,41 @@ case 0x0:
     ResetScreenCounters();
     D_800F4CA8 = 4;
     InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
-    D_8010BF7C = 1;
+    TitleSceneStage = 1;
 case 0x1:
     if (CdFileReadStart(GetR4FileIndex(0, 0x13), LoadCursor) == 0) {
-        goto block_248;
+        return;
     }
-    D_8010BF7C = 2;
+    TitleSceneStage = 2;
 case 0x2:
     temp_v0 = CdFileBytesLoaded();
     if (temp_v0 == 0) {
-        goto block_248;
+        return;
     }
     temp_s1 = LoadCursor + ((int *)LoadCursor)[1];
     temp_s2 = LoadCursor + ((int *)LoadCursor)[2];
     temp_s0 = LoadCursor + ((int *)LoadCursor)[4];
     LoadTimImage(LoadCursor + ((int *)LoadCursor)[3]);
     LoadTimImage(temp_s0);
-    RegisterModelBank(temp_s1, 4);
+    RegisterModelBank((RroModelBank *)temp_s1, 4);
     D_800AC64C = temp_s2;
     RelocateOffsetTable(temp_s2);
-    D_8010BF7C = 3;
+    TitleSceneStage = 3;
     LoadCursor += temp_v0;
 case 0x3:
-    if (func_8003B934() == 0) {
-        goto block_248;
+    if (LoadMenuCarModelsStep() == 0) {
+        return;
     }
     CdAudioInit();
     CdAudioSelectTrack(0, 0);
     CdAudioBeginPlay(0);
-    func_8001B308();
-    D_8010BF7C = 4;
+    InitIntroSceneLights();
+    TitleSceneStage = 4;
 case 0x4:
     if (temp_s5 < 0) {
-        goto block_248;
+        return;
     }
-    D_8010BF7C = 5;
+    TitleSceneStage = 5;
     G->s48 = 0x80;
     G->s9C = 0x1000;
     G->s4A = 0;
@@ -304,19 +219,15 @@ case 0x4:
     G->s44 = 0;
 case 0x5:
     if (G->s46 < 0xB4) {
-        goto block_224;
+        break;
     }
-    if (G->s9C <= 0) {
-        goto block_23;
+    if (G->s9C > 0) {
+        G->s9C = (s16) ((u16) G->s9C - 0x100);
     }
-    G->s9C = (s16) ((u16) G->s9C - 0x100);
-block_23:
-    if ((u32) ((u16) G->s46 - 0xA0) >= 0xAAU) {
-        goto block_25;
+    if (((u16) G->s46 - 0xA0) < 0xAAU) {
+        sp1 = (int *)SCRATCHPAD;
+        sp1[2] = sp1[2] + 3;
     }
-    sp1 = (int *)SCRATCHPAD;
-    sp1[2] = sp1[2] + 3;
-block_25:
     temp_a0 = G->s46;
     if (temp_a0 == 0xB0) {
         G->s76 = 4;
@@ -325,7 +236,7 @@ block_25:
         G->s8C = 0x80;
         G->s8E = 0x80;
     } else if (temp_a0 == 0x15E) {
-        H->s2 = 1;
+        H->half02 = 1;
     } else if (temp_a0 == 0x129) {
         G->s8A = -0x80;
         G->s8C = -0x80;
@@ -334,14 +245,13 @@ block_25:
         G->s74 = -4;
         G->s76 = -4;
     }
-block_38:
     temp_a1 = G->p40;
     if (G->s46 < *temp_a1) {
         goto block_197;
     }
     G->p40 = (s16 *) (temp_a1 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 6;
+    TitleSceneStage = 6;
     G->s44 = 0;
 case 0x6:
     if (G->s44 < 0x20) {
@@ -349,8 +259,7 @@ case 0x6:
     }
     PsyqMemset((SCRATCHPAD + 0x18), 0, 0x10);
     src = D_8009E540;
-    st = &D_8010BF7C;
-    __asm__ volatile("" ::: "$8", "$9"); /* ASM_BARRIER: reserve $t0-$t1 so sp2 allocates to $t5 */
+    st = &TitleSceneStage;
     sp2 = (int *)(SCRATCHPAD + 0x8);
     RR_COPY16_T(sp2, src, 16);
     g = G;
@@ -367,29 +276,18 @@ case 0x6:
     g->s44 = 0;
 case 0x7:
     temp_v1 = G->s44;
-    if (temp_v1 >= 0x38) {
-        goto block_49;
-    }
-    if (temp_v1 != 8) {
-        goto block_45;
-    }
-    G->s82 = 0x200;
-    goto block_198;
-block_45:
-    if (temp_v1 != 0xC) {
-        goto block_47;
-    }
-    G->s76 = 4;
-    goto block_198;
-block_47:
-    if (temp_v1 != 0x18) {
+    if (temp_v1 < 0x38) {
+        if (temp_v1 == 8) {
+            G->s82 = 0x200;
+        } else if (temp_v1 == 0xC) {
+            G->s76 = 4;
+        } else if (temp_v1 == 0x18) {
+            G->s78 = 4;
+        }
         goto block_199;
     }
-    G->s78 = 4;
-    goto block_199;
-block_49:
     G->s44 = 0;
-    D_8010BF7C = 8;
+    TitleSceneStage = 8;
 case 0x8:
     temp_a1_2 = G->p40;
     if (G->s46 < *temp_a1_2) {
@@ -397,7 +295,7 @@ case 0x8:
     }
     G->p40 = (s16 *) (temp_a1_2 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 9;
+    TitleSceneStage = 9;
     G->s74 = -4;
     G->s76 = -4;
     G->s78 = -4;
@@ -415,36 +313,25 @@ case 0x9:
     G->s56 = 0x100;
     G->s48 = 0;
     G->s5E = 0;
-    G->sAC = 0;
-    G->sAA = 0;
+    G->objectYawAA[1] = 0;
+    G->objectYawAA[0] = 0;
     G->s74 = 4;
     G->s44 = 0;
-    D_8010BF7C = 0xA;
+    TitleSceneStage = 0xA;
 case 0xA:
     temp_v1_2 = G->s44;
-    if (temp_v1_2 >= 0x38) {
-        goto block_61;
-    }
-    if (temp_v1_2 != 8) {
-        goto block_57;
-    }
-    G->s82 = 0x200;
-    goto block_200;
-block_57:
-    if (temp_v1_2 != 0xC) {
-        goto block_59;
-    }
-    G->s76 = 4;
-    goto block_200;
-block_59:
-    if (temp_v1_2 != 0x18) {
+    if (temp_v1_2 < 0x38) {
+        if (temp_v1_2 == 8) {
+            G->s82 = 0x200;
+        } else if (temp_v1_2 == 0xC) {
+            G->s76 = 4;
+        } else if (temp_v1_2 == 0x18) {
+            G->s78 = 4;
+        }
         goto block_201;
     }
-    G->s78 = 4;
-    goto block_201;
-block_61:
     G->s44 = 0;
-    D_8010BF7C = 0xB;
+    TitleSceneStage = 0xB;
 case 0xB:
     temp_a1_3 = G->p40;
     if (G->s46 < *temp_a1_3) {
@@ -452,7 +339,7 @@ case 0xB:
     }
     G->p40 = (s16 *) (temp_a1_3 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0xC;
+    TitleSceneStage = 0xC;
     G->s74 = -4;
     G->s76 = -4;
     G->s78 = -4;
@@ -470,48 +357,29 @@ case 0xC:
     G->s56 = 0x100;
     G->s48 = 0;
     G->s5E = 0;
-    G->sB0 = 0;
-    G->sAE = 0;
+    G->objectYawAA[3] = 0;
+    G->objectYawAA[2] = 0;
     G->s74 = 4;
     G->s44 = 0;
-    D_8010BF7C = 0xD;
+    TitleSceneStage = 0xD;
 case 0xD:
     temp_v1_3 = G->s44;
-    if (temp_v1_3 >= 0x50) {
-        goto block_77;
-    }
-    if (temp_v1_3 != 8) {
-        goto block_69;
-    }
-    G->s82 = 0x200;
-    goto block_202;
-block_69:
-    if (temp_v1_3 != 0xC) {
-        goto block_71;
-    }
-    G->s76 = 4;
-    goto block_202;
-block_71:
-    if (temp_v1_3 != 0x18) {
-        goto block_73;
-    }
-    G->s78 = 4;
-    goto block_202;
-block_73:
-    if (temp_v1_3 != 0x24) {
-        goto block_75;
-    }
-    G->s7A = 4;
-    goto block_202;
-block_75:
-    if (temp_v1_3 != 0x30) {
+    if (temp_v1_3 < 0x50) {
+        if (temp_v1_3 == 8) {
+            G->s82 = 0x200;
+        } else if (temp_v1_3 == 0xC) {
+            G->s76 = 4;
+        } else if (temp_v1_3 == 0x18) {
+            G->s78 = 4;
+        } else if (temp_v1_3 == 0x24) {
+            G->s7A = 4;
+        } else if (temp_v1_3 == 0x30) {
+            G->s7C = 4;
+        }
         goto block_203;
     }
-    G->s7C = 4;
-    goto block_203;
-block_77:
     G->s44 = 0;
-    D_8010BF7C = 0xE;
+    TitleSceneStage = 0xE;
 case 0xE:
     temp_a1_4 = G->p40;
     if (G->s46 < *temp_a1_4) {
@@ -519,7 +387,7 @@ case 0xE:
     }
     G->p40 = (s16 *) (temp_a1_4 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0xF;
+    TitleSceneStage = 0xF;
     G->s74 = -4;
     G->s76 = -4;
     G->s78 = -4;
@@ -548,43 +416,28 @@ case 0xF:
     G->s6C = 0;
     G->s74 = 4;
     G->s44 = 0;
-    D_8010BF7C = 0x10;
+    TitleSceneStage = 0x10;
 case 0x10:
     temp_a0_2 = G->s44;
-    if (temp_a0_2 >= 0x38) {
-        goto block_92;
-    }
-    if (temp_a0_2 != 8) {
-        goto block_86;
-    }
-    G->s82 = 0x200;
-    goto block_205;
-block_86:
-    if (temp_a0_2 != 0xC) {
-        goto block_88;
-    }
-    G->s90 = 0x40;
-    G->s92 = 0x40;
-    G->s94 = 0x40;
-    goto block_205;
-block_88:
-    if (temp_a0_2 != 0x18) {
-        goto block_90;
-    }
-    G->s76 = 4;
-    goto block_205;
-block_90:
-    if (temp_a0_2 != 0x4C) {
+    if (temp_a0_2 < 0x38) {
+        if (temp_a0_2 == 8) {
+            G->s82 = 0x200;
+        } else if (temp_a0_2 == 0xC) {
+            G->s90 = 0x40;
+            G->s92 = 0x40;
+            G->s94 = 0x40;
+        } else if (temp_a0_2 == 0x18) {
+            G->s76 = 4;
+        } else if (temp_a0_2 == 0x4C) {
+            G->s94 = 0;
+            G->s92 = 0;
+            G->s90 = 0;
+        }
         goto block_206;
     }
-    G->s94 = 0;
-    G->s92 = 0;
-    G->s90 = 0;
-    goto block_206;
-block_92:
     G->sA6 = 0xFFF;
     G->s44 = 0;
-    D_8010BF7C = 0x11;
+    TitleSceneStage = 0x11;
 case 0x11:
     temp_a1_5 = G->p40;
     if (G->s46 < *temp_a1_5) {
@@ -592,13 +445,13 @@ case 0x11:
     }
     G->p40 = (s16 *) (temp_a1_5 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0x12;
+    TitleSceneStage = 0x12;
 case 0x12:
     G->sA6 = 0;
-    D_8010BF7C = 0x13;
+    TitleSceneStage = 0x13;
     G->uA2 = 1;
     G->s44 = 0;
-    goto block_205;
+    goto block_206;
 case 0x13:
     temp_a1_6 = G->p40;
     if (G->s46 < *temp_a1_6) {
@@ -606,13 +459,13 @@ case 0x13:
     }
     G->p40 = (s16 *) (temp_a1_6 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0x14;
+    TitleSceneStage = 0x14;
 case 0x14:
-    D_8010BF7C = 0x15;
+    TitleSceneStage = 0x15;
     G->sA6 = 1;
     G->uA2 = 2;
     G->s44 = 0;
-    goto block_205;
+    goto block_206;
 case 0x15:
     temp_a1_7 = G->p40;
     if (G->s46 < *temp_a1_7) {
@@ -620,13 +473,13 @@ case 0x15:
     }
     G->p40 = (s16 *) (temp_a1_7 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0x16;
+    TitleSceneStage = 0x16;
 case 0x16:
     G->sA6 = 0;
-    D_8010BF7C = 0x17;
+    TitleSceneStage = 0x17;
     G->uA2 = 0U;
     G->s44 = 0;
-    goto block_205;
+    goto block_206;
 case 0x17:
     if (G->sA4 != 0) {
         goto block_206;
@@ -639,13 +492,13 @@ case 0x17:
     G->s92 = -0x40;
     G->s94 = -0x40;
     G->s44 = 0;
-    D_8010BF7C = 0x18;
+    TitleSceneStage = 0x18;
 case 0x18:
     if (G->s44 < 0x20) {
         goto block_206;
     }
     G->s44 = 0;
-    D_8010BF7C = 0x1B;
+    TitleSceneStage = 0x1B;
 case 0x1B:
     temp_a1_8 = G->p40;
     if (G->s46 < *temp_a1_8) {
@@ -653,7 +506,7 @@ case 0x1B:
     }
     G->p40 = (s16 *) (temp_a1_8 + 1);
     K->b4 = K->b4 + 1;
-    st = &D_8010BF7C;
+    st = &TitleSceneStage;
     g = G;
     *st = 0x19;
     g->s56 = 0x100;
@@ -675,47 +528,34 @@ case 0x1B:
     g->s74 = 8;
     g->s44 = 0;
 case 0x19:
-    if (G->s44 != 0x20) {
-        goto block_111;
+    if (G->s44 == 0x20) {
+        G->s94 = 0;
+        G->s92 = 0;
+        G->s90 = 0;
     }
-    G->s94 = 0;
-    G->s92 = 0;
-    G->s90 = 0;
-block_111:
     temp_a1_9 = G->p40;
     if (G->s46 < *temp_a1_9) {
         goto block_210;
     }
     G->p40 = (s16 *) (temp_a1_9 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0x1C;
+    TitleSceneStage = 0x1C;
     G->s90 = 0x40;
     G->s44 = 0;
 case 0x1C:
     temp_v1_4 = G->s44;
-    if (temp_v1_4 >= 0x44) {
-        goto block_120;
-    }
-    if (temp_v1_4 != 0x10) {
-        goto block_116;
-    }
-    G->s76 = 4;
-    goto block_209;
-block_116:
-    if (temp_v1_4 != 0x18) {
-        goto block_118;
-    }
-    G->s82 = 0x200;
-    goto block_209;
-block_118:
-    if (temp_v1_4 != 0x24) {
+    if (temp_v1_4 < 0x44) {
+        if (temp_v1_4 == 0x10) {
+            G->s76 = 4;
+        } else if (temp_v1_4 == 0x18) {
+            G->s82 = 0x200;
+        } else if (temp_v1_4 == 0x24) {
+            G->s78 = 4;
+        }
         goto block_210;
     }
-    G->s78 = 4;
-    goto block_210;
-block_120:
     G->s44 = 0;
-    D_8010BF7C = 0x1D;
+    TitleSceneStage = 0x1D;
 case 0x1D:
     temp_a1_10 = G->p40;
     if (G->s46 < *temp_a1_10) {
@@ -723,34 +563,23 @@ case 0x1D:
     }
     G->p40 = (s16 *) (temp_a1_10 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0x1E;
+    TitleSceneStage = 0x1E;
     G->s92 = 0x40;
     G->s44 = 0;
 case 0x1E:
     temp_v1_5 = G->s44;
-    if (temp_v1_5 >= 0x44) {
-        goto block_130;
-    }
-    if (temp_v1_5 != 0x10) {
-        goto block_126;
-    }
-    G->s7A = 4;
-    goto block_209;
-block_126:
-    if (temp_v1_5 != 0x18) {
-        goto block_128;
-    }
-    G->s84 = 0x200;
-    goto block_209;
-block_128:
-    if (temp_v1_5 != 0x24) {
+    if (temp_v1_5 < 0x44) {
+        if (temp_v1_5 == 0x10) {
+            G->s7A = 4;
+        } else if (temp_v1_5 == 0x18) {
+            G->s84 = 0x200;
+        } else if (temp_v1_5 == 0x24) {
+            G->s7C = 4;
+        }
         goto block_210;
     }
-    G->s7C = 4;
-    goto block_210;
-block_130:
     G->s44 = 0;
-    D_8010BF7C = 0x1F;
+    TitleSceneStage = 0x1F;
 case 0x1F:
     temp_a1_11 = G->p40;
     if (G->s46 < *temp_a1_11) {
@@ -758,34 +587,23 @@ case 0x1F:
     }
     G->p40 = (s16 *) (temp_a1_11 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0x20;
+    TitleSceneStage = 0x20;
     G->s94 = 0x40;
     G->s44 = 0;
 case 0x20:
     temp_v1_6 = G->s44;
-    if (temp_v1_6 >= 0x44) {
-        goto block_140;
-    }
-    if (temp_v1_6 != 0x10) {
-        goto block_136;
-    }
-    G->s7E = 4;
-    goto block_209;
-block_136:
-    if (temp_v1_6 != 0x18) {
-        goto block_138;
-    }
-    G->s86 = 0x200;
-    goto block_209;
-block_138:
-    if (temp_v1_6 != 0x24) {
+    if (temp_v1_6 < 0x44) {
+        if (temp_v1_6 == 0x10) {
+            G->s7E = 4;
+        } else if (temp_v1_6 == 0x18) {
+            G->s86 = 0x200;
+        } else if (temp_v1_6 == 0x24) {
+            G->s80 = 4;
+        }
         goto block_210;
     }
-    G->s80 = 4;
-    goto block_210;
-block_140:
     G->s44 = 0;
-    D_8010BF7C = 0x21;
+    TitleSceneStage = 0x21;
 case 0x21:
     temp_a1_12 = G->p40;
     if (G->s46 < *temp_a1_12) {
@@ -793,7 +611,7 @@ case 0x21:
     }
     G->p40 = (s16 *) (temp_a1_12 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0x22;
+    TitleSceneStage = 0x22;
     G->s74 = -4;
     G->s76 = -4;
     G->s78 = -4;
@@ -812,7 +630,7 @@ case 0x22:
     G->s9E = 5;
     G->sA0 = 0x1000;
     G->s44 = 0;
-    D_8010BF7C = 0x23;
+    TitleSceneStage = 0x23;
 case 0x23:
     if (G->s44 < 0x20) {
         goto block_210;
@@ -822,32 +640,21 @@ case 0x23:
     G->s5E = 0;
     G->s74 = 4;
     G->s44 = 0;
-    D_8010BF7C = 0x24;
+    TitleSceneStage = 0x24;
 case 0x24:
     temp_v1_7 = G->s44;
-    if (temp_v1_7 >= 0x44) {
-        goto block_154;
-    }
-    if (temp_v1_7 != 0x10) {
-        goto block_150;
-    }
-    G->s76 = 4;
-    goto block_211;
-block_150:
-    if (temp_v1_7 != 0x18) {
-        goto block_152;
-    }
-    G->s82 = 0x200;
-    goto block_211;
-block_152:
-    if (temp_v1_7 != 0x24) {
+    if (temp_v1_7 < 0x44) {
+        if (temp_v1_7 == 0x10) {
+            G->s76 = 4;
+        } else if (temp_v1_7 == 0x18) {
+            G->s82 = 0x200;
+        } else if (temp_v1_7 == 0x24) {
+            G->s78 = 4;
+        }
         goto block_212;
     }
-    G->s78 = 4;
-    goto block_212;
-block_154:
     G->s44 = 0;
-    D_8010BF7C = 0x25;
+    TitleSceneStage = 0x25;
 case 0x25:
     temp_a1_13 = G->p40;
     if (G->s46 < *temp_a1_13) {
@@ -855,7 +662,7 @@ case 0x25:
     }
     G->p40 = (s16 *) (temp_a1_13 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0x26;
+    TitleSceneStage = 0x26;
     G->s74 = -4;
     G->s76 = -4;
     G->s78 = -4;
@@ -869,7 +676,7 @@ case 0x26:
     G->s9E = 6;
     G->sA0 = 0x1000;
     G->s44 = 0;
-    D_8010BF7C = 0x28;
+    TitleSceneStage = 0x28;
 case 0x28:
     if (G->s44 < 0x20) {
         goto block_212;
@@ -879,32 +686,21 @@ case 0x28:
     G->s5E = 0;
     G->s74 = 4;
     G->s44 = 0;
-    D_8010BF7C = 0x29;
+    TitleSceneStage = 0x29;
 case 0x29:
     temp_v1_8 = G->s44;
-    if (temp_v1_8 >= 0x44) {
-        goto block_168;
-    }
-    if (temp_v1_8 != 0x10) {
-        goto block_164;
-    }
-    G->s76 = 4;
-    goto block_213;
-block_164:
-    if (temp_v1_8 != 0x18) {
-        goto block_166;
-    }
-    G->s82 = 0x200;
-    goto block_213;
-block_166:
-    if (temp_v1_8 != 0x24) {
+    if (temp_v1_8 < 0x44) {
+        if (temp_v1_8 == 0x10) {
+            G->s76 = 4;
+        } else if (temp_v1_8 == 0x18) {
+            G->s82 = 0x200;
+        } else if (temp_v1_8 == 0x24) {
+            G->s78 = 4;
+        }
         goto block_214;
     }
-    G->s78 = 4;
-    goto block_214;
-block_168:
     G->s44 = 0;
-    D_8010BF7C = 0x2A;
+    TitleSceneStage = 0x2A;
 case 0x2A:
     temp_a1_14 = G->p40;
     if (G->s46 < *temp_a1_14) {
@@ -912,7 +708,7 @@ case 0x2A:
     }
     G->p40 = (s16 *) (temp_a1_14 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0x2B;
+    TitleSceneStage = 0x2B;
     G->s74 = -4;
     G->s76 = -4;
     G->s78 = -4;
@@ -926,7 +722,7 @@ case 0x2B:
     G->s9E = 7;
     G->sA0 = 0x1000;
     G->s44 = 0;
-    D_8010BF7C = 0x2C;
+    TitleSceneStage = 0x2C;
 case 0x2C:
     if (G->s44 < 0x20) {
         goto block_216;
@@ -936,32 +732,21 @@ case 0x2C:
     G->s5E = 0;
     G->s74 = 4;
     G->s44 = 0;
-    D_8010BF7C = 0x2D;
+    TitleSceneStage = 0x2D;
 case 0x2D:
     temp_v1_9 = G->s44;
-    if (temp_v1_9 >= 0x44) {
-        goto block_182;
-    }
-    if (temp_v1_9 != 0x10) {
-        goto block_178;
-    }
-    G->s76 = 4;
-    goto block_215;
-block_178:
-    if (temp_v1_9 != 0x18) {
-        goto block_180;
-    }
-    G->s82 = 0x200;
-    goto block_215;
-block_180:
-    if (temp_v1_9 != 0x24) {
+    if (temp_v1_9 < 0x44) {
+        if (temp_v1_9 == 0x10) {
+            G->s76 = 4;
+        } else if (temp_v1_9 == 0x18) {
+            G->s82 = 0x200;
+        } else if (temp_v1_9 == 0x24) {
+            G->s78 = 4;
+        }
         goto block_216;
     }
-    G->s78 = 4;
-    goto block_216;
-block_182:
     G->s44 = 0;
-    D_8010BF7C = 0x2E;
+    TitleSceneStage = 0x2E;
 case 0x2E:
     temp_a1_15 = G->p40;
     if (G->s46 < *temp_a1_15) {
@@ -969,7 +754,7 @@ case 0x2E:
     }
     G->p40 = (s16 *) (temp_a1_15 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0x2F;
+    TitleSceneStage = 0x2F;
     G->s74 = -4;
     G->s76 = -4;
     G->s78 = -4;
@@ -981,21 +766,19 @@ case 0x2F:
         goto block_216;
     }
     c80 = 0x80;
-    __asm__ volatile("" : "+r"(c80)); /* ASM_BARRIER: hoist 0x80 load into $v1 before s56..s76 stores */
     G->s56 = 0x100;
     G->s5E = 0x1000;
     G->s76 = 4;
-    __asm__ volatile(""); /* ASM_BARRIER: keep src load after s76 store */
+    __asm__ (""); /* ASM_BARRIER: keep src load after s76 store */
     src = D_8009E540;
-    __asm__ volatile("" : "+r"(src)); /* ASM_BARRIER: emit src load before s48..s96 stores */
     G->s48 = c80;
     G->s4A = 0;
     G->s72 = 0;
     G->s96 = c80;
-    __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: force G reload after s96 store */
+    __asm__ ("" ::: "memory"); /* ASM_BARRIER: force G reload after s96 store */
     g_a0 = G;
-    __asm__ volatile("" : "+r"(g_a0) :: "$8", "$9"); /* ASM_BARRIER: emit G reload before state lui and reserve $t0-$t1 for sp2 in $t5 */
-    st_v1 = &D_8010BF7C;
+    __asm__ ("" : "+r"(g_a0) :: "$8", "$9"); /* ASM_BARRIER: emit G reload before state lui and reserve $t0-$t1 for sp2 in $t5 */
+    st_v1 = &TitleSceneStage;
     sp2 = (int *)(SCRATCHPAD + 0x8);
     RR_COPY16_T(sp2, src, 128);
     *st_v1 = 0x30;
@@ -1005,7 +788,7 @@ case 0x30:
         goto block_219;
     }
     G->s44 = 0;
-    D_8010BF7C = 0x31;
+    TitleSceneStage = 0x31;
 case 0x31:
     temp_a1_16 = G->p40;
     if (G->s46 < *temp_a1_16) {
@@ -1013,7 +796,7 @@ case 0x31:
     }
     G->p40 = (s16 *) (temp_a1_16 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0x32;
+    TitleSceneStage = 0x32;
     G->s74 = -4;
     G->s76 = -4;
     G->s82 = -8;
@@ -1030,16 +813,14 @@ case 0x32:
     __asm__ volatile("" : "=r"(st) :: "memory"); /* ASM_BARRIER: clobber $a0 so %hi(D_8010BF78) stays in $a1 across sp4 stores */
     src = D_8009E540;
     g_v1 = G;
-    __asm__ volatile("" : "+r"(src), "+r"(g_v1) :: "$8", "$9"); /* ASM_BARRIER: emit src and G reload before state lui and reserve $t0-$t1 for sp2 in $t5 */
-    st = &D_8010BF7C;
+    __asm__ ("" : "+r"(src), "+r"(g_v1) :: "$8", "$9"); /* ASM_BARRIER: emit src and G reload before state lui and reserve $t0-$t1 for sp2 in $t5 */
+    st = &TitleSceneStage;
     sp2 = (int *)(SCRATCHPAD + 0x8);
     RR_COPY16_T(sp2, src, 144);
     *st = 0x33;
-    __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: keep *st = 0x33 before c8 = 8 */
+    __asm__ ("" ::: "memory"); /* ASM_BARRIER: keep *st = 0x33 before c8 = 8 */
     c8 = 8;
-    __asm__ volatile("" : "+r"(c8)); /* ASM_BARRIER: schedule 8 load before s48=0 store */
     g_v1->s48 = 0;
-    __asm__ volatile(""); /* ASM_BARRIER: keep s48=0 before s74=8 */
     g_v1->s74 = c8;
     g_v1->s98 = c8;
     g_v1->s44 = 0;
@@ -1048,58 +829,50 @@ case 0x33:
         goto block_222;
     }
     G->s44 = 0;
-    D_8010BF7C = 0x34;
+    TitleSceneStage = 0x34;
 case 0x34:
-    if (G->s46 < *G->p40) {
-        goto block_222;
+    if (G->s46 >= *G->p40) {
+        D_800AC5D0 = 4;
+        TitleSceneStage = 0x35;
     }
-    D_800AC5D0 = 4;
-    D_8010BF7C = 0x35;
-    goto block_221;
+    goto block_222;
 block_197:
-    func_8001B8B0(G->s48, G->s9C);
+    EmitTitleBeamFades(G->s48, G->s9C);
     EmitPresetSprite(G->s4A, 0);
-    goto block_223;
-block_198:
+    break;
 block_199:
     EmitPresetSprite(G->s48, 1);
     EmitPresetSprite(G->s48, 2);
     EmitPresetSprite(G->s4A, 3);
     EmitPresetSprite(G->s4C, 4);
-    func_8001BBC4(G->s56, G->s5E, 0x6C0018, 0x78);
-    goto block_225;
-block_200:
+    EmitFadeTile(G->s56, G->s5E, 0x6C0018, 0x78);
+    break;
 block_201:
     EmitPresetSprite(G->s48, 5);
     EmitPresetSprite(G->s4A, 6);
     EmitPresetSprite(G->s4C, 7);
-    func_8001BBC4(G->s56, G->s5E, 0x6C0018, 0x78);
-    goto block_225;
-block_202:
+    EmitFadeTile(G->s56, G->s5E, 0x6C0018, 0x78);
+    break;
 block_203:
     EmitPresetSprite(G->s48, 8);
     EmitPresetSprite(G->s4A, 9);
     EmitPresetSprite(G->s4C, 0xA);
     EmitPresetSprite(G->s4E, 0xB);
     EmitPresetSprite(G->s50, 0xC);
-    func_8001BBC4(G->s56, G->s5E, 0x6C0018, 0x78);
-    goto block_225;
-block_205:
+    EmitFadeTile(G->s56, G->s5E, 0x6C0018, 0x78);
+    break;
 block_206:
     temp_a0_3 = G->sA6;
-    if (temp_a0_3 == 0) {
-        goto block_208;
+    if (temp_a0_3 != 0) {
+        EmitTitleMaskSprites(temp_a0_3, G->s44);
     }
-    func_8001BC84(temp_a0_3, G->s44);
-block_208:
     EmitPresetSprite(G->s48, 0xD);
     EmitPresetSprite(G->s48, 0xE);
-    func_8001BBC4(G->s56, G->s5E, 0x680010, 0x120);
+    EmitFadeTile(G->s56, G->s5E, 0x680010, 0x120);
     EmitPresetSprite(G->s4A, 0xF);
     EmitPresetSprite(G->s4A, 0x10);
     EmitPresetSprite(G->s4A, 0x11);
-    goto block_223;
-block_209:
+    break;
 block_210:
     EmitPresetSprite(G->s48, 0xF);
     EmitPresetSprite(G->s48, 0x10);
@@ -1110,53 +883,49 @@ block_210:
     EmitPresetSprite(G->s50, 0x15);
     EmitPresetSprite(G->s52, 0x16);
     EmitPresetSprite(G->s54, 0x17);
-    func_8001BBC4(G->s56, G->s5E, 0xB0001C, 0x28);
-    func_8001BBC4(G->s58, G->s60, 0xB00070, 0x28);
-    func_8001BBC4(G->s5A, G->s62, 0xB000E0, 0x28);
+    EmitFadeTile(G->s56, G->s5E, 0xB0001C, 0x28);
+    EmitFadeTile(G->s58, G->s60, 0xB00070, 0x28);
+    EmitFadeTile(G->s5A, G->s62, 0xB000E0, 0x28);
     goto block_218;
-block_211:
 block_212:
     EmitPresetSprite(G->s48, 0x18);
     EmitPresetSprite(G->s48, 0x19);
     EmitPresetSprite(G->s4A, 0x1A);
     EmitPresetSprite(G->s4C, 0x1B);
-    func_8001BBC4(G->s56, G->s5E, 0xE0008C, 0x28);
+    EmitFadeTile(G->s56, G->s5E, 0xE0008C, 0x28);
     goto block_218;
-block_213:
 block_214:
     EmitPresetSprite(G->s48, 0x1C);
     EmitPresetSprite(G->s4A, 0x1D);
     EmitPresetSprite(G->s4C, 0x1E);
-    func_8001BBC4(G->s56, G->s5E, 0xE0008C, 0x28);
+    EmitFadeTile(G->s56, G->s5E, 0xE0008C, 0x28);
     goto block_218;
-block_215:
 block_216:
     EmitPresetSprite(G->s48, 0x1F);
     EmitPresetSprite(G->s4A, 0x20);
     EmitPresetSprite(G->s4C, 0x21);
-    func_8001BBC4(G->s56, G->s5E, 0xE0008C, 0x28);
+    EmitFadeTile(G->s56, G->s5E, 0xE0008C, 0x28);
 block_218:
     EmitPresetSprite(0x80, 0xD);
     EmitPresetSprite(0x80, 0xE);
-    func_8001BBC4(0x100, 0x1000, 0x680010, 0x120);
-    goto block_220;
+    EmitFadeTile(0x100, 0x1000, 0x680010, 0x120);
+    break;
 block_219:
     EmitPresetSprite(G->s48, 0xD);
     EmitPresetSprite(G->s48, 0xE);
     EmitPresetSprite(G->s4A, 0x22);
     EmitPresetSprite(G->s4A, 0x23);
-    func_8001BBC4(G->s56, G->s5E, 0x680010, 0x120);
-block_220:
-    goto block_225;
+    EmitFadeTile(G->s56, G->s5E, 0x680010, 0x120);
+    break;
 case 0x35:
-block_221:
 block_222:
     EmitPresetSprite(G->s48, 0x24);
-block_223:
+    break;
 case 0x1A:
 case 0x27:
-block_224:
-block_225:
+    break;
+    }
+    }
     G->s44 = (s16) ((u16) G->s44 + 1);
     G->s46 = (s16) ((u16) G->s46 + 1);
     spd = (struct SPD *)SCRATCHPAD;
@@ -1187,143 +956,101 @@ block_225:
     RampValueTo4096(&G->s72, &G->s96);
     g_v1 = G;
     v0 = (unsigned short)g_v1->sA0;
-    if (g_v1->sA0 == 0) {
-        goto block_227;
+    if (g_v1->sA0 != 0) {
+        c8 = v0 - 0x80;
+        g_v1->sA0 = c8;
+        RR_GTE_MTC2_IR0(c8);
+        c8 = g_v1->s9E;
+        st = (int *)D_8009E540;
+        tabq = st + c8 * 4;
+        RR_GTE_LWC2_IR(tabq);
+        tabr = st + (c8 - 1) * 4;
+        RR_GTE_SETFC_P(tabr);
+        RR_GTE_INTPL();
+        sp3 = (int *)(SCRATCHPAD + 0x8);
+        RR_GTE_STORE_IR(sp3);
     }
-    c8 = v0 - 0x80;
-    g_v1->sA0 = c8;
-    RR_GTE_MTC2_IR0(c8);
-    c8 = g_v1->s9E;
-    st = (int *)D_8009E540;
-    tabq = st + c8 * 4;
-    RR_GTE_LWC2_IR(tabq);
-    tabr = st + (c8 - 1) * 4;
-    RR_GTE_SETFC_P(tabr);
-    RR_GTE_INTPL();
-    __asm__ volatile("" ::: "$8", "$9"); /* ASM_BARRIER: reserve $t0-$t1 so sp3 allocates to $t5 */
-    sp3 = (int *)(SCRATCHPAD + 0x8);
-    RR_GTE_STORE_IR(sp3);
-block_227:
-    func_8001B640();
+    BuildScaledCameraMatrices();
     SetupViewport(6);
     SetGeomOffset(0xA0, 0xC0);
     temp_a0_4 = G->s66;
     G->sA4 = 0;
-    if (temp_a0_4 == 0) {
-        goto block_229;
+    if (temp_a0_4 != 0) {
+        SetLightColorsFromAngle(temp_a0_4);
+        G->sA4 = (s16) ((u16) G->sA4 | DrawRotatingTitleModel(0, G->uA2 & 1));
+        G->sA4 = (s16) ((u16) G->sA4 | DrawRotatingTitleModel(1, G->uA2 & 2));
     }
-    SetLightColorsFromAngle(temp_a0_4);
-    G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(0, G->uA2 & 1));
-    G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(1, G->uA2 & 2, D_8010BF78));
-block_229:
     temp_a0_5 = G->s68;
-    if (temp_a0_5 == 0) {
-        goto block_231;
+    if (temp_a0_5 != 0) {
+        SetLightColorsFromAngle(temp_a0_5);
+        G->sA4 = (s16) ((u16) G->sA4 | DrawRotatingTitleModel(2, G->uA2 & 4));
+        G->sA4 = (s16) ((u16) G->sA4 | DrawRotatingTitleModel(3, G->uA2 & 8));
     }
-    SetLightColorsFromAngle(temp_a0_5);
-    G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(2, G->uA2 & 4));
-    G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(3, G->uA2 & 8, D_8010BF78));
-block_231:
     temp_a0_6 = G->s6A;
-    if (temp_a0_6 == 0) {
-        goto block_233;
+    if (temp_a0_6 != 0) {
+        SetLightColorsFromAngle(temp_a0_6);
+        G->sA4 = (s16) ((u16) G->sA4 | DrawRotatingTitleModel(4, G->uA2 & 0x10));
+        G->sA4 = (s16) ((u16) G->sA4 | DrawRotatingTitleModel(5, G->uA2 & 0x20));
+        G->sA4 = (s16) ((u16) G->sA4 | DrawRotatingTitleModel(6, G->uA2 & 0x40));
+        G->sA4 = (s16) ((u16) G->sA4 | DrawRotatingTitleModel(7, G->uA2 & 0x80));
     }
-    SetLightColorsFromAngle(temp_a0_6);
-    G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(4, G->uA2 & 0x10));
-    G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(5, G->uA2 & 0x20, D_8010BF78));
-    G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(6, G->uA2 & 0x40, D_8010BF78));
-    G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(7, G->uA2 & 0x80, D_8010BF78));
-block_233:
     temp_a0_7 = G->s6C;
-    if (temp_a0_7 == 0) {
-        goto block_235;
+    if (temp_a0_7 != 0) {
+        SetLightColorsFromAngle(temp_a0_7);
+        DrawTransformedTitleModel(1, &D_800101EC, &D_8009E510);
     }
-    SetLightColorsFromAngle(temp_a0_7);
-    func_8001BFA8(1, D_800101EC, D_8009E510);
-block_235:
     temp_a0_8 = G->s6E;
-    if (temp_a0_8 == 0) {
-        goto block_237;
+    if (temp_a0_8 != 0) {
+        SetLightColorsFromAngle(temp_a0_8);
+        DrawTransformedTitleModel(1, &D_800101EC, &D_8009E520);
     }
-    SetLightColorsFromAngle(temp_a0_8);
-    func_8001BFA8(1, D_800101EC, D_8009E520);
-block_237:
     temp_a0_9 = G->s70;
-    if (temp_a0_9 == 0) {
-        goto block_239;
+    if (temp_a0_9 != 0) {
+        SetLightColorsFromAngle(temp_a0_9);
+        DrawTransformedTitleModel(2, &D_800101EC, &D_8009E530);
     }
-    SetLightColorsFromAngle(temp_a0_9);
-    func_8001BFA8(2, D_800101EC, D_8009E530);
-block_239:
     temp_a0_10 = G->s72;
-    if (temp_a0_10 == 0) {
-        goto block_241;
+    if (temp_a0_10 != 0) {
+        SetLightColorsFromAngle(temp_a0_10);
+        DrawRotatingSky();
     }
-    SetLightColorsFromAngle(temp_a0_10);
-    DrawRotatingSky();
-block_241:
     c80 = G->s9A;
-    if (c80 == 0) {
-        goto block_247;
+    if (c80 != 0) {
+        var_v0_4 = 0x100;
+        __asm__ ("" : "+r"(var_v0_4)); /* ASM_BARRIER: fill beq delay slot with addiu $v0,$zero,256 */
+        temp_t1 = spd->cur;
+        temp_t0 = var_v0_4 - c80;
+        temp_t0 = (temp_t0 < 0 ? 0 : temp_t0) > 0x100 ? 0x100 : (temp_t0 < 0 ? 0 : temp_t0);
+        c_800060 = 0x800060;
+        c_800080 = 0x800080;
+        c_e1000240 = 0xE1000240;
+        c80 = temp_t0 << 0x10;
+        var_v0_4 = temp_t0 << 8;
+        st = (int *)0x62000000;
+        var_v0_4 |= (int)st;
+        c80 |= var_v0_4;
+        c80 |= temp_t0;
+        temp_t1->w[1] = c80;
+        spd2 = (struct SPD *)SCRATCHPAD;
+        temp_t1->w[2] = c_800060;
+        temp_t1->w[3] = c_800080;
+        temp_t1->w[0] = c_e1000240;
+        temp_t1->h.p = spd2->ot->h.p;
+        temp_t1->h.b.len = 4;
+        spd2->ot->h.p = temp_t1;
+        spd2->ot->h.b.len = 0;
+        temp_t1++;
+        spd2->cur = temp_t1;
+        DrawMenuGridMesh(0, &spd2->ot->h, 1, c_800060);
     }
-    var_v0_4 = 0x100;
-    __asm__ volatile("" : "+r"(var_v0_4)); /* ASM_BARRIER: fill beq delay slot with addiu $v0,$zero,256 */
-    temp_t1 = spd->cur;
-    temp_t0 = var_v0_4 - c80;
-    __asm__ volatile("" : "+r"(temp_t1), "+r"(temp_t0)); /* ASM_BARRIER: emit spd->cur load and subu before bltz */
-    if (temp_t0 >= 0) {
-        if (temp_t0 > 0x100) {
-            var_v0_4 = 0x100;
-            goto block_clamp;
-        }
-    }
-    __asm__ volatile("" :: "r"(c80)); /* ASM_BARRIER: keep $v1 live across >0x100 check so slti uses $v0 */
-    if (temp_t0 < 0) {
-        var_v0_4 = 0;
-    } else {
-        var_v0_4 = temp_t0;
-    }
-block_clamp:
-    __asm__ volatile("" : "+r"(var_v0_4)); /* ASM_BARRIER: materialize clamped value in $v0 before copying to $t0 */
-    temp_t0 = var_v0_4;
-    __asm__ volatile("" : "+r"(temp_t0)); /* ASM_BARRIER: keep addu $t0,$v0,$zero at clamp merge label */
-    c_800060 = 0x800060;
-    c_800080 = 0x800080;
-    c_e1000240 = 0xE1000240;
-    __asm__ volatile("" : "+r"(c_800060), "+r"(c_800080), "+r"(c_e1000240)); /* ASM_BARRIER: hoist constant loads into $a3,$a2,$a1 before color shifts */
-    c80 = temp_t0 << 0x10;
-    var_v0_4 = temp_t0 << 8;
-    st = (int *)0x62000000;
-    __asm__ volatile("" : "+r"(c80), "+r"(var_v0_4), "+r"(st)); /* ASM_BARRIER: order sll/sll/lui before bitwise ors */
-    var_v0_4 |= (int)st;
-    c80 |= var_v0_4;
-    c80 |= temp_t0;
-    temp_t1->w[1] = c80;
-    __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: keep w[1] store before loading SCRATCHPAD into $v1 */
-    spd2 = (struct SPD *)SCRATCHPAD;
-    temp_t1->w[2] = c_800060;
-    temp_t1->w[3] = c_800080;
-    temp_t1->w[0] = c_e1000240;
-    temp_t1->h.p = spd2->ot->h.p;
-    temp_t1->h.b.len = 4;
-    __asm__ volatile(""); /* ASM_BARRIER: prevent hoisting call arg setup into packet header load delay slots */
-    spd2->ot->h.p = temp_t1;
-    spd2->ot->h.b.len = 0;
-    temp_t1++;
-    spd2->cur = temp_t1;
-    func_80041BF0(0, &spd2->ot->h, 1, c_800060);
-block_247:
-    H->s2 = 1;
+    H->half02 = 1;
     UpdateBadgeRowAnim(0);
     K->b4 = 0U;
-    UpdateDialogue(H->s4 + 0xA, H->s6 + 0x28, D_800AC590);
+    UpdateDialogue(H->x04 + 0xA, H->y06 + 0x28, CardDialogueStatePtr);
     UpdateScreenFade(0x1001C);
-block_248:
-    return;
-    }
 }
 
-void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state) {
+void EmitSpriteGrid(u32 intensity,SpriteGridClock *state) {
     s32 row;
     /* ASM_BARRIER: retain the horizontal position counter in a3. */
     register s32 x __asm__("$7");
@@ -1342,8 +1069,8 @@ void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state) {
     u32 y;
     /* ASM_BARRIER: keep the raw/color word in its original temporary. */
     register u32 color __asm__("$9")=intensity;
-    RrGpuScratchPointers *order_page;
-    RrGpuScratchPointers *scratch;
+    GpuScratchPointers *order_page;
+    GpuScratchPointers *scratch;
     u8 *packet;
     u8 *fields;
     hi=color<<16;
@@ -1351,13 +1078,11 @@ void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state) {
     middle|=0x66000000U;
     hi|=middle;
     color|=hi;
-    /* ASM_BARRIER: finish color packing before initializing loop constants. */
-    __asm__("" : "+r"(color) : : "$15");
     row=0;
     /* ASM_BARRIER: keep the row counter distinct from later coordinate zero. */
     __asm__("" : "+r"(row));
     limit=15;size=0x180010;uv=0x2F29A400U;
-    order_page=(RrGpuScratchPointers*)SCRATCHPAD;
+    order_page=(GpuScratchPointers*)SCRATCHPAD;
     /* ASM_BARRIER: stage the scratch page before the packed-y constant. */
     __asm__("" : "+r"(order_page) : : "$8");
     length=4;
@@ -1375,29 +1100,29 @@ void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state) {
             if(phase<0)quotient=phase+3;
             index=(quotient>>2)&15;
             if(index==limit)index=0;
-            *(u32*)(fields+5)=y|(x+172);
-            *(u32*)(fields+1)=color;
-            *(u32*)(fields+13)=size;
-            *(u32*)(fields+9)=index*16+uv;
+            ((u32*)(fields+1))[1]=y|(x+172);
+            ((u32*)(fields+1))[0]=color;
+            ((u32*)(fields+1))[3]=size;
+            ((u32*)(fields+1))[2]=index*16+uv;
             phase+=5;x+=26;
             *(u32*)packet=*ORDER;
             fields[0]=length;
-            fields+=sizeof(RrSpritePacket);
-            *ORDER=(u32)(unsigned long)packet;
+            fields+=sizeof(SpritePacket);
+            *ORDER=packet;
             ((u8*)ORDER)[3]=0;
-            packet+=sizeof(RrSpritePacket);
+            packet+=sizeof(SpritePacket);
         }while(x<130);
         row_step=0x300000;
         y+=row_step;
         row+=48;x=0;
     }while(row<144);
     mode_command=0xE100022A;
-    scratch=(RrGpuScratchPointers*)SCRATCHPAD;
+    scratch=(GpuScratchPointers*)SCRATCHPAD;
     CURSOR=packet;
-    *(u32*)(packet+4)=mode_command;
+    ((u32*)packet)[1]=mode_command;
     *(u32*)CURSOR=*scratch->order;
     CURSOR[3]=1;
-    *scratch->order=(u32)(unsigned long)CURSOR;
+    *scratch->order=CURSOR;
     ((u8*)scratch->order)[3]=0;
-    CURSOR+=sizeof(RrGpuSingleCommandPacket);
+    CURSOR+=sizeof(GpuSingleCommandPacket);
 }

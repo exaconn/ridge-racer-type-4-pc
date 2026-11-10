@@ -17,7 +17,7 @@ s32 SsUtKeyOffV(s32 a0) {
         __asm__("" : "=r"(page) : "0"(page));
         page[-0xFA4/4]=0;
         goto out; }
-    D_80110118 = h;
+    _svm_voice_cursor = h;
     /* ASM_BARRIER: Keep the selector in a1 until the reset call. */
     __asm__("" : : "r"(selected));
     _SsVmKeyOffNow(0);

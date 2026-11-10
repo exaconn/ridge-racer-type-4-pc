@@ -1,5 +1,4 @@
 #include "types.h"
-#include "m2c_macros.h"
 #include "game/gfx/fadesel.h"
 #include "game/math/shuffle.h"
 #include "game/sound/sndctrl.h"
@@ -8,13 +7,14 @@
 #include "game/ui/hudmap2.h"
 #include "game/demo/attract.h"
 #include "game/menu/title.h"
-#include "game/ui/hudmap2.h"
 #include "rr/audio_loop.h"
 #include "rr/bios_devices.h"
 #include "rr/color_conversion.h"
 #include "rr/race_setup.h"
 #include "rr/driver_control.h"
 #include "game/data/selection.h"
+#include "psyq/libc/rand.h"
+#include "game/menu/mnrows.h"
 
 extern int SlotOrder[];
 extern char D_800ACB0C[];
@@ -29,15 +29,13 @@ extern short D_800F3A26;
 extern short D_800F4D8A;
 extern int MaskBitSetting;
 extern char RaceContext[];
-extern short D_800AD50A;
-extern int PsyqRand();
-extern int func_80055300();
-extern int func_80055330();
-extern int func_8005534C();
-extern int ResetScreenCounters();
+extern short ActiveSceneId;
+extern int InitSceneOverlayState();
+extern int SetSceneOverlayColor();
+extern int SetSceneOverlayEnabled();
 
 void StartAttractDemo(int a0);
-void func_8005DD8C(void);
+void AttractDemoRaceEnter(void);
 
 void StartAttractDemo(int a0) {
     int sp[4];
@@ -49,7 +47,6 @@ void StartAttractDemo(int a0) {
     int s0;
     int s2;
     int v;
-    int t;
     /* ASM_BARRIER: pin rand()%2 result to $v0 like the original shuffle loop */
     register int r __asm__("$2");
     int *w;
@@ -70,8 +67,8 @@ void StartAttractDemo(int a0) {
         ShuffleSlotOrder();
         SlotOrder[0] = 0;
     }
-    func_80096434(D_800ACB0C, 0x80);
-    *(int *)(D_800ACB0C + 0xC) = a0;
+    PsyqBzero(D_800ACB0C, 0x80);
+    ((int *)D_800ACB0C)[3] = a0;
     i = 3;
     q = sp + 3;
     do {
@@ -84,12 +81,7 @@ void StartAttractDemo(int a0) {
         s0 = PsyqRand() % 4;
         r = PsyqRand() % 2;
         v = s0 + r;
-        t = v;
-        if (v < 0) t = v + 3;
-        t = (t >> 2) << 2;
-        vq = v - t;
-        /* ASM_BARRIER: schedule barrier so the sp[s0] address is computed after vq (original order) */
-        __asm__ volatile("" : "=r"(vq) : "0"(vq));
+        vq = v % 4;
         s2 = sp[s0];
         y = sp[vq];
         sp[s0] = y;
@@ -98,8 +90,7 @@ void StartAttractDemo(int a0) {
     } while (i < 0x10);
     i = 0;
     x6 = PsyqRand();
-    s2 = x6 / 18;
-    s2 = x6 - s2 * 18;
+    s2 = x6 % 18;
     tb = D_800A2124;
     w = D_8010E270;
     b = (void *)SelectionRows;
@@ -139,58 +130,58 @@ void StartAttractDemo(int a0) {
         if (n >= 8)
             ShuffleSlotOrder();
     }
-    func_80059314(0, 0);
-    D_800F4D44 = 5;
+    InitRaceOpeningOverlay(0, 0);
+    GameModeType = 5;
     D_800FFC10 = 0;
     MenuScriptId = 0xA;
     ModeGroup = 1;
     D_800F3A26 = 0x23;
     D_800F4D8A = 0;
     if (a0 == 0) {
-        func_8005C8D8(-1);
-        D_800F765C = D_800A19E0[CourseIndex] + 1;
+        StartDemoFadeIn(-1);
+        RaceBgmListIndex = D_800A19E0[CourseIndex] + 1;
     } else {
-        func_8005C13C(0);
-        func_8005C988(2);
-        D_800F765C = 1;
+        InitDemoFadeContext(0);
+        SelectDemoFadePreset(2);
+        RaceBgmListIndex = 1;
     }
-    func_80055300();
+    InitSceneOverlayState();
     c = RaceContext;
     MaskBitSetting = 1;
-    *(short *)(c + 0x4E0) = 0xD2;
-    *(short *)(c + 0x4E2) = 0;
-    *(short *)(c + 0x4E4) = 0x8FC;
+    ((short *)c)[0x4E0 / 2] = 0xD2;
+    ((short *)c)[0x4E2 / 2] = 0;
+    ((short *)c)[0x4E4 / 2] = 0x8FC;
     HsvToRgb(c + 0x4E0, c + 0x4E8);
-    func_80055330(0, c[0x4E8], c[0x4E9], c[0x4EA]);
-    *(int *)(c + 0x534) = 0;
+    SetSceneOverlayColor(0, c[0x4E8], c[0x4E9], c[0x4EA]);
+    ((int *)c)[0x534 / 4] = 0;
     if (a0 == 0) {
-        x5 = *(int *)(c + 0x3DC);
+        x5 = ((int *)c)[0x3DC / 4];
     } else {
-        *(int *)(c + 0x3DC) = 0;
+        ((int *)c)[0x3DC / 4] = 0;
         x5 = 0;
     }
-    func_8005534C(x5);
+    SetSceneOverlayEnabled(x5);
     c2 = RaceContext;
-    *(int *)(c2 + 0x4F0) = -0x20;
-    *(int *)(c2 + 0x4EC) = 0;
-    *(int *)(c2 + 0x4F4) = 0;
-    *(int *)(c2 + 0x4FC) = 0;
-    *(int *)(c2 + 0x500) = 0;
-    *(int *)(c2 + 0x504) = 0;
-    *(int *)(c2 + 0x514) = 0x122;
+    ((int *)c2)[0x4F0 / 4] = -0x20;
+    ((int *)c2)[0x4EC / 4] = 0;
+    ((int *)c2)[0x4F4 / 4] = 0;
+    ((int *)c2)[0x4FC / 4] = 0;
+    ((int *)c2)[0x500 / 4] = 0;
+    ((int *)c2)[0x504 / 4] = 0;
+    ((int *)c2)[0x514 / 4] = 0x122;
     SoundReverbOffAll();
     ClearTrackObjectStates(0);
-    D_800AD50A = 0x209;
+    ActiveSceneId = 0x209;
 }
 
-void func_8005DD8C(void) {
+void AttractDemoRaceEnter(void) {
     SetDispMask(0);
     ResetScreenCounters();
     MenuScriptId = 8;
     ModeGroup = 1;
     D_800F3A26 = 0x23;
     D_800F4D8A = 0;
-    func_8005C13C(0);
-    func_8005C988(1);
-    D_800ACBF8 = 0;
+    InitDemoFadeContext(0);
+    SelectDemoFadePreset(1);
+    DrawSubOtFlag = 0;
 }

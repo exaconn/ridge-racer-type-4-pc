@@ -30,9 +30,9 @@ class CdReadRequestTest(unittest.TestCase):
 ''' + header('library.h') + header('cd_read_request.h') + r'''
 typedef struct {
     u8 prefix[32];
-    RrLibReadRequestState state;
+    LibReadRequestState state;
     u32 flags;
-    RrLibCompletionCallback registered[3];
+    LibCompletionCallback registered[3];
     u8 buffers[2][64];
     int tick_index;
     u8 suffix[32];
@@ -47,7 +47,7 @@ typedef struct {
 typedef struct {
     int kind;
     s32 argument;
-    RrLibCompletionCallback callback;
+    LibCompletionCallback callback;
     const u8 *parameters;
     u8 *result;
     World snapshot;
@@ -68,7 +68,7 @@ static void cb3(void){callback_effect^=8;}
 ''' + body + r'''
 enum {CLOCK,SET0,SET1,SET2,STATUS,COMMAND,BEGIN};
 static s32 bits(u32 value){s32 result;memcpy(&result,&value,4);return result;}
-static void log_event(int model,int kind,s32 argument,RrLibCompletionCallback callback,
+static void log_event(int model,int kind,s32 argument,LibCompletionCallback callback,
                       const u8 *parameters,u8 *result) {
     Entry entry;memset(&entry,0,sizeof(entry));
     entry.kind=kind;entry.argument=argument;entry.callback=callback;
@@ -85,10 +85,10 @@ static s32 tick(int model,s32 argument) {
     if(index==plan.replace_on_tick)world->state.restore.saved28=cb3;
     return bits(plan.ticks[index]);
 }
-static RrLibCompletionCallback setter(int model,int channel,RrLibCompletionCallback callback) {
+static LibCompletionCallback setter(int model,int channel,LibCompletionCallback callback) {
     World *world=model?&expected:&actual;
     log_event(model,SET0+channel,0,callback,0,0);
-    RrLibCompletionCallback previous=world->registered[channel];
+    LibCompletionCallback previous=world->registered[channel];
     world->registered[channel]=callback;
     if(channel==1&&plan.flip_flags)world->flags=plan.new_flags;
     if(plan.mutate) {
@@ -122,9 +122,9 @@ static s32 begin(int model,s32 argument) {
     return plan.begin_result;
 }
 s32 VSync(s32 arg){return tick(0,arg);}
-RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback c){return setter(0,0,c);}
-RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback c){return setter(0,1,c);}
-RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback c){return setter(0,2,c);}
+LibCompletionCallback CdSyncCallback(LibCompletionCallback c){return setter(0,0,c);}
+LibCompletionCallback CdReadyCallback(LibCompletionCallback c){return setter(0,1,c);}
+LibCompletionCallback CdDataCallback(LibCompletionCallback c){return setter(0,2,c);}
 u8 CdStatus(void){return status(0);}
 s32 CdControlB(s32 c,const u8 *p,u8 *r){return command(0,c,p,r);}
 s32 cd_read_retry(s32 arg){return begin(0,arg);}
@@ -194,8 +194,8 @@ static void check(int scenario,s32 pending,s32 sectors,u32 mode,u32 flags,u8 con
 }
 int main(int argc,char **argv) {
     assert(argc==2);assert(sizeof(void*)>4);
-    assert(offsetof(RrLibReadRequestState,restore)==sizeof(RrLibReadRequestState)-sizeof(RrLibReadRestoreTail));
-    assert(offsetof(RrLibReadRequestState,restore)>0x28);
+    assert(offsetof(LibReadRequestState,restore)==sizeof(LibReadRequestState)-sizeof(LibReadRestoreTail));
+    assert(offsetof(LibReadRequestState,restore)>0x28);
     int mode=atoi(argv[1]);
     if(mode==0) {
         for(u32 i=0;i<65536;i++) {

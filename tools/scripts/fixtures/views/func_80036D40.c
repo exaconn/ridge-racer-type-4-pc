@@ -1,6 +1,6 @@
 #include "rr/menu_choice.h"
 
-void func_80036D40(void) {
+void StepResultsMenuChoice(void) {
     s32 state;
     u32 selected=D_800F4D99;
     D_800F3826=selected;
@@ -45,9 +45,9 @@ active:
         if(state==3) {
             PlaySfx(1);
             {
-                RrMenuSettings2C *settings=&SelectionState;
-                RrBadgeRow1C *control=BadgeRows;
-                RrUiRow24 *ui=UiRows;
+                MenuSettings2C *settings=&SelectionState;
+                BadgeRow1C *control=BadgeRows;
+                UiRow24 *ui=UiRows;
 
                 /* Four copies of the same byte-aligned source record. */
                 settings->copies[0]=SelectionRows;
@@ -65,7 +65,7 @@ active:
                     settings->copies[0].bytes[1]=byte;
                 }
             }
-            func_80039920();
+            UpdateUnlockedCarMask();
             ResetScreenCounters();
             {
                 s32 zero=0;
@@ -74,7 +74,7 @@ active:
                 s32 last;
 
                 /* Both preceding helpers may replace the resource buffer. */
-                resource=D_800F4D40;
+                resource=MenuArenaBase;
 
                 LoadCursor=resource;
                 one=1;

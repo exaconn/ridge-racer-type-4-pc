@@ -12,8 +12,8 @@ void ovl662_func_80125370(void) {
     if (!(ovl662_D_80127668.words[1] & 2)) {
         return;
     }
-    img0 = (u8 *)(RrGarageImage512 *)ovl662_D_801276A8.image38[ovl662_D_801276A8.active21];
-    img1 = (u8 *)(RrGarageImage512 *)ovl662_D_801276A8.image40[ovl662_D_801276A8.active21];
+    img0 = (u8 *)(GarageImage512 *)ovl662_D_801276A8.image38[ovl662_D_801276A8.active21];
+    img1 = (u8 *)(GarageImage512 *)ovl662_D_801276A8.image40[ovl662_D_801276A8.active21];
     x = ovl662_D_801276A8.reset08[0] + (ovl662_D_80127668.halves[10] - 82) / ovl662_D_801276A8.config1C;
     y = ovl662_D_801276A8.reset08[1] + ((ovl662_D_80127668.halves[11] - 71) / ovl662_D_801276A8.config1C) / 2;
     c = (img0 + y * 32)[x / 2];

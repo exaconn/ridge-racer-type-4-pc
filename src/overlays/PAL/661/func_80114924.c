@@ -11,21 +11,21 @@ extern s32 RaceVoiceFlags;
 extern void SaveCarSnapshots(s32);
 extern void SoundSetMasterVolume(s16, s16);
 
-void ovl661_func_80114924(RrRaceCheckpointVehicle *vehicle) {
-    RrRaceVehicleControl *control = &vehicle->control;
+void ovl661_func_80114924(RaceVehicle *vehicle) {
+    RaceVehicleControl *control = &vehicle->control;
     s16 counter;
     s32 target;
     s32 message;
 
-    counter = control->steering94.count22;
-    if (((s32)((u32)vehicle->second + (u32)vehicle->first)) >= ((s32)((u32)(s32)counter * (u32)TrackLength))) {
+    counter = control->dynamics94.steering.count22;
+    if (((s32)((u32)vehicle->second + vehicle->first)) >= ((s32)((u32)(s32)counter * TrackLength))) {
         target = NumLaps;
         if (target >= counter) {
-            control->steering94.count22=(s16)((u16)control->steering94.count22+1U);
+            control->dynamics94.steering.count22=(s16)((u16)control->dynamics94.steering.count22+1U);
             D_8010C134 = 0;
-            if (control->steering94.count22 == target) {
+            if (control->dynamics94.steering.count22 == target) {
                 SaveCarSnapshots(0);
-            } else if (target < control->steering94.count22) {
+            } else if (target < control->dynamics94.steering.count22) {
                 if (RaceState < 4) {
                     D_8010C134 = -1;
                     RaceState = 4;
@@ -38,14 +38,14 @@ void ovl661_func_80114924(RrRaceCheckpointVehicle *vehicle) {
         }
     }
     if (D_8010C134 == 0) {
-        message = (s32)(9U - ((u32)NumLaps - (u32)(s32)control->steering94.count22));
+        message = (9U - ((u32)NumLaps - control->dynamics94.steering.count22));
         if (message >= 6) {
             if (message == 9) {
                 message = 15;
             }
-            if (!(RaceVoiceFlags & (0x200U << ((u32)message - 6U)))) {
+            if (!(RaceVoiceFlags & (0x200U << (message - 6U)))) {
                 SoundQueueEnqueue(message, 0);
-                RaceVoiceFlags |= 0x200U << ((u32)message - 6U);
+                RaceVoiceFlags |= 0x200U << (message - 6U);
             }
         }
         D_8010C134 = -1;

@@ -1,41 +1,36 @@
+#include "rr/gpu_line.h"
 #include "types.h"
+#include "rr/frame_storage_types.h"
 #include "rr/sprite_effect.h"
 #include "rr/textured_triangle.h"
-#include "m2c_macros.h"
 #include "rr/sprite_emit.h"
 #include "psyq/libgpu/primatt2.h"
 #include "psyq/libgpu/primatt3.h"
 #include "psyq/libgpu/primatt6.h"
 #include "psyq/libgpu/primattr.h"
 #include "psyq/libgpu/settrans.h"
+#include "rr/animated_glyph.h"
+#include "psyq/libc/rand.h"
 
 struct P { int tag; unsigned char r, g, b, code; short x, y, w, h; };
 
-extern void SetSprt(void *);
-extern void AddPrim(u32 *,u32 *);
-extern s32 PsyqRand(void);
 /* extern */
 /* extern */
 /* extern */
 
-u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg);
+u8 *AddJitterSprites(u32 *ordering,u8 *cursor,SpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg);
 struct S32 *EmitPolyFT3(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9);
 void *AddTileSemiTransPrim(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
-struct P *GameQueueTileTrans(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
-struct P *AddLineF2SemiTrans(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
-RrPolyF3Packet *func_8002071C(u32 *ordering,RrPolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags);
+PolyF3Packet *EmitPolyF3(u32 *ordering,PolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags);
 
-/* legacy typing of shared globals in this part of the unit */
-#define AddDrawModePrim (*(u8 *(*)(u32 *,u8 *,u16))&AddDrawModePrim)
-
-u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
+u8 *AddJitterSprites(u32 *ordering,u8 *cursor,SpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
     /* ASM_BARRIER: retain the loop bound in callee-saved S5 across helpers. */
     register s32 count asm("$21")=count_arg;
     /* ASM_BARRIER: retain the full signed intensity in callee-saved S7. */
     register s32 strength asm("$23")=strength_arg;
-    register RrSpritePacket *sprite;
+    register SpritePacket *sprite;
     /* ASM_BARRIER: retain the source in callee-saved S2 across helpers. */
-    register RrSpriteEffectSource *descriptor asm("$18");
+    register SpriteEffectSource *descriptor asm("$18");
     register s32 i;
     /* ASM_BARRIER: use A1 for jitter only until the transparency helper. */
     register s32 jitter asm("$5");
@@ -46,15 +41,14 @@ u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_a
     /* ASM_BARRIER: capture the incoming cursor in A1 before the saved copy. */
     register u8 *incoming_cursor asm("$5")=cursor;
     /* ASM_BARRIER: capture the incoming source in A2 before the saved copy. */
-    register RrSpriteEffectSource *incoming_descriptor asm("$6")=descriptor_arg;
-    u32 *saved_ordering;
+u32 *saved_ordering;
     /* ASM_BARRIER: capture stack arguments before copying the pointer arguments. */
-    __asm__("" : "+r"(count), "+r"(strength), "+r"(incoming_order), "+r"(incoming_cursor), "+r"(incoming_descriptor));
+    __asm__("" : "+r"(count), "+r"(strength), "+r"(incoming_order), "+r"(incoming_cursor), "+r"(descriptor_arg));
     saved_ordering=incoming_order;
     /* ASM_BARRIER: finish saving the ordering pointer before the other copies. */
-    __asm__("" : "+r"(incoming_cursor), "+r"(incoming_descriptor) : "r"(saved_ordering));
-    sprite=(RrSpritePacket *)incoming_cursor;
-    descriptor=incoming_descriptor;
+    __asm__("" : "+r"(incoming_cursor), "+r"(descriptor_arg) : "r"(saved_ordering));
+    sprite=(SpritePacket *)incoming_cursor;
+    descriptor=descriptor_arg;
     /* ASM_BARRIER: finish the source copy before initializing the loop index. */
     __asm__("" : "+r"(descriptor));
     i=0;
@@ -62,7 +56,7 @@ u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_a
         SetSprt(sprite);
         jitter=0;
         if(count!=1) {
-            u32 random=(u32)PsyqRand()&7;
+            u32 random=PsyqRand()&7;
             register s32 three=3;
             jitter=three-random;
             /* ASM_BARRIER: keep the subtraction input distinct from its A1 result. */
@@ -80,14 +74,14 @@ u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_a
         sprite->w=descriptor->uv.w;
         sprite->h=descriptor->uv.h;
         sprite->u=descriptor->uv.u;
-        {u8 v=((volatile RrSpriteEffectSource *)descriptor)->uv.v;
-        s32 transparency=*(volatile s32 *)&semi;
+        {u8 v=((SpriteEffectSource *)descriptor)->uv.v;
+        s32 transparency=*(s32 *)&semi;
         sprite->v=v;
         SetSemiTrans(sprite,transparency);}
         level=strength;
         if(count!=1) {
-            if(i==1)level=(s32)((u32)strength*((u32)PsyqRand()&15))/24;
-            else level=(s32)((u32)strength*(((u32)PsyqRand()&31)+8))/48;
+            if(i==1)level=(s32)((u32)strength*(PsyqRand()&15))/24;
+            else level=(s32)(strength*(((u32)PsyqRand()&31)+8))/48;
         }
         /* ASM_BARRIER: move intensity to A1 after division and before the RGB stores. */
         { register s32 color asm("$5")=level;  sprite->r=color;sprite->g=color;sprite->b=color; }
@@ -101,111 +95,91 @@ u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_a
             else page=descriptor->page;
             out_cursor=(u8 *)sprite;
             i++;
-            sprite=(RrSpritePacket *)AddDrawModePrim((u32 *)(CurrentDrawBuf+0x70),out_cursor,page);
+            sprite=(SpritePacket *)AddDrawModePrim((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]),(GpuDrawModePacket *)out_cursor,page);
         }
     }
     return (u8 *)sprite;
 }
 
-#undef AddDrawModePrim
-
-/* legacy typing of shared globals in this part of the unit */
-#define AddPrim ((void (*)(u32 *, u32 *))AddPrim)
 
 /* extern */
 struct S32 *EmitPolyFT3(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9) {
     SetPolyFT3(arg1);
-    M2C_FIELD(arg1, u16 *, 8) = (u16) M2C_FIELD(arg2, u16 *, 0);
-    M2C_FIELD(arg1, u16 *, 0xA) = (u16) M2C_FIELD(arg3, u16 *, 0);
-    M2C_FIELD(arg1, u16 *, 0x10) = (u16) M2C_FIELD(arg2, u16 *, 4);
-    M2C_FIELD(arg1, u16 *, 0x12) = (u16) M2C_FIELD(arg3, u16 *, 4);
-    M2C_FIELD(arg1, u16 *, 0x18) = (u16) M2C_FIELD(arg2, u16 *, 8);
-    M2C_FIELD(arg1, u16 *, 0x1A) = (u16) M2C_FIELD(arg3, u16 *, 8);
-    M2C_FIELD(arg1, u8 *, 0xC) = (u8) M2C_FIELD(arg4, u8 *, 0);
-    M2C_FIELD(arg1, u8 *, 0xD) = (u8) M2C_FIELD(arg5, u8 *, 0);
-    M2C_FIELD(arg1, u8 *, 0x14) = (u8) M2C_FIELD(arg4, u8 *, 4);
-    M2C_FIELD(arg1, u8 *, 0x15) = (u8) M2C_FIELD(arg5, u8 *, 4);
-    M2C_FIELD(arg1, u8 *, 0x1C) = (u8) M2C_FIELD(arg4, u8 *, 8);
-    M2C_FIELD(arg1, u8 *, 0x1D) = (u8) M2C_FIELD(arg5, u8 *, 8);
+    ((u16 *)arg1)[4] = (u16) ((u16 *)arg2)[0];
+    ((u16 *)arg1)[5] = (u16) ((u16 *)arg3)[0];
+    ((u16 *)arg1)[8] = (u16) ((u16 *)arg2)[2];
+    ((u16 *)arg1)[9] = (u16) ((u16 *)arg3)[2];
+    ((u16 *)arg1)[12] = (u16) ((u16 *)arg2)[4];
+    ((u16 *)arg1)[13] = (u16) ((u16 *)arg3)[4];
+    ((u8 *)arg1)[12] = (u8) ((u8 *)arg4)[0];
+    ((u8 *)arg1)[13] = (u8) ((u8 *)arg5)[0];
+    ((u8 *)arg1)[20] = (u8) ((u8 *)arg4)[4];
+    ((u8 *)arg1)[21] = (u8) ((u8 *)arg5)[4];
+    ((u8 *)arg1)[28] = (u8) ((u8 *)arg4)[8];
+    ((u8 *)arg1)[29] = (u8) ((u8 *)arg5)[8];
     SetSemiTrans(arg1, arg8 & 0xFFFF);
     if ((arg9 & 0xFFFF) != 0x80) {
         SetShadeTex(arg1, 0);
-        M2C_FIELD(arg1, s8 *, 4) = (s8) arg9;
-        M2C_FIELD(arg1, s8 *, 5) = (s8) arg9;
-        M2C_FIELD(arg1, s8 *, 6) = (s8) arg9;
+        ((s8 *)arg1)[4] = (s8) arg9;
+        ((s8 *)arg1)[5] = (s8) arg9;
+        ((s8 *)arg1)[6] = (s8) arg9;
     } else {
         SetShadeTex(arg1, 1);
     }
-    M2C_FIELD(arg1, u16 *, 0x16) = arg6;
-    M2C_FIELD(arg1, u16 *, 0xE) = arg7;
+    ((u16 *)arg1)[11] = arg6;
+    ((u16 *)arg1)[7] = arg7;
     AddPrim(arg0, (u32 *)arg1++);
     return arg1;
 }
 
-#undef AddPrim
 
 void *AddTileSemiTransPrim(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
-    M2C_FIELD(arg1, s8 *, 3) = 3;
-    M2C_FIELD(arg1, s16 *, 8) = arg2;
-    M2C_FIELD(arg1, s16 *, 0xC) = (s16) arg4;
-    M2C_FIELD(arg1, s8 *, 7) = 0x62;
-    M2C_FIELD(arg1, s16 *, 0xA) = arg3;
-    M2C_FIELD(arg1, s16 *, 0xE) = (s16) arg5;
-    M2C_FIELD(arg1, s8 *, 4) = (s8) arg6;
-    M2C_FIELD(arg1, s8 *, 5) = (s8) arg7;
-    M2C_FIELD(arg1, s8 *, 6) = (s8) arg8;
-    M2C_FIELD(arg1, s32 *, 0) = (s32) ((M2C_FIELD(arg1, s32 *, 0) & 0xFF000000) | (*arg0 & 0xFFFFFF));
+    ((s8 *)arg1)[3] = 3;
+    ((s16 *)arg1)[4] = arg2;
+    ((s16 *)arg1)[6] = (s16) arg4;
+    ((s8 *)arg1)[7] = 0x62;
+    ((s16 *)arg1)[5] = arg3;
+    ((s16 *)arg1)[7] = (s16) arg5;
+    ((s8 *)arg1)[4] = (s8) arg6;
+    ((s8 *)arg1)[5] = (s8) arg7;
+    ((s8 *)arg1)[6] = (s8) arg8;
+    ((s32 *)arg1)[0] = ((((s32 *)arg1)[0] & 0xFF000000) | (*arg0 & 0xFFFFFF));
     *arg0 = (*arg0 & 0xFF000000) | ((s32) arg1 & 0xFFFFFF);
     return arg1 + 0x10;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define AddPrim ((int (*)())AddPrim)
-#define SetShadeTex ((int (*)())SetShadeTex)
-
-struct P *GameQueueTileTrans(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8) {
-    SetLineF2(a1);
-    SetShadeTex(a1, 1);
-    a1->x = a2;
-    a1->y = a3;
-    a1->w = a4;
-    a1->h = a5;
-    a1->r = a6;
-    a1->g = a7;
-    a1->b = a8;
-    AddPrim(a0, a1++);
-    return a1;
+GpuLineF2Packet *GameQueueTileTrans(u32 *ordering, GpuLineF2Packet *line, s32 x0, s32 y0, s32 x1, s32 y1, s32 red, s32 green, s32 blue) {
+    SetLineF2(line);
+    SetShadeTex(line, 1);
+    line->x0 = x0;
+    line->y0 = y0;
+    line->x1 = x1;
+    line->y1 = y1;
+    line->r = red;
+    line->g = green;
+    line->b = blue;
+    AddPrim(ordering, (u32 *)line++);
+    return line;
 }
 
-#undef AddPrim
-#undef SetShadeTex
 
-/* legacy typing of shared globals in this part of the unit */
-#define AddPrim ((int (*)())AddPrim)
-#define SetShadeTex ((int (*)())SetShadeTex)
-
-struct P *AddLineF2SemiTrans(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8) {
-    SetLineF2(a1);
-    SetShadeTex(a1, 1);
-    a1->x = a2;
-    a1->y = a3;
-    a1->code |= 2;
-    a1->w = a4;
-    a1->h = a5;
-    a1->r = a6;
-    a1->g = a7;
-    a1->b = a8;
-    AddPrim(a0, a1++);
-    return a1;
+GpuLineF2Packet *AddLineF2SemiTrans(u32 *ordering, GpuLineF2Packet *line, s32 x0, s32 y0, s32 x1, s32 y1, s32 red, s32 green, s32 blue) {
+    SetLineF2(line);
+    SetShadeTex(line, 1);
+    line->x0 = x0;
+    line->y0 = y0;
+    line->code |= 2;
+    line->x1 = x1;
+    line->y1 = y1;
+    line->r = red;
+    line->g = green;
+    line->b = blue;
+    AddPrim(ordering, (u32 *)line++);
+    return line;
 }
 
-#undef AddPrim
-#undef SetShadeTex
 
-/* legacy typing of shared globals in this part of the unit */
-#define AddPrim ((void (*)(u32 *,u32 *))AddPrim)
-
-RrPolyF3Packet *func_8002071C(u32 *ordering,RrPolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags){
+PolyF3Packet *EmitPolyF3(u32 *ordering,PolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags){
  SetPolyF3(packet);
  SetSemiTrans(packet,flags);
  packet->xy0=xy0;
@@ -217,5 +191,3 @@ RrPolyF3Packet *func_8002071C(u32 *ordering,RrPolyF3Packet *packet,s32 xy0,s32 x
  AddPrim(ordering,(u32*)packet++);
  return packet;
 }
-
-#undef AddPrim

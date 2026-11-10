@@ -2,11 +2,11 @@
 #define RR_OVERLAY668_FRAME_ACQUIRE_H
 #include "rr/overlay668_stream.h"
 #include "rr/frame_storage_types.h"
-extern RrFrameStorage D_800ADAF0[2];
-void ClearImage(const RrGpuRectangleFields *,u8,u8,u8);
+#include "psyq/libgpu/gpuenv.h"
+extern FrameStorage D_800ADAF0[2];
 /* Poll at most2000 times. A successful header has the full queue-record
  * owner; activeB8 points to a complete playback state. Config and both frame
  * owners stay live across clear-image callbacks, which may replace activeB8.
  * Width arithmetic wraps32 bits before signed division and narrowing. */
-u8 *ovl668_func_80115164(RrStrDisplayConfig *config);
+u8 *ovl668_func_80115164(StrDisplayConfig *config);
 #endif

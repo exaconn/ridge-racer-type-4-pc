@@ -2,91 +2,28 @@
 #include "scratchpad.h"
 #include "rr_asm.h"
 #include "rr/race.h"
-#include "m2c_macros.h"
+#include "rr/track_sample_types.h"
+#include "game/car/carsp.h"
 #include "game/car/carmove1.h"
+#include "game/car/aipath.h"
 #include "rr/menu_overlay_runtime.h"
-
-typedef struct T16 {
-    s32 a;
-    s32 pa;
-    s32 c;
-    s32 pc;
-} T16;
-
-typedef struct SP {
-    char p0[8];
-    s32 idx;
-    char p1[0x34 - 0xC];
-    s32 w34;
-    s32 cnt;
-    s32 r3c;
-    s32 r40;
-    char p2[0x64 - 0x44];
-    u16 h64, h66, h68, h6a, h6c, h6e, h70, h72, h74, h76;
-    s32 w78;
-    char p3[0x80 - 0x7C];
-    s32 w80;
-    char p4[0x110 - 0x84];
-    T16 t110[4];
-    s16 s150[16];
-} SP;
-
-struct E
-{
-  char pad[0x1C];
-  short w;
-  char pad2[0x3C - 0x1E];
-};
+#include "game/course/trkclip.h"
 
 typedef struct 
 {
   int n;
-  char pad[0x38 - 4];
+  s32 gearData[13];
   short a;
   short b;
 } T;
 
 typedef struct 
 {
-  char p0[0x18];
-  T *t;
-  char p1[0x32 - 0x1C];
-  short s32;
-  short s34;
-  char p2[2];
-  short s38;
-  char p3[0x84 - 0x3A];
-  short s84;
-  short s86;
-  char p4[0xA4 - 0x88];
-  int sA4;
-} Q;
-
-typedef struct 
-{
-  char pad[0x1D8];
-  short s1D8;
-} O;
-
-typedef struct 
-{
-  char pad[3];
+  u8 b0, b1, b2;
   unsigned char b;
 } K;
 
-extern s32 TrackNodeCount;
-extern struct E *TrackNodes;
 extern K CarInputs[];
-extern int FindTrackNode();
-
-s32 FindTrackNodeUnbounded(s32 *pos, s32 startIdx);
-void UpdateCarTrackNode(RrRaceVehicle *p);
-void func_8002679C(void *arg0);
-void UpdateCarGear();
-void FindTrackNodeAtXZ(int a0, int a1);
-
-/* legacy typing of shared globals in this part of the unit */
-#define TrackNodes (*(s32 (*))&TrackNodes)
 
 s32 FindTrackNodeUnbounded(s32 *pos, s32 startIdx) {
     SP *g = (SP *)SCRATCH_CAR_WORK;
@@ -94,7 +31,7 @@ s32 FindTrackNodeUnbounded(s32 *pos, s32 startIdx) {
     s32 r;
     /* ASM_BARRIER: keep g->s150[0] load in $v0 across g->cnt increment */
     register s32 u __asm__("$2");
-    char *p, *q;
+    TrackSample3C *p, *q;
     s32 junk[2];
     /* ASM_BARRIER: GTE operand temps live in $t2/$t3/$t4 in the original PsyQ-style sequence */
     register s32 r1 __asm__("$10");
@@ -111,26 +48,26 @@ s32 FindTrackNodeUnbounded(s32 *pos, s32 startIdx) {
     for (;;) {
         g->w34 = (g->s150[0] + 1) % TrackNodeCount;
         a = g->w34;
-        p = (char *)TrackNodes + g->s150[0] * 0x3C;
+        p = &TrackNodes[g->s150[0]];
         /* ASM_BARRIER: boost p reference weight so local-alloc assigns $a2 to p and $a3 to q */
         __asm__("" : "+r"(p));
-        g->w78 = *(s32 *)(p + 8);
-        g->w80 = *(s32 *)(p + 12);
-        q = (char *)TrackNodes + a * 0x3C;
-        g->h74 = g->h70 = *(u16 *)(q + 8) - (u16)g->w78;
-        g->h76 = g->h72 = *(u16 *)(q + 12) - (u16)g->w80;
+        g->w78 = p->x08;
+        g->w80 = p->z0C;
+        q = &TrackNodes[a];
+        g->h74 = g->h70 = (u16)q->x08 - (u16)g->w78;
+        g->h76 = g->h72 = (u16)q->z0C - (u16)g->w80;
         g->h64 = (u16)g->t110[0].a - (u16)g->w78;
         g->h66 = (u16)g->t110[0].c - (u16)g->w80;
-        g->h70 += *(u16 *)(q + 0);
-        g->h72 += *(u16 *)(q + 2);
-        g->h74 += *(u16 *)(q + 4);
-        g->h76 += *(u16 *)(q + 6);
-        g->h68 = *(u16 *)(p + 0);
+        g->h70 += (u16)q->rightOffsetX00;
+        g->h72 += (u16)q->rightOffsetZ02;
+        g->h74 += (u16)q->leftOffsetX04;
+        g->h76 += (u16)q->leftOffsetZ06;
+        g->h68 = (u16)p->rightOffsetX00;
         /* ASM_BARRIER: keep r3 load from g->h64 after g->h68 store */
-        __asm__ volatile("" : : : "memory");
-        g->h6a = *(u16 *)(p + 2);
-        g->h6c = *(u16 *)(p + 4);
-        g->h6e = *(u16 *)(p + 6);
+        __asm__ ("" : : : "memory");
+        g->h6a = (u16)p->rightOffsetZ02;
+        g->h6c = (u16)p->leftOffsetX04;
+        g->h6e = (u16)p->leftOffsetZ06;
         r3 = *(s32 *)&g->h64;
         r1 = *(s32 *)&g->h68;
         r2 = *(s32 *)&g->h6c;
@@ -163,9 +100,8 @@ s32 FindTrackNodeUnbounded(s32 *pos, s32 startIdx) {
     return g->s150[0];
 }
 
-#undef TrackNodes
 
-void UpdateCarTrackNode(RrRaceVehicle *p)
+void UpdateCarTrackNode(RaceVehicle *p)
 {
   int s = 1;
   int t;
@@ -175,11 +111,11 @@ void UpdateCarTrackNode(RrRaceVehicle *p)
   int k;
   int j;
   int x;
-  struct E *new_var;
+  TrackSample3C *new_var;
   int n;
-  struct E *base;
+  TrackSample3C *base;
   int bk;
-  t = FindTrackNodeUnbounded(p->pos20, p->trackNodeF0);
+  t = FindTrackNodeUnbounded(p->position20.words, p->trackNodeF0);
   if (t < 0)
   {
     *(short *)&p->flags1E4 = -1;
@@ -212,7 +148,7 @@ void UpdateCarTrackNode(RrRaceVehicle *p)
             {
               j = n + x;
             }
-            p->first += new_var[j].w;
+            p->first += new_var[j].segmentLength1C;
           }
 
           break;
@@ -221,7 +157,7 @@ void UpdateCarTrackNode(RrRaceVehicle *p)
         {
           for (k = 1; s >= k; k++)
           {
-            p->first -= new_var[(p->trackNodeF0 + k) % n].w;
+            p->first -= new_var[(p->trackNodeF0 + k) % n].segmentLength1C;
           }
 
           break;
@@ -254,7 +190,7 @@ void UpdateCarTrackNode(RrRaceVehicle *p)
       {
         for (k = 0; k < s; k++)
         {
-          p->first += base[(p->trackNodeF0 + k) % n].w;
+          p->first += base[(p->trackNodeF0 + k) % n].segmentLength1C;
         }
 
         break;
@@ -271,7 +207,7 @@ void UpdateCarTrackNode(RrRaceVehicle *p)
           {
             j = n + x;
           }
-          p->first -= base[j].w;
+          p->first -= base[j].segmentLength1C;
         }
 
         if (n)
@@ -295,45 +231,43 @@ void UpdateCarTrackNode(RrRaceVehicle *p)
   p->trackNodeF0 = t;
 }
 
-void func_8002679C(void *arg0) {
+void ClampAiCarLateralMotion(RaceVehicle *arg0) {
     s32 temp_v1;
     s32 var_v1;
 
-    var_v1 = M2C_FIELD(arg0, s16 *, 0x1D8) * 3;
+    var_v1 = arg0->input * 3;
     if (var_v1 >= 0xC1) {
         var_v1 = 0xC0;
     }
-    temp_v1 = M2C_FIELD(arg0, s32 *, 0x178);
-    M2C_FIELD(arg0, s32 *, 0x17C) = (s32) ((M2C_FIELD(arg0, s32 *, 0x17C) - var_v1) & 0xFFF);
+    temp_v1 = arg0->lateralMotion178;
+    arg0->wheelSteering17C = (arg0->wheelSteering17C - var_v1) & 0xFFF;
     if (temp_v1 >= 0x1000) {
-        M2C_FIELD(arg0, s32 *, 0x178) = 0x1000;
+        arg0->lateralMotion178 = 0x1000;
         return;
     }
     if (temp_v1 < -0xFFF) {
-        M2C_FIELD(arg0, s32 *, 0x178) = -0x1000;
+        arg0->lateralMotion178 = -0x1000;
     }
 }
 
-void UpdateCarGear(a0, a1)
-O *a0;
-int a1;
+void UpdateCarGear(RaceVehicle *a0, int a1)
 {
-  Q *q = (Q *) (((char *) a0) + 0x1F4);
+  RaceVehicleControl *q = &a0->control;
   T *t;
-  q->s34 = q->s86;
-  t = q->t;
-  if (q->s84 != 0)
+  q->pathDeltaZ34 = q->previewSample84.halves.high;
+  t = (T *)q->record18;
+  if (q->previewSample84.halves.low != 0)
   {
     int v = CarInputs[a1].b;
     if (v & 4)
     {
-      if (q->s86 < t->n)
+      if (q->previewSample84.halves.high < t->n)
       {
-        if (q->s38 == 0)
+        if (q->laneTimer38 == 0)
         {
-          q->s86 = q->s86 + 1;
-          q->s38 = 10;
-          q->s32 = 1;
+          q->previewSample84.halves.high = q->previewSample84.halves.high + 1;
+          q->laneTimer38 = 10;
+          q->reserved32 = 1;
           return;
         }
       }
@@ -341,10 +275,10 @@ int a1;
     else
       if (v & 8)
     {
-      if (q->s86 >= 2)
+      if (q->previewSample84.halves.high >= 2)
       {
-        q->s86 = q->s86 - 1;
-        q->s38 = 10;
+        q->previewSample84.halves.high = q->previewSample84.halves.high - 1;
+        q->laneTimer38 = 10;
       }
     }
   }
@@ -353,36 +287,36 @@ int a1;
     int a;
     unsigned short u, u2;
     T *e1, *e2;
-    if (u = q->s86, a0->s1D8 < (e1 = &t[q->s86])->b)
+    if (u = q->previewSample84.halves.high, a0->input < (e1 = &t[q->previewSample84.halves.high])->b)
     {
-      if (q->s86 >= 2)
+      if (q->previewSample84.halves.high >= 2)
       {
-        q->s86 = u - 1;
-        q->s38 = 10;
+        q->previewSample84.halves.high = u - 1;
+        q->laneTimer38 = 10;
         goto L;
       }
     }
-    if (u2 = q->s86, a0->s1D8 >= (e2 = &t[q->s86])->a)
+    if (u2 = q->previewSample84.halves.high, a0->input >= (e2 = &t[q->previewSample84.halves.high])->a)
     {
-      if (q->s38 == 0)
+      if (q->laneTimer38 == 0)
       {
-        if (q->s86 < t->n)
+        if (q->previewSample84.halves.high < t->n)
         {
-          q->s86 = u2 + 1;
-          q->s38 = 10;
-          q->s32 = 1;
+          q->previewSample84.halves.high = u2 + 1;
+          q->laneTimer38 = 10;
+          q->reserved32 = 1;
         }
       }
     }
     L:
-    if (a0->s1D8 == 0)
+    if (a0->input == 0)
     {
-      if (q->s86 >= 2)
+      if (q->previewSample84.halves.high >= 2)
       {
-        if (q->sA4 != 4)
+        if (q->dynamics94.player.motionState10 != 4)
         {
-          q->s86 = 1;
-          q->s38 = 0;
+          q->previewSample84.halves.high = 1;
+          q->laneTimer38 = 0;
         }
       }
     }
@@ -390,10 +324,12 @@ int a1;
   }
 }
 
-void FindTrackNodeAtXZ(int a0, int a1)
+int FindTrackNodeAtXZ(int a0, int a1)
 {
     int sp[4];
+    /* ASM_BARRIER: pin y to $a1 */
     register int y asm("$5");
+    /* ASM_BARRIER: pin v to $v0 */
     register int v asm("$2");
     a0 >>= 2;
     y = a1 >> 2;
@@ -406,5 +342,5 @@ void FindTrackNodeAtXZ(int a0, int a1)
     a0 = a0 + ((v >> 11) << 5);
     if (a0 < 0) a0 = 0;
     else if (a0 >= 0x400) a0 = 0x3FF;
-    FindTrackNode(sp, D_800ACBE8[a0], 6);
+    return FindTrackNode(sp, TrackNodeGrid[a0], 6);
 }

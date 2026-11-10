@@ -3,7 +3,7 @@
 #include "rr/overlay662_distance.h"
 
 void ovl662_func_8011E5C0(s32 mode) {
-    RrGarageOptionRecord *options;
+    GarageOptionRecord *options;
     s32 row;
     s32 col;
     s32 target;

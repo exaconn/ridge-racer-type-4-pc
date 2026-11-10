@@ -1,129 +1,43 @@
+#include "game/system/pad.h"
+#include "psyq/libgte/gtemat3.h"
+#include "game/data/bankrec.h"
+#include "rr/race_types.h"
+#include "rr/tables.h"
 #include "scratchpad.h"
 #include "rr_asm.h"
+#include "game/car/carparam.h"
+#include "game/course/trkintp.h"
+#include "rr/overlay661_init.h"
+#include "rr/renderer_setup.h"
+#include "rr/steering.h"
+#include "game/math/rotmat.h"
+#include "rr/overlay665_render.h"
+#include "rr/trig.h"
+#include "game/car/carphys2.h"
 
-#define S(b, o) (*(short *)((b) + (o)))
-#define U(b, o) (*(unsigned short *)((b) + (o)))
-#define I(b, o) (*(int *)((b) + (o)))
+typedef struct {
+  s32 pad00;
+  MatrixWords32 m04;
+  MatrixWords32 m24;
+  MatrixWords32 m44;
+  struct { s16 x, y, z, pad; } v64;
+  struct { s16 x, y, z, pad; } v6C;
+  struct { s16 x, y, z, pad; } v74;
+} CarMotionScratch;
 
-typedef unsigned char u8;
-
-typedef unsigned short u16;
-
-typedef struct 
-{
-  short s0;
-  char p2[4];
-  short s6;
-  char p8[2];
-  unsigned short sA;
-  short sC;
-  short sE;
-  char p10[2];
-  short s12;
-  short s14;
-  char p16[2];
-  short s18;
-} R;
-
-typedef struct 
-{
-  short s0;
-  short s2;
-  char p4[4];
-  short s8[26];
-} S;
-
-typedef struct 
-{
-  char p0[0xC];
-  int sC;
-  char p10[8];
-  S *s18;
-  R *s1C;
-  char p20[4];
-  int s24;
-  char p28[8];
-  short s30;
-  short s32;
-  char p34[2];
-  short s36;
-  short s38;
-  char p3A[2];
-  short s3C;
-  char p3E[2];
-  short s40;
-  char p42[2];
-  short s44;
-  char p46[0x40];
-  short s86;
-  int s88;
-  int s8C;
-  char p90[0x10];
-  int sA0;
-  int sA4;
-  short sA8;
-  short sAA;
-  short sAC;
-  short sAE;
-} Q;
-
-typedef struct 
-{
-  char p0[0x50];
-  int s50;
-  int s54;
-  int s58;
-  char p5C[0x116];
-  short s172;
-  char p174[0x44];
-  short s1B8;
-  char p1BA[0x1A];
-  short s1D4;
-  short s1D6;
-  short s1D8;
-  char p1DA[4];
-  short s1DE;
-  int s1E0;
-  char p1E4[0x10];
-  Q q;
-} P;
-
-extern int AngleDiffSigned();
 extern int PadSetRumbleParams();
-extern int rcos();
-extern int PsyqRand();
-extern char PlayerCars[];
-extern int D_800AD568;
-extern char *CarRecordPtrs[];
-extern char PlayerControllers[];
+extern RaceVehicle PlayerCars[];
 extern int RaceState;
 extern unsigned char CarInputs[][4];
 extern short D_800F4C70[];
 extern short D_800F2AB4[];
-extern int AngleDiffAbs();
-extern void StepCarStateNormal();
-extern void StepCarStateSlide();
-extern void StepCarStateSpinOut();
-extern int BuildRotMatrixY();
-extern int BuildRotMatrixX();
-extern int BuildRotMatrixZ();
-extern int MulMatrix();
 
-void UpdatePlayerSteering();
-void UpdateCarEngine();
-void IntegrateCarMotion(char *p);
+void UpdatePlayerSteering(RaceVehicle *arg0, int arg1);
 
-/* legacy typing of shared globals in this part of the unit */
-#define CarInputs (*(char (*)[])&CarInputs)
-
-void UpdatePlayerSteering(arg0, arg1)
-char *arg0;
-int arg1;
-{
-  /* ASM_BARRIER: pin s1 to $17 */
-  register char *s1 asm("$17");
-  char *a2;
-  char *q;
+void UpdatePlayerSteering(RaceVehicle *arg0, int arg1) {
+  RaceVehicleControl *s1;
+  unsigned char *a2;
+  unsigned char (*q)[4];
   int v6;
   int v7;
   short h;
@@ -147,22 +61,22 @@ int arg1;
   int t2;
   int v0_3;
   s2 = 0x1800;
-  s1 = arg0 + 0x1F4;
+  s1 = &arg0->control;
   if (RaceState < 2)
   {
-    *((int *) (((char *) s1) + 0xC)) = 0;
-    *((int *) (((char *) arg0) + 0x178)) = 0;
+    s1->steerInput0C = 0;
+    arg0->lateralMotion178 = 0;
   }
   else
     if (RaceState < 4)
   {
     q = CarInputs;
-    a2 = (arg1 * 4) + q;
-    a1 = *((u8 *) (((char *) a2) + 3));
+    a2 = q[arg1];
+    a1 = a2[3];
     sw = a1 & 0xE0;
     if (sw == 0x20)
     {
-      s2 = ((*((short *) (((char *) (*((char **) (((char *) s1) + 0x1C)))) + 8))) * 0x1400) / 1000;
+      s2 = (s1->handling1C->steeringGain08 * 0x1400) / 1000;
       if (D_800AD568 != 0)
       {
         p1 = a1 & 1;
@@ -175,138 +89,137 @@ int arg1;
       }
       if (p0 != 0)
       {
-        t2 = *((int *) (((char *) s1) + 0xC));
-        *((short *) (((char *) s1) + 0x44)) = 1;
+        t2 = s1->steerInput0C;
+        s1->boostTimer44 = 1;
         if (t2 <= 0)
         {
           if ((-s2) < t2)
           {
-            *((int *) (((char *) s1) + 0xC)) = t2 - 0x500;
+            s1->steerInput0C = t2 - 0x500;
           }
         }
         else
         {
-          *((int *) (((char *) s1) + 0xC)) = 0;
+          s1->steerInput0C = 0;
         }
       }
       else
         if (p1 != 0)
       {
-        t2 = *((int *) (((char *) s1) + 0xC));
-        *((short *) (((char *) s1) + 0x44)) = -1;
+        t2 = s1->steerInput0C;
+        s1->boostTimer44 = -1;
         if (t2 < 0)
         {
-          *((int *) (((char *) s1) + 0xC)) = 0;
+          s1->steerInput0C = 0;
         }
         else
           if (t2 < s2)
         {
-          *((int *) (((char *) s1) + 0xC)) = t2 + 0x500;
+          s1->steerInput0C = t2 + 0x500;
         }
       }
       else
       {
-        *((short *) (((char *) s1) + 0x44)) = 0;
-        *((int *) (((char *) s1) + 0xC)) = (*((int *) (((char *) s1) + 0xC))) / 2;
+        s1->boostTimer44 = 0;
+        s1->steerInput0C = s1->steerInput0C / 2;
       }
-      *((int *) (((char *) arg0) + 0x178)) = -(*((int *) (((char *) s1) + 0xC)));
+      arg0->lateralMotion178 = -s1->steerInput0C;
     }
     else
       if (sw == 0x40)
     {
-      s2 = ((*((short *) (((char *) (*((char **) (((char *) s1) + 0x1C)))) + 8))) * 0x1800) / 1000;
-      a0 = (s2 * (*((signed char *) (((char *) a2) + 0)))) / 127;
+      s2 = (s1->handling1C->steeringGain08 * 0x1800) / 1000;
+      a0 = (s2 * (signed char)a2[0]) / 127;
       d0 = D_800AD568;
-      *((int *) (((char *) s1) + 0xC)) = a0;
+      s1->steerInput0C = a0;
       if (d0 != 0)
       {
-        *((int *) (((char *) s1) + 0xC)) = -a0;
+        s1->steerInput0C = -a0;
       }
-      r0 = *((int *) (((char *) s1) + 0xC));
+      r0 = s1->steerInput0C;
       if (r0 < 0)
       {
-        *((short *) (((char *) s1) + 0x44)) = 1;
+        s1->boostTimer44 = 1;
       }
       else
         if (r0 > 0)
       {
-        *((short *) (((char *) s1) + 0x44)) = -1;
+        s1->boostTimer44 = -1;
       }
       else
       {
-        *((short *) (((char *) s1) + 0x44)) = 0;
+        s1->boostTimer44 = 0;
       }
-      *((int *) (((char *) arg0) + 0x178)) = -(*((int *) (((char *) s1) + 0xC)));
+      arg0->lateralMotion178 = -s1->steerInput0C;
     }
     else
       if (sw == 0x60)
     {
-      s2 = ((*((short *) (((char *) (*((char **) (((char *) s1) + 0x1C)))) + 8))) * 0x1800) / 1000;
-      a0 = (s2 * (*((signed char *) (((char *) a2) + 0)))) / 127;
+      s2 = (s1->handling1C->steeringGain08 * 0x1800) / 1000;
+      a0 = (s2 * (signed char)a2[0]) / 127;
       d1 = D_800AD568;
-      *((int *) (((char *) s1) + 0xC)) = a0;
+      s1->steerInput0C = a0;
       if (d1 != 0)
       {
-        *((int *) (((char *) s1) + 0xC)) = -a0;
+        s1->steerInput0C = -a0;
       }
-      r1 = *((int *) (((char *) s1) + 0xC));
+      r1 = s1->steerInput0C;
       if (r1 < 0)
       {
-        *((short *) (((char *) s1) + 0x44)) = 1;
+        s1->boostTimer44 = 1;
       }
       else
         if (r1 > 0)
       {
-        *((short *) (((char *) s1) + 0x44)) = -1;
+        s1->boostTimer44 = -1;
       }
       else
       {
-        *((short *) (((char *) s1) + 0x44)) = 0;
+        s1->boostTimer44 = 0;
       }
-      *((int *) (((char *) arg0) + 0x178)) = -(*((int *) (((char *) s1) + 0xC)));
+      arg0->lateralMotion178 = -s1->steerInput0C;
     }
     else
       if (sw == 0x80)
     {
-      s2 = ((*((short *) (((char *) (*((char **) (((char *) s1) + 0x1C)))) + 8))) * 0x1400) / 1000;
-      a0 = (s2 * (*((signed char *) (((char *) a2) + 0)))) / 127;
+      s2 = (s1->handling1C->steeringGain08 * 0x1400) / 1000;
+      a0 = (s2 * (signed char)a2[0]) / 127;
       d2 = D_800AD568;
-      *((int *) (((char *) s1) + 0xC)) = a0;
+      s1->steerInput0C = a0;
       if (d2 != 0)
       {
-        *((int *) (((char *) s1) + 0xC)) = -a0;
+        s1->steerInput0C = -a0;
       }
-      r2 = *((int *) (((char *) s1) + 0xC));
+      r2 = s1->steerInput0C;
       if (r2 < 0)
       {
-        *((short *) (((char *) s1) + 0x44)) = 1;
+        s1->boostTimer44 = 1;
       }
       else
         if (r2 > 0)
       {
-        *((short *) (((char *) s1) + 0x44)) = -1;
+        s1->boostTimer44 = -1;
       }
       else
       {
-        *((short *) (((char *) s1) + 0x44)) = 0;
+        s1->boostTimer44 = 0;
       }
-      *((int *) (((char *) arg0) + 0x178)) = -(*((int *) (((char *) s1) + 0xC)));
+      arg0->lateralMotion178 = -s1->steerInput0C;
     }
     else
     {
-      *((int *) (((char *) s1) + 0xC)) = 0;
+      s1->steerInput0C = 0;
     }
   }
   else
   {
     int s0_else;
-    /* ASM_BARRIER: pin t5 to a1 for first call argument */
-    register int t5 asm("$5");
-    t5 = (*((short *) (((char *) arg0) + 0x1EA))) << 0xB;
+    int t5;
+    t5 = arg0->half1EA << 0xB;
     t5 += 0x800;
-    s0_else = AngleDiffSigned(*((int *) (((char *) arg0) + 0x54)), t5 - (*((short *) (((char *) arg0) + 0x1EC)))) << 8;
-    a0 = 0x1000 - rcos(((*((int *) (((char *) arg0) + 0xF4))) << 8) / 96);
-    if ((*((short *) (((char *) arg0) + 0x1D8))) < 0x320)
+    s0_else = AngleDiffSigned(arg0->rot54, t5 - (short)arg0->trackAngle1EC) << 8;
+    a0 = 0x1000 - rcos((arg0->lateralVelF4 << 8) / 96);
+    if (arg0->input < 0x320)
     {
       a0 = a0 * 8;
     }
@@ -314,17 +227,17 @@ int arg1;
     {
       a0 = a0 * 6;
     }
-    if ((*((short *) (((char *) arg0) + 0x1D8))) >= 0x51)
+    if (arg0->input >= 0x51)
     {
-      if ((*((short *) (((char *) arg0) + 0x1EA))) != 0)
+      if (arg0->half1EA != 0)
       {
-        if ((*((int *) (((char *) arg0) + 0xF4))) < 0)
+        if (arg0->lateralVelF4 < 0)
         {
           a0 = -a0;
         }
       }
       else
-        if ((*((int *) (((char *) arg0) + 0xF4))) > 0)
+        if (arg0->lateralVelF4 > 0)
       {
         a0 = -a0;
       }
@@ -332,7 +245,7 @@ int arg1;
     }
     else
     {
-      *((int *) (((char *) s1) + 0xC)) = 0;
+      s1->steerInput0C = 0;
       a0 = 0;
     }
     if (a0 < (-0x1400))
@@ -343,64 +256,62 @@ int arg1;
     {
       a0 = 0x1400;
     }
-    *((int *) (((char *) s1) + 0xC)) = a0;
-    *((int *) (((char *) arg0) + 0x178)) = -a0;
+    s1->steerInput0C = a0;
+    arg0->lateralMotion178 = -a0;
   }
-  if ((*((short *) (((char *) arg0) + 0x1B8))) == 0)
+  if (arg0->steeringLock1B8 == 0)
   {
-    t = *((short *) (((char *) s1) + 0x28));
-    if ((t > 0) && (t < (*((short *) (((char *) s1) + 0x2A)))))
+    t = s1->reserved28;
+    if ((t > 0) && (t < s1->steeringThreshold2A))
     {
       a0 = 0xC8;
     }
     else
     {
-      if (((*((short *) (((char *) arg0) + 0x19E))) == 1) && ((*((int *) (((char *) s1) + 0xA4))) == 0))
+      if ((arg0->shakeTimer19E == 1) && (s1->dynamics94.player.motionState10 == 0))
       {
-        /* ASM_BARRIER: pin h_sh to v0 for sll 16 */
-        register int h_sh asm("$2");
-        h_sh = (((short) (*((u16 *) (((char *) s1) + 0x36)))) / 3) << 16;
+        int h_sh;
+        h_sh = (s1->reserved36 / 3) << 16;
         a0 = (h_sh >> 16) / 30;
       }
       else
       {
         /* ASM_BARRIER: block hoist of a0 = 0 into bne delay slot */
-        __asm__ volatile("");
+        __asm__ ("");
         a0 = 0;
       }
     }
-    a1 = *((short *) (((char *) arg0) + 0x1D8));
-    if ((a1 < 0x100) && ((*((int *) (((char *) s1) + 0xA4))) == 0))
+    a1 = arg0->input;
+    if ((a1 < 0x100) && (s1->dynamics94.player.motionState10 == 0))
     {
-      d = ((((*((int *) (((char *) s1) + 0xC))) * ((*((short *) (((char *) s1) + 0x36))) + a0)) / 256) * a1) / 0x10000;
-      *((int *) (((char *) s1) + 0x9C)) = (*((int *) (((char *) s1) + 0x9C))) + d;
+      d = (((s1->steerInput0C * (s1->reserved36 + a0)) / 256) * a1) / 0x10000;
+      s1->dynamics94.player.steeringHeading08 = s1->dynamics94.player.steeringHeading08 + d;
     }
     else
-      if ((a1 < 0x200) && ((*((int *) (((char *) s1) + 0xA4))) == 4))
+      if ((a1 < 0x200) && (s1->dynamics94.player.motionState10 == 4))
     {
-      d = ((((*((int *) (((char *) s1) + 0xC))) * (*((short *) (((char *) s1) + 0x36)))) / 256) * a1) / 0x20000;
-      *((int *) (((char *) s1) + 0x9C)) = (*((int *) (((char *) s1) + 0x9C))) + d;
+      d = (((s1->steerInput0C * s1->reserved36) / 256) * a1) / 0x20000;
+      s1->dynamics94.player.steeringHeading08 = s1->dynamics94.player.steeringHeading08 + d;
     }
     else
     {
-      d = ((*((int *) (((char *) s1) + 0xC))) * ((*((short *) (((char *) s1) + 0x36))) + a0)) / 0x10000;
-      *((int *) (((char *) s1) + 0x9C)) = (*((int *) (((char *) s1) + 0x9C))) + d;
+      d = (s1->steerInput0C * (s1->reserved36 + a0)) / 0x10000;
+      s1->dynamics94.player.steeringHeading08 = s1->dynamics94.player.steeringHeading08 + d;
     }
   }
-  *((int *) (((char *) s1) + 0x9C)) = (*((int *) (((char *) s1) + 0x9C))) & 0xFFF;
-  if ((arg0 == PlayerCars) || (arg0 == (PlayerCars + 0x320)))
+  s1->dynamics94.player.steeringHeading08 = s1->dynamics94.player.steeringHeading08 & 0xFFF;
+  if ((arg0 == &PlayerCars[0]) || (arg0 == &PlayerCars[1]))
   {
-    /* ASM_BARRIER: pin p4 to a0 for PlayerControllers base */
-    register char *p4 asm("$4");
+    ControllerState5C *p4;
     p4 = PlayerControllers;
-    *((short *) ((p4 + ((arg1 & 1) * 0x5C)) + 0x50)) = 1;
-    s0 = *((short *) (((char *) arg0) + 0x1D8));
-    t = (*((short *) (((char *) CarRecordPtrs[arg1]) + 0x1F0))) * 8;
+    p4[arg1 & 1].rumbleActive50 = 1;
+    s0 = arg0->input;
+    t = CarRecordPtrs[arg1]->topSpeed1F0 * 8;
     if (t < s0)
     {
       s0 = t;
     }
-    a0 = *((int *) (((char *) s1) + 0xC));
+    a0 = s1->steerInput0C;
     if ((a0 >> 3) != 0)
     {
       s2 = (((s0 * 0x14) / t) * a0) / s2;
@@ -409,15 +320,15 @@ int arg1;
     {
       s2 = 0;
     }
-    c = *((int *) (((char *) s1) + 0xA4));
+    c = s1->dynamics94.player.motionState10;
     if (c == 0)
       goto L_not2;
     if (c != 2)
     {
     L_not2:
-      if ((*((short *) (((char *) (*((char **) (((char *) s1) + 0x1C)))) + 0xA))) > 0)
+      if (s1->handling1C->steeringMode0A > 0)
       {
-        v6 = *((short *) (((char *) arg0) + 0x1DE));
+        v6 = arg0->steerRoll1DE;
         if (v6 > 0)
         {
           s2 += ((int) (((-v6) >> 3) + (((unsigned) (-v6)) >> 31))) >> 1;
@@ -426,7 +337,7 @@ int arg1;
     }
     else
     {
-      s0 = AngleDiffSigned(*((short *) (((char *) arg0) + 0x1D4)), *((int *) (((char *) arg0) + 0x54)));
+      s0 = AngleDiffSigned(arg0->heading1D4, arg0->rot54);
       if (s0 >= 0x201)
       {
         s0 = 0x200;
@@ -444,7 +355,7 @@ int arg1;
       s0 = 1;
       s2 = -s2;
     }
-    if ((*((short *) (((char *) arg0) + 0x1B8))) != 0)
+    if (arg0->steeringLock1B8 != 0)
     {
       s2 = 0;
     }
@@ -456,13 +367,12 @@ int arg1;
     {
       s2 = 0xF;
     }
-    if ((*((u8 *) (((char *) arg0) + 0x1A5))) >= 0x10U)
+    if (arg0->stateTimer1A5 >= 0x10U)
     {
-      if ((*((u8 *) (((char *) arg0) + 0x1A4))) != 1)
+      if (arg0->state1A4 != 1)
       {
-        /* ASM_BARRIER: pin v7_reg to v0 for lh 0x1A2 */
-        register int v7_reg asm("$2");
-        v7_reg = *((short *) (((char *) arg0) + 0x1A2));
+        int v7_reg;
+        v7_reg = arg0->steerAngle1A2;
         if (v7_reg < 0)
         {
           v = v7_reg;
@@ -483,23 +393,23 @@ int arg1;
           s2 = v / 10;
         }
         s0 = 1;
-        if (((*((u8 *) (((char *) arg0) + 0x1A5))) & 7) >= 4U)
+        if ((arg0->stateTimer1A5 & 7) >= 4U)
         {
           s0 = 2;
         }
       }
     }
     else
-      if ((*((u8 *) (((char *) arg0) + 0x1A7))) != 0)
+      if (arg0->contactTimer1A7 != 0)
     {
       s2 = 0xD;
       s0 = 1;
-      if ((*((short *) (((char *) arg0) + 0x1B6))) > 0)
+      if (arg0->shakeRollOffset1B6 > 0)
       {
         s0 = 2;
       }
     }
-    if ((*((short *) (((char *) arg0) + 0x1D8))) == 0)
+    if (arg0->input == 0)
     {
       s0 = 0;
       s2 = 0xF;
@@ -511,14 +421,10 @@ int arg1;
   }
 }
 
-#undef CarInputs
-
-void UpdateCarEngine(a0)
-P *a0;
-{
-  Q *q;
-  R *r;
-  S *s;
+void UpdateCarEngine(RaceVehicle *a0) {
+  RaceVehicleControl *q;
+  VehicleHandlingPrefix *r;
+  CarGearRecord3C *s;
   int t0;
   int a2;
   int a1;
@@ -558,83 +464,83 @@ P *a0;
   int k6;
   int fl;
   short t;
-  int pad[8];
+  int unused[8];
   int ten;
-  q = &a0->q;
-  r = q->s1C;
-  off = (q->s86 * 0x3C) + 4;
-  s = (S *) (((int) q->s18) + off);
+  q = &a0->control;
+  r = q->handling1C;
+  off = (q->previewSample84.halves.high * 0x3C) + 4;
+  s = (CarGearRecord3C *) (((unsigned long) q->record18) + off);
   if (RaceState < 4)
   {
-    q->sAC = CarInputs[q->s24][1];
-    q->sAE = CarInputs[q->s24][2];
-    if (q->sAC >= 0xFF)
+    q->dynamics94.player.throttle18 = CarInputs[q->playerFlags24][1];
+    q->dynamics94.player.brake1A = CarInputs[q->playerFlags24][2];
+    if (q->dynamics94.player.throttle18 >= 0xFF)
     {
-      q->sAC = 0x100;
+      q->dynamics94.player.throttle18 = 0x100;
     }
-    if (q->sAE >= 0xFF)
+    if (q->dynamics94.player.brake1A >= 0xFF)
     {
-      q->sAE = 0x100;
-    }
-  }
-  else
-  {
-    q->sAC = (0x400 - a0->s172) / 4;
-    q->sAE = a0->s172 / 8;
-  }
-  if (q->sA8 == 0)
-  {
-    if (q->sAC >= 0x85)
-    {
-      q->sA8 = 1;
+      q->dynamics94.player.brake1A = 0x100;
     }
   }
   else
-    if (q->sA8 == 1)
   {
-    q->sA8 = 2;
+    q->dynamics94.player.throttle18 = (0x400 - a0->lateralOffset172) / 4;
+    q->dynamics94.player.brake1A = a0->lateralOffset172 / 8;
   }
-  else
-    if (q->sAC < 0x7C)
+  if (q->dynamics94.player.acceleratorEdge14 == 0)
   {
-    q->sA8 = 0;
-  }
-  if (q->sAA == 0)
-  {
-    if (q->sAE >= 0x85)
+    if (q->dynamics94.player.throttle18 >= 0x85)
     {
-      q->sAA = 1;
+      q->dynamics94.player.acceleratorEdge14 = 1;
     }
   }
   else
-    if (q->sAA == 1)
+    if (q->dynamics94.player.acceleratorEdge14 == 1)
   {
-    q->sAA = 2;
+    q->dynamics94.player.acceleratorEdge14 = 2;
   }
   else
-    if (q->sAE < 0x7C)
+    if (q->dynamics94.player.throttle18 < 0x7C)
   {
-    q->sAA = 0;
+    q->dynamics94.player.acceleratorEdge14 = 0;
   }
-  t0 = r->s0;
-  if (((short) r->sA) > 0)
+  if (q->dynamics94.player.brakeEdge16 == 0)
   {
-    if (a0->s1D8 >= 0x321)
+    if (q->dynamics94.player.brake1A >= 0x85)
     {
-      a2 = a0->s1DE + 0x12C;
+      q->dynamics94.player.brakeEdge16 = 1;
+    }
+  }
+  else
+    if (q->dynamics94.player.brakeEdge16 == 1)
+  {
+    q->dynamics94.player.brakeEdge16 = 2;
+  }
+  else
+    if (q->dynamics94.player.brake1A < 0x7C)
+  {
+    q->dynamics94.player.brakeEdge16 = 0;
+  }
+  t0 = r->baseGrip00;
+  if (r->steeringMode0A > 0)
+  {
+    if (a0->input >= 0x321)
+    {
+      a2 = a0->steerRoll1DE + 0x12C;
     }
     else
     {
       a2 = 0x12C;
     }
-    if (a0->s1DE > 0)
+    if (a0->steerRoll1DE > 0)
     {
-      t0 += (a0->s1DE * r->s18) >> 2;
+      t0 += (a0->steerRoll1DE * r->rollFactor18) >> 2;
     }
   }
   else
   {
-    m1 = q->sAC * 0x64;
+    m1 = q->dynamics94.player.throttle18 * 0x64;
     m2 = m1 >> 8;
     if (m1 < 0)
     {
@@ -642,58 +548,58 @@ P *a0;
       m2 = m1 >> 8;
     }
     a2 = 0x17C - m2;
-    if (q->s3C > 0)
+    if (q->laneTarget3C > 0)
     {
-      a2 += q->s3C * 3;
+      a2 += q->laneTarget3C * 3;
     }
-    a2 += ((q->sAE * (0x64 + (((short) r->sA) / 2))) * r->sC) / 256000;
+    a2 += ((q->dynamics94.player.brake1A * (0x64 + (r->steeringMode0A / 2))) * r->brakeBalance0C) / 256000;
   }
-  if (q->sA4 == 1)
+  if (q->dynamics94.player.motionState10 == 1)
   {
-    q->s36 = (q->s36 + a2) / 2;
+    q->reserved36 = (q->reserved36 + a2) / 2;
   }
   else
   {
-    n2 = q->s44 * a0->s58;
+    n2 = q->boostTimer44 * a0->rot58;
     if (n2 > 0)
     {
-      if (r->s12 < n2)
+      if (r->maxSlopePitch12 < n2)
       {
-        n2 = r->s12;
+        n2 = r->maxSlopePitch12;
       }
-      a2 = a2 + ((n2 * r->s14) / 1000);
+      a2 = a2 + ((n2 * r->slopeFactor14) / 1000);
     }
     m4 = a2 * t0;
-    q->s36 = q->s36 + ((((m4 / 1000) - q->s36) * 0x1C) / 32);
+    q->reserved36 = q->reserved36 + ((((m4 / 1000) - q->reserved36) * 0x1C) / 32);
   }
   ten = 10;
-  s3 = s->s0;
-  if (q->s38 == ten)
+  s3 = s->scaledRate00;
+  if (q->laneTimer38 == ten)
   {
-    a2 = ((q->s88 * s3) - q->sA0) / s3;
-    q->s8C = a2 / 10;
-    q->s40 = (q->s88 - ((a0->s1D8 * 10000) / ((s->s2 * 0x490) / 160))) / (q->s3C + 1);
+    a2 = ((q->laneMode88 * s3) - q->dynamics94.player.driveProduct0C) / s3;
+    *(s32 *)&q->steering8C = a2 / 10;
+    *(s16 *)&q->laneCooldown40 = (q->laneMode88 - ((a0->input * 10000) / ((s->speed02 * 0x490) / 160))) / (q->laneTarget3C + 1);
   }
-  if (q->s38 > 0)
+  if (q->laneTimer38 > 0)
   {
-    s1 = q->s8C;
-    q->s38 = q->s38 - 1;
-    if (q->s32 == 1)
+    s1 = *(s32 *)&q->steering8C;
+    q->laneTimer38 = q->laneTimer38 - 1;
+    if (q->reserved32 == 1)
     {
-      s3 = ((s->s0 * (ten - q->s38)) + (s[-1].s0 * q->s38)) / 10;
+      s3 = ((s->scaledRate00 * (ten - q->laneTimer38)) + (s[-1].scaledRate00 * q->laneTimer38)) / 10;
     }
   }
   else
   {
-    m5 = (q->s88 * s->s0) - q->sA0;
-    q->s32 = 0;
+    m5 = (q->laneMode88 * s->scaledRate00) - q->dynamics94.player.driveProduct0C;
+    q->reserved32 = 0;
     s1 = m5 / s3;
   }
-  if (q->s3C > 0)
+  if (q->laneTarget3C > 0)
   {
-    s1 += q->s40;
+    s1 += *(s16 *)&q->laneCooldown40;
   }
-  k1 = q->s88;
+  k1 = q->laneMode88;
   if (k1 >= 10000)
   {
     a1 = 0x26AC - k1;
@@ -702,23 +608,23 @@ P *a0;
   {
     n2 = k1 / 500;
     m7 = k1 - (n2 * 500);
-    if ((q->s86 == 1) && (n2 < 8))
+    if ((q->previewSample84.halves.high == 1) && (n2 < 8))
     {
-      k1 = s->s8[n2] * 3;
+      k1 = s->torqueCurve08[n2] * 3;
     }
     else
     {
-      k1 = s->s8[n2];
+      k1 = s->torqueCurve08[n2];
     }
-    a1 = ((k1 * (500 - m7)) + (s->s8[n2 + 1] * m7)) / 500;
+    a1 = ((k1 * (500 - m7)) + (s->torqueCurve08[n2 + 1] * m7)) / 500;
   }
-  s4 = ((a1 * q->sAC) >> 8) * ((0x100 - q->s30) >> 8);
-  if (a0->s1B8 == 0)
+  s4 = ((a1 * q->dynamics94.player.throttle18) >> 8) * ((0x100 - q->pathDeltaX30) >> 8);
+  if (a0->steeringLock1B8 == 0)
   {
-    k2 = q->s88;
+    k2 = q->laneMode88;
     n2 = k2 / 256;
-    n2 += (((k2 * q->sAE) / 256) * q->s1C->sC) / 32000;
-    if (((unsigned) (q->sA4 - 1)) < 2)
+    n2 += (((k2 * q->dynamics94.player.brake1A) / 256) * q->handling1C->brakeBalance0C) / 32000;
+    if (((q->dynamics94.player.motionState10 - 1)) < 2U)
     {
       n2 = 0;
     }
@@ -726,7 +632,7 @@ P *a0;
   }
   if (a1 > 0)
   {
-    if (q->sAC < 0x7F)
+    if (q->dynamics94.player.throttle18 < 0x7F)
     {
       s1 += a1 / 2;
     }
@@ -735,7 +641,7 @@ P *a0;
   {
     s1 -= a1 / 2;
   }
-  k3 = AngleDiffAbs(a0->s54, a0->s1D4);
+  k3 = AngleDiffAbs(a0->rot54, a0->heading1D4);
   if (k3 > 0x400)
   {
     k3 = 0x800 - k3;
@@ -746,23 +652,23 @@ P *a0;
     k6 = k3 + 0xFF;
   }
   s1 += k6 >> 8;
-  if (q->sA4 == 0)
+  if (q->dynamics94.player.motionState10 == 0)
   {
-    k4 = q->sC;
-    if ((CarInputs[q->s24][3] & 0xE0) != 0x20)
+    k4 = q->steerInput0C;
+    if ((CarInputs[q->playerFlags24][3] & 0xE0) != 0x20)
     {
       k4 = k4 >> 1;
     }
-    if (q->sC >= 0)
+    if (q->steerInput0C >= 0)
     {
-      s1 += k4 / r->s6;
+      s1 += k4 / r->steerDragDivisor06;
     }
     else
     {
-      s1 -= k4 / r->s6;
+      s1 -= k4 / r->steerDragDivisor06;
     }
   }
-  k1 = a0->s50;
+  k1 = a0->rot50;
   if (k1 < (-200))
   {
     k1 = -200;
@@ -773,53 +679,53 @@ P *a0;
     k1 = 100;
   }
   s4 = (s4 * (k1 + 1000)) / 1000;
-  n3 = q->s88 + (s4 - s1);
-  q->s88 = n3;
+  n3 = q->laneMode88 + (s4 - s1);
+  q->laneMode88 = n3;
   if (n3 < 0)
   {
-    q->s88 = 0;
+    q->laneMode88 = 0;
   }
   else
     if (n3 >= 0x3A99)
   {
-    q->s88 = 0x3A98;
+    q->laneMode88 = 0x3A98;
   }
-  lo = q->s88 * s3;
-  q->sA0 = lo;
-  if (a0->s1B8 != 0)
+  lo = q->laneMode88 * s3;
+  q->dynamics94.player.driveProduct0C = lo;
+  if (a0->steeringLock1B8 != 0)
   {
-    a0->s1E0 = 0;
-    t = a0->s1B8 | 0x100;
-    a0->s1B8 = t;
-    a0->s1D8 = (a0->s1D8 * 999) / 1000;
+    a0->physicsFlags1E0 = 0;
+    t = a0->steeringLock1B8 | 0x100;
+    a0->steeringLock1B8 = t;
+    a0->input = (a0->input * 999) / 1000;
     if (t == 0x100)
     {
-      q->s3C = 30;
-      q->s40 = (q->s88 - ((a0->s1D8 * 10000) / ((s->s2 * 0x490) / 160))) / 30;
-      a0->s1B8 = 0;
+      q->laneTarget3C = 30;
+      *(s16 *)&q->laneCooldown40 = (q->laneMode88 - ((a0->input * 10000) / ((s->speed02 * 0x490) / 160))) / 30;
+      a0->steeringLock1B8 = 0;
     }
   }
   else
-    if (((unsigned) (q->sA4 - 1)) < 2)
+    if (((q->dynamics94.player.motionState10 - 1)) < 2U)
   {
-    n2 = 0x1000 - rcos(AngleDiffAbs(a0->s1D4, a0->s54));
+    n2 = 0x1000 - rcos(AngleDiffAbs(a0->heading1D4, a0->rot54));
     x = (n2 * 100) >> 12;
-    k3 = r->sE;
+    k3 = r->slideRetention0E;
     k3 = k3 + 9000;
-    a0->s1D8 = (a0->s1D8 * (k3 - x)) / 10000;
-    a0->s1E0 = 0;
+    a0->input = (a0->input * (k3 - x)) / 10000;
+    a0->physicsFlags1E0 = 0;
   }
   else
-    if (q->s3C > 0)
+    if (q->laneTarget3C > 0)
   {
     x = lo;
     if (x < 0)
     {
       x += 0x1FFFF;
     }
-    a0->s1E0 = ((x >> 17) * (30 - q->s3C)) / 30;
-    k2 = (((a0->s1D8 * 6) / 100) * (30 - q->s3C)) / 30;
-    a0->s1D8 = a0->s1D8 - k2;
+    a0->physicsFlags1E0 = ((x >> 17) * (30 - q->laneTarget3C)) / 30;
+    k2 = (((a0->input * 6) / 100) * (30 - q->laneTarget3C)) / 30;
+    a0->input = a0->input - k2;
   }
   else
   {
@@ -828,17 +734,17 @@ P *a0;
     {
       n5 += 0x1FFFF;
     }
-    a0->s1E0 = n5 >> 17;
-    k2 = (a0->s1D8 * 6) / 100;
-    a0->s1D8 = a0->s1D8 - k2;
+    a0->physicsFlags1E0 = n5 >> 17;
+    k2 = (a0->input * 6) / 100;
+    a0->input = a0->input - k2;
   }
-  if (a0->s1D8 < 8)
+  if (a0->input < 8)
   {
-    a0->s1D4 = a0->s54;
+    a0->heading1D4 = a0->rot54;
   }
   if (RaceState >= 2)
   {
-    switch (q->sA4)
+    switch (q->dynamics94.player.motionState10)
     {
       case 0:
         StepCarStateNormal(a0);
@@ -857,19 +763,19 @@ P *a0;
   }
   else
   {
-    a0->s1D8 = 0;
+    a0->input = 0;
   }
-  if (q->sAC == 0)
+  if (q->dynamics94.player.throttle18 == 0)
   {
-    if (a0->s1D8 < 0x20)
+    if (a0->input < 0x20)
     {
-      a0->s1D8 = a0->s1D8 >> 1;
+      a0->input = a0->input >> 1;
     }
   }
-  if ((((char *) a0) == PlayerCars) || (((char *) a0) == (PlayerCars + 0x320)))
+  if ((a0 == &PlayerCars[0]) || (a0 == &PlayerCars[1]))
   {
-    d1 = D_800F4C70[q->s24 & 1];
-    k2 = a0->s1DE;
+    d1 = D_800F4C70[q->playerFlags24 & 1];
+    k2 = a0->steerRoll1DE;
     if (k2 > 0)
     {
       k2 = 0x64;
@@ -882,77 +788,77 @@ P *a0;
     {
       k2 = 1;
     }
-    D_800F4C70[q->s24 & 1] = d1 + (((q->s88 - d1) * 0x14) / k2);
-    if (D_800F4C70[q->s24 & 1] < 0x1F5)
+    D_800F4C70[q->playerFlags24 & 1] = d1 + (((q->laneMode88 - d1) * 0x14) / k2);
+    if (D_800F4C70[q->playerFlags24 & 1] < 0x1F5)
     {
-      D_800F4C70[q->s24 & 1] += 0x1F4 - ((PsyqRand() * 0x64) / 32767);
+      D_800F4C70[q->playerFlags24 & 1] += 0x1F4 - ((PsyqRand() * 0x64) / 32767);
     }
-    D_800F2AB4[q->s24 & 1] = (q->sAC >= 0x41) && (q->s38 == 0);
+    D_800F2AB4[q->playerFlags24 & 1] = (q->dynamics94.player.throttle18 >= 0x41) && (q->laneTimer38 == 0);
   }
 }
 
-void IntegrateCarMotion(char *p) {
-    char *s5;
-    char *s2;
-    char *s1;
-    char *s0;
+void IntegrateCarMotion(RaceVehicle *p) {
+    CarMotionScratch *s5;
+    MatrixWords32 *s2;
+    MatrixWords32 *s1;
+    MatrixWords32 *s0;
     int s3;
     int v1, v0, a1, a0, m1, m2;
 
-    s5 = (char *)SCRATCH_CAR_WORK;
-    if ((U(p, 0x1E4) & 0x10) == 0) {
-        m1 = S(p, 0x10E) * S(p, 0x1D8);
-        I(p, 0x30) = I(p, 0x30) << 8;
-        I(p, 0x38) = I(p, 0x38) << 8;
-        S(s5, 0x68) = m1 / (I(p, 0x2EC) / 128 + 1);
+    s5 = (CarMotionScratch *)SCRATCH_CAR_WORK;
+    if ((p->flags1E4 & 0x10) == 0) {
+        m1 = p->halfSpan10E * p->input;
+        p->vel30 = p->vel30 << 8;
+        p->vel38 = p->vel38 << 8;
+        s5->v64.z = m1 / (p->control.maxSpeedF8 / 128 + 1);
     } else {
-        m2 = S(p, 0x10E) * S(p, 0x1D8);
-        v0 = I(p, 0x28C) + 1;
-        S(s5, 0x68) = (m2 / v0) / 2;
-        S(p, 0x1DA) = U(p, 0x1D8);
-        S(p, 0x1D6) = U(p, 0x1D4);
+        m2 = p->halfSpan10E * p->input;
+        v0 = p->control.dynamics94.player.topGearSpeed04 + 1;
+        s5->v64.z = (m2 / v0) / 2;
+        p->prevInput1DA = (unsigned short)p->input;
+        p->prevHeading1D6 = (unsigned short)p->heading1D4;
     }
-    s2 = s5 + 0x24;
+    s2 = &s5->m24;
     s3 = 0x800;
-    a1 = s3 - I(p, 0x54);
-    I(p, 0) = I(p, 0) + I(p, 0x30);
-    I(p, 8) = I(p, 8) + I(p, 0x38);
-    I(p, 0x10) = I(p, 0) >> 6;
-    I(p, 0x18) = I(p, 8) >> 6;
+    a1 = s3 - p->rot54;
+    p->posScaled00[0] = p->posScaled00[0] + p->vel30;
+    p->posScaled00[2] = p->posScaled00[2] + p->vel38;
+    p->pos10[0] = p->posScaled00[0] >> 6;
+    p->pos10[2] = p->posScaled00[2] >> 6;
     BuildRotMatrixY(s2, a1);
-    s0 = s5 + 4;
-    BuildRotMatrixX(s0, I(p, 0x50));
+    s0 = &s5->m04;
+    BuildRotMatrixX(s0, p->rot50);
     MulMatrix(s2, s0);
-    BuildRotMatrixZ(s0, I(p, 0x58));
+    BuildRotMatrixZ(s0, p->rot58);
     MulMatrix(s2, s0);
-    s1 = s5 + 0x44;
-    BuildRotMatrixY(s1, s3 - S(p, 0x82));
-    BuildRotMatrixX(s0, S(p, 0x80));
+    s1 = &s5->m44;
+    BuildRotMatrixY(s1, s3 - p->ang82);
+    BuildRotMatrixX(s0, p->ang80);
     MulMatrix(s1, s0);
-    BuildRotMatrixZ(s0, S(p, 0x84));
+    BuildRotMatrixZ(s0, p->ang84);
     MulMatrix(s1, s0);
-    S(s5, 0x64) = 0;
-    S(s5, 0x66) = -U(p, 0x108);
+    s5->v64.x = 0;
+    s5->v64.y = -(unsigned short)p->height108;
     RR_GTE_SETROT(s2);
-    RR_GTE_MVMVA_ROT_V0_NOCV(s5 + 0x64);
-    S(s5, 0x6C) = 0;
-    v0 = S(p, 0xE8);
-    v1 = S(p, 0xEA);
-    S(s5, 0x70) = 0;
-    S(s5, 0x6E) = (v0 + v1) >> 7;
-    RR_GTE_STORE_IR(p + 0x40);
+    RR_GTE_MVMVA_ROT_V0_NOCV(&s5->v64);
+    s5->v6C.x = 0;
+    v0 = p->wheelOffsetE4[2];
+    v1 = p->wheelOffsetE4[3];
+    s5->v6C.z = 0;
+    s5->v6C.y = (v0 + v1) >> 7;
+    RR_GTE_STORE_IR(p->ir40);
     RR_GTE_SETROT(s1);
-    RR_GTE_MVMVA_ROT_V0_NOCV(s5 + 0x6C);
-    S(s5, 0x74) = 0;
-    v0 = S(p, 0xE0);
-    v1 = S(p, 0xE2);
-    S(s5, 0x78) = 0;
-    S(s5, 0x76) = (v0 + v1) >> 3;
-    RR_GTE_STORE_IR(p + 0x70);
-    RR_GTE_MVMVA_ROT_V0_NOCV(s5 + 0x74);
-    I(p, 0x10) = I(p, 0x10) + I(p, 0x40);
-    I(p, 0x18) = I(p, 0x18) + I(p, 0x48);
-    I(p, 0x20) = I(p, 0x10) >> 2;
-    I(p, 0x28) = I(p, 0x18) >> 2;
-    RR_GTE_STORE_IR(p + 0x60);
+    RR_GTE_MVMVA_ROT_V0_NOCV(&s5->v6C);
+    s5->v74.x = 0;
+    v0 = p->wheelSuspensionDC[2];
+    v1 = p->wheelSuspensionDC[3];
+    s5->v74.z = 0;
+    s5->v74.y = (v0 + v1) >> 3;
+    RR_GTE_STORE_IR(p->ir70);
+    RR_GTE_MVMVA_ROT_V0_NOCV(&s5->v74);
+    p->pos10[0] = p->pos10[0] + p->ir40[0];
+    p->pos10[2] = p->pos10[2] + p->ir40[2];
+    p->position20.words[0] = p->pos10[0] >> 2;
+    p->position20.words[2] = p->pos10[2] >> 2;
+    RR_GTE_STORE_IR(p->ir60);
 }

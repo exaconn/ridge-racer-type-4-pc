@@ -1,5 +1,5 @@
-func_80018D44
-func_800293D0
+EmitSkyLitGT4
+SetupRaceMemoryArena
 SoundQueueEnqueue
 EmitTexturedPanel
 RelocateRelativeFile

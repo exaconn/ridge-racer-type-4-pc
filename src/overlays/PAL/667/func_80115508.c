@@ -1,3 +1,4 @@
+#include "game/sound/sndque.h"
 #include "rr/overlay667_checkpoint.h"
 
 extern s32 TrackLength;
@@ -7,17 +8,16 @@ extern s32 TotalRaceTime;
 extern s16 D_800AC5D0;
 extern void SaveCarSnapshots(s32);
 extern void SoundSetMasterVolume(s16, s16);
-extern void *SoundQueueEnqueue(s32, s32);
 
-void ovl667_func_80115508(RrRaceCheckpointVehicle *arg0) {
-    RrRaceVehicleControl *sub = &arg0->control;
+void ovl667_func_80115508(RaceVehicle *arg0) {
+    RaceVehicleControl *sub = &arg0->control;
     /* MIPS sums and products retain their low 32 bits. */
-    if ((s32)((u32)arg0->second + (u32)arg0->first) >= (s32)((u32)(s32)sub->steering94.count22 * (u32)TrackLength)) {
-        if (sub->steering94.count22 <= NumLaps) {
-            sub->steering94.count22=(s16)((u16)sub->steering94.count22+1U);
-            if (sub->steering94.count22 == NumLaps) {
+    if ((s32)((u32)arg0->second + arg0->first) >= (s32)((u32)(s32)sub->dynamics94.steering.count22 * TrackLength)) {
+        if (sub->dynamics94.steering.count22 <= NumLaps) {
+            sub->dynamics94.steering.count22=(s16)((u16)sub->dynamics94.steering.count22+1U);
+            if (sub->dynamics94.steering.count22 == NumLaps) {
                 SaveCarSnapshots(0);
-            } else if (sub->steering94.count22 > NumLaps) {
+            } else if (sub->dynamics94.steering.count22 > NumLaps) {
                 if (RaceState < 4) {
                     TotalRaceTime = 1;
                     RaceState = 4;

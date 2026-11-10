@@ -25,8 +25,8 @@ class ChannelTempoRampTest(unittest.TestCase):
 #include "rr/channel_stream.h"
 #define BANKS 32
 #define ROWS 8
-typedef struct {u32 guard[4];RrChannelStreamB0 records[BANKS][ROWS];
- RrChannelStreamB0 *slots[BANKS];u32 rate;u32 tail[4];} World;
+typedef struct {u32 guard[4];ChannelStreamB0 records[BANKS][ROWS];
+ ChannelStreamB0 *slots[BANKS];u32 rate;u32 tail[4];} World;
 static World actual,expected;static u8 buffers[5][64];
 static u32 seed=0x84314;static unsigned paths[14];
 static u32 next(void){u32 x=seed;x^=x<<13;x^=x>>17;x^=x<<5;return seed=x;}
@@ -36,7 +36,7 @@ static s32 wrap(int64_t x){return signed32((u32)x);}
 #define _ss_score (actual.slots)
 #define VBLANK_MINUS (actual.rate)
 '''+body+r'''
-static void model(unsigned bank,unsigned row){RrChannelStreamB0 *r=&expected.records[bank][row];
+static void model(unsigned bank,unsigned row){ChannelStreamB0 *r=&expected.records[bank][row];
  s32 left=wrap((int64_t)r->tempoRemainingA8-1);int step=r->interval4E;u32 tempo=r->tempo94,target=r->targetTempoAC;
  uint64_t product,dividend,denominator,quotient;s32 pitch;r->tempoRemainingA8=left;
  if(left<0){r->mode98&=~192;paths[0]++;return;}
@@ -70,22 +70,22 @@ static void compare(void){unsigned b;
 int main(void){unsigned n,b,row,i,phase;uint64_t cases=0;unsigned seen[65536]={0};
  static const u32 rates[9]={0,1,50,60,70,0x40000000,0x80000000,0xc0000000,0xffffffff};
  static const u32 edges[8]={0,1,2,127,32768,0x7fffffff,0x80000000,0xffffffff};
- _Static_assert(sizeof(RrChannelStreamB0)==200,"native full owner");
- _Static_assert(offsetof(RrChannelStreamB0,interval4E)==78+5*(sizeof(void*)-4),"signed interval");
- _Static_assert(offsetof(RrChannelStreamB0,scale50)==80+5*(sizeof(void*)-4),"signed scale");
- _Static_assert(offsetof(RrChannelStreamB0,tempo94)==148+5*(sizeof(void*)-4),"tempo");
- _Static_assert(offsetof(RrChannelStreamB0,tempoRemainingA8)==168+5*(sizeof(void*)-4),"remaining");
- _Static_assert(offsetof(RrChannelStreamB0,targetTempoAC)==172+5*(sizeof(void*)-4),"target");
+ _Static_assert(sizeof(ChannelStreamB0)==200,"native full owner");
+ _Static_assert(offsetof(ChannelStreamB0,interval4E)==78+5*(sizeof(void*)-4),"signed interval");
+ _Static_assert(offsetof(ChannelStreamB0,scale50)==80+5*(sizeof(void*)-4),"signed scale");
+ _Static_assert(offsetof(ChannelStreamB0,tempo94)==148+5*(sizeof(void*)-4),"tempo");
+ _Static_assert(offsetof(ChannelStreamB0,tempoRemainingA8)==168+5*(sizeof(void*)-4),"remaining");
+ _Static_assert(offsetof(ChannelStreamB0,targetTempoAC)==172+5*(sizeof(void*)-4),"target");
  assert((uintptr_t)&actual>UINT32_MAX);assert((uintptr_t)buffers>UINT32_MAX);
  {unsigned char *p=(unsigned char*)&actual;for(i=0;i<sizeof(actual);i++)p[i]=(u8)next();}
  for(b=0;b<BANKS;b++){
   actual.slots[b]=actual.records[b];
-  for(row=0;row<ROWS;row++){RrChannelStreamB0 *r=&actual.records[b][row];
+  for(row=0;row<ROWS;row++){ChannelStreamB0 *r=&actual.records[b][row];
    r->cursor00=buffers[0]+row;r->start04=buffers[1]+b;r->saved08=buffers[2]+row;
    r->alternate0C=buffers[3]+b;r->marker10=buffers[4]+row;}
  }
  for(n=0;n<524288;n++){
-  RrChannelStreamB0 *r;s32 remaining;int interval,willDivide;
+  ChannelStreamB0 *r;s32 remaining;int interval,willDivide;
   b=n%BANKS;row=(n/BANKS)%ROWS;phase=n/65536;r=&actual.records[b][row];
   interval=signed16((u16)n);r->interval4E=(s16)interval;r->scale50=signed16((u16)(n/8));
   r->mode98=signed32(next());r->pitch54=signed16((u16)next());r->tempo94=next();r->targetTempoAC=next();

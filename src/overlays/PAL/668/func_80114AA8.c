@@ -1,4 +1,5 @@
 #include "rr/overlay668_dispatch.h"
+#include "rr/load_cursor.h"
 void ovl668_func_80114AA8(void) {
     switch (D_800AC704) {
     case 0:

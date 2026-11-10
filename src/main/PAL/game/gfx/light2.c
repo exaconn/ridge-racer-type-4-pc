@@ -3,8 +3,7 @@
 #include "rr_asm.h"
 #include "game/gfx/light2.h"
 #include "rr/menu_overlay_runtime.h"
-void SetLightColorsFromAngle(a0) int a0;
-{
+void SetLightColorsFromAngle(int a0) {
     int *p; 
     register int x asm("$17"); /* ASM_BARRIER: pin to s-reg like the original saves */
     register int s2 asm("$18"); /* ASM_BARRIER: pin to s-reg like the original saves */
@@ -25,5 +24,5 @@ void SetLightColorsFromAngle(a0) int a0;
     RR_GTE_SETLCM(p);
     z = 0;
     RR_GTE_SETBK(z, z, z);
-    asm volatile("" : : "r"(s2)); /* ASM_BARRIER: keep s2 live so mask goes through a0 */
+    asm ("" : : "r"(s2)); /* ASM_BARRIER: keep s2 live so mask goes through a0 */
 }

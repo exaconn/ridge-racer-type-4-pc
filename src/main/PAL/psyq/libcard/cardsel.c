@@ -4,11 +4,6 @@
 
 typedef struct { unsigned char b0; char p0[3]; unsigned short h4; char p1[4]; unsigned short hA; } S;
 
-/* legacy typing of shared globals in this part of the unit */
-#define CardSio0Base ((S *)CardSio0Base)
-#define I_STAT_CardSel ((int *)I_STAT_CardSel)
-#define setRC2wait ((int (*)())setRC2wait)
-
 int _cardSelectSlot(a0) int a0; {
     volatile S *p, *q = CardSio0Base;
     q->hA = 0;
@@ -32,14 +27,11 @@ int _cardSelectSlot(a0) int a0; {
     return 1;
 }
 
-#undef CardSio0Base
-#undef I_STAT_CardSel
-#undef setRC2wait
 
 s32 _cardXferByte(s32 value) {
     s32 ready, completed, input;
-    RrSerialPortRegisters *initial=CardSio0Base;
-    RrSerialPortRegisters *port;
+    SerialPortRegisters *initial=CardSio0Base;
+    SerialPortRegisters *port;
     u32 *interrupt;
     {
         /* ASM_BARRIER: Keep the captured byte in the original zero-extended temporary. */
@@ -62,7 +54,7 @@ s32 _cardXferByte(s32 value) {
         {
             /* ASM_BARRIER: Form the complemented byte in the original polling delay slot. */
             register u32 complement __asm__("$2")=~input;
-            RrSerialPortRegisters *output=CardSio0Base;
+            SerialPortRegisters *output=CardSio0Base;
             /* ASM_BARRIER: Preserve the original load gap before the shared success jump. */
             RR_NOP_DEP_ON(output);
             /* Ordinary write view retains the original jump-delay store. */
@@ -77,12 +69,12 @@ irq_test:
     if(!(*I_STAT_CardSel&0x80)) goto irq_wait;
     ready=1;
 irq_done:
-    if(!ready) return (u32)-0x200-(u32)D_80114700;
+    if(!ready) return (u32)-0x200-D_80114700;
     setRC2wait(5);
     while(!chkRC2wait()) {}
     {
         s32 limit=60;
-        RrSerialPortRegisters *output;
+        SerialPortRegisters *output;
         /* ASM_BARRIER: Prepare the next timer limit before loading the fresh output port. */
         __asm__("" : "+r"(limit));
         output=CardSio0Base;
@@ -103,7 +95,7 @@ irq_done:
     completed=1;
     CardSio0Base->control|=0x10;
 transmit_done:
-    if(!completed) return (u32)-0x300-(u32)D_80114700;
+    if(!completed) return (u32)-0x300-D_80114700;
 success:
     return D_80114700;
 }

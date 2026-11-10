@@ -5,9 +5,9 @@ void ovl662_func_801207C8(s32 action)
     u32 *buffer;
     register u32 *image __asm__("$4");
     register u32 *palette __asm__("$3");
-    register RrGarageTimBytes *tim __asm__("$5");
+    register GarageTimBytes *tim __asm__("$5");
     u8 selected;
-    volatile RrGarageSelectionPrefix *state;
+    volatile GarageSelectionPrefix *state;
 
     if (action < 0) {
         return;
@@ -62,7 +62,7 @@ void ovl662_func_801207C8(s32 action)
                 ovl662_D_801276A8.saved64[4] = 0;
             }
             ovl662_func_8011D120();
-            ((RrGarageButton *)ovl662_D_801273B8[15])->timer0E = 7;
+            ((GarageButton *)ovl662_D_801273B8[15])->timer0E = 7;
             PlaySfx(1);
 
             /* Preserve the observed pointer access order after sound.
@@ -73,7 +73,7 @@ void ovl662_func_801207C8(s32 action)
             tim = state->tim2C[selected];
             image = state->image40[selected];
             palette = state->paletteBackup50[selected];
-            state->tim2C[selected] = (RrGarageTimBytes *)buffer;
+            state->tim2C[selected] = (GarageTimBytes *)buffer;
             state->image40[selected] = state->image38[selected];
             buffer = state->palette48[selected];
             state->buffers24[selected] = (u32 *)tim;

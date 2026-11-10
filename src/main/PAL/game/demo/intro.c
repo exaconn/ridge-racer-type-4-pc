@@ -1,8 +1,9 @@
 /* RODATA 0x80011270 0x2c */
 #include "types.h"
+#include "rr/frame_storage_types.h"
+#include "rr/load_cursor.h"
 #include "scratchpad.h"
 #include "rr/line_emit.h"
-#include "m2c_macros.h"
 #include "game/effect/effect.h"
 #include "game/effect/fxspr.h"
 #include "game/gfx/fadesel.h"
@@ -12,7 +13,10 @@
 #include "rr/driver_control.h"
 #include "rr/bios_devices.h"
 #include "rr/course_choices.h"
-#include "game/gfx/drawbuf.h"
+#include "rr/fade_sprite.h"
+#include "rr/trig.h"
+#include "rr/badge_rows.h"
+#include "game/data/trkld1.h"
 
 struct Entry {
     int frame;
@@ -20,56 +24,19 @@ struct Entry {
 };
 
 struct Buf {
-    char pad[0x19];
+    char unk00[0x19];
     unsigned char r;
     unsigned char g;
     unsigned char b;
-    char pad2[0x22778 - 0x1C];
+    char unk1C[0x22778 - 0x1C];
 };
 
 extern struct Entry IntroTimeline[];
 extern int FrameCounter;
 extern struct Buf D_800ADAF0[];
-extern struct {
-    char pad0[0x3E0];
-    int f3E0;
-    int f3E4;
-    int f3E8;
-    int f3EC;
-    unsigned char f3F0;
-    unsigned char f3F1;
-    unsigned char f3F2;
-    unsigned char f3F3;
-    int f3F4;
-    int f3F8;
-    int f3FC;
-    int f400;
-    int f404;
-    int f408;
-    int f40C;
-    short f410;
-    short f412;
-    short f414;
-    short f416;
-    short f418;
-    short f41A;
-    int f41C;
-    int f420;
-    int f424;
-    int f428;
-    int f42C;
-    int f430;
-    int f434;
-    int f438;
-    int f43C;
-    int f440;
-} RaceContext;
-extern void EmitFadeSprite(int, int, int, int);
-extern int rsin(int);
-extern int AddTileGrid2x2(char *, int, int, int, int, int, int, int, int);
-extern int RaceLoadReset();
+extern FadeRaceContext RaceContext;
 extern s32 CdDirectoryBuffer;
-extern M2C_UNK D_800ACA94;
+extern s32 D_800ACA94;
 extern s16 D_800F3A26;
 extern s16 ModeGroup;
 extern s16 D_800F4D8A;
@@ -136,9 +103,9 @@ int IntroScriptStep(void) {
     }
 
     if (RaceContext.f428 == 1) {
-        RaceContext.f3E8 -= 0x10;
-        if (RaceContext.f3E8 <= 0x80) {
-            RaceContext.f3E8 = 0x80;
+        RaceContext.scale3E8 -= 0x10;
+        if (RaceContext.scale3E8 <= 0x80) {
+            RaceContext.scale3E8 = 0x80;
             RaceContext.f428 = 2;
         }
     }
@@ -163,7 +130,7 @@ int IntroScriptStep(void) {
     }
 
     if (RaceContext.f440 > 0) {
-        func_8005C4E0();
+        DrawIntroRippleSprites();
     }
 
     if (RaceContext.f3F4) {
@@ -213,7 +180,7 @@ int IntroScriptStep(void) {
             c += 0xFF;
         }
         c >>= 8;
-        c *= RaceContext.f3E8;
+        c *= RaceContext.scale3E8;
         if (c < 0) {
             c += 0xFF;
         }
@@ -277,12 +244,12 @@ int IntroScriptStep(void) {
     }
 
     UpdateFadeTint(RaceContext.f3EC);
-    *(int *)SCRATCHPAD = AddTileGrid2x2(CurrentDrawBuf + 0xB6C, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x200,
-                                       RaceContext.f3F0, RaceContext.f3F1, RaceContext.f3F2);
+    *(void **)SCRATCHPAD = AddTileGrid2x2(&CurrentDrawBuf->buffer.ordering70.words[703], *(int *)SCRATCHPAD, 0, 0, 0x140, 0x200,
+                                       RaceContext.r3F0, RaceContext.g3F1, RaceContext.b3F2);
     for (i = 0; i < 2; i++) {
-        D_800ADAF0[i].r = RaceContext.f3F0;
-        D_800ADAF0[i].g = RaceContext.f3F1;
-        D_800ADAF0[i].b = RaceContext.f3F2;
+        D_800ADAF0[i].r = RaceContext.r3F0;
+        D_800ADAF0[i].g = RaceContext.g3F1;
+        D_800ADAF0[i].b = RaceContext.b3F2;
     }
 
     RaceContext.f3E4++;
@@ -321,9 +288,9 @@ int IntroScriptStep(void) {
 
 void IntroInit(void) {
     SetDispMask(0);
-    func_80096434(&D_800ACA94, 0x78);
-    func_8005C13C(0);
-    func_8005C988(0);
+    PsyqBzero(&D_800ACA94, 0x78);
+    InitDemoFadeContext(0);
+    SelectDemoFadePreset(0);
     LoadCursor = CdDirectoryBuffer;
     RaceLoadReset();
     ModeGroup = 2;

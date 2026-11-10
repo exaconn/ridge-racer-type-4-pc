@@ -13,7 +13,7 @@ class Overlay662PaletteTileTest(unittest.TestCase):
         offset=sector*2048-0x80114878
         rows=[struct.unpack_from('<iHHBBHiI',blob,offset+0x80126260+20*i) for i in range(72)]
         self.assertEqual(sorted(r[6] for r in rows),list(range(72)))
-        original='static const RrGarageSpriteRecord original[72]={\n'+',\n'.join('{'+','.join(map(str,r))+'}' for r in rows)+'\n};\n'
+        original='static const GarageSpriteRecord original[72]={\n'+',\n'.join('{'+','.join(map(str,r))+'}' for r in rows)+'\n};\n'
         sprite=(root/'src/overlays/PAL/662/func_8011B2D4.c').read_text()
         hint='    __asm__("" ::: "memory");\n'
         self.assertEqual(sprite.count(hint),1)
@@ -31,8 +31,8 @@ class Overlay662PaletteTileTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_palette_tile.h"
-typedef struct {RrGpuTilePacket tile;RrSpritePacket highlight;} Stream;
-static struct World {u32 guard[4];RrGarageSelectionPrefix state;RrGpuScratchPointers scratch;RrPalette16 palettes[2];RrGarageRectangle rectangles[46];RrGarageRectangle *table[46];RrGarageSpriteRecord records[72];RrGarageSpriteRecord *lookup[72];u32 order[704];Stream stream;u32 tail[4];} world,expected;
+typedef struct {GpuTilePacket tile;SpritePacket highlight;} Stream;
+static struct World {u32 guard[4];GarageSelectionPrefix state;GpuScratchPointers scratch;Palette16 palettes[2];GarageRectangle rectangles[46];GarageRectangle *table[46];GarageSpriteRecord records[72];GarageSpriteRecord *lookup[72];u32 order[704];Stream stream;u32 tail[4];} world,expected;
 #define ovl662_D_801276A8 world.state
 #define RR_GPU_SCRATCH (&world.scratch)
 #define ovl662_D_801273B8 world.table
@@ -51,7 +51,7 @@ static void reference(unsigned slot){
  put32(p,0x03000000U|(head&0xFFFFFFU));expected.order[139]=(head&0xFF000000U)|((uintptr_t)&world.stream.tile&0xFFFFFFU);
  expected.scratch.cursor=(u8*)&world.stream.highlight;
  if(slot==expected.state.config22){
-  unsigned record=(unsigned)(world.lookup[69]-world.records);RrGarageSpriteRecord *r=&expected.records[record];unsigned depth=(unsigned)(128+r->depth00);
+  unsigned record=(unsigned)(world.lookup[69]-world.records);GarageSpriteRecord *r=&expected.records[record];unsigned depth=(unsigned)(128+r->depth00);
   p=(u8*)&expected.stream.highlight;head=expected.order[depth];
   p[3]=4;p[7]=(r->flags10&1)?0x67:0x65;put16(p,8,(u16)(rect[0]-1));put16(p,10,(u16)(rect[1]-2));
   put16(p,16,r->width04);put16(p,18,r->height06);p[12]=r->u08;p[13]=r->v09;put16(p,14,r->clut0A);
@@ -61,7 +61,7 @@ static void reference(unsigned slot){
 }
 int main(void){unsigned k,mode,i,j,slot,record;
  _Static_assert(sizeof(Stream)==36 && offsetof(Stream,highlight)==16,"genuine mixed packet stream");
- _Static_assert(sizeof(RrPaletteAddress)==sizeof(void*),"address arithmetic preserves native pointers");
+ _Static_assert(sizeof(PaletteAddress)==sizeof(void*),"address arithmetic preserves native pointers");
  for(k=0;k<65536;k++)for(mode=0;mode<3;mode++){
   for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();slot=k%16;
   world.state.active21=(u8)((k+mode)&1);world.state.config22=(u8)(mode==0?slot:mode==1?(slot^1):(k>>8));

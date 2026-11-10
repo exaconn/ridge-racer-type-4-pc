@@ -1,4 +1,7 @@
+#include "game/system/pad.h"
 #include "rr/overlay663.h"
+#include "rr/frame_storage_types.h"
+#include "rr/load_cursor.h"
 
 void ovl663_update_selection(void) {
     s32 car;
@@ -9,8 +12,8 @@ void ovl663_update_selection(void) {
     s32 i;
     s32 glyphIndex;
 
-    ModeFrame = (u32)ModeFrame + 1;
-    ScreenFrame = (u32)ScreenFrame + 1;
+    ModeFrame = ModeFrame + 1U;
+    ScreenFrame = ScreenFrame + 1U;
     switch ((u16)D_800F4D8A) {
     case 0:
         i = 0;
@@ -21,11 +24,11 @@ void ovl663_update_selection(void) {
         }
         break;
     case 1:
-        DrawMenuStepArrows(0xA0, 0x108, 0x76, 0, (s32)D_800AC648, 0, ovl663_course_count);
+        DrawMenuStepArrows(0xA0, 0x108, 0x76, 0, D_800AC648, 0, ovl663_course_count);
         StepMenuValue(1, 2, (char *)&D_800AC648, ovl663_course_count, 0);
         i = 0;
         CourseIndex = DecodeCourseIndex(D_800AC648);
-        while (i < (s32)UiRows[2].byte02) {
+        while (i < UiRows[2].byte02) {
             if (i == ((u16)D_800AC648 & 7)) {
                 UiRows[2].cells[i] = (s8)((u8)ReverseCourse + 2);
                 UiRows[2].byte16 = i;
@@ -41,7 +44,7 @@ void ovl663_update_selection(void) {
         i = 0;
         UiRows[MenuCursor].cells[0] = 2;
         ovl663_selected_record = -1;
-        if (PlayerControllers[0].a != 0) {
+        if (PlayerControllers[0].action28 != 0) {
             PlaySfx(1);
             UiRows[MenuCursor].cells[0] = 1;
             if (MenuCursor == 0) {
@@ -50,7 +53,7 @@ void ovl663_update_selection(void) {
             } else if (MenuCursor == 1) {
                 i = 1;
             }
-        } else if (PlayerControllers[0].b != 0) {
+        } else if (PlayerControllers[0].action2C != 0) {
             PlaySfx(2);
             i = 1;
         }
@@ -68,14 +71,14 @@ void ovl663_update_selection(void) {
         break;
     case 2:
         StepMenuValue(0, 4, (char *)&ovl663_selected_record, 5, 0);
-        if (PlayerControllers[0].b != 0) {
+        if (PlayerControllers[0].action2C != 0) {
             PlaySfx(2);
             D_800F4D8A = 1;
-        } else if (PlayerControllers[0].a != 0) {
+        } else if (PlayerControllers[0].action28 != 0) {
             SetMenuFrameOptions(0, 1, 1);
             D_800F4D8A = 3;
             ResetScreenCounters();
-            LoadCursor = D_800F4D40;
+            LoadCursor = MenuArenaBase;
             mirrorSet = D_800AC648 >= 8;
             if (ovl663_record_kind == 1) {
                 car = LapRecords[mirrorSet][CourseIndex][ovl663_selected_record].car;
@@ -115,7 +118,7 @@ void ovl663_update_selection(void) {
     case 8:
         fadeTimer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = (u16)fadeTimer;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (0x40 - fadeTimer) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - fadeTimer) * 4, 0x45);
         i = 0;
         if ((s16)D_800AC5D0 <= 0) {
             ovl663_init_menu();

@@ -1,6 +1,6 @@
 #include "rr/softfloat.h"
 s32 __ltdf2(u64 left, u64 right) {
-    register union {u64 bits; RrWide64 words;} a __asm__("$8"),b __asm__("$6");
+    register union {u64 bits; Wide64 words;} a __asm__("$8"),b __asm__("$6");
     u32 magnitude=0x7FFF0000;
     s32 leftExponent;
     s32 rightFraction;
@@ -13,6 +13,7 @@ s32 __ltdf2(u64 left, u64 right) {
     a.bits=left;b.bits=right;highA=a.words.hi;highB=b.words.hi;
     if ((a.words.hi != b.words.hi) || ({
         /* Keep the initialized upper mask live through the low-word test. */
+        /* ASM_BARRIER: preserve original register scheduling. */
         __asm__("" : "+r"(magnitude));
         result=0;
         a.words.lo != b.words.lo;
@@ -53,6 +54,7 @@ equal_result:
     }
 return_result:
     /* Retain the initialized result and the intact right-hand word pair. */
+    /* ASM_BARRIER: preserve original register scheduling. */
     __asm__("" : "=r"(result) : "0"(result), "r"(b.bits));
     return result;
 }

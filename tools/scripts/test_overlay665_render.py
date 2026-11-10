@@ -3,13 +3,15 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
 import unittest
+from c_functions import definition_source, source_owners
 
 class Overlay665RenderTest(unittest.TestCase):
     def test_modes_and_service_mutations(self):
         root=Path(__file__).resolve().parents[2]
         body=(root/'src/overlays/PAL/665/func_8011643C.c').read_text()
         prepare=(root/'src/overlays/PAL/665/func_80116358.c').read_text()
-        scale=(root/'tools/scripts/fixtures/views/func_8002E828.c').read_text()
+        owner=source_owners(root/'src/main/PAL')['ScaleMatrixRow1']
+        scale=definition_source(owner.read_text(),'ScaleMatrixRow1')
         source=r'''
         #include <assert.h>
         #include <stddef.h>
@@ -21,16 +23,17 @@ class Overlay665RenderTest(unittest.TestCase):
         #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
         #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
         #include "rr/overlay665_render.h"
-        struct State {u32 guard[4];RrOverlay665VisualState visual;RrPreviewRenderScratch scratch;
-         RrPreviewMatrixWorkspace basis;s32 meshes;u32 tail[4];};
+        struct State {u32 guard[4];Overlay665VisualState visual;PreviewRenderScratch scratch;
+         PreviewMatrixWorkspace basis;s32 meshes;u32 tail[4];};
         struct Event {s32 kind,args[3];u32 hash,first[8],second[8];};
         static struct World {struct State s;unsigned calls;struct Event events[64];} actual,expected,initial,*w;
         static unsigned scenario,mutation;
         static u8 pixels[4][256];static u32 heads[4][32],programs[10][6];
-        static const u32 *table[10];
+        static RroBankCommand table[10];
+        static Vec3s8 vertexPools[10][3],normalPools[10][3];
         #define RR_PREVIEW_RENDER_SCRATCH (&w->s.scratch)
         #define ovl665_D_80119768 w->s.visual
-        #define D_800F2FD8 w->s.meshes
+        #define ModelBankFormat w->s.meshes
         #define LightMatrix w->s.basis
         static const s32 kinds[]={INT32_MIN,-1,0,1,2,3,4,INT32_MAX};
         static s32 word(u32 bits){s32 v;memcpy(&v,&bits,4);return v;}
@@ -42,17 +45,17 @@ class Overlay665RenderTest(unittest.TestCase):
          w->s.visual.layout0C=kinds[(scenario+n*3+1)%8];
          w->s.visual.detail10=kinds[(scenario+n*5+2)%8];
          w->s.meshes=(s32)((scenario+n)%14)-2;
-         w->s.scratch.projection.pointers.cursor=pixels[(scenario+n)%4];
-         w->s.scratch.projection.pointers.order=heads[(scenario+n+1)%4];
-         w->s.scratch.commands50=table;w->s.scratch.primitive74=programs[(scenario+n)%10];
-         w->s.scratch.projection.word08=word(v);w->s.scratch.projection.word0C=word(v+1);
-         w->s.scratch.projection.word10=word(v+2);w->s.scratch.projection.word14=word(v+3);
-         w->s.scratch.projection.word18=word(v+4);w->s.scratch.projection.word1C=word(v+5);
-         w->s.scratch.projection.word20=word(v+6);
-         w->s.scratch.depth60=word(v^0xA5A5A5A5U);w->s.scratch.flags64=word(v+7);
-         w->s.scratch.count54=(s32)((scenario+n)%10);w->s.scratch.format58=word(v+8);
-         w->s.scratch.counter78=word(v+9);
-         for(i=0;i<8;i++){w->s.scratch.matrix28.words[i]=v+i*0x1234567U;w->s.basis.words[i]=v+i*0x7654321U;}
+         w->s.scratch.scene.view.projection.pointers.cursor=pixels[(scenario+n)%4];
+         w->s.scratch.scene.view.projection.pointers.order=heads[(scenario+n+1)%4];
+         w->s.scratch.scene.commands50=table;w->s.scratch.scene.draw74.draw.primitive=programs[(scenario+n)%10];
+         w->s.scratch.scene.view.projection.pose08.position00.words[0]=word(v);w->s.scratch.scene.view.projection.pose08.position00.words[1]=word(v+1);
+         w->s.scratch.scene.view.projection.pose08.position00.words[2]=word(v+2);w->s.scratch.scene.view.projection.pose08.position00.words[3]=word(v+3);
+         w->s.scratch.scene.view.projection.pose08.angles10.xyz.x=word(v+4);w->s.scratch.scene.view.projection.pose08.angles10.xyz.y=word(v+5);
+         w->s.scratch.scene.view.projection.pose08.angles10.xyz.z=word(v+6);
+         w->s.scratch.scene.depthShift60=word(v^0xA5A5A5A5U);w->s.scratch.scene.renderFlags64=word(v+7);
+         w->s.scratch.scene.vertices54=vertexPools[(scenario+n)%10];w->s.scratch.scene.normals58=normalPools[(scenario+n+1)%10];
+         w->s.scratch.scene.draw74.draw.counter=word(v+9);
+         for(i=0;i<8;i++){w->s.scratch.scene.view.matrix28.w[i]=word(v+i*0x1234567U);w->s.basis.words[i]=v+i*0x7654321U;}
          for(i=0;i<14;i++)w->s.scratch.tail7C.projection.words[i]=word(v+i*59);
         }
         static struct Event *event(s32 kind,s32 a,s32 b,s32 c,const void *first,const void *second) {
@@ -63,14 +66,14 @@ class Overlay665RenderTest(unittest.TestCase):
          if(mutation)effect(n);return e;
         }
         void BuildCameraMatrices(void) {
-         assert(w->calls==0 && w->s.scratch.depth60==3);
-         assert(w->s.scratch.projection.word08==0 && w->s.scratch.projection.word0C==0 && w->s.scratch.projection.word10==0);
-         assert(w->s.scratch.projection.word18==0 && w->s.scratch.projection.word1C==0 && w->s.scratch.projection.word20==0);
+         assert(w->calls==0 && w->s.scratch.scene.depthShift60==3);
+         assert(w->s.scratch.scene.view.projection.pose08.position00.words[0]==0 && w->s.scratch.scene.view.projection.pose08.position00.words[1]==0 && w->s.scratch.scene.view.projection.pose08.position00.words[2]==0);
+         assert(w->s.scratch.scene.view.projection.pose08.angles10.xyz.x==0 && w->s.scratch.scene.view.projection.pose08.angles10.xyz.y==0 && w->s.scratch.scene.view.projection.pose08.angles10.xyz.z==0);
          (void)event(0,0,0,0,0,0);
         }
         void SetupViewport(s32 mode){assert(mode==6);(void)event(1,mode,0,0,0,0);}
         void SetGeomOffset(s32 x,s32 y){(void)event(2,x,y,0,0,0);}
-        void SetupObjectLightMatrices(char *view,char *lighting,RrMatrixWords32 *first,RrMatrixWords32 *second) {
+        void SetupObjectLightMatrices(char *view,char *lighting,MatrixWords32 *first,MatrixWords32 *second) {
          unsigned i,n=w->calls;
          assert(view==(char*)&w->s.visual.view74 && lighting==(char*)&w->s.visual.lighting4C);
          assert((uintptr_t)first>UINT32_MAX && (uintptr_t)second>UINT32_MAX && first!=second);
@@ -85,24 +88,25 @@ class Overlay665RenderTest(unittest.TestCase):
         }
         void SetGeomScreen(s32 depth){(void)event(5,depth,0,0,0,0);}
         void SelectModelBank(s32 object){assert(object==8);(void)event(6,object,0,0,0,0);}
-        s32 *MulMatrix2(s32 *basis,u16 *matrix) {
+        MatrixWords32 *MulMatrix2(const MatrixWords32 *basis,MatrixWords32 *matrix) {
          unsigned i;u32 b[8],m[8];memcpy(b,basis,32);memcpy(m,matrix,32);
          assert(((uintptr_t)basis&3)==0 && ((uintptr_t)matrix&3)==0);
-         (void)event(7,basis==(s32*)w->s.basis.words,0,0,basis,matrix);
-         for(i=0;i<5;i++){u32 v=(b[i]^m[i])+scenario+i*0x11111111U;memcpy(matrix+i*2,&v,4);}
-         return (s32*)matrix;
+         (void)event(7,basis==&w->s.basis.matrix,0,0,basis,matrix);
+         for(i=0;i<5;i++){u32 v=(b[i]^m[i])+scenario+i*0x11111111U;memcpy(matrix->halves+i*2,&v,4);}
+         return matrix;
         }
-        void SetLightMatrix(s32 *matrix){(void)event(8,0,0,0,matrix,0);}
-        void SetGteObjectTransform(s16 *output,s16 *view,s32 *matrix) {
+        void SetLightMatrix(const MatrixWords32 *matrix){(void)event(8,0,0,0,matrix,0);}
+        void SetGteObjectTransform(ObjectTransform38 *output,const s16 *view,s32 *matrix) {
          unsigned i;u32 m[8];memcpy(m,matrix,32);
-         assert(output==w->s.scratch.tail7C.projection.halves);
+         assert(output==&w->s.scratch.tail7C.projection);
          assert(view==w->s.visual.view74.position00.halves);
          (void)event(9,view[0],view[2],view[4],matrix,0);
          for(i=0;i<3;i++) {
-          w->s.scratch.tail7C.projection.fields.relative00[i]=half(m[i]);
-          w->s.scratch.tail7C.projection.fields.transformed08[i]=word(m[i]^scenario);
-          w->s.scratch.tail7C.projection.fields.saved2C[i]=word(m[i]^scenario);
+          w->s.scratch.tail7C.projection.fields.relative00.halves[i]=half(m[i]);
+
+          w->s.scratch.tail7C.projection.fields.matrix18.fields.translation14[i]=word(m[i]^scenario);
          }
+         w->s.scratch.tail7C.projection.fields.transformed08=(Vec3i){word(m[0]^scenario),word(m[1]^scenario),word(m[2]^scenario)};
         }
         void BuildRotMatrixZ(s16 *matrix,s32 angle) {
          unsigned i;(void)event(10,angle,0,0,matrix,0);
@@ -112,13 +116,13 @@ class Overlay665RenderTest(unittest.TestCase):
          unsigned i;u16 *halves=matrix;(void)event(11,angle,0,0,matrix,0);
          for(i=0;i<9;i++)halves[i]=(u16)((u32)angle+scenario+i*17);
         }
-        void SubmitModelTwoTri(RrPreviewRenderScratch *scratch,s32 object,s32 blend,s32 depth) {
+        void SubmitModelTwoTri(PreviewRenderScratch *scratch,s32 object,s32 blend,s32 depth) {
          assert(scratch==&w->s.scratch && object>=0 && object<=8 && blend==0 && depth==0);
-         assert(scratch->counter78==0 && (uintptr_t)scratch->commands50>UINT32_MAX);
+         assert(scratch->scene.draw74.draw.counter==0 && (uintptr_t)scratch->scene.commands50>UINT32_MAX);
          (void)event(12,object,blend,depth,0,0);
         }
         '''+scale+prepare+body+r'''
-        static void setup(RrPreviewMatrixWorkspace *first,RrPreviewMatrixWorkspace *second) {
+        static void setup(PreviewMatrixWorkspace *first,PreviewMatrixWorkspace *second) {
          s32 scales[3];unsigned i;
          for(i=0;i<3;i++)scales[i]=w->s.visual.scale3C;
          w->s.visual.view74.rotation10=(s16)w->s.visual.rotation44;
@@ -126,52 +130,52 @@ class Overlay665RenderTest(unittest.TestCase):
          SetupObjectLightMatrices((char*)&w->s.visual.view74,(char*)&w->s.visual.lighting4C,&first->matrix,&second->matrix);
          (void)ScaleMatrix(first->words,scales);SetGeomScreen(w->s.visual.depth40);
         }
-        static void light(RrPreviewMatrixWorkspace *matrix){ovl665_func_80116358(matrix,&w->s.visual.lighting4C.matrix);}
-        static void project(RrPreviewMatrixWorkspace *matrix){SetGteObjectTransform(w->s.scratch.tail7C.projection.halves,w->s.visual.view74.position00.halves,(s32*)matrix->words);}
+        static void light(PreviewMatrixWorkspace *matrix){ovl665_func_80116358(matrix,&w->s.visual.lighting4C.matrix);}
+        static void project(PreviewMatrixWorkspace *matrix){SetGteObjectTransform(&w->s.scratch.tail7C.projection,w->s.visual.view74.position00.halves,(s32*)matrix->words);}
         static void draw(s32 threshold,s32 object) {
          s32 chosen=w->s.meshes>=threshold?object:1;
-         w->s.scratch.counter78=0;SubmitModelTwoTri(&w->s.scratch,chosen,0,0);
+         w->s.scratch.scene.draw74.draw.counter=0;SubmitModelTwoTri(&w->s.scratch,chosen,0,0);
         }
         static void reference(void) {
-         RrPreviewMatrixWorkspace first,second;s32 saved=w->s.scratch.depth60,kind;
-         w->s.scratch.depth60=3;
-         w->s.scratch.projection.word10=0;w->s.scratch.projection.word0C=0;w->s.scratch.projection.word08=0;
-         w->s.scratch.projection.word20=0;w->s.scratch.projection.word1C=0;w->s.scratch.projection.word18=0;
+         PreviewMatrixWorkspace first,second;s32 saved=w->s.scratch.scene.depthShift60,kind;
+         w->s.scratch.scene.depthShift60=3;
+         w->s.scratch.scene.view.projection.pose08.position00.words[2]=0;w->s.scratch.scene.view.projection.pose08.position00.words[1]=0;w->s.scratch.scene.view.projection.pose08.position00.words[0]=0;
+         w->s.scratch.scene.view.projection.pose08.angles10.xyz.z=0;w->s.scratch.scene.view.projection.pose08.angles10.xyz.y=0;w->s.scratch.scene.view.projection.pose08.angles10.xyz.x=0;
          BuildCameraMatrices();SetupViewport(6);
          SetGeomOffset((s16)w->s.visual.centerX38,(s16)w->s.visual.centerY3A);
-         func_8002E828(2,w->s.scratch.matrix28.halves);kind=w->s.visual.kind18;
+         ScaleMatrixRow1(2,&w->s.scratch.scene.view.matrix28);kind=w->s.visual.kind18;
          if(kind>=0 && kind<=3) {
           setup(&first,&second);
           if(kind!=2)light(&first);
           SelectModelBank(8);
           if(kind==0 || kind==1) {
-           s32 object;project(&first);w->s.scratch.counter78=0;
+           s32 object;project(&first);w->s.scratch.scene.draw74.draw.counter=0;
            object=kind==0?1:w->s.meshes<1;
            SubmitModelTwoTri(&w->s.scratch,object,0,0);
           } else if(kind==2) {
            BuildRotMatrixX(second.halves,w->s.visual.view74.rotation18);
-           (void)MulMatrix2((s32*)first.words,second.halves);light(&second);project(&second);draw(3,2);
+           (void)MulMatrix2(&first.matrix,&second.matrix);light(&second);project(&second);draw(3,2);
            if(w->s.visual.layout0C>=2 && w->s.visual.detail10>=2){project(&second);draw(7,6);}
            BuildRotMatrixX(second.halves,w->s.visual.view74.rotation20);
-           (void)MulMatrix2((s32*)first.words,second.halves);light(&second);project(&second);draw(4,3);
+           (void)MulMatrix2(&first.matrix,&second.matrix);light(&second);project(&second);draw(4,3);
            if(w->s.visual.layout0C>=2 && w->s.visual.detail10>=2){project(&second);draw(8,7);}
           } else {
            project(&first);draw(5,4);
            BuildRotMatrixZ((s16*)second.halves,(s32)w->s.visual.view74.rotation1C+1024);
-           (void)MulMatrix2((s32*)first.words,second.halves);light(&second);project(&second);draw(6,5);
+           (void)MulMatrix2(&first.matrix,&second.matrix);light(&second);project(&second);draw(6,5);
            if(w->s.visual.layout0C>=2 && w->s.visual.detail10>=2 && w->s.visual.detail10<4){project(&second);draw(9,8);}
           }
          }
-         w->s.scratch.depth60=saved;
+         w->s.scratch.scene.depthShift60=saved;
         }
         int main(void) {
          unsigned i,n;
-         for(i=0;i<10;i++)table[i]=programs[i];
+         for(i=0;i<10;i++)table[i].pointer=programs[i];
          for(scenario=0;scenario<65536;scenario++)for(mutation=0;mutation<2;mutation++) {
           memset(&initial,0,sizeof(initial));w=&initial;effect(7);
           for(i=0;i<4;i++){w->s.guard[i]=0x12345678U+i;w->s.tail[i]=0x87654321U-i;}
           w->s.visual.kind18=kinds[scenario%8];
-          w->s.scratch.depth60=word(scenario*0x98765431U);
+          w->s.scratch.scene.depthShift60=word(scenario*0x98765431U);
           actual=initial;expected=initial;w=&actual;ovl665_func_8011643C();w=&expected;reference();
           assert(memcmp(&actual,&expected,sizeof(actual))==0);
           for(n=0;n<4;n++){assert(actual.s.guard[n]==initial.s.guard[n]);assert(actual.s.tail[n]==initial.s.tail[n]);}

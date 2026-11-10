@@ -3,12 +3,11 @@
 #include "rr/frame_environment.h"
 
 #include "rr/frame_storage_types.h"
-typedef void (*RrFrameStep)(void);
-extern RrFrameStorage D_800ADAF0[2];
-extern RrFrameStep *ModeFuncTable[];
-extern u8 *CurrentDrawBuf;
+typedef void (*FrameStep)(void);
+extern FrameStorage D_800ADAF0[2];
+extern FrameStep *ModeFuncTable[];
 extern u32 FrameCounter;
-extern s32 VSyncThreshold, D_800ACBF8, ModeFrame, DrawBufIndex;
+extern s32 VSyncThreshold, DrawSubOtFlag, ModeFrame, DrawBufIndex;
 extern u16 ModeGroup, D_800F3A26;
 extern s16 D_800F4D8A;
 
@@ -16,6 +15,6 @@ extern s16 D_800F4D8A;
  * context, frame counter, dispatch selectors and frame-wait threshold.
  * The threshold is captured once per frame after DrawSync. All later context
  * arguments are read afresh. Dispatch selectors require accessible table rows. */
+void MainLoopStartupHook(void);
 void MainLoop(void);
-RR_ASSERT_SIZE(RrFrameStorage, 0x22778);
 #endif

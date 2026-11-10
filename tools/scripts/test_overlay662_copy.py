@@ -20,13 +20,13 @@ class OverlayCopyTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_garage.h"
-static struct World {u32 before[8];RrGarageSelectionPrefix state;u32 words[2048],after[8];} world,expected;
+static struct World {u32 before[8];GarageSelectionPrefix state;u32 words[2048],after[8];} world,expected;
 #define ovl662_D_801276A8 world.state
 ''' + body + r'''
 static u32 seed=0x1d120;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 int main(void){unsigned k,i,stream;
- assert(sizeof(void*)==8 && sizeof(RrGarageSelectionPrefix)==0x138 && offsetof(RrGarageSelectionPrefix,scratch34)==0x48 && offsetof(RrGarageSelectionPrefix,image38)==0x50 && offsetof(RrGarageSelectionPrefix,paletteBackup50)==0x80 && offsetof(RrGarageSelectionPrefix,paletteScratch58)==0x90 && offsetof(RrGarageSelectionPrefix,current60)==0xA0);
+ assert(sizeof(void*)==8 && sizeof(GarageSelectionPrefix)==0x138 && offsetof(GarageSelectionPrefix,scratch34)==0x48 && offsetof(GarageSelectionPrefix,image38)==0x50 && offsetof(GarageSelectionPrefix,paletteBackup50)==0x80 && offsetof(GarageSelectionPrefix,paletteScratch58)==0x90 && offsetof(GarageSelectionPrefix,current60)==0xA0);
  for(k=0;k<8192;k++){
   unsigned selected=k&1,src[3],dst[3];
   memset(&world,0,sizeof(world));

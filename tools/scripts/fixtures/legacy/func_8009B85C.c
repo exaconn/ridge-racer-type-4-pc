@@ -5,8 +5,8 @@ extern u16 D_801146CA;
 extern u8 SioIrqQueueEntry[];
 extern s32 SysDeqIntRP(s32,void *);
 s32 _sio_deinit(void) {
-    RrInterruptRegisters *interrupts=I_STAT_Sio;
-    RrSerialPortRegisters *port;
+    InterruptRegisters *interrupts=I_STAT_Sio;
+    SerialPortRegisters *port;
     volatile u16 *control;
     interrupts->mask &= ~0x100U;
     port=SIO1_REGS;
@@ -17,8 +17,8 @@ s32 _sio_deinit(void) {
     SysDeqIntRP(3,SioIrqQueueEntry);
     {
         /* Share the request bases across the store/reload pairs. */
-        register volatile RrSerialRequest *send=&SioRequest;
-        register RrSerialReceiveRequest *receive;
+        register volatile SerialRequest *send=&SioRequest;
+        register SerialReceiveRequest *receive;
         /* ASM_BARRIER: Reload request words through the original value register. */
         register s32 active __asm__("$3");
         /* ASM_BARRIER: Keep zero in the shared return register after the sender base expires. */

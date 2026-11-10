@@ -31,14 +31,14 @@ class OverlayControlTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/overlay668_control.h"
 static struct World {
- u32 before[8];RrStrCommandHeader header;u32 output[64],status;
+ u32 before[8];StrCommandHeader header;u32 output[64],status;
  s32 input_result,output_result;u32 mutate;
  u32 command_calls,output_calls,input_waits,output_waits,reads;
  const void *last_pointer;u32 last_count,observed_header;u32 after[8];
 } world,initial,expected;
 static struct CallbackWorld {
- RrLibInterruptDriverPrefix drivers[2],*active;
- RrLibInterruptCallback slots[8],last;
+ LibInterruptDriverPrefix drivers[2],*active;
+ LibInterruptCallback slots[8],last;
  u32 calls,tag,mutate;u32 guards[8];
 } cworld,cinitial,cexpected;
 #define IntrDriverTablePtr cworld.active
@@ -59,7 +59,7 @@ static void initialize(u32 k){
  world.mutate=k&1;ovl668_D_80116E54=&world.status;
 }
 void ovl668_func_80116648(const void *command,u32 words){
- const RrStrCommandHeader *header=command;
+ const StrCommandHeader *header=command;
  assert(command==&world.header);
  world.command_calls++;world.last_pointer=command;world.last_count=words;
  world.observed_header=header->word;
@@ -124,24 +124,24 @@ static int touches;
 static void callback_a(void){touches+=1;}
 static void callback_b(void){touches+=2;}
 static void callback_c(void){touches+=4;}
-static RrLibInterruptCallback exchange(u32 tag,s32 channel,RrLibInterruptCallback callback){
- RrLibInterruptCallback old;
+static LibInterruptCallback exchange(u32 tag,s32 channel,LibInterruptCallback callback){
+ LibInterruptCallback old;
  assert(channel==0);old=cworld.slots[0];cworld.slots[0]=callback;
  cworld.calls++;cworld.last=callback;cworld.tag=tag;
  if(cworld.mutate)cworld.active=&cworld.drivers[tag==1?1:0];
  return old;
 }
-static RrLibInterruptCallback exchange_a(s32 c,RrLibInterruptCallback f){return exchange(1,c,f);}
-static RrLibInterruptCallback exchange_b(s32 c,RrLibInterruptCallback f){return exchange(2,c,f);}
+static LibInterruptCallback exchange_a(s32 c,LibInterruptCallback f){return exchange(1,c,f);}
+static LibInterruptCallback exchange_b(s32 c,LibInterruptCallback f){return exchange(2,c,f);}
 static int callbacks(void){
- RrLibInterruptCallback choices[]={0,callback_a,callback_b,callback_c};
+ LibInterruptCallback choices[]={0,callback_a,callback_b,callback_c};
  unsigned k,i;
  assert(sizeof(void*)==8 && (uintptr_t)callback_a>UINT32_MAX);
  for(k=0;k<16384;k++){
-  RrLibInterruptCallback input,old,got;u32 tag;
+  LibInterruptCallback input,old,got;u32 tag;
   for(i=0;i<8;i++){cworld.guards[i]=next();cworld.slots[i]=choices[(k+i)%4];}
-  cworld.drivers[0]=(RrLibInterruptDriverPrefix){callback_a,exchange_a,exchange_b,callback_c};
-  cworld.drivers[1]=(RrLibInterruptDriverPrefix){callback_b,exchange_b,exchange_a,callback_c};
+  cworld.drivers[0]=(LibInterruptDriverPrefix){callback_a,exchange_a,exchange_b,callback_c};
+  cworld.drivers[1]=(LibInterruptDriverPrefix){callback_b,exchange_b,exchange_a,callback_c};
   cworld.active=&cworld.drivers[(k>>2)&1];cworld.calls=next();cworld.last=0;cworld.tag=0;cworld.mutate=(k>>3)&1;
   input=choices[(k>>4)&3];old=cworld.slots[0];tag=cworld.active->exchange==exchange_a?1:2;
   memcpy(&cinitial,&cworld,sizeof(cworld));

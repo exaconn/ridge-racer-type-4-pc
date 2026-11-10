@@ -6,7 +6,10 @@
 extern int D_800ACBC8;
 extern int D_800F4DC8;
 int LoadRaceSoundAndTrackStep(void);
-int func_8004E70C(void);
-int func_8004E990();
+int LoadTrackVabsStep(void);
+int LoadAttractRaceStep();
+void SetupRaceSoundCarConfig(void);
+int LoadTrophyModelStep(void);
+
 
 #endif /* RR_GAME_DATA_TRKLD6_H */

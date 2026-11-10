@@ -26,7 +26,7 @@ class OverlayRaceStateTest(unittest.TestCase):
 #include "rr/overlay_race_state.h"
 typedef struct {char pad[0x18];u16 a;s16 b,c;u16 d,e;} Fade;
 static struct World {
- u32 before[8];RrRaceVehicleViews car;s32 mode,limit;s16 tag,delay;
+ u32 before[8];RaceVehicle car;s32 mode,limit;s16 tag,delay;
  Fade fade;u32 calls;s32 arg0,seen_mode;s16 arg1,seen_delay;
  s32 post_mode,post_first;s16 post_delay;u32 after[8];
 } world,expected;
@@ -40,7 +40,7 @@ void CdAudioFade(int a,short b){
  assert(world.mode==5 && world.delay==75);
  assert(world.fade.b==71 && world.fade.c==0 && world.fade.d==0 && world.fade.e==world.fade.a);
  world.calls++;world.arg0=a;world.arg1=b;world.seen_mode=world.mode;world.seen_delay=world.delay;
- world.mode=world.post_mode;world.delay=world.post_delay;world.car.vehicle.first=world.post_first;
+ world.mode=world.post_mode;world.delay=world.post_delay;world.car.first=world.post_first;
 }
 ''' + fade + body + r'''
 static u32 seed=0x17084;
@@ -57,23 +57,23 @@ int main(void){unsigned k,m,i;
   for(i=0;i<sizeof(world.fade);i++)((u8*)&world.fade)[i]=(u8)next();
   for(i=0;i<8;i++){world.before[i]=next();world.after[i]=next();}
   world.mode=word(mode);world.limit=word(limit);world.delay=half(next());
-  world.car.vehicle.half1EA=half(k);world.tag=(k&1)?half(k):half(k^0x5555);
-  world.car.parts.control.steering94.count22=half(k*40503U);
+  world.car.half1EA=half(k);world.tag=(k&1)?half(k):half(k^0x5555);
+  world.car.control.dynamics94.steering.count22=half(k*40503U);
   neg=-(int64_t)world.limit;
   if(neg>INT32_MAX)neg-=INT64_C(4294967296);
-  world.car.vehicle.first=(k&7)<3?word((u32)neg+(u32)((s32)(k&7)-1)):word(next());
+  world.car.first=(k&7)<3?word((u32)neg+(u32)((s32)(k&7)-1)):word(next());
   world.post_mode=word(next());world.post_delay=half(next());world.post_first=word(next());
   memcpy(&expected,&world,sizeof(world));
   if(mode==2 || mode==3){
-   if(world.car.parts.control.steering94.count22<=0)allow=world.car.vehicle.half1EA!=world.tag;
-   else allow=(int64_t)world.car.vehicle.first<=neg;
+   if(world.car.control.dynamics94.steering.count22<=0)allow=world.car.half1EA!=world.tag;
+   else allow=(int64_t)world.car.first<=neg;
   }
   if(allow){
    expected.fade.b=71;expected.fade.c=0;expected.fade.d=0;expected.fade.e=expected.fade.a;
    expected.calls=1;expected.arg0=0;expected.arg1=71;expected.seen_mode=5;expected.seen_delay=75;
-   expected.mode=world.post_mode;expected.delay=world.post_delay;expected.car.vehicle.first=world.post_first;
+   expected.mode=world.post_mode;expected.delay=world.post_delay;expected.car.first=world.post_first;
   }
-  ovl660_func_80117084(&world.car);
+  ovl660_check_reverse_run(&world.car);
   assert(memcmp(&world,&expected,sizeof(world))==0);
   assert((uintptr_t)&world.car>UINT32_MAX);
  }

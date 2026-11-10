@@ -22,8 +22,8 @@ class Overlay666ViewLayoutTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay_menu_init.h"
-typedef struct {s32 kind,args[10];RrMenuArenas arenas;u8 *base;void *published;RrMenuGlyphRow1C *glyph;s32 frame,counter;s16 current,limit,selected;s8 flag1,flag2;} Event;
-static struct World {u32 guard[4];s32 frame,counter;s16 current,limit,selected;s8 flag1,flag2;RrMenuArenas arenas;u8 *base;void *published;RrMenuGlyphRow1C *glyph;RrMenuGlyphRow1C glyphs[3][4];RrUiRow24 rows[7];u32 calls;Event events[13];u32 tail[4];} world,expected;
+typedef struct {s32 kind,args[10];MenuArenas8 arenas;u8 *base;void *published;MenuGlyphRow1C *glyph;s32 frame,counter;s16 current,limit,selected;s8 flag1,flag2;} Event;
+static struct World {u32 guard[4];s32 frame,counter;s16 current,limit,selected;s8 flag1,flag2;MenuArenas8 arenas;u8 *base;void *published;MenuGlyphRow1C *glyph;MenuGlyphRow1C glyphs[3][4];UiRow24 rows[7];u32 calls;Event events[13];u32 tail[4];} world,expected;
 static u8 resources[3][0x2D100],original_resources[3][0x2D100];
 #define ModeFrame world.frame
 #define ScreenFrame world.counter
@@ -42,11 +42,11 @@ static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 static s16 half(u32 raw){u16 bits=raw;s16 value;memcpy(&value,&bits,2);return value;}
 static s32 word(u32 raw){s32 value;memcpy(&value,&raw,4);return value;}
 static void effect(struct World *v,s32 kind,const s32 args[10]){
- unsigned step=v->calls,id=(scenario+step)%3;RrMenuGlyphRow1C *g=&v->glyphs[id][0];
+ unsigned step=v->calls,id=(scenario+step)%3;MenuGlyphRow1C *g=&v->glyphs[id][0];
  v->glyph=world.glyphs[id];v->base=resources[(scenario+step)%3];v->arenas.second=resources[(scenario+step+1)%3]+128+step;v->published=resources[(scenario+step+2)%3]+256+step;
  v->frame=word(scenario^0xA1234567U^step);v->counter=word(scenario^0xB1234567U^step);v->current=half(scenario+step);v->limit=half(scenario*73U+step);v->selected=half(scenario*40503U+step*17U);v->flag1=(s8)(step+9);v->flag2=(s8)(step+11);
  g->glyph07=(u8)(scenario+step);g->x08=half(scenario+step);g->y0A=half(scenario*73U+step);g->w0C=half(scenario*40503U+step);g->h0E=half(scenario*251U+step);
- if(kind==3){RrUiRow24 *r=&v->rows[args[0]];r->half04=half((u32)args[2]);r->half06=half((u32)args[3]);r->half08=half((u32)args[4]);r->byte01=(u8)args[9];}
+ if(kind==3){UiRow24 *r=&v->rows[args[0]];r->half04=half((u32)args[2]);r->half06=half((u32)args[3]);r->half08=half((u32)args[4]);r->byte01=(u8)args[9];}
 }
 static void observe(struct World *v,s32 kind,const s32 args[10]){
  unsigned i;Event *event;assert(v->calls<13);event=&v->events[v->calls++];event->kind=kind;
@@ -58,7 +58,7 @@ void InitRect16Row(s32 index,s16 a,s16 b,s16 c,s16 d,s16 e,s16 f){s32 args[10]={
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls>=6 && world.calls<13 && a==(s32)world.calls-6);observe(&world,3,args);}
 static const s32 rows[7][10]={{0,12,64,68,32,0,0,1,0,83},{1,12,104,68,32,0,0,1,0,85},{2,12,368,248,32,0,0,4,12,0},{3,24,88,68,32,0,0,1,0,84},{4,24,128,68,32,0,0,1,0,85},{5,116,88,28,32,0,0,1,0,55},{6,116,128,28,32,0,0,1,0,56}};
 static void reference(void){
- unsigned i;RrMenuGlyphRow1C *g;s32 args[10]={0};
+ unsigned i;MenuGlyphRow1C *g;s32 args[10]={0};
  expected.frame=0;expected.counter=0;expected.current=0;expected.limit=3;expected.flag1=0;expected.flag2=0;expected.arenas.second=expected.base+0x2D000;
  observe(&expected,0,args);expected.published=expected.arenas.second;
  for(i=0;i<4;i++){s32 a[10]={(s32)i,-2,0,1};observe(&expected,1,a);}

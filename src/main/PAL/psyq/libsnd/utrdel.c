@@ -1,7 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
 #include "rr/library.h"
-#include "m2c_macros.h"
 #include "psyq/libsnd/utrev.h"
 #include "psyq/libspu/srevattr.h"
 
@@ -18,15 +17,15 @@ s32 SsUtSetReverbType(s32 a0) {
     int a1;
     a1 = 0;
     v1 = a0;
-    if ((short)a0 < 0) { a1 = 1; v1 = (s32)(0U - (u32)a0); }
+    if ((short)a0 < 0) { a1 = 1; v1 = (0U - a0); }
     if ((unsigned short)v1 < 10) {
         _svm_rattr[0] = 1;
         if (a1 != 0) _svm_rattr[1] = (short)(v1 | 0x100);
         else _svm_rattr[1] = (short)v1;
-        shifted=(u32)v1<<16;
+        shifted=v1 * 0x10000U;
         /* ASM_BARRIER: Retain the shifted temporary in v0 before signed narrowing. */
         __asm__("" : "+r"(shifted));
-        s=(s32)shifted>>16;
+        s=shifted>>16;
         if (s == 0) SpuSetReverb(0);
         {
             s32 *page;

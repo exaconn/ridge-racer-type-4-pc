@@ -1,8 +1,8 @@
 #include "rr/textured_panel.h"
 
 void EmitTexturedPanel(s32 index) {
-    RrPolyFT4Packet *p;
-    RrGpuScratchPointers *scratch;
+    PolyFT4Packet *p;
+    GpuScratchPointers *scratch;
     u32 *order;
     /* ASM_BARRIER: retain the DMA address mask through the final link store. */
     register u32 low __asm__("$7")=0xFFFFFFU;
@@ -13,12 +13,12 @@ void EmitTexturedPanel(s32 index) {
     s32 clut,length;
     /* ASM_BARRIER: right edge becomes the right texture coordinate after the division. */
     register s32 right __asm__("$3");
-    scratch=(RrGpuScratchPointers*)0x1F800000U;
+    scratch=(GpuScratchPointers*)0x1F800000U;
     length=9;
     left=32;
     /* ASM_BARRIER: stage the scratch page and packet constants before capture. */
     __asm__("" : "+r"(scratch), "+r"(length), "+r"(left));
-    p=(RrPolyFT4Packet*)scratch->cursor;
+    p=(PolyFT4Packet*)scratch->cursor;
     right=288;
     ((u8*)p)[3]=length;
     p->code=0x2D;

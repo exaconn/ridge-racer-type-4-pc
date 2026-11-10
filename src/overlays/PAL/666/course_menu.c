@@ -1,4 +1,7 @@
+#include "game/system/pad.h"
 #include "rr/overlay666.h"
+#include "rr/frame_storage_types.h"
+#include "rr/load_cursor.h"
 
 void ovl666_init_menu(void) {
     s32 i;
@@ -58,7 +61,7 @@ void ovl666_init_scene(void) {
 void ovl666_update_menu(void) {
     s32 sound;
     s16 glyphIndex;
-    RrMenuGlyphRow1C *glyphBase;
+    MenuGlyphRow1C *glyphBase;
     s32 selected;
     s32 ready;
     s16 timer;
@@ -68,8 +71,8 @@ void ovl666_update_menu(void) {
     s32 closing;
     s8 cellState;
 
-    ModeFrame = (s32)((u32)ModeFrame + 1U);
-    ScreenFrame = (s32)((u32)ScreenFrame + 1U);
+    ModeFrame = (ModeFrame + 1U);
+    ScreenFrame = (ScreenFrame + 1U);
     ready = LoadGlyphRowsStep();
     if (ready == 1) {
         switch (D_800F4D8A) {
@@ -77,7 +80,7 @@ void ovl666_update_menu(void) {
             glyphCount = 0;
             do {
                 GlyphRows[glyphCount].phase18 =
-                    (s32)((u32)GlyphRows[glyphCount].phase18 + 0x30000U);
+                    (GlyphRows[glyphCount].phase18 + 0x30000U);
                 glyphCount++;
             } while (glyphCount < 4);
             D_800F4D8A = 1;
@@ -98,7 +101,7 @@ void ovl666_update_menu(void) {
             UiRows[MenuCursor].cells[0] = cellState;
             ovl666_update_course_selection();
             closing = 0;
-            if (PlayerControllers[0].a != 0) {
+            if (PlayerControllers[0].action28 != 0) {
                 selected = MenuCursor;
                 if (selected == 0) {
                     if (ovl666_course_counts[D_800F3826] > 0) {
@@ -116,21 +119,18 @@ void ovl666_update_menu(void) {
                     } else {
                         PlaySfx(4);
                     }
-                } else {
-                    if (selected != 1)
-                        goto decision;
+                } else if (selected == 1) {
                     sound = 1;
                     goto play_cancel;
                 }
             } else {
                 sound = 2;
-                if (PlayerControllers[0].b != 0) {
+                if (PlayerControllers[0].action2C != 0) {
                 play_cancel:
                     PlaySfx(sound);
                     closing = 2;
                 }
             }
-        decision:
             if (closing > 0) {
                 if (closing == 2) {
                     choiceRow = 0;
@@ -162,7 +162,7 @@ void ovl666_update_menu(void) {
             SetMenuFrameOptions(0, 1, 1);
             timer = (u16)D_800AC5D0 - 1;
             D_800AC5D0 = (u16)timer;
-            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (0x40 - timer) * 4, 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - timer) * 4, 0x45);
             if ((s16)D_800AC5D0 <= 0) {
                 ModeGroup = ready;
                 D_800F3A26 = 3;
@@ -172,7 +172,7 @@ void ovl666_update_menu(void) {
             goto update_rows;
         default:
         title:
-            DrawMenuStepArrows(0xA0, 0xCC, 0x30, 0, (s32)D_800F3826, 0, 4);
+            DrawMenuStepArrows(0xA0, 0xCC, 0x30, 0, D_800F3826, 0, 4);
             glyphIndex = D_800F3826;
             if ((u8)SaveProgress.prefix.flags5C[glyphIndex] != 0) {
                 glyphBase = GlyphRows;
@@ -196,54 +196,48 @@ void ovl666_update_menu(void) {
 
 void ovl666_update_course_selection(void) {
     {
-        RrUiRow24 *ui = UiRows;
+        UiRow24 *ui = UiRows;
         s32 selected = D_800F3826;
         ui[2].cells[selected] = 0;
     }
-    if (D_800F3A42 & 0x2000) {
-        if (D_800F3826 < 3) {
+    do {
+        if ((D_800F3A42 & 0x2000) && D_800F3826 < 3) {
             D_800F3826++;
             MenuStepDirection = 2;
-            goto changed;
-        }
-    }
-    if (D_800F3A42 & 0x8000) {
-        if (D_800F3826 > 0) {
+        } else if ((D_800F3A42 & 0x8000) && D_800F3826 > 0) {
             D_800F3826--;
             MenuStepDirection = 1;
-            goto changed;
+        } else {
+            MenuStepDirection = 0;
+            break;
         }
-    }
-    MenuStepDirection = 0;
-    goto active;
-changed:
-    PlaySfx(0);
-    if (D_800F3826 < 0)
-        D_800F3826 = 0;
-    else if (D_800F3826 >= 4)
-        D_800F3826 = 3;
-    GlyphRows[D_800F3826].control02 = -6;
-    GlyphRows[D_800F3826].flags00 = 0;
-    UiRows[2].byte16 = (u8)D_800F3826 + 8;
-active:
+        PlaySfx(0);
+        if (D_800F3826 < 0)
+            D_800F3826 = 0;
+        else if (D_800F3826 >= 4)
+            D_800F3826 = 3;
+        GlyphRows[D_800F3826].control02 = -6;
+        GlyphRows[D_800F3826].flags00 = 0;
+        UiRows[2].byte16 = (u8)D_800F3826 + 8;
+    } while (0);
     {
-        RrUiRow24 *ui = UiRows;
+        UiRow24 *ui = UiRows;
         s32 selected = D_800F3826;
         ui[2].cells[selected] = 2;
     }
 }
 
 void ovl666_draw_selection_pulse(s32 x, s32 y) {
-    RrGpuScratchPointers *scratch = RR_GPU_SCRATCH;
+    GpuScratchPointers *scratch = RR_GPU_SCRATCH;
     u8 *cursor = scratch->cursor;
-    s32 wave = rsin(((u32)ScreenFrame << 5) & 0xFE0) / 32;
+    s32 wave = rsin((ScreenFrame * 32U) & 0xFE0) / 32;
     u16 mode = 57;
     if (wave < 0) {
         mode = 89;
         wave = -wave;
     }
-    cursor = AddSpritePrim(CurrentDrawBuf->ordering.ordering70, cursor, x, y, &ovl666_selection_sprite,
+    cursor = AddSpritePrim(CurrentDrawBuf->ordering.ordering70.words, cursor, x, y, &ovl666_selection_sprite,
                            0x7FA4, ((wave + 1) * 2) | 1);
-    cursor = AddDrawModePrim(CurrentDrawBuf->ordering.ordering70, cursor, mode);
+    cursor = AddDrawModePrim(CurrentDrawBuf->ordering.ordering70.words, cursor, mode);
     scratch->cursor = cursor;
 }

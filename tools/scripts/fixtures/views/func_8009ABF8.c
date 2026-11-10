@@ -3,8 +3,8 @@
 #include "rr/serial.h"
 
 s32 _sio_read_async(s32 first, s32 second) {
-    RrSerialReceiveRequest *state = &SioReceiveRequest;
-    RrSerialPortRegisters *port;
+    SerialReceiveRequest *state = &SioReceiveRequest;
+    SerialPortRegisters *port;
     /* ASM_BARRIER: retain the request base for its adjacent fields. */
     __asm__("" : "=r"(state) : "0"(state));
     if (state->request.active != 0) return -1;

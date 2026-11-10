@@ -17,9 +17,9 @@ s32 _SsVmVSetUp(s32 bank,s32 program) {
     register u8 *data;
     /* ASM_BARRIER: Retain the selected tone-data pointer. */
     register u8 *tones;
-    RrSpuProgram *programs;
+    SpuProgram *programs;
     /* ASM_BARRIER: Reuse the consumed bank register for selection state. */
-    register RrSpuSelectionPrefix *state;
+    register SpuSelectionPrefix *state;
     unsigned long offset;
     /* ASM_BARRIER: Retain the common return value before the epilogue. */
     register s32 result __asm__("$2");
@@ -59,10 +59,10 @@ publish:
     }
     {
         /* ASM_BARRIER: Keep the program-table address in the original argument register. */
-        register RrSpuProgram **page __asm__("$5")=(RrSpuProgram **)0x80110000U;
+        register SpuProgram **page __asm__("$5")=(SpuProgram **)0x80110000U;
         /* ASM_BARRIER: Expose the actual mapped PAL table page to the indexed load. */
         __asm__("" : "+r"(page));
-        programs=*(RrSpuProgram **)((u8 *)page+offset+0x20);
+        programs=*(SpuProgram **)((u8 *)page+offset+0x20);
     }
     tones=*(u8 **)((u8 *)_svm_vab_tn+offset);
     state=&D_80110101;

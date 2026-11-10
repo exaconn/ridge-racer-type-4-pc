@@ -1,12 +1,12 @@
 #include "rr/overlay662_palette.h"
 #ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((RrGpuScratchPointers *)0x1F800000)
+#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000)
 #endif
 void ovl662_func_8011BF04(void)
 {
-    RrGpuScratchPointers *scratch=RR_GPU_SCRATCH;
+    GpuScratchPointers *scratch=RR_GPU_SCRATCH;
     /* unsigned long retains the complete PAL/native address before selecting a color. */
-    RrGaragePaletteEntry *color=(RrGaragePaletteEntry *)(ovl662_D_801276A8.config22*2 + (unsigned long)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]);
+    GaragePaletteEntry *color=(GaragePaletteEntry *)(ovl662_D_801276A8.config22*2 + (unsigned long)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]);
     /* ASM_BARRIER: retain the captured red component across renderer calls. */
     register u32 red asm("$17");
     u16 blue,green;
@@ -15,7 +15,7 @@ void ovl662_func_8011BF04(void)
     red=(red&31)<<3;
     green=(blue&0x3E0)>>2;
     blue=(blue&0x7C00)>>7;
-    scratch->cursor=(u8 *)ovl662_func_8011B034(scratch->order+139,(RrGpuTilePacket *)scratch->cursor,115,363,9,32,red,green,blue);
+    scratch->cursor=(u8 *)ovl662_func_8011B034(scratch->order+139,(GpuTilePacket *)scratch->cursor,115,363,9,32,red,green,blue);
     scratch->cursor=ovl662_func_8011B2D4(70,scratch->cursor,114,361);
     scratch->cursor=ovl662_func_8011B2D4(46,scratch->cursor,125,356);
     ovl662_func_8011C00C(0,red>>3);

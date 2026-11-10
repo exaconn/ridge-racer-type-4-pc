@@ -24,18 +24,18 @@ class Overlay668StartTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay668_decode.h"
-static RrStrStreamPrefix streams[3];
-static RrLibQueueRecord32 queues[3][4];
-RrStrStreamPrefix *D_800AC708;
+static StrStreamPrefix streams[3];
+static LibQueueRecord32 queues[3][4];
+StrStreamPrefix *D_800AC708;
 static unsigned scenario, step;
-static RrLibInterruptCallback requested;
+static LibInterruptCallback requested;
 static void callback0(void) { assert(0); }
 static void callback1(void) { assert(0); }
 static void callback2(void) { assert(0); }
-static RrLibInterruptCallback callbacks[4]={0,callback0,callback1,callback2};
+static LibInterruptCallback callbacks[4]={0,callback0,callback1,callback2};
 static struct {
- u32 guard[4]; RrLibInterruptCallback installed;
- RrLibQueueRecord32 *queue; s32 count,args[5]; unsigned events[4]; u32 tail[4];
+ u32 guard[4]; LibInterruptCallback installed;
+ LibQueueRecord32 *queue; s32 count,args[5]; unsigned events[4]; u32 tail[4];
 } world, expected;
 void ovl668_func_80116298(s32 mode) {
  assert(step==0 && mode==0); world.events[step++]=1;
@@ -43,15 +43,15 @@ void ovl668_func_80116298(s32 mode) {
  D_800AC708=&streams[(scenario+1)%3];
  streams[(scenario+2)%3].queue20=&queues[(scenario+1)%3][scenario%4];
 }
-RrLibInterruptCallback ovl668_func_80116534(RrLibInterruptCallback callback) {
- RrLibInterruptCallback previous=world.installed;
+LibInterruptCallback ovl668_func_80116534(LibInterruptCallback callback) {
+ LibInterruptCallback previous=world.installed;
  assert(step==1 && callback==requested); world.events[step++]=2;
  world.installed=callback;
  D_800AC708=&streams[(scenario+2)%3];
  streams[(scenario+2)%3].queue20=&queues[(scenario+2)%3][(scenario+1)%4];
  return previous;
 }
-void StSetRing(RrLibQueueRecord32 *queue,s32 count) {
+void StSetRing(LibQueueRecord32 *queue,s32 count) {
  assert(step==2 && count==32);
  assert(queue==&queues[(scenario+2)%3][(scenario+1)%4]);
  world.events[step++]=3; world.queue=queue; world.count=count;
@@ -65,7 +65,7 @@ void StSetStream(s32 a,s32 b,s32 c,s32 d,s32 e) {
 int main(void) {
  unsigned i,j;
  _Static_assert(sizeof(void*)==8,"full native pointers required");
- _Static_assert(offsetof(RrStrStreamPrefix,queue20)==48,"native queue offset");
+ _Static_assert(offsetof(StrStreamPrefix,queue20)==48,"native queue offset");
  for(scenario=0;scenario<65536;scenario++) {
   for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)(scenario*29+i);
   for(i=0;i<sizeof(queues);i++)((u8*)queues)[i]=(u8)(scenario+i*17);

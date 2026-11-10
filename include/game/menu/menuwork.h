@@ -3,8 +3,15 @@
 
 #include "types.h"
 
-void func_8003989C(void);
-void func_80039920(void);
-void func_80039988(void);
+void SelectTeamCarGroup(void);
+void UpdateUnlockedCarMask(void);
+void InitCarPreviewScene(void);
+void CarPreviewModeUpdate(void);
+void GarageCarPreviewModeUpdate(void);
+void GetNameChar(unsigned char *a0, int a1);
+void StepNameChar(unsigned char *a0);
+void CarPreviewLoadModeEnter(void);
+void CarPreviewLoadModeUpdate(void);
+
 
 #endif /* RR_GAME_MENU_MENUWORK_H */

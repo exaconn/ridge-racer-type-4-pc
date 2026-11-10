@@ -60,7 +60,7 @@ extern s32 AddTilePrim();
 
 extern s32 AddSpritePrim();
 
-extern void func_8003EA04();
+extern void DrawUiWindowRowText();
 
 extern s32 rsin();
 
@@ -360,7 +360,7 @@ s32 DrawUiRow(s32 arg0) {
     ((Scratchpad *)0x1F800000)->prim = AddDrawAreaPrim(CurrentDrawBuf + 0x70, ((Scratchpad *)0x1F800000)->prim, sp28.x, sp28.y, sp28.w, sp28.h);
     sp38 += UiRows[arg0].rect18.w;
     if ((u32)(sp30 - 4) >= 3U) {
-        func_8003EA04(arg0, sp38, s7);
+        DrawUiWindowRowText(arg0, sp38, s7);
     }
     return (u32)~sp30 >> 31;
 }

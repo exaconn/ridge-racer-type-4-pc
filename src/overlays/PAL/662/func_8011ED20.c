@@ -1,10 +1,8 @@
 #include "rr/overlay662_rotate.h"
 void ovl662_func_8011ED20(s32 arg0) {
-    RrGarageSelectionPrefix *selection;
+    GarageSelectionPrefix *selection;
     s32 mode;
-    /* Native-width address cursor: the final unused increment may pass
-     * the image end. Only valid in-buffer addresses become pointers. */
-    unsigned long var_t5;
+    u32 *destination;
     s32 var_t2;
     s32 var_t4;
     s32 var_t6;
@@ -12,7 +10,7 @@ void ovl662_func_8011ED20(s32 arg0) {
     u32 *var_t8;
     s32 var_v0;
     s32 last;
-    register s32 var_v1 __asm__("v1");
+    register s32 var_v1 __asm__("$3");
     u32 temp_a0;
     u32 temp_a1;
     u32 temp_a2;
@@ -24,43 +22,41 @@ void ovl662_func_8011ED20(s32 arg0) {
     u32 *temp_t3;
 
     var_v1 = arg0;
-    if(var_v1 < 0) {
-      ovl662_D_801276A8.optionIndices98.flat[0]=1;
-      ovl662_D_801276A8.optionIndices98.flat[3]=0;
-      goto done;
+    if (var_v1 < 0) {
+        ovl662_D_801276A8.optionIndices98.flat[0] = 1;
+        ovl662_D_801276A8.optionIndices98.flat[3] = 0;
+        return;
     }
-    if(var_v1 <= 0) goto update;
-    if(var_v1 == 2) goto key2;
-    if(var_v1 < 3) {
-        if(var_v1 == 1) goto key1;
-        goto done;
+    if (var_v1 > 0) {
+        switch (var_v1) {
+        case 1:
+            ovl662_D_801276A8.optionIndices98.flat[0] = 0;
+            ovl662_D_801276A8.selectorsB8[3] = 0;
+            ovl662_func_8011E5C0(0);
+            return;
+        case 2:
+            ovl662_D_801276A8.optionIndices98.flat[0] = var_v1;
+            ovl662_D_801276A8.selectorsB8[3] = var_v1;
+            ovl662_func_8011E5C0(0);
+            return;
+        case 4:
+            mode = 1;
+            selection = &ovl662_D_801276A8;
+            selection->selectorsB8[1] = var_v1;
+            goto keyCommon;
+        case 8:
+            mode = 1;
+            selection = &ovl662_D_801276A8;
+            var_v1 = mode;
+            selection->optionIndices98.flat[3] = var_v1;
+        keyCommon:
+            selection->selectorsB8[2] = var_v1;
+            ovl662_func_8011E5C0(mode);
+            return;
+        default:
+            return;
+        }
     }
-    if(var_v1 == 4) goto key4;
-    if(var_v1 == 8) goto key8;
-    goto done;
-key1:
-    ovl662_D_801276A8.optionIndices98.flat[0]=0;
-    ovl662_D_801276A8.selectorsB8[3]=0;
-    ovl662_func_8011E5C0(0);
-    goto done;
-key2:
-    ovl662_D_801276A8.optionIndices98.flat[0]=var_v1;
-    ovl662_D_801276A8.selectorsB8[3]=var_v1;
-    ovl662_func_8011E5C0(0);
-    goto done;
-key4:
-    mode=1;selection=&ovl662_D_801276A8;
-    selection->selectorsB8[1]=var_v1;
-    goto keyCommon;
-key8:
-    mode=1;selection=&ovl662_D_801276A8;
-    var_v1=mode;
-    selection->optionIndices98.flat[3]=var_v1;
-keyCommon:
-    selection->selectorsB8[2]=var_v1;
-    ovl662_func_8011E5C0(mode);
-    goto done;
-update:
         if ((ovl662_func_8011E734(1) == 0) && (ovl662_D_80127668.words[1] & 1)) {
             if (ovl662_D_80127668.words[0] & 4) {
                 ovl662_func_8011E694();
@@ -74,7 +70,7 @@ update:
                 ovl662_D_801276A8.saved64[4] = 1;
             }
             ovl662_func_8011D120();
-            ((RrGarageButton *)ovl662_D_801273B8[1])->timer0E = 7;
+            ((GarageButton *)ovl662_D_801273B8[1])->timer0E = 7;
             PlaySfx(1);
             var_t6 = 0;
             if (ovl662_D_801276A8.layer23 == 0) {
@@ -90,21 +86,22 @@ update:
 loop_24:
                 var_v0 = last - var_t4;
                 temp_t3 = var_t8 + ((var_v0 << 6) + var_t6);
-                var_t5 = (unsigned long)(var_t7 + ((var_t6 << 6) + var_t4));
+                destination = (var_t7 + ((var_t6 << 6) + var_t4));
                 var_t2 = 0;
 loop_25:
-                temp_v0 = (u32) temp_t3[0] >> var_t2;
-                temp_v1 = (u32) temp_t3[8] >> var_t2;
-                temp_a0 = (u32) temp_t3[16] >> var_t2;
-                temp_a1 = (u32) temp_t3[24] >> var_t2;
-                temp_a2 = (u32) temp_t3[32] >> var_t2;
-                temp_a3 = (u32) temp_t3[40] >> var_t2;
-                temp_t0 = (u32) temp_t3[48] >> var_t2;
-                temp_t1 = (u32) temp_t3[56] >> var_t2;
+                temp_v0 = temp_t3[0] >> var_t2;
+                temp_v1 = temp_t3[8] >> var_t2;
+                temp_a0 = temp_t3[16] >> var_t2;
+                temp_a1 = temp_t3[24] >> var_t2;
+                temp_a2 = temp_t3[32] >> var_t2;
+                temp_a3 = temp_t3[40] >> var_t2;
+                temp_t0 = temp_t3[48] >> var_t2;
+                temp_t1 = temp_t3[56] >> var_t2;
                 var_t2 += 4;
-                *(u32 *)var_t5 = (temp_v0 << 0x1C) | ((temp_v1 & 0xF) << 0x18) | ((temp_a0 & 0xF) << 0x14) | ((temp_a1 & 0xF) << 0x10) | ((temp_a2 & 0xF) << 0xC) | ((temp_a3 & 0xF) << 8) | ((temp_t0 & 0xF) * 0x10) | (temp_t1 & 0xF);
-                var_t5 += 32;
+                *destination = (temp_v0 << 0x1C) | ((temp_v1 & 0xF) << 0x18) | ((temp_a0 & 0xF) << 0x14) | ((temp_a1 & 0xF) << 0x10) | ((temp_a2 & 0xF) << 0xC) | ((temp_a3 & 0xF) << 8) | ((temp_t0 & 0xF) * 0x10) | (temp_t1 & 0xF);
                 if (var_t2 < 0x20) {
+                    /* One packed 64-pixel row is eight words. */
+                    destination += 8;
                     goto loop_25;
                 }
                 var_t4 += 1;
@@ -114,6 +111,4 @@ loop_25:
                 var_t6 += 1;
             } while (var_t6 < 8);
         }
-        return;
-done:;
 }

@@ -1,12 +1,12 @@
 #include "rr/overlay662_sprites.h"
 #ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((RrGpuScratchPointers *)0x1F800000)
+#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000)
 #endif
 u8 *ovl662_func_8011B2D4(s32 index,u8 *cursor,s32 x,s32 y)
 {
     u32 *ordering=RR_GPU_SCRATCH->order+128;
-    RrSpritePacket *packet=(RrSpritePacket *)cursor;
-    RrGarageSpriteRecord *record;
+    SpritePacket *packet=(SpritePacket *)cursor;
+    GarageSpriteRecord *record;
     s32 i;
     s32 code;
     if (index<0) {

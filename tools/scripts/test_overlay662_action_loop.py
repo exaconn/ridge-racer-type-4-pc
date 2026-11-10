@@ -21,9 +21,9 @@ class GarageActionLoopTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4||offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_action_loop.h"
 typedef struct {
- u32 guard[4],rng;RrGarageSelectionPrefix garage;RrGarageWorkingStorage work;
- RrGarageActionRecord16 records[53];RrGarageActionPrefix *actions[53];
- RrGarageButton buttons[46];RrGarageRectangle *table[46];u32 tail[4];
+ u32 guard[4],rng;GarageSelectionPrefix garage;GarageWorkingStorage work;
+ GarageActionRecord16 records[53];GarageActionPrefix *actions[53];
+ GarageButton buttons[46];GarageRectangle *table[46];u32 tail[4];
 } State;
 typedef struct {s32 kind,argument;u32 hash;} Event;
 typedef struct {State s;Event e[128];unsigned calls;} World;
@@ -37,8 +37,8 @@ static unsigned scenario,mutation,seen[8],brushSeen[5];
 #define ovl662_D_801273B8 w->s.table
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static u32 next(void){u32 n=w->s.rng;n^=n<<13;n^=n>>17;n^=n<<5;return w->s.rng=n;}
-static unsigned actionIndex(RrGarageActionPrefix *p){unsigned i;assert((uintptr_t)p>UINT32_MAX);for(i=0;i<53;i++)if(p==&actual.s.records[i].prefix)return i;assert(0);return 0;}
-static unsigned buttonIndex(RrGarageRectangle *p){unsigned i;assert((uintptr_t)p>UINT32_MAX);for(i=0;i<46;i++)if(p==&actual.s.buttons[i].rectangle)return i;assert(0);return 0;}
+static unsigned actionIndex(GarageActionPrefix *p){unsigned i;assert((uintptr_t)p>UINT32_MAX);for(i=0;i<53;i++)if(p==&actual.s.records[i].prefix)return i;assert(0);return 0;}
+static unsigned buttonIndex(GarageRectangle *p){unsigned i;assert((uintptr_t)p>UINT32_MAX);for(i=0;i<46;i++)if(p==&actual.s.buttons[i].rectangle)return i;assert(0);return 0;}
 static void step0(s32);static void step1(s32);static void render0(s32);static void render1(s32);
 static void change(void){unsigned i,k;if(!mutation)return;
  w->s.work.words[0]=(w->s.work.words[0]&~8U)|((scenario+w->calls)%7==0?8U:0U);
@@ -72,12 +72,12 @@ static void expected(s32 mode){unsigned i,selected;static const unsigned brushes
  {static const unsigned reset[5]={4,14,12,11,9};for(i=0;i<5;i++)w->s.buttons[buttonIndex(w->s.table[reset[i]])].timer0E=0;}
  w->s.buttons[buttonIndex(w->s.table[selected])].timer0E=-1;
  if(!w->s.garage.flagsD1){
-  for(i=0;i<53;i++){unsigned index=actionIndex(w->s.actions[i]);RrGarageStep callback=w->s.records[index].render;s32 arg=w->s.records[index].argument;callback(arg);}
+  for(i=0;i<53;i++){unsigned index=actionIndex(w->s.actions[i]);GarageStep callback=w->s.records[index].render;s32 arg=w->s.records[index].argument;callback(arg);}
   ovl662_func_8011BF04();seen[6]++;
  }else seen[7]++;
 }
 int main(void){unsigned modeIndex,i;uint64_t cases=0;static const s32 modes[4]={0,-1,1,INT32_MIN};static const s32 progress[7]={-1,0,4095,4096,4097,INT32_MIN,INT32_MAX};
- assert(sizeof(RrGarageActionRecord16)==24&&offsetof(RrGarageActionRecord16,prefix)==0&&sizeof(RrGarageActionPrefix)==sizeof(RrGarageStep));
+ assert(sizeof(GarageActionRecord16)==24&&offsetof(GarageActionRecord16,prefix)==0&&sizeof(GarageActionPrefix)==sizeof(GarageStep));
  for(scenario=0;scenario<8192;scenario++)for(modeIndex=0;modeIndex<4;modeIndex++)for(mutation=0;mutation<2;mutation++){
   memset(&initial,0,sizeof(initial));w=&initial;w->s.rng=0x1E36C+scenario*73;
   for(i=0;i<4;i++){w->s.guard[i]=next();w->s.tail[i]=next();}

@@ -33,24 +33,24 @@ class SpuVoiceCacheTest(unittest.TestCase):
             #undef RR_FIELD_OFFSET
             #define RR_FIELD_OFFSET(t,f) offsetof(t,f)
             #include "rr/spu_voice_cache.h"
-            _Static_assert(sizeof(RrSpuProgram)==16,"program");
-            _Static_assert(sizeof(RrSpuTone32)==32,"tone");
-            _Static_assert(sizeof(RrSpuVolumeCache)==416,"cache");
-            _Static_assert(sizeof(RrChannelControlRow36)==54,"row");
-            _Static_assert(offsetof(RrSpuProgram,value0C)==12,"program0C");
-            _Static_assert(offsetof(RrSpuProgram,value0E)==14,"program0E");
-            _Static_assert(offsetof(RrSpuCachedVolumeEntry,program06)==6,"program06");
-            _Static_assert(offsetof(RrSpuCachedVolumeEntry,tone08)==8,"tone08");
-            _Static_assert(offsetof(RrChannelControlRow36,value06)==6,"row06");
+            _Static_assert(sizeof(SpuProgram)==16,"program");
+            _Static_assert(sizeof(SpuTone32)==32,"tone");
+            _Static_assert(sizeof(SpuVolumeCache)==416,"cache");
+            _Static_assert(sizeof(ChannelControlRow36)==54,"row");
+            _Static_assert(offsetof(SpuProgram,value0C)==12,"program0C");
+            _Static_assert(offsetof(SpuProgram,value0E)==14,"program0E");
+            _Static_assert(offsetof(SpuCachedVolumeEntry,program06)==6,"program06");
+            _Static_assert(offsetof(SpuCachedVolumeEntry,tone08)==8,"tone08");
+            _Static_assert(offsetof(ChannelControlRow36,value06)==6,"row06");
             typedef union { uint64_t align; unsigned char bytes[4096]; } World;
             static World initial, actual, expected;
             static unsigned char *page;
-            static RrSpuProgram programs[32768];
-            static RrSpuTone32 tones[4352];
-            static RrSpuProgram *program_ptr;
+            static SpuProgram programs[32768];
+            static SpuTone32 tones[4352];
+            static SpuProgram *program_ptr;
             static u8 *tone_ptr;
             #define AT(t,o) (*(t *)(page+(o)))
-            #define D_80110118 AT(u16,280)
+            #define _svm_voice_cursor AT(u16,280)
             #define _svm_envx_hist ((u32 *)(page-64))
             #define D_80110116 ((s16 *)(page+278))
             #define D_80110107 ((s8 *)(page+263))
@@ -61,7 +61,7 @@ class SpuVoiceCacheTest(unittest.TestCase):
             #define D_8010FE3E ((u16 *)(page-450))
             #define D_8010FE40 ((u16 *)(page-448))
             #define rr_flags ((u8 *)(page-488))
-            #define _svm_sreg_dirty AT(RrSpuVolumeCache,-488)
+            #define _svm_sreg_dirty AT(SpuVolumeCache,-488)
             '''
             reference=r'''
             static uint16_t rd16(const void *p) {uint16_t v;memcpy(&v,p,2);return v;}
@@ -99,7 +99,7 @@ class SpuVoiceCacheTest(unittest.TestCase):
              int offset=rd16(page+280)*16;
              if(mode==1)tone_ptr=page-448+offset-16-tone_index*32;
              if(mode==2)tone_ptr=page-448+offset-18-tone_index*32;
-             if(mode==3)program_ptr=(RrSpuProgram *)(page-1778+(int16_t)rd16(page+280)*54-12);
+             if(mode==3)program_ptr=(SpuProgram *)(page-1778+(int16_t)rd16(page+280)*54-12);
              if(mode==4)tone_ptr=page-450+offset-16-tone_index*32;
              if(mode==5)tone_ptr=page-64-16-tone_index*32;
             }

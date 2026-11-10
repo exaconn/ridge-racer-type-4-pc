@@ -8,9 +8,10 @@ class GarageMotionTest(unittest.TestCase):
     def test_all_axes_and_controller_types(self):
         root=Path(__file__).resolve().parents[2]
         body=(root/'src/overlays/PAL/662/func_8011D58C.c').read_text()
-        body=body.replace('extern RrMenuItemState5C PlayerControllers[];','')
+        body=body.replace('extern ControllerState5C PlayerControllers[];','')
         source=r'''
 #include <assert.h>
+#include "game/system/pad.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -21,7 +22,7 @@ class GarageMotionTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_garage.h"
 #include "rr/tables.h"
-static struct World {u32 guard[4]; RrMenuItemState5C rows[3]; RrGaragePoint out; u32 tail[4];} w,e;
+static struct World {u32 guard[4]; ControllerState5C rows[3]; GaragePoint out; u32 tail[4];} w,e;
 #define PlayerControllers w.rows
 static unsigned calls;
 /* A0/2B BIOS memset boundary: verify arguments and execute its memory semantics. */
@@ -32,7 +33,7 @@ int main(void){unsigned type,x,y,i;
   int sx=x<128?(int)x:(int)x-256,sy=y<128?(int)y:(int)y-256;
   int dx=sx>=0?sx/2:-((-sx+1)/2),dy=sy;
   for(i=0;i<sizeof(w);i++)((u8*)&w)[i]=(u8)(i*37+x+y+type);
-  w.rows[1].type01=type;w.rows[1].axis14=x;w.rows[1].axis15=sy;
+  w.rows[1].input00.fields.type=type;w.rows[1].axes14.bytes[0]=x;w.rows[1].axes14.signedBytes[1]=sy;
   memcpy(&e,&w,sizeof(w));calls=0;
   if(type==18){
    if(dx < -3 || dx > 3)dx+=dx/2;

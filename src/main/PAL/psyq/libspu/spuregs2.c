@@ -1,23 +1,17 @@
-/* CC1_FLAGS: -mno-split-addresses */
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
+#include "rr/spu.h"
+#include "rr/spu_key.h"
 #include "psyq/libspu/spuregs2.h"
-#include "psyq/libspu/spuregs2.h"
-extern int _spu_init();
+#include "psyq/libspu/sminit.h"
+#include "rr/library.h"
+#include "rr/spu_allocation.h"
+#include "rr/spu_init.h"
 extern int _spu_FsetRXX();
-extern int SpuStart();
-extern int ResetCallback();
-extern int _spu_transMode;
-extern int _spu_keystat;
-extern int _spu_rev_offsetaddr;
-extern struct { int a; short b, c; int d, e; } _spu_rev_attr;
-extern int _spu_RQmask; extern int _spu_RQvoice;
 extern unsigned short D_800A48A2;
-extern int _spu_env; extern int _spu_AllocBlockNum;
-extern int _spu_AllocLastNum;
-extern int _spu_memList;
-extern int _spu_rev_startaddr;
 void _SpuInit(a0) int a0; {
     unsigned short *p;
-    int i; unsigned c; struct { int a; short b, c; int d, e; } *q;
+    int i; unsigned c; RevAttr *q;
     ResetCallback();
     _spu_init(a0);
     c = 0xC000;
@@ -30,17 +24,17 @@ void _SpuInit(a0) int a0; {
             p--;
         } while (i >= 0);
     }
-    SpuStart(c);
+    SpuStart();
     _spu_rev_flag = 0;
     _spu_rev_reserve_wa = 0;
     q = &_spu_rev_attr;
-    q->a = 0;
-    q->b = 0;
-    q->c = 0;
-    q->d = 0;
-    q->e = 0;
-    _spu_rev_offsetaddr = _spu_rev_startaddr;
-    _spu_FsetRXX(0xD1, _spu_rev_startaddr, 0);
+    q->mode = 0;
+    q->depth_left = 0;
+    q->depth_right = 0;
+    q->delay = 0;
+    q->feedback = 0;
+    _spu_rev_offsetaddr = _spu_rev_startaddr[0];
+    _spu_FsetRXX(0xD1, _spu_rev_startaddr[0], 0);
     _spu_AllocBlockNum = 0;
     _spu_AllocLastNum = 0;
     _spu_memList = 0;
@@ -50,6 +44,4 @@ void _SpuInit(a0) int a0; {
     _spu_RQmask = 0;
     _spu_RQvoice = 0;
     _spu_env = 0;
-    /* ASM_BARRIER: keeps epilogue stack loads (lw ra/s*) after the final global stores; sched2 otherwise hoists/sinks them */
-    __asm__ volatile ("" : : : "memory");
 }

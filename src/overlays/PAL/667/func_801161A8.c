@@ -1,6 +1,7 @@
 #include "rr/selection_initializer.h"
+#include "rr/load_cursor.h"
 void ovl667_func_801161A8(s32 arg0) {
-    RrRaceVehicle *var_s0;
+    RaceVehicle *var_s0;
     s16 *temp_s0;
     s16 *temp_t0_2;
     s32 temp_a0;
@@ -10,7 +11,7 @@ void ovl667_func_801161A8(s32 arg0) {
     s32 placeY,placeZ;
     /* ASM_BARRIER: preserve the original rotation publication register. */
     register s32 rotation __asm__("$2");
-    RrMenuGridPoint *temp_a3_2;
+    MenuGridPoint *temp_a3_2;
 
     ModeFrame = 0;
     ScreenFrame = 0;
@@ -45,7 +46,7 @@ void ovl667_func_801161A8(s32 arg0) {
     InitUiRow(0x12, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x54);
     InitUiRow(0x13, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 3);
     InitUiRow(0x14, 0xC, 0x90, 0x44, 0x20, 0, 0, 1, 0, 0x55);
-    InitUiRow(0x15, 0xC, 0x170, 0xD0, 0x20, 0, 0, 8, 4, (s32) D_800AC648);
+    InitUiRow(0x15, 0xC, 0x170, 0xD0, 0x20, 0, 0, 8, 4, D_800AC648);
     InitUiRow(0x17, 0x68, 0x68, 0x44, 0x20, 0, 0, 1, 5, 3);
     InitUiRow(0x18, 0x68, 0x40, 0x44, 0x20, 0, 0, 0, 0x7E, 0);
     SetupRenderer(5);
@@ -54,27 +55,27 @@ void ovl667_func_801161A8(s32 arg0) {
     ResetScreenCounters();
     InitPreviewImageRows();
     D_8010C0B8 = 0;
-    LoadCursor = D_800F4D40;
+    LoadCursor = MenuArenaBase;
     if (!(D_800AC5D4 & 1)) {
-        MenuArenas.first = D_800F4D40;
+        MenuArenas.first = MenuArenaBase;
     } else {
         LoadCursor = MenuArenas.first;
     }
     var_s1 = 0;
     placeY=10;placeZ=308;
     var_s0 = PlayerCars;
-    RR_PROJECTION_SCRATCH->word18 = 0x78;
-    RR_PROJECTION_SCRATCH->word08 = -0x10;
-    RR_PROJECTION_SCRATCH->word0C = -0xF8;
-    RR_PROJECTION_SCRATCH->word1C = 0;
-    RR_PROJECTION_SCRATCH->word20 = 0;
-    RR_PROJECTION_SCRATCH->word10 = -0x60;
+    RR_PROJECTION_SCRATCH->pose08.angles10.xyz.x = 0x78;
+    RR_PROJECTION_SCRATCH->pose08.position00.words[0] = -0x10;
+    RR_PROJECTION_SCRATCH->pose08.position00.words[1] = -0xF8;
+    RR_PROJECTION_SCRATCH->pose08.angles10.xyz.y = 0;
+    RR_PROJECTION_SCRATCH->pose08.angles10.xyz.z = 0;
+    RR_PROJECTION_SCRATCH->pose08.position00.words[2] = -0x60;
     do {
         /* ASM_BARRIER: retain the current vehicle across its reset callback. */
         __asm__("" : "+r"(var_s0));
         ResetCarState(var_s0);
-        var_s0->pos20[1] = placeY;
-        var_s0->pos20[2] = placeZ;
+        var_s0->position20.words[1] = placeY;
+        var_s0->position20.words[2] = placeZ;
         rotation=0x800;
         var_s0->rot54 = rotation;
         /* ASM_BARRIER: publish vehicle fields before advancing the loop phase. */

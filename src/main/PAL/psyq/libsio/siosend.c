@@ -1,37 +1,18 @@
 /* GCC_VERSION: 2.7.2 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
+#include "rr/serial.h"
 #include "psyq/libsio/siorecv.h"
 #include "psyq/libsio/siosend.h"
 
-typedef struct {
-    volatile unsigned char data;
-    unsigned char pad01[3];
-    volatile unsigned short status;
-    unsigned char pad06[2];
-    volatile unsigned short mode;
-    volatile unsigned short control;
-    unsigned char pad0C[2];
-    volatile unsigned short baud;
-} RrSerialPortRegisters;
-
-typedef struct {
-    int active;
-    int first, second;
-} RrSerialRequest;
-
-extern volatile RrSerialRequest SioRequest;
-extern RrSerialPortRegisters *SIO1_REGS;
-extern RrSerialPortRegisters SioShadowRegs;
 extern int (*SioPollHook)(int, int);
 extern int DeliverEvent(unsigned int, int);
 
-int _sio_write(int first, int second) {
+int _sio_write(u8 *buffer, int length) {
     int s1 = 0;
     int s0;
     int s4;
-    RrSerialPortRegisters *port;
-    /* ASM_BARRIER: retain the request base in $a1 before the loop. */
-    volatile RrSerialRequest *p1 = &SioRequest;
+    SerialPortRegisters *port;
+    volatile SerialRequest *p1 = &SioRequest;
 
     /* ASM_BARRIER: keep $a1 live for the pre-loop stores and load. */
     __asm__("" : "=r"(p1) : "0"(p1));
@@ -40,18 +21,18 @@ int _sio_write(int first, int second) {
         return -1;
     }
 
-    s4 = D_800ABD48[(SioShadowRegs.control & 0x300) >> 8];
+    s4 = SioRxFifoSizeTable[(SioShadowRegs.control & 0x300) >> 8];
     port = SIO1_REGS;
-    p1->second = second;
-    p1->first = first;
+    p1->remaining = length;
+    p1->cursor = buffer;
     p1->active = 0;
     port->control |= 0x20;
     s0 = 0;
 
-    if (p1->second != 0) {
-        volatile RrSerialRequest *b = p1;
+    if (p1->remaining != 0) {
+        volatile SerialRequest *b = p1;
         do {
-            RrSerialPortRegisters *p = SIO1_REGS;
+            SerialPortRegisters *p = SIO1_REGS;
             if ((p->status & 0x38) != 0) {
                 int v50 = 0x50;
                 unsigned short ctrl;
@@ -86,19 +67,19 @@ int _sio_write(int first, int second) {
                     }
                 } while ((SIO1_REGS->status & 2) == 0);
             }
-            *(unsigned char *)SioRequest.first = SIO1_REGS->data;
-            b->first += 1;
+            *SioRequest.cursor = SIO1_REGS->data;
+            b->cursor += 1;
             s0 += 1;
-            b->second -= 1;
+            b->remaining -= 1;
             if (s0 == s4) {
                 s0 = 0;
                 SIO1_REGS->control ^= 2;
             }
-        } while (b->second != 0);
+        } while (b->remaining != 0);
     }
     SIO1_REGS->control &= ~0x20;
 done:
-    /* ASM_BARRIER: weight second argument into $s3 ahead of chunk size $s4 in global-alloc. */
-    __asm__ volatile("" : : "r"(second));
-    return second - SioRequest.second;
+    /* ASM_BARRIER: weight length argument into $s3 ahead of chunk size $s4 in global-alloc. */
+    __asm__ volatile("" : : "r"(length));
+    return length - SioRequest.remaining;
 }

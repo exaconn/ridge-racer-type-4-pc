@@ -2,5 +2,5 @@
 #define RR_MENU_CHOICE_TYPES_H
 #include "types.h"
 /* Byte-aligned four-byte selection prefix. */
-typedef struct {u8 bytes[4];} RrMenuChoice4;
+typedef struct {u8 bytes[4];} MenuChoice4;
 #endif

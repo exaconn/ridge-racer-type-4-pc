@@ -12,11 +12,11 @@ void DrawHudNumber5(s32 value_arg,s32 index) {
     s32 digit_thousands=thousands%10;
     s32 hundreds=value/100;
     register s32 tens=value/10;
-    register RrNumberTarget *targets=HudNumberTargets;
-    unsigned long row_offset=(unsigned long)index*sizeof(RrNumberTarget);
-    register RrNumberTarget *target=(RrNumberTarget *)(row_offset+(unsigned long)targets);
+    register NumberTarget *targets=HudNumberTargets;
+    unsigned long row_offset=(unsigned long)index*sizeof(NumberTarget);
+    register NumberTarget *target=(NumberTarget *)(row_offset+(unsigned long)targets);
     register u32 *ordering=*(u32 **)((unsigned long)DrawBufIndex*sizeof(u32 *)+row_offset+(unsigned long)targets);
-    u8 *incoming_cursor=((RrGpuScratchPointers *)0x1F800000U)->cursor;
+    u8 *incoming_cursor=((GpuScratchPointers *)0x1F800000U)->cursor;
     register s32 x=target->x;
     register s32 y=target->y;
     register s32 digit_hundreds=hundreds-thousands*10;
@@ -32,5 +32,5 @@ void DrawHudNumber5(s32 value_arg,s32 index) {
     register s32 last_y=y;
     value-=tens*10;
     cursor=EmitHudGlyph12(last_order,last_cursor,last_x,last_y,value,palette);}
-    ((RrGpuScratchPointers *)0x1F800000U)->cursor=AddDrawModePrim(ordering,cursor,5);
+    ((GpuScratchPointers *)0x1F800000U)->cursor=AddDrawModePrim(ordering,cursor,5);
 }

@@ -3,7 +3,7 @@
 #include "rr/overlay662_primitives.h"
 #include "rr/animated_sprite_grid.h"
 #ifndef RR_GARAGE_SCRATCH
-#define RR_GARAGE_SCRATCH ((RrGpuScratchPointers*)0x1F800000U)
+#define RR_GARAGE_SCRATCH ((GpuScratchPointers*)0x1F800000U)
 #endif
 /* config1C must be2..255 at both reads. Capture scale and ordering before
  * callbacks; thread each full returned cursor through the shared scratch cell. */

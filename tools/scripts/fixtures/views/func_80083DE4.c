@@ -2,7 +2,7 @@
 
 #include "rr/sequencer_init.h"
 
-void SsSetTableSize(RrLibStateB0 *base,s32 raw_banks,s32 raw_rows) {
+void SsSetTableSize(LibStateB0 *base,s32 raw_banks,s32 raw_rows) {
     s32 bank;
     s32 rows;
     s32 index;
@@ -12,14 +12,14 @@ void SsSetTableSize(RrLibStateB0 *base,s32 raw_banks,s32 raw_rows) {
     register s32 bank_argument __asm__("$5")=raw_banks;
     s32 step;
     s32 count_shift;
-    RrLibStateB0 **first_entry;
-    RrLibStateB0 **entry;
+    LibStateB0 **first_entry;
+    LibStateB0 **entry;
     s32 minus_one;
     s32 maximum;
-    RrLibStateB0 *last;
+    LibStateB0 *last;
     s32 row_shift;
     s32 bank_limit;
-    RrLibStateB0 **records;
+    LibStateB0 **records;
     raw_bank_copy=bank_argument;
     _snd_seq_s_max=bank_argument;
     /* ASM_BARRIER: Publish raw bank low16 before narrowing a1; preserve its raw copy for the mask. */
@@ -57,23 +57,23 @@ void SsSetTableSize(RrLibStateB0 *base,s32 raw_banks,s32 raw_rows) {
                 __asm__("" : "+r"(rows));
                 entry=records;offset=0;
                 do {
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->w98=0;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->b22[0]=minus_one;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->b22[1]=0;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->h48[0]=0;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->h48[1]=0;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->w9c=0;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->wa0=0;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->h48[2]=0;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->wac=0;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->wa8=0;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->wa4=0;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->h48[3]=0;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->h58[0]=maximum;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->h58[1]=maximum;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->w98=0;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->b22[0]=minus_one;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->b22[1]=0;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->h48[0]=0;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->h48[1]=0;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->w9c=0;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->wa0=0;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->h48[2]=0;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->wac=0;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->wa8=0;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->wa4=0;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->h48[3]=0;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->h58[0]=maximum;
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->h58[1]=maximum;
                     rows++;
-                    ((RrLibStateB0*)(offset+(unsigned long)*entry))->h58[2]=maximum;
-                    last=(RrLibStateB0*)(offset+(unsigned long)*entry);
+                    ((LibStateB0*)(offset+(unsigned long)*entry))->h58[2]=maximum;
+                    last=(LibStateB0*)(offset+(unsigned long)*entry);
                     offset+=sizeof(*last);
                     last->h58[3]=maximum;
                 }while(rows<_snd_seq_t_max);

@@ -3,6 +3,7 @@
 #include "types.h"
 #include "psyq/libgte/gtecolo4.h"
 #include "rr/overlay662_distance.h"
+#include "psyq/libgte/gtecord.h"
 
 s32 csqrt_1(s32 arg0);
 
@@ -55,7 +56,7 @@ s32 csqrt_1(s32 arg0) {
     return x[7];
 }
 
-int func_80090758(a0)
+int CordicSqrt(a0)
 int a0;
 {
     int t, s, a;

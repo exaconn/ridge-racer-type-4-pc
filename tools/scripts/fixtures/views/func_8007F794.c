@@ -4,9 +4,9 @@
 
 #include "rr/library.h"
 
-#define P ((RrLibStateB0 *)(offset + (unsigned long)*q))
+#define P ((LibStateB0 *)(offset + (unsigned long)*q))
 
-extern RrLibStateB0 *_ss_score[];
+extern LibStateB0 *_ss_score[];
 
 extern void _SsVmSetSeqVol(s32,s32,s32,s32), _SsVmSeqKeyOff(s32);
 
@@ -24,7 +24,7 @@ void _SsClose(s32 raw_bank) {
     register s32 zero;
     s32 minus_one;
     register s32 maximum;
-    RrLibStateB0 **q;
+    LibStateB0 **q;
     argument_bank=a0;
     /* ASM_BARRIER: Prepare the bank argument before reusing a1 for zero. */
     __asm__("" : "+r"(argument_bank) : : "$5");
@@ -36,7 +36,7 @@ void _SsClose(s32 raw_bank) {
     _snd_openflag &= ~(1U << a0);
     i = 0;
     if (_snd_seq_t_max > 0) {
-        unsigned long b; b = (unsigned long)_ss_score; q = (RrLibStateB0 **)(a0 * sizeof(*q) + b);
+        unsigned long b; b = (unsigned long)_ss_score; q = (LibStateB0 **)(a0 * sizeof(*q) + b);
         minus_one=-1;
         maximum=127;
         /* ASM_BARRIER: Keep the loop count distinct from the zero byte offset. */
@@ -58,8 +58,8 @@ void _SsClose(s32 raw_bank) {
             P->h58[0] = maximum;
             i++;
             {
-                register RrLibStateB0 *last=P;
-                offset+=sizeof(RrLibStateB0);
+                register LibStateB0 *last=P;
+                offset+=sizeof(LibStateB0);
                 last->h58[1]=maximum;
             }
         } while (i < _snd_seq_t_max);

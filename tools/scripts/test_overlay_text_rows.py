@@ -40,11 +40,11 @@ class OverlayTextRowsTest(unittest.TestCase):
 #include <stdint.h>
 #include <string.h>
 #include "rr/menu_text_rows.h"
-static struct {u32 guard[4];RrMenuTextRow60 rows[55];u32 tail[4];} owners[2],before[2];
-RrMenuTextRow60 *MenuTextRows;
+static struct {u32 guard[4];MenuTextRow60 rows[55];u32 tail[4];} owners[2],before[2];
+MenuTextRow60 *MenuTextRows;
 s32 MenuTextRowCount;
 static unsigned bank,count,mutation,calls;
-void func_80096434(void *pointer,u32 bytes) {
+void PsyqBzero(void *pointer,u32 bytes) {
  assert(calls++==0 && pointer==owners[bank].rows && bytes==count*60);
  assert(MenuTextRows==pointer && (uintptr_t)pointer>UINT32_MAX);
  memset(pointer,0,bytes);
@@ -80,7 +80,8 @@ int main(void) {
 #include <string.h>
 #include "rr/menu_text_rows.h"
 #include "rr/overlay_menu.h"
-RrMenuTextRow60 D_800FFC48[55];
+static MenuTextRow60 row_storage[55];
+#define D_800FFC48 ((u8*)row_storage)
 struct State {
  u32 guard[4];s32 frame,match,table661[22],table667[22];
  s16 selection,mode,scores[2],winners[2],wins[2],participants,ranks[8],counts[8],order[8],reset;
@@ -132,8 +133,8 @@ static void event(s32 kind,s32 a,s32 b,s32 c,s32 d,s32 e) {
   }
  }
 }
-s32 InitMenuTextRows(RrMenuTextRow60 *rows) {
- assert(rows==D_800FFC48 && (uintptr_t)rows>UINT32_MAX);
+s32 InitMenuTextRows(MenuTextRow60 *rows) {
+ assert(rows==row_storage && (uintptr_t)rows>UINT32_MAX);
  assert(w->calls==0);event(0,0,0,0,0,0);return -1;
 }
 void SetMenuTextRow(s32 row,s32 position,s32 group,s32 mode,s32 label) {

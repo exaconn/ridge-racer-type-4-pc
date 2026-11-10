@@ -27,8 +27,8 @@ class ChannelStreamEndTest(unittest.TestCase):
 #include "rr/channel_stream.h"
 #define BANKS 2
 #define ROWS 3
-typedef struct {u32 guard[4];RrChannelStreamB0 records[2][BANKS][ROWS];
- u32 tail[4];RrChannelStreamB0 *slots[BANKS];} World;
+typedef struct {u32 guard[4];ChannelStreamB0 records[2][BANKS][ROWS];
+ u32 tail[4];ChannelStreamB0 *slots[BANKS];} World;
 static World actual,expected;
 static u8 buffers[5][64];
 typedef struct {World state;s32 first,second;unsigned kind;} Event;
@@ -50,7 +50,7 @@ static void enter(unsigned kind,s32 first,s32 second){Event *e;assert(eventIndex
  assert(e->kind==kind&&e->first==first&&e->second==second);compare(&actual,&e->state);}
 /* Known reset protocol, simulated through the typed full pointer owner.
  * Root changes and pitch writes model effects observable through callbacks. */
-static void restart(World *w,s32 bank,s32 row){RrChannelStreamB0 *r;
+static void restart(World *w,s32 bank,s32 row){ChannelStreamB0 *r;
  assert(bank>=0&&bank<BANKS&&row>=0&&row<ROWS);r=&w->slots[bank][row];
  r->duration20=1;r->elapsed21=0;r->mode98=(r->mode98&~(0x100|8|2|4|0x200))|1;
  r->active14=1;r->cursor00=r->start04;
@@ -67,7 +67,7 @@ void _SsSndNextSep(s32 bank,s16 row){enter(0,bank,row);restart(&actual,bank,row)
 void _SsVmSeqKeyOff(s32 packed){enter(1,packed,0);notify(&actual,packed);}
 '''+body+r'''
 static unsigned branches[8],mutations[8];
-static void model(unsigned bank,unsigned row){RrChannelStreamB0 *r=&expected.slots[bank][row];
+static void model(unsigned bank,unsigned row){ChannelStreamB0 *r=&expected.slots[bank][row];
  unsigned elapsed=((unsigned)r->elapsed21+1)%256;int duration=r->duration20;
  s32 packed=(s32)(bank+256*row);r->elapsed21=(u8)elapsed;
  if(!duration){r->accumulator88=0;r->state1C=0;r->accumulator90=0;
@@ -84,18 +84,18 @@ static void model(unsigned bank,unsigned row){RrChannelStreamB0 *r=&expected.slo
  if(elapsed==0)branches[4]++;if(elapsed==128)branches[5]++;if(duration<0)branches[6]++;if(mutation)branches[7]++;
 }
 int main(void){unsigned n,i,bank,row,set,b,r;uint64_t cases=0;
- _Static_assert(offsetof(RrChannelStreamB0,start04)==sizeof(void*),"start pointer");
- _Static_assert(offsetof(RrChannelStreamB0,marker10)==4*sizeof(void*),"marker pointer");
- _Static_assert(offsetof(RrChannelStreamB0,active14)==5*sizeof(void*),"full native pointer prefix");
- _Static_assert(offsetof(RrChannelStreamB0,duration20)==32+5*(sizeof(void*)-4),"signed duration");
- _Static_assert(offsetof(RrChannelStreamB0,mode98)==152+5*(sizeof(void*)-4),"mode word");
- _Static_assert(sizeof(RrChannelStreamB0)==200,"complete LP64 row and tail alignment");
+ _Static_assert(offsetof(ChannelStreamB0,start04)==sizeof(void*),"start pointer");
+ _Static_assert(offsetof(ChannelStreamB0,marker10)==4*sizeof(void*),"marker pointer");
+ _Static_assert(offsetof(ChannelStreamB0,active14)==5*sizeof(void*),"full native pointer prefix");
+ _Static_assert(offsetof(ChannelStreamB0,duration20)==32+5*(sizeof(void*)-4),"signed duration");
+ _Static_assert(offsetof(ChannelStreamB0,mode98)==152+5*(sizeof(void*)-4),"mode word");
+ _Static_assert(sizeof(ChannelStreamB0)==200,"complete LP64 row and tail alignment");
  assert((uintptr_t)&actual>UINT32_MAX);assert((uintptr_t)buffers>UINT32_MAX);
  for(n=0;n<262144;n++){
   unsigned char *raw=(unsigned char*)&actual;
   for(i=0;i<sizeof(actual);i++)raw[i]=(u8)next();
   for(set=0;set<2;set++)for(b=0;b<BANKS;b++)for(r=0;r<ROWS;r++){
-   RrChannelStreamB0 *p=&actual.records[set][b][r];
+   ChannelStreamB0 *p=&actual.records[set][b][r];
    p->cursor00=buffers[0]+next()%64;p->start04=buffers[1]+next()%64;p->saved08=buffers[2]+next()%64;
    p->alternate0C=buffers[3]+next()%64;p->marker10=buffers[4]+next()%64;
    if((next()&7)==0)p->start04=0;if((next()&7)==0)p->alternate0C=0;
@@ -103,7 +103,7 @@ int main(void){unsigned n,i,bank,row,set,b,r;uint64_t cases=0;
   }
   for(b=0;b<BANKS;b++)actual.slots[b]=actual.records[0][b];
   bank=(n/3)%BANKS;row=n%ROWS;mutation=next()&7;mutations[mutation]++;
-  {RrChannelStreamB0 *p=&actual.records[0][bank][row];
+  {ChannelStreamB0 *p=&actual.records[0][bank][row];
    p->duration20=(s8)signedByte((n>>8)&255);p->elapsed21=(u8)n;
    p->mode98=(p->mode98&~1024)|((n>>16)&1)*1024;
    p->pitch54=signed16((u16)n);

@@ -13,13 +13,13 @@ void _SsSndCrescendo(s32 bankInput,s32 rowInput)
     s16 bank=bankInput,row=rowInput;
     u16 left,right;
     s32 bankBits=(s32)((u32)bank<<16);
-    RrChannelValueRecordB0 **table=_ss_score;
+    ChannelValueRecordB0 **table=_ss_score;
     /* Scale the signed bank offset by the native pointer-table stride. */
-    RrChannelValueRecordB0 **slot=(RrChannelValueRecordB0 **)((u8*)table+(long)(bankBits>>14)*(long)(sizeof(*table)/sizeof(u32)));
-    s32 offset=(s16)row*(s32)sizeof(RrChannelValueRecordB0);
-    RrChannelValueRecordB0 *base=*slot;
-    RrChannelValueRecordB0 *record=(RrChannelValueRecordB0 *)((u8 *)base+offset);
-    register RrChannelValueRecordB0 *current __asm__("$2");
+    ChannelValueRecordB0 **slot=(ChannelValueRecordB0 **)((u8*)table+(long)(bankBits>>14)*(long)(sizeof(*table)/sizeof(u32)));
+    s32 offset=(s16)row*(s32)sizeof(ChannelValueRecordB0);
+    ChannelValueRecordB0 *base=*slot;
+    ChannelValueRecordB0 *record=(ChannelValueRecordB0 *)((u8 *)base+offset);
+    register ChannelValueRecordB0 *current __asm__("$2");
     s32 elapsed=(s32)((u32)record->rampElapsedA0+1U);
     s32 duration=record->rampDuration9C;
     s32 delta;
@@ -27,7 +27,7 @@ void _SsSndCrescendo(s32 bankInput,s32 rowInput)
     s32 packed;
     record->rampElapsedA0=elapsed;
     if(duration<elapsed) {
-        current=(RrChannelValueRecordB0 *)((u8 *)*slot+offset);
+        current=(ChannelValueRecordB0 *)((u8 *)*slot+offset);
         goto clear;
     } else {
         register s32 product __asm__("$2")=(s32)((u32)(s32)record->rampDelta48*(u32)elapsed);

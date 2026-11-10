@@ -1,9 +1,15 @@
+#include "psyq/libgte/gtemat5.h"
+#include "psyq/libgte/gtemat4.h"
+#include "psyq/libgte/gtemat3.h"
 #include "types.h"
 #include "scratchpad.h"
 #include "psyq/libgte/libgte.h"
 #include "rr_asm.h"
 #include "psyq/libgte/gtemat7.h"
 #include "game/gfx/polygt4.h"
+#include "rr/menu_grid.h"
+#include "rr/menu_overlay_runtime.h"
+#include "game/math/rotmat.h"
 
 typedef struct {
     u32 addr: 24;
@@ -32,14 +38,6 @@ typedef struct {
 } POLY_GT4;
 
 typedef struct {
-    s16 m[3][3];
-    s16 pad;
-    s32 t[3];
-} MATRIX;
-
-
-
-typedef struct {
     POLY_GT4 *pkt00;
     s32 unk04;
     s32 cam_x08;
@@ -47,44 +45,10 @@ typedef struct {
     s32 cam_z10;
 } Scratch;
 
-typedef struct {
-    s32 w00;
-    s16 width04;
-    s16 height06;
-    s16 step_x08;
-    s16 step_y0A;
-    s32 x0C;
-    s32 y10;
-    s32 z14;
-    s32 unk18;
-    s32 rot_z1C;
-    s32 rot_y20;
-    s32 rot_x24;
-    s32 unk28;
-    s16 count2C;
-    u8 columns2E;
-    u8 rows2F;
-    u8 u30;
-    u8 v31;
-    u8 du32;
-    u8 dv33;
-    u16 tpage34;
-    u16 clut36;
-} GridEntry;
 
-extern GridEntry *MenuGridRecords;
-
-extern void BuildRotMatrixZ(MATRIX *, s32);
-extern void BuildRotMatrixY(MATRIX *, s32);
-extern void BuildRotMatrixX(MATRIX *, s32);
-extern s32 rsin(s32);
-extern void MulMatrix(MATRIX *, MATRIX *);
-extern void MulMatrix2(MATRIX *, MATRIX *);
-extern void ApplyMatrix(MATRIX *, SVECTOR *, VECTOR *);
-
-int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
-    MATRIX sp10;
-    MATRIX sp30;
+int DrawMenuGridMesh(s32 arg0, P_TAG *arg1, s32 arg2) {
+    MatrixWords32 sp10;
+    MatrixWords32 sp30;
     SVECTOR sp50;
     VECTOR sp58;
     s32 sp68;
@@ -110,16 +74,16 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
     sp50.vx = MenuGridRecords[arg0].x0C - g->cam_x08;
     sp50.vy = 0x200 - g->cam_y0C;
     sp50.vz = MenuGridRecords[arg0].z14 - g->cam_z10;
-    ApplyMatrix((MATRIX *)SCRATCH_ROT_MATRIX, &sp50, &sp58);
+    ApplyMatrix((const MatrixWords32 *)((MatrixWords32 *)SCRATCH_ROT_MATRIX), (const Vec3s8 *)(&sp50), (Vec3i *)(&sp58));
     BuildRotMatrixX(&sp10, MenuGridRecords[arg0].rot_z1C);
     BuildRotMatrixZ(&sp30, MenuGridRecords[arg0].rot_x24);
     MulMatrix(&sp10, &sp30);
     BuildRotMatrixY(&sp30, MenuGridRecords[arg0].rot_y20);
     MulMatrix2(&sp30, &sp10);
-    MulMatrix2((MATRIX *)SCRATCH_ROT_MATRIX, &sp10);
-    sp10.t[0] = sp58.vx;
-    sp10.t[1] = sp58.vy;
-    sp10.t[2] = sp58.vz;
+    MulMatrix2((const MatrixWords32 *)SCRATCH_ROT_MATRIX, &sp10);
+    sp10.fields.translation14[0] = sp58.vx;
+    sp10.fields.translation14[1] = sp58.vy;
+    sp10.fields.translation14[2] = sp58.vz;
     SetTransMatrix(&sp10);
     SetRotMatrix(&sp10);
 
@@ -183,7 +147,7 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
         *(s32 *)&pkt->r3 = (s1 << 16) | (s1 << 8) | s1;
 
         pkt->addr = arg1->addr;
-        arg1->addr = (u32)pkt;
+        arg1->addr = pkt;
         pkt++;
     }
     *(POLY_GT4 **)SCRATCHPAD = pkt;

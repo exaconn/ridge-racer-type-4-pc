@@ -4,16 +4,16 @@
 
 #include "rr/library.h"
 
-RrLibInterruptCallback setIntrDMA(s32 channel,RrLibInterruptCallback callback) {
+LibInterruptCallback setIntrDMA(s32 channel,LibInterruptCallback callback) {
     s32 i=channel;
-    RrLibInterruptCallback *entry=InterruptCallbackTable;
+    LibInterruptCallback *entry=InterruptCallbackTable;
     /* ASM_BARRIER: Retain the previous callback for the common return. */
-    register RrLibInterruptCallback old __asm__("$7");
-    RrLibInterruptCallback value;
+    register LibInterruptCallback old __asm__("$7");
+    LibInterruptCallback value;
     /* ASM_BARRIER: Keep the device word base in the consumed argument register. */
     register volatile u32 *control __asm__("$5");
-    RrLibInterruptCallback result;
-    entry=(RrLibInterruptCallback *)((unsigned long)entry+(u32)i*sizeof(*entry));
+    LibInterruptCallback result;
+    entry=(LibInterruptCallback *)((unsigned long)entry+(u32)i*sizeof(*entry));
     old=*entry;
     value=callback;
     result=old;

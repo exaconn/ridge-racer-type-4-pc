@@ -13,9 +13,9 @@
 #undef MotionController
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80096434 ((int (*)())func_80096434)
+#define PsyqBzero ((int (*)())PsyqBzero)
 
-#undef func_80096434
+#undef PsyqBzero
 
 /* legacy typing of shared globals in this part of the unit */
 #define RaceContext (*(struct { char pad[0x3D8]; struct Q_1 *q; } (*))&RaceContext)
@@ -37,6 +37,6 @@
 
 #undef MotionController
 
-void func_8005B2D4(s32 arg0) {
+void SetPresentationDrawEnabled(s32 arg0) {
     M2C_FIELD(MotionController, s32 *, 0x54) = arg0;
 }

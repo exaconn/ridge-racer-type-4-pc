@@ -8,10 +8,10 @@
 typedef struct {
     u8 instrument00, pad01[7];
     s16 fields08[3];
-} RrSpuPitchRequest;
-extern RrSpuPitchRequest D_8011010C;
-RR_ASSERT_SIZE(RrSpuPitchRequest, 0xE);
-RR_ASSERT_OFFSET(RrSpuPitchRequest, fields08, 8);
+} SpuPitchRequest;
+extern SpuPitchRequest D_8011010C;
+RR_ASSERT_SIZE(SpuPitchRequest, 0xE);
+RR_ASSERT_OFFSET(SpuPitchRequest, fields08, 8);
 
 /* Voice is accepted iff its unsigned low16 is below24. The three selectors
  * compare signed low16 values. Selector status is ignored. Its callback may

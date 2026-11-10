@@ -30,14 +30,14 @@ typedef uint32_t u32; typedef int32_t s32;
 s32 test_ram[16384];
 #define _spu_isCalled test_ram[0x48A8/4]
 #define _spu_EVdma test_ram[0x4840/4]
-RrLibInterruptDriverPrefix test_driver,test_alternate_driver;
-RrLibInterruptDriverPrefix *IntrDriverTablePtr=&test_driver;
+LibInterruptDriverPrefix test_driver,test_alternate_driver;
+LibInterruptDriverPrefix *IntrDriverTablePtr=&test_driver;
 s32 test_stop_calls;
 void _spu_FiDMA(void) {test_stop_calls++;}
 s32 (*test_system)(s32,u32,s32,s32,void *);
 s32 EnterCriticalSection(void) {return test_system(1,0,0,0,0);}
 s32 ExitCriticalSection(void) {return test_system(5,0,0,0,0);}
-s32 OpenEvent(u32 first,s32 second,s32 third,RrLibInterruptCallback fourth) {
+s32 OpenEvent(u32 first,s32 second,s32 third,LibInterruptCallback fourth) {
  return test_system(3,first,second,third,(void *)fourth);
 }
 s32 EnableEvent(s32 event) {return test_system(4,(u32)event,0,0,0);}

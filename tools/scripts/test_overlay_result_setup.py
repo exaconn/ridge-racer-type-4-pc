@@ -34,9 +34,11 @@ class OverlayResultSetupTest(unittest.TestCase):
 #include "rr/menu_selection.h"
 #include "rr/standings.h"
 #include "rr/save_progress.h"
-RrMenuTextRow60 D_800FFC48[55];
+#include "rr/current_selection_types.h"
+static MenuTextRow60 row_storage[55];
+#define D_800FFC48 ((u8*)row_storage)
 struct State {
- u32 guard[4];RrSaveProgressRecord7C save;RrMenuChoice4 choice;
+ u32 guard[4];SaveProgressRecord7C save;CurrentSelection choice;
  s32 frame,counter,bank666,labels666[33],match,standings[6],first660,second660,labels660[55],uiMode,screenFlag;
  u16 first;s16 selection,mode,gameMode,flash;u32 tail[4];
 };
@@ -74,7 +76,7 @@ static s32 event(s32 kind,s32 a,s32 b,s32 c,s32 d,s32 e) {
   for(i=0;i<sizeof(w->state.save);i++)((u8*)&w->state.save)[i]=(u8)(scenario*19+n*23+i*29);
   w->state.frame=word(scenario*0x9E3779B9U+n);w->state.counter=word(scenario*0x1234567U+n);
   w->state.bank666=(s32)((scenario+n)%3);
-  for(i=0;i<4;i++)w->state.choice.bytes[i]=(u8)((scenario+n+i)%4);
+  for(i=0;i<4;i++)w->state.choice.choice.bytes[i]=(u8)((scenario+n+i)%4);
   for(i=0;i<33;i++)w->state.labels666[i]=word(scenario*0x87654321U+n*13+i*37);
   w->state.match=word(scenario*0xABCDEF01U+n*31);
   for(i=0;i<6;i++)w->state.standings[i]=word(scenario*0x3456789U+n*7+i*3);
@@ -88,8 +90,8 @@ static s32 event(s32 kind,s32 a,s32 b,s32 c,s32 d,s32 e) {
  }
  return (s32)((scenario+n)%7);
 }
-s32 InitMenuTextRows(RrMenuTextRow60 *rows) {
- assert(rows==D_800FFC48 && (uintptr_t)rows>UINT32_MAX);
+s32 InitMenuTextRows(MenuTextRow60 *rows) {
+ assert(rows==row_storage && (uintptr_t)rows>UINT32_MAX);
  return event(0,0,0,0,0,0);
 }
 void SetMenuTextRow(s32 row,s32 position,s32 group,s32 mode,s32 label) {
@@ -103,7 +105,7 @@ void SetMenuTextRow(s32 row,s32 position,s32 group,s32 mode,s32 label) {
  }
  assert(mode==0);(void)event(1,row,position,group,mode,label);
 }
-s32 ovl660_func_80115FA8(s32 selector,s32 value) {
+s32 ovl660_insert_record(s32 selector,s32 value) {
  assert(!overlay && w->calls<2 && selector==(s32)w->calls);
  return event(3,selector,value,0,0,0);
 }
@@ -117,7 +119,7 @@ static void reference_666(void) {
  (void)event(0,0,0,0,0,0);w->state.selection=0;w->state.mode=3;
  bank=(unsigned)w->state.bank666;
  if(bank==0) {
-  unsigned first=w->state.choice.bytes[0],second=w->state.choice.bytes[1];
+  unsigned first=w->state.choice.choice.bytes[0],second=w->state.choice.choice.bytes[1];
   w->state.save.prefix.flags5C[second]=1;
   w->state.save.prefix.progress.progress10[first][second]|=1U<<19;
  }
@@ -153,13 +155,13 @@ static void reference_660(void) {
 }
 int main(void) {
  unsigned i;
- _Static_assert(sizeof(RrSaveProgressRecord60)==96,"save owner");
- _Static_assert(offsetof(RrSaveProgressRecord60,flags5C)==92,"flag offset");
+ _Static_assert(sizeof(SaveProgressRecord60)==96,"save owner");
+ _Static_assert(offsetof(SaveProgressRecord60,flags5C)==92,"flag offset");
  for(scenario=0;scenario<65536;scenario++)for(mutation=0;mutation<2;mutation++) {
   memset(&initial,0,sizeof(initial));
   for(i=0;i<sizeof(initial.state);i++)((u8*)&initial.state)[i]=(u8)(scenario*17+i*29);
   initial.state.bank666=(s32)(scenario%3);
-  for(i=0;i<4;i++)initial.state.choice.bytes[i]=(u8)((scenario>>(i*2))%4);
+  for(i=0;i<4;i++)initial.state.choice.choice.bytes[i]=(u8)((scenario>>(i*2))%4);
   initial.state.match=(scenario%3==0)?-1:(scenario&1)?INT32_MIN:INT32_MAX;
   initial.state.first=(u16)(scenario%6);
   for(i=0;i<6;i++) {
@@ -170,7 +172,7 @@ int main(void) {
   initial.state.uiMode=(s32)(scenario%5)-1;
   for(overlay=0;overlay<2;overlay++) {
    actual=initial;expected=initial;
-   w=&actual;if(overlay)ovl666_init_results();else ovl660_func_801154D8();
+   w=&actual;if(overlay)ovl666_init_results();else ovl660_init_results();
    w=&expected;if(overlay)reference_666();else reference_660();
    assert(memcmp(&actual,&expected,sizeof(actual))==0);
   }

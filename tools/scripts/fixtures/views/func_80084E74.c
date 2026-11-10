@@ -30,7 +30,7 @@ s32 SsUtChangePitch(s32 raw_input, s32 bank, s32 program, s32 group, s32 unused,
     u8 flags;
     if ((u16)raw_voice >= 24) return -1;
     voice = (s16)raw_voice;
-    offset = voice * sizeof(RrChannelControlRow36);
+    offset = voice * sizeof(ChannelControlRow36);
     /* ASM_BARRIER: finish the row offset before replacing the incoming a0 value. */
     __asm__("" : : "r"(offset) : "$4");
     bank_page=(u8*)0x80110000U;
@@ -57,9 +57,9 @@ s32 SsUtChangePitch(s32 raw_input, s32 bank, s32 program, s32 group, s32 unused,
     byte_page=(u8*)0x80110000U;
     /* ASM_BARRIER: retain the PAL page for the row byte reloaded after selection. */
     __asm__("" : "+r"(byte_page));
-    ((RrSpuPitchRequest*)((u8*)state-8))->instrument00=*(byte_page+offset-0x6E2);
+    ((SpuPitchRequest*)((u8*)state-8))->instrument00=*(byte_page+offset-0x6E2);
     pitch = note2pitch2(pitch_first,second);
-    *(u16 *)((voice * sizeof(RrSpuCachedVolumeEntry)) + (unsigned long)_svm_sreg_dirty.voices[0].pad04) = pitch;
+    *(u16 *)((voice * sizeof(SpuCachedVolumeEntry)) + (unsigned long)_svm_sreg_dirty.voices[0].pad04) = pitch;
     /* ASM_BARRIER: store pitch before reusing its offset register for fresh flags. */
     __asm__("" : : : "$3","memory");
     flags_page=(u8*)0x80110000U;

@@ -1,14 +1,14 @@
 #ifndef RR_SCREEN_TILES_H
 #define RR_SCREEN_TILES_H
+#include "rr/frame_storage_types.h"
 #include "rr/gpu.h"
 
 typedef struct {
     u32 tag;
     u8 r,g,b,code;
     s16 x,y,w,h;
-} RrGpuTilePacket16;
+} GpuTilePacket16;
 /* The drawing context starts with this rectangle. */
-extern RrGpuRectangle *CurrentDrawBuf;
 
 /* Requires 4-byte-aligned writable cursor storage with room for four tiles and the following draw-mode packet at the
  * scratchpad cursor. Intensity is clamped0..255; mode uses its low16.
@@ -17,8 +17,8 @@ extern RrGpuRectangle *CurrentDrawBuf;
  * is published before the final helper and replaced with its returned pointer. */
 void AddScreenFadeTiles(u32 *ordering, s32 intensity, u32 mode);
 
-RR_ASSERT_SIZE(RrGpuTilePacket16, 16);
-RR_ASSERT_OFFSET(RrGpuTilePacket16, b, 6);
-RR_ASSERT_OFFSET(RrGpuTilePacket16, x, 8);
-RR_ASSERT_OFFSET(RrGpuTilePacket16, h, 14);
+RR_ASSERT_SIZE(GpuTilePacket16, 16);
+RR_ASSERT_OFFSET(GpuTilePacket16, b, 6);
+RR_ASSERT_OFFSET(GpuTilePacket16, x, 8);
+RR_ASSERT_OFFSET(GpuTilePacket16, h, 14);
 #endif

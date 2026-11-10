@@ -10,7 +10,7 @@
 
 #undef SoundState
 
-void SlotSetupBank(RrAudioBankSetup *arg0)
+void SlotSetupBank(AudioBankSetup *arg0)
 {
   register u8 *bankOwner asm("$23");
   register u8 *read asm("$18");
@@ -22,21 +22,21 @@ void SlotSetupBank(RrAudioBankSetup *arg0)
   register s32 semitone asm("$16");
 register s32 channelOffset asm("$4");
   s32 channels[2];
-  RrSpuTone32 toneRecord;
+  SpuTone32 toneRecord;
   register u8 *tone asm("$22");
   register s32 bankIndex asm("$18");
   register s32 offset asm("$16");
   register s32 i asm("$21");
   s32 mode;register s32 voice asm("$2");
   register s32 *channel asm("$19");
-  RrAudioSlot620 *slot;
-  register RrAudioState *owner asm("$20");
+  AudioSlot620 *slot;
+  register AudioState *owner asm("$20");
   u8 *programCursor;
   u8 *pitchCursor;
   s16 handle;register s32 calculation asm("$2");
-  register RrAudioState *bankView asm("$3");
-  register RrAudioState *bankPointer asm("$16");
-  register RrAudioBankSetup *input asm("$22") = arg0;
+  register AudioState *bankView asm("$3");
+  register AudioState *bankPointer asm("$16");
+  register AudioBankSetup *input asm("$22") = arg0;
   new_var = input->slot0C;
   bankIndex = new_var;
   channels[0] = 5;
@@ -44,16 +44,16 @@ register s32 channelOffset asm("$4");
   asm("" : "+r"(input));
   calculation=((bankIndex*3)<<4)+bankIndex;asm("" : "+r"(calculation));offset=calculation<<5;
   channelOffset=bankIndex<<2;channel=(s32*)((u8*)channels+channelOffset);
-  owner = (RrAudioState *) (slotBase - 0x38);
+  owner = (AudioState *) (slotBase - 0x38);
   handle = *((s16 *) ((((u8 *) owner) + 0x24) + ((*channel) * 2)));
-  slot = (RrAudioSlot620 *) (slotBase + offset);
+  slot = (AudioSlot620 *) (slotBase + offset);
   
   if (handle > (0 - 1))
   {
     SsVabClose(handle);
     *((s16 *) ((((u8 *) owner) + 0x24) + ((*channel) * 2))) = -1;
   }
-  func_80096434(slot, 0x620);
+  PsyqBzero(slot, 0x620);
   mode = 0x5D000;
   if (bankIndex == 0)
   {
@@ -63,18 +63,18 @@ register s32 channelOffset asm("$4");
   {
     handle = (s16) SsVabOpenHeadSticky(input->bank00, -1, mode);
     *((s16 *) ((((u8 *) owner) + 0x24) + ((*channel) * 2))) = handle;
-    bankView = (RrAudioState *) (((u8 *) owner) + offset);
-    *((RrAudioBankStorage32*)&bankView->slots38[0].bank04) = (s32) handle;
+    bankView = (AudioState *) (((u8 *) owner) + offset);
+    *((AudioBankStorage32*)&bankView->slots38[0].bank04) = (s32) handle;
   }
   if (input->data04 != ((const u16 *) (~0UL)))
   {
-    bankPointer = (RrAudioState *) (((u8 *) owner) + offset);
+    bankPointer = (AudioState *) (((u8 *) owner) + offset);
     handle = (s16) SsVabTransBody(input->data04, bankPointer->slots38[0].bank04);
     *((s16 *) ((((u8 *) owner) + 0x24) + ((*channel) * 2))) = handle;
-    *((RrAudioBankStorage32*)&bankPointer->slots38[0].bank04) = (s32) handle;
+    *((AudioBankStorage32*)&bankPointer->slots38[0].bank04) = (s32) handle;
     SsVabTransCompleted(1);
   }
-  if (input->group08 != (RrAudioProgramData*)~0UL)
+  if (input->group08 != (AudioProgramData*)~0UL)
   {
     SlotLoadCurves(input->group08, bankIndex);
   }

@@ -8,7 +8,7 @@ extern s32 _spu_isCalled,_spu_EVdma;
 
 extern s32 EnterCriticalSection(void),ExitCriticalSection(void);
 
-extern s32 OpenEvent(u32,s32,s32,RrLibInterruptCallback);
+extern s32 OpenEvent(u32,s32,s32,LibInterruptCallback);
 
 extern s32 EnableEvent(s32);
 
@@ -30,7 +30,7 @@ void SpuStart(void) {
             unsigned long page=0x80080000U;
             /* ASM_BARRIER: Materialize the stop-callback page before its signed call-delay offset. */
             __asm__("" : "=r"(page) : "0"(page));
-            _SpuDataCallback((RrLibInterruptCallback)(page-0x10FC));
+            _SpuDataCallback((LibInterruptCallback)(page-0x10FC));
         }
         {
             /* ASM_BARRIER: Preserve the opened event as the next call's first argument. */

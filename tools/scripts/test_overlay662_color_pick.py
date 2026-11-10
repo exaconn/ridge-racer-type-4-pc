@@ -22,9 +22,9 @@ class Overlay662ColorPickTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_color_pick.h"
 #include "rr/audio_pan.h"
-RrGarageSelectionPrefix ovl662_D_801276A8;RrGarageWorkingStorage ovl662_D_80127668;
-static RrGarageSelectionPrefix expected;static RrGarageWorkingStorage expected_work;
-static struct Image {u32 before;RrGarageImage512 words;u32 after;} images[4],image_model[4];
+GarageSelectionPrefix ovl662_D_801276A8;GarageWorkingStorage ovl662_D_80127668;
+static GarageSelectionPrefix expected;static GarageWorkingStorage expected_work;
+static struct Image {u32 before;GarageImage512 words;u32 after;} images[4],image_model[4];
 static unsigned audio_calls,expected_mode,expected_before,after_color;
 void TriggerSfx(s32 program,s32 level,s32 pan,s32 pitch,s32 voice){
  assert((unsigned)program==expected_mode&&level==127&&pan==64&&pitch==0x1E00&&voice==-1);
@@ -45,7 +45,7 @@ int main(void){unsigned pixel,pair,active,mode,j;uint64_t cases=0;
  for(j=0;j<4;j++){images[j].before=0xFACE1234U+j;images[j].after=0xDEAD5678U+j;memset(images[j].words,(int)(0x21+j*17),2048);}
  memcpy(image_model,images,sizeof(images));
  for(mode=0;mode<10;mode++){
-  RrGarageSelectionPrefix before;RrGarageWorkingStorage work;
+  GarageSelectionPrefix before;GarageWorkingStorage work;
   memset(&ovl662_D_801276A8,0,sizeof(ovl662_D_801276A8));memset(&ovl662_D_80127668,0,sizeof(ovl662_D_80127668));
   ovl662_D_801276A8.active21=255;ovl662_D_801276A8.config1C=0;
   ovl662_D_80127668.words[1]=mode<8?2:mode==8?0:1;

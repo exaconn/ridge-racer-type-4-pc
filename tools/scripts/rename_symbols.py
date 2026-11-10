@@ -9,7 +9,7 @@ import re, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SKIP_DIRS = {'.git', 'build', '.venv', 'asm', 'linkers', 'assets', 'disc', 'tools/toolchain', 'node_modules'}
+SKIP_DIRS = {'.git', 'build', '.venv', 'nonmatchings', 'linkers', 'assets', 'disc', 'tools/toolchain', 'node_modules'}
 
 
 def registry():

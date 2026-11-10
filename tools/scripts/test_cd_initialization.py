@@ -34,17 +34,17 @@ const char CD_str_init_prefix[]="CD_init:",StrAddrFmt[]="addr=%08x\n";
 static u8 metadata_buffer[3];u8 *D_800A6768=metadata_buffer;
 static struct Ports {volatile u8 index,irq,enable;volatile u32 control;} ports[3];
 struct State {
- u32 guard[4];u8 active,command,response[3];RrCdDriveStatus status;s32 mode;
- RrLibDataCallback callback1,callback2;
+ u32 guard[4];u8 active,command,response[3];CdDriveStatus status;s32 mode;
+ LibDataCallback callback1,callback2;
  volatile u8 *indexPort,*irqPort,*enablePort;volatile u32 *controlPort;
  struct {u8 index,irq,enable;u32 control;} device[3];unsigned pending;
  u32 tail[4];
 };
 static struct World {struct State s;unsigned calls;struct {u32 hash;int kind,id;u32 value;} events[64];} actual,expected,initial,*w;
 static unsigned scenario,mutation;
-#define D_800A64A4 w->s.active
-#define D_800A64A5 w->s.command
-#define D_800A6764 w->s.response
+#define CD_mode w->s.active
+#define CD_com w->s.command
+#define CD_intr_status w->s.response
 #define CD_status w->s.status
 #define CD_status1 w->s.mode
 #define CD_cbsync w->s.callback1
@@ -97,7 +97,7 @@ static void write8(volatile u8 *p,u8 value){
  }
 }
 static void write32(volatile u32 *p,u32 value){unsigned b;for(b=0;b<3;b++)if(p==&ports[b].control)break;assert(b<3);event(12,b,value);w->s.device[b].control=value;}
-s32 func_800963DC(const char *message){assert(message==CD_str_init_prefix);service(1,0,0);return -1;}
+s32 PsyqPuts(const char *message){assert(message==CD_str_init_prefix);service(1,0,0);return -1;}
 s32 DebugPrintStub(const char *format,...){
  va_list args;u32 address;assert(format==StrAddrFmt);va_start(args,format);address=va_arg(args,u32);va_end(args);
  assert(address==(u32)(uintptr_t)&D_800A6768);service(2,0,address);return 1;
@@ -106,7 +106,7 @@ void ResetCallback(void){
  assert(w->s.active==0 && w->s.command==0 && w->s.callback1==0 && w->s.callback2==0 && w->s.status.word==0 && w->s.mode==0);
  service(3,0,0);
 }
-RrLibInterruptCallback InterruptCallback(s32 channel,RrLibInterruptCallback CdCommandCallback){assert(channel==2 && CdCommandCallback==CdCommandCallback);service(4,channel,0);return 0;}
+LibInterruptCallback InterruptCallback(s32 channel,LibInterruptCallback CdCommandCallback){assert(channel==2 && CdCommandCallback==CdCommandCallback);service(4,channel,0);return 0;}
 s32 CD_cw(s32 command,const u8 *params,u8 *result,s32 mode){
  unsigned plan=(scenario>>1)%4;assert(params==0 && result==0 && mode==0);service(5,command,0);
  if(command==1){w->s.status.word=(scenario*0x1234567U&~16U)|((scenario&1)?16U:0U);return -1;}
@@ -116,7 +116,7 @@ s32 CD_cw(s32 command,const u8 *params,u8 *result,s32 mode){
 s32 CD_sync(s32 mode,u8 *status){assert(mode==0 && status==0);service(6,0,0);return ((scenario>>1)%4)==2?2:3;}
 ''' + body + r'''
 static s32 reference(void){
- func_800963DC(CD_str_init_prefix);DebugPrintStub(StrAddrFmt,(u32)(uintptr_t)&D_800A6768);
+ PsyqPuts(CD_str_init_prefix);DebugPrintStub(StrAddrFmt,(u32)(uintptr_t)&D_800A6768);
  w->s.command=0;w->s.active=0;w->s.callback2=0;w->s.callback1=0;w->s.mode=0;w->s.status.word=0;
  ResetCallback();InterruptCallback(2,CdCommandCallback);
  write8(w->s.indexPort,1);

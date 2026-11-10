@@ -26,8 +26,8 @@ typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-RrLibStateB0 records[32][9], replacement[9];
-RrLibStateB0 *_ss_score[32];
+LibStateB0 records[32][9], replacement[9];
+LibStateB0 *_ss_score[32];
 u32 _snd_openflag;
 s16 _snd_seq_t_max;
 void (*hook)(s32);
@@ -36,12 +36,12 @@ void _SsVmSetSeqVol(s32 bank,s32 a,s32 b,s32 c) {
  arguments[0]=bank;arguments[1]=a;arguments[2]=b;arguments[3]=c;hook(0);
 }
 void _SsVmSeqKeyOff(s32 bank) { arguments[4]=bank;hook(1); }
-u32 layout[] = { sizeof(RrLibStateB0),
- offsetof(RrLibStateB0,w98),offsetof(RrLibStateB0,b22),
- offsetof(RrLibStateB0,h48),offsetof(RrLibStateB0,w9c),
- offsetof(RrLibStateB0,wa0),offsetof(RrLibStateB0,wac),
- offsetof(RrLibStateB0,wa8),offsetof(RrLibStateB0,wa4),
- offsetof(RrLibStateB0,h58)};
+u32 layout[] = { sizeof(LibStateB0),
+ offsetof(LibStateB0,w98),offsetof(LibStateB0,b22),
+ offsetof(LibStateB0,h48),offsetof(LibStateB0,w9c),
+ offsetof(LibStateB0,wa0),offsetof(LibStateB0,wac),
+ offsetof(LibStateB0,wa8),offsetof(LibStateB0,wa4),
+ offsetof(LibStateB0,h58)};
 void initialize(void) {
  int i;memset(records,0xA5,sizeof(records));memset(replacement,0x69,sizeof(replacement));
  for(i=0;i<32;i++)_ss_score[i]=records[i];

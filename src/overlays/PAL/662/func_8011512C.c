@@ -1,8 +1,9 @@
 #include "rr/overlay662_car_layout.h"
+#include "rr/load_cursor.h"
 void ovl662_func_8011512C(void) {
     s32 i;
-    RrRaceVehicle *vehicle;
-    RrProjectionScratchPrefix *scratch;
+    RaceVehicle *vehicle;
+    ProjectionScratchPrefix *scratch;
     /* Keep the per-vehicle rotation temporary in the call-result register. */
     register s32 rotation __asm__("$2");
     void *arena;
@@ -26,21 +27,21 @@ void ovl662_func_8011512C(void) {
     vehicle=PlayerCars;
     ovl662_D_801272D4=0;
     scratch=RR_PROJECTION_SCRATCH;
-    scratch->word18=120;
-    scratch->word08=-16;
-    scratch->word0C=-248;
-    scratch->word1C=0;
-    scratch->word20=0;
-    scratch->word10=-96;
-    arena=D_800F4D40;
+    scratch->pose08.angles10.xyz.x=120;
+    scratch->pose08.position00.words[0]=-16;
+    scratch->pose08.position00.words[1]=-248;
+    scratch->pose08.angles10.xyz.y=0;
+    scratch->pose08.angles10.xyz.z=0;
+    scratch->pose08.position00.words[2]=-96;
+    arena=MenuArenaBase;
     LoadCursor=arena;
     MenuArenas.first=arena;
     do {
         /* Keep one full vehicle cursor through both setup calls. */
         __asm__("" : "+r"(vehicle));
         ResetCarState(vehicle);
-        vehicle->pos20[1]=10;
-        vehicle->pos20[2]=308;
+        vehicle->position20.words[1]=10;
+        vehicle->position20.words[2]=308;
         rotation=2048;
         vehicle->rot54=rotation;
         /* Publish this vehicle before advancing the loop counter. */

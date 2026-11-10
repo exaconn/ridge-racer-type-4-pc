@@ -5,7 +5,7 @@
 extern s16 ovl661_D_80118418[2],ovl661_D_8011844C[2],ovl661_D_80118450[2];
 extern s16 D_800ABEC8,NumCars,MenuCursor,MenuItemCount;
 extern s32 NumLaps,ovl661_D_80118414;
-extern RrCourseChoice4 ovl661_D_80118458[2][2][9];
+extern CourseChoice4 ovl661_D_80118458[2][2][9];
 extern char ovl661_D_80118420[24],ovl661_D_8011487C[];
 extern const char ovl661_D_80114888[];
 extern u16 ModeGroup;

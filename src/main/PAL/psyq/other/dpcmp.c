@@ -4,7 +4,7 @@
 
 s32 __gtdf2(u64 left, u64 right) {
     /* ASM_BARRIER: Keep the left and right word pairs in their original registers. */
-    register union {u64 bits; RrWide64 words;} a __asm__("$8"), b __asm__("$6");
+    register union {u64 bits; Wide64 words;} a __asm__("$8"), b __asm__("$6");
     u32 magnitude = 0x7FFF0000;
     s32 leftExponent;
     s32 rightFraction;
@@ -30,7 +30,7 @@ s32 __gtdf2(u64 left, u64 right) {
         }
         leftSign = a.words.hi & 0x80000000;
         if (leftSign != (b.words.hi & 0x80000000)) {
-            result = (u32)leftSign < 1;
+            result = leftSign < 1U;
             goto return_result;
         }
         leftExponent = (a.words.hi >> 0x14) & 0x7FF;
@@ -43,10 +43,8 @@ s32 __gtdf2(u64 left, u64 right) {
                    rightFraction = (b.words.hi & 0xFFFFF) | 0x100000,
                    leftFraction > rightFraction) ||
                   ((leftFraction == rightFraction) && (a.words.lo > b.words.lo))))) {
-                result = (u32)({
+                result = ({
                     u32 m = 0x80000000;
-                    /* ASM_BARRIER: Materialize the sign mask in a register for the branch delay slots. */
-                    __asm__("" : "+r"(m));
                     highA & m;
                 }) < 1;
                 goto return_result;

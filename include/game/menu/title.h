@@ -5,5 +5,7 @@
 
 extern int D_800ABFE8;
 extern int D_8010E270[];
+void AttractDemoRaceUpdate(void);
+
 
 #endif /* RR_GAME_MENU_TITLE_H */

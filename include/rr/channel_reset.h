@@ -8,5 +8,5 @@
  * takes ordinary reset. Both callbacks run under lock1. Afterwards the original
  * voice's halfwords at1E/2A and the lock are cleared, regardless of callback
  * changes to the global selector. Invalid voices clear the lock and return-1. */
-s32 SsUtKeyOff(s32 voice, s32 bank, s32 program, s32 instrument, s32 group);
+s16 SsUtKeyOff(s16 voice, s16 bank, s16 program, s16 instrument, s16 group);
 #endif

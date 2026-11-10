@@ -7,9 +7,10 @@ from mips_preview_engine import Mips,signed
 from unicorn import *
 from unicorn.mips_const import *
 from elftools.elf.elffile import ELFFile
+from c_functions import source_owners, definition_source
 root=Path(__file__).resolve().parents[2];os.chdir(root)
-part=root/'include/rr';source=root/'tools/scripts/fixtures/views/func_800483D8.c'
-body=source.read_text();body=body[body.index('void UpdateEngineRpm'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
+part=root/'include/rr';source=source_owners(root/'src/main/PAL')['UpdateEngineRpm']
+body=definition_source(source.read_text(),'UpdateEngineRpm');body=re.sub(r' __asm__\("\$\d+"\)','',body)
 prefix='''
 #include <stddef.h>
 #include <stdio.h>
@@ -19,16 +20,18 @@ prefix='''
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"offset")
 #include "rr/vehicle_rpm.h"
+#include "vehicle_wire.h"
 #include "rr/cpu_md_leaf.h"
 #include "rr_asm.h"
 #include <stdint.h>
-s16 D_800F3826,D_800F4D44;
-typedef struct {u8 before[16];RrRaceVehicle vehicle;u8 after[16];} World;
+s16 D_800F3826,GameModeType;
+typedef struct {u8 before[16];RaceVehicle vehicle;u8 after[16];} World;
 '''
 tail='''
-int main(void){World w; _Static_assert(sizeof(RrDriveVehicleView)==800 && sizeof(RrDriveControlView)==0x12C,"view sizes"); _Static_assert(sizeof(w)==832,"world");_Static_assert(offsetof(RrDriveControlView,latch60)==0x60,"native latch offset");_Static_assert(sizeof(void*)==8,"full native pointer");assert((uintptr_t)&w.vehicle>UINT32_MAX);
-while(fread(&w,1,832,stdin)==832){if(fread(&D_800F3826,2,1,stdin)!=1||fread(&D_800F4D44,2,1,stdin)!=1)return 2;
-UpdateEngineRpm(&w.vehicle);if(fwrite(&w,1,832,stdout)!=832)return 3;}return 0;}
+int main(void){World w;u8 bytes[832]; _Static_assert(sizeof(RaceVehicle)==(sizeof(void*)==4?0x320:0x330) && sizeof(RaceVehicleControl)==(sizeof(void*)==4?0x12C:0x138),"view sizes"); _Static_assert(sizeof(w)==sizeof(RaceVehicle)+32,"native world");_Static_assert(offsetof(RaceVehicleControl,latch60)==(0x60+(sizeof(void*)==8?8:0)),"native latch offset");_Static_assert(sizeof(void*)==8,"full native pointer");assert((uintptr_t)&w.vehicle>UINT32_MAX);
+while(fread(bytes,1,832,stdin)==832){if(fread(&D_800F3826,2,1,stdin)!=1||fread(&GameModeType,2,1,stdin)!=1)return 2;
+rr_vehicle_wire_reset();memcpy(w.before,bytes,16);rr_vehicle_wire_load(&w.vehicle,bytes+16);memcpy(w.after,bytes+816,16);
+UpdateEngineRpm(&w.vehicle);memcpy(bytes,w.before,16);rr_vehicle_wire_store(bytes+16,&w.vehicle);memcpy(bytes+816,w.after,16);if(fwrite(bytes,1,832,stdout)!=832)return 3;}return 0;}
 '''
 rng=random.Random(0x483D8);cases=[];counts={};limits=[0,1,-1,32767,-32768,6000,10240,-20];speeds=[0,256,-256,2190*256,2191*256,0x7fffffff,-0x80000000,255,-255,8500*256]
 for i in range(8192):
@@ -48,7 +51,7 @@ for i in range(8192):
  cases.append(bytes(data));key=(gear==0,gear==count-1,hold==0,shift>0,mode==3);counts[str(key)]=counts.get(str(key),0)+1
 with TemporaryDirectory() as tmp:
  c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(prefix+body+tail)
- subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-I'+str(part),str(c),'-o',str(exe)],check=True)
+ subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-Itools/scripts','-I'+str(part),str(c),'-o',str(exe)],check=True)
  native=subprocess.run([str(exe)],input=b''.join(cases),capture_output=True,check=True).stdout
 assert len(native)==832*len(cases)
 def verify(code,label):

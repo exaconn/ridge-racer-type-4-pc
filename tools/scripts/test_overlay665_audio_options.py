@@ -10,6 +10,9 @@ body = body[body.index('void ovl665_func_801151A4'):]
 body = re.sub(r' __asm__\("\$\d+"\)', '', body)
 source = r'''
 #include <assert.h>
+#include "game/system/pad.h"
+#include <sys/mman.h>
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -20,19 +23,23 @@ source = r'''
 #define RR_ASSERT_SIZE(t,n)
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/overlay665_audio_options.h"
-_Static_assert(sizeof(RrUiRow24)==36,"UI stride");
-_Static_assert(sizeof(RrOverlay665VisualState)==160,"visual owner");
-_Static_assert(offsetof(RrOverlay665VisualState,exit34)==52,"selection offset");
-_Static_assert(sizeof(RrMenuSelectionWord32)==4,"selection word");
-_Static_assert(sizeof(RrRuntimeSettings)==60,"settings owner");
-_Static_assert(offsetof(RrAudioSettings,mono32)==50,"mono offset");
-_Static_assert(sizeof(RrFrameOrderingPrefix)==0xB70,"complete frame");
+_Static_assert(sizeof(UiRow24)==36,"UI stride");
+_Static_assert(sizeof(Overlay665VisualState)==160,"visual owner");
+_Static_assert(offsetof(Overlay665VisualState,exit34)==52,"selection offset");
+_Static_assert(sizeof(MenuSelectionWord32)==4,"selection word");
+_Static_assert(sizeof(RuntimeSettings)==64,"settings owner");
+_Static_assert(offsetof(AudioSettings,mono32)==50,"mono offset");
+_Static_assert(sizeof(FrameStorage)==0x22778,"complete frame");
 typedef struct {
- u32 guard[4];RrOverlay665VisualState visual;RrRuntimeSettings settings;
- s32 music,effects; s16 timer,gain;RrMenuItemState5C input[2];
- RrUiRow24 rows[2][8];RrFrameOrderingPrefix frames[2];
+ u32 guard[4];Overlay665VisualState visual;RuntimeSettings settings;
+ s32 music,effects; s16 timer,gain;ControllerState5C input[2];
+ UiRow24 rows[2][8];FrameStorage *frames[2];
  unsigned rowRoot,frameRoot;u32 tail[4];
 } State;
+/* These arenas are constant A6 in every original case. Protecting the complete
+ * owners detects any write, including one beyond the old B70-byte prefix,
+ * without copying immutable packet storage into every service snapshot. */
+static FrameStorage *fixedFrames;
 static State actual,reference,*w;
 #define ovl665_D_80119768 w->visual
 #define ovl665_D_80119754 w->music
@@ -41,9 +48,9 @@ static State actual,reference,*w;
 #define D_800AC5D0 w->timer
 #define D_800F7640 w->gain
 #define PlayerControllers w->input
-#define D_800F3A60 w->input[0].a
+#define D_800F3A60 w->input[0].action28
 #define UiRows w->rows[w->rowRoot]
-#define CurrentDrawBuf (&w->frames[w->frameRoot])
+#define CurrentDrawBuf (w->frames[w->frameRoot])
 ''' + body + r'''
 typedef struct {unsigned kind;s32 args[5];State before;} Event;
 static Event events[24];
@@ -61,14 +68,14 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
  w->settings.audio.mono32=(v>>3)&1;w->settings.bytes[48]=(u8)v;w->settings.bytes[49]=(u8)(v>>7);
  w->timer=half(scenario+31*n);w->gain=half(v);w->music=word(v);w->effects=word(v>>1);
  w->rowRoot=(scenario+n)&1;w->frameRoot=(scenario+n+1)&1;
- w->input[0].a=(scenario>>6)&1;w->input[0].b=(scenario>>7)&1;
+ w->input[0].action28=(scenario>>6)&1;w->input[0].action2C=(scenario>>7)&1;
  for(unsigned i=0;i<8;i++)for(unsigned j=0;j<2;j++)w->rows[j][i].byte14=(scenario/256+n+i+j)%9;
 }
 static void service(unsigned kind){const s32 args[5]={0};record(kind,args);effect(kind);}
 void ovl665_func_80114FD8(void){service(0);}
-void AddScreenFadeTiles(u32 *p,s32 b,u32 c){unsigned k,slot;int found=0;for(k=0;k<2&&!found;k++)for(slot=0;slot<2;slot++)if(p==&w->frames[k].ordering70[slot?702:0]){found=1;goto selected;}
+void AddScreenFadeTiles(u32 *p,s32 b,u32 c){unsigned k,slot;int found=0;for(k=0;k<2&&!found;k++)for(slot=0;slot<2;slot++)if(p==&w->frames[k]->buffer.ordering70.words[slot?702:0]){found=1;goto selected;}
 selected:assert(found&&(uintptr_t)p>UINT32_MAX);fadeKinds[slot]++;const s32 args[5]={k,slot,b,(s32)c};record(1,args);effect(1);}
-void func_8005B2D4(s32 a){const s32 args[5]={a};record(2,args);effect(2);}
+void SetPresentationDrawEnabled(s32 a){const s32 args[5]={a};record(2,args);effect(2);}
 void StepMenuValue(s32 a,s32 b,char *p,s32 d,s32 e){unsigned kind;
  if(p==(char*)&w->visual.exit34.halves[0]){kind=0;assert(b==2&&d==4);}
  else if(p==(char*)&w->settings.bytes[48]){kind=1;assert(b==-1&&d==17);}
@@ -94,32 +101,35 @@ static void expectedInput(unsigned kind,s32 mode,s32 width,s32 limit){unsigned c
 }
 static void expected(void){s32 phase=w->visual.layout0C;states[phase>=0&&phase<10?phase:10]++;
  if(phase==0){service(0);w->timer=64;w->visual.layout0C=word((u32)w->visual.layout0C+1);
- }else if(phase==1){if(w->timer>0){s16 timer=half((u16)w->timer-1);w->timer=timer;AddScreenFadeTiles(&w->frames[w->frameRoot].ordering70[702],timer*4,69);fadeTaken[0]++;}
-  func_8005B2D4(1);if(w->rows[w->rowRoot][0].byte14==2&&w->timer==0)w->visual.layout0C=word((u32)w->visual.layout0C+1);
+ }else if(phase==1){if(w->timer>0){s16 timer=half((u16)w->timer-1);w->timer=timer;AddScreenFadeTiles(&w->frames[w->frameRoot]->buffer.ordering70.words[702],timer*4,69);fadeTaken[0]++;}
+  SetPresentationDrawEnabled(1);if(w->rows[w->rowRoot][0].byte14==2&&w->timer==0)w->visual.layout0C=word((u32)w->visual.layout0C+1);
  }else if(phase==2){w->rows[w->rowRoot][w->visual.exit34.word].cells[0]=0;expectedInput(0,0,2,4);w->rows[w->rowRoot][w->visual.exit34.word].cells[0]=2;
-  if(w->input[0].a){PlaySfx(1);w->rows[w->rowRoot][w->visual.exit34.word].cells[0]=1;w->visual.layout0C=w->visual.exit34.word+3;SetMenuFrameOptions(1,1,0);}
-  else if(w->input[0].b){PlaySfx(2);w->timer=64;w->visual.layout0C=6;}
+  if(w->input[0].action28){PlaySfx(1);w->rows[w->rowRoot][w->visual.exit34.word].cells[0]=1;w->visual.layout0C=w->visual.exit34.word+3;SetMenuFrameOptions(1,1,0);}
+  else if(w->input[0].action2C){PlaySfx(2);w->timer=64;w->visual.layout0C=6;}
  }else if(phase==3||phase==4){unsigned row=phase+1;if(w->rows[w->rowRoot][row].byte14==2){w->rows[w->rowRoot][row].cells[0]=2;expectedInput(phase==3?1:2,1,-1,17);
    if(phase==3){w->music=w->settings.bytes[48];SeqSetVolume(w->gain);}else w->effects=w->settings.bytes[49];
-   if(w->input[0].a){audioTaken[phase-3]++;PlaySfx(1);w->rows[w->rowRoot][row].cells[0]=1;w->visual.layout0C=7;SetMenuFrameOptions(1,1,1);}}
+   if(w->input[0].action28){audioTaken[phase-3]++;PlaySfx(1);w->rows[w->rowRoot][row].cells[0]=1;w->visual.layout0C=7;SetMenuFrameOptions(1,1,1);}}
   DrawUiRow(row);
  }else if(phase==5){if(w->rows[w->rowRoot][6].byte14==2){w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=0;expectedInput(3,0,2,2);w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=2;
-   if(w->input[0].a){audioTaken[2]++;PlaySfx(1);w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=1;w->visual.layout0C=7;SetMenuFrameOptions(1,1,1);SetCdMixMode(w->settings.audio.mono32);}}
+   if(w->input[0].action28){audioTaken[2]++;PlaySfx(1);w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=1;w->visual.layout0C=7;SetMenuFrameOptions(1,1,1);SetCdMixMode(w->settings.audio.mono32);}}
   DrawUiRow(6);DrawUiRow(7);
  }else if(phase==6){for(unsigned i=0;i<4;i++)if(w->rows[w->rowRoot][i].byte14==2)w->rows[w->rowRoot][i].byte14=3;w->timer=64;w->visual.layout0C=9;
  }else if(phase==7){for(unsigned i=4;i<8;i++){u8 state=w->rows[w->rowRoot][i].byte14;if(state==2)w->rows[w->rowRoot][i].byte14=3;else if(state==6)w->visual.layout0C=8;
    if(w->rows[w->rowRoot][i].byte14>=2)DrawUiRow(i);}
  }else if(phase==8){for(unsigned i=4;i<8;i++)w->rows[w->rowRoot][i].byte14=0;w->visual.layout0C=1;
- }else if(phase==9){s16 timer=half((u16)w->timer-1);w->timer=timer;AddScreenFadeTiles(&w->frames[w->frameRoot].ordering70[0],(64-(s32)timer)*4,69);
+ }else if(phase==9){s16 timer=half((u16)w->timer-1);w->timer=timer;AddScreenFadeTiles(&w->frames[w->frameRoot]->buffer.ordering70.words[0],(64-(s32)timer)*4,69);
   if(w->timer<=0){fadeTaken[1]++;service(9);w->visual.layout0C=0;w->visual.scene00=word((u32)w->visual.scene00-1);}
  }
  for(unsigned i=0;i<4;i++)DrawUiRow(i);UpdateScreenFade(0x1006A);
 }
 int main(void){assert(sizeof(void*)==8);u16 endian=1;assert(*(u8*)&endian==1);
+ fixedFrames=mmap(0,2*sizeof(*fixedFrames),PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANON,-1,0);
+ assert(fixedFrames!=MAP_FAILED);memset(fixedFrames,0xA6,2*sizeof(*fixedFrames));
+ assert(!mprotect(fixedFrames,2*sizeof(*fixedFrames),PROT_READ));
  for(scenario=0;scenario<65536;scenario++)for(profile=0;profile<22;profile++){
- memset(&actual,0xA6,sizeof(actual));w=&actual;w->visual.layout0C=profile<20?(s32)(profile/2):profile==20?(s32)scenario:word(scenario*0x9E3779B9U);
+ memset(&actual,0xA6,sizeof(actual));actual.frames[0]=&fixedFrames[0];actual.frames[1]=&fixedFrames[1];w=&actual;w->visual.layout0C=profile<20?(s32)(profile/2):profile==20?(s32)scenario:word(scenario*0x9E3779B9U);
  w->visual.scene00=word(scenario*0x1234567U);w->visual.exit34.word=scenario&3;w->settings.audio.mono32=(scenario>>2)&1;w->settings.bytes[48]=(u8)scenario;w->settings.bytes[49]=(u8)(scenario>>8);
- w->timer=half(scenario);w->gain=half(scenario*13);w->rowRoot=scenario&1;w->frameRoot=(scenario>>1)&1;w->input[0].a=(scenario>>6)&1;w->input[0].b=(scenario>>7)&1;
+ w->timer=half(scenario);w->gain=half(scenario*13);w->rowRoot=scenario&1;w->frameRoot=(scenario>>1)&1;w->input[0].action28=(scenario>>6)&1;w->input[0].action2C=(scenario>>7)&1;
  for(unsigned i=0;i<8;i++)for(unsigned j=0;j<2;j++)w->rows[j][i].byte14=(scenario/256+i+j)%9;
  reference=actual;serial=count=seen=0;referenceRun=1;w=&reference;expected();serial=0;referenceRun=0;w=&actual;ovl665_func_801151A4();assert(count==seen&&!memcmp(&actual,&reference,sizeof(actual)));
  }

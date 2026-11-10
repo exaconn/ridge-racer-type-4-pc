@@ -6,16 +6,16 @@ typedef struct {
     u8 flag37;
     u8 pad38[4];
     u8 *packet;
-} RrTransferState;
+} TransferState;
 
-RR_ASSERT_SIZE(RrTransferState, 0x40);
-RR_ASSERT_OFFSET(RrTransferState, flag37, 0x37);
-RR_ASSERT_OFFSET(RrTransferState, packet, 0x3C);
+RR_ASSERT_SIZE(TransferState, 0x40);
+RR_ASSERT_OFFSET(TransferState, flag37, 0x37);
+RR_ASSERT_OFFSET(TransferState, packet, 0x3C);
 
-extern s32 (*PadTxByteCallback)(RrTransferState *, s32);
-extern s32 _padSioRW2(RrTransferState *, u8);
+extern s32 (*PadTxByteCallback)(TransferState *, s32);
+extern s32 _padSioRW2(TransferState *, u8);
 
-s32 func_80099890(RrTransferState *state) {
+s32 _padRecvStage3(TransferState *state) {
     s32 mode = 0;
     s32 result;
 

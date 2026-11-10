@@ -1,48 +1,13 @@
 #include "rr/track_lateral.h"
 #include "rr/steering.h"
 
-typedef struct {
-    char pad0[0x38];
-    short unk38;
-    char pad3A[0x52];
-    short unk8C;
-    char pad8E[0x6];
-    short unk94;
-    short unk96;
-    int unk98;
-    int unk9C;
-    int unkA0;
-    char padA4[0x4];
-    int unkA8;
-    int unkAC;
-    char padB0[0x4];
-    int unkB4;
-    char padB8[0x4];
-    int unkBC;
-    char padC0[0x8];
-    RrCurve24 primaryC8;
-} Sub1F4;
-
-typedef struct {
-    char pad0[0x54];
-    int unk54;
-    char pad58[0x98];
-    int unkF0;
-    char padF4[0xE0];
-    short unk1D4;
-    char pad1D6[0x2];
-    short unk1D8;
-    char pad1DA[0x1A];
-    Sub1F4 sub1F4;
-} Arg0;
-
-void PlanComCarCornerTurn(Arg0 *a0);
+void PlanComCarCornerTurn(RaceVehicle *a0);
 int FindTrackNodeBehind(int a0, int a1);
 
-void PlanComCarCornerTurn(Arg0 *a0) {
+void PlanComCarCornerTurn(RaceVehicle *a0) {
     int s0;
     int s1;
-    Sub1F4 *s2 = &a0->sub1F4;
+    RaceVehicleControl *s2 = &a0->control;
     int s3;
     int s4;
     int s5 = 0;
@@ -52,15 +17,15 @@ void PlanComCarCornerTurn(Arg0 *a0) {
     int a0_v;
     int v1;
 
-    s3 = a0->unk1D8 * 6;
+    s3 = a0->input * 6;
     if (s3 < 0x400) {
         s3 = 0x400;
     }
-    s2->unkA8 = s3;
+    s2->dynamics94.steering.reserved14 = s3;
     s3 = 0;
-    s1 = a0->unkF0;
-    s7 = GetTrackNodeHeading(s1, s2->unk38);
-    s6 = (short)-a0->unk1D4 + 0x400;
+    s1 = a0->trackNodeF0;
+    s7 = GetTrackNodeHeading(s1, s2->laneTimer38);
+    s6 = (short)-a0->heading1D4 + 0x400;
     s6 &= 0xFFF;
     s0 = s3;
     if (s6 & 0x800) {
@@ -71,8 +36,8 @@ void PlanComCarCornerTurn(Arg0 *a0) {
     if (s1 < 0) {
         s1 += TrackNodeCount;
     }
-    while (s3 < s2->unkA8) {
-        v1 = GetTrackNodeHeading(s1, s2->unk38);
+    while (s3 < s2->dynamics94.steering.reserved14) {
+        v1 = GetTrackNodeHeading(s1, s2->laneTimer38);
         a0_v = v1 - s7;
         a0_v &= 0xFFF;
         s7 = v1;
@@ -89,13 +54,13 @@ void PlanComCarCornerTurn(Arg0 *a0) {
         switch (s5) {
         case 1:
             if (a0_v < 0 || v1 < 0) {
-                s3 = s2->unkA8;
+                s3 = s2->dynamics94.steering.reserved14;
                 fp = 1;
             }
             break;
         case -1:
             if (a0_v > 0 || v1 > 0) {
-                s3 = s2->unkA8;
+                s3 = s2->dynamics94.steering.reserved14;
                 fp = 1;
             }
             break;
@@ -117,7 +82,7 @@ void PlanComCarCornerTurn(Arg0 *a0) {
             }
         }
     }
-    s1 = s4 - a0->unkF0;
+    s1 = s4 - a0->trackNodeF0;
     s1 %= TrackNodeCount;
     if (s1 > TrackNodeCount / 2) {
         s1 -= TrackNodeCount;
@@ -126,9 +91,9 @@ void PlanComCarCornerTurn(Arg0 *a0) {
         s1 = -s1;
     }
     if (s1 >= 5) {
-        s0 = GetTrackNodeHeading(s4, s2->unk38);
-        s2->unkAC = s4;
-        v1 = (short)-a0->unk1D4 + 0x400;
+        s0 = GetTrackNodeHeading(s4, s2->laneTimer38);
+        s2->dynamics94.steering.target18.node = s4;
+        v1 = (short)-a0->heading1D4 + 0x400;
         v1 &= 0xFFF;
         if (v1 & 0x800) {
             v1 |= ~0xFFF;
@@ -138,48 +103,44 @@ void PlanComCarCornerTurn(Arg0 *a0) {
         if (s0 & 0x800) {
             s0 |= ~0xFFF;
         }
-        s2->unk9C = s0;
-        s2->unk98 = s0 / 32;
-        if (s2->unk98 < 0) {
-            s2->unk98 = -s2->unk98;
+        s2->dynamics94.steering.remaining08 = s0;
+        s2->dynamics94.steering.duration04 = s0 / 32;
+        if (s2->dynamics94.steering.duration04 < 0) {
+            s2->dynamics94.steering.duration04 = -s2->dynamics94.steering.duration04;
         }
-        if (s2->unk98 < 0x20) {
-            s2->unk98 = 0x20;
+        if (s2->dynamics94.steering.duration04 < 0x20) {
+            s2->dynamics94.steering.duration04 = 0x20;
         }
-        if (s2->unk98 > 0x40) {
-            s2->unk98 = 0x40;
+        if (s2->dynamics94.steering.duration04 > 0x40) {
+            s2->dynamics94.steering.duration04 = 0x40;
         }
-        s0 = a0->unk54;
+        s0 = a0->rot54;
         s0 &= 0xFFF;
         if (s0 & 0x800) {
             s0 |= ~0xFFF;
         }
-        s2->unkA0 = s0 << 12;
-        BuildRateCurve(&s2->primaryC8, s2->unk9C, s2->unk98, -s2->unk8C);
+        s2->dynamics94.steering.angle0C = s0 << 12;
+        BuildRateCurve(&s2->dynamics94.steering.primary34, s2->dynamics94.steering.remaining08, s2->dynamics94.steering.duration04, -s2->steering8C);
         /* ASM_BARRIER: extend s0 live range across call to keep s0 in callee-saved register */
         __asm__("" : : "r"(s0));
-        s2->unk94 = 1;
-        s2->unkBC = 0;
-        s2->unk96 = 0;
-        s2->unk9C <<= 12;
-        s2->unkB4 = -s2->unk9C / 24;
+        s2->dynamics94.steering.mode00 = 1;
+        s2->dynamics94.steering.phase28 = 0;
+        s2->dynamics94.steering.timer02 = 0;
+        s2->dynamics94.steering.remaining08 <<= 12;
+        *(s32 *)&s2->dynamics94.steering.finish20 = -s2->dynamics94.steering.remaining08 / 24;
     }
 }
-
-/* legacy typing of shared globals in this part of the unit */
-#define TrackNodes ((char *)TrackNodes)
 
 int FindTrackNodeBehind(int a0, int a1) {
     if (a1 > 0) {
         int n = TrackNodeCount;
-        char *p = TrackNodes;
+        TrackSample3C *p = TrackNodes;
         do {
             a0--;
             if (a0 < 0) a0 += n;
-            a1 -= *(short *)(p + a0 * 60 + 0x1C);
+            a1 -= p[a0].segmentLength1C;
         } while (a1 > 0);
     }
     return a0;
 }
 
-#undef TrackNodes

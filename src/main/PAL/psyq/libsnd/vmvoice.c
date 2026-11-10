@@ -6,15 +6,13 @@
 #include "game/data/globals.h"
 
 extern u16 D_8010F90C[];
-extern s16 _svm_sreg_buf[];
 extern s16 D_8010FE3A[];
 extern s8 D_80110105;
 extern s8 D_8011010B;
 extern u8 D_80110112;
 
 void vmNoiseOn(s32 arg0) {
-    /* ASM_BARRIER: keep arg0 in s3 */
-    register s32 s3 __asm__("$19") = arg0;
+    s32 s3 = arg0;
     /* ASM_BARRIER: keep masked voice index in s0 */
     register u32 s0 __asm__("$16");
     u32 left;
@@ -25,16 +23,12 @@ void vmNoiseOn(s32 arg0) {
     u16 f8, fa;
 
     {
-        /* ASM_BARRIER: keep _svm_vh pointer in v0 */
-        register u8 *f4 __asm__("$2");
-        /* ASM_BARRIER: keep f18 * 0x3FFF in v0 */
-        register s32 v0 __asm__("$2");
-        /* ASM_BARRIER: keep p[-0x10] and first dividend in v1 */
-        register s32 v1 __asm__("$3");
+        u8 *f4;
+        s32 v0;
+        s32 v1;
         /* ASM_BARRIER: keep f4[0x18] in a0 */
         register s32 f18 __asm__("$4");
-        /* ASM_BARRIER: keep D_80110114 pointer in t0 */
-        register s8 *p __asm__("$8");
+        s8 *p;
         u32 a3;
         u32 vol;
         /* ASM_BARRIER: keep ch in a0 */
@@ -42,38 +36,26 @@ void vmNoiseOn(s32 arg0) {
         u32 offset;
         s32 group_off;
         /* ASM_BARRIER: preserve the indexed table-address computation in v1. */
-        register RrChannelValueRecordB0 **table __asm__("$3");
-        /* ASM_BARRIER: reuse v1 for the loaded channel-record pointer. */
-        register RrChannelValueRecordB0 *rec __asm__("$3");
-        /* ASM_BARRIER: keep pan in a0 */
-        register s32 pan __asm__("$4");
+        register ChannelValueRecordB0 **table __asm__("$3");
+        ChannelValueRecordB0 *rec;
+        s32 pan;
 
-        /* ASM_BARRIER: save arg0 in s3 before loading globals */
-        __asm__("" : "+r"(s3));
         f4 = _svm_vh;
-        /* ASM_BARRIER: load _svm_vh into v0 before D_80110114 */
+        /* ASM_BARRIER: load _svm_vh into v0 before _svm_cur_vab_id */
         __asm__("" : "+r"(f4), "+r"(s3));
-        p = (s8 *)&D_80110114;
-        /* ASM_BARRIER: preserve D_80110114 and _svm_vh base pointers */
-        __asm__("" : "+r"(f4), "+r"(p));
+        p = (s8 *)&_svm_cur_vab_id;
         f18 = f4[0x18];
         v1 = p[-0x10];
         /* ASM_BARRIER: load f4[0x18] into a0 and p[-0x10] into v1 */
         __asm__("" : "+r"(f18), "+r"(v1), "+r"(p));
         v0 = f18 * 0x3FFF;
-        /* ASM_BARRIER: compute f18 * 0x3FFF in v0 before multiply */
-        __asm__("" : "+r"(v0), "+r"(v1));
         v1 *= v0;
-        /* ASM_BARRIER: keep product in v1 and delay magic load in v0 until after mflo */
-        __asm__("" : "+r"(v1), "+r"(v0));
         a3 = v1 / 16129;
         v1 = a3 * p[-0xA];
         v0 = p[-0x7];
-        /* ASM_BARRIER: keep a3 * p[-0xA] in v1 and p[-0x7] in v0 before multiply */
-        __asm__("" : "+r"(v1), "+r"(v0));
-        vol = (u32)(v1 * v0) / 16129U;
+        vol = (v1 * v0) / 16129U;
         ch = *(u16 *)p;
-        offset = (ch & 0xFF) * sizeof(RrChannelValueRecordB0 *);
+        offset = (ch & 0xFF) * sizeof(ChannelValueRecordB0 *);
         /* ASM_BARRIER: compute offset before sign-extending ch */
         __asm__("" : "+r"(ch) : "r"(offset));
         ch = (s16)ch;
@@ -82,12 +64,12 @@ void vmNoiseOn(s32 arg0) {
         group_off = ((ch & 0xFF00) >> 8) * 11;
         /* ASM_BARRIER: form group_off before materializing table base. */
         __asm__ volatile("" : "+r"(group_off) : "r"(offset) : "$3");
-        table = (RrChannelValueRecordB0 **)0x80110000U;
+        table = (ChannelValueRecordB0 **)0x80110000U;
         /* ASM_BARRIER: preserve the explicit table base through the indexed load. */
         __asm__("" : "=r"(table) : "0"(table));
         table += (s32)(offset / sizeof(*table));
         rec = table[-0xF98 / 4];
-        rec = (RrChannelValueRecordB0 *)((u8 *)rec + (group_off << 4));
+        rec = (ChannelValueRecordB0 *)((u8 *)rec + (group_off << 4));
         a3 = vol;
         if (ch != 0x21) {
             /* ASM_BARRIER: prevent CSE from replacing vol with a3 */
@@ -96,7 +78,7 @@ void vmNoiseOn(s32 arg0) {
             vol = (vol * rec->value5A) / 127U;
         }
         pan = p[-0x6];
-        if ((u32)pan < 0x40U) {
+        if (pan < 0x40U) {
             left = a3;
             right = (vol * pan) / 63U;
         } else {
@@ -106,21 +88,17 @@ void vmNoiseOn(s32 arg0) {
         /* ASM_BARRIER: keep pan and a3 live across both branches */
         __asm__("" : : "r"(pan), "r"(a3));
         pan = D_8011010B;
-        if ((u32)pan < 0x40U) {
+        if (pan < 0x40U) {
             right = (right * pan) / 63U;
         } else {
             left = (left * (0x7F - pan)) / 63U;
         }
-        /* ASM_BARRIER: keep pan and a3 live across both branches */
-        __asm__("" : : "r"(pan), "r"(a3));
         pan = D_80110105;
-        if ((u32)pan < 0x40U) {
+        if (pan < 0x40U) {
             right = (pan * right) / 63U;
         } else {
             left = (left * (0x7F - pan)) / 63U;
         }
-        /* ASM_BARRIER: keep pan and a3 live across both branches */
-        __asm__("" : : "r"(pan), "r"(a3));
     }
     if (_svm_stereo_mono == 1) {
         if (left < right) {
@@ -129,9 +107,7 @@ void vmNoiseOn(s32 arg0) {
             right = left;
         }
     }
-    p2 = (s8 *)&D_80110114;
-    /* ASM_BARRIER: preserve D_80110114 base pointer in register */
-    __asm__("" : "+r"(p2));
+    p2 = (s8 *)&_svm_cur_vab_id;
     if (*(s16 *)p2 != 0x21) {
         left = (left * left) / 16383U;
         right = (right * right) / 16383U;
@@ -140,8 +116,7 @@ void vmNoiseOn(s32 arg0) {
     s0 = s3 & 0xFF;
     D_8010FE3A[s0 * 8] = right;
     {
-        /* ASM_BARRIER: use v0 for PAL flag page load */
-        register u8 *flags_page __asm__("$2");
+        u8 *flags_page;
         u8 flags;
         /* ASM_BARRIER: finish right store before loading flag byte */
         __asm__ volatile("" : : : "memory");
@@ -149,7 +124,7 @@ void vmNoiseOn(s32 arg0) {
         /* ASM_BARRIER: retain the PAL flag page for the indexed load. */
         __asm__("" : "+r"(flags_page));
         flags = *(flags_page + s0 - 0x1E8);
-        _svm_sreg_buf[s0 * 8] = left;
+        _svm_sreg_buf[s0].left = left;
         ((u8 *)&_svm_sreg_dirty)[s0] = flags | 3;
     }
     if (s0 < 0x10U) {
@@ -166,10 +141,7 @@ void vmNoiseOn(s32 arg0) {
         if (!(_snd_vmask & (1 << i))) {
             /* ASM_BARRIER: keep row_off in v0 */
             register u32 row_off __asm__("$2") = i * 0x36;
-            /* ASM_BARRIER: use v1 for PAL row flag load */
-            register u8 *row_page __asm__("$3");
-            /* ASM_BARRIER: compute row_off before loading row_page */
-            __asm__("" : "+r"(row_off));
+            u8 *row_page;
             row_page = (u8 *)0x80110000U;
             /* ASM_BARRIER: retain the PAL row flag page for the indexed load. */
             __asm__("" : "+r"(row_page));
@@ -178,8 +150,6 @@ void vmNoiseOn(s32 arg0) {
         }
     }
     D_8010F925[(s3 & 0xFF) * 0x36] = 2;
-    /* ASM_BARRIER: keep s3 live so s3 & 0xFF uses v1 instead of modifying s3 in place */
-    __asm__("" : : "r"(s3));
     f8 = _svm_okon1 | low_mask;
     fa = _svm_okon2 | high_mask;
     _svm_okon1 = f8;

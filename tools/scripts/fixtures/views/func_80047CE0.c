@@ -2,8 +2,8 @@
 
 #include "rr/track_lateral.h"
 
-s32 CalcSteerLimit(RrRaceVehicle *input) {
-    register RrRaceVehicle *vehicle=input;
+s32 CalcSteerLimit(RaceVehicle *input) {
+    register RaceVehicle *vehicle=input;
     register s32 raw=vehicle->input;
     s32 rounded=raw;
     register s32 fraction;
@@ -11,18 +11,18 @@ s32 CalcSteerLimit(RrRaceVehicle *input) {
     if(raw<0)rounded=raw+7;
     fraction=rounded>>3;
     if(raw) {
-        register s32 span=vehicle->span;
+        register s32 span=vehicle->control.span11A;
         if(span>=fraction)goto interpolate;
         value=16;goto blend;
 interpolate:
         {
             /* ASM_BARRIER: Read the signed maximum before preparing its scaled numerator. */
-            register s32 maximum_signed __asm__("$2")=vehicle->maximum;
+            register s32 maximum_signed __asm__("$2")=vehicle->control.maximum118;
             /* ASM_BARRIER: Retain the signed numerator and DIV guard operands. */
             register s32 scaled __asm__("$3")=(maximum_signed-16)*4096;
             s32 quotient=scaled/span;
             s32 product=(s32)((s64)quotient*fraction);
-            register u32 maximum=(u16)vehicle->maximum;
+            register u32 maximum=(u16)vehicle->control.maximum118;
             /* ASM_BARRIER: Preserve the original signed divide-by-eight rounding temporary. */
     register s32 rounded_product=product>>12;
             if(product<0)rounded_product=(product+4095)>>12;
@@ -30,7 +30,7 @@ interpolate:
         }
 blend:;
         {
-            register s32 blend=vehicle->blend;
+            register s32 blend=vehicle->control.boostTimer44;
             if(blend>0) {
                 register s32 delta;
                 /* ASM_BARRIER: Retain the low wrapped product in the original rounding register. */
@@ -42,9 +42,9 @@ blend:;
                 /* ASM_BARRIER: Keep the quotient in the original multiply source register. */
             register s32 quotient __asm__("$3");
                 signed_value=(s16)value;
-                delta=(s32)vehicle->maximum-signed_value;
+                delta=(s32)vehicle->control.maximum118-signed_value;
                 product=delta*blend;
-                divisor=vehicle->divisor;
+                divisor=vehicle->control.divisor11C;
                 if(divisor<0)divisor=-divisor;
                 quotient=product/divisor;
                 value=(u32)value+(u32)quotient;

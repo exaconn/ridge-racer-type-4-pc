@@ -35,7 +35,7 @@ typedef int32_t s32;
 ''' + header)
         source += (root / 'tools/scripts/fixtures/legacy/func_80086B84.c').read_text().replace(
             '#include "rr/spu.h"', '')
-        source += '\nRrSpuRegisterBank *_spu_RXX;\n'
+        source += '\nSpuRegisterBank *_spu_RXX;\n'
         (directory / 'function.c').write_text(source)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)

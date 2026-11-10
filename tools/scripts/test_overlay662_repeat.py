@@ -10,6 +10,7 @@ class GarageRepeatTest(unittest.TestCase):
         bodies='\n'.join((root/f'src/overlays/PAL/662/func_{a}.c').read_text() for a in ['8011D664','8011D730','8011D8E4'])
         source=r'''
 #include <assert.h>
+#include "game/system/pad.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -19,8 +20,8 @@ class GarageRepeatTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_input.h"
-typedef union {RrMenuItemState5C rows[3];u32 words[69];} ControllerOwner;
-static struct World {u32 guard[4];ControllerOwner controller;u32 counters[8];u32 mask;RrGaragePoint out;u32 tail[4];} w,e;
+typedef union {ControllerState5C rows[3];u32 words[69];} ControllerOwner;
+static struct World {u32 guard[4];ControllerOwner controller;u32 counters[8];u32 mask;GaragePoint out;u32 tail[4];} w,e;
 #define PlayerControllers w.controller.rows
 #define ovl662_D_80126C18 w.counters[0]
 #define ovl662_D_80126C1C w.counters[1]
@@ -44,14 +45,14 @@ static u32 *slot(struct World *v,unsigned index){
  return &v->controller.words[16];
 }
 static void reference_repeat(unsigned analog,unsigned where){
- unsigned i,base=analog?0:4;u32 mask=0;unsigned axis=e.controller.rows[0].axis17;
+ unsigned i,base=analog?0:4;u32 mask=0;unsigned axis=e.controller.rows[0].axes14.bytes[3];
  const u32 bits[4]={0x1000,0x4000,0x8000,0x2000};
- if(analog){if(e.controller.rows[0].type01!=0x73 || e.controller.rows[0].kind1C==0 || e.controller.rows[0].flag40!=0)return;}
- else if(e.controller.rows[0].type01==0x12)return;
+ if(analog){if(e.controller.rows[0].input00.fields.type!=0x73 || e.controller.rows[0].kind1C==0 || e.controller.rows[0].flag40!=0)return;}
+ else if(e.controller.rows[0].input00.fields.type==0x12)return;
  for(i=0;i<4;i++){
   int active;
-  if(analog){if(i==2)axis=e.controller.rows[0].axis16;active=(i&1)?axis>224:axis<32;}
-  else active=(e.controller.rows[0].buttons02&bits[i])!=0;
+  if(analog){if(i==2)axis=e.controller.rows[0].axes14.bytes[2];active=(i&1)?axis>224:axis<32;}
+  else active=(e.controller.rows[0].input00.fields.buttons&bits[i])!=0;
   if(active){u32 value=e.counters[base+i]+1U;
    if(value>=47 && value<0x80000000U)value=40;
    e.counters[base+i]=value;
@@ -69,7 +70,7 @@ int main(void){unsigned type,b,i,j,k;const u32 edges[]={0,1,2,38,39,40,41,45,46,
  /* Every button word for every controller type. */
  for(type=0;type<256;type++)for(b=0;b<65536;b++){
   int x=0,y=0,step=(b&8)?4:1;
-  memset(&w,(u8)(b+type),sizeof(w));w.controller.rows[0].type01=type;w.controller.rows[0].buttons02=b;
+  memset(&w,(u8)(b+type),sizeof(w));w.controller.rows[0].input00.fields.type=type;w.controller.rows[0].input00.fields.buttons=b;
   memcpy(&e,&w,sizeof(w));calls=0;
   if(type!=18){if(b&0x1000)y=-2*step;if(b&0x4000)y=2*step;if(b&0x8000)x=-step;if(b&0x2000)x=step;
    if(x || y){e.out.x=x;e.out.y=y;}}
@@ -78,20 +79,20 @@ int main(void){unsigned type,b,i,j,k;const u32 edges[]={0,1,2,38,39,40,41,45,46,
  }
  /* Exhaustive axis pairs crossed with all counter boundaries and output owners. */
  for(k=0;k<16;k++)for(i=0;i<256;i++)for(j=0;j<256;j++){
-  randomize();w.controller.rows[0].type01=0x73;w.controller.rows[0].kind1C=(i&1)?-1:1;w.controller.rows[0].flag40=0;
-  w.controller.rows[0].axis17=i;w.controller.rows[0].axis16=j;
+  randomize();w.controller.rows[0].input00.fields.type=0x73;w.controller.rows[0].kind1C=(i&1)?-1:1;w.controller.rows[0].flag40=0;
+  w.controller.rows[0].axes14.bytes[3]=i;w.controller.rows[0].axes14.bytes[2]=j;
   for(b=0;b<8;b++)w.counters[b]=edges[(k+b)&15];
   repeat_case(1,(i+j+k)%12);
  }
  /* Every digital button word, every boundary and overlapping output owner. */
  for(k=0;k<16;k++)for(b=0;b<65536;b++){
-  randomize();w.controller.rows[0].type01=(b&1)?0x73:0x41;w.controller.rows[0].buttons02=b;
+  randomize();w.controller.rows[0].input00.fields.type=(b&1)?0x73:0x41;w.controller.rows[0].input00.fields.buttons=b;
   for(i=0;i<8;i++)w.counters[i]=edges[(k+i)&15];
   repeat_case(0,(b+k)%12);
  }
  /* Gating: exact types, signed kind and every flag byte; full-word counters. */
  for(k=0;k<131072;k++){
-  randomize();w.controller.rows[0].type01=(k&1)?0x73:(u8)k;w.controller.rows[0].flag40=(u8)(k>>1);
+  randomize();w.controller.rows[0].input00.fields.type=(k&1)?0x73:(u8)k;w.controller.rows[0].flag40=(u8)(k>>1);
   if((k&7)==0)w.controller.rows[0].kind1C=0;
   for(i=0;i<8;i++)w.counters[i]=next();
   repeat_case(k&1,k%12);

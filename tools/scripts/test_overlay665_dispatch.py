@@ -19,7 +19,7 @@ class Overlay665DispatchTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4||sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4||offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay665_dispatch.h"
-typedef struct {u32 guard[4];RrOverlay665VisualState visual;u16 scene;s16 next,phase;u16 pad;u32 tail[4];} State;
+typedef struct {u32 guard[4];Overlay665VisualState visual;u16 scene;s16 next,phase;u16 pad;u32 tail[4];} State;
 typedef struct {s32 kind,arg;State before;} Event;
 typedef struct {State s;Event events[8];unsigned calls;} World;
 static World actual,reference,initial,*w;
@@ -37,13 +37,13 @@ static void event(s32 kind,s32 arg){unsigned i,n=w->calls;assert(n<8);w->events[
  w->s.scene=(u16)(scenario+n*51);w->s.next=(s16)(scenario+n*37);w->s.phase=(s16)(scenario+n*11);}
 }
 void SetDispMask(s32 a){event(1,a);}void ovl665_func_80114A24(void){event(2,0);}
-void InitMotionController(void){event(3,0);}void func_8005B2D4(s32 a){event(4,a);}void SeqStartTrack(s32 a){event(5,a);}
+void InitMotionController(void){event(3,0);}void SetPresentationDrawEnabled(s32 a){event(4,a);}void SeqStartTrack(s32 a){event(5,a);}
 void ovl665_func_80114C4C(void){event(6,0);}void ovl665_func_80116D10(s32 a){event(7,a);}
 void ovl665_func_801151A4(void){event(8,0);}void ovl665_func_80115820(void){event(9,0);}
 void ovl665_func_80115CFC(void){event(10,0);}void StartAttractDemo(s32 a){event(11,a);}void StepCameraScript(void){event(12,0);}
 ''' + body + r'''
 static void expected(void){s32 scene=w->s.visual.scene00;
- if(scene==0){SetDispMask(0);ovl665_func_80114A24();w->s.visual.scene00=word((u32)w->s.visual.scene00+1U);InitMotionController();func_8005B2D4(1);SeqStartTrack(0);}
+ if(scene==0){SetDispMask(0);ovl665_func_80114A24();w->s.visual.scene00=word((u32)w->s.visual.scene00+1U);InitMotionController();SetPresentationDrawEnabled(1);SeqStartTrack(0);}
  else if(scene==1)ovl665_func_80114C4C();
  else if(scene==2){s32 selection=w->s.visual.selection08;
   if(selection==0||selection==1)ovl665_func_80116D10(selection);

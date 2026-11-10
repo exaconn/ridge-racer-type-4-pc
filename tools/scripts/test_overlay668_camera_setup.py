@@ -15,9 +15,9 @@ class ReplaySetupTest(unittest.TestCase):
 #include <stdio.h>
 #include <limits.h>
 #include "rr/overlay668_camera.h"
-typedef struct {u32 before[4];RrTrackSample3C samples[321];u32 after[4];} Track;
-typedef struct {u32 before[4];RrReplayCameraContextPrefix camera;
- u32 cameraGuard[4];Track tracks[2];s32 lookup[20];RrTrackSample3C *root;
+typedef struct {u32 before[4];TrackSample3C samples[321];u32 after[4];} Track;
+typedef struct {u32 before[4];ReplayCameraContextPrefix camera;
+ u32 cameraGuard[4];Track tracks[2];s32 lookup[20];TrackSample3C *root;
  s32 draw,clock,ready,delay,selected,bank;s16 row;u16 pad;u32 after[4];} Environment;
 static Environment actual,expected,pre[27];
 static unsigned eventIds[27],count,index_,profile,caseIndex;static u32 seed=0x66815dfc;
@@ -25,7 +25,7 @@ static unsigned roots[3],entries[20];
 static u32 next(void){u32 x=seed;x^=x<<13;x^=x>>17;x^=x<<5;return seed=x;}
 static s32 sign32(u32 x){s32 result;memcpy(&result,&x,4);return result;}
 static s16 sign16(u16 x){s16 result;memcpy(&result,&x,2);return result;}
-static unsigned root_index(RrTrackSample3C *root){
+static unsigned root_index(TrackSample3C *root){
  if(!root)return 2;if(root==actual.tracks[0].samples)return 0;
  assert(root==actual.tracks[1].samples);return 1;
 }
@@ -67,7 +67,7 @@ static void call11(s32 enabled){assert(enabled==1);service(11);}
 #define RaceContext (actual.camera)
 #define TrackNodes (actual.root)
 #define VSyncThreshold (actual.draw)
-#define D_8010718C (actual.clock)
+#define ViewUsesCarTrackNode (actual.clock)
 #define MaskBitSetting (actual.ready)
 #define D_80127E90 (actual.delay)
 #define D_80127E94 (actual.selected)
@@ -76,21 +76,21 @@ static void call11(s32 enabled){assert(enabled==1);service(11);}
 #define ovl668_D_80116CC0 (actual.lookup)
 #define SetDispMask call0
 #define SetupDrawDispEnvs call1
-#define func_8006E794 call2
+#define InitCourseViewState call2
 #define SetupRenderer call3
 #define BuildCameraMatrices call4
 #define ovl668_func_80115460 call5
 #define ovl668_func_80115554 call6
 #define ovl668_func_801156FC call7
 #define ovl668_func_80115850 call8
-#define func_80055300 call9
-#define func_80055330 call10
-#define func_8005534C call11
+#define InitSceneOverlayState call9
+#define SetSceneOverlayColor call10
+#define SetSceneOverlayEnabled call11
 '''+body+r'''
 /* Oracle writes the specified storage offsets, independently of C field names. */
 static void put32(unsigned offset,u32 value){memcpy((u8 *)&expected.camera+offset,&value,4);}
 static void put16(unsigned offset,u16 value){memcpy((u8 *)&expected.camera+offset,&value,2);}
-static void model(void){unsigned i,which,selected;RrTrackSample3C sample;
+static void model(void){unsigned i,which,selected;TrackSample3C sample;
  expect_event(0);expect_event(1);expected.draw=384;expect_event(2);expect_event(3);expect_event(4);
  which=root_index(expected.root);assert(which<2);roots[which]++;
  sample=expected.tracks[which].samples[320];

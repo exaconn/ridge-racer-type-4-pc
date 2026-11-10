@@ -1,16 +1,16 @@
 /* RODATA 0x80010884 0x54 */
 #include "game/ui/hudmap.h"
+#include "rr/frame_storage_types.h"
 #include "game/gfx/gfxmtx.h"
 #include "game/menu/mnrows.h"
 #include "game/ui/uidraw.h"
 #include "rr/bios_devices.h"
 #include "rr/audio_cd_controller.h"
-#include "game/gfx/drawbuf.h"
+#include "rr/badge_row_types.h"
+#include "rr/menu_state_types.h"
+#include "rr/ui_panel.h"
+#include "rr/trig.h"
 #define EP ((E_2 *)((a0 * 16) + Rect16Rows))
-
-typedef struct {
-    short p0, f2, f4, f6, f8, fA, fC, fE, f10, f12, f14, f16, f18, f1A;
-} E;
 
 typedef struct { short f0, f2, f4, f6, f8, fA, fC, fE; } E_1;
 
@@ -18,101 +18,102 @@ typedef struct {
     short s0, s2, x, y, w, h, st, cnt;
 } E_2;
 
-extern int DrawBadgeRow();
-extern int rsin();
-extern int rcos();
-extern E *BadgeRows;
+typedef struct {
+    short x00, y02, w04, h06;
+    short page08, clut0A;
+    char u0C, v0D, f0E, f0F, f10, pad11[3];
+} GlyphPreset14;
+
+extern BadgeRow1C *BadgeRows;
 extern int Rect16Rows;
 extern unsigned char D_8009F9C0[];
 extern unsigned char D_8009F9CC[];
-extern int GlyphRows;
-extern char D_8009F9D4[];
+extern MenuGlyphRow1C *GlyphRows;
+extern GlyphPreset14 D_8009F9D4[];
 
 void UpdateBadgeRowAnim();
-int AllocRect16Rows(int a0);
 void InitRect16Row(int i, short a, short b, short c, short d, short e, short f);
 s32 UpdateRect16Row(int a0);
-int AllocGlyphRows(int a);
 void InitGlyphRow();
 
-void UpdateBadgeRowAnim(a0) int a0; {
+void UpdateBadgeRowAnim(int a0) {
     int s2;
     if (a0 < BadgeRowCount) {
-        s2 = BadgeRows[a0].f12;
-        switch (BadgeRows[a0].f10) {
+        s2 = *(s16 *)BadgeRows[a0].pad12;
+        switch (BadgeRows[a0].state10) {
         case 0:
-            BadgeRows[a0].f1A = 2;
-            BadgeRows[a0].f10 = 0xA;
-            BadgeRows[a0].f18 = 0;
-            BadgeRows[a0].f12 = 0;
-            BadgeRows[a0].f4 = BadgeRows[a0].f8;
-            BadgeRows[a0].f6 = (BadgeRows[a0].fA + BadgeRows[a0].fE) - 2;
-            BadgeRows[a0].f14 = BadgeRows[a0].f8;
-            BadgeRows[a0].f16 = (BadgeRows[a0].fA + BadgeRows[a0].fE) - 2;
+            BadgeRows[a0].h1A = 2;
+            BadgeRows[a0].state10 = 0xA;
+            BadgeRows[a0].w18 = 0;
+            *(s16 *)BadgeRows[a0].pad12 = 0;
+            BadgeRows[a0].x04 = BadgeRows[a0].x08;
+            BadgeRows[a0].y06 = (BadgeRows[a0].y0A + BadgeRows[a0].extent0E) - 2;
+            BadgeRows[a0].x14 = BadgeRows[a0].x08;
+            BadgeRows[a0].y16 = (BadgeRows[a0].y0A + BadgeRows[a0].extent0E) - 2;
             break;
         case 1:
-            BadgeRows[a0].f18 = ((BadgeRows[a0].fC + 2) * rsin((s2 << 10) / 15)) / 4096;
+            BadgeRows[a0].w18 = ((BadgeRows[a0].width0C + 2) * rsin((s2 << 10) / 15)) / 4096;
             if (s2 < 0xF) {
-                BadgeRows[a0].f12++;
+                (*(s16 *)BadgeRows[a0].pad12)++;
             } else {
-                BadgeRows[a0].f10 = 2;
-                BadgeRows[a0].f12 = 0;
+                BadgeRows[a0].state10 = 2;
+                *(s16 *)BadgeRows[a0].pad12 = 0;
             }
             break;
         case 2:
-            BadgeRows[a0].f1A = (BadgeRows[a0].fE * rsin((s2 << 10) / 15)) / 4096;
-            BadgeRows[a0].f16 = (BadgeRows[a0].fA + BadgeRows[a0].fE) - BadgeRows[a0].f1A;
-            BadgeRows[a0].f6 = BadgeRows[a0].f16;
+            BadgeRows[a0].h1A = (BadgeRows[a0].extent0E * rsin((s2 << 10) / 15)) / 4096;
+            BadgeRows[a0].y16 = (BadgeRows[a0].y0A + BadgeRows[a0].extent0E) - BadgeRows[a0].h1A;
+            BadgeRows[a0].y06 = BadgeRows[a0].y16;
             if (s2 < 0xF) {
-                BadgeRows[a0].f12++;
+                (*(s16 *)BadgeRows[a0].pad12)++;
             } else {
-                BadgeRows[a0].f10 = 3;
-                BadgeRows[a0].f12 = 0;
+                BadgeRows[a0].state10 = 3;
+                *(s16 *)BadgeRows[a0].pad12 = 0;
             }
             break;
         case 3:
-            BadgeRows[a0].f4 = BadgeRows[a0].f8;
-            BadgeRows[a0].f6 = BadgeRows[a0].fA;
-            BadgeRows[a0].f14 = BadgeRows[a0].f8;
-            BadgeRows[a0].f16 = BadgeRows[a0].fA;
-            BadgeRows[a0].f18 = BadgeRows[a0].fC + 2;
-            BadgeRows[a0].f1A = BadgeRows[a0].fE;
+            BadgeRows[a0].x04 = BadgeRows[a0].x08;
+            BadgeRows[a0].y06 = BadgeRows[a0].y0A;
+            BadgeRows[a0].x14 = BadgeRows[a0].x08;
+            BadgeRows[a0].y16 = BadgeRows[a0].y0A;
+            BadgeRows[a0].w18 = BadgeRows[a0].width0C + 2;
+            BadgeRows[a0].h1A = BadgeRows[a0].extent0E;
             break;
         case 4:
-            BadgeRows[a0].f1A = (BadgeRows[a0].fE * rcos((s2 << 10) / 15)) / 4096;
-            BadgeRows[a0].f16 = BadgeRows[a0].fA + (BadgeRows[a0].fE - BadgeRows[a0].f1A);
-            BadgeRows[a0].f6 = BadgeRows[a0].f16;
+            BadgeRows[a0].h1A = (BadgeRows[a0].extent0E * rcos((s2 << 10) / 15)) / 4096;
+            BadgeRows[a0].y16 = BadgeRows[a0].y0A + (BadgeRows[a0].extent0E - BadgeRows[a0].h1A);
+            BadgeRows[a0].y06 = BadgeRows[a0].y16;
             if (s2 < 0xF) {
-                BadgeRows[a0].f12++;
+                (*(s16 *)BadgeRows[a0].pad12)++;
             } else {
-                BadgeRows[a0].f10 = 5;
-                BadgeRows[a0].f12 = 0;
+                BadgeRows[a0].state10 = 5;
+                *(s16 *)BadgeRows[a0].pad12 = 0;
             }
             break;
         case 5:
-            BadgeRows[a0].f18 = ((BadgeRows[a0].fC + 2) * rcos((s2 << 10) / 15)) / 4096;
+            BadgeRows[a0].w18 = ((BadgeRows[a0].width0C + 2) * rcos((s2 << 10) / 15)) / 4096;
             if (s2 < 0xF) {
-                BadgeRows[a0].f12++;
+                (*(s16 *)BadgeRows[a0].pad12)++;
             } else {
-                BadgeRows[a0].f10 = 0xB;
-                BadgeRows[a0].f12 = 0;
+                BadgeRows[a0].state10 = 0xB;
+                *(s16 *)BadgeRows[a0].pad12 = 0;
             }
             break;
         case 10:
-            if (BadgeRows[a0].f2 != 0) {
-                BadgeRows[a0].f10 = 1;
+            if (BadgeRows[a0].half02 != 0) {
+                BadgeRows[a0].state10 = 1;
             }
             break;
         case 7:
-            BadgeRows[a0].f18 = ((BadgeRows[a0].fC + 2) * rsin((s2 << 10) / 15)) / 4096;
-            BadgeRows[a0].f1A = BadgeRows[a0].fE;
-            BadgeRows[a0].f14 = BadgeRows[a0].f8;
-            BadgeRows[a0].f16 = BadgeRows[a0].fA;
+            BadgeRows[a0].w18 = ((BadgeRows[a0].width0C + 2) * rsin((s2 << 10) / 15)) / 4096;
+            BadgeRows[a0].h1A = BadgeRows[a0].extent0E;
+            BadgeRows[a0].x14 = BadgeRows[a0].x08;
+            BadgeRows[a0].y16 = BadgeRows[a0].y0A;
             if (s2 < 0xF) {
-                BadgeRows[a0].f12++;
+                (*(s16 *)BadgeRows[a0].pad12)++;
             } else {
-                BadgeRows[a0].f10 = 3;
-                BadgeRows[a0].f12 = 0;
+                BadgeRows[a0].state10 = 3;
+                *(s16 *)BadgeRows[a0].pad12 = 0;
             }
             break;
         case 6:
@@ -120,15 +121,15 @@ void UpdateBadgeRowAnim(a0) int a0; {
         case 11:
             break;
         case 8:
-            BadgeRows[a0].f18 = BadgeRows[a0].fC + 2;
-            BadgeRows[a0].f1A = (BadgeRows[a0].fE * rsin((s2 << 10) / 15)) / 4096;
-            BadgeRows[a0].f14 = BadgeRows[a0].f8;
-            BadgeRows[a0].f16 = BadgeRows[a0].fA + ((BadgeRows[a0].fE / 2) - (BadgeRows[a0].f1A / 2));
+            BadgeRows[a0].w18 = BadgeRows[a0].width0C + 2;
+            BadgeRows[a0].h1A = (BadgeRows[a0].extent0E * rsin((s2 << 10) / 15)) / 4096;
+            BadgeRows[a0].x14 = BadgeRows[a0].x08;
+            BadgeRows[a0].y16 = BadgeRows[a0].y0A + ((BadgeRows[a0].extent0E / 2) - (BadgeRows[a0].h1A / 2));
             if (s2 < 0xF) {
-                BadgeRows[a0].f12++;
+                (*(s16 *)BadgeRows[a0].pad12)++;
             } else {
-                BadgeRows[a0].f10 = 3;
-                BadgeRows[a0].f12 = 0;
+                BadgeRows[a0].state10 = 3;
+                *(s16 *)BadgeRows[a0].pad12 = 0;
             }
             break;
         }
@@ -139,17 +140,14 @@ void UpdateBadgeRowAnim(a0) int a0; {
 int AllocRect16Rows(int a0) {
     int n = Rect16RowCount << 4;
     Rect16Rows = a0;
-    func_80096434(a0, n);
-    DebugPrintStub(D_80010874, n);
+    PsyqBzero(a0, n);
+    DebugPrintStub(StrSizeEqLdFmt, n);
     return n;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define Rect16Rows ((E_1 *)Rect16Rows)
-
 void InitRect16Row(int i, short a, short b, short c, short d, short e, short f) {
     if (i < Rect16RowCount) {
-        E_1 *p = (E_1 *)((i << 4) + (int)Rect16Rows);
+        E_1 *p = (E_1 *)((i << 4) + Rect16Rows);
         p->f0 = f;
         p->f2 = 0;
         p->f4 = a;
@@ -159,8 +157,6 @@ void InitRect16Row(int i, short a, short b, short c, short d, short e, short f) 
         p->fC = e;
     }
 }
-
-#undef Rect16Rows
 
 int UpdateRect16Row(int a0) {
     int lx[4];
@@ -249,7 +245,7 @@ int UpdateRect16Row(int a0) {
         tb = D_8009F9CC;
         p = D_8009F9C0;
     loop:
-        AddPartialLine(CurrentDrawBuf + 0x70, *(int *)((char *)xs + (p[0] << 2)), *(int *)((char *)ys + (p[0] << 2)), *(int *)((char *)xs + (p[1] << 2)), *(int *)((char *)ys + (p[1] << 2)), lv[*(unsigned char *)(k + (int)tb)], 1, 8, 8, 8, -1);
+        AddPartialLine(&CurrentDrawBuf->buffer.ordering70.words[0], *(int *)((char *)xs + (p[0] << 2)), *(int *)((char *)ys + (p[0] << 2)), *(int *)((char *)xs + (p[1] << 2)), *(int *)((char *)ys + (p[1] << 2)), lv[*(unsigned char *)(k + (int)tb)], 1, 8, 8, 8, -1);
         p += 2;
         k++;
         if (k < 6) goto loop;
@@ -260,44 +256,34 @@ int UpdateRect16Row(int a0) {
 
 int AllocGlyphRows(int a) {
     int sz = GlyphRowCount * 28;
-    GlyphRows = a;
-    func_80096434(a, sz);
+    GlyphRows = (MenuGlyphRow1C *)a;
+    PsyqBzero(a, sz);
     DebugPrintStub(SizeLdFmt, sz);
     return sz;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define GlyphRows ((char *)GlyphRows)
-
-void InitGlyphRow(a0, a1, a2, a3)
-int a0;
-int a1;
-int a2;
-int a3;
-{
-  char *s;
-  char *new_var;
-  char *q;
+void InitGlyphRow(int a0, int a1, int a2, int a3) {
+  GlyphPreset14 *s;
+  MenuGlyphRow1C *new_var;
+  MenuGlyphRow1C *q;
   if (a0 < GlyphRowCount)
   {
-    *((char *) (((a0 * 0x1C) + ((int) GlyphRows)) + 2)) = a1;
-    *((char *) (((a0 * 0x1C) + ((int) GlyphRows)) + 7)) = a2;
-    s = D_8009F9D4 + (a3 * 0x14);
-    new_var = (char *) ((a0 * 0x1C) + ((int) GlyphRows));
+    ((MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows))->control02 = a1;
+    ((MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows))->glyph07 = a2;
+    s = &D_8009F9D4[a3];
+    new_var = (MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows);
     q = new_var;
-    *((short *) (q + 8)) = *((short *) (s + 0));
-    *((short *) (q + 0xA)) = *((short *) (s + 2));
-    *((short *) (q + 0xC)) = *((short *) (s + 4));
-    *((short *) (q + 0xE)) = *((short *) (s + 6));
-    q[1] = s[0xE];
-    *((char *) (((a0 * 0x1C) + ((int) GlyphRows)) + 5)) = s[0xF];
-    *((char *) (((a0 * 0x1C) + ((int) GlyphRows)) + 6)) = s[0x10];
-    q = (char *) ((a0 * 0x1C) + ((int) GlyphRows));
-    *((short *) (q + 0x10)) = *((short *) (s + 8));
-    *((short *) (q + 0x12)) = *((short *) (s + 0xA));
-    q[0x14] = s[0xC];
-    *((char *) (((a0 * 0x1C) + ((int) GlyphRows)) + 0x15)) = s[0xD];
+    q->x08 = s->x00;
+    q->y0A = s->y02;
+    q->w0C = s->w04;
+    q->h0E = s->h06;
+    q->pad01 = s->f0E;
+    ((MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows))->pad03[2] = s->f0F;
+    ((MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows))->pad03[3] = s->f10;
+    q = (MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows);
+    ((short *)q->pad10)[0] = s->page08;
+    ((short *)q->pad10)[1] = s->clut0A;
+    q->pad10[4] = s->u0C;
+    ((MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows))->pad10[5] = s->v0D;
   }
 }
-
-#undef GlyphRows

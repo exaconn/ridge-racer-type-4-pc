@@ -1,9 +1,9 @@
 /* CC1_FLAGS: -fno-schedule-insns */
 #include "rr/relative_file.h"
-void RelocateRelativeFile(RrRelativeHeader *input){
- RrRelativeHeader *base=input;
+void RelocateRelativeFile(RelativeHeader *input){
+ RelativeHeader *base=input;
  /* ASM_BARRIER: Preserve the entry cursor allocation through the loop. */
- register RrRelativeSlot *cursor __asm__("$6")=(RrRelativeSlot*)(base+1);
+ register RelativeSlot *cursor __asm__("$6")=(RelativeSlot*)(base+1);
  u32 count=base->count;
  /* ASM_BARRIER: Preserve the relocation index allocation through the loop. */
  register u32 i __asm__("$7");
@@ -24,25 +24,25 @@ void RelocateRelativeFile(RrRelativeHeader *input){
  __asm__("" : "=r"(second) : "0"(second), "m"(base->first[1]));
  D_800F391C=second;
  base->first[2].absolute=rr_relative_file_address(base,base->first[2].relative);
- D_800F2EB4=base->first[2].absolute;
- D_800F29E0=rr_relative_file_address(base,base->offsets[0]);
- D_800F4D34=rr_relative_file_address(base,base->offsets[1]);
+ RelFileViewRecords=(CourseViewRecord *)base->first[2].absolute;
+ RelFileSection00=rr_relative_file_address(base,base->offsets[0]);
+ RelFileSection01=rr_relative_file_address(base,base->offsets[1]);
  D_800ADAE8=rr_relative_file_address(base,base->offsets[2]);
- D_800F4D28=rr_relative_file_address(base,base->offsets[3]);
+ RelFileOffsetPtr3=rr_relative_file_address(base,base->offsets[3]);
  D_800F4C60=rr_relative_file_address(base,base->offsets[4]);
- D_800ABEA8=rr_relative_file_address(base,base->offsets[5]);
- D_800F4C20=rr_relative_file_address(base,base->offsets[6]);
- D_800ABE9C=rr_relative_file_address(base,base->offsets[7]);
+ RelFileSection05=rr_relative_file_address(base,base->offsets[5]);
+ RelFileOffsetPtr6=rr_relative_file_address(base,base->offsets[6]);
+ RelFileOffsetPtr7=rr_relative_file_address(base,base->offsets[7]);
  D_800FFC40=rr_relative_file_address(base,base->offsets[8]);
- D_800F4C30=rr_relative_file_address(base,base->offsets[9]);
+ RelFileOffsetPtr9=rr_relative_file_address(base,base->offsets[9]);
  D_800ABEA0=rr_relative_file_address(base,base->offsets[10]);
- D_800F4C78=rr_relative_file_address(base,base->offsets[11]);
- D_800ABEB8=rr_relative_file_address(base,base->offsets[12]);
- D_800F4C6C=rr_relative_file_address(base,base->offsets[13]);
+ RelFileSection11=rr_relative_file_address(base,base->offsets[11]);
+ RelFileOffsetPtr12=rr_relative_file_address(base,base->offsets[12]);
+ RelFileOffsetPtr13=rr_relative_file_address(base,base->offsets[13]);
  D_800ABEB4=rr_relative_file_address(base,base->offsets[14]);
  last=base->offsets[15];
  D_800F3820=cursor;
- D_800ACC04=rr_relative_file_address(base,last);
+ RelFileSection15=rr_relative_file_address(base,last);
  if(count!=0)do {
   cursor->absolute=rr_relative_file_address(base,cursor->relative);
   /* ASM_BARRIER: Reload the shared count after each pointer write while

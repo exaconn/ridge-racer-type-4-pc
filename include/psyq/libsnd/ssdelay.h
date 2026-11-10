@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int _SsSeqPlay();
+void _SsSeqPlay(s32 bank, s32 row);
 
 #endif /* RR_PSYQ_LIBSND_SSDELAY_H */

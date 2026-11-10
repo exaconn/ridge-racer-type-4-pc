@@ -7,6 +7,8 @@ import subprocess
 from tempfile import TemporaryDirectory
 import unittest
 
+from c_functions import definition_source, source_owners
+
 Free = C.CFUNCTYPE(None, C.c_uint32)
 
 
@@ -38,15 +40,12 @@ _Static_assert(offsetof(__typeof__(test_page), count) == 0x178, "count offset");
 _Static_assert(offsetof(__typeof__(test_page), addresses) == 0x180, "address offset");
 #define _svm_vab_used test_page.flags
 #define _svm_vab_count test_page.count
+#define _svm_vab_start test_page.addresses
 void (*test_free)(u32 address);
 void SpuFree(u32 address) { test_free(address); }
 '''
-        body = (root / 'tools/scripts/fixtures/views/func_8008A674.c').read_text()
-        body = body.replace('#include "rr/spu.h"', '')
-        body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
-        body = re.sub(r'"\$[0-9]+", ', '', body)
-        body = re.sub(r' : "\$[0-9]+"', '', body)
-        body = body.replace('(u8 *)0x80110000U', '((u8 *)&test_page)')
+        owner = source_owners(root / 'src/main/PAL')['SsVabClose']
+        body = definition_source(owner.read_text(), 'SsVabClose')
         source += body
         (directory / 'function.c').write_text(source)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
@@ -54,7 +53,7 @@ void SpuFree(u32 address) { test_free(address); }
         cls.library = C.CDLL(str(directory / 'function.so'))
         cls.page = Page.in_dll(cls.library, 'test_page')
         cls.function = cls.library.SsVabClose
-        cls.function.argtypes = [C.c_uint16]
+        cls.function.argtypes = [C.c_int16]
         cls.function.restype = None
 
     def setUp(self):

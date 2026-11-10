@@ -20,9 +20,9 @@ class AnimatedSpriteGridTest(unittest.TestCase):
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         body=re.sub(r',?\s*"\$\d+"','',body)
-        assert body.count('(RrGpuScratchPointers*)0x1F800000U')==2
+        assert body.count('(GpuScratchPointers*)0x1F800000U')==2
         assert body.count('*(u8**)0x1F800000U')==1
-        body=body.replace('(RrGpuScratchPointers*)0x1F800000U','&actual.scratch')
+        body=body.replace('(GpuScratchPointers*)0x1F800000U','&actual.scratch')
         body=body.replace('*(u8**)0x1F800000U','actual.scratch.cursor')
         code=r'''
 #include <assert.h>
@@ -33,10 +33,10 @@ class AnimatedSpriteGridTest(unittest.TestCase):
 ''' + header('gpu_scratch_types.h') + header('gpu.h') + header('animated_sprite_grid.h') + r'''
 typedef struct {
     u8 prefix[32];
-    RrGpuScratchPointers scratch;
+    GpuScratchPointers scratch;
     u32 orderword;
     u8 pad[12];
-    RrSpriteGridClock clock;
+    SpriteGridClock clock;
     u8 pad2[48];
     u8 packets[384];
     u8 suffix[64];
@@ -61,7 +61,7 @@ static u8 *cursor(void) {
     u8 *pointer;memcpy(&pointer,&expected.scratch.cursor,sizeof(pointer));return pointer;
 }
 static void publish(u8 *pointer){memcpy(&expected.scratch.cursor,&pointer,sizeof(pointer));}
-static void reference(u32 intensity,RrSpriteGridClock *state) {
+static void reference(u32 intensity,SpriteGridClock *state) {
     u16 tick;memcpy(&tick,locate(&state->tick0E,2),2);
     u8 *packet=cursor(); /* Captured before the clock halfword is published. */
     tick++;memcpy(locate(&state->tick0E,2),&tick,2);
@@ -94,10 +94,10 @@ static void one(u16 tick,u32 intensity,int alias) {
     actual.scratch.cursor=actual.packets+16;
     actual.scratch.order=&actual.orderword;
     actual.orderword=0xCC13579B;
-    RrSpriteGridClock *state=&actual.clock;
-    if(alias==1)state=(RrSpriteGridClock *)(actual.packets+16);
-    if(alias==2)state=(RrSpriteGridClock *)((u8*)&actual.scratch.cursor-14);
-    if(alias==3)state=(RrSpriteGridClock *)((u8*)&actual.orderword-12);
+    SpriteGridClock *state=&actual.clock;
+    if(alias==1)state=(SpriteGridClock *)(actual.packets+16);
+    if(alias==2)state=(SpriteGridClock *)((u8*)&actual.scratch.cursor-14);
+    if(alias==3)state=(SpriteGridClock *)((u8*)&actual.orderword-12);
     if(alias==4)actual.scratch.order=(u32 *)&actual.scratch.order;
     if(alias==5)actual.scratch.order=(u32 *)(actual.packets+16);
     if(alias!=2)state->tick0E=tick;

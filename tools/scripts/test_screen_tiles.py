@@ -20,28 +20,33 @@ class ScreenTilesTest(unittest.TestCase):
             text=(ROOT/'tools/scripts/fixtures/views'/name).read_text()
             text=re.sub(r'^#include[^\n]*\n','',text,flags=re.M)
             return re.sub(r'\s+(?:__asm__|asm)\("\$\d+"\)','',text)
-        body=source('func_800207D4.c')
-        assert body.count('(u8**)0x1F800000U')==3
-        body=body.replace('(u8**)0x1F800000U','&cursor')
+        from c_functions import definition_source, source_owners
+        body=definition_source(source_owners(ROOT/'src/main/PAL')['AddScreenFadeTiles'].read_text(),'AddScreenFadeTiles')
+        body=re.sub(r'\s+(?:__asm__|asm)\("\$\d+"\)','',body)
+        body='void SetTile(void *);void SetSemiTrans(void *,s32);void AddPrim(u32 *,u32 *);void *AddDrawModePrim(u32 *,GpuDrawModePacket *,u16);\n'+body
+        assert body.count('(u8**)SCRATCHPAD')==3
+        body=body.replace('(u8**)SCRATCHPAD','&cursor')
         helpers=source('func_80095BB4.c').replace('SetTile','actual_tile')
         helpers+=source('func_80095AF4.c').replace('SetSemiTrans','actual_semitransparency')
         helpers+=source('func_80095A44.c').replace('AddPrim','actual_link')
         code=r'''
 #include <assert.h>
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include "types.h"
+#undef RR_FIELD_OFFSET
 #define RR_FIELD_OFFSET(t,f) offsetof(t,f)
 #define M2C_FIELD(p,t,o) (*(t)((u8 *)(p)+(o)))
 ''' + header('gpu.h') + header('screen_tiles.h') + r'''
-static u8 pool[192] __attribute__((aligned(64)));
+static u8 pool[sizeof(FrameStorage)+192] __attribute__((aligned(64)));
 static u8 *cursor;
-RrGpuRectangle *CurrentDrawBuf;
+FrameStorage *CurrentDrawBuf;
 ''' + helpers + body + r'''
-static RrGpuRectangle contexts[4];
+static FrameStorage contexts[4];
 static u32 ordering;
 static int frame,event_count,scenario,final_calls;
 static u16 wanted_mode;
@@ -69,7 +74,7 @@ void AddPrim(u32 *table,u32 *packet) {
         cursor=pool+160;
     }
 }
-u8 *AddDrawModePrim(u32 *table,u8 *packet,u16 mode) {
+void *AddDrawModePrim(u32 *table,GpuDrawModePacket *mode_packet,u16 mode){ u8 *packet = (u8 *)mode_packet;
     assert(table==&ordering&&packet==pool+80&&cursor==packet);
     assert(mode==wanted_mode&&frame==4&&event_count==12&&final_calls==0);
     final_calls++;
@@ -77,17 +82,17 @@ u8 *AddDrawModePrim(u32 *table,u8 *packet,u16 mode) {
     return packet+12;
 }
 static void put16(u8 *where,int value) {u16 bits=value;memcpy(where,&bits,2);}
-static int get_height(RrGpuRectangle *context,u8 *memory) {
+static int get_height(FrameStorage *context,u8 *memory) {
     uintptr_t address=(uintptr_t)context,begin=(uintptr_t)pool;
     s16 value;
     if(address>=begin&&address+8<=begin+sizeof(pool))
         memcpy(&value,memory+(address-begin)+6,2);
-    else memcpy(&value,&context->rect.h,2);
+    else memcpy(&value,&context->buffer.environment00.draw00.clip.h,2);
     return value;
 }
-static u32 reference(u8 *memory,s32 intensity,u32 initial,RrGpuRectangle **last_context) {
+static u32 reference(u8 *memory,s32 intensity,u32 initial,FrameStorage **last_context) {
     int color=intensity<0?0:intensity>255?255:intensity;
-    RrGpuRectangle *context=CurrentDrawBuf;
+    FrameStorage *context=CurrentDrawBuf;
     for(int i=0;i<4;i++) {
         u8 *packet=memory+16+i*16;
         packet[3]=3;packet[7]=0x62;
@@ -111,13 +116,13 @@ static u32 reference(u8 *memory,s32 intensity,u32 initial,RrGpuRectangle **last_
 static void one(s32 intensity,s16 height,u32 mode,int alias,int hooks) {
     for(unsigned i=0;i<sizeof(pool);i++)pool[i]=(u8)(i*73U+(i>>3)+19U);
     memset(contexts,0xA5,sizeof(contexts));
-    for(int i=0;i<4;i++)contexts[i].rect.h=(s16)((u16)height+i*37U);
-    CurrentDrawBuf=alias>=0?(RrGpuRectangle *)(pool+16+alias-6):&contexts[0];
+    for(int i=0;i<4;i++)contexts[i].buffer.environment00.draw00.clip.h=(s16)((u16)height+i*37U);
+    CurrentDrawBuf=alias>=0?(FrameStorage *)(pool+16+alias-6):&contexts[0];
     cursor=pool+16;ordering=0xA5123456U;
     frame=event_count=final_calls=0;scenario=hooks;wanted_mode=mode;
-    RrGpuRectangle saved[4];memcpy(saved,contexts,sizeof(saved));
+    FrameStorage saved[4];memcpy(saved,contexts,sizeof(saved));
     u8 wanted[sizeof(pool)];memcpy(wanted,pool,sizeof(pool));
-    RrGpuRectangle *wanted_context;
+    FrameStorage *wanted_context;
     u32 wanted_ordering=reference(wanted,intensity,ordering,&wanted_context);
     AddScreenFadeTiles(&ordering,intensity,mode);
     assert(frame==4&&event_count==12&&final_calls==1&&cursor==pool+92);

@@ -4,7 +4,7 @@
 
 #include "rr/channels.h"
 
-void _padSaveCommand(RrChannelTransferView *channel) {
+void _padSaveCommand(ChannelTransferView *channel) {
     u8 command=channel->command37;
     channel->command37=0;
     channel->previous38=command;

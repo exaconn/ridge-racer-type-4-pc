@@ -1,13 +1,14 @@
+#include "game/system/pad.h"
 #include "rr/overlay662_input.h"
 
-void ovl662_func_8011D664(RrGaragePoint *output)
+void ovl662_func_8011D664(GaragePoint *output)
 {
-    RrGaragePoint point;
+    GaragePoint point;
     u32 buttons;
     s32 step;
     PsyqMemset(&point,0,4);
-    if (PlayerControllers[0].type01 != 0x12) {
-        buttons = PlayerControllers[0].buttons02;
+    if (PlayerControllers[0].input00.fields.type != 0x12) {
+        buttons = PlayerControllers[0].input00.fields.buttons;
         step=1;
         if (buttons & 8) step=4;
         if (buttons & 0x1000) point.y=-(step*2);

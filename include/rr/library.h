@@ -11,11 +11,11 @@ typedef struct {
     char b[16];
     u16 h10, h12;
     char r[16];
-} RrLibBlock24Fields;
+} LibBlock24Fields;
 
 typedef struct {
     char b[36];
-} RrLibBlock24;
+} LibBlock24;
 
 typedef struct {
     u8 *c0;
@@ -47,13 +47,13 @@ typedef struct {
     s32 w9c;
     s32 wa0, wa4, wa8, wac;
     char pb0[0];
-} RrLibStateB0;
+} LibStateB0;
 
 typedef struct {
     u32 value;
-} __attribute__((packed)) RrLibPackedWord;
+} __attribute__((packed)) LibPackedWord;
 
-/* Partial layout of the 0x20-byte entries referenced by D_80110310. */
+/* Partial layout of the 0x20-byte entries referenced by StRingHeaders. */
 typedef struct {
     u16 state;
     u8 pad02[6];
@@ -61,88 +61,109 @@ typedef struct {
     u8 pad0C[4];
     u16 width10,height12;
     u8 pad14[8];
-    RrLibPackedWord word1C;
-} RrLibQueueRecord32;
+    LibPackedWord word1C;
+} LibQueueRecord32;
 
-extern RrLibQueueRecord32 *D_80110310;
-void StSetRing(RrLibQueueRecord32 *first, s32 second);
+extern LibQueueRecord32 *StRingHeaders;
+void StSetRing(LibQueueRecord32 *first, s32 second);
 void StSetStream(s32 a, s32 b, s32 c, s32 d, s32 e);
-extern s32 D_801102FC, StEndFrame, D_80110314;
+extern s32 StRingReadIndex, StEndFrame, StRingSize;
 /* Buffer must contain the configured header table and its 0x7E0-byte payload slots. */
-s32 StGetNext(u8 **data, RrLibQueueRecord32 **header);
+s32 StGetNext(u8 **data, LibQueueRecord32 **header);
 
-RR_ASSERT_SIZE(RrLibPackedWord, 4);
-RR_ASSERT_SIZE(RrLibQueueRecord32, 0x20);
-RR_ASSERT_OFFSET(RrLibQueueRecord32, value08, 8);
-RR_ASSERT_OFFSET(RrLibQueueRecord32, width10, 0x10);
-RR_ASSERT_OFFSET(RrLibQueueRecord32, height12, 0x12);
-RR_ASSERT_OFFSET(RrLibQueueRecord32, word1C, 0x1C);
+RR_ASSERT_SIZE(LibPackedWord, 4);
+RR_ASSERT_SIZE(LibQueueRecord32, 0x20);
+RR_ASSERT_OFFSET(LibQueueRecord32, value08, 8);
+RR_ASSERT_OFFSET(LibQueueRecord32, width10, 0x10);
+RR_ASSERT_OFFSET(LibQueueRecord32, height12, 0x12);
+RR_ASSERT_OFFSET(LibQueueRecord32, word1C, 0x1C);
 
 /* Prefix at D_800ABAC2. Width/height also have assembler aliases
  * D_800ABAC4 and D_800ABAC6, used by drawing-area coordinate helpers. */
 typedef struct {
     u8 level,mode;
     s16 width,height;
-} RrGpuDebugSettings;
-extern RrGpuDebugSettings D_800ABAC2;
+} GpuDebugSettings;
+extern GpuDebugSettings D_800ABAC2;
 extern s32 (*GPU_printf)(const char *,...);
-RR_ASSERT_SIZE(RrGpuDebugSettings, 6);
-RR_ASSERT_OFFSET(RrGpuDebugSettings, width, 2);
-RR_ASSERT_OFFSET(RrGpuDebugSettings, height, 4);
+RR_ASSERT_SIZE(GpuDebugSettings, 6);
+RR_ASSERT_OFFSET(GpuDebugSettings, width, 2);
+RR_ASSERT_OFFSET(GpuDebugSettings, height, 4);
 
-/* Observed graphics driver prefix used by DrawOTag dispatch. */
-/* PAL addresses are 32 bits; unsigned long also retains native LP64 pointers. */
-typedef void (*RrLibDrawOrderingTable)(unsigned long address);
-typedef struct {
-    u8 reserved00[8];
-    s32 (*dispatch)(RrLibDrawOrderingTable, s32, s32, s32);
-    u8 reserved0C[12];
-    RrLibDrawOrderingTable draw_ordering_table;
-} RrLibGraphicsDriverPrefix;
+/* Resident GPU driver: the executable's sixteen pointer-sized cells.
+ * Queue operations retain their legacy unspecified-argument callback type;
+ * payload and parameter transport retain complete native pointer widths. */
+typedef int (*GpuOpFunc)();
+typedef void (*LibDrawOrderingTable)(unsigned long address);
+union GpuRectangle;
+typedef struct GpuDriver40 {
+    const char *name00;
+    void (*enqueue04)(GpuOpFunc, void *, unsigned long);
+    s32 (*dispatch)(GpuOpFunc, void *, s32, unsigned long);
+    s32 (*clear0C)(union GpuRectangle *, u32);
+    void (*control10)(u32);
+    s32 (*writeBuffer14)(int *, s32);
+    LibDrawOrderingTable draw_ordering_table;
+    s32 (*download1C)(union GpuRectangle *, u32 *);
+    s32 (*upload20)(union GpuRectangle *, const u32 *);
+    s32 (*execute24)(void);
+    s32 (*readControl28)(s32);
+    s32 (*clearOrdering2C)(u8 *, s32);
+    s32 (*parameter30)(s32);
+    s32 (*reset34)(s32);
+    u32 (*status38)(void);
+    s32 (*sync3C)(s32);
+} GpuDriver40;
+/* Compatibility spelling; this is the complete owner, not a separate prefix. */
+typedef GpuDriver40 LibGraphicsDriverPrefix;
+#if defined(mips)
+RR_ASSERT_SIZE(GpuDriver40, 0x40);
+RR_ASSERT_OFFSET(GpuDriver40, dispatch, 8);
+RR_ASSERT_OFFSET(GpuDriver40, draw_ordering_table, 0x18);
+RR_ASSERT_OFFSET(GpuDriver40, reset34, 0x34);
+#endif
 
-RR_ASSERT_SIZE(RrLibGraphicsDriverPrefix, 0x1C);
-RR_ASSERT_OFFSET(RrLibGraphicsDriverPrefix, dispatch, 8);
-RR_ASSERT_OFFSET(RrLibGraphicsDriverPrefix, draw_ordering_table, 0x18);
-
-typedef void (*RrLibInterruptCallback)(void);
-typedef RrLibInterruptCallback (*RrLibInterruptExchange)(s32, RrLibInterruptCallback);
+typedef void (*LibInterruptCallback)(void);
+typedef LibInterruptCallback (*LibInterruptExchange)(s32, LibInterruptCallback);
 
 /* DMA callback table has eight slots (initialization clears all eight).
  * Registration has no bounds check; channel must be in 0..7. */
-extern RrLibInterruptCallback InterruptCallbackTable[8];
+extern LibInterruptCallback InterruptCallbackTable[8];
 extern volatile u32 *DICR_VSync;
-RrLibInterruptCallback setIntrDMA(s32 channel, RrLibInterruptCallback callback);
-RrLibInterruptExchange startIntrDMA(void);
+LibInterruptCallback setIntrDMA(s32 channel, LibInterruptCallback callback);
+LibInterruptExchange startIntrDMA(void);
 void trapIntrDMA(void);
-void DMA_memclr(RrLibInterruptCallback *callbacks, s32 count);
+void DMA_memclr(LibInterruptCallback *callbacks, s32 count);
 
 /* Prefix of the callback driver referenced by IntrDriverTablePtr. */
 typedef struct {
-    RrLibInterruptCallback reserved;
-    RrLibInterruptExchange exchange;
-    RrLibInterruptExchange install;
+    LibInterruptCallback reserved;
+    LibInterruptExchange exchange;
+    LibInterruptExchange install;
     void (*reset)(void);
-} RrLibInterruptDriverPrefix;
+} LibInterruptDriverPrefix;
 
-extern RrLibInterruptDriverPrefix *IntrDriverTablePtr;
+extern LibInterruptDriverPrefix *IntrDriverTablePtr;
 extern void ResetCallback(void);
-RrLibInterruptCallback DMACallback(s32 channel, RrLibInterruptCallback callback);
-RrLibInterruptCallback _SpuDataCallback(RrLibInterruptCallback callback);
-RrLibInterruptCallback InterruptCallback(s32 channel, RrLibInterruptCallback callback);
+LibInterruptCallback DMACallback(s32 channel, LibInterruptCallback callback);
+LibInterruptCallback _SpuDataCallback(LibInterruptCallback callback);
+LibInterruptCallback InterruptCallback(s32 channel, LibInterruptCallback callback);
 
-RR_ASSERT_SIZE(RrLibInterruptDriverPrefix, 0x10);
-RR_ASSERT_OFFSET(RrLibInterruptDriverPrefix, exchange, 4);
-RR_ASSERT_OFFSET(RrLibInterruptDriverPrefix, install, 8);
-RR_ASSERT_OFFSET(RrLibInterruptDriverPrefix, reset, 0xC);
+#if defined(mips)
+RR_ASSERT_SIZE(LibInterruptDriverPrefix, 0x10);
+RR_ASSERT_OFFSET(LibInterruptDriverPrefix, exchange, 4);
+RR_ASSERT_OFFSET(LibInterruptDriverPrefix, install, 8);
+RR_ASSERT_OFFSET(LibInterruptDriverPrefix, reset, 0xC);
+#endif
 
-typedef void (*RrLibDataCallback)(s32, u8 *);
+typedef void (*LibDataCallback)(s32, u8 *);
 void CdCommandCallback(void);
 
-typedef void (*RrLibCompletionCallback)(void);
-typedef void (*RrLibNotificationCallback)(s32, s32);
+typedef void (*LibCompletionCallback)(void);
+typedef void (*LibNotificationCallback)(s32, s32);
 
-extern RrLibDataCallback CD_cbsync, CD_cbready;
-extern RrLibNotificationCallback CD_cbread;
+extern LibDataCallback CD_cbsync, CD_cbready;
+extern LibNotificationCallback CD_cbread;
 extern u32 CD_read_dma_mode;
 s32 CdInit(void);
 void def_cbsync(s32 selector, u8 *data);
@@ -158,51 +179,55 @@ typedef struct {
     u8 pad18[8];
     u32 completed20, finished24;
     u8 pad28[4];
-    RrLibCompletionCallback restore2C, restore30;
+    LibCompletionCallback restore2C, restore30;
     s32 notify_arg34;
-} RrLibTransferState38;
+} LibTransferState38;
 
-RR_ASSERT_SIZE(RrLibTransferState38, 0x38);
-RR_ASSERT_OFFSET(RrLibTransferState38, position08, 8);
-RR_ASSERT_OFFSET(RrLibTransferState38, step10, 0x10);
-RR_ASSERT_OFFSET(RrLibTransferState38, remaining14, 0x14);
-RR_ASSERT_OFFSET(RrLibTransferState38, completed20, 0x20);
-RR_ASSERT_OFFSET(RrLibTransferState38, finished24, 0x24);
-RR_ASSERT_OFFSET(RrLibTransferState38, restore2C, 0x2C);
-RR_ASSERT_OFFSET(RrLibTransferState38, restore30, 0x30);
-RR_ASSERT_OFFSET(RrLibTransferState38, notify_arg34, 0x34);
+#if defined(mips)
+RR_ASSERT_SIZE(LibTransferState38, 0x38);
+RR_ASSERT_OFFSET(LibTransferState38, position08, 8);
+RR_ASSERT_OFFSET(LibTransferState38, step10, 0x10);
+RR_ASSERT_OFFSET(LibTransferState38, remaining14, 0x14);
+RR_ASSERT_OFFSET(LibTransferState38, completed20, 0x20);
+RR_ASSERT_OFFSET(LibTransferState38, finished24, 0x24);
+RR_ASSERT_OFFSET(LibTransferState38, restore2C, 0x2C);
+RR_ASSERT_OFFSET(LibTransferState38, restore30, 0x30);
+RR_ASSERT_OFFSET(LibTransferState38, notify_arg34, 0x34);
+#endif
 
 /* Named-entry table beginning at D_80110954. A zero key terminates the scan. */
 typedef struct {
     s32 key;
     s32 value;
     char name[0x24];
-} RrLibNamedEntry;
+} LibNamedEntry;
 
-RR_ASSERT_SIZE(RrLibNamedEntry, 0x2C);
-RR_ASSERT_OFFSET(RrLibNamedEntry, name, 8);
+RR_ASSERT_SIZE(LibNamedEntry, 0x2C);
+RR_ASSERT_OFFSET(LibNamedEntry, name, 8);
 
-/* Prefix of the saved state at D_800A52C8; callback data begins at 0x38. */
+/* Prefix of the saved state at IntrDispatchState; callback data begins at 0x38. */
 typedef struct {
     u16 active;
     s16 dispatching02;
-    RrLibInterruptCallback callbacks[11];
+    LibInterruptCallback callbacks[11];
     u16 enabled_mask;
     u16 register16;
     s32 register32;
     u8 callback_data[4];
-} RrLibSavedState;
+} LibSavedState;
 
 /* IRQ selector must be in the callback-table range 0..10. */
-RrLibInterruptCallback setIntr(s32 selector, RrLibInterruptCallback callback);
+LibInterruptCallback setIntr(s32 selector, LibInterruptCallback callback);
 
-RR_ASSERT_SIZE(RrLibSavedState, 0x3C);
-RR_ASSERT_OFFSET(RrLibSavedState, dispatching02, 2);
-RR_ASSERT_OFFSET(RrLibSavedState, callbacks, 4);
-RR_ASSERT_OFFSET(RrLibSavedState, enabled_mask, 0x30);
-RR_ASSERT_OFFSET(RrLibSavedState, register16, 0x32);
-RR_ASSERT_OFFSET(RrLibSavedState, register32, 0x34);
-RR_ASSERT_OFFSET(RrLibSavedState, callback_data, 0x38);
+#if defined(mips)
+RR_ASSERT_SIZE(LibSavedState, 0x3C);
+RR_ASSERT_OFFSET(LibSavedState, dispatching02, 2);
+RR_ASSERT_OFFSET(LibSavedState, callbacks, 4);
+RR_ASSERT_OFFSET(LibSavedState, enabled_mask, 0x30);
+RR_ASSERT_OFFSET(LibSavedState, register16, 0x32);
+RR_ASSERT_OFFSET(LibSavedState, register32, 0x34);
+RR_ASSERT_OFFSET(LibSavedState, callback_data, 0x38);
+#endif
 
 /* Bank reset requires a low-halfword bank index in the 32-entry table (0..31). */
 void _SsClose(s32 bank);
@@ -210,13 +235,13 @@ void SsSeqClose(s32 bank);
 void SsSepClose(s32 bank);
 
 /* Callback entry points use full argument registers; selectors narrow inside. */
-typedef void (*RrLibControllerCallback)(s32 bank, s32 row, s32 value);
-typedef void (*RrLibControllerResetCallback)(s32 bank, s32 row);
-extern RrLibControllerCallback SsCtrlHandlerCC6, D_8010EFE4, D_8010EFE8, D_8010EFEC;
-extern RrLibControllerCallback SsCtrlHandlerCC64, SsCtrlHandlerCC98, D_8010EFF8, D_8010EFFC;
-extern RrLibControllerCallback D_8010F000, D_8010F004;
-extern RrLibControllerCallback _SsMarkCallback[][16];
-extern RrLibControllerResetCallback SsCtrlHandlerCC121;
+typedef void (*LibControllerCallback)(s32 bank, s32 row, s32 value);
+typedef void (*LibControllerResetCallback)(s32 bank, s32 row);
+extern LibControllerCallback SsCtrlHandlerCC6, D_8010EFE4, D_8010EFE8, D_8010EFEC;
+extern LibControllerCallback SsCtrlHandlerCC64, SsCtrlHandlerCC98, D_8010EFF8, D_8010EFFC;
+extern LibControllerCallback D_8010F000, D_8010F004;
+extern LibControllerCallback _SsMarkCallback[][16];
+extern LibControllerResetCallback SsCtrlHandlerCC121;
 extern void _SsContMainVol(s32 bank, s32 row, s32 value);
 void _SsContPanpot(s32 bank, s32 row, s32 value);
 extern void _SsContDamper(s32 bank, s32 row, s32 value);
@@ -234,20 +259,22 @@ extern void _SsSetProgramChange(s32 bank, s32 row, s32 value);
 extern s32 _SsReadDeltaValue(s32 bank, s32 row);
 extern void _SsVmSetVol(s32 channel, s32 device, s32 slot, u32 pitch, u32 value);
 
-RR_ASSERT_SIZE(RrLibBlock24Fields, 0x24);
-RR_ASSERT_OFFSET(RrLibBlock24Fields, h10, 0x10);
-RR_ASSERT_OFFSET(RrLibBlock24Fields, h12, 0x12);
-RR_ASSERT_SIZE(RrLibBlock24, 0x24);
-RR_ASSERT_SIZE(RrLibStateB0, 0xb0);
-RR_ASSERT_OFFSET(RrLibStateB0, c8, 8);
-RR_ASSERT_OFFSET(RrLibStateB0, p10, 0x10);
-RR_ASSERT_OFFSET(RrLibStateB0, b20, 0x20);
-RR_ASSERT_OFFSET(RrLibStateB0, b21, 0x21);
-RR_ASSERT_OFFSET(RrLibStateB0, h48, 0x48);
-RR_ASSERT_OFFSET(RrLibStateB0, w88, 0x88);
-RR_ASSERT_OFFSET(RrLibStateB0, w94, 0x94);
-RR_ASSERT_OFFSET(RrLibStateB0, w98, 0x98);
-RR_ASSERT_OFFSET(RrLibStateB0, wac, 0xac);
+RR_ASSERT_SIZE(LibBlock24Fields, 0x24);
+RR_ASSERT_OFFSET(LibBlock24Fields, h10, 0x10);
+RR_ASSERT_OFFSET(LibBlock24Fields, h12, 0x12);
+RR_ASSERT_SIZE(LibBlock24, 0x24);
+#if defined(mips)
+RR_ASSERT_SIZE(LibStateB0, 0xb0);
+RR_ASSERT_OFFSET(LibStateB0, c8, 8);
+RR_ASSERT_OFFSET(LibStateB0, p10, 0x10);
+RR_ASSERT_OFFSET(LibStateB0, b20, 0x20);
+RR_ASSERT_OFFSET(LibStateB0, b21, 0x21);
+RR_ASSERT_OFFSET(LibStateB0, h48, 0x48);
+RR_ASSERT_OFFSET(LibStateB0, w88, 0x88);
+RR_ASSERT_OFFSET(LibStateB0, w94, 0x94);
+RR_ASSERT_OFFSET(LibStateB0, w98, 0x98);
+RR_ASSERT_OFFSET(LibStateB0, wac, 0xac);
+#endif
 
 s32 SsUtSetReverbType(s32 value);
 

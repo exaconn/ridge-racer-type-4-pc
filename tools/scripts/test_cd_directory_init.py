@@ -35,12 +35,12 @@ static u8 message_storage[256];
 const char NowLoadingFmt[]="start", R4BinPath[]="R4.BIN";
 const char StrFileNotFoundFmt[]="missing", StrReadSectorFmt[]="done";
 u32 *CdDirectoryBuffer;
-RrCdFileEntry CdFileTable[952];
+CdFileEntry CdFileTable[952];
 static u32 directory_a[1024], directory_b[1024], directory_c[1024];
 static int found, scenario, reads, controls, polls, logs, conversions;
 static int statuses[16], status_count, status_index, expected_count;
 static jmp_buf exited;
-static const RrCdLocation location={{0x12,0x34,0x56,0x78}};
+static const CdLocation location={{0x12,0x34,0x56,0x78}};
 static const int base=20000;
 
 s32 CdSearchFile(SearchResult *file, const char *name) {
@@ -48,7 +48,7 @@ s32 CdSearchFile(SearchResult *file, const char *name) {
     if(found){file->location=location;file->size=1234;memset(file->name,0,sizeof(file->name));}
     return found;
 }
-void func_800963C4(s32 code) {assert(code==1 && !found && logs==2);longjmp(exited,1);}
+void PsyqExit(s32 code) {assert(code==1 && !found && logs==2);longjmp(exited,1);}
 void DebugPrintStub(const char *format, ...) {
     va_list ap;va_start(ap,format);
     if(logs==0) {
@@ -80,7 +80,7 @@ s32 CdReadSync(s32 mode,void *result) {
     assert(mode==1 && !result && status_index<status_count);
     polls++;return statuses[status_index++];
 }
-s32 CdPosToInt(const RrCdLocation *value) {
+s32 CdPosToInt(const CdLocation *value) {
     assert(logs==2 && !memcmp(value,&location,4));
     if(scenario==3)CdDirectoryBuffer=directory_b;
     return base;
@@ -118,7 +118,7 @@ static void verify(int count) {
         assert(CdFileTable[i].sectors==3);
     }
     const u8 *bytes=(const u8 *)CdFileTable;
-    for(unsigned i=count*sizeof(RrCdFileEntry);i<sizeof(CdFileTable);i++)assert(bytes[i]==0xA5);
+    for(unsigned i=count*sizeof(CdFileEntry);i<sizeof(CdFileTable);i++)assert(bytes[i]==0xA5);
 }
 int main(int argc,char **argv) {
     assert(argc==2);

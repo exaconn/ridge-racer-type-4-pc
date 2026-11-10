@@ -32,12 +32,12 @@ void UpdateMenuScript(void) {
     if (next_frame == 2) {
         SetDispMask(1);
     }
-    if (D_800F4D44 == 4) {
+    if (GameModeType == 4) {
         UpdateLinkHandshake(1);
     }
     mode=D_800FFC10;
     if (mode == 1) {
-        status = func_80059E40(ModeFrame);
+        status = UpdateRaceOpeningOverlay(ModeFrame);
     } else {
         if (mode == 0) {
             status = IntroScriptStep();
@@ -56,7 +56,7 @@ void UpdateMenuScript(void) {
                 MenuScriptId = (u16) -opcode;
                 MenuScriptStep = -1;
                 if (D_800FFC10 == 0) {
-                    func_8005CA14();
+                    StartDemoFadeOutAndCloseVab();
                 }
             }
         }
@@ -64,8 +64,8 @@ void UpdateMenuScript(void) {
         if((status==1 && D_800FFC10==status) || (D_800FFC10==0 && status==2) || (D_800FFC10>=2 && status==1)) {
             MenuSceneEntries[MenuScriptId]();
             D_800F4D8A = 0;
-            ModeGroup = (u16) ((u16) D_800AD50A >> 8);
-            D_800F3A26 = D_800AD50A & 0xFF;
+            ModeGroup = (u16) ((u16) ActiveSceneId >> 8);
+            D_800F3A26 = ActiveSceneId & 0xFF;
         }
     }
     if (ModeGroup != 1) {

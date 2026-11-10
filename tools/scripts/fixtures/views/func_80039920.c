@@ -30,7 +30,7 @@
 
 #define DrawPreviewCar ((void (*)())DrawPreviewCar)
 
-#define func_8002E5A0 ((void (*)())func_8002E5A0)
+#define UpdateCarWorldTransform ((void (*)())UpdateCarWorldTransform)
 
 #define SetupMenuCarCamera ((void (*)())SetupMenuCarCamera)
 
@@ -56,7 +56,7 @@
 
 #undef DrawPreviewCar
 
-#undef func_8002E5A0
+#undef UpdateCarWorldTransform
 
 #undef SetupMenuCarCamera
 
@@ -74,7 +74,7 @@ extern unsigned char D_800AD4EB;
 
 extern unsigned char SaveProgress[];
 
-void func_80039920(void) {
+void UpdateUnlockedCarMask(void) {
     int i = SelectionState[0x1C] * 2 + (SelectionState[0x1D] >> 1);
     int v = D_8009F810[i];
     if (v < 0) {

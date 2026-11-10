@@ -26,13 +26,13 @@ class SpuPioTransferTest(unittest.TestCase):
 typedef uint8_t u8;typedef uint16_t u16;typedef int16_t s16;
 typedef uint32_t u32;typedef int32_t s32;
 ''' + header + '''
-RrSpuRegisterBank test_ports[3],*_spu_RXX;
+SpuRegisterBank test_ports[3],*_spu_RXX;
 volatile u16 _spu_tsa;
 s32 _spu_transMode,_spu_mem_mode_plus,_spu_inTransfer;
 void (*volatile _spu_transferCallback)(void);
 void test_completion(void) {}
 char test_rom[0x10000];
-#define D_80011698 (test_rom+0x1698)
+#define SpuTimeoutFmt (test_rom+0x1698)
 u16 (*test_status_hook)(void *);
 void (*test_data_hook)(void *,u16),(*test_control_hook)(void *,u16);
 void (*test_delay_hook)(void),(*test_diagnostic_hook)(void *,void *);
@@ -40,11 +40,11 @@ s32 test_delay_calls,test_dma_calls,test_dma_commands[8];
 u32 test_dma_address,test_dma_bytes;void *test_dma_buffer;
 void test_delay_actual(void);
 void _spu_Fw1ts(void) {test_delay_actual();test_delay_calls++;test_delay_hook();}
-u16 test_status_read(RrSpuRegisterBank *p) {return test_status_hook(p);}
-void test_data_write(RrSpuRegisterBank *p,u16 value) {
+u16 test_status_read(SpuRegisterBank *p) {return test_status_hook(p);}
+void test_data_write(SpuRegisterBank *p,u16 value) {
  p->transfer_data=value;test_data_hook(p,value);
 }
-void test_control_write(RrSpuRegisterBank *p,u16 value) {
+void test_control_write(SpuRegisterBank *p,u16 value) {
  p->spu_control=value;test_control_hook(p,value);
 }
 s32 DebugPrintStub(const char *format,...) {

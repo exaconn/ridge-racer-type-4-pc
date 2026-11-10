@@ -2,28 +2,28 @@
 #include "rr/textured_panel.h"
 #include "game/data/trkld8.h"
 #include "rr/driver_control.h"
+#include "game/sound/cdplay.h"
+#include "game/gfx/fadeend.h"
+#include "game/demo/intro.h"
 
 extern int RaceContext[];
 extern short D_800F3A26;
 extern short ModeGroup;
 extern short D_800F4D8A;
 extern void CdAudioInit();
-extern void CdAudioSelectTrack();
-extern void func_8005CA14();
-extern int IntroScriptStep();
 
-void func_8005D310(void);
+void IntroModeUpdate(void);
 
-void func_8005D310(void) {
+void IntroModeUpdate(void) {
     int s1 = IntroScriptStep();
     switch (RaceContext[0x444 / 4]) {
     case 0:
         SetDispMask(1);
         RaceContext[0x444 / 4]++;
     case 1:
-        if (func_8004EA8C() != 0) {
+        if (LoadIntroSceneStep() != 0) {
             RaceContext[0x444 / 4]++;
-            func_8005CA14();
+            StartDemoFadeOutAndCloseVab();
             CdAudioInit();
             CdAudioSelectTrack(0, 0x25);
         }
@@ -41,8 +41,8 @@ void func_8005D310(void) {
 }
 
 void EmitTexturedPanel(s32 index) {
-    RrPolyFT4Packet *p;
-    RrGpuScratchPointers *scratch;
+    PolyFT4Packet *p;
+    GpuScratchPointers *scratch;
     u32 *order;
     /* ASM_BARRIER: retain the DMA address mask through the final link store. */
     register u32 low __asm__("$7")=0xFFFFFFU;
@@ -53,12 +53,12 @@ void EmitTexturedPanel(s32 index) {
     s32 clut,length;
     /* ASM_BARRIER: right edge becomes the right texture coordinate after the division. */
     register s32 right __asm__("$3");
-    scratch=(RrGpuScratchPointers*)SCRATCHPAD;
+    scratch=(GpuScratchPointers*)SCRATCHPAD;
     length=9;
     left=32;
     /* ASM_BARRIER: stage the scratch page and packet constants before capture. */
     __asm__("" : "+r"(scratch), "+r"(length), "+r"(left));
-    p=(RrPolyFT4Packet*)scratch->cursor;
+    p=(PolyFT4Packet*)scratch->cursor;
     right=288;
     ((u8*)p)[3]=length;
     p->code=0x2D;
@@ -78,7 +78,7 @@ void EmitTexturedPanel(s32 index) {
     p->v0=vertical;
     p->v1=vertical;
     vertical+=127;
-    p->tpage=(((s32)(((u32)half<<6)+320)&1023)>>6)|16;
+    p->tpage=(((s32)((half * 64U)+320)&1023)>>6)|16;
     clut=0x1BD6;
     p->v2=vertical;
     p->v3=vertical;
@@ -91,6 +91,6 @@ void EmitTexturedPanel(s32 index) {
     p->clut=clut;
     *(u32*)p=(*(u32*)p&high)|(scratch->order[1]&low);
     order=scratch->order;
-    order[1]=(order[1]&high)|((u32)(unsigned long)p&low);
+    order[1]=(order[1]&high)|((unsigned long)p&low);
     scratch->cursor=(u8*)(p+1);
 }

@@ -1,9 +1,9 @@
 #include "rr/overlay662_line.h"
 
-RrGpuLineF2Packet *ovl662_func_8011AE2C(u32 *ordering, RrGpuLineF2Packet *packet, u32 x, u32 y0, u32 y1, u32 r, u32 g, u32 b)
+GpuLineF2Packet *ovl662_func_8011AE2C(u32 *ordering, GpuLineF2Packet *packet, u32 x, u32 y0, u32 y1, u32 r, u32 g, u32 b)
 {
     /* Compiler register metadata preserves incoming stack-argument order. */
-    register u16 baseY asm("t2");register u32 lastY asm("t0")=y1;register u32 rValue asm("t3")=r;register u32 gValue asm("t4")=g;register u32 bValue asm("t5")=b;u16 baseX;
+    register u16 baseY asm("$10");register u32 lastY asm("$8")=y1;register u32 rValue asm("$11")=r;register u32 gValue asm("$12")=g;register u32 bValue asm("$13")=b;u16 baseX;
     baseX=ovl662_D_801276A8.halfC8;
     baseY=ovl662_D_801276A8.halfCA;
     packet->tag.bytes.length=3;

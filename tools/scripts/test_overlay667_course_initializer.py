@@ -16,7 +16,7 @@ typedef int8_t s8;typedef uint8_t u8;typedef int16_t s16;typedef uint16_t u16;ty
 #include "rr/course_choice_types.h"
 #include "rr/menu_choice_types.h"
 #include "rr/selection_types.h"
-typedef struct {u32 guard[4];s16 h0[4],h1[2],h2[2];RrSelectionRows choices;RrCourseChoice4 records[2][2][9];RrCourseChoice4 courses[2][9];char names[4][12];s8 pairs[2][2];s32 players,base,count;s16 course,menu,scene,small,pairflag;u16 flag,enabled,phase;u32 tail[4];} State;
+typedef struct {u32 guard[4];s16 h0[4],h1[2],h2[2];SelectionRows32 choices;CourseChoice4 records[2][2][9];CourseChoice4 courses[2][9];char names[4][12];s8 pairs[2][2];s32 players,base,count;s16 course,menu,scene,small,pairflag;u16 flag,enabled,phase;u32 tail[4];} State;
 static State a,b,*w,trace[16];static int args[16][4],step,checking;static u32 rng;
 static char str[4][12]={"ABC","D","EFGHI","JK"};static char *ovl667_D_80118E00[4];
 static u32 next(void){rng=rng*1664525u+1013904223u;return rng;}

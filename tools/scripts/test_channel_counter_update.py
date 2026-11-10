@@ -23,18 +23,18 @@ class ChannelCounterUpdateTest(unittest.TestCase):
         body = (root / 'tools/scripts/fixtures/views/func_800832A4.c').read_text().replace('#include "rr/library.h"', '')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
-        body = body.replace('(RrLibStateB0 **)0x80110000U', '(test_table + 0x1000)')
+        body = body.replace('(LibStateB0 **)0x80110000U', '(test_table + 0x1000)')
         source = '''#include <stdint.h>
 typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-_Static_assert(sizeof(RrLibStateB0)==0xB0,"record stride");
-_Static_assert(__builtin_offsetof(RrLibStateB0,h48)+5*sizeof(s16)==0x52,"delay");
-_Static_assert(__builtin_offsetof(RrLibStateB0,h48)+6*sizeof(s16)==0x54,"period");
-_Static_assert(__builtin_offsetof(RrLibStateB0,w90)==0x90,"counter");
-RrLibStateB0 test_records[5][5];
-RrLibStateB0 *test_table[0x1100];
+_Static_assert(sizeof(LibStateB0)==0xB0,"record stride");
+_Static_assert(__builtin_offsetof(LibStateB0,h48)+5*sizeof(s16)==0x52,"delay");
+_Static_assert(__builtin_offsetof(LibStateB0,h48)+6*sizeof(s16)==0x54,"period");
+_Static_assert(__builtin_offsetof(LibStateB0,w90)==0x90,"counter");
+LibStateB0 test_records[5][5];
+LibStateB0 *test_table[0x1100];
 void (*test_update)(s32,s32);
 void _SsGetSeqData(s32 bank,s32 row) { test_update(bank,row); }
 void test_initialize(void) {

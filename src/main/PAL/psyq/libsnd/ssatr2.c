@@ -2,16 +2,10 @@
 /* GCC_VERSION: 2.7.2 */
 /* CC1_FLAGS: -mhard-float */
 #include "types.h"
+#include "rr/channels.h"
 #include "rr/spu.h"
-#include "rr/channel_stream.h"
+#include "psyq/libsnd/ssatr2.h"
 #include "game/data/globals.h"
-
-typedef struct {
-    u8 value00, value01, value02, value03, value04, pad05;
-    u16 value06;
-    u8 value08, pad09[3];
-    u16 value0C, value0E;
-} SpuProgram10;
 
 typedef struct {
     u8 pad00[2];
@@ -20,55 +14,11 @@ typedef struct {
     u8 pad04[0x20 - 4];
 } SpuTone20;
 
-typedef struct {
-    u8 pad00[0x26];
-    s8 unk26;
-    u8 pad27[0x58 - 0x27];
-    u16 value58;
-    u16 value5A;
-    u16 volume5C;
-    u16 volume5E;
-    s16 unk60[40];
-} ChannelRecordB0;
-
-typedef struct {
-    s16 value00;
-    u16 age02;
-    u16 value04;
-    u16 value06;
-    s16 unk08;
-    u8 unk0A;
-    u8 pad0B;
-    s16 unk0C;
-    s16 group0E;
-    s16 match10;
-    s16 unk12;
-    s16 match14;
-    s16 unk16;
-    s16 match18;
-    s16 priority1A;
-    u8 pad1C;
-    u8 flags1D;
-    u8 pad1E[0x36 - 0x1E];
-} ControlRow36;
-
-typedef struct {
-    s16 left, right;
-    u8 pad04[2];
-    u16 program06, tone08, tone0A;
-    u8 pad0C[4];
-} SpuCachedVolume10;
-
-extern ControlRow36 _svm_voice[];
-extern SpuCachedVolume10 _svm_sreg_buf[];
-extern s8 spuVmMaxVoice;
-extern u32 _snd_vmask;
-
 s32 _SsVmSetProgVol(s16 bank, s16 program, s32 value);
 s32 _SsVmGetProgVol(s16 bank, s16 program);
 s32 _SsVmSetProgPan(s16 bank, s16 program, s32 value);
 s32 _SsVmGetProgPan(s16 bank, s16 program);
-s16 _SsVmSetSeqVol(s16 a0, u16 a1, u16 a2);
+s16 _SsVmSetSeqVol(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in);
 
 s32 _SsVmSetProgVol(s16 bank, s16 program, s32 value) {
     if(_SsVmVSetUp(bank, program)!=0)return -1;
@@ -92,13 +42,10 @@ s32 _SsVmGetProgPan(s16 bank, s16 program) {
     return _svm_pg[program].value04;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define _svm_sreg_dirty (*(u8 (*)[])&_svm_sreg_dirty)
-#define _svm_pg ((SpuProgram10 *)_svm_pg)
-#define _svm_tn ((SpuTone20 *)_svm_tn)
-#define _SsVmVSetUp ((s32 (*)(s16 bank, s16 program))_SsVmVSetUp)
-
-s16 _SsVmSetSeqVol(s16 a0, u16 a1, u16 a2) {
+s16 _SsVmSetSeqVol(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in) {
+    s16 a0 = a0_in;
+    u16 a1 = a1_in;
+    u16 a2 = a2_in;
     s16 i;
     s32 v;
     s32 w;
@@ -109,7 +56,7 @@ s16 _SsVmSetSeqVol(s16 a0, u16 a1, u16 a2) {
     u16 left;
     u8 pan;
     SpuTone20 *tone_ptr;
-    ChannelRecordB0 *ptr;
+    ChannelValueRecordB0 *ptr;
 
     ptr = &_ss_score[a0 & 0xFF][(a0 & 0xFF00) >> 8];
     ptr->value58 = a1;
@@ -148,9 +95,11 @@ s16 _SsVmSetSeqVol(s16 a0, u16 a1, u16 a2) {
                 pan = _svm_voice[i].unk0A;
                 if (pan < 0x40) {
                     s32 prod = right * pan;
-                    /* ASM_BARRIER: signed high-multiply by 0x82082083 (/ 0x3F) in $s3 without emitting a second dead sra-31 sign pseudo in combine/reload */
+                    /* ASM_BARRIER: signed high-multiply by 0x82082083 (/ 0x3F) in $s3.
+                     * This is reconstruction debt, not hardware transport: keep it
+                     * visible here until replaced with matching C (docs/BARRIERS.md). */
                     __asm__("nop\n\tnop\n\tmult %0, $19\n\tmfhi $8\n\taddu %0, $8, %0" : "=r"(prod) : "0"(prod));
-                    right = (u32)prod >> 5;
+                    right = prod >> 5;
                 } else {
                     left = (left * (0x7F - pan)) / 0x3F;
                 }
@@ -163,15 +112,10 @@ s16 _SsVmSetSeqVol(s16 a0, u16 a1, u16 a2) {
                 }
                 v = _svm_sreg_buf[i].left = (left * left) / 0x3FFF;
                 sq = (right * right) / 0x3FFF;
-                *(s16 *)((s32)_svm_sreg_buf + i * 16 + 2) = sq;
-                _svm_sreg_dirty[i] |= 3;
+                ((s16 *)((s32)_svm_sreg_buf + i * 16))[1] = sq;
+                _svm_sreg_dirty.flags[i] |= 3;
             }
         }
     }
     return a0;
 }
-
-#undef _svm_sreg_dirty
-#undef _svm_pg
-#undef _svm_tn
-#undef _SsVmVSetUp

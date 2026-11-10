@@ -1,10 +1,13 @@
 #ifndef RR_GAME_CAR_CARSETUP_H
 #define RR_GAME_CAR_CARSETUP_H
 
-#include "types.h"
+#include "rr/race_types.h"
 
-void ComputeWheelOffsets(char *a0);
-void InitPlayerCar();
-void UpdatePlayerCar(char *a0, int a1);
+void ComputeWheelOffsets(RaceVehicle *a0);
+void InitPlayerCar(RaceVehicle *vehicle, s32 recordIndex, s32 gridIndex);
+void UpdatePlayerCar(RaceVehicle *a0, int a1);
+void StepCarPhysics(RaceVehicle *arg0);
+void UpdateCarStartLineSteering(RaceVehicle *arg0);
+
 
 #endif /* RR_GAME_CAR_CARSETUP_H */

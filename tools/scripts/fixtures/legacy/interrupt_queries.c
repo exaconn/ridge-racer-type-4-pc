@@ -2,7 +2,7 @@
 #include "rr/interrupts.h"
 
 s32 _cardChkVsyncIrq(void) {
-    RrInterruptRegisters *registers=I_STAT_Card;
+    InterruptRegisters *registers=I_STAT_Card;
     register s32 result;
     if(registers->mask&1) {
         if(registers->pending&1) result=1;
@@ -16,7 +16,7 @@ s32 _cardChkVsyncIrq(void) {
 }
 
 s32 _cardChkSioIrq(void) {
-    RrInterruptRegisters *registers=I_STAT_Card;
+    InterruptRegisters *registers=I_STAT_Card;
     register s32 result;
     if(registers->mask&0x80) {
         if(registers->pending&0x80) result=1;

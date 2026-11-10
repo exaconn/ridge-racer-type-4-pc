@@ -4,23 +4,19 @@
 #include "rr/timing.h"
 #include "rr/library.h"
 #include "rr/spu_tick_control.h"
-#include "m2c_macros.h"
 #include "rr/interrupts.h"
 #include "rr/overlay668_stream.h"
+#include "rr/interrupt_dispatch.h"
 
-extern volatile unsigned *GPUSTAT;
-extern volatile unsigned *RCNT1_VALUE;
-extern volatile unsigned VSyncRcnt1Last;
-extern volatile unsigned D_800A5264;
-extern s32 func_800963DC(const char *, ...);
+extern volatile unsigned *GPUSTAT, *RCNT1_VALUE, VSyncRcnt1Last, D_800A5264;
+extern s32 PsyqPuts(const char *, ...);
 extern s32 ChangeClearPAD(s32);
 extern s32 ChangeClearRCnt(s32,s32);
 extern u16 D_800A52CA;
-extern u16 *I_MASK;
 
 void v_wait(s32 a0, s32 a1);
-RrLibInterruptCallback InterruptCallback(s32 channel, RrLibInterruptCallback callback);
-RrLibInterruptCallback DMACallback(s32 channel, RrLibInterruptCallback callback);
+LibInterruptCallback InterruptCallback(s32 channel, LibInterruptCallback callback);
+LibInterruptCallback DMACallback(s32 channel, LibInterruptCallback callback);
 void VSyncCallbacks();
 void StopCallback();
 void RestartCallback();
@@ -68,18 +64,17 @@ int VSync(a0) int a0; {
 }
 
 void v_wait(s32 a0, s32 a1) {
-    volatile u32 cnt = (u32)a1 << 15;
+    volatile u32 cnt = a1 * 0x8000U;
     u32 m;
     if ((s32)Vcount < a0) {
-        /* ASM_BARRIER: keeps -1 in a register hoisted before the goto loop (original has li v1,-1 before the loop label) */
-        __asm__("" : "=r"(m) : "0"(-1));
+        m = -1;
 loop:
         cnt=cnt-1;
         if (cnt == m) {
             char *page=(char *)0x80010000U;
             /* ASM_BARRIER: Materialize the message page before its call-delay offset. */
             __asm__("" : "=r"(page) : "0"(page));
-            func_800963DC(page+0x17F8);
+            PsyqPuts(page+0x17F8);
             ChangeClearPAD(0);
             ChangeClearRCnt(3, 0);
             return;
@@ -92,39 +87,24 @@ void ResetCallback(void) {
     IntrDriverTablePtr->reset();
 }
 
-RrLibInterruptCallback InterruptCallback(s32 channel, RrLibInterruptCallback callback) {
+LibInterruptCallback InterruptCallback(s32 channel, LibInterruptCallback callback) {
     return IntrDriverTablePtr->install(channel, callback);
 }
 
-RrLibInterruptCallback DMACallback(s32 channel, RrLibInterruptCallback callback) {
+LibInterruptCallback DMACallback(s32 channel, LibInterruptCallback callback) {
     return IntrDriverTablePtr->exchange(channel,callback);
 }
 
-void VSyncCallback(RrSpuTickCallback callback)
+void VSyncCallback(SpuTickCallback callback)
 {
-    ((RrSpuTickInterruptDriver20 *)IntrDriverTablePtr)->install14(4,callback);
+    ((SpuTickInterruptDriver20 *)IntrDriverTablePtr)->install14(4,callback);
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define IntrDriverTablePtr (*(int (**(*))())&IntrDriverTablePtr)
+void VSyncCallbacks() { ((void (**)(void))IntrDriverTablePtr)[5](); }
 
-void VSyncCallbacks() { IntrDriverTablePtr[5](); }
+void StopCallback() { ((void (**)(void))IntrDriverTablePtr)[4](); }
 
-#undef IntrDriverTablePtr
-
-/* legacy typing of shared globals in this part of the unit */
-#define IntrDriverTablePtr (*(int (**(*))())&IntrDriverTablePtr)
-
-void StopCallback() { IntrDriverTablePtr[4](); }
-
-#undef IntrDriverTablePtr
-
-/* legacy typing of shared globals in this part of the unit */
-#define IntrDriverTablePtr (*(int (**(*))())&IntrDriverTablePtr)
-
-void RestartCallback() { IntrDriverTablePtr[6](); }
-
-#undef IntrDriverTablePtr
+void RestartCallback() { ((void (**)(void))IntrDriverTablePtr)[6](); }
 
 u16 CheckCallback(void) {
     return D_800A52CA;

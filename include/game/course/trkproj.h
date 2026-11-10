@@ -3,6 +3,12 @@
 
 #include "types.h"
 
-void UpdateComCarOvertake(RrRaceVehicle *p);
+void UpdateComCarOvertake(RaceVehicle *p);
+void ComputeCarTrackSurfaceProj(RaceVehicle *vehicle);
+void UpdateCarTrackProjection(RaceVehicle *vehicle);
+s32 FindNearestCarAhead(RaceVehicle *vehicle);
+s32 ScoreOvertakeOpportunity(RaceVehicle *arg0, s32 arg1);
+void UpdateComCarTargetPoint(RaceVehicle *vehicle);
+
 
 #endif /* RR_GAME_COURSE_TRKPROJ_H */

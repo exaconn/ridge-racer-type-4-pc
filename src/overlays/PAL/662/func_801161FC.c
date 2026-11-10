@@ -1,11 +1,13 @@
+#include "game/system/pad.h"
 #include "rr/overlay662_progress_controller.h"
+#include "rr/frame_storage_types.h"
 
 void ovl662_func_801161FC(void)
 {
     s32 ready, changed, state, i, flags;
 
-    ModeFrame = (s32)((u32)ModeFrame + 1U);
-    ScreenFrame = (s32)((u32)ScreenFrame + 1U);
+    ModeFrame = (ModeFrame + 1U);
+    ScreenFrame = (ScreenFrame + 1U);
     switch ((u16)D_800F4D8A) {
     case 0:
         ready = LoadGlyphRowsStep();
@@ -22,7 +24,7 @@ void ovl662_func_801161FC(void)
             if (changed) {
                 ovl662_func_80116690();
             }
-            if (PlayerControllers[0].a) {
+            if (PlayerControllers[0].action28) {
                 if ((s16)ovl662_D_801272D8[SelectionRows.bytes[0]] > 0) {
                     PlaySfx(1);
                     ModeFrame = 0;
@@ -32,7 +34,7 @@ void ovl662_func_801161FC(void)
                 } else {
                     PlaySfx(4);
                 }
-            } else if (PlayerControllers[0].b) {
+            } else if (PlayerControllers[0].action2C) {
                 PlaySfx(2);
                 D_800F4D8A = 8;
                 D_800AC5D0 = 64;
@@ -56,7 +58,7 @@ void ovl662_func_801161FC(void)
             if (changed) {
                 ovl662_func_80116808();
             }
-            if (PlayerControllers[0].a) {
+            if (PlayerControllers[0].action28) {
                 if ((s16)ovl662_D_80127328[SelectionRows.bytes[0]][SelectionRows.bytes[1]] > 0) {
                     PlaySfx(1);
                     ModeFrame = 0;
@@ -66,7 +68,7 @@ void ovl662_func_801161FC(void)
                 } else {
                     PlaySfx(4);
                 }
-            } else if (PlayerControllers[0].b) {
+            } else if (PlayerControllers[0].action2C) {
                 PlaySfx(2);
                 ovl662_D_801272D4 = 1;
                 D_800F4D8A = 4;
@@ -84,7 +86,7 @@ void ovl662_func_801161FC(void)
                 return;
             }
             for (; i < 4; i++) {
-                GlyphRows[i].phase18 = (s32)((u32)GlyphRows[i].phase18 - 0x30000U);
+                GlyphRows[i].phase18 = (GlyphRows[i].phase18 - 0x30000U);
             }
             ovl662_func_80116020();
             D_800F4D8A = 1;
@@ -95,7 +97,7 @@ void ovl662_func_801161FC(void)
     case 8:
         D_800AC5D0--;
         SetMenuFrameOptions(0, 1, 1);
-        AddScreenFadeTiles(((RrFrameOrderingPrefix *)CurrentDrawBuf)->ordering70,
+        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,
                      (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             ovl662_func_8011512C();

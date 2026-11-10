@@ -35,6 +35,6 @@ s32 ovl667_func_80114E34(void) {
     _sio_control(2,0,0);
     FileRead(LinkReadHandle, &ovl667_D_80118F10.packet, 12);
     ovl667_D_80118EE8 = 1;
-    ovl667_D_80118EF8 = (s32)((u32)ovl667_D_80118EF8 + 1U);
+    ovl667_D_80118EF8 = (ovl667_D_80118EF8 + 1U);
     return 0;
 }

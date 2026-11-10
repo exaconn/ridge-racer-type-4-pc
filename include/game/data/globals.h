@@ -3,15 +3,16 @@
 
 /* Scalar globals shared by several units: one declaration each. */
 #include "types.h"
+#include "game/data/savetype.h"
 
 extern int BackColorR;
 extern s32 D_800AC5D8;
-extern int SaveBuffer;
+extern SaveBuf *SaveBuffer;
 extern signed char D_800AD4EF;
 extern int D_800AD5B8;
 extern unsigned short PendingModeId;
 extern short D_800F4CD0;
-extern s32 D_800F4CE0;
+extern s32 RearViewMirrorY;
 extern int FarColorB;
 extern int FarColorG;
 extern int FarColorR;
@@ -28,5 +29,9 @@ extern u16 _svm_okof2;
 extern s16 _svm_stereo_mono;
 extern s8 _svm_auto_kof_mode;
 extern int StStartFrame;
+extern s32 CD_debug;
+extern s32 CD_nopen;
+extern short D_800AC0A4;
+extern s32 NumPlayers;
 
 #endif

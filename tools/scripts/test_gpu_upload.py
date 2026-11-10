@@ -4,13 +4,15 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
 
 ROOT=Path(__file__).resolve().parents[2]
 
 
 class GpuUploadTest(unittest.TestCase):
     def test_actual_body_and_mmio_trace(self):
-        source=(ROOT/'tools/scripts/fixtures/views/func_800945F4.c').read_text()
+        owner=source_owners(ROOT/'src/main/PAL')['_dws']
+        source=definition_source(owner.read_text(),'_dws')
         source=re.sub(r'^#include.*\n','',source,flags=re.M)
         source=re.sub(r' asm\("\$\d+"\)','',source)
         source=re.sub(r'__asm__\s*(?:volatile\s*)?\(""[^;]*;',';',source)
@@ -39,16 +41,16 @@ struct GpuWord {
  void operator=(u32 v) volatile {write_register(bank,kind,v);}
 };
 struct World {
- u32 before[4];RrGpuRectangle rect;s16 width,height;
+ u32 before[4];GpuRectangle rect;s16 width,height;
  GpuWord banks[2][5];unsigned selected[5];u32 pixels[2048];
  unsigned ready_after,reads,timeout_after,calls,mutation; s32 failure;u32 after[4];
 };
 struct Entry {unsigned kind,bank,reg;u32 value;World snapshot;};
 static World initial,world,actual;static Entry entries[64],saved[64];
 static unsigned count,seed=0x2A4EF139;
-static_assert(sizeof(RrGpuRectangle)==8,"rectangle");
-static_assert(offsetof(RrGpuRectangleFields,w)==4,"width");
-static_assert(offsetof(RrGpuRectangleFields,h)==6,"height");
+static_assert(sizeof(GpuRectangle)==8,"rectangle");
+static_assert(offsetof(GpuRectangleFields,w)==4,"width");
+static_assert(offsetof(GpuRectangleFields,h)==6,"height");
 static_assert(sizeof(unsigned long)>=sizeof(void*),"full native pointers");
 #define D_800ABAC4 (world.width)
 #define D_800ABAC6 (world.height)
@@ -118,7 +120,7 @@ static int reference(void){
  }
  return 0;
 }
-s32 _dws(RrGpuRectangle *,const u32 *);
+s32 _dws(GpuRectangle *,const u32 *);
 static u32 random32(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 int main(void){
  static const s16 widths[]={-32768,-1,0,1,2,31,32,33,1024,32767};

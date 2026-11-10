@@ -3,7 +3,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/spu_common.h"
 
-#define SPU(index) (((RrSpuRegisterStorage*)_spu_RXX)->halves[index])
+#define SPU(index) (((SpuRegisterStorage*)_spu_RXX)->halves[index])
 
 void SsSetSerialAttr(signed char a0, signed char a1, signed char a2);
 
@@ -20,8 +20,8 @@ void SsSetSerialAttr(signed char a0, signed char a1, signed char a2) {
     SpuSetCommonAttr(&s);
 }
 
-void SpuSetCommonAttr(RrSpuCommonAttributes28 *attributes) {
-    RrSpuRegisterStorage *bank;
+void SpuSetCommonAttr(SpuCommonAttributes28 *attributes) {
+    SpuRegisterStorage *bank;
     s16 temp_a2;
     s16 temp_a3;
     s16 temp_v1;
@@ -41,8 +41,7 @@ void SpuSetCommonAttr(RrSpuCommonAttributes28 *attributes) {
     u16 rightVolume;
     register u16 rightSweep __asm__("$8");
 
-    leftVolume = 0; asm("" : "+r"(leftVolume));
-    mask = attributes->mask;
+    leftVolume = 0;    mask = attributes->mask;
     all = mask == 0;
     rightVolume = 0;
     if (all == 0) {
@@ -167,33 +166,33 @@ block_32:
     }
     if ((all != 0) || (mask & 0x100)) {
         if (attributes->cd.reverb == 0) {
-            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_3 = bank->halves[213] & 0xFFFB;
+            bank=(SpuRegisterStorage*)_spu_RXX; var_v0_3 = bank->halves[213] & 0xFFFB;
         } else {
-            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_3 = bank->halves[213] | 4;
+            bank=(SpuRegisterStorage*)_spu_RXX; var_v0_3 = bank->halves[213] | 4;
         }
         bank->halves[213] = var_v0_3;
     }
     if ((all != 0) || (mask & 0x200)) {
         if (attributes->cd.mix == 0) {
-            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_4 = bank->halves[213] & 0xFFFE;
+            bank=(SpuRegisterStorage*)_spu_RXX; var_v0_4 = bank->halves[213] & 0xFFFE;
         } else {
-            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_4 = bank->halves[213] | 1;
+            bank=(SpuRegisterStorage*)_spu_RXX; var_v0_4 = bank->halves[213] | 1;
         }
         bank->halves[213] = var_v0_4;
     }
     if ((all != 0) || (mask & 0x1000)) {
         if (attributes->external.reverb == 0) {
-            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_5 = bank->halves[213] & 0xFFF7;
+            bank=(SpuRegisterStorage*)_spu_RXX; var_v0_5 = bank->halves[213] & 0xFFF7;
         } else {
-            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_5 = bank->halves[213] | 8;
+            bank=(SpuRegisterStorage*)_spu_RXX; var_v0_5 = bank->halves[213] | 8;
         }
         bank->halves[213] = var_v0_5;
     }
     if ((all != 0) || (mask & 0x2000)) {
         if (attributes->external.mix == 0) {
-            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_6 = bank->halves[213] & 0xFFFD;
+            bank=(SpuRegisterStorage*)_spu_RXX; var_v0_6 = bank->halves[213] & 0xFFFD;
         } else {
-            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_6 = bank->halves[213] | 2;
+            bank=(SpuRegisterStorage*)_spu_RXX; var_v0_6 = bank->halves[213] | 2;
         }
         bank->halves[213] = var_v0_6;
     }

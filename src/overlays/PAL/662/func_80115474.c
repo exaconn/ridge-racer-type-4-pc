@@ -1,4 +1,5 @@
 #include "rr/overlay662_transition.h"
+#include "rr/load_cursor.h"
 
 void ovl662_func_80115474(void)
 {

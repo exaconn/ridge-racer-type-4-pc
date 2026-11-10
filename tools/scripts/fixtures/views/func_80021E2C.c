@@ -14,18 +14,18 @@ void DrawRaceMinimap(s32 arg0) {
     u32 *var_s3;
     s32 var_s4;
     register s32 var_v0 __asm__("$2");
-    RrBankRecord320 *temp_a0;
+    BankRecord320 *temp_a0;
 
     var_s4 = 0;
     if (arg0 == 0) {
-        var_s3 = ((RrFrameStorage *)(void *)CurrentDrawBuf)->ordering.ordering70;
+        var_s3 = ((FrameStorage *)(void *)CurrentDrawBuf)->ordering.ordering70;
         if (D_800AD508 >= 0) {
             var_s2 = (s16)((u16)D_800AD508 ^ 1);
         } else {
             var_s2 = 0;
         }
     } else {
-        var_s3 = ((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70;
+        var_s3 = ((FrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70;
         if (arg0 == 1) {
             var_s4 = -0x80;
         }
@@ -38,7 +38,7 @@ void DrawRaceMinimap(s32 arg0) {
     var_a1 = RR_HUD_SCRATCH->cursor;
     var_s0 = 0;
     if (NumCars > 0) {
-        s32 yBase;RrUiUvRect *const glyph=&D_8009EE58;
+        s32 yBase;UiUvRect *const glyph=&D_8009EE58;
         do {
             temp_hi = (s32) (var_s2 + var_s0) % (s16) NumCars;
             temp_a0 = CarTable[temp_hi];

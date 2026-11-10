@@ -5,7 +5,7 @@
 #include "rr/textured_triangle.h"
 /* Four fullword coordinate/UV arrays;two three-vertex windows share this
  * complete owner. GPU material uses the low16/8 bits of each entry. */
-typedef struct {s32 x[4],y[4],u[4],v[4];} RrGarageFadeGeometry;
+typedef struct {s32 x[4],y[4],u[4],v[4];} GarageFadeGeometry;
 extern s32 ScreenFrame;
 extern s16 ovl662_D_80127398;
 /* Mode1 moves top/bottom vertices by sine(clampedPhase*8)/64 and emits only
@@ -17,8 +17,8 @@ extern s16 ovl662_D_80127398;
  * by8 in mode1,otherwise4,or saturates128 if the reloaded signed phase>=128.
  * Scratch/context/packet alignment and capacity follow the shared emitters. */
 void ovl662_func_80119898(s32 mode);
-RR_ASSERT_SIZE(RrGarageFadeGeometry,64);
-RR_ASSERT_OFFSET(RrGarageFadeGeometry,y,16);
-RR_ASSERT_OFFSET(RrGarageFadeGeometry,u,32);
-RR_ASSERT_OFFSET(RrGarageFadeGeometry,v,48);
+RR_ASSERT_SIZE(GarageFadeGeometry,64);
+RR_ASSERT_OFFSET(GarageFadeGeometry,y,16);
+RR_ASSERT_OFFSET(GarageFadeGeometry,u,32);
+RR_ASSERT_OFFSET(GarageFadeGeometry,v,48);
 #endif

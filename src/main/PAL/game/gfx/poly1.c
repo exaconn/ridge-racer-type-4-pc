@@ -1,6 +1,15 @@
+#include "game/gfx/poly1.h"
+#include "game/math/rotmat.h"
+#include "rr/timing.h"
+#include "game/camera/viewini.h"
+#include "rr_asm.h"
+#include "rr/projection_state.h"
+#include "psyq/libgte/gtemat5.h"
+#include "rr/camera_matrices.h"
+#include "psyq/libgte/gtemat4.h"
+#include "psyq/libgte/gtemat.h"
 #include "types.h"
 #include "scratchpad.h"
-#include "m2c_macros.h"
 #include "game/camera/viewcam.h"
 #include "game/gfx/model.h"
 #include "psyq/libgpu/addprim3.h"
@@ -10,7 +19,6 @@
 #include "psyq/libgte/gtecolo3.h"
 #include "psyq/libgte/gtemat3.h"
 #include "psyq/libgte/gtemat7.h"
-#include "game/gfx/poly1.h"
 #include "rr/race_setup.h"
 #include "rr/matrix_workspace.h"
 #include "rr/audio_loop.h"
@@ -22,94 +30,43 @@
 #include "game/demo/splash.h"
 #include "rr/animated_glyph.h"
 #include "game/data/globals.h"
+#include "game/car/carbound.h"
+#include "game/race/objdraw.h"
+#include "rr/driver_control.h"
+#include "game/menu/mnchoice.h"
 
-typedef struct { int a[8]; } S32B;
 
-typedef struct { unsigned short x, y, z; } V3;
 
 struct P { int w; int x; short a, b, c, d; };
 
-typedef struct {
-    int f0, f4, f8, fC, f10, f14, f18, f1C, f20, f24, f28, f2C, f30, f34, f38, f3C, f40, f44;
-    int t48[16];
-    int t88[16];
-    int fC8, fCC, fD0, fD4, fD8, fDC, fE0, fE4, fE8, fEC, fF0, fF4;
-} Q;
-
-typedef struct { int a[8]; } M;
-
-typedef struct { unsigned char c[4]; } U4;
-
-typedef struct { int x, y; } __attribute__((packed)) U8;
-
-typedef struct { short h0, h2, h4, h6, h8, hA, hC, hE; unsigned char c10[8]; unsigned char c18[8]; int f20; } P;
-
-typedef struct { U4 u; int n; } K;
-
-typedef struct {
-    P *p0; int f4, f8, fC, f10, f14, f18, f1C, p20, p24, f28, f2C, f30, f34, f38, p3C;
-    K *k40; K *k44;
-    U4 c48[16]; U4 c88[16];
-    int fC8, fCC, fD0, pD4[5]; int e8[2]; int f0[2];
-} O;
 
 struct S { unsigned char c[8]; };
 
 extern int *D_800AC598;
-extern s32 D_8010E730;
-extern int BuildRotMatrixY();
-extern int BuildRotMatrixX();
-extern int MulMatrix0();
-extern short D_800AC0A4;
-extern S32B D_800AD598;
-extern V3 CameraViewMatrix;
+extern s32 RearViewMirrorVisible;
 extern int RaceState;
-extern V3 D_800FF6B8;
-extern S32B D_8010E710;
-extern int DrawCars();
-extern int DrawTrackSceneryForPlayer();
-extern int SetupViewport();
-extern int DrawTrackObjects();
-extern int D_8010E738;
-extern int D_8010E740[];
-extern int D_8010E768[];
-extern int D_8010E78C;
-extern int VSync();
-extern int func_80096474();
+extern int PsyqSrand();
 extern short D_80107180[];
-extern int BuildRotMatrixZ();
-extern int MulMatrix();
-extern M D_800F39A8;
-extern int ApplyMatrixSV();
-extern int func_8006DB0C();
-extern int SquareRoot0();
-extern int Atan2Table();
+extern s32 SquareRoot0(s32 value);
 extern short D_80107182;
 extern short D_80107184;
-extern struct { short m[3][3]; int t[3]; } ColorMatrix;
-extern struct { short a, b, c, d; } D_800F38F8[];
-extern short *D_8010E790;
-extern unsigned char *D_8010E798;
-extern int SetDispMask();
-extern int VSyncThreshold;
+extern short *SegmentVisibilityTable;
+extern unsigned char *OctantLookupTable;
 extern struct S D_80011324;
 extern struct S D_8001132C;
 extern struct S D_80011334;
 extern struct S D_8001133C;
 extern struct S D_80011344;
 
-void func_80070400(int *a0);
+void RelocateCountedOffsetTable(int *a0);
 int SetupRearViewMirror(void);
-void func_8007064C(void);
-struct P *func_800706B8(struct P *a0);
-void func_80070734(int arg0);
-void func_80070934(int a0, int a1, int *a2, int a3);
-void func_80070ACC(char *p);
-void func_80070BA4(char *a0, int a1, int a2);
-s32 func_80071338(void);
-s32 func_800713D0(void);
+void RestoreMainViewAfterMirror(void);
+struct P *EmitRearViewMirrorFrameTile(struct P *a0);
+void UpdateAndDrawRearViewMirror(int arg0);
+s32 GetSegmentVisibilityTableSize(void);
+s32 GetOctantLookupTableSize(void);
 
-void func_80070400(int *a0) {
+void RelocateCountedOffsetTable(int *a0) {
     int *p = a0 + 1;
     int i = 0;
     int n = *a0 * 8;
@@ -123,57 +80,60 @@ void func_80070400(int *a0) {
     }
 }
 
-void func_80070440(void) {
-    D_800AD50C = 1;
-    D_800F4CE0 = -0x24;
-    D_8010E730 = 0;
+void InitRearViewMirrorState(void) {
+    RearViewMirrorEnabled = 1;
+    RearViewMirrorY = -0x24;
+    RearViewMirrorVisible = 0;
 }
 
 int SetupRearViewMirror(void) {
-    char sp[32];
+    MatrixWords32 rotation;
     int r = 0;
-    int *s = (int *)SCRATCHPAD;
-    if (D_8010E730 != 0) {
-        if (D_800AD50C != 0) {
+    ViewMatrixScratch48 *scratch = (ViewMatrixScratch48 *)SCRATCHPAD;
+    if (RearViewMirrorVisible != 0) {
+        if (RearViewMirrorEnabled != 0) {
             if (D_800AC538 == 0) {
-                if (D_800F4D44 != 0) {
+                if (GameModeType != 0) {
                     r = RaceState == 2;
                 }
             }
         }
     }
     if (r != 0) {
-        D_8010E710 = *(S32B *)(s + 10);
-        *(S32B *)(s + 10) = D_800AD598;
-        s[7] += 0x800;
-        BuildRotMatrixY(sp, 0x800);
-        MulMatrix0(sp, &CameraViewMatrix, &CameraViewMatrix);
-        MulMatrix0(sp, &D_800FF6B8, &D_800FF6B8);
-        BuildRotMatrixX(sp, D_800AC0A4 * 2);
-        MulMatrix2(sp, &CameraViewMatrix);
-        MulMatrix2(sp, &D_800FF6B8);
-        CameraViewMatrix.x = -CameraViewMatrix.x;
-        CameraViewMatrix.y = -CameraViewMatrix.y;
-        CameraViewMatrix.z = -CameraViewMatrix.z;
-        D_800FF6B8.x = -D_800FF6B8.x;
-        D_800FF6B8.y = -D_800FF6B8.y;
-        D_800FF6B8.z = -D_800FF6B8.z;
+        D_8010E710 = scratch->matrix28;
+        scratch->matrix28 = D_800AD598;
+        scratch->projection.pose08.angles10.xyz.y = (scratch->projection.pose08.angles10.xyz.y + 0x800U);
+        BuildRotMatrixY(&rotation, 0x800);
+        MulMatrix0(
+            &rotation,
+            &CameraViewMatrix,
+            &CameraViewMatrix);
+        MulMatrix0(
+            &rotation,
+            &D_800FF6B8,
+            &D_800FF6B8);
+        BuildRotMatrixX(&rotation, D_800AC0A4 * 2);
+        MulMatrix2(&rotation, &CameraViewMatrix);
+        MulMatrix2(&rotation, &D_800FF6B8);
+        CameraViewMatrix.halves[0] = -CameraViewMatrix.halves[0];
+        CameraViewMatrix.halves[1] = -CameraViewMatrix.halves[1];
+        CameraViewMatrix.halves[2] = -CameraViewMatrix.halves[2];
+        D_800FF6B8.halves[0] = -D_800FF6B8.halves[0];
+        D_800FF6B8.halves[1] = -D_800FF6B8.halves[1];
+        D_800FF6B8.halves[2] = -D_800FF6B8.halves[2];
     }
     return r;
 }
 
-void func_8007064C(void) {
-    int *sp = (int *)SCRATCHPAD;
-    sp[7] -= 0x800;
-    *(S32B *)SCRATCH_ROT_MATRIX = D_8010E710;
+void RestoreMainViewAfterMirror(void) {
+    ViewMatrixScratch48 *scratch = (ViewMatrixScratch48 *)SCRATCHPAD;
+    scratch->projection.pose08.angles10.xyz.y = (scratch->projection.pose08.angles10.xyz.y - 0x800U);
+    scratch->matrix28 = D_8010E710;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F4CE0 (*(unsigned short (*))&D_800F4CE0)
-
-struct P *func_800706B8(struct P *a0) {
+struct P *EmitRearViewMirrorFrameTile(struct P *a0) {
     
-    int s1 = *(int *)(SCRATCHPAD + 0x4);
+    int s1 = ((int *)SCRATCHPAD)[1];
     SetTile(a0);
     a0->a = 0x60;
     a0->c = 0x80;
@@ -181,316 +141,299 @@ struct P *func_800706B8(struct P *a0) {
     ((char *)a0)[5] = 0;
     ((char *)a0)[6] = 0;
     a0->d = 0x20;
-    a0->b = D_800F4CE0 - 2;
+    a0->b = RearViewMirrorY - 2;
     AddPrim(s1, a0++);
     return a0;
 }
 
-#undef D_800F4CE0
 
-void func_80070734(int arg0) {
+void UpdateAndDrawRearViewMirror(int arg0) {
     if (arg0 >= 0x169) {
-        D_8010E730 = 1;
+        RearViewMirrorVisible = 1;
     }
-    if (D_8010E730 != 0) {
-        if (D_800AD50C != 0) {
-            if (D_800F4CE0 < 0x12) {
-                D_800F4CE0 += 1;
+    if (RearViewMirrorVisible != 0) {
+        if (RearViewMirrorEnabled != 0) {
+            if (RearViewMirrorY < 0x12) {
+                RearViewMirrorY += 1;
             }
-        } else if (D_800F4CE0 >= -0x23) {
-            D_800F4CE0 -= 1;
+        } else if (RearViewMirrorY >= -0x23) {
+            RearViewMirrorY -= 1;
         }
         if (SetupRearViewMirror() != 0) {
-            *(int *)SCRATCHPAD = func_800706B8(*(int *)SCRATCHPAD);
+            *(int *)SCRATCHPAD = EmitRearViewMirrorFrameTile(*(int *)SCRATCHPAD);
             SetupViewport(1);
             DrawTrackSceneryForPlayer(0);
-            func_8006EDA4(0);
+            RenderMirrorCourseView(0);
             DrawTrackObjects(2);
             DrawCars(1);
-            func_8007064C();
+            RestoreMainViewAfterMirror();
         }
     }
 }
 
-void func_8007080C(a0)
-    int a0;
+void InitAnimatedTrackObjects(void *memory)
 {
-    int s0, s1, s2, s4;
-    register int s3 asm("$19");
-    int *p, *q, *r;
-    int b;
-    int t3;
-    char *m;
-    D_8010E738 = a0;
-    a0 = a0 + 0xB34C;
-    s0 = a0 + 0x4D8;
-    s3 = 0;
-    D_8010E78C = a0;
+    AnimatedLinePacket *packet;
+    int packetIndex,objectIndex;
+    int buffer;
+    const u32 *offsets;
+    const AnimatedTrackColorKey **firstKeys,**secondKeys;
+    const u8 *colorBase;
+    AnimatedTrackObject *state;
+    D_8010E738 = (AnimatedTrackParticle (*)[255])memory;
+    memory = (u8 *)memory + RR_FIELD_OFFSET(AnimatedTrackArena,objects);
+    packet = (AnimatedLinePacket *)((u8 *)memory + sizeof(((AnimatedTrackArena *)0)->objects));
+    buffer = 0;
+    D_8010E78C = (AnimatedTrackObject *)memory;
     do {
-        s4 = 0;
-        s2 = 0;
+        objectIndex = 0;
         do {
-            t3 = s3 * 4;
-            m = (char *)D_8010E78C + s2;
-            m = m + t3;
-            *(int *)(m + 0xE8) = s0;
-            *(int *)(m + 0xF0) = 0;
-            SetLineG2(s0);
-            s0 += 0x14;
-            s1 = 1;
+            state = D_8010E78C + objectIndex;
+            state->headsE8[buffer] = packet;
+            state->tailsF0[buffer] = 0;
+            SetLineG2(packet);
+            packet++;
+            packetIndex = 1;
             do {
-                SetLineG2(s0);
-                CatPrim(s0 - 0x14, s0);
-                s1++;
-                s0 += 0x14;
-            } while (s1 < 0xFF);
-            s4++;
-            s2 += 0xF8;
-        } while (s4 < 5);
-        s3++;
-    } while (s3 < 2);
-    p = (int *)s0;
-    b = s0;
-    s3 = 0;
-    q = D_8010E768;
-    r = D_8010E740;
+                SetLineG2(packet);
+                CatPrim(&(packet - 1)->tag.word, packet);
+                packetIndex++;
+                packet++;
+            } while (packetIndex < 255);
+            objectIndex++;
+        } while (objectIndex < 5);
+        buffer++;
+    } while (buffer < 2);
+    offsets = (const u32 *)packet;
+    colorBase = (const u8 *)packet;
+    buffer = 0;
+    secondKeys = D_8010E768;
+    firstKeys = D_8010E740;
     do {
-        *r = b + *p;
-        p++;
-        s3++;
-        *q = b + *p;
-        p++;
-        r++;
-        q++;
-    } while (s3 < 9);
+        *firstKeys = (const AnimatedTrackColorKey *)(colorBase + (s32)*offsets);
+        offsets++;
+        buffer++;
+        *secondKeys = (const AnimatedTrackColorKey *)(colorBase + (s32)*offsets);
+        offsets++;
+        firstKeys++;
+        secondKeys++;
+    } while (buffer < 9);
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_8010E78C ((char *)D_8010E78C)
-
-void func_80070934(int a0, int a1, int *a2, int a3) {
-    Q *t = (Q *)(D_8010E78C + a0 * 0xF8);
-    int f;
-    int i;
-    int *p;
-    if (a1 & 1) {
-        if (a2 != 0) {
-            t->fC8 = a2[0];
-            t->fCC = a2[1];
-            t->fD0 = a2[2];
+void SetAnimatedTrackObjectState(int index, int flags, const s32 *position, int style) {
+    AnimatedTrackObject *object = D_8010E78C + index;
+    int reset;
+    int colorIndex;
+    if (flags & 1) {
+        if (position != 0) {
+            object->positionC8.x = position[0];
+            object->positionC8.y = position[1];
+            object->positionC8.z = position[2];
         }
     }
-    if (a1 & 2) {
-        if (a3 >= 0) t->f3C = a3;
+    if (flags & 2) {
+        if (style >= 0) object->style3C = style;
     }
-    f = a1 & 4;
-    a1 = 0;
-    if (f) {
-        t->f8 = 0xFF;
-        t->fC = 5;
-        t->f20 = 0x1000;
-        t->f24 = 0x1000;
-        t->f28 = 0x20;
-        t->f2C = 0xB5;
-        t->f30 = 1;
-        t->f4 = 0;
-        t->f10 = 0;
-        t->f14 = 0;
-        t->f18 = 0;
-        t->f1C = 0;
-        t->f34 = 0;
-        t->f38 = 0;
-        t->f0 = D_8010E738 + a0 * 0x23DC;
-        t->f40 = D_8010E740[t->f3C];
-        t->f44 = D_8010E768[t->f3C];
-        do {
-            t->t48[a1] = 0x52000000;
-            t->t88[a1] = 0x52000000;
-            a1++;
-        } while (a1 < 0x10);
-        t->fD8 = 0;
-        t->fDC = 0;
-        t->fE0 = 0;
-        t->fF0 = 0;
-        t->fF4 = 0;
+    reset = flags & 4;
+    if (reset) {
+        object->capacity08 = 0xFF;
+        object->field0C = 5;
+        object->scale20 = 0x1000;
+        object->scale24 = 0x1000;
+        object->startFrame28 = 0x20;
+        object->endFrame2C = 0xB5;
+        object->advance30 = 1;
+        object->activeCount04 = 0;
+        object->initialized10 = 0;
+        object->frame14 = 0;
+        object->colorTick18 = 0;
+        object->colorTick1C = 0;
+        object->keyIndex34 = 0;
+        object->keyIndex38 = 0;
+        object->particles00 = D_8010E738[index];
+        object->keys40 = D_8010E740[object->style3C];
+        object->keys44 = D_8010E768[object->style3C];
+        for (colorIndex = 0; colorIndex < 16; colorIndex++) {
+            object->palette48.words[colorIndex] = 0x52000000;
+            object->palette88.words[colorIndex] = 0x52000000;
+        }
+        object->anglesD8.x = 0;
+        object->anglesD8.y = 0;
+        object->anglesD8.z = 0;
+        object->tailsF0[0] = 0;
+        object->tailsF0[1] = 0;
         D_80107180[0] = 0x420;
         D_80107180[1] = 0x5D0;
         D_80107180[2] = 0x610;
-        func_80096474(VSync(1, a1));
+        PsyqSrand(VSync(1));
     }
 }
 
-#undef D_8010E78C
 
-void func_80070ACC(char *p) {
-    M m10, m30;
-    int v[3];
-    BuildRotMatrixY(&m10, *(int *)(p + 0xDC));
-    BuildRotMatrixX(&m30, *(int *)(p + 0xD8));
-    MulMatrix2(&m30, &m10);
-    BuildRotMatrixZ(&m30, *(int *)(p + 0xE0));
-    MulMatrix2(&m30, &m10);
-    ApplyMatrixLV(&D_800F39A8, p + 0xC8, v);
-    m10.a[5] = (D_800F39A8.a[5] + v[0]) >> 1;
-    m10.a[6] = (D_800F39A8.a[6] + v[1]) >> 1;
-    m10.a[7] = (D_800F39A8.a[7] + v[2]) >> 1;
-    SetTransMatrix(&m10);
-    MulMatrix(&m10, &D_800F39A8);
-    SetRotMatrix(&m10);
+void SetupAnimatedObjectMatrices(AnimatedTrackObject *object) {
+    MatrixWords32 rotation, axisRotation;
+    Vec3i transformedPosition;
+    BuildRotMatrixY(&rotation, object->anglesD8.y);
+    BuildRotMatrixX(&axisRotation, object->anglesD8.x);
+    MulMatrix2(&axisRotation, &rotation);
+    BuildRotMatrixZ(&axisRotation, object->anglesD8.z);
+    MulMatrix2(&axisRotation, &rotation);
+    ApplyMatrixLV(&HalfTransViewMatrix, &object->positionC8, &transformedPosition);
+    rotation.w[5] = (s32)((u32)HalfTransViewMatrix.w[5] + transformedPosition.x) >> 1;
+    rotation.w[6] = (s32)((u32)HalfTransViewMatrix.w[6] + transformedPosition.y) >> 1;
+    rotation.w[7] = (s32)((u32)HalfTransViewMatrix.w[7] + transformedPosition.z) >> 1;
+    SetTransMatrix(rotation.w);
+    MulMatrix(&rotation, &HalfTransViewMatrix);
+    SetRotMatrix(rotation.w);
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_8010E78C ((O *)D_8010E78C)
+void DrawAnimatedTrackObject(AnimatedTrackScratch *scratch, int objectIndex, int advance) {
+    int toCamera[3];
+    MatrixWords32 rotation;
+    MatrixWords32 axisRotation;
+    Vec3s8 direction;
+    int farRed, farGreen, farBlue;
+    AnimatedTrackObject *object;
+    AnimatedTrackParticle *particle;
+    const AnimatedTrackColorKey *key;
+    int colorIndex;
+    AnimatedLinePacket *cursor;
+    u32 *ordering;
+    const s32 *cameraPosition = ((ProjectionScratchPrefix *)SCRATCHPAD)->pose08.position00.words;
+    AnimatedLinePacket *previousTail;
+    int startFrame;
+    int visibleFrames;
+    AnimatedLinePacket *last;
+    int fraction;
+    int initializedThisCall;
 
-void func_80070BA4(char *a0, int a1, int a2) {
-    int sp10[3];
-    int sp20[8];
-    int sp40[8];
-    short sp60[4];
-    int sp68, sp6c, sp70;
-    O *s1; /*D*/
-    P *s0; /*D*/
-    K *k; /*D*/
-    int s2; /*D*/
-    int s3; /*D*/
-    int s7; /*D*/
-    int *g = (int *)(SCRATCHPAD + 0x8); /*D*/
-    int a; /*D*/
-    int b; /*D*/
-    int c; /*D*/
-    int d; /*D*/
-    unsigned char *q; /*D*/
-
-    PsyqMemset(sp60, 0, 8);
-    sp60[2] = 0x100;
-    s1 = D_8010E78C + a1;
-    s7 = *(int *)(a0 + 4) + 0x900;
-    s1->f30 = a2;
-    s2 = (s1->f14 - s1->f28) & 0xF;
-    if (s1->f10 < s1->f8) {
-        a1 = 0;
-        while (a1 < 10) {
-            if (!(s1->f10 < s1->f8)) break;
-            s0 = s1->p0 + s1->f10;
-            s0->h0 = 0;
-            s0->h2 = 0;
-            s0->h4 = 0;
-            s0->h8 = 0;
-            s0->hA = 0;
-            s0->hC = 0;
-            s0->f20 = PsyqRand() & 0xF;
-            BuildRotMatrixY(sp20, PsyqRand() & 0xFFF);
-            a1++;
-            BuildRotMatrixX(sp40, PsyqRand() & 0xFFF);
-            MulMatrix2(sp40, sp20);
-            BuildRotMatrixZ(sp40, PsyqRand() & 0xFFF);
-            MulMatrix2(sp40, sp20);
-            ApplyMatrixSV(sp20, sp60, s0->c10);
-            *(U8 *)s0->c18 = *(U8 *)s0->c10;
-            s1->f10 = s1->f10 + 1;
+    PsyqMemset(&direction, 0, sizeof(direction));
+    direction.fields.z = 0x100;
+    object = D_8010E78C + objectIndex;
+    ordering = scratch->scene.view.projection.pointers.order + 0x900 / sizeof(u32);
+    object->advance30 = advance;
+    colorIndex = (object->frame14 - object->startFrame28) & 0xF;
+    if (object->initialized10 < object->capacity08) {
+        initializedThisCall = 0;
+        while (initializedThisCall < 10) {
+            if (!(object->initialized10 < object->capacity08)) break;
+            particle = object->particles00 + object->initialized10;
+            particle->position00.x = 0;
+            particle->position00.y = 0;
+            particle->position00.z = 0;
+            particle->position08.x = 0;
+            particle->position08.y = 0;
+            particle->position08.z = 0;
+            particle->colorPhase20 = PsyqRand() & 0xF;
+            BuildRotMatrixY(&rotation, PsyqRand() & 0xFFF);
+            initializedThisCall++;
+            BuildRotMatrixX(&axisRotation, PsyqRand() & 0xFFF);
+            MulMatrix2(&axisRotation, &rotation);
+            BuildRotMatrixZ(&axisRotation, PsyqRand() & 0xFFF);
+            MulMatrix2(&axisRotation, &rotation);
+            ApplyMatrixSV(&rotation, &direction, &particle->step10.x);
+            particle->step18 = particle->step10;
+            object->initialized10 = object->initialized10 + 1;
         }
     } else {
-        a = s1->f0[DrawBufIndex];
-        s3 = s1->e8[DrawBufIndex];
-        if (a != 0) CatPrim(a, a + 0x14);
-        __asm__ volatile ("cfc2 $8, $21\n\tcfc2 $9, $22\n\tcfc2 $10, $23\n\tsw $8, 0(%0)\n\tsw $9, 0(%1)\n\tsw $10, 0(%2)"
-            : : "r"(&sp68), "r"(&sp6c), "r"(&sp70) : "$8", "$9", "$10", "memory");
-        if (s1->f14 > s1->f2C) {
-            func_80070934(a1, 4, 0, -1);
+        previousTail = object->tailsF0[DrawBufIndex];
+        cursor = object->headsE8[DrawBufIndex];
+        if (previousTail != 0) CatPrim(&previousTail->tag.word, previousTail + 1);
+        RR_GTE_SAVE_FC(&farRed, &farGreen, &farBlue);
+        if (object->frame14 > object->endFrame2C) {
+            SetAnimatedTrackObjectState(objectIndex, 4, 0, -1);
         } else {
-            a = s1->f28;
-            if (s1->f14 < a) {
-                if (s1->f30) s1->f14 = s1->f14 + 1;
-                s1->f4 = 0;
-                s1->f0[DrawBufIndex] = 0;
+            startFrame = object->startFrame28;
+            if (object->frame14 < startFrame) {
+                if (object->advance30) object->frame14 = object->frame14 + 1;
+                object->activeCount04 = 0;
+                object->tailsF0[DrawBufIndex] = 0;
             } else {
-                b = s1->f14 - a + 1;
-                s1->f4 = b;
-                if (b >= 0x10) s1->f4 = s1->f8;
-                else s1->f4 = b * (s1->f8 / 16);
-                if (s1->f30) s1->f14 = s1->f14 + 1;
-                k = s1->k40 + s1->f34;
-                if (k->n == -1) {
-                    s1->c48[s2] = k->u;
+                visibleFrames = object->frame14 - startFrame + 1;
+                object->activeCount04 = visibleFrames;
+                if (visibleFrames >= 0x10) object->activeCount04 = object->capacity08;
+                else object->activeCount04 = visibleFrames * (object->capacity08 / 16);
+                if (object->advance30) object->frame14 = object->frame14 + 1;
+                key = object->keys40 + object->keyIndex34;
+                if (key->duration == -1) {
+                    object->palette48.values[colorIndex] = key->color;
                 } else {
-                    __asm__ volatile ("ctc2 %0, $21\n\tctc2 %1, $22\n\tctc2 %2, $23" : : "r"(k[1].u.c[0] << 4), "r"(k[1].u.c[1] << 4), "r"(k[1].u.c[2] << 4));
-                    d = (s1->f18 << 12) / k->n;
-                    DpqColor(k, d, &s1->c48[s2]);
-                    if (s1->f30) {
-                        s1->f18 = s1->f18 + 1;
-                        if (s1->f18 >= k->n) {
-                            s1->f18 = 0;
-                            s1->f34 = s1->f34 + 1;
+                    RR_GTE_SETFC(key[1].color.r << 4, key[1].color.g << 4, key[1].color.b << 4);
+                    fraction = (s32)(object->colorTick18 * 0x1000U) / key->duration;
+                    DpqColor(&key->color, fraction, &object->palette48.values[colorIndex]);
+                    if (object->advance30) {
+                        object->colorTick18 = (object->colorTick18 + 1U);
+                        if (object->colorTick18 >= key->duration) {
+                            object->colorTick18 = 0;
+                            object->keyIndex34 = object->keyIndex34 + 1;
                         }
                     }
                 }
-                k = s1->k44 + s1->f38;
-                if (k->n == -1) {
-                    s1->c88[s2] = k->u;
+                key = object->keys44 + object->keyIndex38;
+                if (key->duration == -1) {
+                    object->palette88.values[colorIndex] = key->color;
                 } else {
-                    __asm__ volatile ("ctc2 %0, $21\n\tctc2 %1, $22\n\tctc2 %2, $23" : : "r"(k[1].u.c[0] << 4), "r"(k[1].u.c[1] << 4), "r"(k[1].u.c[2] << 4));
-                    d = (s1->f1C << 12) / k->n;
-                    DpqColor(k, d, &s1->c88[s2]);
-                    if (s1->f30) {
-                        s1->f1C = s1->f1C + 1;
-                        if (s1->f1C >= k->n) {
-                            s1->f1C = 0;
-                            s1->f38 = s1->f38 + 1;
+                    RR_GTE_SETFC(key[1].color.r << 4, key[1].color.g << 4, key[1].color.b << 4);
+                    fraction = (s32)(object->colorTick1C * 0x1000U) / key->duration;
+                    DpqColor(&key->color, fraction, &object->palette88.values[colorIndex]);
+                    if (object->advance30) {
+                        object->colorTick1C = (object->colorTick1C + 1U);
+                        if (object->colorTick1C >= key->duration) {
+                            object->colorTick1C = 0;
+                            object->keyIndex38 = object->keyIndex38 + 1;
                         }
                     }
                 }
-                func_80070ACC(s1);
-                s3 = func_8006DB0C(a0, s3, s1, s2 << 2);
-                if (s3 != s1->e8[DrawBufIndex]) s1->f0[DrawBufIndex] = s3 - 0x14;
-                else s1->f0[DrawBufIndex] = 0;
-                if (a1 < 2) {
-                    if (s1->c48[s2].c[0] * 16 > D_80107180[0]) ColorMatrix.m[0][a1] = (short)s1->c48[s2].c[0] << 4;
-                    else ColorMatrix.m[0][a1] = D_80107180[0];
-                    if (s1->c48[s2].c[1] * 16 > D_80107180[1]) ColorMatrix.m[1][a1] = (short)s1->c48[s2].c[1] << 4;
-                    else ColorMatrix.m[1][a1] = D_80107180[1];
-                    if (s1->c48[s2].c[2] * 16 > D_80107180[2]) ColorMatrix.m[2][a1] = (short)s1->c48[s2].c[2] << 4;
-                    else ColorMatrix.m[2][a1] = D_80107180[2];
+                SetupAnimatedObjectMatrices(object);
+                cursor = func_8006DB0C(scratch, cursor, object, colorIndex << 2);
+                if (cursor != object->headsE8[DrawBufIndex]) object->tailsF0[DrawBufIndex] = cursor - 1;
+                else object->tailsF0[DrawBufIndex] = 0;
+                if (objectIndex < 2) {
+                    if (object->palette48.values[colorIndex].r * 16 > D_80107180[0]) ColorMatrix.fields.rotation00[0][objectIndex] = (short)object->palette48.values[colorIndex].r << 4;
+                    else ColorMatrix.fields.rotation00[0][objectIndex] = D_80107180[0];
+                    if (object->palette48.values[colorIndex].g * 16 > D_80107180[1]) ColorMatrix.fields.rotation00[1][objectIndex] = (short)object->palette48.values[colorIndex].g << 4;
+                    else ColorMatrix.fields.rotation00[1][objectIndex] = D_80107180[1];
+                    if (object->palette48.values[colorIndex].b * 16 > D_80107180[2]) ColorMatrix.fields.rotation00[2][objectIndex] = (short)object->palette48.values[colorIndex].b << 4;
+                    else ColorMatrix.fields.rotation00[2][objectIndex] = D_80107180[2];
                 }
             }
         }
-        c = s1->f0[DrawBufIndex];
-        if (c != 0) {
-            AddPrims(s7, s1->e8[DrawBufIndex], c);
-        } else if (a1 < 2) {
-            ColorMatrix.m[0][a1] = D_80107180[0];
-            ColorMatrix.m[1][a1] = D_80107180[1];
-            ColorMatrix.m[2][a1] = D_80107180[2];
+        last = object->tailsF0[DrawBufIndex];
+        if (last != 0) {
+            AddPrims(ordering, object->headsE8[DrawBufIndex], &last->tag.word);
+        } else if (objectIndex < 2) {
+            ColorMatrix.fields.rotation00[0][objectIndex] = D_80107180[0];
+            ColorMatrix.fields.rotation00[1][objectIndex] = D_80107180[1];
+            ColorMatrix.fields.rotation00[2][objectIndex] = D_80107180[2];
         }
-        if (a1 < 2) {
-            sp10[0] = (g[0] >> 2) - 0x8000;
-            sp10[1] = g[1] >> 2;
-            sp10[2] = (g[2] >> 2) - 0x8000;
-            sp10[0] = (sp10[0] >> 1) - s1->fC8;
-            sp10[1] = (sp10[1] >> 1) - s1->fCC;
-            sp10[2] = (sp10[2] >> 1) - s1->fD0;
-            D_800F38F8[a1].a = -Atan2Table(SquareRoot0((sp10[0] >> 4) * (sp10[0] >> 4) + (sp10[2] >> 4) * (sp10[2] >> 4)), sp10[1] >> 4) & 0xFFF;
-            D_800F38F8[a1].b = (0x400 - Atan2Table(sp10[0], sp10[2])) & 0xFFF;
-            D_800F38F8[a1].c = 0;
+        if (objectIndex < 2) {
+            toCamera[0] = (cameraPosition[0] >> 2) - 0x8000;
+            toCamera[1] = cameraPosition[1] >> 2;
+            toCamera[2] = (cameraPosition[2] >> 2) - 0x8000;
+            toCamera[0] = (toCamera[0] >> 1) - object->positionC8.x;
+            toCamera[1] = (toCamera[1] >> 1) - object->positionC8.y;
+            toCamera[2] = (toCamera[2] >> 1) - object->positionC8.z;
+            D_800F38F8[objectIndex].x = -Atan2Table(SquareRoot0((toCamera[0] >> 4) * (toCamera[0] >> 4) + (toCamera[2] >> 4) * (toCamera[2] >> 4)), toCamera[1] >> 4) & 0xFFF;
+            D_800F38F8[objectIndex].y = (0x400 - Atan2Table(toCamera[0], toCamera[2])) & 0xFFF;
+            D_800F38F8[objectIndex].z = 0;
         }
-        __asm__ volatile ("ctc2 %0, $21\n\tctc2 %1, $22\n\tctc2 %2, $23" : : "r"(sp68), "r"(sp6c), "r"(sp70));
+        RR_GTE_SETFC(farRed, farGreen, farBlue);
     }
 }
 
-#undef D_8010E78C
-
-s32 func_80071338(void) {
+s32 GetSegmentVisibilityTableSize(void) {
     return D_800F39A4 * 0x10;
 }
 
-void func_80071348(void) {
+void ApplySegmentVisibilityMask(void) {
     int a, b;
     short *p;
     short v;
     int base;
     register short *g __asm__("$17");
-    a = func_8006F1EC((SCRATCHPAD + 0x8), 0);
-    b = YawToOctant((SCRATCHPAD + 0x8));
-    base = (int)D_8010E790;
+    a = GetViewTrackSegment(&((ProjectionScratchPrefix *)SCRATCHPAD)->pose08, 0);
+    b = YawToOctant(&((ProjectionScratchPrefix *)SCRATCHPAD)->pose08);
+    base = SegmentVisibilityTable;
     p = (short *)(b * 2 + ((a << 4) + base));
     if (*p >= 0) {
         v = *(unsigned short *)p;
@@ -502,34 +445,26 @@ void func_80071348(void) {
     g[0x2E] = v;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_8010E790 (*(s32 (*))&D_8010E790)
-
-void func_800713C4(s32 arg0) {
-    D_8010E790 = arg0;
+void SetSegmentVisibilityTable(s32 arg0) {
+    SegmentVisibilityTable = arg0;
 }
 
-#undef D_8010E790
 
-s32 func_800713D0(void) {
+s32 GetOctantLookupTableSize(void) {
     return D_800F39A4 * 8;
 }
 
-int func_800713E0(void) {
-    int a = func_8006F1EC((SCRATCHPAD + 0x8), 0);
-    return (D_8010E798 + a * 8)[YawToOctant((SCRATCHPAD + 0x8))];
+int LookupOctantVisibility(void) {
+    int a = GetViewTrackSegment(&((ProjectionScratchPrefix *)SCRATCHPAD)->pose08, 0);
+    return (OctantLookupTable + a * 8)[YawToOctant(&((ProjectionScratchPrefix *)SCRATCHPAD)->pose08)];
 }
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_8010E798 (*(s32 (*))&D_8010E798)
 
 void SetOctantLookupTable(s32 arg0) {
-    D_8010E798 = arg0;
+    OctantLookupTable = arg0;
 }
 
-#undef D_8010E798
 
-void func_80071440(void) {
+void InitSplashDispEnv(void) {
     struct S a, b, c, d, e, f;
     a = D_80011324;
     b = D_80011324;

@@ -1,36 +1,26 @@
 #include "types.h"
 #include "scratchpad.h"
-#include "m2c_macros.h"
 #include "game/gfx/model.h"
 #include "game/gfx/poly1.h"
 #include "rr/menu_overlay_runtime.h"
 #include "rr/overlay668_camera.h"
 #include "game/data/globals.h"
+#include "game/camera/viewini.h"
+#include "rr/relative_file.h"
 
-typedef struct { int a, b, c, d, e, f, g, h; } w3g6_32;
 
-typedef struct { int x, y; } __attribute__((packed)) w3g6_U;
 
-extern w3g6_32 D_800A3B00;
-extern w3g6_U D_800A3B20[];
-extern w3g6_U D_800A3B28[];
-extern w3g6_U D_800A3B30[];
+typedef struct {
+    u8 reserved00[0x5E];
+    s16 h5E;
+    u8 reserved60[0x78 - 0x60];
+    s32 w78;
+    u8 reserved7C[0x128 - 0x7C];
+    s32 w128;
+} ViewInitScratch;
+
 extern int CourseFarColorTable[];
-extern w3g6_32 ColorMatrix;
-extern short D_800AD5BC[];
-extern w3g6_U D_800F38F8[];
-extern int D_8010718C;
-extern char D_800F4C38[];
-extern unsigned int *D_800ADAD0;
-extern int D_800F2EB4;
-extern unsigned int D_8010E290[];
-extern unsigned int *D_8010E690;
-
-void InitViewLighting(void);
-void func_8006E834(void);
-void func_8006E8F8();
-void func_8006E9CC(void);
-void func_8006E9D4(void);
+extern int ViewUsesCarTrackNode;
 
 void InitViewLighting(void)
 {
@@ -38,9 +28,9 @@ void InitViewLighting(void)
     int *b;
     int i;
     ColorMatrix = D_800A3B00;
-    D_800F38F8[0] = D_800A3B20[0];
-        D_800F38F8[1] = D_800A3B28[0];
-    D_800F38F8[2] = D_800A3B30[0];
+    D_800F38F8[0] = D_800A3B20;
+    D_800F38F8[1] = D_800A3B28;
+    D_800F38F8[2] = D_800A3B30;
     D_800AD5BC[0] = 0x1000;
     D_800AD5BC[1] = 0x1000;
     D_800AD5BC[2] = 0x1000;
@@ -55,85 +45,79 @@ void InitViewLighting(void)
     FarColorB = t[2];
 }
 
-void func_8006E794(void) {
+void InitCourseViewState(void) {
     int i;
     char *p;
-    char *g = (char *)SCRATCHPAD;
+    ViewInitScratch *g = (ViewInitScratch *)SCRATCHPAD;
     InitViewLighting();
-    D_8010718C = 1;
+    ViewUsesCarTrackNode = 1;
     D_800AD5B8 = 0x1400;
-    *(int *)(g + 0x78) = 0;
-    *(short *)(g + 0x5E) = 0;
+    g->w78 = 0;
+    g->h5E = 0;
     if (CourseIndex == 7) {
         for (i = 0; i < 5; i++) {
-            func_80070934(i, 6, 0, 0);
+            SetAnimatedTrackObjectState(i, 6, 0, 0);
         }
     }
     i = 0x1F;
-    p = D_800F4C38 + i;
+    p = (char *)&D_800F4C38 + i;
     do {
         *p-- = 0;
         i--;
     } while (i >= 0);
 }
 
-void func_8006E834(void) {
-    unsigned int *t;
+void BuildViewSegmentObjectList(int player) {
+    /* The serialized cursor passes its word count before halfword indices. */
+    u32 *source;
     unsigned int i;
-    D_8010E690 = D_8010E290;
-    t = func_8006F288();
-    D_800ADAD0 = t;
-    D_8010E290[0] = *t;
-    if (D_8010E290[0] >= 0x100) {
-        D_8010E290[0] = 0xFF;
+    D_8010E690 = &D_8010E290;
+    source = (u32 *)GetSegmentViewTable(player);
+    D_800ADAD0 = (CourseViewIndices *)source;
+    D_8010E290.stream[0].count = *source;
+    if (D_8010E290.stream[0].count >= 0x100) {
+        D_8010E290.stream[0].count = COURSE_VISIBLE_CAPACITY;
     }
-    t++;
+    source++;
     i = 0;
-    if (D_8010E290[0] != 0) {
+    if (D_8010E290.stream[0].count != 0) {
         do {
-            D_8010E290[i + 1] = D_800F2EB4 + ((unsigned short *)t)[i] * 0x50;
+            D_8010E290.stream[i+1].record = &RelFileViewRecords[((u16 *)source)[i]];
             i++;
-        } while (i < D_8010E290[0]);
+        } while (i < D_8010E290.stream[0].count);
     }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F4C38 (*(unsigned char (*)[])&D_800F4C38)
-
-void func_8006E8F8() {
-    int *t1;
-    int v;
-    int t0;
+void UpdateVisibleViewRecords(void) {
+    /* This cursor changes from the counted owner to its pointer-array tail. */
+    union {VisibleCourseViews *list;CourseViewRecord **next;} cursor;
+    CourseViewRecord *record;
+    int extra;
     unsigned int i;
-    unsigned int t2;
-    int off;
-    unsigned char *pb;
+    unsigned int count;
 
-    t1 = (int *)D_8010E690;
-    t2 = *t1;
-    off = t2 << 2;
-    t1 = (int *)((char *)t1 + (off + 4));
-    for (t0 = 0; t0 < D_800F4C38[0]; t0++) {
-        v = D_800F2EB4 + (pb = D_800F4C38 + t0)[1] * 0x50;
-        for (i = 0; i < *D_8010E690; i++) {
-            if (v == D_8010E690[i + 1]) {
+    cursor.list = D_8010E690;
+    count = cursor.list->objects.count;
+    cursor.next = cursor.list->objects.records + count;
+    for (extra = 0; extra < D_800F4C38.count; extra++) {
+        record = &RelFileViewRecords[D_800F4C38.indices[extra]];
+        for (i = 0; i < D_8010E690->objects.count; i++) {
+            if (record == D_8010E690->objects.records[i]) {
                 break;
             }
         }
-        if (i == *D_8010E690) {
-            *t1 = v;
-            t1++;
-            t2++;
+        if (i == D_8010E690->objects.count) {
+            *cursor.next = record;
+            cursor.next++;
+            count++;
         }
     }
-    *D_8010E690 = t2;
+    D_8010E690->objects.count = count;
 }
 
-#undef D_800F4C38
-
-void func_8006E9CC(void) {
+void CourseViewInitNoop(void) {
 }
 
-void func_8006E9D4(void) {
-    *(s32 *)(SCRATCHPAD + 0x128) = 0x1F;
+void ResetViewScratchMask(void) {
+    ((ViewInitScratch *)SCRATCHPAD)->w128 = 0x1F;
 }

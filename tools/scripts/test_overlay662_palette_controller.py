@@ -5,6 +5,7 @@ import subprocess
 body=Path('src/overlays/PAL/662/func_80119E00.c').read_text()
 source=r'''
 #include <assert.h>
+#include "game/system/pad.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -17,8 +18,8 @@ source=r'''
 #include "rr/overlay662_palette_controller.h"
 static struct State {
  u32 guard[4];s32 frame,tick,mode; s16 scene,state,selection,count,current,key,phase,fade,total;u16 enable;
- RrMenuItemState5C input[2];RrUiRow24 rows[2][4];RrBadgeRow1C badges[2][2];
- RrMenuGridPoint grid[4];u8 map[25];void *palette0,*palette1;unsigned root,badgeRoot;u32 tail[4];
+ ControllerState5C input[2];UiRow24 rows[2][4];BadgeRow1C badges[2][2];
+ MenuGridPoint grid[4];u8 map[25];void *palette0,*palette1;unsigned root,badgeRoot;u32 tail[4];
 } actual,reference,*w;
 static u8 banks[3][25*0x840];
 #define ModeFrame w->frame
@@ -58,7 +59,7 @@ static void change(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
  w->state=half(v);w->current=(scenario+n)%25;w->selection=(scenario/4+n)%3;w->count=(s32)((scenario/16+n)%4)-1;
  w->key=half(scenario+23*n);w->phase=half(scenario+3*n);w->mode=(scenario/32+n)%3-1;w->fade=half(scenario+13*n);w->total=half(~scenario);
  w->palette0=banks[(scenario+n)%3];w->palette1=banks[(scenario+n+1)%3];
- w->input[0].a=(scenario>>7)&1;w->input[0].b=(scenario>>8)&1;
+ w->input[0].action28=(scenario>>7)&1;w->input[0].action2C=(scenario>>8)&1;
  for(unsigned j=0;j<2;j++)for(unsigned i=0;i<4;i++){w->rows[j][i].cells[0]=(u8)v;w->rows[j][i].half20=half(v+i);w->rows[j][i].byte14=(u8)((scenario/512+n+i+j)%7);}
  for(unsigned j=0;j<2;j++)w->badges[j][0].state10=(s16)((scenario/4096+n+j)%12);
  for(unsigned i=0;i<25;i++)w->map[i]=(scenario+n+i)%26;
@@ -96,10 +97,10 @@ static void expected(void){unsigned state=(u16)w->state;int complete=0;
   w->rows[w->root][w->selection].cells[0]=highlight;
   int rowPhase=w->rows[w->root][0].byte14,badgePhase=w->badges[w->badgeRoot][0].state10;
   if(rowPhase==2&&badgePhase==3){
-   if(w->input[0].a){w->rows[w->root][w->selection].cells[0]=1;
+   if(w->input[0].action28){w->rows[w->root][w->selection].cells[0]=1;
     if(w->selection==0){if(w->key<25){action[0]++;PlaySfx(1);w->phase=rowPhase;w->fade=0;w->state=badgePhase;closeRows();w->badges[w->badgeRoot][0].state10=4;}else{action[1]++;PlaySfx(4);}}
     else if(w->selection==1){action[2]++;PlaySfx(1);w->fade=0;w->phase=rowPhase;w->badges[w->badgeRoot][0].state10=4;closeRows();w->state=4;}
-   }else if(w->input[0].b&&w->mode==0){action[3]++;PlaySfx(2);w->phase=rowPhase;w->fade=0;w->badges[w->badgeRoot][0].state10=4;closeRows();w->state=4;}
+   }else if(w->input[0].action2C&&w->mode==0){action[3]++;PlaySfx(2);w->phase=rowPhase;w->fade=0;w->badges[w->badgeRoot][0].state10=4;closeRows();w->state=4;}
   }
  }else if(state==3||state==4){SetMenuFrameOptions(0,1,w->mode==0);
   if(w->rows[w->root][0].byte14==5&&w->badges[w->badgeRoot][0].state10==11){
@@ -118,7 +119,7 @@ int main(void){assert(sizeof(void*)==8);for(scenario=0;scenario<65536;scenario++
  memset(&actual,0xA6,sizeof(actual));w=&actual;actual.frame=word(scenario*0x1234567U);actual.tick=word(~(scenario*0x3456789U));actual.state=profile<4?0:profile==4?3:profile==5?4:half(scenario);
  actual.root=scenario&1;actual.badgeRoot=(scenario>>1)&1;actual.current=scenario%25;actual.selection=(scenario/2)%3;actual.count=(int)((scenario>>2)%5)-1;
  actual.key=half(scenario);actual.mode=(scenario/16)%3-1;actual.phase=((scenario>>6)&1)?0:half(scenario);actual.fade=half(scenario);actual.total=half(~scenario);
- actual.input[0].a=(scenario>>7)&1;actual.input[0].b=(scenario>>8)&1;
+ actual.input[0].action28=(scenario>>7)&1;actual.input[0].action2C=(scenario>>8)&1;
  actual.palette0=banks[scenario%3];actual.palette1=banks[(scenario+1)%3];for(unsigned i=0;i<25;i++)actual.map[i]=(scenario+i)%26;
  for(unsigned j=0;j<2;j++){actual.badges[j][0].state10=((scenario>>10)&1)?3:11;for(unsigned i=0;i<4;i++)actual.rows[j][i].byte14=((scenario>>9)&1)?2:5;}
  reference=actual;count=seen=serial=0;referenceRun=1;w=&reference;expected();serial=0;referenceRun=0;w=&actual;ovl662_func_80119E00();assert(seen==count&&!memcmp(&actual,&reference,sizeof(actual)));

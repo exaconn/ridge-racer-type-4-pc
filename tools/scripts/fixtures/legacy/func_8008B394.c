@@ -1,6 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/library.h"
 
-RrLibInterruptCallback InterruptCallback(s32 channel, RrLibInterruptCallback callback) {
+LibInterruptCallback InterruptCallback(s32 channel, LibInterruptCallback callback) {
     return IntrDriverTablePtr->install(channel, callback);
 }

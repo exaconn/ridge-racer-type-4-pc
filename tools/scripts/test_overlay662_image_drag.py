@@ -22,7 +22,7 @@ class Overlay662ImageDragTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_image_drag.h"
 static struct World {
- u32 guard[4];RrGarageSelectionPrefix garage;RrGarageWorkingStorage work;RrGaragePoint anchor;
+ u32 guard[4];GarageSelectionPrefix garage;GarageWorkingStorage work;GaragePoint anchor;
  u32 images[4][512],palettes[2][8];u32 tail[4];
 } world,expected;
 #define ovl662_D_801276A8 world.garage

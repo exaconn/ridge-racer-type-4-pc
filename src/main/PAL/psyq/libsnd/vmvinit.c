@@ -2,50 +2,31 @@
 /* RODATA 0x800117b8 0x3c */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "psyq/libsnd/vmpitch.h"
+#include "psyq/libsnd/vmvinit.h"
+#include "rr/spu.h"
+#include "rr/channels.h"
 
-
-extern void _SsVmKeyOffNow(int unused_mode);
-extern int _snd_vmask;
 extern char D_8010F90A[];
 extern char D_8010F90E[];
 extern char D_8010F918[];
 extern char D_8010F91A[];
 extern char D_8010F91C[];
 extern char D_8010F91E[];
-extern signed char spuVmMaxVoice;
-extern short D_80110118;
-extern int _spu_FsetRXXa(int, int);
-extern volatile unsigned short *_spu_RXX;
 extern unsigned short _spu_voice_centerNote[];
 
-void SsUtAllKeyOff();
-void SpuSetVoiceAttr();
-
-void SsUtAllKeyOff(void) {
-    struct {
-        int s10;
-        int s14;
-        short s18;
-        short s1A;
-        char pad1[0x24 - 0x1C];
-        short s24;
-        char pad2[0x2C - 0x26];
-        int s2C;
-        char pad3[0x4A - 0x30];
-        unsigned short s4A;
-        short s4C;
-    } L;
+void SsUtAllKeyOff(s32 mode) {
+    SpuVoiceAttr L;
     short s0;
     int v0, v1, a1;
     int c1, c18, cff;
-    L.s14 = 0x60093;
+    L.mask = 0x60093;
     s0 = 0;
-    L.s24 = 0x1000;
-    L.s2C = 0x1000;
-    L.s4A = 0x80FF;
-    L.s18 = 0;
-    L.s1A = 0;
-    L.s4C = 0x4000;
+    L.pitch = 0x1000;
+    L.addr = 0x1000;
+    L.adsr1 = 0x80FF;
+    L.volume.left = 0;
+    L.volume.right = 0;
+    L.adsr2 = 0x4000;
     if (spuVmMaxVoice > 0) {
         c1 = 1;
         c18 = 0x18;
@@ -61,9 +42,9 @@ void SsUtAllKeyOff(void) {
                 *(short *)(D_8010F91A + v0) = 0;
                 *(short *)(D_8010F91C + v0) = 0;
                 *(short *)(D_8010F91E + v0) = cff;
-                L.s10 = a1;
-                SpuSetVoiceAttr(&L, a1);
-                D_80110118 = s0;
+                L.voice = a1;
+                SpuSetVoiceAttr(&L);
+                _svm_voice_cursor = s0;
                 _SsVmKeyOffNow(1);
             }
             s0++;
@@ -71,204 +52,214 @@ void SsUtAllKeyOff(void) {
     }
 }
 
-void SpuSetVoiceAttr(SpuVoiceAttr *s0) {
-    struct { int counter; volatile unsigned int accumulator; } work;
-    int s4;
-    int s3;
-    /* ASM_BARRIER: Keep mask and zero-mask flag in s1 and s2 so incoming arg0 gets s0. */
-    register unsigned int s1 __asm__("$17");
-    /* ASM_BARRIER: Keep zero-mask flag in s2 as in original register allocation. */
-    register int s2 __asm__("$18");
-    int a0;
-    unsigned int ua1;
-    int a2;
-    unsigned int a3;
+void SpuSetVoiceAttr(SpuVoiceAttr *attributes) {
+    volatile struct { int counter; unsigned int accumulator; } work;
+    int voiceIndex;
+    int registerIndex;
+    /* ASM_BARRIER: Keep mask and zero-mask flag in $s1 and $s2 so incoming arg0 gets $s0. */
+    register unsigned int mask __asm__("$17");
+    /* ASM_BARRIER: Keep zero-mask flag in $s2 as in original register allocation. */
+    register int allFields __asm__("$18");
+    int volumeMode;
+    unsigned int value;
+    int envelopeMode;
+    unsigned int note;
 
-    s1 = s0->mask;
-    s2 = (s1 == 0);
-    for (s4 = 0; s4 < 24; s4++) {
-        if (s0->voice & (1 << s4)) {
-            s3 = s4 * 8;
-            if (s2 || (s1 & 0x10)) {
-                _spu_RXX[s3 + 2] = s0->pitch;
+    mask = attributes->mask;
+    allFields = (mask == 0);
+    /* The address helper takes halfword indices. Convert that same index to
+     * the complete channel block, preserving the live hardware-bank root. */
+    for (voiceIndex = 0; voiceIndex < 24; voiceIndex++) {
+        if (attributes->voice & (1 << voiceIndex)) {
+            registerIndex = voiceIndex * 8;
+            if (allFields || (mask & 0x10)) {
+                ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->pitch = attributes->pitch;
             }
-            if (s2 || (s1 & 0x40)) {
-                _spu_voice_centerNote[s4] = s0->sample_note;
+            if (allFields || (mask & 0x40)) {
+                _spu_voice_centerNote[voiceIndex] = attributes->sample_note;
             }
-            if (s2 || (s1 & 0x20)) {
-                ua1 = _spu_voice_centerNote[s4];
-                a3 = s0->note;
-                _spu_RXX[s3 + 2] = _spu_note2pitch(ua1 >> 8, ua1 & 0xFF, a3 >> 8, a3 & 0xFF);
+            if (allFields || (mask & 0x20)) {
+                value = _spu_voice_centerNote[voiceIndex];
+                note = attributes->note;
+                ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->pitch =
+                    _spu_note2pitch(value >> 8, value & 0xFF, note >> 8, note & 0xFF);
             }
-            if (s2 || (s1 & 0x1)) {
-                a0 = 0;
-                ua1 = s0->volume.left & 0x7FFF;
-                if (s2 || (s1 & 0x4)) {
-                    switch (s0->volmode.left) {
+            if (allFields || (mask & 0x1)) {
+                volumeMode = 0;
+                value = attributes->volume.left & 0x7FFF;
+                if (allFields || (mask & 0x4)) {
+                    switch (attributes->volmode.left) {
                     case 1:
-                        a0 = 0x8000;
+                        volumeMode = 0x8000;
                         break;
                     case 2:
-                        a0 = 0x9000;
+                        volumeMode = 0x9000;
                         break;
                     case 3:
-                        a0 = 0xA000;
+                        volumeMode = 0xA000;
                         break;
                     case 4:
-                        a0 = 0xB000;
+                        volumeMode = 0xB000;
                         break;
                     case 5:
-                        a0 = 0xC000;
+                        volumeMode = 0xC000;
                         break;
                     case 6:
-                        a0 = 0xD000;
+                        volumeMode = 0xD000;
                         break;
                     case 7:
-                        a0 = 0xE000;
+                        volumeMode = 0xE000;
                         break;
                     }
                 }
-                if (a0 != 0) {
-                    if (s0->volume.left >= 0x80) {
-                        ua1 = 0x7F;
-                    } else if (s0->volume.left < 0) {
-                        ua1 = 0;
+                if (volumeMode != 0) {
+                    if (attributes->volume.left >= 0x80) {
+                        value = 0x7F;
+                    } else if (attributes->volume.left < 0) {
+                        value = 0;
                     }
                 }
-                _spu_RXX[s3 + 0] = ua1 | a0;
+                ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->left = value | volumeMode;
             }
-            if (s2 || (s1 & 0x2)) {
-                a0 = 0;
-                ua1 = s0->volume.right & 0x7FFF;
-                if (s2 || (s1 & 0x8)) {
-                    switch (s0->volmode.right) {
+            if (allFields || (mask & 0x2)) {
+                volumeMode = 0;
+                value = attributes->volume.right & 0x7FFF;
+                if (allFields || (mask & 0x8)) {
+                    switch (attributes->volmode.right) {
                     case 1:
-                        a0 = 0x8000;
+                        volumeMode = 0x8000;
                         break;
                     case 2:
-                        a0 = 0x9000;
+                        volumeMode = 0x9000;
                         break;
                     case 3:
-                        a0 = 0xA000;
+                        volumeMode = 0xA000;
                         break;
                     case 4:
-                        a0 = 0xB000;
+                        volumeMode = 0xB000;
                         break;
                     case 5:
-                        a0 = 0xC000;
+                        volumeMode = 0xC000;
                         break;
                     case 6:
-                        a0 = 0xD000;
+                        volumeMode = 0xD000;
                         break;
                     case 7:
-                        a0 = 0xE000;
+                        volumeMode = 0xE000;
                         break;
                     }
                 }
-                if (a0 != 0) {
-                    if (s0->volume.right >= 0x80) {
-                        ua1 = 0x7F;
-                    } else if (s0->volume.right < 0) {
-                        ua1 = 0;
+                if (volumeMode != 0) {
+                    if (attributes->volume.right >= 0x80) {
+                        value = 0x7F;
+                    } else if (attributes->volume.right < 0) {
+                        value = 0;
                     }
                 }
-                _spu_RXX[s3 + 1] = ua1 | a0;
+                ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->right = value | volumeMode;
             }
-            if (s2 || (s1 & 0x80)) {
-                _spu_FsetRXXa(s3 | 3, s0->addr);
+            if (allFields || (mask & 0x80)) {
+                _spu_FsetRXXa(registerIndex | 3, attributes->addr);
             }
-            if (s2 || (s1 & 0x10000)) {
-                _spu_FsetRXXa(s3 | 7, s0->loop_addr);
+            if (allFields || (mask & 0x10000)) {
+                _spu_FsetRXXa(registerIndex | 7, attributes->loop_addr);
             }
-            if (s2 || (s1 & 0x20000)) {
-                _spu_RXX[s3 + 4] = s0->adsr1;
+            if (allFields || (mask & 0x20000)) {
+                ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr1 = attributes->adsr1;
             }
-            if (s2 || (s1 & 0x40000)) {
-                _spu_RXX[s3 + 5] = s0->adsr2;
+            if (allFields || (mask & 0x40000)) {
+                ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr2 = attributes->adsr2;
             }
-            if (s2 || (s1 & 0x800)) {
-                ua1 = s0->ar;
-                if (ua1 >= 0x80) {
-                    ua1 = 0x7F;
+            if (allFields || (mask & 0x800)) {
+                value = attributes->ar;
+                if (value >= 0x80) {
+                    value = 0x7F;
                 }
-                a2 = 0;
-                if (s2 || (s1 & 0x100)) {
-                    switch (s0->a_mode) {
+                envelopeMode = 0;
+                if (allFields || (mask & 0x100)) {
+                    switch (attributes->a_mode) {
                     case 5:
-                        a2 = 0x80;
+                        envelopeMode = 0x80;
                         break;
                     }
                 }
                 {
-                    /* ASM_BARRIER: Keep loaded hardware register in v0 before masking into v1. */
-                    register unsigned short v0 __asm__("$2") = _spu_RXX[s3 + 4];
-                    /* ASM_BARRIER: Keep masked hardware register in v1 across envelope combine. */
-                    register unsigned int v1 __asm__("$3") = v0 & 0xFF;
-                    _spu_RXX[s3 + 4] = v1 | ((ua1 | a2) << 8);
+                    /* ASM_BARRIER: Keep loaded hardware register in $v0 before masking into $v1. */
+                    register unsigned short currentEnvelope __asm__("$2") =
+                        ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr1;
+                    /* ASM_BARRIER: Keep masked hardware register in $v1 across envelope combine. */
+                    register unsigned int preservedBits __asm__("$3") = currentEnvelope & 0xFF;
+                    ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr1 =
+                        preservedBits | ((value | envelopeMode) << 8);
                 }
             }
-            if (s2 || (s1 & 0x1000)) {
-                ua1 = s0->dr;
-                if (ua1 >= 0x10) {
-                    ua1 = 0xF;
+            if (allFields || (mask & 0x1000)) {
+                value = attributes->dr;
+                if (value >= 0x10) {
+                    value = 0xF;
                 }
-                _spu_RXX[s3 + 4] = (_spu_RXX[s3 + 4] & 0xFF0F) | (ua1 << 4);
+                ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr1 =
+                    (((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr1 & 0xFF0F) | (value << 4);
             }
-            if (s2 || (s1 & 0x2000)) {
-                ua1 = s0->sr;
-                if (ua1 >= 0x80) {
-                    ua1 = 0x7F;
+            if (allFields || (mask & 0x2000)) {
+                value = attributes->sr;
+                if (value >= 0x80) {
+                    value = 0x7F;
                 }
-                a2 = 0x100;
-                if (s2 || (s1 & 0x200)) {
-                    switch (s0->s_mode) {
+                envelopeMode = 0x100;
+                if (allFields || (mask & 0x200)) {
+                    switch (attributes->s_mode) {
                     case 1:
-                        a2 = 0;
+                        envelopeMode = 0;
                         break;
                     case 5:
-                        a2 = 0x200;
+                        envelopeMode = 0x200;
                         break;
                     case 7:
-                        a2 = 0x300;
+                        envelopeMode = 0x300;
                         break;
                     }
                 }
                 {
-                    /* ASM_BARRIER: Keep loaded hardware register in v0 before masking into v1. */
-                    register unsigned short v0 __asm__("$2") = _spu_RXX[s3 + 5];
-                    /* ASM_BARRIER: Keep masked hardware register in v1 across envelope combine. */
-                    register unsigned int v1 __asm__("$3") = v0 & 0x3F;
-                    _spu_RXX[s3 + 5] = v1 | ((ua1 | a2) << 6);
+                    /* ASM_BARRIER: Keep loaded hardware register in $v0 before masking into $v1. */
+                    register unsigned short currentEnvelope __asm__("$2") =
+                        ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr2;
+                    /* ASM_BARRIER: Keep masked hardware register in $v1 across envelope combine. */
+                    register unsigned int preservedBits __asm__("$3") = currentEnvelope & 0x3F;
+                    ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr2 =
+                        preservedBits | ((value | envelopeMode) << 6);
                 }
             }
-            if (s2 || (s1 & 0x4000)) {
-                ua1 = s0->rr;
-                if (ua1 >= 0x20) {
-                    ua1 = 0x1F;
+            if (allFields || (mask & 0x4000)) {
+                value = attributes->rr;
+                if (value >= 0x20) {
+                    value = 0x1F;
                 }
-                a2 = 0;
-                if (s2 || (s1 & 0x400)) {
-                    switch (s0->r_mode) {
+                envelopeMode = 0;
+                if (allFields || (mask & 0x400)) {
+                    switch (attributes->r_mode) {
                     case 3:
                         break;
                     case 7:
-                        a2 = 0x20;
+                        envelopeMode = 0x20;
                         break;
                     }
                 }
-                _spu_RXX[s3 + 5] = (_spu_RXX[s3 + 5] & 0xFFC0) | (ua1 | a2);
+                ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr2 =
+                    (((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr2 & 0xFFC0) | (value | envelopeMode);
             }
-            if (s2 || (s1 & 0x8000)) {
-                ua1 = s0->sl;
-                if (ua1 >= 0x10) {
-                    ua1 = 0xF;
+            if (allFields || (mask & 0x8000)) {
+                value = attributes->sl;
+                if (value >= 0x10) {
+                    value = 0xF;
                 }
-                _spu_RXX[s3 + 4] = (_spu_RXX[s3 + 4] & 0xFFF0) | ua1;
+                ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr1 =
+                    (((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr1 & 0xFFF0) | value;
             }
         }
     }
     work.accumulator = 1;
-    work.counter = 0;
+    *(int *)&work.counter = 0;
     goto test;
 body:
     {
@@ -276,7 +267,7 @@ body:
         register unsigned int value __asm__("$3") = work.accumulator;
         work.accumulator = value * 13;
     }
-    *(int *)&work.counter = *(volatile int *)&work.counter + 1;
+    *(int *)&work.counter = work.counter + 1;
 test:
     if (*(int *)&work.counter < 2) goto body;
 }

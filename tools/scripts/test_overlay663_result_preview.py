@@ -20,9 +20,9 @@ class Overlay663ResultPreviewTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4||sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4||offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay663_result_preview.h"
-_Static_assert(sizeof(RrPreviewRgb3)==4&&__alignof__(RrPreviewRgb3)==4,"color word ABI");
+_Static_assert(sizeof(PreviewRgb3)==4&&__alignof__(PreviewRgb3)==4,"color word ABI");
 typedef struct {
- u32 guard[4];RrRaceVehicle cars[2];RrCurrentSelection choice;RrUiRow24 ui[2][4];RrBadgeRow1C badges[2][2];u8 modes[2][3];
+ u32 guard[4];RaceVehicle cars[2];CurrentSelection choice;UiRow24 ui[2][4];BadgeRow1C badges[2][2];u8 modes[2][3];
  s32 frame,accepted,entry;u16 scene;s16 next,phase;unsigned uiRoot,badgeRoot,modeRoot;u32 tail[4];
 } State;
 typedef struct {s32 kind,args[5];u32 hash;} Event;
@@ -68,8 +68,8 @@ void ovl663_init_selection(s32 a){event(3)->args[0]=a;if(w==&actual)seenExit=1;c
 void SetupMenuCarCamera(s32 a){event(4)->args[0]=a;change();}
 void SetupViewport(s32 a){event(5)->args[0]=a;change();}
 void DrawSelectionIconGrid(s32 a){Event *e=event(6);e->args[0]=a;assert(w->s.choice.selection.pad02[1]==2);change();}
-void func_8002E5A0(RrRaceVehicle *car){event(7);assert(car==w->s.cars);assert((uintptr_t)car>UINT32_MAX);assert(w->s.choice.selection.pad02[1]==0);change();}
-void DrawPreviewCar(RrRaceVehicle *car,RrPreviewRgb3 color,s32 scale,s32 flags){Event *e=event(8);
+void UpdateCarWorldTransform(RaceVehicle *car){event(7);assert(car==w->s.cars);assert((uintptr_t)car>UINT32_MAX);assert(w->s.choice.selection.pad02[1]==0);change();}
+void DrawPreviewCar(RaceVehicle *car,PreviewRgb3 color,s32 scale,s32 flags){Event *e=event(8);
  assert(car==w->s.cars);e->args[0]=color.r;e->args[1]=color.g;e->args[2]=color.b;e->args[3]=scale;e->args[4]=flags;
  if(w==&actual){seenDraw=1;if(w->s.modes[w->s.modeRoot][1]==1){unsigned t=w->s.modes[w->s.modeRoot][2];seenTimers[t/32]|=1U<<(t%32);}}
  change();
@@ -87,8 +87,8 @@ static void expected(void){State *s=&w->s;unsigned p=(u16)s->phase;
  }else if(p==2){if(s->badges[s->badgeRoot][0].state10==11&&s->modes[s->modeRoot][1]==5){ovl663_init_selection(s->entry);s->scene=1;s->next=75;s->phase=0;}}
  s->cars[0].rot54=(u32)(word((u32)s->cars[0].rot54+8U))&4095;
  SetupMenuCarCamera(1);SetupViewport(6);
- {unsigned mode=s->modes[s->modeRoot][1];if(mode==1||mode==2){RrPreviewRgb3 c;int scale;
-  s->choice.selection.pad02[1]=2;DrawSelectionIconGrid(0);s->choice.selection.pad02[1]=0;func_8002E5A0(s->cars);
+ {unsigned mode=s->modes[s->modeRoot][1];if(mode==1||mode==2){PreviewRgb3 c;int scale;
+  s->choice.selection.pad02[1]=2;DrawSelectionIconGrid(0);s->choice.selection.pad02[1]=0;UpdateCarWorldTransform(s->cars);
   if(s->modes[s->modeRoot][1]==1){int64_t t=s->modes[s->modeRoot][2];c.r=(u8)(255-t*255/30);c.g=c.r;c.b=c.r;scale=t*256/30;}
   else{c.r=128;c.g=128;c.b=128;scale=256;}
   DrawPreviewCar(s->cars,c,scale,0);

@@ -8,7 +8,7 @@
  * reset08[6..9] the single cell under the cursor. Both are clamped to the
  * 128/config1C grid. Outside the area everything is cleared. */
 void ovl662_func_8012571C(void) {
-    RrGaragePoint p;
+    GaragePoint p;
     s32 size, max, zoom, x, y;
 
     if (ovl662_func_8011E6C8(82, 71, 128, 256) != 0) {

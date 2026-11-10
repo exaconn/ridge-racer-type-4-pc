@@ -8,8 +8,8 @@
 #undef ExitCriticalSection
 
 s32 _sio_write_async(s32 first, s32 second) {
-    volatile RrSerialRequest *request = &SioRequest;
-    RrSerialPortRegisters *registers;
+    volatile SerialRequest *request = &SioRequest;
+    SerialPortRegisters *registers;
 
     if (request->active == 0) {
         request->second = second;

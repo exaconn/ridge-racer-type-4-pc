@@ -1,7 +1,12 @@
+#include "rr/rro_model.h"
+#include "psyq/libgte/gtemat7.h"
+#include "psyq/libgte/gtemat4.h"
+#include "psyq/libgte/gtemat3.h"
+#include "psyq/libgte/gtemat.h"
+#include "rr/matrix_workspace.h"
 #include "types.h"
 #include "scratchpad.h"
 #include "psyq/libgte/libgte.h"
-#include "m2c_macros.h"
 #include "rr_asm.h"
 #include "game/camera/viewcam.h"
 #include "game/course/trkclip.h"
@@ -11,96 +16,52 @@
 #include "psyq/other/dpmul.h"
 #include "rr/overlay662_palette_refresh.h"
 #include "psyq/other/dpsub.h"
+#include "rr/race_types.h"
+#include "game/gfx/model.h"
+#include "rr/relative_file.h"
+#include "game/math/rotmat.h"
 
-#define G ((Scratch *)SCRATCHPAD)
-#define S16(p, o) (*(s16 *)((char *)(p) + (o)))
-#define S32(p, o) (*(s32 *)((char *)(p) + (o)))
-#define VEC(p, o) (*(VECTOR *)((char *)(p) + (o)))
+static __inline__ const u8 *RroModelBankAddress(const RroModelBank *bank,u32 relative) {
+    return (const u8 *)((s32)relative + (unsigned long)bank);
+}
 
-typedef struct {
-    s16 m[3][3];
-    s32 t[3];
-} MATRIX;
+#define G ((RroSceneScratchPrefix *)SCRATCHPAD)
 
-
-
-typedef struct {
-    s32 pad00[2];
-    s32 x08;
-    s32 y0C;
-    s32 z10;
-    s32 pad14[20];
-    s32 flag64;
-    s32 pad68[4];
-    s32 col78;
-} Scratch;
-
-extern int D_8010718C;
-extern short D_800F4C58;
-extern int D_800F3820;
+extern int ViewUsesCarTrackNode;
+extern short D_800F4C58[2];
 extern s32 __fixdfsi(s64);
 extern s64 __floatsidf(s32);
 extern s32 __ltdf2(s64, s64);
 extern s64 __negdf2(s64);
-extern void func_8005F0D0(s32, s32, s32, s32);
-extern void BuildRotMatrixZ(MATRIX *, s32);
-extern void BuildRotMatrixY(MATRIX *, s32);
-extern void BuildRotMatrixX(MATRIX *, s32);
-extern void SetGteObjectTransform(s32, void *, MATRIX *);
-extern void MulMatrix0(void *, MATRIX *, MATRIX *);
-extern void MulMatrix(MATRIX *, MATRIX *);
-extern void MulMatrix2(MATRIX *, MATRIX *);
-extern void SetLightMatrix(MATRIX *);
-extern s32 LightMatrix[];
-extern s32 D_800F2FD8;
 extern s16 *CarBoundsTable[];
 extern int D_800F2EC0;
-extern int *ModelBankTable[];
 extern int D_8010E6D8[];
 extern char D_800A3C90[];
 
-int func_8006F1EC();
-s32 YawToOctant(void *arg0);
-int func_8006F288(int a0);
 void SetFogNearFar(s32 a0, s32 a1, s32 a2);
-void InitTimTemplate(int *a0);
-s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
-void func_800700AC(int *a0);
-void RegisterModelBank(int *a0, int a1);
-void UnrelocateModelBank(int *a0, int a1);
-void SelectModelBank(int a0);
+s32 DrawArticulatedCarModel(RaceVehicle *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
 void SetVramImageSlot(int a0, int a1);
 void LoadVramImageSlot(int a0);
 
-int func_8006F1EC(a0)
-int a0;
-{
-    int t, n;
-    if (D_8010718C == 0) {
-        t = GetViewTrackNode(a0);
-        n = *(int *)(a0 + 0x14);
-        a0 = (int)&D_800F4C58;
-        func_80026A20(t, n, a0);
-        return *(short *)a0;
+int GetViewTrackSegment(const ProjectionView32 *view, s32 player) {
+    int node, yaw;
+    if (ViewUsesCarTrackNode == 0) {
+        node = GetViewTrackNode(view->position00.words, player);
+        yaw = view->angles10.xyz.y;
+        GetTrackSegmentAndYaw(node, yaw, D_800F4C58);
+        return D_800F4C58[0];
     }
-    return GetViewTrackNode() / 5;
+    return GetViewTrackNode(view->position00.words, player) / 5;
 }
 
-s32 YawToOctant(void *arg0) {
-    s32 temp_v1;
-    s32 var_v0;
-
-    temp_v1 = M2C_FIELD(arg0, s32 *, 0x14) & 0xFFF;
-    var_v0 = temp_v1 + 0x100;
-    if (var_v0 < 0) {
-        var_v0 = temp_v1 + 0x2FF;
-    }
-    return (var_v0 >> 9) & 7;
+s32 YawToOctant(const ProjectionView32 *view) {
+    return (((view->angles10.xyz.y & 0xFFF) + 0x100) / 0x200) & 7;
 }
 
-int func_8006F288(int a0) {
-    int t = func_8006F1EC((SCRATCHPAD + 0x8), a0);
-    return *(int *)(((t * 8) + YawToOctant((SCRATCHPAD + 0x8))) * 4 + D_800F3820);
+CourseViewIndices *GetSegmentViewTable(s32 player) {
+    const ProjectionView32 *view = &G->view.projection.pose08;
+    int segment = GetViewTrackSegment(view, player);
+    return (CourseViewIndices *)D_800F3820[segment * 8 + YawToOctant(view)].absolute;
 }
 
 void SetFogNearFar(s32 a0, s32 a1, s32 a2) {
@@ -142,8 +103,6 @@ void SetFogNearFar(s32 a0, s32 a1, s32 a2) {
         }
         d2_out = __muldf3(t0, __negdf2(d4));
         __adddf3(d2_out, __muldf3(d4, __divdf3(d6, d1)));
-        /* ASM_BARRIER: Bind $v0/$v1 from __adddf3. */
-        __asm__("" : "=r"(v0_lo), "=r"(v1_hi));
         a0_lo = v0_lo;
         a2_c = 0x3F30000000000000LL;
         c4096 = 0x40B0000000000000LL;
@@ -154,20 +113,20 @@ void SetFogNearFar(s32 a0, s32 a1, s32 a2) {
     }
     c_max = 0x41DFFFFFFFC00000LL;
     /* ASM_BARRIER: Materialize INT_MAX double constant before argument setup. */
-    __asm__ volatile("" : "=r"(c_max) : "0"(c_max) : "$4", "$5");
+    __asm__ ("" : "=r"(c_max) : "0"(c_max) : "$4", "$5");
     if (__gtdf2(d2_out, c_max) > 0) {
         d2_out = c_max;
     }
     c_min = 0xC1E0000000000000LL;
     /* ASM_BARRIER: Materialize INT_MIN double constant before argument setup. */
-    __asm__ volatile("" : "=r"(c_min) : "0"(c_min) : "$4", "$5");
+    __asm__ ("" : "=r"(c_min) : "0"(c_min) : "$4", "$5");
     if (__ltdf2(d2_out, c_min) < 0) {
         d2_out = c_min;
     }
     r0 = __fixdfsi(d4);
     r1 = __fixdfsi(d2_out);
-    __asm__ volatile("ctc2 %0, $27" : : "r"(r0));
-    __asm__ volatile("ctc2 %0, $28" : : "r"(r1));
+    GTE_CTC2_27(r0);
+    GTE_CTC2_28(r1);
 }
 
 void InitTimTemplate(int *a0) {
@@ -196,15 +155,15 @@ void InitTimTemplate(int *a0) {
     } while (n >= 0);
 }
 
-s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
-    MATRIX m10;
-    MATRIX m30;
-    MATRIX m50;
-    MATRIX m70;
-    MATRIX m90;
-    MATRIX mB0;
+s32 DrawArticulatedCarModel(RaceVehicle *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
+    MatrixWords32 m10;
+    MatrixWords32 m30;
+    MatrixWords32 m50;
+    MatrixWords32 m70;
+    MatrixWords32 m90;
+    MatrixWords32 mB0;
     SVECTOR svD0;
-    MATRIX mD8[6];
+    MatrixWords32 mD8[6];
     VECTOR v198[5];
     s32 dist;
     s32 i;
@@ -212,9 +171,9 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
     s32 a1;
 
     SelectModelBank(arg1);
-    v198[0].vx = S16(arg0, 0x20) - (s16)G->x08;
+    v198[0].vx = *(s16 *)&arg0->position20.words[0] - (s16)G->view.projection.pose08.position00.xyz.x;
     v198[0].vy = 0;
-    v198[0].vz = S16(arg0, 0x28) - (s16)G->z10;
+    v198[0].vz = *(s16 *)&arg0->position20.words[2] - (s16)G->view.projection.pose08.position00.xyz.z;
     if (v198[0].vx < 0) {
         v198[0].vx = -v198[0].vx;
     }
@@ -238,42 +197,42 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
     }
     if (i < arg3) {
         s5 = 0;
-        if (G->flag64 != 0) {
+        if (G->renderFlags64 != 0) {
             s5 = -0x60;
         }
-        BuildRotMatrixY(&m90, -S32(arg0, 0x54));
-        BuildRotMatrixX(&m50, -S32(arg0, 0x50));
+        BuildRotMatrixY(&m90, -arg0->rot54);
+        BuildRotMatrixX(&m50, -arg0->rot50);
         MulMatrix2(&m90, &m50);
-        BuildRotMatrixZ(&m70, -S32(arg0, 0x58));
+        BuildRotMatrixZ(&m70, -arg0->rot58);
         MulMatrix2(&m50, &m70);
-        MulMatrix0(LightMatrix, &m70, &mB0);
+        MulMatrix0(&LightMatrix.matrix, &m70, &mB0);
         SetLightMatrix(&mB0);
-        BuildRotMatrixY(&m10, -S32(arg0, 0x54));
-        MulMatrix2((MATRIX *)SCRATCH_ROT_MATRIX, &m10);
-        BuildRotMatrixX(&mD8[0], S16(arg0, 0x1A8) - S32(arg0, 0x50));
-        BuildRotMatrixZ(&m50, S16(arg0, 0x1AA) - S32(arg0, 0x58));
+        BuildRotMatrixY(&m10, -arg0->rot54);
+        MulMatrix2((MatrixWords32 *)SCRATCH_ROT_MATRIX, &m10);
+        BuildRotMatrixX(&mD8[0], arg0->wheelRotX1A8 - arg0->rot50);
+        BuildRotMatrixZ(&m50, arg0->wheelRotZ1AA - arg0->rot58);
         MulMatrix(&mD8[0], &m50);
         MulMatrix2(&m10, &mD8[0]);
-        v198[0] = VEC(arg0, 0xC8);
-        v198[1].vx = S32(arg0, 0x70) + S32(arg0, 0x60);
-        v198[1].vy = S32(arg0, 0x74) + S32(arg0, 0x64);
-        v198[1].vz = S32(arg0, 0x78) + S32(arg0, 0x68);
-        BuildRotMatrixX(&mD8[1], -S16(arg0, 0x80));
-        BuildRotMatrixZ(&m50, -S16(arg0, 0x84));
+        v198[0] = *(VECTOR *)&arg0->bodyPosition;
+        v198[1].vx = arg0->ir70[0] + arg0->ir60[0];
+        v198[1].vy = arg0->ir70[1] + arg0->ir60[1];
+        v198[1].vz = arg0->ir70[2] + arg0->ir60[2];
+        BuildRotMatrixX(&mD8[1], -arg0->ang80);
+        BuildRotMatrixZ(&m50, -arg0->ang84);
         MulMatrix(&mD8[1], &m50);
         MulMatrix2(&m10, &mD8[1]);
-        v198[2].vx = S32(arg0, 0x10) + S32(arg0, 0x60);
-        v198[2].vy = S32(arg0, 0x14) + S32(arg0, 0x64);
-        v198[2].vz = S32(arg0, 0x18) + S32(arg0, 0x68);
-        BuildRotMatrixX(&m30, -S32(arg0, 0x50));
-        BuildRotMatrixX(&mD8[3], S32(arg0, 0x17C));
-        BuildRotMatrixZ(&mD8[2], -S32(arg0, 0x58));
+        v198[2].vx = arg0->pos10[0] + arg0->ir60[0];
+        v198[2].vy = arg0->pos10[1] + arg0->ir60[1];
+        v198[2].vz = arg0->pos10[2] + arg0->ir60[2];
+        BuildRotMatrixX(&m30, -arg0->rot50);
+        BuildRotMatrixX(&mD8[3], arg0->wheelSteering17C);
+        BuildRotMatrixZ(&mD8[2], -arg0->rot58);
         MulMatrix2(&m30, &mD8[2]);
         m30 = mD8[2];
         MulMatrix2(&m10, &mD8[2]);
         MulMatrix2(&mD8[2], &mD8[3]);
-        BuildRotMatrixY(&mD8[4], S32(arg0, 0x178) / 12);
-        BuildRotMatrixX(&mD8[5], S32(arg0, 0x17C));
+        BuildRotMatrixY(&mD8[4], arg0->lateralMotion178 / 12);
+        BuildRotMatrixX(&mD8[5], arg0->wheelSteering17C);
         MulMatrix2(&m30, &mD8[4]);
         MulMatrix2(&m10, &mD8[4]);
         MulMatrix2(&mD8[4], &mD8[5]);
@@ -281,13 +240,13 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         RR_GTE_SETROT(&m90);
         for (i = 0; i < 2; i++) {
             /* ASM_BARRIER: pin x to v0 to match branch delay slot and load scheduling */
-            register s32 x asm("v0") = CarBoundsTable[0][0];
+            register s32 x asm("$2") = CarBoundsTable[0][0];
             if (i & 1) {
                 x = -x;
             }
             svD0.vx = x << 2;
             /* ASM_BARRIER: force reload of CarBoundsTable[0] after storing svD0.vx */
-            __asm__ volatile("" : : : "memory");
+            __asm__ ("" : : : "memory");
             svD0.vy = (u16)CarBoundsTable[0][1] << 2;
             svD0.vz = -((u16)CarBoundsTable[0][2]) << 2;
             RR_GTE_MVMVA_ROT_V0_NOCV(&svD0);
@@ -296,181 +255,178 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
             v198[i + 3].vy += v198[2].vy;
             v198[i + 3].vz += v198[2].vz;
         }
-        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[0], &mD8[0]);
+        SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&v198[0], mD8[0].w);
         a1 = 1;
-        G->col78 = 0x05000000;
-        if (D_800F2FD8 >= 4) {
+        G->draw74.draw.counter = 0x05000000;
+        if (ModelBankFormat >= 4) {
             a1 = 3;
         }
-        func_8005F0D0(SCRATCHPAD, a1, 0, s5);
-        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[1], &mD8[1]);
-        G->col78 = 0x05000000;
-        func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, arg6, s5);
-        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[2], &mD8[2]);
+        SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1, 0, s5);
+        SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&v198[1], mD8[1].w);
+        G->draw74.draw.counter = 0x05000000;
+        SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, ModelBankFormat < 1, arg6, s5);
+        SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&v198[2], mD8[2].w);
         a1 = 1;
-        G->col78 = 0x05000000;
-        if (D_800F2FD8 >= 10) {
+        G->draw74.draw.counter = 0x05000000;
+        if (ModelBankFormat >= 10) {
             a1 = 9;
         }
-        func_8005F0D0(SCRATCHPAD, a1, 0, s5);
-        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[2], &mD8[3]);
+        SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1, 0, s5);
+        SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&v198[2], mD8[3].w);
         a1 = 1;
-        G->col78 = 0x05000000;
-        if (D_800F2FD8 >= 7) {
+        G->draw74.draw.counter = 0x05000000;
+        if (ModelBankFormat >= 7) {
             a1 = 6;
         }
-        func_8005F0D0(SCRATCHPAD, a1, arg6, s5);
-        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[3], &mD8[4]);
+        SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1, arg6, s5);
+        SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&v198[3], mD8[4].w);
         a1 = 1;
-        G->col78 = 0x05000000;
-        if (D_800F2FD8 >= 9) {
+        G->draw74.draw.counter = 0x05000000;
+        if (ModelBankFormat >= 9) {
             a1 = 8;
         }
-        func_8005F0D0(SCRATCHPAD, a1, 0, s5);
-        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[4], &mD8[4]);
+        SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1, 0, s5);
+        SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&v198[4], mD8[4].w);
         a1 = 1;
-        G->col78 = 0x05000000;
-        if (D_800F2FD8 >= 8) {
+        G->draw74.draw.counter = 0x05000000;
+        if (ModelBankFormat >= 8) {
             a1 = 7;
         }
-        func_8005F0D0(SCRATCHPAD, a1, 0, s5);
-        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[3], &mD8[5]);
+        SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1, 0, s5);
+        SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&v198[3], mD8[5].w);
         a1 = 1;
-        G->col78 = 0x05000000;
-        if (D_800F2FD8 >= 6) {
+        G->draw74.draw.counter = 0x05000000;
+        if (ModelBankFormat >= 6) {
             a1 = 5;
         }
-        func_8005F0D0(SCRATCHPAD, a1, arg6, s5);
-        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[4], &mD8[5]);
+        SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1, arg6, s5);
+        SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&v198[4], mD8[5].w);
         a1 = 1;
-        G->col78 = 0x05000000;
-        if (D_800F2FD8 >= 5) {
+        G->draw74.draw.counter = 0x05000000;
+        if (ModelBankFormat >= 5) {
             a1 = 4;
         }
-        func_8005F0D0(SCRATCHPAD, a1, arg6, s5);
+        SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1, arg6, s5);
     } else if (i < arg4) {
         s5 = 0;
-        if (G->flag64 != 0) {
+        if (G->renderFlags64 != 0) {
             s5 = -0x60;
         }
-        BuildRotMatrixY(&m90, -S32(arg0, 0x54));
-        BuildRotMatrixX(&m50, -S32(arg0, 0x50));
+        BuildRotMatrixY(&m90, -arg0->rot54);
+        BuildRotMatrixX(&m50, -arg0->rot50);
         MulMatrix2(&m90, &m50);
-        BuildRotMatrixZ(&m70, -S32(arg0, 0x58));
+        BuildRotMatrixZ(&m70, -arg0->rot58);
         MulMatrix2(&m50, &m70);
-        MulMatrix0(LightMatrix, &m70, &mB0);
+        MulMatrix0(&LightMatrix.matrix, &m70, &mB0);
         SetLightMatrix(&mB0);
-        BuildRotMatrixY(&m10, -S32(arg0, 0x54));
-        MulMatrix2((MATRIX *)SCRATCH_ROT_MATRIX, &m10);
-        BuildRotMatrixX(&mD8[0], S16(arg0, 0x1A8) - S32(arg0, 0x50));
-        BuildRotMatrixZ(&m50, S16(arg0, 0x1AA) - S32(arg0, 0x58));
+        BuildRotMatrixY(&m10, -arg0->rot54);
+        MulMatrix2((MatrixWords32 *)SCRATCH_ROT_MATRIX, &m10);
+        BuildRotMatrixX(&mD8[0], arg0->wheelRotX1A8 - arg0->rot50);
+        BuildRotMatrixZ(&m50, arg0->wheelRotZ1AA - arg0->rot58);
         MulMatrix(&mD8[0], &m50);
         MulMatrix2(&m10, &mD8[0]);
-        v198[0] = VEC(arg0, 0xC8);
-        v198[1].vx = S32(arg0, 0x70) + S32(arg0, 0x60);
-        v198[1].vy = S32(arg0, 0x74) + S32(arg0, 0x64);
-        v198[1].vz = S32(arg0, 0x78) + S32(arg0, 0x68);
-        BuildRotMatrixX(&mD8[1], -S16(arg0, 0x80));
-        BuildRotMatrixZ(&m50, -S16(arg0, 0x84));
+        v198[0] = *(VECTOR *)&arg0->bodyPosition;
+        v198[1].vx = arg0->ir70[0] + arg0->ir60[0];
+        v198[1].vy = arg0->ir70[1] + arg0->ir60[1];
+        v198[1].vz = arg0->ir70[2] + arg0->ir60[2];
+        BuildRotMatrixX(&mD8[1], -arg0->ang80);
+        BuildRotMatrixZ(&m50, -arg0->ang84);
         MulMatrix(&mD8[1], &m50);
         MulMatrix2(&m10, &mD8[1]);
-        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[0], &mD8[0]);
+        SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&v198[0], mD8[0].w);
         a1 = 1;
-        G->col78 = 0;
-        if (D_800F2FD8 >= 4) {
+        G->draw74.draw.counter = 0;
+        if (ModelBankFormat >= 4) {
             a1 = 3;
         }
-        func_8005F0D0(SCRATCHPAD, a1, 0, s5);
-        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[1], &mD8[1]);
-        G->col78 = 0;
-        func_8005F0D0(SCRATCHPAD, 1, arg6, s5);
+        SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1, 0, s5);
+        SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&v198[1], mD8[1].w);
+        G->draw74.draw.counter = 0;
+        SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, 1, arg6, s5);
     } else if (i < arg5) {
         s5 = 0;
-        if (G->flag64 != 0) {
+        if (G->renderFlags64 != 0) {
             s5 = -0x7F;
         }
-        BuildRotMatrixY(&m50, -S32(arg0, 0x54));
-        BuildRotMatrixX(&m90, -S32(arg0, 0x50));
+        BuildRotMatrixY(&m50, -arg0->rot54);
+        BuildRotMatrixX(&m90, -arg0->rot50);
         MulMatrix2(&m50, &m90);
-        MulMatrix0(LightMatrix, &m90, &mB0);
+        MulMatrix0(&LightMatrix.matrix, &m90, &mB0);
         SetLightMatrix(&mB0);
-        BuildRotMatrixZ(&m50, -S32(arg0, 0x58));
+        BuildRotMatrixZ(&m50, -arg0->rot58);
         MulMatrix2(&m90, &m50);
-        MulMatrix2((MATRIX *)SCRATCH_ROT_MATRIX, &m50);
-        SetGteObjectTransform((SCRATCHPAD + 0x7C), arg0 + 0x20, &m50);
+        MulMatrix2((MatrixWords32 *)SCRATCH_ROT_MATRIX, &m50);
+        SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)arg0->position20.words, m50.w);
         a1 = 1;
-        G->col78 = 0;
-        if (D_800F2FD8 >= 3) {
+        G->draw74.draw.counter = 0;
+        if (ModelBankFormat >= 3) {
             a1 = 2;
         }
-        func_8005F0D0(SCRATCHPAD, a1, 0, s5);
+        SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1, 0, s5);
     }
     return dist;
 }
 
-void func_800700AC(int *a0) {
-    int *a1 = a0 + 1;
+void RelocateModelTable(RroModelTableWire *table) {
+    u32 *entry = table->words;
     int i = 0;
-    int n = a0[0];
-    int lim;
-    int *p;
-    *(int *)(SCRATCHPAD + 0x48) = (int)a1;
-    D_800F2EC0 = n;
-    if (n > 0) {
-        lim = n;
-        p = a0 + 3;
+    int count = table->count;
+    int limit;
+    ((RroSceneScratchPrefix *)SCRATCHPAD)->modelEntries48 = entry;
+    D_800F2EC0 = count;
+    if (count > 0) {
+        limit = count;
         do {
             i++;
-            *a1 += (int)a0;
-            a1 += 3;
-            *p += (int)a0;
-            p += 3;
-        } while (i < lim);
+            entry[RRO_MODEL_VERTEX_WORD] += (unsigned long)table;
+            entry[RRO_MODEL_COMMAND_WORD] += (unsigned long)table;
+            entry += RRO_MODEL_ENTRY_WORDS;
+        } while (i < limit);
     }
 }
 
-void RegisterModelBank(int *a0, int a1) {
-    int *p = a0 + 3;
+void RegisterModelBank(RroModelBank *bank, s32 slot) {
+    RroBankCommand *stream = bank->streams;
     unsigned i;
-    ModelBankTable[a1] = a0;
+    ModelBankTable[slot] = bank;
     i = 0;
-    a0[1] += (int)a0;
-    a0[2] += (int)a0;
-    if (a0[0] != 0) {
+    bank->vertices.pointer = (const Vec3s8 *)(RroModelBankAddress(bank,bank->vertices.relative));
+    bank->normals.pointer = (const Vec3s8 *)(RroModelBankAddress(bank,bank->normals.relative));
+    if (bank->streamCount != 0) {
         do {
             i++;
-            *p += (int)a0;
-            p++;
-        } while (i < (unsigned)a0[0]);
+            stream->pointer = (const u32 *)(RroModelBankAddress(bank,stream->relative));
+            stream++;
+        } while (i < bank->streamCount);
     }
 }
 
-void UnrelocateModelBank(int *a0, int a1) {
-    int *p = a0 + 3;
+void UnrelocateModelBank(RroModelBank *bank, const u8 *base) {
+    RroBankCommand *stream = bank->streams;
     unsigned i = 0;
-    a0[1] -= a1;
-    a0[2] -= a1;
-    if (a0[0] != 0) {
+    bank->vertices.relative = ((const u8 *)bank->vertices.pointer - base);
+    bank->normals.relative = ((const u8 *)bank->normals.pointer - base);
+    if (bank->streamCount != 0) {
         do {
             i++;
-            *p -= a1;
-            p++;
-        } while (i < (unsigned)a0[0]);
+            stream->relative = ((const u8 *)stream->pointer - base);
+            stream++;
+        } while (i < bank->streamCount);
     }
 }
 
-void SelectModelBank(int a0) {
-    int *v = ModelBankTable[a0];
-    int *w;
-    int a2;
-    int *g = (int *)SCRATCHPAD;
-    /* ASM_BARRIER: legacy, reason not recorded (forces reg copy/CSE/scheduling); retire & retest with fd.py */
-    __asm__("" : "=r"(w) : "0"(v));
-    a2 = v[0];
-    g[0x15] = w[1];
-    g[0x16] = ModelBankTable[a0][2];
-    D_800F2FD8 = a2;
-    g[0x14] = (int)ModelBankTable[a0] + 0xC;
+void SelectModelBank(int slot) {
+    RroModelBank *bank = ModelBankTable[slot];
+    RroModelBank *vertices;
+    int count;
+    RroSceneScratchPrefix *scene = (RroSceneScratchPrefix *)SCRATCHPAD;
+    /* ASM_BARRIER: retain the bank-pointer copy before the selected-count publication. */
+    __asm__("" : "=r"(vertices) : "0"(bank));
+    count = bank->streamCount;
+    scene->vertices54 = vertices->vertices.pointer;
+    scene->normals58 = ModelBankTable[slot]->normals.pointer;
+    ModelBankFormat = count;
+    scene->commands50 = ModelBankTable[slot]->streams;
 }
 
 void SetVramImageSlot(int a0, int a1) {

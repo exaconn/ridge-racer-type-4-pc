@@ -10,12 +10,10 @@ extern s32 ChangeClearRCnt(s32,s32);
 extern s32 SysDeqIntRP(s32,void *);
 extern s32 SysEnqIntRP(s32,void *);
 
-s32 _padChkVsync(void);
-
 int _padIntPad(void) {
     s32 first,condition,enabled;
     u32 shifted;
-    RrSerialPortRegisters *port=PadSio0Base;
+    SerialPortRegisters *port=PadSio0Base;
     if(port->control&2) {*(u16 *)&port->control=0;goto out;}
     condition=PadFirstChannel;
     /* ASM_BARRIER: Form the enable page after the serial-control gate. */
@@ -31,12 +29,12 @@ int _padIntPad(void) {
         page[-0x4330/4]=enabled;
     }
     if(condition) {
-        s32 *counter=D_80114428;
+        s32 *counter=PadPortTimeoutCounts;
         s32 value=*counter;
         if(value<150)*counter=value+1;
     }
-    if(!D_800ABCBC) {
-        s32 *counter=D_80114428+1;
+    if(!PadLastChannel) {
+        s32 *counter=PadPortTimeoutCounts+1;
         s32 value=*counter;
         if(value<150)*counter=value+1;
     }
@@ -44,12 +42,12 @@ int _padIntPad(void) {
     first=PadFirstChannel;
     /* Stage 15 times the index; quotient/remainder preserve native record sizes. */
     shifted=(u32)first<<4;
-    if(D_800ABCBC<first)goto out;
+    if(PadLastChannel<first)goto out;
     PadRecvStage=0;
     PadActiveChannel=first;
-    if(!_padInitSioMode((RrChannelRecordF0 *)((unsigned long)PadChannelRecords+(long)(s32)((shifted-(u32)first)*(sizeof(RrChannelRecordF0)/15)+(u32)first*(sizeof(RrChannelRecordF0)%15)))))PadAdvanceChannelFn(65535);
-    D_800ABCB0=0;
-    while(PadActiveChannel<=D_800ABCBC)_padSioStageStep(PadChannelRecords+PadActiveChannel);
+    if(!_padInitSioMode((PadChannel *)((u8 *)PadChannelRecords+((s32)(shifted-first)*(sizeof(PadChannel)/15)+first*(sizeof(PadChannel)%15)))))PadAdvanceChannelFn(65535);
+    PadTotalGateCost=0;
+    while(PadActiveChannel<=PadLastChannel)_padSioStageStep(PadChannelRecords+PadActiveChannel);
     PadSio0Base->baud=0x88;
 out:
     return 0;
@@ -70,7 +68,7 @@ s32 _padChkVsync(void) {
 }
 
 void _padStartCom(void) {
-    RrInterruptRegisters *p;
+    InterruptRegisters *p;
     u32 mask;
     s32 *counters;
     {
@@ -84,18 +82,18 @@ void _padStartCom(void) {
         page[-0x4360/4]=0;
     }
     EnterCriticalSection();
-    SysDeqIntRP(2,PadIntQueueEntry);
-    SysEnqIntRP(2,PadIntQueueEntry);
+    SysDeqIntRP(2,&PadIntQueueEntry);
+    SysEnqIntRP(2,&PadIntQueueEntry);
     p=I_STAT_Pad;
     p->pending=0xFFFFFFFEU;
     mask=p->mask;
     /* Ordinary final write view permits the original call-delay store. */
-    *(u32 *)((u8 *)p+RR_FIELD_OFFSET(RrInterruptRegisters,mask))=mask|1;
+    *(u32 *)((u8 *)p+RR_FIELD_OFFSET(InterruptRegisters,mask))=mask|1;
     ChangeClearRCnt(3,0);
     ExitCriticalSection();
-    D_800ABC6C(PadChannelRecords);
-    D_800ABC6C(PadChannelRecords+1);
-    counters=D_80114428;
+    PadResetChannelFn(PadChannelRecords);
+    PadResetChannelFn(PadChannelRecords+1);
+    counters=PadPortTimeoutCounts;
     counters[1]=0;counters[0]=0;
     PadComActive=1;
     /* ASM_BARRIER: Restore saved registers only after publishing the enabled state. */

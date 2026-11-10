@@ -25,8 +25,8 @@ class CarChoiceTest(unittest.TestCase):
 #include "rr/overlay662_car_choice.h"
 static const char format[]="job_garage_car_info0\n";
 typedef struct {
- u32 guard[4],rng;RrSaveProgressRecord7C save;RrCourseChoice4 choices[2][9];
- RrMenuGridPoint points[4];RrMenuChoice4 current;char name[12];
+ u32 guard[4],rng;SaveProgressRecord7C save;CourseChoice4 choices[2][9];
+ MenuGridPoint points[4];MenuChoice4 current;char name[12];
  s16 index,first,second,position,timer;u16 mode;u32 tail[4];
 } State;
 typedef struct {s32 op,arg;u32 hash;} Event;
@@ -74,12 +74,12 @@ static void expected(unsigned kind){
   w->s.points[0].first=w->s.choices[1][w->s.index].first;w->s.points[0].second=w->s.choices[1][w->s.index].second;
   w->s.mode=1;w->s.position=64;w->s.timer=0;DebugPrintStub(format);
  }else{
-  RrCourseChoice4 c=w->s.choices[1][w->s.index];w->s.first=c.first;w->s.second=c.second;
+  CourseChoice4 c=w->s.choices[1][w->s.index];w->s.first=c.first;w->s.second=c.second;
   w->s.points[0].first=c.first;w->s.points[0].second=c.second;ovl662_func_80118ED8();
  }
 }
 int main(void){unsigned scenario,kind;u32 seen=0;
- _Static_assert(sizeof(RrSaveProgressRecord7C)==124,"save owner");assert((uintptr_t)actual.s.name>UINT32_MAX);
+ _Static_assert(sizeof(SaveProgressRecord7C)==124,"save owner");assert((uintptr_t)actual.s.name>UINT32_MAX);
  for(scenario=0;scenario<65536;scenario++)for(kind=0;kind<2;kind++)for(mutation=0;mutation<2;mutation++){
   memset(&initial,0,sizeof(initial));w=&initial;w->s.rng=0x153b0+scenario*19+kind;change();w->s.index=scenario%9;
   w->s.choices[1][0].glyph=(s16)scenario;

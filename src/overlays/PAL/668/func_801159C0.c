@@ -1,4 +1,5 @@
 #include "types.h"
+#include "rr/frame_storage_types.h"
 
 /* Textured gouraud quad (GPU command 0x3E, 13-word packet). */
 typedef struct {
@@ -19,20 +20,19 @@ typedef struct {
     s16 x3, y3;
     u8 u3, v3;
     u16 pad5;
-} RrStrCreditQuad;
+} StrCreditQuad;
 
-typedef struct {
-    u8 pad00[0x70];
-    u32 head70;
-} RrStrCreditContext;
 
-extern RrStrCreditContext *CurrentDrawBuf;
 extern s32 D_80127E90;
 const s32 ovl668_D_80114898[2] = {0x35, 0x36};
 const s32 ovl668_D_801148A0 = 0x7F94;
 s32 ovl668_func_8011596C(s16 arg0);
 
-#define RR_STR_SCRATCH_CURSOR (*(RrStrCreditQuad **)0x1F800000)
+typedef struct {
+    StrCreditQuad *cursor;
+} StrCreditScratch;
+
+#define RR_STR_SCRATCH ((StrCreditScratch *)0x1F800000)
 
 /* Draws one 8-pixel band of the scrolling credits texture. */
 void ovl668_func_801159C0(s32 line, s32 unused) {
@@ -43,18 +43,18 @@ void ovl668_func_801159C0(s32 line, s32 unused) {
     s32 y2;
     s32 top;
     s32 bottom;
-    RrStrCreditQuad *p;
+    StrCreditQuad *p;
     u32 *ot;
 
     page = line / 31;
     v = (line % 31) * 8;
     y = D_80127E90 / 100 + line * 8;
     color[1] = v;
-    if ((u32)(y - 1) < 239) {
+    if ((y - 1) < 239U) {
         top = ovl668_func_8011596C(y) * 160 / 256;
         y2 = y + 8;
         bottom = ovl668_func_8011596C(y2) * 160 / 256;
-        p = RR_STR_SCRATCH_CURSOR;
+        p = RR_STR_SCRATCH->cursor;
         ((u8 *)p)[3] = 12;
         p->code = 0x3E;
         p->x0 = 32;
@@ -87,10 +87,10 @@ void ovl668_func_801159C0(s32 line, s32 unused) {
         p->b3 = bottom;
         p->clut = ovl668_D_801148A0;
         p->tpage = ovl668_D_80114898[page];
-        ot = &CurrentDrawBuf->head70;
+        ot = &CurrentDrawBuf->buffer.ordering70.words[0];
         p->tag = (p->tag & 0xFF000000) | (*ot & 0x00FFFFFF);
         *ot = (*ot & 0xFF000000) | ((u32)p & 0x00FFFFFF);
         p++;
-        RR_STR_SCRATCH_CURSOR = p;
+        RR_STR_SCRATCH->cursor = p;
     }
 }

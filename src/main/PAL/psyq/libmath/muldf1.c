@@ -1,24 +1,26 @@
 /* GCC_VERSION: 2.7.2 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/wide.h"
+#include "psyq/libmath/muldf1.h"
 
 typedef union {
     double d;
-    RrWide64 s;
+    s64 i;
+    Wide64 s;
 } DpUnion;
 
 extern s32 _err_math(s32 category, s32 operation);
 
-RrWide64 *_mainasu(RrWide64 *result,RrWide64 x);
-double __muldf3(double a_in, double b_in);
+Wide64 *_mainasu(Wide64 *result,Wide64 x);
+s64 __muldf3(s64 a_in, s64 b_in);
 
-RrWide64 *_mainasu(RrWide64 *result,RrWide64 x) {
-    RrWide64 one;
+Wide64 *_mainasu(Wide64 *result,Wide64 x) {
+    Wide64 one;
     one.hi=0;
     /* Qualified write views keep the real ABI-home stores and subsequent reloads. */
-    *(volatile u32 *)&one.lo=1;
-    *(volatile s32 *)&x.hi=~x.hi;
-    *(volatile u32 *)&x.lo=~x.lo;
+    one.lo=1;
+    *(s32 *)&x.hi=~x.hi;
+    x.lo=~x.lo;
     _add_mant_d(&x,x,one);
     {
         u32 low=x.lo;
@@ -31,13 +33,13 @@ RrWide64 *_mainasu(RrWide64 *result,RrWide64 x) {
     return result;
 }
 
-double __muldf3(double a_in, double b_in) {
-    RrWide64 sp18;
-    RrWide64 sp20;
-    RrWide64 sp28;
-    RrWide64 sp30;
-    RrWide64 sp38;
-    RrWide64 sp40;
+s64 __muldf3(s64 a_in, s64 b_in) {
+    Wide64 sp18;
+    Wide64 sp20;
+    Wide64 sp28;
+    Wide64 sp30;
+    Wide64 sp38;
+    Wide64 sp40;
     DpUnion sp48;
     DpUnion a;
     DpUnion b;
@@ -48,15 +50,15 @@ double __muldf3(double a_in, double b_in) {
     s32 s7;
     u32 fp;
 
-    a.d = a_in;
-    b.d = b_in;
+    a.i = a_in;
+    b.i = b_in;
     fp = (a.s.hi & 0x80000000) ^ (b.s.hi & 0x80000000);
 
     if (((a.s.hi & 0x7FFFFFFF) == 0 && a.s.lo == 0) ||
         ((b.s.hi & 0x7FFFFFFF) == 0 && b.s.lo == 0)) {
         sp48.s.hi = fp;
         sp48.s.lo = 0;
-        return sp48.d;
+        return sp48.i;
     }
 
     s7 = ((a.s.hi >> 20) & 0x7FF) + ((b.s.hi >> 20) & 0x7FF) - 0x3FE;
@@ -115,5 +117,5 @@ double __muldf3(double a_in, double b_in) {
         sp48.s.lo = sp18.lo;
     }
 
-    return sp48.d;
+    return sp48.i;
 }

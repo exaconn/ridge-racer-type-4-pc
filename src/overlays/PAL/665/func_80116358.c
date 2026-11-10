@@ -1,8 +1,10 @@
+#include "psyq/libgte/gtemat7.h"
+#include "psyq/libgte/gtemat4.h"
 /* CC1_FLAGS: -fno-strength-reduce */
 #include "rr/overlay665_matrix.h"
 
-void ovl665_func_80116358(const RrPreviewMatrixWorkspace *arg0, const RrPreviewLightInput36 *input) {
-    RrPreviewMatrixWorkspace mat[2];
+void ovl665_func_80116358(const PreviewMatrixWorkspace *arg0, const PreviewLightInput36 *input) {
+    PreviewMatrixWorkspace mat[2];
     s32 i;
     u16 *dst1,*dst2;
     const u16 *src2;
@@ -25,6 +27,6 @@ void ovl665_func_80116358(const RrPreviewMatrixWorkspace *arg0, const RrPreviewL
         arg1+=4;
         dst2++;
     } while (i<3);
-    MulMatrix2((s32 *)LightMatrix.words,mat[0].halves);
-    SetLightMatrix((s32 *)mat[0].words);
+    MulMatrix2(&LightMatrix.matrix, &mat[0].matrix);
+    SetLightMatrix(&mat[0].matrix);
 }

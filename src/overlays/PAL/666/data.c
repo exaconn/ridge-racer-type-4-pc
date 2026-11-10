@@ -5,7 +5,7 @@ u32 ovl666_module_id __attribute__((section(".ovl666.header"))) = 15;
 const char ovl666_scene_name[24] __attribute__((section(".ovl666.scene_name"))) =
     "job_ex_crs_info0\n";
 
-RrUiUvRect ovl666_selection_sprite
+UiUvRect ovl666_selection_sprite
     __attribute__((section(".ovl666.selection_sprite"))) = {0, 120, 40, 80};
 
 s32 ovl666_result_labels[33] __attribute__((section(".ovl666.result_labels"))) = {
@@ -21,8 +21,8 @@ s32 ovl666_preview_phase __attribute__((section(".ovl666.preview_phase"))) = 0;
 
 s32 ovl666_result_kind __attribute__((section(".ovl666.result_kind"))) = 0;
 
-RrMenuSelectionWord32 ovl666_selected_course
+MenuSelectionWord32 ovl666_selected_course
     __attribute__((section(".ovl666.selected_course"))) = {0};
 
-RrCourseChoice4 ovl666_available_courses[4][9]
+CourseChoice4 ovl666_available_courses[4][9]
     __attribute__((section(".ovl666.available_courses"))) = {0};

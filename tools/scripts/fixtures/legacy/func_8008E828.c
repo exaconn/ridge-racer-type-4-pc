@@ -2,26 +2,26 @@
 #include "rr/cd.h"
 
 extern s32 VSync(s32);
-extern RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback);
-extern RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback);
-extern RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback);
+extern LibCompletionCallback CdSyncCallback(LibCompletionCallback);
+extern LibCompletionCallback CdReadyCallback(LibCompletionCallback);
+extern LibCompletionCallback CdDataCallback(LibCompletionCallback);
 extern s32 CdGetSector2(u8 *,u32);
 extern void CdDataSync(s32);
 extern s32 CdPosToInt(void *);
-extern s32 func_800963DC(const char *,...);
+extern s32 PsyqPuts(const char *,...);
 extern const char CdReadSectorErrorMsg[];
 extern void cb_data(void),cd_read_restore_sync(void);
 
 void cb_read(s32 event,u8 *data) {
     u8 header[12];
-    register volatile RrLibReadRequestState *initial=&CdReadState;
-    register volatile RrLibReadRequestState *state;
-    register volatile RrLibReadRequestState *transfer;
-    register volatile RrLibReadRequestState *failed;
+    register volatile LibReadRequestState *initial=&CdReadState;
+    register volatile LibReadRequestState *state;
+    register volatile LibReadRequestState *transfer;
+    register volatile LibReadRequestState *failed;
     register u32 *completed;
-    register volatile RrCdPositionView *position;
-    register volatile RrCdPositionView *deferred;
-    RrCdDataNotify notify;
+    register volatile CdPositionView *position;
+    register volatile CdPositionView *deferred;
+    CdDataNotify notify;
     s32 now;
     register u8 *notify_page;
 
@@ -46,8 +46,8 @@ void cb_read(s32 event,u8 *data) {
                 /* ASM_BARRIER: capture the complete counter address before load. */
                 __asm__("" : "+r"(completed));
                 if ((u32)now!=*completed) {
-                    func_800963DC(CdReadSectorErrorMsg);
-                    failed=(RrLibReadRequestState *)((u8 *)completed-
+                    PsyqPuts(CdReadSectorErrorMsg);
+                    failed=(LibReadRequestState *)((u8 *)completed-
                                                      RR_READ_COMPLETED_OWNER_OFFSET);
                     failed->remaining14=-1;
                 }
@@ -68,13 +68,13 @@ void cb_read(s32 event,u8 *data) {
                 /* ASM_BARRIER: retain one captured window across the transfer. */
                 __asm__("" : "+r"(position));
                 CdGetSector(position->position08,position->step10);
-                transfer=(RrLibReadRequestState *)((u8 *)position-
+                transfer=(LibReadRequestState *)((u8 *)position-
                                                    RR_READ_POSITION_OWNER_OFFSET);
                 transfer->position08=position->position08+(position->step10<<2);
                 transfer->remaining14=(s32)((u32)transfer->remaining14-1U);
                 /* The object is ordinary; qualify the load for a fresh value,
                  * then allow its publication in the unconditional jump delay. */
-                ((RrLibReadRequestState *)transfer)->completed20=transfer->completed20+1U;
+                ((LibReadRequestState *)transfer)->completed20=transfer->completed20+1U;
             }
         }
     } else {
@@ -102,8 +102,8 @@ void cb_read(s32 event,u8 *data) {
         CdControlF(9,0);
         /* PAL page+0x63F0 contains the data notification function pointer. */
         notify_page=(u8 *)0x800A0000U;
-        notify=*(RrCdDataNotify *)(notify_page+0x63F0);
-        ((RrLibReadRequestState *)state)->finished24=1;
+        notify=*(CdDataNotify *)(notify_page+0x63F0);
+        ((LibReadRequestState *)state)->finished24=1;
         if (notify) {
             notify(state->remaining14==0?2:5,data);
         }

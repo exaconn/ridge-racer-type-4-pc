@@ -15,12 +15,12 @@
 
 #undef RaceContext
 
-void UpdateCameraMotion(RrCameraMotionInput14 *input) {
+void UpdateCameraMotion(CameraMotionInput14 *input) {
     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-    register RrCameraMotionInput14 *arg0 __asm__("$9")=input;
-    RrCameraRootPrefix *root=&RaceContext;
+    register CameraMotionInput14 *arg0 __asm__("$9")=input;
+    CameraRootPrefix *root=&RaceContext;
     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-    register RrCameraObjectPrefix *object __asm__("$8")=root->camera3D8;
+    register CameraObjectPrefix *object __asm__("$8")=root->camera3D8;
     s32 boundary;
     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
     register s32 temp_a0 __asm__("$4");
@@ -39,8 +39,8 @@ void UpdateCameraMotion(RrCameraMotionInput14 *input) {
     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
     register s32 temp_v1_3 __asm__("$3");
     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-    register RrCameraMotion70 *temp_a3 __asm__("$7");
-    RrCameraKey16 *temp_v1_4;
+    register CameraMotion70 *temp_a3 __asm__("$7");
+    CameraKey16 *temp_v1_4;
 
     temp_a3 = &object->motion74;
     temp_v1 = temp_a3->mode04;
@@ -69,9 +69,9 @@ copy_start:
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
                     register s32 key __asm__("$2")=temp_a3->key08;
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register RrCameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
+                    register CameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register RrCameraKey16 *point __asm__("$2")=(RrCameraKey16 *)((unsigned long)key*16+(unsigned long)keys);
+                    register CameraKey16 *point __asm__("$2")=(CameraKey16 *)((unsigned long)key*16+(unsigned long)keys);
                     value=point->x;
                 }
                 start=temp_a3->start10[0];temp_a3->target20[0]=value;value=W_SUB(value,start);first=W_MUL(value,2);first=W_ADD(first,value);first=W_MUL(first,8);
@@ -81,9 +81,9 @@ copy_start:
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
                     register s32 key __asm__("$2")=temp_a3->key08;
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register RrCameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
+                    register CameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register RrCameraKey16 *point __asm__("$2")=(RrCameraKey16 *)((unsigned long)key*16+(unsigned long)keys);
+                    register CameraKey16 *point __asm__("$2")=(CameraKey16 *)((unsigned long)key*16+(unsigned long)keys);
                     value=point->y;
                 }
                 start=temp_a3->start10[1];temp_a3->target20[1]=value;value=W_SUB(value,start);second=W_MUL(value,100);
@@ -92,9 +92,9 @@ copy_start:
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
                     register s32 key __asm__("$2")=temp_a3->key08;
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register RrCameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
+                    register CameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register RrCameraKey16 *point __asm__("$2")=(RrCameraKey16 *)((unsigned long)key*16+(unsigned long)keys);
+                    register CameraKey16 *point __asm__("$2")=(CameraKey16 *)((unsigned long)key*16+(unsigned long)keys);
                     value=point->z;
                 }
                 /* ASM_BARRIER: retain the original read/publish phase before this physical register is reused. */
@@ -106,7 +106,7 @@ copy_start:
                 temp_a3->delta30[2]=third;
             }
             {
-                RrCameraObjectPrefix *settings=root->camera3D8;
+                CameraObjectPrefix *settings=root->camera3D8;
                 /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
                 register s32 result __asm__("$2"),product __asm__("$3");
                 result=settings->scale4C;product=arg0->timing10;
@@ -192,7 +192,7 @@ copy_start:
                 temp_a3->key08 = temp_v0_4;
                 if (temp_v0_4 >= 3) {
                     temp_v1_4 = temp_a3->keys0C;
-                    temp_v0_5 = ((volatile RrCameraMotion70 *)temp_a3)->keys0C->x;
+                    temp_v0_5 = ((volatile CameraMotion70 *)temp_a3)->keys0C->x;
                     temp_a3->current40[0] = temp_v0_5;
                     temp_a3->start10[0] = temp_v0_5;
                     temp_v0_6 = temp_v1_4->y;
@@ -238,9 +238,9 @@ copy_start:
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
                     register s32 key __asm__("$2")=temp_a3->key08;
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register RrCameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
+                    register CameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register RrCameraKey16 *point __asm__("$2")=(RrCameraKey16 *)((unsigned long)key*16+(unsigned long)keys);
+                    register CameraKey16 *point __asm__("$2")=(CameraKey16 *)((unsigned long)key*16+(unsigned long)keys);
                     value=point->x;
                 }
                 start=temp_a3->start10[0];temp_a3->target20[0]=value;value=W_SUB(value,start);first=W_MUL(value,2);first=W_ADD(first,value);first=W_MUL(first,8);
@@ -250,9 +250,9 @@ copy_start:
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
                     register s32 key __asm__("$2")=temp_a3->key08;
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register RrCameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
+                    register CameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register RrCameraKey16 *point __asm__("$2")=(RrCameraKey16 *)((unsigned long)key*16+(unsigned long)keys);
+                    register CameraKey16 *point __asm__("$2")=(CameraKey16 *)((unsigned long)key*16+(unsigned long)keys);
                     value=point->y;
                 }
                 start=temp_a3->start10[1];temp_a3->target20[1]=value;value=W_SUB(value,start);second=W_MUL(value,100);
@@ -261,9 +261,9 @@ copy_start:
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
                     register s32 key __asm__("$2")=temp_a3->key08;
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register RrCameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
+                    register CameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
                     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register RrCameraKey16 *point __asm__("$2")=(RrCameraKey16 *)((unsigned long)key*16+(unsigned long)keys);
+                    register CameraKey16 *point __asm__("$2")=(CameraKey16 *)((unsigned long)key*16+(unsigned long)keys);
                     value=point->z;
                 }
                 /* ASM_BARRIER: retain the original read/publish phase before this physical register is reused. */

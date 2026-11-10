@@ -3,12 +3,12 @@
 #include "rr/spu.h"
 #include "psyq/libspu/spuvget.h"
 
-int SsUtGetDetVVol(unsigned short a0);
+int SsUtGetDetVVol(unsigned short a0, u16 *a1, u16 *a2);
 s32 SsUtSetDetVVol(s32 voice, s32 left, s32 right);
 int SsUtGetVVol();
 s32 SsUtSetVVol(s32 input, s32 left, s32 right);
 
-int SsUtGetDetVVol(unsigned short a0) { int r; if (a0 >= 0x18) r = -1; else { SpuGetVoiceVolume((short)a0); r = 0; } return r; }
+int SsUtGetDetVVol(unsigned short a0, u16 *a1, u16 *a2) { int r; if (a0 >= 0x18) r = -1; else { SpuGetVoiceVolume((short)a0, a1, a2); r = 0; } return r; }
 
 s32 SsUtSetDetVVol(s32 voice, s32 left, s32 right) {
     s32 i;
@@ -18,11 +18,7 @@ s32 SsUtSetDetVVol(s32 voice, s32 left, s32 right) {
         register u32 flags;
         i = (s16)voice;
         _svm_sreg_dirty.voices[i].right = right;
-        /* ASM_BARRIER: Preserve cache-store and flag-load scheduling and register lifetimes. */
-        __asm__ volatile("" : : "r"(i) : "$4", "memory");
         base = (u8 *)0x80110000U;
-        /* ASM_BARRIER: Expose the PAL page base; base[-0x1E8 + voice] aliases _svm_sreg_dirty.flags. */
-        __asm__("" : "=r"(base) : "0"(base));
         base += i;
         flags = base[-0x1E8];
         _svm_sreg_dirty.voices[i].left = left;
@@ -47,8 +43,7 @@ s32 SsUtSetVVol(s32 input, s32 left, s32 right) {
     register s32 voice = input;
     if ((u16)voice < 24) {
         register s32 result;
-        /* ASM_BARRIER: Keep the narrowed right volume in the original arithmetic register. */
-        register s32 right_value __asm__("$3");
+        s32 right_value;
         register s32 right_scaled;
         register s32 index;
         register s32 offset;
@@ -57,29 +52,23 @@ s32 SsUtSetVVol(s32 input, s32 left, s32 right) {
         /* ASM_BARRIER: Preserve the PAL page-address register used for the cache flag load. */
         register u8 *base __asm__("$5");
         /* ASM_BARRIER: Reuse the flag-address register after its last pointer use. */
-        register u32 flags __asm__("$5");
+        u32 flags;
         /* ASM_BARRIER: Materialize the success value before narrowing and scaling the right volume. */
         __asm__("" : "=r"(result) : "0"(0) : "$3");
         right_value = (s16)right;
-        /* ASM_BARRIER: Keep the signed halfword conversion before multiplication. */
-        __asm__("" : "=r"(right_value) : "0"(right_value));
         right_scaled = right_value * 129;
 
         index = (s16)voice;
         offset = index * 16;
-        ((RrSpuCachedVolumeEntry *)((u8 *)_svm_sreg_dirty.voices + offset))->right = right_scaled;
+        ((SpuCachedVolumeEntry *)((u8 *)_svm_sreg_dirty.voices + offset))->right = right_scaled;
         left_value = (s16)left;
 
         left_scaled = left_value * 128;
-        /* ASM_BARRIER: Preserve cache-store and flag-load scheduling and register lifetimes. */
-        __asm__ volatile("" : : "r"(index), "r"(left_scaled) : "$5", "memory");
         base = (u8 *)0x80110000U;
-        /* ASM_BARRIER: Expose the PAL page base; base[-0x1E8 + voice] aliases _svm_sreg_dirty.flags. */
-        __asm__("" : "=r"(base) : "0"(base));
         base += index;
         flags = base[-0x1E8];
         left_scaled += left_value;
-        ((RrSpuCachedVolumeEntry *)((u8 *)_svm_sreg_dirty.voices + offset))->left = left_scaled;
+        ((SpuCachedVolumeEntry *)((u8 *)_svm_sreg_dirty.voices + offset))->left = left_scaled;
         _svm_sreg_dirty.flags[index] = flags | 3;
         return result;
     }

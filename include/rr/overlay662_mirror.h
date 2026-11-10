@@ -8,7 +8,7 @@
  * optionally restores options,backs up,sets button2 timer7 and plays sound1.
  * It then captures fresh layer/active roots and mirrors a64x64 four-bit image.
  * Active21 is0/1 after services;the selected pair owns disjoint512-word
- * buffers. Rectangle table slot2 points at a complete RrGarageButton's first
+ * buffers. Rectangle table slot2 points at a complete GarageButton's first
  * member. Services may replace roots and mutate state. */
 void ovl662_func_8011EFFC(s32 command);
 #endif

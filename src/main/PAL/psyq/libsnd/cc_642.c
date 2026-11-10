@@ -1,4 +1,3 @@
-/* CC1_FLAGS: -mno-split-addresses */
 #include "rr/library.h"
 #include "psyq/libsnd/vmtick2.h"
 void _SsContDamper(s32 bank, s32 row, s32 raw_value) {
@@ -7,8 +6,8 @@ void _SsContDamper(s32 bank, s32 row, s32 raw_value) {
     u32 value = raw_value;
     /* ASM_BARRIER: Preserve the original register through selector calculation and call argument preparation. */
     register u32 raw_row __asm__("$18") = row;
-    register RrLibStateB0 **table;
-    RrLibStateB0 *state;
+    register LibStateB0 **table;
+    LibStateB0 *state;
     /* ASM_BARRIER: Preserve the original register through selector calculation and call argument preparation. */
     register s32 index __asm__("$4");
     register s32 selected_row;
@@ -25,12 +24,12 @@ void _SsContDamper(s32 bank, s32 row, s32 raw_value) {
     value &= 255;
     /* ASM_BARRIER: Finish the selectors and value before materializing the PAL page. */
     __asm__ volatile("" : "+r"(value) : "r"(units), "r"(index));
-    table = (RrLibStateB0 **)0x80110000U;
+    table = (LibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL lookup page without folding its signed low offset. */
     __asm__("" : "=r"(table) : "0"(table));
-    table = (RrLibStateB0 **)((u8 *)table + index);
-    state = (RrLibStateB0 *)((u8 *)table[-0xF98 / 4] + units);
-    if ((u32)value < 64) _SsVmDamperOff();
+    table = (LibStateB0 **)((u8 *)table + index);
+    state = (LibStateB0 *)((u8 *)table[-0xF98 / 4] + units);
+    if (value < 64) _SsVmDamperOff();
     else _SsVmDamperOn();
     bank_bits = raw_bank << 16;
     row_bits = raw_row << 16;

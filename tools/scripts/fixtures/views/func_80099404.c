@@ -16,9 +16,9 @@ typedef struct {
     u8 assignments[6];
     char pad63[0xE9 - 0x63];
     u8 group_count;
-} RrSlotAssignmentState;
+} SlotAssignmentState;
 
-s32 _padActAlignComplete(RrSlotAssignmentState *state)
+s32 _padActAlignComplete(SlotAssignmentState *state)
 {
     s32 group, minimum, remaining, i;
     u8 *slots;

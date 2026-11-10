@@ -10,13 +10,12 @@ import unittest
 U8 = C.c_uint8
 
 
-class State(C.Structure):
-    _fields_ = [('pad00', U8 * 0x37), ('flag37', U8),
-                ('pad38', U8 * 4), ('packet', C.POINTER(U8))]
+from channel_native_types import PadChannel
+from c_functions import source_owners, definition_source
 
 
-Callback = C.CFUNCTYPE(C.c_int32, C.POINTER(State), C.c_int32)
-Finish = C.CFUNCTYPE(C.c_int32, C.POINTER(State), U8)
+Callback = C.CFUNCTYPE(C.c_uint32, C.POINTER(PadChannel), C.c_int32)
+Finish = C.CFUNCTYPE(C.c_int32, C.POINTER(PadChannel), C.c_int32)
 
 
 class TransferResultTest(unittest.TestCase):
@@ -26,29 +25,26 @@ class TransferResultTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         directory = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        source = (root / 'tools/scripts/fixtures/legacy/func_80099890.c').read_text()
-        source = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', source, flags=re.M)
-        source = '#include <stdint.h>\ntypedef uint8_t u8;\ntypedef int32_t s32;\n' + source
-        source += '''
-s32 (*PadTxByteCallback)(RrTransferState *, s32);
-s32 (*test_finish)(RrTransferState *, u8);
-s32 _padSioRW2(RrTransferState *state, u8 value) {
-    return test_finish(state, value);
-}
-'''
+        owners=source_owners(root/'src/main/PAL')
+        body=definition_source(owners['_padRecvStage3'].read_text(),'_padRecvStage3')
+        source="""#include "rr/channel_init.h"
+ChannelByteCallback PadTxByteCallback;
+s32 (*test_finish)(PadChannel *,s32);
+s32 _padSioRW2(PadChannel *state,s32 value) {return test_finish(state,value);}
+"""+body
         (directory / 'function.c').write_text(source)
-        subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
+        subprocess.run(['cc', '-shared', '-fPIC', '-O2', '-I', str(root/'include'), str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
-        cls.function = cls.library.func_80099890
-        cls.function.argtypes = [C.POINTER(State)]
+        cls.function = cls.library._padRecvStage3
+        cls.function.argtypes = [C.POINTER(PadChannel)]
         cls.function.restype = C.c_int32
 
     def check_transfer(self, header, flag, callback_result, finish_result):
         packet = (U8 * 1)(header)
-        state = State()
-        state.packet = packet
-        state.flag37 = flag
+        state = PadChannel()
+        state.packet = C.addressof(packet)
+        state.command37 = flag
         calls = []
 
         @Callback

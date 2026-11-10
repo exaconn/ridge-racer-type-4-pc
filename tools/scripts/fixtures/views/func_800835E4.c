@@ -4,7 +4,7 @@
 
 #include "rr/library.h"
 
-extern RrLibStateB0 *_ss_score[];
+extern LibStateB0 *_ss_score[];
 
 typedef struct {
     void (*noteOn)();
@@ -20,12 +20,12 @@ extern void _SsSeqGetEof();
 
 s32 _SsGetSeqData(s16 a0, s16 a1) {
     s32 i = a0;
-    RrLibStateB0 **b = _ss_score;
-    RrLibStateB0 **q = &b[i];
+    LibStateB0 **b = _ss_score;
+    LibStateB0 **q = &b[i];
     s32 o = a1 * 0xB0;
     /* ASM_BARRIER: keeps the stream byte in s2 (otherwise s2/s3 swap with p). */
     register u32 c __asm__("$18");
-    RrLibStateB0 *p;
+    LibStateB0 *p;
     u32 c2;
     s32 ret = 0;
     s32 status;
@@ -33,9 +33,9 @@ s32 _SsGetSeqData(s16 a0, s16 a1) {
 
     /* ASM_BARRIER: complete row byte-offset scaling before loading the bank pointer. */
     __asm__("" : "=r"(q) : "0"(q), "r"(o));
-    p = (RrLibStateB0 *)((u8 *)*q + o);
+    p = (LibStateB0 *)((u8 *)*q + o);
     c = *p->c0++;
-    if ((((RrLibStateB0 *)(o + (s32)*q))->w98 & 0x401) == 0x401) {
+    if ((((LibStateB0 *)(o + (s32)*q))->w98 & 0x401) == 0x401) {
         if (p->c0 == p->p10 + 1) {
             _SsSeqGetEof(a0, a1, *(p->p10 + 1));
             return -1;

@@ -22,23 +22,23 @@
 
 extern s32 ChangeClearPAD(s32),ChangeClearRCnt(s32,s32);
 
-RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback) {
+LibInterruptCallback setIntr(s32 id,LibInterruptCallback callback) {
     s32 selector=id;
     /* ASM_BARRIER: Preserve the requested callback across kernel calls. */
-    register RrLibInterruptCallback requested __asm__("$18")=callback;
-    RrLibInterruptCallback *base;
-    RrLibInterruptCallback *entry;
-    RrLibInterruptCallback previous;
-    RrLibSavedState *state;
+    register LibInterruptCallback requested __asm__("$18")=callback;
+    LibInterruptCallback *base;
+    LibInterruptCallback *entry;
+    LibInterruptCallback previous;
+    LibSavedState *state;
     u32 saved;
     s32 disabled;
     /* ASM_BARRIER: Capture both full arguments before reusing argument registers for addresses. */
     __asm__("" : "+r"(selector), "+r"(requested));
-    base=D_800A52C8.callbacks;
-    entry=(RrLibInterruptCallback *)((unsigned long)((u32)selector*sizeof(*base))+(unsigned long)base);
+    base=IntrDispatchState.callbacks;
+    entry=(LibInterruptCallback *)((unsigned long)((u32)selector*sizeof(*base))+(unsigned long)base);
     previous=*entry;
     if(requested==previous) goto out;
-    state=(RrLibSavedState *)((unsigned long)base-RR_FIELD_OFFSET(RrLibSavedState,callbacks));
+    state=(LibSavedState *)((unsigned long)base-RR_FIELD_OFFSET(LibSavedState,callbacks));
     if(!state->active) goto out;
     {
         u16 raw=*I_MASK;
@@ -57,7 +57,7 @@ RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback) {
         bit=~(1U<<selector);
         *entry=0;
         saved &= bit;
-        *(u16 *)((unsigned long)base+RR_FIELD_OFFSET(RrLibSavedState,enabled_mask)-RR_FIELD_OFFSET(RrLibSavedState,callbacks)) &= bit;
+        *(u16 *)((unsigned long)base+RR_FIELD_OFFSET(LibSavedState,enabled_mask)-RR_FIELD_OFFSET(LibSavedState,callbacks)) &= bit;
     }
     if(selector==0) {
         disabled=requested==0;

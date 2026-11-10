@@ -8,7 +8,7 @@ import ctypes as C,struct,subprocess,sys,json,time
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN,UC_HOOK_CODE
 from unicorn.mips_const import UC_MIPS_REG_SP,UC_MIPS_REG_RA,UC_MIPS_REG_PC,UC_MIPS_REG_A0,UC_MIPS_REG_A1,UC_MIPS_REG_A2,UC_MIPS_REG_A3,UC_MIPS_REG_V0
 assert sys.byteorder=='little', 'The native fixture models PAL little-endian storage'
-P=Path('build/tests/mode_menu_state');P.mkdir(parents=True,exist_ok=True);raw=Path('assets/PAL/main.exe').read_bytes();source=Path(sys.argv[2] if len(sys.argv)>2 else Path('tools/scripts/fixtures/views/func_8007ABCC.c')).read_text();body=source[source.index('void func_8007ABCC(void) {'):]
+P=Path('build/tests/mode_menu_state');P.mkdir(parents=True,exist_ok=True);raw=Path('assets/PAL/main.exe').read_bytes();source=Path(sys.argv[2] if len(sys.argv)>2 else Path('tools/scripts/fixtures/views/func_8007ABCC.c')).read_text();body=source[source.index('void CardMenuModeEnter(void) {'):]
 class Core(C.Structure):
  _fields_=[('head',C.c_uint32*4),('words',C.c_uint32*6),('half',C.c_uint16*13),('choices',C.c_int16*3),('name',C.c_ubyte*24),('text',C.c_ubyte*24),('stored',C.c_ubyte*132),('snapshot',C.c_ubyte*132),('records',C.c_int32*3),('badges',C.c_ubyte*112),('root',C.c_uint32),('tail',C.c_uint32*4)]
 assert C.sizeof(Core)==528
@@ -70,7 +70,7 @@ for i,a in enumerate(half_addresses):
 for name,a in [('choices',0x80109478),('name',0x800A457C),('text',0x800F4D50),('stored',0x800F2E30),('snapshot',0x8010B258),('records',0x801272F0)]:macros+=f'#define {D(a)} (active.{name})\n'
 macros+='#define BadgeRows badgeRoot\n'
 functions=[]
-signatures=[('s32','UpdateLinkHandshake',['s32']),('s32','_sio_control',['s32','s32','unsigned long']),('void','SetDispMask',['s32']),('void','SetupDrawDispEnvs',['s32','s32','s16','u32']),('void','ClearScreenOverlayState',[]),('void','InitUiRow',['s32']*10),('void','SeqStartTrack',['s32']),('void','InitBadgeRow',['s32','s32','s16','s32','u16','u16','u16']),('void','ResetScreenCounters',[]),('s32','func_8003B934',[]),('void','UpdateScreenFade',['s32']),('void','SetMenuFrameOptions',['s32']*3)]
+signatures=[('s32','UpdateLinkHandshake',['s32']),('s32','_sio_control',['s32','s32','unsigned long']),('void','SetDispMask',['s32']),('void','SetupDrawDispEnvs',['s32','s32','s16','u32']),('void','ClearScreenOverlayState',[]),('void','InitUiRow',['s32']*10),('void','SeqStartTrack',['s32']),('void','InitBadgeRow',['s32','s32','s16','s32','u16','u16','u16']),('void','ResetScreenCounters',[]),('s32','LoadMenuCarModelsStep',[]),('void','UpdateScreenFade',['s32']),('void','SetMenuFrameOptions',['s32']*3)]
 for event,(ret,name,types) in enumerate(signatures,1):
  params=','.join(t+' a'+str(i) for i,t in enumerate(types)) or 'void'
  params+=',...' if name=='InitUiRow' else ''
@@ -90,9 +90,9 @@ head=r'''
 #include "rr/menu_setup.h"
 #include "rr/frame_environment.h"
 #include "rr/mode_menu_state.h"
-typedef struct {u32 head[4],words[6];u16 half[13];s16 choices[3];char name[24],text[24];RrMenuSettings2C stored[3],snapshot[3];s32 records[3];RrBadgeRow1C badges[2][2];u32 root,tail[4];} Core;
+typedef struct {u32 head[4],words[6];u16 half[13];s16 choices[3];char name[24],text[24];MenuSettings2C stored[3],snapshot[3];s32 records[3];BadgeRow1C badges[2][2];u32 root,tail[4];} Core;
 typedef struct {u32 event,args[10];Core before;} Event;
-static Core active;static RrBadgeRow1C *badgeRoot;
+static Core active;static BadgeRow1C *badgeRoot;
 static Event expectedEvents[32];static u32 eventCount,eventIndex,caseIndex;
 static void mismatch(const void *a,const void *b,size_t n){const u8 *x=a,*y=b;for(size_t j=0;j<n;j++)if(x[j]!=y[j]){fprintf(stderr,"case%u event%u offset%zu got%u wanted%u\n",caseIndex,eventIndex,j,x[j],y[j]);break;}abort();}
 static void service(u32 event,const u32 args[10]){
@@ -114,12 +114,12 @@ static void service(u32 event,const u32 args[10]){
 '''
 native=head+macros+'\n'+'\n'.join(functions)+'\n'+Path('tools/scripts/fixtures/views/func_8002B75C.c').read_text()+'\n'+body+r'''
 int main(int argc,char**argv){
- assert(sizeof(Core)==528&&sizeof(Event)==572&&sizeof(RrMenuSettings2C)==44&&sizeof(RrBadgeRow1C)==28);assert((uintptr_t)&active>UINT32_MAX);
+ assert(sizeof(Core)==528&&sizeof(Event)==572&&sizeof(MenuSettings2C)==44&&sizeof(BadgeRow1C)==28);assert((uintptr_t)&active>UINT32_MAX);
  FILE *file=fopen(argv[1],"rb");assert(file);Core before,expected;
  for(caseIndex=0;fread(&before,sizeof(Core),1,file)==1;caseIndex++){
   assert(fread(&expected,sizeof(Core),1,file)==1);assert(fread(&eventCount,4,1,file)==1);assert(eventCount<=32);assert(fread(expectedEvents,sizeof(Event),eventCount,file)==eventCount);
   memcpy(&active,&before,sizeof(Core));badgeRoot=active.badges[active.root];eventIndex=0;
-  func_8007ABCC();assert(eventIndex==eventCount);assert(badgeRoot==active.badges[active.root]);
+  CardMenuModeEnter();assert(eventIndex==eventCount);assert(badgeRoot==active.badges[active.root]);
   if(memcmp(&active,&expected,sizeof(Core)))mismatch(&active,&expected,sizeof(Core));
  }
  assert(feof(file));fclose(file);printf("%u cases passed; exact guarded state before every service and after original MIPS execution; actual string helper\n",caseIndex);return 0;

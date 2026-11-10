@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-typedef struct { s16 first, second; } RrRaceSetupPair4;
+typedef struct { s16 first, second; } RaceSetupPair4;
 
 #endif

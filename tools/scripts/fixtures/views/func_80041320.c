@@ -1,6 +1,6 @@
 #include "types.h"
 
-#define ROW(i) ((RrRow60 *)((s32)MenuTextRows + (i) * 0x3C))
+#define ROW(i) ((Row60 *)((s32)MenuTextRows + (i) * 0x3C))
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddDrawModePrim (*(unsigned *(*)())&AddDrawModePrim)
@@ -53,7 +53,7 @@ typedef struct {
     u16 unk36;
     s16 unk38;
     s16 unk3A;
-} RrRow60;
+} Row60;
 
 typedef struct 
 {
@@ -64,11 +64,11 @@ typedef struct
   unsigned short e;
 } E;
 
-extern RrRow60 *MenuTextRows;
+extern Row60 *MenuTextRows;
 
 extern unsigned short D_8009FDA0[];
 
-void func_80041320(a0, a1, a2)
+void SetMenuTextRowStyle(a0, a1, a2)
 int a0;
 int a1;
 int a2;

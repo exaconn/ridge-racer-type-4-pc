@@ -22,7 +22,7 @@ class OverlaySyncTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n)
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/overlay668_display.h"
-static struct World {u32 before[8];RrStrDisplayConfig config;u32 after[8];} world,expected;
+static struct World {u32 before[8];StrDisplayConfig config;u32 after[8];} world,expected;
 static u32 seed=0x1535c;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 ''' + body + r'''

@@ -28,7 +28,7 @@ class SpuToneUpdateTest(unittest.TestCase):
 #include <string.h>
 #include "types.h"
 ''' + header + r'''
-RrSpuSelectionPrefix D_80110101;
+SpuSelectionPrefix D_80110101;
 static u8 flags[65536+0x200];
 static u8 tones[2097280] __attribute__((aligned(512)));
 static u8 input[32] __attribute__((aligned(16)));

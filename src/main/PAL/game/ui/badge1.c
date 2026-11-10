@@ -1,20 +1,20 @@
+#include "game/ui/badge1.h"
 #include "types.h"
 #include "rr/badge_rows.h"
 #include "rr/draw_environment.h"
-#include "m2c_macros.h"
 #include "psyq/libgpu/primatt5.h"
 #include "rr/animated_glyph.h"
 #include "rr/hud_number.h"
 
 struct P12 { int a, b, c; };
 
-typedef struct { int a, b, c; } T;
+#include "rr/sprite_emit.h"
 
 extern int SetDrawArea();
 extern char D_800ADAF0[];
 
 void *AddDrawAreaPrim(u32 *a0, void *cursor, int a2, int a3, int a4, int a5);
-T *AddDrawModePrim(u32 *a0, T *a1, unsigned short a2);
+
 void *AddTilePrim(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
 void *AddTileGrid2x2(u32 *a0, void *a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
 
@@ -24,7 +24,7 @@ void *AddDrawAreaPrim(u32 *a0, void *cursor, int a2, int a3, int a4, int a5) {
     char *p = D_800ADAF0;
     int t;
     sp[0] = a2;
-    if (*(short *)(p + 0x5E) == *(short *)(p + 0x227D6)) {
+    if (((short *)p)[0x5E / 2] == ((short *)p)[0x227D6 / 2]) {
         sp[1] = a3;
     } else {
         t = DrawBufIndex;
@@ -37,26 +37,22 @@ void *AddDrawAreaPrim(u32 *a0, void *cursor, int a2, int a3, int a4, int a5) {
     return a1;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define AddPrim ((void (*)(u32 *,u32 *))AddPrim)
-
-T *AddDrawModePrim(u32 *a0, T *a1, unsigned short a2) {
-    SetDrawMode(a1, 0, 1, a2, 0);
-    AddPrim(a0, (u32 *)a1++);
-    return a1;
+void *AddDrawModePrim(u32 *ordering, GpuDrawModePacket *packet, u16 page) {
+    SetDrawMode(packet, 0, 1, page, 0);
+    AddPrim(ordering, (u32 *)packet++);
+    return packet;
 }
 
-#undef AddPrim
 
 void *AddTilePrim(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
     SetTile(arg1);
-    M2C_FIELD(arg1, s16 *, 8) = arg2;
-    M2C_FIELD(arg1, s16 *, 0xA) = arg3;
-    M2C_FIELD(arg1, s16 *, 0xC) = (s16) arg4;
-    M2C_FIELD(arg1, s16 *, 0xE) = (s16) arg5;
-    M2C_FIELD(arg1, s8 *, 4) = (s8) arg6;
-    M2C_FIELD(arg1, s8 *, 5) = (s8) arg7;
-    M2C_FIELD(arg1, s8 *, 6) = (s8) arg8;
+    ((s16 *)arg1)[4] = arg2;
+    ((s16 *)arg1)[5] = arg3;
+    ((s16 *)arg1)[6] = (s16) arg4;
+    ((s16 *)arg1)[7] = (s16) arg5;
+    ((s8 *)arg1)[4] = (s8) arg6;
+    ((s8 *)arg1)[5] = (s8) arg7;
+    ((s8 *)arg1)[6] = (s8) arg8;
     AddPrim(arg0, arg1);
     return arg1 + 0x10;
 }

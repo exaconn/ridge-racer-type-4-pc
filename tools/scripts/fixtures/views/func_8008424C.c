@@ -12,11 +12,11 @@ void SsSepSetVol(s32 bank, s32 row, s32 left, s32 right) {
     /* ASM_BARRIER: Preserve the original register allocation across lookup and the mode branch. */
     register s32 right_value __asm__("$10");
     /* ASM_BARRIER: Preserve the original register allocation across lookup and the mode branch. */
-    register RrLibStateB0 **table __asm__("$3");
-    register RrLibStateB0 *bank_base;
+    register LibStateB0 **table __asm__("$3");
+    register LibStateB0 *bank_base;
     s32 index;
     s32 units;
-    RrLibStateB0 *state;
+    LibStateB0 *state;
     /* ASM_BARRIER: Preserve the original register allocation across lookup and the mode branch. */
     register u32 row_bits __asm__("$4");
     /* ASM_BARRIER: Retain the left value before reusing its incoming argument register for lookup. */
@@ -26,10 +26,10 @@ void SsSepSetVol(s32 bank, s32 row, s32 left, s32 right) {
     /* ASM_BARRIER: Complete index arithmetic before materializing the PAL table page. */
     __asm__ volatile("" : : "r"(index), "r"(units) : "$3");
     /* PAL mapping: table[-0xF98 / 4] selects _ss_score[bank]. */
-    table = (RrLibStateB0 **)0x80110000U;
+    table = (LibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL table page without folding its signed low offset. */
     __asm__("" : "=r"(table) : "0"(table));
-    table = (RrLibStateB0 **)((u8 *)table + index);
+    table = (LibStateB0 **)((u8 *)table + index);
     bank_base = table[-0xF98 / 4];
     /* ASM_BARRIER: Load the bank base before forming the final record address. */
     __asm__("" : "=r"(bank_base) : "0"(bank_base));

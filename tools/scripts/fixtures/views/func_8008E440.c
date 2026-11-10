@@ -32,7 +32,7 @@ s32 DS_searchdir(s32 key, const char *name) {
         /* ASM_BARRIER: Expose the PAL page without folding its table offset into a macro load. */
         __asm__("" : "=r"(page) : "0"(page));
         page += offset;
-        entry_key = ((RrLibNamedEntry *)(page + 0x954))->key;
+        entry_key = ((LibNamedEntry *)(page + 0x954))->key;
         if (entry_key == 0) break;
         if (entry_key == key) {
             if (PsyqStrcmp(name, entry_name) == 0) return i + 1;

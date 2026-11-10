@@ -3,8 +3,9 @@
 
 #include "types.h"
 
-int SoundListenerInit();
+void SoundListenerInit(int arg0, int arg1);
 void SoundFindNearestCars(s32 arg0);
-void func_800523C8(int arg0);
+void SoundCalcCarParams(s32 idx);
+void UpdateCarSpatialAudio(int arg0);
 
 #endif /* RR_GAME_SOUND_SNDEVT_H */

@@ -1,54 +1,29 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channels.h"
+#include "rr/counters.h"
+#include "rr/interrupts.h"
+#include "rr/serial.h"
 #include "rr_asm.h"
 #include "psyq/libpad/padpoll.h"
 #include "psyq/libpad/padtm22.h"
 #include "psyq/libpad/padrecv.h"
 
-typedef struct {
-    char pad0[0x3C];
-    unsigned char *p3C;
-    unsigned char *p40;
-    unsigned char b44;
-    unsigned char b45;
-} S;
+int _padSioRW(PadChannel *a0, int a1);
 
-typedef struct {
-    volatile unsigned char b0;
-    char pad1[3];
-    volatile unsigned short h4;
-    char pad6[4];
-    volatile unsigned short hA;
-    char padC[2];
-    volatile unsigned short hE;
-} H;
-
-typedef struct {
-    volatile int a;
-} Q;
-
-extern void setRC2wait(s32);
-extern int chkRC2wait();
-extern Q *I_STAT_Pad;
-extern H *PadSio0Base;
-
-int _padSioRW(S *a0, int a1);
-
-void _padSioStageStep(RrChannelRecordF0 *channel) {
+void _padSioStageStep(PadChannel *channel) {
     s32 *stage=&PadRecvStage;
-    RrChannelStageCallback callback=PadRecvStageTable[*stage];
+    ChannelStageCallback callback=PadRecvStageTable[*stage];
     s32 result,value;
     *stage+=1;
     result=callback(channel);
     if(result<0)goto error;
     value=PadRecvStage;
     if(value) {
-        if(value==3 && channel->status.packet[0]==0x80)goto reload;
+        if(value==3 && channel->packet[0]==0x80)goto reload;
         setRC2wait(60);
         if(!_padClrIntSio0())PadAdvanceChannelFn(-3);
 reload:
         value=PadRecvStage;
-        /* ASM_BARRIER: Keep the reload gap before the shared saturation label. */
         RR_NOP_DEP_ON(value);
     }
     if(value>=5) {
@@ -69,41 +44,32 @@ error:
 out:;
 }
 
-int _padSioRW(S *a0, int a1) {
+int _padSioRW(PadChannel *a0, int a1) {
     /* ASM_BARRIER: pin s1 to $s1 so unpinned s2 gets $s2 */
     register int s1 __asm__("$17");
     int s2;
 
     if (a1 < 0) {
-        unsigned char tmp = PadSio0Base->b0;
-        /* ASM_BARRIER: pin ~a1 to $v0 so nor $v0, $zero, $s3 fills beqz delay slot */
-        register int v0 __asm__("$2");
+        unsigned char tmp = PadSio0Base->data;
+        int v0;
         a0->b44 = 0xFF;
         a0->b45 = 1;
-        *a0->p40 = ~a1;
+        *a0->buffer40 = ~a1;
         s2 = tmp;
-        while (!(PadSio0Base->h4 & 1))
+        while (!(PadSio0Base->status & 1))
             ;
         while (chkRC2wait() == 0)
             ;
         v0 = ~a1;
-        /* ASM_BARRIER: compute ~a1 before loading PadSio0Base so nor fills beqz delay slot */
-        __asm__ volatile("" : "+r"(v0));
-        *(unsigned char *)&PadSio0Base->b0 = v0;
+        *(unsigned char *)&PadSio0Base->data = v0;
         /* ASM_BARRIER: keep return value copy in the jump delay slot */
         __asm__ volatile("" : : : "memory");
         return s2;
     }
     {
-        /* ASM_BARRIER: pin shifted byte to $v0 */
-        register int v0 __asm__("$2") = *a0->p3C;
-        /* ASM_BARRIER: pin constant 8 to $v1 */
-        register int v1 __asm__("$3");
-        /* ASM_BARRIER: emit lbu $v0, 0($v0) before addiu $v1, $zero, 8 */
-        __asm__("" : "+r"(v0), "=r"(v1));
+        int v0 = *a0->packet;
+        int v1;
         v1 = 8;
-        /* ASM_BARRIER: place addiu $v1, $zero, 8 in load delay slot of lbu $v0, 0($v0) and keep s1 = 0x88 after it */
-        __asm__("" : "+r"(v0), "+r"(v1), "=r"(s1));
         v0 >>= 4;
         s1 = 0x88;
         if (v0 == v1) {
@@ -113,23 +79,23 @@ int _padSioRW(S *a0, int a1) {
         }
     }
     RC2WaitLimit = 0x1AE;
-    PadRcnt2Start = *(volatile unsigned short *)0x1F801120;
-    while (!(PadSio0Base->h4 & 2))
+    PadRcnt2Start = ((RootCounterRegisters *)0x1F801120)->count;
+    while (!(PadSio0Base->status & 2))
         ;
-    s2 = PadSio0Base->b0;
-    PadSio0Base->hE = s1;
-    while (!(I_STAT_Pad->a & 0x80)) {
+    s2 = PadSio0Base->data;
+    PadSio0Base->baud = s1;
+    while (!(I_STAT_Pad->pending & 0x80)) {
         if (chkRC2wait() != 0) {
             return -0x14;
         }
     }
-    PadSio0Base->b0 = a1;
+    PadSio0Base->data = a1;
     if (s1 == 0x22) {
-        I_STAT_Pad->a = -0x81;
-        PadSio0Base->hA |= 0x10;
+        I_STAT_Pad->pending = ~0x80U;
+        PadSio0Base->control |= 0x10;
     }
     a0->b45++;
-    a0->p3C[a0->b44] = s2;
+    a0->packet[a0->b44] = s2;
     a0->b44++;
     /* ASM_BARRIER: keep return value copy after b44 store */
     __asm__ volatile("" : : : "memory");

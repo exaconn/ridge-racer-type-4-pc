@@ -10,8 +10,8 @@ void _SsContExternal(s32 raw_bank, s32 raw_row, s32 raw_value) {
     register u32 left;
     register u32 right;
     /* ASM_BARRIER: Preserve the original register while preparing the paired channel arguments. */
-    register RrLibStateB0 **table __asm__("$16");
-    RrLibStateB0 *state;
+    register LibStateB0 **table __asm__("$16");
+    LibStateB0 *state;
     s32 bank, row, index, units;
     bank_bits = bank_selector << 16;
     left = value;
@@ -27,10 +27,10 @@ void _SsContExternal(s32 raw_bank, s32 raw_row, s32 raw_value) {
     units = row * 11;
     /* ASM_BARRIER: Finish the selectors before materializing the PAL page. */
     __asm__ volatile("" : : "r"(units), "r"(index));
-    table = (RrLibStateB0 **)0x80110000U;
+    table = (LibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL lookup page without folding its signed low offset. */
     __asm__("" : "=r"(table) : "0"(table));
-    table = (RrLibStateB0 **)((u8 *)table + index);
+    table = (LibStateB0 **)((u8 *)table + index);
     state = table[-0xF98 / 4] + row;
     SsUtSetReverbDepth(left, right);
     state->w90 = _SsReadDeltaValue(bank, row);

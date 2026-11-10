@@ -1,6 +1,6 @@
 """Vehicle drive controller against original and compiled scheduled MIPS.
 
-Full canonical320B records are accessed through the explicit GNU alias view.
+PAL records are serialized to complete native owners with real track pointers.
 Angle/response mocks are readonly; road sampling initializes three actual locals;
 lane/final update mocks mutate the live record. No vehicle hardware is emulated.
 """
@@ -9,8 +9,9 @@ from tempfile import TemporaryDirectory
 import hashlib,json,os,re,struct,subprocess,sys
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN
 from elftools.elf.elffile import ELFFile
+from c_functions import source_owners, definition_source
 sys.path.insert(0,'tools/scripts');from mips_preview_engine import Mips,signed
-ROOT=Path(__file__).resolve().parents[2];SOURCE=ROOT/'tools/scripts/fixtures/views/func_800486C4.c';CASES=4096
+ROOT=Path(__file__).resolve().parents[2];SOURCE=source_owners(ROOT/'src/main/PAL')['UpdateComCarDrive'];CASES=4096
 C=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -23,48 +24,49 @@ C=r'''
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/vehicle_drive.h"
-typedef struct {u8 pre[16];RrRaceVehicle vehicle;u8 post[16];} World;
+#include "vehicle_wire.h"
+typedef struct {u8 pre[16];RaceVehicle vehicle;u8 post[16];} World;
 static World world;
 static unsigned scenario,event;
 static const s16 limits[7]={0,1,-1,32767,-32768,16,-16};
 static const u32 returns[8]={0,1,100,1000,134217728,0x7fffffffU,0x80000000U,0xffffffffU};
 static s32 word(u32 x){s32 v;memcpy(&v,&x,4);return v;}
 static s16 half(u16 x){s16 v;memcpy(&v,&x,2);return v;}
-static void dump(char tag,s32 a,s32 b){unsigned i;printf("%c %08x %08x ",tag,(u32)a,(u32)b);for(i=0;i<sizeof world;i++)printf("%02x",((u8*)&world)[i]);puts("");}
+static void dump(char tag,s32 a,s32 b){unsigned i;u8 bytes[832];memcpy(bytes,world.pre,16);rr_vehicle_wire_store(bytes+16,&world.vehicle);memcpy(bytes+816,world.post,16);printf("%c %08x %08x ",tag,(u32)a,(u32)b);for(i=0;i<832;i++)printf("%02x",bytes[i]);puts("");}
 s32 ratan2(s32 x,s32 z){assert(event++==0);dump('A',x,z);return (s32)(scenario*137%4096)-2048;}
-s32 CalcSteerLimit(RrRaceVehicle *v){assert(v==&world.vehicle&&event++==1);dump('B',0,0);return (scenario/64)%8<7?limits[(scenario/64)%8]:half(scenario*293+0x8000);}
+s32 CalcSteerLimit(RaceVehicle *v){assert(v==&world.vehicle&&event++==1);dump('B',0,0);return (scenario/64)%8<7?limits[(scenario/64)%8]:half(scenario*293+0x8000);}
 s32 ScanCurveAhead(char *raw,s32 lane,s32 *x,s32 *y,s32 *z){
- RrRaceVehicle *v=(RrRaceVehicle *)raw;
+ RaceVehicle *v=(RaceVehicle *)raw;
  assert(v==&world.vehicle&&event++==2);assert((uintptr_t)x>UINT32_MAX&&(uintptr_t)y>UINT32_MAX&&(uintptr_t)z>UINT32_MAX);
  assert(x!=y&&y!=z&&x!=z);dump('C',lane,0);
  *x=word(scenario*0x9E3779B9U);*y=word(~(scenario*0x85EBCA6BU));*z=word(scenario*0xC2B2AE35U);
  return word(returns[(scenario/8)%8]);
 }
-void PlanComCarCornerTurn(RrRaceVehicle *v,s32 speed){unsigned i;assert(v==&world.vehicle&&event++==3);dump('D',speed,0);if(scenario&1)for(i=0;i<800;i++)((u8*)v)[i]=(u8)(scenario*29+(16+i)*7+31);}
-void UpdateEngineRpm(RrRaceVehicle *v){unsigned i;assert(v==&world.vehicle&&(event==3||event==4));event++;dump('E',0,0);for(i=0;i<800;i++)((u8*)v)[i]=(u8)(scenario*29+(16+i)*7+63);}
+void PlanComCarCornerTurn(RaceVehicle *v){unsigned i;u8 bytes[800];assert(v==&world.vehicle&&event++==3);dump('D',0,0);if(scenario&1){for(i=0;i<800;i++)bytes[i]=(u8)(scenario*29+(16+i)*7+31);rr_vehicle_wire_load(v,bytes);}}
+void UpdateEngineRpm(RaceVehicle *v){unsigned i;u8 bytes[800];assert(v==&world.vehicle&&(event==3||event==4));event++;dump('E',0,0);for(i=0;i<800;i++)bytes[i]=(u8)(scenario*29+(16+i)*7+63);rr_vehicle_wire_load(v,bytes);}
 '''
 TAIL=r'''
 int main(void){unsigned i;const s16 shifts[3]={-1,0,1};const s16 inputs[8]={0,1,-1,32767,-32768,8,128,-128};
- _Static_assert(sizeof(World)==832,"whole vehicle and guards");
- _Static_assert(sizeof(RrDriveVehicleView)==800,"full native alias view");
- _Static_assert(sizeof(RrDriveControlView)==0x12C,"full native drive subrecord");
- _Static_assert(offsetof(RrDriveVehicleView,control1F4)==0x1F4,"native control offset");
+ _Static_assert(sizeof(World)==sizeof(RaceVehicle)+32,"whole native vehicle and guards");
+ _Static_assert(sizeof(RaceVehicle)==(sizeof(void*)==4?0x320:0x330),"full native alias view");
+ _Static_assert(sizeof(RaceVehicleControl)==(sizeof(void*)==4?0x12C:0x138),"full native drive subrecord");
+ _Static_assert(offsetof(RaceVehicle,control)==(sizeof(void*)==4?0x1F4:0x1F8),"native control offset");
  for(scenario=0;scenario<4096;scenario++){
-  for(i=0;i<sizeof world;i++)((u8*)&world)[i]=(u8)(scenario*29+i*7);
-  world.vehicle.gear25C=2;world.vehicle.shiftDir256=shifts[scenario%3];
+  u8 bytes[832];rr_vehicle_wire_reset();for(i=0;i<832;i++)bytes[i]=(u8)(scenario*29+i*7);memcpy(world.pre,bytes,16);rr_vehicle_wire_load(&world.vehicle,bytes+16);memcpy(world.post,bytes+816,16);
+  world.vehicle.control.gear68=2;world.vehicle.control.shiftDir62=shifts[scenario%3];
   world.vehicle.input=inputs[(scenario/3)%8];world.vehicle.steeringLock1B8=(scenario/24)%2;
-  world.vehicle.holdFlag23C=inputs[(scenario/48)%8];world.vehicle.pad23E=inputs[(scenario/384)%8];
-  world.vehicle.steering288.mode00=(scenario/128)%2;world.vehicle.steeringEnabled318=1;
-  event=0;UpdateComCarDrive((RrDriveVehicleView *)&world.vehicle);dump('F',event,0);
+  world.vehicle.control.holdFlag48=inputs[(scenario/48)%8];world.vehicle.control.attenuation4A=inputs[(scenario/384)%8];
+  world.vehicle.control.dynamics94.steering.mode00=(scenario/128)%2;world.vehicle.control.steeringEnabled124=1;
+  event=0;UpdateComCarDrive(&world.vehicle);dump('F',event,0);
   for(i=0;i<16;i++)assert(world.pre[i]==(u8)(scenario*29+i*7)&&world.post[i]==(u8)(scenario*29+(816+i)*7));
  }return 0;
 }
 '''
 def main():
- body=SOURCE.read_text();body=body[body.index('void UpdateComCarDrive'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
+ body=definition_source(SOURCE.read_text(),'UpdateComCarDrive');body=re.sub(r' __asm__\("\$\d+"\)','',body)
  with TemporaryDirectory() as tmp:
   c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(C+body+TAIL)
-  subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)
+  subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),'-I',str(ROOT/'tools/scripts'),str(c),'-o',str(exe)],check=True)
   native=iter(subprocess.check_output([str(exe)],text=True).splitlines())
  code=(ROOT/'assets/PAL/main.exe').read_bytes()[0x38EC4:0x3926C];elf=os.environ.get('RR_COMPILED_ELF')
  if elf:
@@ -103,7 +105,7 @@ def main():
     if service==1:assert event==1;result=([0,1,-1,32767,-32768,16,-16][(scenario//64)%8] if (scenario//64)%8<7 else signed(scenario*293+0x8000,16))&0xffffffff
     elif service==2:
      assert event==2;a=cpu.r[5];result=returns[(scenario//8)%8]
-    elif service==3:assert event==3;a=cpu.r[5];result=0
+    elif service==3:assert event==3;result=0
     else:assert event in [3,4];result=0
    line=f'{"ABCDE"[service]} {a:08x} {b:08x} {world().hex()}';assert next(native)==line,(scenario,service)
    event+=1

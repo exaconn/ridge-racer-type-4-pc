@@ -3,6 +3,8 @@
 
 #include "types.h"
 
-void func_8007B460();
+void StepCardMenuStateMachine();
+int GetCardMenuInitialState(void);
+
 
 #endif /* RR_GAME_MENU_MENUSTEP_H */

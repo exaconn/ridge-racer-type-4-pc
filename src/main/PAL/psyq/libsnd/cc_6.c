@@ -23,11 +23,11 @@ RR_ASSERT_SIZE(ProgAtr, 0x10);
 
   /* _ss_score */
 extern void (*SsFCALLCcEntry[])();      /* SsFCALL.ccentry: _SsSetNrpnVabAttr0.. */
-extern void SsUtGetVagAtr(s16 vab, s16 prog, s16 tone, VagAtr *atr); /* SsUtGetVagAtr */
-extern void SsUtSetVagAtr(s16 vab, s16 prog, s16 tone, VagAtr *atr); /* SsUtSetVagAtr */
+extern s32 SsUtGetVagAtr(s16 vab, s16 prog, s16 tone, VagAtr *atr); /* SsUtGetVagAtr */
+extern s32 SsUtSetVagAtr(s16 vab, s16 prog, s16 tone, VagAtr *atr); /* SsUtSetVagAtr */
 
 void _SsContDataEntry(s16 bank, s16 row, u8 data) {
-    RrLibStateB0 *s;
+    LibStateB0 *s;
     ProgAtr progAtr;
     VagAtr vagAtr;
     u8 ch;

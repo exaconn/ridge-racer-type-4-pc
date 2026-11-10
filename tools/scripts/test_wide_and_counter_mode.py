@@ -42,15 +42,15 @@ class ArithmeticFixture:
 #include <stddef.h>
 typedef uint32_t u32; typedef int32_t s32; typedef uint64_t u64; typedef int64_t s64;
 ''' + header + '''
-u32 test_wide_layout[]={sizeof(RrWide64),offsetof(RrWide64,lo),offsetof(RrWide64,hi)};
-RrWide64 test_values[3];
-RrWide64 test_neg_left,test_neg_right;
+u32 test_wide_layout[]={sizeof(Wide64),offsetof(Wide64,lo),offsetof(Wide64,hi)};
+Wide64 test_values[3];
+Wide64 test_neg_left,test_neg_right;
 s32 test_neg_calls;void *test_neg_output;
-RrWide64 *test_neg_add(RrWide64 *out,RrWide64 left,RrWide64 right) {
+Wide64 *test_neg_add(Wide64 *out,Wide64 left,Wide64 right) {
  test_neg_calls++;test_neg_left=left;test_neg_right=right;test_neg_output=out;
  return _add_mant_d(out,left,right);
 }
-RrWide64 *test_alias(s32 index,RrWide64 left,RrWide64 right) {
+Wide64 *test_alias(s32 index,Wide64 left,Wide64 right) {
  test_values[0]=left; test_values[1]=right;
  test_values[2].lo=0xA5A5A5A5U; test_values[2].hi=(s32)0xA5A5A5A5U;
  return _add_mant_d(&test_values[index],test_values[0],test_values[1]);

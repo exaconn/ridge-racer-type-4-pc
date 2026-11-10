@@ -43,7 +43,7 @@ extern s32 EnterCriticalSection(void);
 
 extern void ExitCriticalSection(void);
 
-extern RrSerialPortRegisters SioShadowRegs;
+extern SerialPortRegisters SioShadowRegs;
 
 extern volatile s32 SioPollHook;
 
@@ -81,7 +81,7 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
             }
             break;
         case 6: {
-            volatile RrSerialRequest *req = &SioRequest;
+            volatile SerialRequest *req = &SioRequest;
             if (arg2 == 0) {
                 req = &SioReceiveRequest.request;
             }
@@ -96,7 +96,7 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
             break;
         case 1: {
             /* ASM_BARRIER: pin the port pointer to $v1 like the original allocation */
-            register RrSerialPortRegisters *p asm("$3") = &SioShadowRegs;
+            register SerialPortRegisters *p asm("$3") = &SioShadowRegs;
             s32 dtr;
             u32 dtr_copy;
             u32 ctrl;
@@ -116,13 +116,13 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
             break;
         }
         case 2: {
-            RrSerialPortRegisters *p = &SioShadowRegs;
+            SerialPortRegisters *p = &SioShadowRegs;
             p->mode = arg2;
             SIO1_REGS->mode = p->mode;
             break;
         }
         case 3: {
-            RrSerialPortRegisters *p;
+            SerialPortRegisters *p;
             if ((0x1FA400 % arg2) != 0) {
                 ret = -1;
                 break;
@@ -134,7 +134,7 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
             break;
         }
         case 4: {
-            RrSerialPortRegisters *p;
+            SerialPortRegisters *p;
             if (arg2 >= 1 && arg2 <= 8) {
                 ret = D_800ABD34[arg2];
                 if (ret < 0) {
@@ -153,7 +153,7 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
         switch (arg1) {
         case 0: {
             s32 v = EnterCriticalSection();
-            RrSerialPortRegisters *port = SIO1_REGS;
+            SerialPortRegisters *port = SIO1_REGS;
             port->control |= 0x50;
             port->mode = SioShadowRegs.mode;
             port->control = SioShadowRegs.control;

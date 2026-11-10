@@ -1,12 +1,12 @@
 #include "rr/text_sprites.h"
 
 void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
-    register RrSpritePacket *packet;
+    register SpritePacket *packet;
     register s32 current_x;
     register s32 glyph;
     s32 width;
     register const u8 *width_entry;
-    RrIconSpriteContext *context;
+    IconSpriteContext *context;
     u32 *head;
 
     /* ASM_BARRIER: retain the biased packet-field cursor in T0. */
@@ -23,7 +23,7 @@ void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
     s32 missing, command;
     u32 low, high;
     const u8 *lookup;
-    packet = (RrSpritePacket *)((RrGpuScratchPointers *)0x1F800000U)->cursor;
+    packet = (SpritePacket *)((GpuScratchPointers *)0x1F800000U)->cursor;
     current_x = x;
     yy = y;
     selected = bank;
@@ -81,5 +81,5 @@ void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
             }
         } while (*text != 0);
     }
-    ((RrGpuScratchPointers *)0x1F800000U)->cursor = (u8 *)packet;
+    ((GpuScratchPointers *)0x1F800000U)->cursor = (u8 *)packet;
 }

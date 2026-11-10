@@ -1,9 +1,9 @@
 #include "rr/cd_read_request.h"
 
 extern s32 VSync(s32);
-extern RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback);
-extern RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback);
-extern RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback);
+extern LibCompletionCallback CdSyncCallback(LibCompletionCallback);
+extern LibCompletionCallback CdReadyCallback(LibCompletionCallback);
+extern LibCompletionCallback CdDataCallback(LibCompletionCallback);
 extern u8 CdStatus(void);
 extern s32 CdControlB(s32,const u8*,u8*);
 extern s32 cd_read_retry(s32);
@@ -15,19 +15,19 @@ s32 CdRead(s32 sectors,u8 *buffer,u32 mode) {
     register u32 format __asm__("$18");
     u32 start;
     /* ASM_BARRIER: retain the complete request address across callback setters. */
-    register RrLibReadRequestState *state __asm__("$16");
+    register LibReadRequestState *state __asm__("$16");
     volatile s32 *pending;
     /* ASM_BARRIER: use the original constructor argument register for case stores. */
-    register RrLibReadRequestState *control __asm__("$4");
+    register LibReadRequestState *control __asm__("$4");
     u32 mode_stage=mode;
     s32 command,kind;
-    RrLibCompletionCallback *restore_slot;
-    RrLibCompletionCallback restored;
+    LibCompletionCallback *restore_slot;
+    LibCompletionCallback restored;
     u32 default_step;
-    RrLibCompletionCallback zero;
+    LibCompletionCallback zero;
     s32 result,busy;
     /* ASM_BARRIER: materialize the complete fallback address in its temporary. */
-    register RrLibReadRequestState *fallback __asm__("$3");
+    register LibReadRequestState *fallback __asm__("$3");
     const u8 *parameters;
     pending=&D_800A67D4;
     /* ASM_BARRIER: capture the pending flag's complete address before polling. */
@@ -56,10 +56,10 @@ timeout:
         /* ASM_BARRIER: capture the saved-callback slot before deriving its owner. */
         __asm__("" : "+r"(restore_slot));
         restored=*restore_slot;
-        state=(RrLibReadRequestState*)((u8*)restore_slot-
-              (sizeof(RrLibReadRequestState)-sizeof(RrLibReadRestoreTail)));
+        state=(LibReadRequestState*)((u8*)restore_slot-
+              (sizeof(LibReadRequestState)-sizeof(LibReadRestoreTail)));
         CdSyncCallback(restored);
-        ((volatile RrLibReadRequestState*)state)->finished24=0;
+        ((volatile LibReadRequestState*)state)->finished24=0;
         goto setup;
     case 0:
         control->step10=0x200;

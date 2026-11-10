@@ -1,5 +1,4 @@
 #include "types.h"
-#include "m2c_macros.h"
 #include "rr/spu_tick.h"
 
 extern s32 CurrentVideoMode;

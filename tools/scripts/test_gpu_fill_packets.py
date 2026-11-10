@@ -4,15 +4,17 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
 
 ROOT=Path(__file__).resolve().parents[2]
 
 
 class GpuFillPacketsTest(unittest.TestCase):
     def test_actual_body_and_packet_mutations(self):
-        source=(ROOT/'tools/scripts/fixtures/views/func_800943C4.c').read_text()
+        owner=source_owners(ROOT/'src/main/PAL')['_clr']
+        source=definition_source(owner.read_text(),'_clr')
         source=re.sub(r'^#include.*\n','',source,flags=re.M)
-        source=re.sub(r'^extern u32 D_80112788.*\n','',source,flags=re.M)
+        source=re.sub(r'^extern u32 GpuDrawEnvPacket.*\n','',source,flags=re.M)
         source=re.sub(r' asm\("\$\d+"\)','',source)
         source=re.sub(r'__asm__\(""[^;]*;',';',source)
         prefix=r'''
@@ -28,17 +30,17 @@ class GpuFillPacketsTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,s)
 #define RR_ASSERT_OFFSET(t,f,o)
 #include "rr/gpu.h"
-_Static_assert(sizeof(RrGpuRectangle)==8,"rectangle");
-_Static_assert(offsetof(RrGpuRectangleFields,w)==4,"width");
-_Static_assert(offsetof(RrGpuRectangleFields,h)==6,"height");
+_Static_assert(sizeof(GpuRectangle)==8,"rectangle");
+_Static_assert(offsetof(GpuRectangleFields,w)==4,"width");
+_Static_assert(offsetof(GpuRectangleFields,h)==6,"height");
 _Static_assert(sizeof(unsigned long)>=sizeof(void*),"native pointers");
-typedef union {u32 words[10];RrGpuRectangle rectangles[5];struct {u32 lead;RrGpuRectangle rectangles[4];u32 tail;} odd;} Primary;
-typedef union {u32 words[4];RrGpuRectangle rectangles[2];struct {u32 lead;RrGpuRectangle rectangle;u32 tail;} odd;} Secondary;
-typedef struct {u32 before[4]; RrGpuRectangle rectangle;Primary primary;Secondary secondary;u32 status;s16 width,height;u32 after[4];} World;
+typedef union {u32 words[10];GpuRectangle rectangles[5];struct {u32 lead;GpuRectangle rectangles[4];u32 tail;} odd;} Primary;
+typedef union {u32 words[4];GpuRectangle rectangles[2];struct {u32 lead;GpuRectangle rectangle;u32 tail;} odd;} Secondary;
+typedef struct {u32 before[4]; GpuRectangle rectangle;Primary primary;Secondary secondary;u32 status;s16 width,height;u32 after[4];} World;
 typedef struct {int kind;unsigned long arg;World state;} Entry;
 static World initial,world,actual;static Entry entries[4],saved[4];
 static unsigned count,mutate,selection,seed=0xC35A4129;
-#define D_80112788 (world.primary.words)
+#define GpuDrawEnvPacket (world.primary.words)
 #define D_801127B0 (world.secondary.words)
 #define D_800ABAC4 (world.width)
 #define D_800ABAC6 (world.height)
@@ -47,7 +49,7 @@ _Static_assert(sizeof(Primary)==40,"primary owner");
 _Static_assert(sizeof(Secondary)==16,"secondary owner");
 _Static_assert(offsetof(Primary,odd.rectangles)==4,"odd primary view");
 _Static_assert(offsetof(Secondary,odd.rectangle)==4,"odd secondary view");
-static RrGpuRectangle *rectangle(void){
+static GpuRectangle *rectangle(void){
  if(selection==0)return &world.rectangle;
  if(selection<=9){unsigned n=selection-1;return (n&1)?&world.primary.odd.rectangles[n/2]:&world.primary.rectangles[n/2];}
  unsigned n=selection-10;
@@ -69,11 +71,11 @@ s32 _param(s32 command){
  return (s32)((0x782301U*(unsigned)command ^ world.status)&0xFFFFFFU);
 }
 void _cwc(unsigned long address){assert(address==(unsigned long)world.primary.words);event(1,address);}
-static u16 get16(RrGpuRectangle *r,unsigned off){u16 value;memcpy(&value,(u8*)r+off,2);return value;}
+static u16 get16(GpuRectangle *r,unsigned off){u16 value;memcpy(&value,(u8*)r+off,2);return value;}
 static int signed16(u16 v){return v<32768?(int)v:(int)v-65536;}
-static u32 get32(RrGpuRectangle *r,unsigned off){u32 value;memcpy(&value,(u8*)r+off,4);return value;}
-static void put16(RrGpuRectangle *r,unsigned off,u16 value){memcpy((u8*)r+off,&value,2);}
-static int reference(RrGpuRectangle *r,u32 color){
+static u32 get32(GpuRectangle *r,unsigned off){u32 value;memcpy(&value,(u8*)r+off,4);return value;}
+static void put16(GpuRectangle *r,unsigned off,u16 value){memcpy((u8*)r+off,&value,2);}
+static int reference(GpuRectangle *r,u32 color){
  for(unsigned off=4;off<=6;off+=2){
   int side=signed16(get16(r,off));int cap=off==4?world.width:world.height;
   u16 clamped=side<0?0:side>cap-1?(u16)((u16)cap-1U):(u16)side;
@@ -98,14 +100,14 @@ static int reference(RrGpuRectangle *r,u32 color){
  }
  _cwc((unsigned long)p);return 0;
 }
-s32 _clr(RrGpuRectangle *,u32);
+s32 _clr(GpuRectangle *,u32);
 int main(void){
  unsigned fast=0,extended=0;
  assert((uintptr_t)world.primary.words>UINT32_MAX);
  for(unsigned k=0;k<1703936;k++){
   u8 *bytes=(u8*)&initial;for(size_t i=0;i<sizeof(initial);i++)bytes[i]=(u8)random32();
   selection=k/131072U;mutate=(k>>16)&1;u32 color=random32();
-  world=initial;RrGpuRectangle *r=rectangle();
+  world=initial;GpuRectangle *r=rectangle();
   r->rect.w=(s16)(u16)k;r->rect.h=(s16)(u16)(k*31337U);
   world.width=(s16)(u16)(k*139U);world.height=(s16)(u16)(k*17U);
   if((k&7)==0){r->rect.x=(s16)(u16)(k*64U);world.width=32767;}

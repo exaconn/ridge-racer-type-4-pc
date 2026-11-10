@@ -1,4 +1,6 @@
+#include "game/system/pad.h"
 #include "rr/overlay665_audio_options.h"
+#include "rr/frame_storage_types.h"
 
 void ovl665_func_801151A4(void) {
     s16 openingTimer;
@@ -13,17 +15,17 @@ void ovl665_func_801151A4(void) {
     u8 musicState;
     u8 effectsState;
     u8 detailState;
-    RrUiRow24 *detail;
-    RrUiRow24 *closingRow;
-    RrUiRow24 *clearingRow;
+    UiRow24 *detail;
+    UiRow24 *closingRow;
+    UiRow24 *clearingRow;
 
-    layout = (u32)ovl665_D_80119768.layout0C;
+    layout = ovl665_D_80119768.layout0C;
     switch (layout) {
     case 0:
         row = 0;
         ovl665_func_80114FD8();
         D_800AC5D0 = 0x40;
-        ovl665_D_80119768.layout0C = (s32) ((u32)ovl665_D_80119768.layout0C + 1U);
+        ovl665_D_80119768.layout0C = (ovl665_D_80119768.layout0C + 1U);
         break;
     case 1:
         signedTimer=D_800AC5D0;
@@ -31,13 +33,13 @@ void ovl665_func_801151A4(void) {
         openingTimer = (u16) D_800AC5D0 - 1;
         if (signedTimer > 0) {
             D_800AC5D0 = openingTimer;
-            AddScreenFadeTiles(&((RrFrameOrderingPrefix *)(void *)CurrentDrawBuf)->ordering70[702], (s32)openingTimer*4, 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[702], openingTimer*4, 0x45);
         }
-        func_8005B2D4(1);
+        SetPresentationDrawEnabled(1);
         if (UiRows[0].byte14 == 2) {
             row = 0;
             if (D_800AC5D0 == 0) {
-                ovl665_D_80119768.layout0C = (s32) ((u32)ovl665_D_80119768.layout0C + 1U);
+                ovl665_D_80119768.layout0C = (ovl665_D_80119768.layout0C + 1U);
             }
         } else {
             goto reset_rows;
@@ -47,14 +49,14 @@ void ovl665_func_801151A4(void) {
         UiRows[ovl665_D_80119768.exit34.word].cells[0] = 0;
         StepMenuValue(0, 2, (char *)&ovl665_D_80119768.exit34.halves[0], 4, 0);
         UiRows[ovl665_D_80119768.exit34.word].cells[0] = 2;
-        if (PlayerControllers[0].a != 0) {
+        if (PlayerControllers[0].action28 != 0) {
             PlaySfx(1);
             UiRows[ovl665_D_80119768.exit34.word].cells[0] = 1;
-            ovl665_D_80119768.layout0C = (s32) (ovl665_D_80119768.exit34.word + 3);
+            ovl665_D_80119768.layout0C = (ovl665_D_80119768.exit34.word + 3);
             SetMenuFrameOptions(1, 1, 0);
             row = 0;
         } else {
-            if (PlayerControllers[0].b != 0) {
+            if (PlayerControllers[0].action2C != 0) {
                 PlaySfx(2);
                 D_800AC5D0 = 0x40;
                 ovl665_D_80119768.layout0C = 6;
@@ -67,7 +69,7 @@ void ovl665_func_801151A4(void) {
         if (musicState == 2) {
             UiRows[4].cells[0] = musicState;
             StepMenuValue(1, -1, (char *)&Options.bytes[0x30], 0x11, 0);
-            ovl665_D_80119754 = (s32) Options.bytes[0x30];
+            ovl665_D_80119754 = Options.bytes[0x30];
             SeqSetVolume(D_800F7640);
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
@@ -84,7 +86,7 @@ void ovl665_func_801151A4(void) {
         if (effectsState == 2) {
             UiRows[5].cells[0] = effectsState;
             StepMenuValue(1, -1, (char *)&Options.bytes[0x31], 0x11, 0);
-            ovl665_D_80119758 = (s32) Options.bytes[0x31];
+            ovl665_D_80119758 = Options.bytes[0x31];
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
                 UiRows[5].cells[0] = 1U;
@@ -117,7 +119,7 @@ void ovl665_func_801151A4(void) {
         row = 0;
         closeIndex = 0;
         do {
-            closingRow = (RrUiRow24 *)((unsigned long)(closeIndex*sizeof(RrUiRow24))+(unsigned long)UiRows);
+            closingRow = (UiRow24 *)((closeIndex*sizeof(UiRow24))+(unsigned long)UiRows);
             if (closingRow->byte14 == 2) {
                 closingRow->byte14 = 3U;
             }
@@ -131,7 +133,7 @@ void ovl665_func_801151A4(void) {
         row = 4;
         detailIndex = 4;
         do {
-            detail = (RrUiRow24 *)((unsigned long)(detailIndex*sizeof(RrUiRow24))+(unsigned long)UiRows);
+            detail = (UiRow24 *)((detailIndex*sizeof(UiRow24))+(unsigned long)UiRows);
             detailState = detail->byte14;
             if (detailState == 2) {
                 detail->byte14 = 3U;
@@ -150,7 +152,7 @@ void ovl665_func_801151A4(void) {
         row = 4;
         clearIndex = 4;
         do {
-            clearingRow = (RrUiRow24 *)((unsigned long)(clearIndex*sizeof(RrUiRow24))+(unsigned long)UiRows);
+            clearingRow = (UiRow24 *)((clearIndex*sizeof(UiRow24))+(unsigned long)UiRows);
             if (clearingRow->byte14 != 0) {
                 clearingRow->byte14 = 0U;
             }
@@ -162,12 +164,12 @@ void ovl665_func_801151A4(void) {
     case 9:
         closingTimer = (u16) D_800AC5D0 - 1;
         D_800AC5D0 = closingTimer;
-        AddScreenFadeTiles(&((RrFrameOrderingPrefix *)(void *)CurrentDrawBuf)->ordering70[0], (0x40 - closingTimer) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - closingTimer) * 4, 0x45);
         row = 0;
         if (D_800AC5D0 <= 0) {
             ovl665_func_80114A24();
             ovl665_D_80119768.layout0C = 0;
-            ovl665_D_80119768.scene00 = (s32) ((u32)ovl665_D_80119768.scene00 - 1U);
+            ovl665_D_80119768.scene00 = (ovl665_D_80119768.scene00 - 1U);
             goto reset_rows;
         }
         break;

@@ -15,7 +15,7 @@ extern void ExitCriticalSection(void);
 extern s32 SysDeqIntRP(s32,void *),SysEnqIntRP(s32,void *);
 
 void _padStartCom(void) {
-    RrInterruptRegisters *p;
+    InterruptRegisters *p;
     u32 mask;
     s32 *counters;
     {
@@ -35,12 +35,12 @@ void _padStartCom(void) {
     p->pending=0xFFFFFFFEU;
     mask=p->mask;
     /* Ordinary final write view permits the original call-delay store. */
-    *(u32 *)((u8 *)p+RR_FIELD_OFFSET(RrInterruptRegisters,mask))=mask|1;
+    *(u32 *)((u8 *)p+RR_FIELD_OFFSET(InterruptRegisters,mask))=mask|1;
     ChangeClearRCnt(3,0);
     ExitCriticalSection();
-    D_800ABC6C(PadChannelRecords);
-    D_800ABC6C(PadChannelRecords+1);
-    counters=D_80114428;
+    PadResetChannelFn(PadChannelRecords);
+    PadResetChannelFn(PadChannelRecords+1);
+    counters=PadPortTimeoutCounts;
     counters[1]=0;counters[0]=0;
     PadComActive=1;
     /* ASM_BARRIER: Restore saved registers only after publishing the enabled state. */

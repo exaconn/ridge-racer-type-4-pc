@@ -9,6 +9,8 @@ body=body[body.index('void ovl667_func_80117FA8'):]
 mapper=(root/'tools/scripts/fixtures/views/func_80032E9C.c').read_text().replace('DecodeCourseIndex','actual_mapper')
 source=r'''
 #include <assert.h>
+#include "game/system/pad.h"
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -19,16 +21,16 @@ source=r'''
 #define RR_ASSERT_SIZE(t,n)
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/overlay667_course_menu.h"
-_Static_assert(sizeof(RrUiRow24)==36,"UI stride");
-_Static_assert(sizeof(RrMenuItemState5C)==92,"input stride");
-_Static_assert(offsetof(RrUiRow24,cells)==12,"cells");
-_Static_assert(offsetof(RrUiRow24,byte16)==22,"highlight");
+_Static_assert(sizeof(UiRow24)==36,"UI stride");
+_Static_assert(sizeof(ControllerState5C)==92,"input stride");
+_Static_assert(offsetof(UiRow24,cells)==12,"cells");
+_Static_assert(offsetof(UiRow24,byte16)==22,"highlight");
 static u8 resources[3][32];
 typedef struct {
  u32 guard[4];s32 frame,tick,available,players,clear;
  s16 timer,course,selection,style,mapped,scene,split,card,waitFlag,loadStatus;
- u16 phase,enabled;RrMenuItemState5C input[2];RrUiRow24 rows[2][25];
- RrFrameOrderingPrefix frames[2];RrMenuArenas arenas;void *published;u8 map[8];
+ u16 phase,enabled;ControllerState5C input[2];UiRow24 rows[2][25];
+ FrameStorage frames[2];MenuArenas8 arenas;void *published;u8 map[8];
  unsigned rowRoot,frameRoot;u32 tail[4];
 } State;
 static State actual,reference,*w;
@@ -51,7 +53,7 @@ static State actual,reference,*w;
 #define ModeGroup w->enabled
 #define UiRows w->rows[w->rowRoot]
 #define PlayerControllers w->input
-#define D_800F3A60 w->input[0].a
+#define D_800F3A60 w->input[0].action28
 #define CurrentDrawBuf (&w->frames[w->frameRoot])
 #define MenuArenas w->arenas
 #define LoadCursor w->published
@@ -77,7 +79,7 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
  w->rowRoot=(scenario+n)&1;w->frameRoot=(scenario+n+1)&1;
  w->arenas.first=resources[(scenario+n)%3];w->arenas.second=resources[(scenario+n+1)%3];w->published=resources[(scenario+n+2)%3];
  w->available=kind==14&&(scenario&3)==0?0x7FFFFFFF:1+v%16;
- w->input[0].a=(scenario>>6)&1;w->input[0].b=(scenario>>7)&1;
+ w->input[0].action28=(scenario>>6)&1;w->input[0].action2C=(scenario>>7)&1;
  for(unsigned i=0;i<25;i++)for(unsigned j=0;j<2;j++)w->rows[j][i].byte14=(scenario/256+n+i+j)%8;
  for(unsigned j=0;j<2;j++)w->rows[j][21].byte02=(scenario+n+j)%9;
  for(unsigned i=0;i<8;i++)w->map[i]=(u8)(v+i*31);
@@ -96,13 +98,13 @@ void StepMenuValue(s32 a,s32 b,char *p,s32 d,s32 e){unsigned k;
  if(k==2){s32 value=scenario%10;memcpy(p,&value,4);}
 }
 void ResetScreenCounters(void){service(6);}
-void func_80033368(s32 a,s32 b){const s32 args[7]={a,b};record(7,args);effect(7);}
+void DrawCourseMapPreview(s32 a,s32 b){const s32 args[7]={a,b};record(7,args);effect(7);}
 s32 DecodeCourseIndex(s32 a){const s32 args[7]={a};record(8,args);effect(8);return actual_mapper(a);}
 void PlaySfx(s32 a){const s32 args[7]={a};record(9,args);effect(9);}
 void SeqFadeVolume(s32 a,s32 b){const s32 args[7]={a,b};record(10,args);effect(10);}
 void BeginLinkSync(void){service(11);}
 void ovl667_func_801161A8(s32 a){assert(a==0||a==2);const s32 args[7]={a};record(12,args);effect(12);}
-void AddScreenFadeTiles(u32 *p,s32 b,u32 c){unsigned k;for(k=0;k<2&&p!=w->frames[k].ordering70;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);const s32 args[7]={k,b,(s32)c};record(13,args);effect(13);}
+void AddScreenFadeTiles(u32 *p,s32 b,u32 c){unsigned k;for(k=0;k<2&&p!=w->frames[k].buffer.ordering70.words;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);const s32 args[7]={k,b,(s32)c};record(13,args);effect(13);}
 void DrawUiRow(s32 a){const s32 args[7]={a};record(14,args);effect(14);}
 void DrawCourseInfoPanel(s32 a,s32 b){const s32 args[7]={a,b};record(15,args);effect(15);}
 void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){const s32 args[7]={a,b,c,d,e,f,g};record(16,args);effect(16);}
@@ -114,21 +116,21 @@ static void expected(void){s32 quit=ExitOnLinkLost();early[quit!=0]++;if(quit){S
  int ready=1;if(w->phase!=3)ready=LoadTrackNodesStep()==1;readiness[ready]++;
  if(ready){unsigned phase=w->phase;states[phase==0?0:phase==3?1:phase==4?2:phase==8?3:4]++;
   if(phase==0){SetMenuFrameOptions(1,1,1);s16 old=w->course;StepMenuValue(3,2,(char*)&w->course,w->available,0);
-   courseChange[old!=w->course]++;if(old!=w->course)ResetScreenCounters();else func_80033368(old,2);
+   courseChange[old!=w->course]++;if(old!=w->course)ResetScreenCounters();else DrawCourseMapPreview(old,2);
    w->mapped=DecodeCourseIndex(w->course);w->rows[w->rowRoot][18+w->selection].cells[0]=0;StepMenuValue(0,2,(char*)&w->selection,3,0);w->rows[w->rowRoot][18+w->selection].cells[0]=2;
    unsigned cells=w->rows[w->rowRoot][21].byte02;for(unsigned i=0;i<cells;i++){if((s32)i==w->course){w->rows[w->rowRoot][21].cells[i]=2;w->rows[w->rowRoot][21].byte16=i;}else w->rows[w->rowRoot][21].cells[i]=0;}
-   int state=w->rows[w->rowRoot][18].byte14;if(state==2){int back=0;if(w->input[0].a){PlaySfx(1);w->rows[w->rowRoot][18+w->selection].cells[0]=1;
+   int state=w->rows[w->rowRoot][18].byte14;if(state==2){int back=0;if(w->input[0].action28){PlaySfx(1);w->rows[w->rowRoot][18+w->selection].cells[0]=1;
      if(w->selection==0){choices[0]++;closeRows(4,7);ResetScreenCounters();w->timer=64;w->published=w->arenas.first;SeqFadeVolume(0,60);BeginLinkSync();w->phase=3;SetMenuFrameOptions(0,1,1);}
      else if(w->selection==1){choices[1]++;w->rows[w->rowRoot][23].byte14=0;w->phase=4;}else if(w->selection==2){choices[2]++;back=1;}
-    }else if(w->input[0].b){choices[3]++;PlaySfx(2);back=1;}
+    }else if(w->input[0].action2C){choices[3]++;PlaySfx(2);back=1;}
     if(back){SetMenuFrameOptions(0,1,1);closeRows(5,3);w->phase=8;}}
-  }else if(phase==3){func_80033368(w->course,2);int blockedNow=wait==0&&w->timer==64;blocked[blockedNow]++;
-   if(blockedNow)DrawUiRow(24);else{w->waitFlag=1;if(w->timer>0)w->timer=half((u16)w->timer-1);AddScreenFadeTiles(w->frames[w->frameRoot].ordering70,(64-(s32)w->timer)*4,69);
+  }else if(phase==3){DrawCourseMapPreview(w->course,2);int blockedNow=wait==0&&w->timer==64;blocked[blockedNow]++;
+   if(blockedNow)DrawUiRow(24);else{w->waitFlag=1;if(w->timer>0)w->timer=half((u16)w->timer-1);AddScreenFadeTiles(w->frames[w->frameRoot].buffer.ordering70.words,(64-(s32)w->timer)*4,69);
     if(w->timer<=0){exits[0]++;w->loadStatus=-1;SeqMuteVolume();w->enabled=1;w->scene=41;w->phase=0;w->card=0;_sio_control(3,0,0);}}
   }else if(phase==4){int state=w->rows[w->rowRoot][23].byte14;
    if(state==2){SetMenuFrameOptions(1,1,0);w->rows[w->rowRoot][23].cells[0]=2;StepMenuValue(1,4,(char*)&w->players,10,2);
-    if(w->input[0].a){PlaySfx(1);w->rows[w->rowRoot][23].cells[0]=1;w->rows[w->rowRoot][23].byte14=3;}}
-   else if(state==5)w->phase=0;func_80033368(w->course,2);
+    if(w->input[0].action28){PlaySfx(1);w->rows[w->rowRoot][23].cells[0]=1;w->rows[w->rowRoot][23].byte14=3;}}
+   else if(state==5)w->phase=0;DrawCourseMapPreview(w->course,2);
   }else if(phase==8){if(w->rows[w->rowRoot][18].byte14==5){exits[1]++;ovl667_func_801161A8((1-(s32)w->split)*2);w->enabled=1;w->scene=60;w->phase=0;}}
  }
  DrawCourseInfoPanel(w->course,2);for(unsigned i=18;i<22;i++)DrawUiRow(i);
@@ -141,7 +143,7 @@ int main(void){assert(sizeof(void*)==8);u16 endian=1;assert(*(u8*)&endian==1);
  static const u32 extremes[]={0,0xFFFFFFFFU,0x7FFFFFFF,0x80000000U};w->frame=word(scenario<4?extremes[scenario]:scenario*0x1234567U);w->tick=word(scenario<4?extremes[3-scenario]:~(scenario*0x2345678U));
  w->timer=half(profile>=18&&(scenario&3)==0?64:scenario);w->course=half(scenario);w->selection=scenario%3;w->split=scenario&1;w->available=1+scenario%16;w->players=word(scenario*0x3456789U);
  w->rowRoot=scenario&1;w->frameRoot=(scenario>>1)&1;w->arenas.first=resources[scenario%3];w->arenas.second=resources[(scenario+1)%3];w->published=resources[(scenario+2)%3];
- w->input[0].a=(scenario>>6)&1;w->input[0].b=(scenario>>7)&1;
+ w->input[0].action28=(scenario>>6)&1;w->input[0].action2C=(scenario>>7)&1;
  for(unsigned i=0;i<25;i++)for(unsigned j=0;j<2;j++)w->rows[j][i].byte14=(scenario/256+i+j)%8;
  for(unsigned j=0;j<2;j++)w->rows[j][21].byte02=(scenario+j)%9;for(unsigned i=0;i<8;i++)w->map[i]=(u8)(scenario+31*i);
  reference=actual;serial=count=seen=0;referenceRun=1;w=&reference;expected();serial=0;referenceRun=0;w=&actual;ovl667_func_80117FA8();assert(count==seen&&!memcmp(&actual,&reference,sizeof(actual)));

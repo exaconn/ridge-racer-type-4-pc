@@ -8,22 +8,22 @@
 typedef struct {
     u32 lo;
     s32 hi;
-} RrWide64;
+} Wide64;
 
-RrWide64 *_add_mant_d(RrWide64 *result, RrWide64 left, RrWide64 right);
+Wide64 *_add_mant_d(Wide64 *result, Wide64 left, Wide64 right);
 
 /* Repeated logical one-bit shift: direction 0 is left, nonzero is right;
  * nonpositive counts copy the input unchanged. Returns the output pointer. */
-RrWide64 *_dbl_shift_us(RrWide64 *result, s32 direction, RrWide64 value, s32 count);
+Wide64 *_dbl_shift_us(Wide64 *result, s32 direction, Wide64 value, s32 count);
 
 /* Compare both two-word inputs as unsigned 64-bit values: -1, 0, or 1. */
-s32 _comp_mant(RrWide64 left, RrWide64 right);
+s32 _comp_mant(Wide64 left, Wide64 right);
 
 /* Two's-complement negation modulo 2^64; returns the output pointer. */
-RrWide64 *_mainasu(RrWide64 *result, RrWide64 value);
+Wide64 *_mainasu(Wide64 *result, Wide64 value);
 
 /* Unsigned 32-by-32 multiplication, returning both product words. */
-RrWide64 *_mul_mant_d(RrWide64 *result, u32 left, u32 right);
+Wide64 *_mul_mant_d(Wide64 *result, u32 left, u32 right);
 
 /* Signed integer to IEEE binary64 bits, returned as the PAL v0/v1 pair. */
 u64 __floatsidf(s32 value);
@@ -31,7 +31,7 @@ u64 __floatsidf(s32 value);
 /* Toggle the binary64 sign bit; both zero encodings produce positive zero. */
 u64 __negdf2(u64 bits);
 
-RR_ASSERT_SIZE(RrWide64, 8);
-RR_ASSERT_OFFSET(RrWide64, hi, 4);
+RR_ASSERT_SIZE(Wide64, 8);
+RR_ASSERT_OFFSET(Wide64, hi, 4);
 
 #endif

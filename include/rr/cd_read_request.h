@@ -3,13 +3,13 @@
 #include "rr/library.h"
 
 /* Input-side completion fields in the same PAL record as the older partial
- * RrLibTransferState38 view. Buffer and callback slots retain native pointers. */
+ * LibTransferState38 view. Buffer and callback slots retain native pointers. */
 typedef struct {
-    RrLibCompletionCallback saved28;
-    RrLibCompletionCallback volatile saved2C;
-    RrLibCompletionCallback saved30;
+    LibCompletionCallback saved28;
+    LibCompletionCallback volatile saved2C;
+    LibCompletionCallback saved30;
     u8 *notify34; /* Callback result buffer, saved without address narrowing. */
-} RrLibReadRestoreTail;
+} LibReadRestoreTail;
 typedef struct {
     s32 sectors00;
     u8 *buffer04;
@@ -21,11 +21,11 @@ typedef struct {
     volatile u32 start1C;
     u32 completed20;
     s32 finished24;
-    RrLibReadRestoreTail restore;
-} RrLibReadRequestState;
-extern RrLibReadRequestState CdReadState;
+    LibReadRestoreTail restore;
+} LibReadRequestState;
+extern LibReadRequestState CdReadState;
 extern volatile s32 D_800A67D4;
-extern RrLibCompletionCallback CdReadSavedSyncCallback;
+extern LibCompletionCallback CdReadSavedSyncCallback;
 
 /* Waits for pending completion with unsigned elapsed ticks (timeout at121),
  * restores its saved callback on timeout, configures the request, and saves
@@ -36,15 +36,15 @@ s32 CdRead(s32 sectors,u8 *buffer,u32 mode);
  * then starts transfer. Shell-open/command failure publishes remaining=-1.
  * Successful return reloads remaining after the clock helper completes. */
 s32 cd_read_retry(s32 restart);
-RR_ASSERT_SIZE(RrLibReadRestoreTail, 0x10);
-RR_ASSERT_OFFSET(RrLibReadRestoreTail, saved2C, 4);
-RR_ASSERT_OFFSET(RrLibReadRestoreTail, saved30, 8);
-RR_ASSERT_OFFSET(RrLibReadRestoreTail, notify34, 0xC);
-RR_ASSERT_SIZE(RrLibReadRequestState, 0x38);
-RR_ASSERT_OFFSET(RrLibReadRequestState, buffer04, 4);
-RR_ASSERT_OFFSET(RrLibReadRequestState, mode0C, 0xC);
-RR_ASSERT_OFFSET(RrLibReadRequestState, step10, 0x10);
-RR_ASSERT_OFFSET(RrLibReadRequestState, start1C, 0x1C);
-RR_ASSERT_OFFSET(RrLibReadRequestState, finished24, 0x24);
-RR_ASSERT_OFFSET(RrLibReadRequestState, restore, 0x28);
+RR_ASSERT_SIZE(LibReadRestoreTail, 0x10);
+RR_ASSERT_OFFSET(LibReadRestoreTail, saved2C, 4);
+RR_ASSERT_OFFSET(LibReadRestoreTail, saved30, 8);
+RR_ASSERT_OFFSET(LibReadRestoreTail, notify34, 0xC);
+RR_ASSERT_SIZE(LibReadRequestState, 0x38);
+RR_ASSERT_OFFSET(LibReadRequestState, buffer04, 4);
+RR_ASSERT_OFFSET(LibReadRequestState, mode0C, 0xC);
+RR_ASSERT_OFFSET(LibReadRequestState, step10, 0x10);
+RR_ASSERT_OFFSET(LibReadRequestState, start1C, 0x1C);
+RR_ASSERT_OFFSET(LibReadRequestState, finished24, 0x24);
+RR_ASSERT_OFFSET(LibReadRequestState, restore, 0x28);
 #endif

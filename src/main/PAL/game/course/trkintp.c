@@ -1,17 +1,12 @@
 #include "types.h"
 #include "rr/track_sample_types.h"
 #include "rr/race_types.h"
-#include "m2c_macros.h"
 #include "game/car/carphys2.h"
 #include "game/course/trknode.h"
+#include "game/course/trkintp.h"
 #include "rr/menu_overlay_runtime.h"
 
-void GetSmoothedTrackHeading(int a, int b);
-int AngleDiffAbs(int a0, int a1);
-s32 AngleDiffSigned(s32 arg0, s32 arg1);
-void ComputeStartDistance(char *vehicle, int direction);
-
-void GetSmoothedTrackHeading(int a, int b)
+s32 GetSmoothedTrackHeading(int a, int b)
 {
     int s2;
     int s0;
@@ -23,7 +18,7 @@ void GetSmoothedTrackHeading(int a, int b)
         x = d + a;
     }
     s0 = LerpAngle12(s2, GetTrackHeadingAt(x, b), 0x200);
-    LerpAngle12(s0, LerpAngle12(s2, GetTrackHeadingAt((a + 2) % TrackNodeCount, b), 0x200), 0x200);
+    return LerpAngle12(s0, LerpAngle12(s2, GetTrackHeadingAt((a + 2) % TrackNodeCount, b), 0x200), 0x200);
 }
 
 int AngleDiffAbs(int a0, int a1) {
@@ -61,16 +56,16 @@ s32 AngleDiffSigned(s32 arg0, s32 arg1) {
     return var_v0;
 }
 
-void ComputeStartDistance(char *vehicle, int direction)
+void ComputeStartDistance(RaceVehicle *vehicle, int direction)
 {
     int node;
     int target;
     int distance;
     int wrapped;
     int previous;
-    *(s32 *)(vehicle + 0x184) = 0;
+    *(volatile s32 *)&vehicle->first = 0;
     node = *TrackStartNode;
-    target = *(s32 *)(vehicle + 0xF0);
+    target = vehicle->trackNodeF0;
     distance = 0;
     if (ReverseCourse == 0) {
         if (direction == 0) {
@@ -107,5 +102,5 @@ void ComputeStartDistance(char *vehicle, int direction)
             }
         }
     }
-    *(s32 *)(vehicle + 0x184) = distance;
+    vehicle->first = distance;
 }

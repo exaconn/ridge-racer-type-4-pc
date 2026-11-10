@@ -21,8 +21,8 @@ class OverlayCenterTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_garage.h"
 static struct World {
- u32 before[8];union {RrGarageRectangle rectangles[32];RrGaragePoint points[64];} arena;
- RrGarageRectangle *table[16];u32 after[8];
+ u32 before[8];union {GarageRectangle rectangles[32];GaragePoint points[64];} arena;
+ GarageRectangle *table[16];u32 after[8];
 } world,expected,initial;
 #define ovl662_D_801273B8 world.table
 ''' + body + r'''
@@ -33,7 +33,7 @@ static int floorhalf(int value){return value>=0?value/2:-((-value+1)/2);}
 int main(void){unsigned k,i,j;
  for(k=0;k<65536;k++){
   unsigned index=k&15,selected=(k*7)&31,output=(k*11)&63;
-  u16 ex,ey;RrGaragePoint result;
+  u16 ex,ey;GaragePoint result;
   memset(&world,0,sizeof(world));
   for(i=0;i<8;i++){world.before[i]=next();world.after[i]=next();}
   for(i=0;i<32;i++)for(j=0;j<4;j++)world.arena.rectangles[i][j]=next();

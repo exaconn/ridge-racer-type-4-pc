@@ -1,11 +1,12 @@
 #include "rr/overlay666.h"
+#include "rr/frame_storage_types.h"
 
 void ovl666_init_results(void) {
     s32 i;
     s32 base;
 
     /* The selected label bank is0..2; the two progress selectors are0..3. */
-    InitMenuTextRows(D_800FFC48);
+    InitMenuTextRows((MenuTextRow60 *)D_800FFC48);
     MenuCursor = 0;
     MenuItemCount = 3;
     if (ovl666_result_kind == 0) {
@@ -29,9 +30,9 @@ void ovl666_init_results(void) {
 }
 
 s32 ovl666_update_retry_choice(s32 mode) {
-    func_80041320(MenuCursor + 37, 0, 0);
+    SetMenuTextRowStyle(MenuCursor + 37, 0, 0);
     StepMenuValue(0, 2, (char *)&MenuCursor, 3, 0);
-    func_80041320(MenuCursor + 37, 1, 1);
+    SetMenuTextRowStyle(MenuCursor + 37, 1, 1);
     if (D_800F3A60) {
         PlaySfx(1);
         return MenuCursor;
@@ -44,9 +45,9 @@ void ovl666_update_results(void) {
     s32 i;
     s16 timer;
     s32 ready;
-    RrMenuTextRow60 *rows;
+    MenuTextRow60 *rows;
 
-    ModeFrame = (s32)((u32)ModeFrame + 1U);
+    ModeFrame = (ModeFrame + 1U);
     ScreenFrame++;
     switch (D_800F4D8A) {
     case 0:
@@ -89,7 +90,7 @@ void ovl666_update_results(void) {
         SetMenuFrameOptions(0, 1, 0);
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (64 - timer) * 4, 69);
         group = 3;
         if (D_800AC5D0 <= 0) {
             ovl666_result_kind = 1;
@@ -103,7 +104,7 @@ void ovl666_update_results(void) {
         SetMenuFrameOptions(0, 1, 0);
         timer = (u16)D_800AC5D0 - 2;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (64 - timer) * 4, 69);
         group = 3;
         if (D_800AC5D0 <= 0) {
             group = -1;
@@ -114,7 +115,7 @@ void ovl666_update_results(void) {
         SetMenuFrameOptions(0, 1, 0);
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (64 - timer) * 4, 69);
         group = -1;
         if (D_800AC5D0 <= 0) {
             ModeGroup = 1;
@@ -136,7 +137,7 @@ void ovl666_update_results(void) {
         break;
     }
     UpdateScreenFade(0x1000C);
-    func_8003662C(ModeFrame);
+    DrawResultsStandingsOverlay(ModeFrame);
     if (group >= 0) {
         i = 0;
         do {
@@ -145,7 +146,7 @@ void ovl666_update_results(void) {
         } while (i < 11);
     }
     rows = MenuTextRows;
-    if ((u32)(rows[0].bytes[2] - 3) < 5U || (u32)(rows[11].bytes[2] - 3) < 5U) {
-        func_800411D4();
+    if ((rows[0].bytes[2] - 3) < 5U || (rows[11].bytes[2] - 3) < 5U) {
+        DrawResultsRankIcons();
     }
 }

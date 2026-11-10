@@ -22,7 +22,7 @@ class Overlay662SelectionTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/menu_ui_bank.h"
-static struct World {u32 guard[4];s16 selection;RrMenuChoice4 choice;u16 buttons;s32 direction;RrUiRow24 *ui;RrMenuGlyphRow1C *glyphs;RrMenuUiBank backing[3];RrMenuGlyphRow1C records[3][4];u32 calls;s32 sound_args[5];u32 tail[4];} world,expected;
+static struct World {u32 guard[4];s16 selection;MenuChoice4 choice;u16 buttons;s32 direction;UiRow24 *ui;MenuGlyphRow1C *glyphs;MenuUiBank backing[3];MenuGlyphRow1C records[3][4];u32 calls;s32 sound_args[5];u32 tail[4];} world,expected;
 #define D_800AD520 world.selection
 #define SelectionRows world.choice
 #define D_800F3A42 world.buttons

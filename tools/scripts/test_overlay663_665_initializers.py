@@ -25,8 +25,8 @@ class OverlayMenuInitializersTest(unittest.TestCase):
 #include "rr/overlay_menu_init.h"
 typedef union {u32 words[8];u8 bytes[32];} Work32;
 typedef union {u32 words[3];u8 bytes[12];} Work12;
-typedef struct {s32 kind,args[10];void *data;u8 *base,*second;void *published;RrUiRow24 *ui;s32 frame,counter,c4,c8,condition;s16 selection,limit,half20;s8 flag1,flag2;} Event;
-static struct World {u32 guard[4];s32 frame,counter,c4,c8,condition;s16 selection,limit;s8 flag1,flag2;RrMenuArenas arenas;u8 *base;void *published;RrUiRow24 *ui;RrUiRow24 rows[3][8];Work32 work32;Work12 work12;s32 driver[3];u32 calls;Event log[11];u32 tail[4];} world,expected;
+typedef struct {s32 kind,args[10];void *data;u8 *base,*second;void *published;UiRow24 *ui;s32 frame,counter,c4,c8,condition;s16 selection,limit,half20;s8 flag1,flag2;} Event;
+static struct World {u32 guard[4];s32 frame,counter,c4,c8,condition;s16 selection,limit;s8 flag1,flag2;MenuArenas8 arenas;u8 *base;void *published;UiRow24 *ui;UiRow24 rows[3][8];Work32 work32;Work12 work12;s32 driver[3];u32 calls;Event log[11];u32 tail[4];} world,expected;
 /* The real resource owner must contain the2D000 offset; it is never mapped at
  * a synthetic PAL address. Constructors must not modify this backing memory. */
 static u8 resources[3][0x2D100],original_resources[3][0x2D100];
@@ -45,7 +45,7 @@ static u8 resources[3][0x2D100],original_resources[3][0x2D100];
 #define UiRows world.ui
 #define MenuFrameState world.work32.words[0]
 #define ScreenFadeState world.work12.words[0]
-void func_80096434(void *data,s32 size);
+void PsyqBzero(void *data,s32 size);
 ''' + clear + reset + bodies + r'''
 static u32 seed=0x148d8,scenario;static unsigned variant;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
@@ -68,7 +68,7 @@ static void effect(struct World *v,s32 kind,const s32 a[10]){
  v->selection=half(scenario+step);v->limit=half(scenario*73U+step);v->flag1=(s8)(scenario+step);v->flag2=(s8)(scenario+step+9);
  v->base=resources[(scenario+step)%3];v->arenas.second=resources[(scenario+step+1)%3]+0x100+step;
  v->published=resources[(scenario+step+2)%3]+0x200+step;
- if(kind==3){RrUiRow24 *r=&v->rows[(scenario+step)%3][a[0]];r->half04=half((u32)a[2]);r->half06=half((u32)a[3]);r->half08=half((u32)a[4]);r->byte01=(u8)a[9];}
+ if(kind==3){UiRow24 *r=&v->rows[(scenario+step)%3][a[0]];r->half04=half((u32)a[2]);r->half06=half((u32)a[3]);r->half08=half((u32)a[4]);r->byte01=(u8)a[9];}
  if(kind==4)v->driver[0]=a[0];
  if(kind==5){v->driver[0]=a[0];v->driver[1]=a[1];v->driver[2]=a[2];}
 }
@@ -78,7 +78,7 @@ static void observe(struct World *v,s32 kind,const s32 a[10],void *data){
  e->frame=v->frame;e->counter=v->counter;e->c4=v->c4;e->c8=v->c8;e->condition=v->condition;e->selection=v->selection;e->limit=v->limit;
  e->flag1=v->flag1;e->flag2=v->flag2;e->half20=v->rows[ui_id(v)][0].half20;effect(v,kind,a);
 }
-void func_80096434(void *data,s32 size){
+void PsyqBzero(void *data,s32 size){
  unsigned step=world.calls;s32 a[10]={size};
  assert(step<2 && data==(step?(void*)world.work12.words:(void*)world.work32.words) && size==(step?12:32));
  memset(data,0,size);observe(&world,step,a,data);

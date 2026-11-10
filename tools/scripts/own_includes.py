@@ -16,12 +16,18 @@ def process(c):
     h = INC / c.relative_to(SRC).with_suffix('.h')
     text = c.read_text()
     htxt = h.read_text()
-    provided = set(re.findall(r'\b((?:func|D)_[0-9A-Fa-f]{8})\b', U.strip_comments(htxt)))
+    try:
+        _, hitems = parse(htxt)
+    except Exception:
+        return c, None
+    provided = {
+        name for kind, t, name in hitems
+        if kind == 'decl' and name and not t.lstrip().startswith(('typedef', 'struct', 'union', 'enum', 'static'))
+    }
     _, items = parse(text)
     new = text
     inc_line = f'#include "{h.relative_to(INC).as_posix()}"\n'
-    if inc_line in text:
-        return c, None
+    changed = False
     for kind, t, name in items:
         if kind != 'decl' or name not in provided:
             continue
@@ -35,14 +41,19 @@ def process(c):
         if j < len(new) and new[j] == '\n':
             j += 1
         new = new[:i] + new[j:]
-    last = None
-    for m in re.finditer(r'^#include[^\n]*\n', new, re.M):
-        last = m
-    if last:
-        new = new[:last.end()] + inc_line + new[last.end():]
-    else:
-        m = re.match(r'(?:/\*[^\n]*\*/\n)*', new)
-        new = new[:m.end()] + inc_line + new[m.end():]
+        changed = True
+    if inc_line not in new:
+        last = None
+        for m in re.finditer(r'^#include[^\n]*\n', new, re.M):
+            last = m
+        if last:
+            new = new[:last.end()] + inc_line + new[last.end():]
+        else:
+            m = re.match(r'(?:/\*[^\n]*\*/\n)*', new)
+            new = new[:m.end()] + inc_line + new[m.end():]
+        changed = True
+    if not changed:
+        return c, None
     new = re.sub(r'\n{3,}', '\n\n', new)
     c.write_text(new)
     ok = U.fd_ok(c)

@@ -1,8 +1,8 @@
+#include "rr/gpu_address.h"
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
 #include "rr/gpu_reset.h"
-#include "m2c_macros.h"
 #include "rr/gpu.h"
 #include "rr/library.h"
 #include "rr/draw_environment.h"
@@ -12,26 +12,17 @@
 #include "rr/spu_tick.h"
 #include "rr/driver_control.h"
 
-typedef struct { short a,b,c,d,e,f,g,h; char i,j,k,l; } W3L2_A;
-
-typedef struct { int w; int s4; } A;
-
-typedef struct { int a, b, c; } B;
-
-typedef struct { char pad[0x1C]; unsigned w; } W3L2_P;
-
-extern unsigned char D_800ABAC1[];
 extern int SetGraphQueFmt[];
-extern char D_80011E64[];
+extern char DrawSyncCallbackFmt[];
 extern char StrSetDispMaskFmt[];
-extern M2C_UNK DrawSyncFmt;
+extern s32 DrawSyncFmt;
 extern char StrBadRectFmt[];
 extern char StrRectFmt[];
 extern char D_80011EC8[];
 extern char StrClearImage[];
-extern char D_80011ED8[];
+extern char ClearImage2Name[];
 /* extern */
-extern M2C_UNK LoadImageName;
+extern char LoadImageName[];
 extern char ClearOTagFmt[];
 extern char D_800ABB6C[];
 extern int D_800ABB80;
@@ -39,31 +30,24 @@ extern char StrClearOTagRFmt[];
 extern int PsyqMemcpy();
 extern char PutDrawEnvFmt[];
 extern char StrDrawOTagEnvFmt[];
-extern char D_800ABAD0[];
 
 int LoadTPage(int *pix, int tp, int abr, int x, int y, int w, int h);
 int LoadClut(int a, int b, int c);
 int LoadClut2(int a, int b, int c);
-char *SetDefDrawEnv(char *p, int a, int b, int c, int d);
-W3L2_A *SetDefDispEnv(W3L2_A *p, int a, int b, int c, int d);
-s32 SetGraphDebug(s32 enabled);
+DisplayEnvironment *SetDefDispEnv(DisplayEnvironment *p, int a, int b, int c, int d);
 int SetGraphQueue();
 u8 GetGraphDebug(void);
-int DrawSyncCallback();
 void DrawSync(s32 arg0);
-void checkRECT(const char *name,RrGpuRectangle *rectangle);
-void ClearImage(int a, int b, int c, int d);
-void ClearImage2(int a, int b, int c, int d);
-void LoadImage(s32 arg0, M2C_UNK arg1);
-void StoreImage(int a, int b);
+void checkRECT(const char *name,GpuRectangle *rectangle);
+void ClearImage(GpuRectangle *a, int b, int c, int d);
+void ClearImage2(GpuRectangle *a, int b, int c, int d);
+void LoadImage(GpuRectangle *arg0, const void *arg1);
+void StoreImage(GpuRectangle *a, void *b);
 int MoveImage();
 int *ClearOTag();
 unsigned *ClearOTagR(unsigned *a, int b);
 void DrawPrim(char *a0);
 void DrawOTag(s32 ordering_table);
-int PutDrawEnv(int *a0);
-void DrawOTagEnv(int a, W3L2_P *b);
-int GetDrawEnv(int a);
 
 int LoadTPage(int *pix, int tp, int abr, int x, int y, int w, int h) {
     short sp[4];
@@ -105,9 +89,6 @@ int LoadClut(int a, int b, int c) {
     return r;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define GetClut ((int (*)())GetClut)
-
 int LoadClut2(int a, int b, int c) {
     short sp[4];
     int r;
@@ -120,57 +101,55 @@ int LoadClut2(int a, int b, int c) {
     r = GetClut(b, c) & 0xFFFF; __asm__ volatile("" : "=r"(r) : "0"(r)); return r;
 }
 
-#undef GetClut
-
-char *SetDefDrawEnv(char *p, int a, int b, int c, int d) {
-    int t = GetVideoMode();
-    *(short *)p = a;
-    *(short *)(p + 2) = b;
-    *(short *)(p + 4) = c;
-    *(short *)(p + 0xC) = 0;
-    *(short *)(p + 0xE) = 0;
-    *(short *)(p + 0x10) = 0;
-    *(short *)(p + 0x12) = 0;
-    p[0x19] = 0;
-    p[0x1A] = 0;
-    p[0x1B] = 0;
-    p[0x16] = 1;
-    *(short *)(p + 6) = d;
-    if (t) p[0x17] = d < 0x121; else p[0x17] = d < 0x101;
-    *(short *)(p + 8) = a;
-    *(short *)(p + 0xA) = b;
-    *(short *)(p + 0x14) = 0xA;
-    p[0x18] = 0;
-    return p;
+DrawEnvironment *SetDefDrawEnv(DrawEnvironment *environment, int x, int y, int width, int height) {
+    int videoMode = GetVideoMode();
+    environment->clip.x = x;
+    environment->clip.y = y;
+    environment->clip.w = width;
+    environment->window.x = 0;
+    environment->window.y = 0;
+    environment->window.w = 0;
+    environment->window.h = 0;
+    environment->r = 0;
+    environment->g = 0;
+    environment->b = 0;
+    environment->dither = 1;
+    environment->clip.h = height;
+    if (videoMode) environment->draw_display = height < 0x121; else environment->draw_display = height < 0x101;
+    environment->offset_x = x;
+    environment->offset_y = y;
+    environment->page = 0xA;
+    environment->background = 0;
+    return environment;
 }
 
-W3L2_A *SetDefDispEnv(W3L2_A *p, int a, int b, int c, int d) {
-    p->a = a; p->b = b; p->c = c;
-    p->e = 0; p->f = 0; p->g = 0; p->h = 0;
-    p->j = 0; p->i = 0; p->l = 0; p->k = 0;
-    p->d = d;
+DisplayEnvironment *SetDefDispEnv(DisplayEnvironment *p, int a, int b, int c, int d) {
+    p->display.x = a; p->display.y = b; p->display.w = c;
+    p->screen.x = 0; p->screen.y = 0; p->screen.w = 0; p->screen.h = 0;
+    p->flags10.bytes.rgb24 = 0; p->flags10.bytes.interlace = 0; p->flags10.bytes.reserved = 0; p->flags10.bytes.mode = 0;
+    p->display.h = d;
     return p;
 }
 
 s32 ResetGraph(s32 mode)
 {
-    RrGpuResetState80 *state;
+    GpuResetState80 *state;
     switch(mode & 7) {
     case 0:
     case 3:
-        DebugPrintStub(ResetGraphFmt,&GpuDriverTable,&D_800ABAC0);
+        DebugPrintStub(ResetGraphFmt,&GpuDriverTable,&GpuResetState);
     case 5:
-        state=&D_800ABAC0;
-        GPU_memset((s8 *)state,0,128);
+        state=&GpuResetState;
+        GPU_memset((s8 *)state,0,sizeof(*state));
         ResetCallback();
-        func_80096E24((unsigned long)GpuFuncTable & 0xFFFFFF);
+        GPU_cw((unsigned long)GpuFuncTable & 0xFFFFFF);
         state->kind00=_reset(mode);
         state->enabled01=1;
         /* Preserve the explicit byte reload after the reset service. */
         state->debug02.width=D_800ABB40[*(volatile u8 *)&state->kind00].value;
         state->debug02.height=D_800ABB4C.dimensions[state->kind00].value;
-        GPU_memset((s8 *)state->queue10,-1,0x5C);
-        GPU_memset((s8 *)state->tail6C,-1,0x14);
+        GPU_memset((s8 *)&state->draw10,-1,sizeof(state->draw10));
+        GPU_memset((s8 *)&state->display6C,-1,sizeof(state->display6C));
         return state->kind00;
     default:
         if(D_800ABAC2.level>=2) GPU_printf(StrResetGraphFmt,mode);
@@ -178,12 +157,8 @@ s32 ResetGraph(s32 mode)
     }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ABAC2 (*(u8 (*)[])&D_800ABAC2)
-#define GPU_printf (*(void (*(*))(const char *, s32, s32, s32))&GPU_printf)
-
 s32 SetGraphDebug(s32 enabled) {
-    u8 *state = D_800ABAC2;
+    u8 *state = &D_800ABAC2.level;
     s32 previous;
     previous = state[0];
     state[0] = enabled;
@@ -203,94 +178,52 @@ s32 SetGraphDebug(s32 enabled) {
     return previous;
 }
 
-#undef D_800ABAC2
-#undef GPU_printf
-
-/* legacy typing of shared globals in this part of the unit */
-#define GPU_printf (*(int (*(*))())&GPU_printf)
-#define GpuFuncTable ((int *)GpuFuncTable)
-#define DMACallback ((int (*)())DMACallback)
-
 int SetGraphQueue(a0) int a0; {
     register unsigned char *p __asm__("$17"); /* ASM_BARRIER: original keeps the pointer in s1 and a0 in s0 */
     int old;
-    p = D_800ABAC1;
+    p = &GpuResetState.enabled01;
     old = p[0];
     if (p[1] >= 2) {
         GPU_printf(SetGraphQueFmt, a0);
     }
     if (a0 != p[0]) {
-        ((int (*)())GpuFuncTable[0x34 / 4])(1);
+        GpuFuncTable->reset34(1);
         p[0] = a0;
         DMACallback(2, 0);
     }
     return old;
 }
 
-#undef GPU_printf
-#undef GpuFuncTable
-#undef DMACallback
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ABAC2 (*(u8 (*))&D_800ABAC2)
-
 u8 GetGraphDebug(void) {
-    return D_800ABAC2;
+    return D_800ABAC2.level;
 }
 
-#undef D_800ABAC2
+GpuCompletionCallback DrawSyncCallback(GpuCompletionCallback callback) {
+    GpuCompletionCallback previous;
+    if (GpuResetState.debug02.level >= 2) GPU_printf(DrawSyncCallbackFmt, callback);
+    previous = GpuResetState.completion0C;
+    GpuResetState.completion0C = callback;
+    return previous;
+}
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ABAC2 (*(unsigned char (*)[])&D_800ABAC2)
-#define GPU_printf (*(void (*(*))())&GPU_printf)
-
-int DrawSyncCallback(a0) int a0; {
- int o;
- if (D_800ABAC2[0] >= 2) GPU_printf(D_80011E64, a0);
- o = *(int *)(D_800ABAC2 + 0xA);
- *(int *)(D_800ABAC2 + 0xA) = a0;
- return o; }
-
-#undef D_800ABAC2
-#undef GPU_printf
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ABAC2 (*(unsigned char (*)[])&D_800ABAC2)
-#define GPU_printf (*(void (*(*))())&GPU_printf)
-#define GpuFuncTable (*(struct { char pad[0x10]; int (*f)(); } *(*))&GpuFuncTable)
-#define GPU_memset ((int (*)())GPU_memset)
-
-void SetDispMask(a0) int a0; {
- unsigned char *p = D_800ABAC2;
- if (*p >= 2) GPU_printf(StrSetDispMaskFmt, a0);
- if (a0 == 0) GPU_memset(p + 0x6A, -1, 0x14);
- GpuFuncTable->f(a0 ? 0x3000000 : 0x3000001); }
-
-#undef D_800ABAC2
-#undef GPU_printf
-#undef GpuFuncTable
-#undef GPU_memset
-
-/* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((void *)GpuFuncTable)
-#define GPU_printf (*(M2C_UNK (*(*))(M2C_UNK *, s32))&GPU_printf)
-#define D_800ABAC2 (*(u8 (*))&D_800ABAC2)
+void SetDispMask(s32 enabled) {
+    unsigned char *p = &GpuResetState.debug02.level;
+    if (*p >= 2) GPU_printf(StrSetDispMaskFmt, enabled);
+    if (enabled == 0) GPU_memset((s8 *)&GpuResetState.display6C, -1, sizeof(GpuResetState.display6C));
+    GpuFuncTable->control10(enabled ? 0x3000000 : 0x3000001);
+}
 
 void DrawSync(s32 arg0) {
-    if ((u8) D_800ABAC2 >= 2U) {
+    if (D_800ABAC2.level >= 2U) {
         GPU_printf(&DrawSyncFmt, arg0);
     }
-    M2C_FIELD(GpuFuncTable, M2C_UNK (**)(s32), 0x3C)(arg0);
+    GpuFuncTable->sync3C(arg0);
 }
 
-#undef GpuFuncTable
-#undef GPU_printf
-#undef D_800ABAC2
-
-void checkRECT(const char *name,RrGpuRectangle *rectangle) {
+void checkRECT(const char *name,GpuRectangle *rectangle) {
     const char *label=name;
-    RrGpuRectangle *rect=rectangle;
-    RrGpuDebugSettings *settings=&D_800ABAC2;
+    GpuRectangle *rect=rectangle;
+    GpuDebugSettings *settings=&D_800ABAC2;
     const char *format;
     switch(settings->level) {
     case 1: {
@@ -298,8 +231,7 @@ void checkRECT(const char *name,RrGpuRectangle *rectangle) {
         s32 maxw=settings->width;
         s32 x;
         s32 y;
-        /* ASM_BARRIER: Preserve the original height temporary through the final validity tests. */
-        register s32 h __asm__("$6");
+        s32 h;
         s32 maxh;
         s32 comparison;
         if(maxw<w) goto invalid;
@@ -339,141 +271,101 @@ report:
     }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((char *)GpuFuncTable)
-
-void ClearImage(int a, int b, int c, int d)
+void ClearImage(GpuRectangle *a, int b, int c, int d)
 {
-int v; char nv; nv = b & 0xFF; checkRECT(StrClearImage, a); v = (((d & 0xFF) << 16) | ((c & 0xFF) << 8)) | nv; (*(int (**)())(GpuFuncTable + 8))(*(int *)(GpuFuncTable + 0xC), a, 8, v);
+    u32 v;
+    u8 nv;
+    nv = b & 0xFF;
+    checkRECT(StrClearImage, a);
+    v = (((d & 0xFF) << 16) | ((c & 0xFF) << 8)) | nv;
+    GpuFuncTable->dispatch((GpuOpFunc)GpuFuncTable->clear0C, a, 8, v);
 }
 
-#undef GpuFuncTable
-
-/* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((char *)GpuFuncTable)
-
-void ClearImage2(int a, int b, int c, int d)
+void ClearImage2(GpuRectangle *a, int b, int c, int d)
 {
-int v; char nv; int t, u, k; nv = b & 0xFF; checkRECT(D_80011ED8, a); u = (d & 0xFF) << 16; t = (c & 0xFF) << 8; k = 0x80000000; v = (u | (t | k)) | nv; (*(int (**)())(GpuFuncTable + 8))(*(int *)(GpuFuncTable + 0xC), a, 8, v);
+    u32 v;
+    u8 nv;
+    int t, u, k;
+    nv = b & 0xFF;
+    checkRECT(ClearImage2Name, a);
+    u = (d & 0xFF) << 16;
+    t = (c & 0xFF) << 8;
+    k = 0x80000000;
+    v = (u | (t | k)) | nv;
+    GpuFuncTable->dispatch((GpuOpFunc)GpuFuncTable->clear0C, a, 8, v);
 }
 
-#undef GpuFuncTable
-
-/* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((void *)GpuFuncTable)
-
-void LoadImage(s32 arg0, M2C_UNK arg1) {
-    checkRECT(&LoadImageName, arg0);
-    M2C_FIELD(GpuFuncTable, M2C_UNK (**)(s32, s32, M2C_UNK, M2C_UNK), 8)(M2C_FIELD(GpuFuncTable, s32 *, 0x20), arg0, 8, arg1);
+void LoadImage(GpuRectangle *arg0, const void *arg1) {
+    checkRECT(LoadImageName, arg0);
+    GpuFuncTable->dispatch((GpuOpFunc)GpuFuncTable->upload20, arg0, 8, (unsigned long)arg1);
 }
 
-#undef GpuFuncTable
-
-/* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((char *)GpuFuncTable)
-
-void StoreImage(int a, int b) {
+void StoreImage(GpuRectangle *a, void *b) {
     checkRECT(StrStoreImage, a);
-    (*(int (**)())(GpuFuncTable + 8))(*(int *)(GpuFuncTable + 0x1C), a, 8, b);
+    GpuFuncTable->dispatch((GpuOpFunc)GpuFuncTable->download1C, a, 8, (unsigned long)b);
 }
-
-#undef GpuFuncTable
-
-/* legacy typing of shared globals in this part of the unit */
-#define GpuMovePayload (*(B (*))&GpuMovePayload)
-#define GpuFuncTable ((int *)GpuFuncTable)
 
 int MoveImage(a0, a1, a2)
-A *a0; int a1; int a2;
+GpuRectangle *a0; int a1; int a2;
 {
-    B *p;
-    int *o;
+    GpuMovePayload12 *p;
+    GpuDriver40 *o;
     int w;
     checkRECT(MoveImageNameStr, a0);
-    if (*(short *)&a0->s4 == 0) return -1;
-    if (*((short *)&a0->s4 + 1) != 0) {
-    p = &GpuMovePayload;
-    w = a0->w;
-    o = GpuFuncTable;
-    p->b = (a2 << 16) | (a1 & 0xFFFF);
-    p->a = w;
-    p->c = a0->s4;
-    return ((int (*)())o[2])(o[6], (char *)p - 8, 0x14, 0);
+    if (a0->rect.w == 0) return -1;
+    if (a0->rect.h != 0) {
+        p = &GpuMovePayload;
+        w = a0->words[0];
+        o = GpuFuncTable;
+        p->destination = (a2 * 0x10000U) | (a1 & 0xFFFF);
+        p->position = w;
+        p->size = a0->words[1];
+        return o->dispatch((GpuOpFunc)o->draw_ordering_table, (u8 *)p - 8, 0x14, 0);
     }
     return -1;
 }
 
-#undef GpuMovePayload
-#undef GpuFuncTable
-
-/* legacy typing of shared globals in this part of the unit */
-#define GPU_printf (*(int (*(*))())&GPU_printf)
-#define D_800ABAC2 (*(unsigned char (*))&D_800ABAC2)
-
 int *ClearOTag(a0, a1) int *a0; int a1; {
-    /* ASM_BARRIER: pins p->$16, n->$17 to match original s-reg assignment */
-    register int *p asm("$16") = a0;
-    int n = a1;
+int n = a1;
     int *q; int *t; int m; int (*f)();
-    if (D_800ABAC2 >= 2) { f = GPU_printf; q = (int *)ClearOTagFmt; f(q, p, n); }
+    if (D_800ABAC2.level >= 2) { f = GPU_printf; q = (int *)ClearOTagFmt; f(q, a0, n); }
     n--;
     if (n != 0) {
         do {
             n--;
-            q = p + 1;
-            ((char *)p)[3] = 0;
-            m = (int)q & 0xFFFFFF; *p = (*p & 0xFF000000) | m;
-            p = q;
+            q = a0 + 1;
+            ((char *)a0)[3] = 0;
+            m = (int)q & 0xFFFFFF; *a0 = (*a0 & 0xFF000000) | m;
+            a0 = q;
         } while (n != 0);
     }
     t = &D_800ABB80;
     *t = ((int)D_800ABB6C & 0xFFFFFF) | 0x04000000;
-    *p = (int)t & 0xFFFFFF;
-    return p;
+    *a0 = (int)t & 0xFFFFFF;
+    return a0;
 }
-
-#undef GPU_printf
-#undef D_800ABAC2
-
-/* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((char *)GpuFuncTable)
-#define GPU_printf (*(int (*(*))())&GPU_printf)
-#define D_800ABAC2 (*(unsigned char (*))&D_800ABAC2)
 
 unsigned *ClearOTagR(unsigned *a, int b) {
     int *q;
-    if (D_800ABAC2 >= 2) GPU_printf(StrClearOTagRFmt, a, b);
-    (*(int (**)())(GpuFuncTable + 0x2C))(a, b);
+    if (D_800ABAC2.level >= 2) GPU_printf(StrClearOTagRFmt, a, b);
+    GpuFuncTable->clearOrdering2C((u8 *)a, b);
     q = &D_800ABB80;
     *q = ((int)D_800ABB6C & 0xFFFFFF) | 0x04000000;
     *a = (int)q & 0xFFFFFF;
     return a;
 }
 
-#undef GpuFuncTable
-#undef GPU_printf
-#undef D_800ABAC2
-
-/* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((char *)GpuFuncTable)
-
 void DrawPrim(char *a0)
 {
     int t = a0[3];
-    (*(int (**)())(GpuFuncTable + 0x3C))(0);
-    (*(int (**)())(GpuFuncTable + 0x14))(a0 + 4, t);
+    GpuFuncTable->sync3C(0);
+    GpuFuncTable->writeBuffer14((int *)(a0 + 4), t);
 }
 
-#undef GpuFuncTable
-
-/* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((RrLibGraphicsDriverPrefix *)GpuFuncTable)
-
 void DrawOTag(s32 ordering_table) {
-    /* ASM_BARRIER: Keep the third dispatch argument distinct from the final constant zero. */
     register s32 second;
     register s32 third;
-    RrLibGraphicsDriverPrefix *driver;
+    LibGraphicsDriverPrefix *driver;
     if (D_800ABAC2.level >= 2) GPU_printf(D_80011F38, ordering_table);
     second = ordering_table;
     driver = GpuFuncTable;
@@ -482,49 +374,29 @@ void DrawOTag(s32 ordering_table) {
     third = 0;
     /* ASM_BARRIER: Prevent reuse of the third argument when preparing the fourth zero. */
     __asm__("" : "+r"(third));
-    driver->dispatch(driver->draw_ordering_table, second, third, 0);
+    driver->dispatch((GpuOpFunc)driver->draw_ordering_table, (void *)second, third, 0);
 }
 
-#undef GpuFuncTable
-
-/* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((int *)GpuFuncTable)
-#define GPU_printf (*(int (*(*))())&GPU_printf)
-#define D_800ABAC2 (*(unsigned char (*))&D_800ABAC2)
-
-int PutDrawEnv(int *a0) {
-    unsigned char *p = &D_800ABAC2;
-    if (*p >= 2) {
-        GPU_printf(PutDrawEnvFmt, a0);
+DrawEnvironment *PutDrawEnv(DrawEnvironment *environment) {
+    const u8 *level = &GpuResetState.debug02.level;
+    if (*level >= 2) {
+        GPU_printf(PutDrawEnvFmt, environment);
     }
-    SetDrawEnv2((u32 *)(a0 + 7), (RrFrameEnvironment *)a0);
-    a0[7] |= 0xFFFFFF;
-    ((int (*)())GpuFuncTable[2])(GpuFuncTable[6], a0 + 7, 0x40, 0);
-    PsyqMemcpy(p + 0xE, a0, 0x5C);
-    return (int)a0;
+    SetDrawEnv2(environment->draw_packet1C, environment);
+    environment->draw_packet1C[0] |= 0xFFFFFF;
+    GpuFuncTable->dispatch((GpuOpFunc)GpuFuncTable->draw_ordering_table, environment->draw_packet1C, 0x40, 0);
+    PsyqMemcpy(&GpuResetState.draw10, environment, sizeof(*environment));
+    return environment;
 }
 
-#undef GpuFuncTable
-#undef GPU_printf
-#undef D_800ABAC2
-
-/* legacy typing of shared globals in this part of the unit */
-#define GpuFuncTable ((char *)GpuFuncTable)
-#define GPU_printf (*(int (*(*))())&GPU_printf)
-#define D_800ABAC2 (*(unsigned char (*)[])&D_800ABAC2)
-
-void DrawOTagEnv(int a, W3L2_P *b) {
-    char *t;
-    if (D_800ABAC2[0] >= 2) GPU_printf(StrDrawOTagEnvFmt, a, b);
-    t = (char *)b + 0x1C;
-    SetDrawEnv2((u32 *)t, (RrFrameEnvironment *)b);
-    b->w = (b->w & 0xFF000000) | (a & 0xFFFFFF);
-    (*(int (**)())(GpuFuncTable + 8))(*(int *)(GpuFuncTable + 0x18), t, 0x40, 0);
-    PsyqMemcpy(D_800ABAC2 + 0xE, b, 0x5C);
+void DrawOTagEnv(u32 *ordering, DrawEnvironment *environment) {
+    u32 *packet;
+    if (GpuResetState.debug02.level >= 2) GPU_printf(StrDrawOTagEnvFmt, ordering, environment);
+    packet = environment->draw_packet1C;
+    SetDrawEnv2(packet, environment);
+    environment->draw_packet1C[0] = (environment->draw_packet1C[0] & 0xFF000000) | (GpuDmaEncodeAddress(ordering) & 0xFFFFFF);
+    GpuFuncTable->dispatch((GpuOpFunc)GpuFuncTable->draw_ordering_table, packet, 0x40, 0);
+    PsyqMemcpy(&GpuResetState.draw10, environment, sizeof(*environment));
 }
 
-#undef GpuFuncTable
-#undef GPU_printf
-#undef D_800ABAC2
-
-int GetDrawEnv(int a) { PsyqMemcpy(a, D_800ABAD0, 0x5C); return a; }
+DrawEnvironment *GetDrawEnv(DrawEnvironment *environment) { PsyqMemcpy(environment, &GpuResetState.draw10, sizeof(*environment)); return environment; }

@@ -4,5 +4,7 @@
 #include "types.h"
 
 int AddBadgeSpriteStrip();
+void CarStandingsModeUpdate(void);
+
 
 #endif /* RR_GAME_MENU_MENUSTAT_H */

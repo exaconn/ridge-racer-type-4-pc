@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int SpuGetVoiceVolume();
+void SpuGetVoiceVolume(u32 voice, u16 *left, u16 *right);
 
 #endif /* RR_PSYQ_LIBSPU_SPUVGET_H */

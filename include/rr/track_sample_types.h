@@ -7,34 +7,38 @@ typedef struct {
     s16 leftOffsetX04, leftOffsetZ06;
     s32 x08, z0C;
     s16 y10,heading12;
-    u8 reserved14[4];
+    s16 unk14, pitch16;
     s16 leftWidth18, rightWidth1A;
-    s16 segmentLength1C;
-    u8 reserved1E[14];
+    s16 segmentLength1C, angle1E;
+    s16 angleLeft20, angleRight22;
+    s32 dist24;
+    s16 unk28[2];
     s16 rightExtension2C, leftExtension2E;
-    u8 reserved30[12];
-} RrTrackSample3C;
+    s16 unk30[2];
+    s16 unk34[2];
+    s16 unk38[2];
+} TrackSample3C;
 
 /* Horizontal offsets of the selected driving line, one record per sample. */
 typedef struct {
     s16 x, z;
     s32 reserved04;
-} RrTrackLaneOffset8;
+} TrackLaneOffset8;
 
-extern RrTrackSample3C *TrackNodes;
-extern RrTrackLaneOffset8 *TrackLaneOffsets;
+extern TrackSample3C *TrackNodes;
+extern TrackLaneOffset8 *TrackLaneOffsets;
 extern s32 TrackNodeCount;
 extern s32 *TrackStartNode;
 
-RR_ASSERT_SIZE(RrTrackSample3C, 0x3C);
-RR_ASSERT_OFFSET(RrTrackSample3C,x08,0x08);
-RR_ASSERT_OFFSET(RrTrackSample3C,z0C,0x0C);
-RR_ASSERT_OFFSET(RrTrackSample3C,y10,0x10);
-RR_ASSERT_OFFSET(RrTrackSample3C,leftOffsetX04,0x04);
-RR_ASSERT_OFFSET(RrTrackSample3C,heading12,0x12);
-RR_ASSERT_OFFSET(RrTrackSample3C,leftWidth18,0x18);
-RR_ASSERT_OFFSET(RrTrackSample3C,rightExtension2C,0x2C);
-RR_ASSERT_OFFSET(RrTrackSample3C,segmentLength1C,0x1C);
-RR_ASSERT_SIZE(RrTrackLaneOffset8,8);
-RR_ASSERT_OFFSET(RrTrackLaneOffset8,z,2);
+RR_ASSERT_SIZE(TrackSample3C, 0x3C);
+RR_ASSERT_OFFSET(TrackSample3C,x08,0x08);
+RR_ASSERT_OFFSET(TrackSample3C,z0C,0x0C);
+RR_ASSERT_OFFSET(TrackSample3C,y10,0x10);
+RR_ASSERT_OFFSET(TrackSample3C,leftOffsetX04,0x04);
+RR_ASSERT_OFFSET(TrackSample3C,heading12,0x12);
+RR_ASSERT_OFFSET(TrackSample3C,leftWidth18,0x18);
+RR_ASSERT_OFFSET(TrackSample3C,rightExtension2C,0x2C);
+RR_ASSERT_OFFSET(TrackSample3C,segmentLength1C,0x1C);
+RR_ASSERT_SIZE(TrackLaneOffset8,8);
+RR_ASSERT_OFFSET(TrackLaneOffset8,z,2);
 #endif

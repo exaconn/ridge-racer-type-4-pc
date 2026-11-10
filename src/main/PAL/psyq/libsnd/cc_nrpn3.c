@@ -1,15 +1,12 @@
 #include "types.h"
 #include "rr/library.h"
-#include "m2c_macros.h"
 #include "psyq/libsnd/cc_nrpn3.h"
 
 typedef struct { unsigned short s0, s2, s4, s6, s8; short sA, sC, sE, s10; } S;
 
-void _SsSetNrpnVabAttr4();
 void _SsUtResolveADSR(s32 arg0, u32 arg1, void *arg2);
-void _SsSetNrpnVabAttr5();
 
-void _SsSetNrpnVabAttr4(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; RrLibBlock24Fields s; u8 c; {
+void _SsSetNrpnVabAttr4(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; LibBlock24Fields s; u8 c; {
     register s32 cc = c;
     s16 loc[12];
     SsUtGetVagAtr(a0, a1, a2, &s);
@@ -23,16 +20,16 @@ void _SsSetNrpnVabAttr4(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; RrLibBlock24Fi
 void _SsUtResolveADSR(s32 arg0, u32 arg1, void *arg2) {
     u32 temp_v1;
 
-    M2C_FIELD(arg2, s16 *, 0xA) = (s16) (arg0 & 0x8000);
-    M2C_FIELD(arg2, s16 *, 0xC) = (s16) (arg1 & 0x8000);
-    M2C_FIELD(arg2, s16 *, 0x10) = (s16) (arg1 & 0x4000);
+    ((s16 *)arg2)[5] = (s16) (arg0 & 0x8000);
+    ((s16 *)arg2)[6] = (s16) (arg1 & 0x8000);
+    ((s16 *)arg2)[8] = (s16) (arg1 & 0x4000);
     temp_v1 = arg0 & 0xFFFF;
-    M2C_FIELD(arg2, s16 *, 0xE) = (s16) (arg1 & 0x20);
-    M2C_FIELD(arg2, s16 *, 0) = (s16) ((temp_v1 >> 8) & 0x7F);
-    M2C_FIELD(arg2, s16 *, 2) = (s16) ((temp_v1 >> 4) & 0xF);
-    M2C_FIELD(arg2, s16 *, 4) = (s16) (arg0 & 0xF);
-    M2C_FIELD(arg2, s16 *, 6) = (s16) ((arg1 >> 6) & 0x7F);
-    M2C_FIELD(arg2, s16 *, 8) = (s16) (arg1 & 0x1F);
+    ((s16 *)arg2)[7] = (s16) (arg1 & 0x20);
+    ((s16 *)arg2)[0] = (s16) ((temp_v1 >> 8) & 0x7F);
+    ((s16 *)arg2)[1] = (s16) ((temp_v1 >> 4) & 0xF);
+    ((s16 *)arg2)[2] = (s16) (arg0 & 0xF);
+    ((s16 *)arg2)[3] = (s16) ((arg1 >> 6) & 0x7F);
+    ((s16 *)arg2)[4] = (s16) (arg1 & 0x1F);
 }
 
 void _SsUtBuildADSR(a0, a1, a2) S *a0; short *a1; short *a2; {
@@ -72,7 +69,7 @@ void _SsUtBuildADSR(a0, a1, a2) S *a0; short *a1; short *a2; {
     *a2 = y;
 }
 
-void _SsSetNrpnVabAttr5(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; RrLibBlock24Fields s; u8 c; {
+void _SsSetNrpnVabAttr5(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; LibBlock24Fields s; u8 c; {
     register s32 cc = c;
     s16 loc[12];
     SsUtGetVagAtr(a0, a1, a2, &s);

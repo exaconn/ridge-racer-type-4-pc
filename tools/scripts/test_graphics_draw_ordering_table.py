@@ -7,8 +7,10 @@ import subprocess
 from tempfile import TemporaryDirectory
 import unittest
 
+from c_functions import definition_source, source_owners
+
 Debug = C.CFUNCTYPE(C.c_int32, C.c_char_p, C.c_int32)
-Dispatch = C.CFUNCTYPE(C.c_int32, C.c_void_p, C.c_int32, C.c_int32, C.c_int32)
+Dispatch = C.CFUNCTYPE(C.c_int32, C.c_void_p, C.c_void_p, C.c_int32, C.c_ulong)
 Draw = C.CFUNCTYPE(None, C.c_ulong)
 
 
@@ -30,22 +32,22 @@ typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
 const char D_80011F38[]="DrawOTag(%08x)...\\n";
-RrGpuDebugSettings D_800ABAC2;
+GpuDebugSettings D_800ABAC2;
 s32 (*test_debug)(const char *,s32);
 s32 test_printf(const char *format,...) {
  va_list args; s32 value; va_start(args,format); value=va_arg(args,s32); va_end(args);
  return test_debug(format,value);
 }
 s32 (*GPU_printf)(const char *,...) = test_printf;
-RrLibGraphicsDriverPrefix test_drivers[2];
-RrLibGraphicsDriverPrefix *GpuFuncTable;
-u32 test_driver_size=sizeof(RrLibGraphicsDriverPrefix);
+LibGraphicsDriverPrefix test_drivers[2];
+LibGraphicsDriverPrefix *GpuFuncTable;
+u32 test_driver_size=sizeof(LibGraphicsDriverPrefix);
 s32 test_gpu[4];
 s32 *GPU_STATUS=&test_gpu[0], *DMA2_MADR=&test_gpu[1];
 s32 *DMA2_BCR=&test_gpu[2], *DMA2_CHCR=&test_gpu[3];
 void _cwc(unsigned long);
-void test_configure(s32 index,s32 (*dispatch)(RrLibDrawOrderingTable,s32,s32,s32),
-                    RrLibDrawOrderingTable draw) {
+void test_configure(s32 index,s32 (*dispatch)(GpuOpFunc,void*,s32,unsigned long),
+                    LibDrawOrderingTable draw) {
  test_drivers[index].dispatch=dispatch;
  test_drivers[index].draw_ordering_table=draw;
 }
@@ -56,9 +58,9 @@ void test_initialize(void) {
  GpuFuncTable=&test_drivers[0];
 }
 '''
-        for name in ('80093344', '80094B28'):
-            body = (root / ('tools/scripts/fixtures/legacy/func_' + name + '.c')).read_text()
-            body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
+        owners = source_owners(root/'src/main/PAL')
+        for name in ('DrawOTag', '_cwc'):
+            body = definition_source(owners[name].read_text(), name)
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
             source += body
@@ -88,6 +90,7 @@ void test_initialize(void) {
         self.callbacks = []
         self.level.value = 0
         def dispatch(command, value, third, fourth):
+            value = C.c_int32(value or 0).value
             self.events.append(('dispatch', command, value, third, fourth))
             Draw(command)(value)
             return -1
@@ -125,6 +128,7 @@ void test_initialize(void) {
         self.level.value = 2
         replacement_draw = self.keep(Draw, lambda value: self.events.append(('replacement-draw', value)))
         def replacement_dispatch(command, value, third, fourth):
+            value = C.c_int32(value or 0).value
             self.events.append(('replacement-dispatch', command, value, third, fourth))
             Draw(command)(value)
             return -77

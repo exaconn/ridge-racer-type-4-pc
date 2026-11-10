@@ -1,5 +1,6 @@
 #ifndef RR_OVERLAY667_COURSE_MENU_H
 #define RR_OVERLAY667_COURSE_MENU_H
+#include "game/system/pad.h"
 #include "rr/overlay_menu.h"
 #include "rr/menu_selection.h"
 #include "rr/frame_environment.h"
@@ -7,15 +8,14 @@
 #include "rr/tables.h"
 #include "rr/driver_control.h"
 #include "game/race/racegrid.h"
-extern RrMenuItemState5C PlayerControllers[2];
 extern s16 D_800AC5D0,D_800AD508,LinkState,D_8010C0B8,D_8010C0C8,D_800F3A26;
 extern u16 D_800F4D8A,ModeGroup;
 extern s32 D_8010C078,NumLaps,D_800F4CB8,ModeFrame,ScreenFrame;
 s32 ExitOnLinkLost(void);
-int UpdateLinkHandshake();
+s32 UpdateLinkHandshake(s32);
 s32 LoadTrackNodesStep(void);
 void ResetScreenCounters(void);
-void func_80033368(s32,s32);
+void DrawCourseMapPreview(s32,s32);
 void DrawCourseInfoPanel(s32,s32);
 void SetMenuFrameOptions(s32,s32,s32);
 void PlaySfx(s32);

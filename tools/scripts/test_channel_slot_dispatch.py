@@ -26,20 +26,20 @@ class ChannelSlotDispatchTest(unittest.TestCase):
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*,\s*"memory"', ': "memory"', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
-        body = body.replace('(RrLibStateB0 **)0x80110000U', '(test_table + 0x1000)')
+        body = body.replace('(LibStateB0 **)0x80110000U', '(test_table + 0x1000)')
         source = '''#include <stdint.h>
 typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-_Static_assert(sizeof(RrLibStateB0)==0xB0,"record stride");
-_Static_assert(__builtin_offsetof(RrLibStateB0,b17)==0x17,"slot");
-_Static_assert(__builtin_offsetof(RrLibStateB0,b26)==0x26,"signed metadata");
-_Static_assert(__builtin_offsetof(RrLibStateB0,b27)==0x27,"first slot array");
-_Static_assert(__builtin_offsetof(RrLibStateB0,b37)==0x37,"second slot array");
-_Static_assert(__builtin_offsetof(RrLibStateB0,h80)==0x80,"slot mask");
-RrLibStateB0 test_records[5][5];
-RrLibStateB0 *test_table[0x1100];
+_Static_assert(sizeof(LibStateB0)==0xB0,"record stride");
+_Static_assert(__builtin_offsetof(LibStateB0,b17)==0x17,"slot");
+_Static_assert(__builtin_offsetof(LibStateB0,b26)==0x26,"signed metadata");
+_Static_assert(__builtin_offsetof(LibStateB0,b27)==0x27,"first slot array");
+_Static_assert(__builtin_offsetof(LibStateB0,b37)==0x37,"second slot array");
+_Static_assert(__builtin_offsetof(LibStateB0,h80)==0x80,"slot mask");
+LibStateB0 test_records[5][5];
+LibStateB0 *test_table[0x1100];
 void (*test_active)(s32,s32,s32,s32,s32,s32);
 void (*test_inactive)(s32,s32,s32,s32);
 void _SsVmKeyOn(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f) { test_active(a,b,c,d,e,f); }

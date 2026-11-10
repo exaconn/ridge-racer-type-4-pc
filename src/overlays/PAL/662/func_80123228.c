@@ -19,7 +19,7 @@ void ovl662_func_80123228(void) {
         ovl662_func_8011E7DC(38);
     }
     if (ovl662_D_80127668.words[1] & 0x40) {
-        ((RrGarageButton *)ovl662_D_801273B8[38])->timer0E = 7;
+        ((GarageButton *)ovl662_D_801273B8[38])->timer0E = 7;
         if (--ovl662_D_801276A8.reset08[0] < 0) {
             ovl662_D_801276A8.reset08[0] = 0;
             PlaySfx(4);

@@ -4,6 +4,6 @@
 
 #include "rr/library.h"
 
-#define P ((RrLibStateB0 *)(offset + (unsigned long)*q))
+#define P ((LibStateB0 *)(offset + (unsigned long)*q))
 
 void SsSepClose(s32 bank) { _SsClose((s16)bank); }

@@ -1,4 +1,6 @@
+#include "game/system/pad.h"
 #include "rr/overlay662_name_controller.h"
+#include "rr/frame_storage_types.h"
 
 void ovl662_func_80118A30(void) {
     s16 fadeStep;
@@ -7,19 +9,19 @@ void ovl662_func_80118A30(void) {
     u8 normalizedRow;
 
     phase = (u16)D_800F4D8A;
-    ModeFrame=(u32)ModeFrame+1;
+    ModeFrame=ModeFrame+1U;
     cancel = 0;
-    ScreenFrame=(u32)ScreenFrame+1;
+    ScreenFrame=ScreenFrame+1U;
     if (phase == 0) {
         SetMenuFrameOptions(1, 1, 1);
-        if (PlayerControllers[0].b != 0) {cancel=1;goto normalizeColumn;}
-        if (PlayerControllers[0].buttons0A & 0x1000) {
+        if (PlayerControllers[0].action2C != 0) {cancel=1;goto normalizeColumn;}
+        if (PlayerControllers[0].edges08.fields.repeat & 0x1000) {
             PlaySfx(0);ovl662_D_801273A3--;goto normalizeRow;
-        }else if (PlayerControllers[0].buttons0A & 0x4000) {
+        }else if (PlayerControllers[0].edges08.fields.repeat & 0x4000) {
             PlaySfx(0);ovl662_D_801273A3++;goto normalizeRow;
-        }else if (PlayerControllers[0].buttons0A & 0x8000) {
+        }else if (PlayerControllers[0].edges08.fields.repeat & 0x8000) {
             PlaySfx(0);ovl662_D_801273A2--;goto normalizeColumn;
-        }else if (PlayerControllers[0].buttons0A & 0x2000) {
+        }else if (PlayerControllers[0].edges08.fields.repeat & 0x2000) {
             PlaySfx(0);ovl662_D_801273A2++;goto normalizeColumn;
         }else goto normalizeColumn;
 normalizeRow:
@@ -64,9 +66,9 @@ normalizeColumn:
         SetMenuFrameOptions(0, 1, 1);
         fadeStep = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = (u16) fadeStep;
-        AddScreenFadeTiles(&CurrentDrawBuf->head70, (0x40 - fadeStep) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - fadeStep) * 4, 0x45);
         if ((s16) D_800AC5D0 <= 0) {
-            D_800FFC18 = 5;
+            CardMenuOperation = 5;
             ModeGroup = phase;
             D_800F3A26 = 0x47;
             D_800F4D8A = 0;

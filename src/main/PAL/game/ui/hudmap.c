@@ -1,14 +1,16 @@
+#include "rr/sprite_emit.h"
+#include "rr/gpu_line.h"
+#include "rr/gpu_scratch_types.h"
 #include "scratchpad.h"
+#include "rr/frame_storage_types.h"
 #include "game/race/objsim.h"
 #include "game/ui/hudmap.h"
 #include "game/course/trktext.h"
 #include "game/ui/uipart1.h"
-#include "game/gfx/drawbuf.h"
-struct A { char pad[0xF0]; int idx; char p2[0xE0]; short ang; };
+#include "rr/race_types.h"
+#include "rr/track_lateral.h"
+#include "rr/badge_rows.h"
 
-struct B { char pad[0x12]; short x; char p2[0x28]; };
-
-extern int AddDrawAreaPrim();
 extern int FormatDecimalDigits();
 extern char StrTotalTimeLabel[];
 extern char LapTimeLabel[];
@@ -17,18 +19,19 @@ extern short D_800AC1A0;
 extern int NumLaps;
 extern int TotalRaceTime;
 extern int LapTimes[];
-extern int AddDrawModePrim();
-extern int AddSpritePrim();
 extern char D_8009EE6C[];
 extern int RaceState;
-extern int GameQueueTileTrans();
-extern int AddLineF2SemiTrans();
-extern struct B *TrackNodes;
+
+
+
+static inline u32 ScaleLineDeltaQ8(u32 delta, u32 scale) {
+    s32 product = delta * scale;
+    return product >> 8;
+}
 
 void DrawRaceTimesScreen(void);
-void func_800225DC(int a0);
-void AddPartialLine(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10);
-int func_80022848(struct A *a0);
+void DrawRaceStartSignalSprite(int a0);
+void AddPartialLine(u32 *a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10);
 
 void DrawRaceTimesScreen(void) {
     char sp18[8];
@@ -38,7 +41,7 @@ void DrawRaceTimesScreen(void) {
     char *b;
     int col, v;
     int sel;
-    *(int *)SCRATCHPAD = AddDrawAreaPrim(CurrentDrawBuf + 0x70, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x100);
+    *(int *)SCRATCHPAD = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], *(int *)SCRATCHPAD, 0, 0, 0x140, 0x100);
     i = 0;
     sel = D_800AC1A0;
     if (NumLaps > 0) {
@@ -73,59 +76,56 @@ void DrawRaceTimesScreen(void) {
     AddSetTexpagePrim(0);
 }
 
-void func_800225DC(int a0) {
+void DrawRaceStartSignalSprite(int a0) {
     int a3;
     char *s0;
     void *p;
-    if ((unsigned)(RaceState - 1) < 3U) {
+    if ((RaceState - 1) < 3U) {
         p = *(void **)SCRATCHPAD;
         if (a0 > 0) {
             a3 = ((a0 - 1) << 7) + 0x38;
             if (a0 == 1) {
-                s0 = CurrentDrawBuf + 0x70;
+                s0 = &CurrentDrawBuf->buffer.ordering70.words[0];
             } else {
-                s0 = CurrentDrawBuf + 0xB70;
+                s0 = &CurrentDrawBuf->buffer.secondaryOrderingB70.words[0];
             }
         } else {
             a3 = 0x78;
-            s0 = CurrentDrawBuf + 0x70;
+            s0 = &CurrentDrawBuf->buffer.ordering70.words[0];
         }
         *(int *)SCRATCHPAD = AddDrawModePrim(s0, AddSpritePrim(s0, p, 0x6A, a3, D_8009EE6C, 0x7EF8, 0), 0x3E);
     }
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define CurrentDrawBuf (*(int (*))&CurrentDrawBuf)
-
-void AddPartialLine(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10)
+void AddPartialLine(u32 *a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10)
 {
-    int d1, d2, x, y, r, t;
+    int d1, d2, x, y;
+    void *r;
     if (a5 > 0) {
-        d1 = a3 - a1;
-        d2 = a4 - a2;
+        d1 = a3 - (u32)a1;
+        d2 = a4 - (u32)a2;
         if (a5 >= 0x100) a5 = 0x100;
-        r = *(int *)SCRATCHPAD;
-        x = a1 + ((d1 * a5) >> 8);
-        y = a2 + ((d2 * a5) >> 8);
+        r = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
+        x = a1 + ScaleLineDeltaQ8(d1, a5);
+        y = a2 + ScaleLineDeltaQ8(d2, a5);
         if (a10 >= 0) {
             r = AddLineF2SemiTrans(a0, r, a1, a2, x, y, a7, a8, a9);
             if (a6 != 0) {
-                r = AddLineF2SemiTrans(a0, r, a1, a2 + 1, x, y + 1, a7, a8, a9);
+                r = AddLineF2SemiTrans(a0, r, a1, a2 + 1U, x, y + 1U, a7, a8, a9);
             }
-            r = AddDrawModePrim(CurrentDrawBuf + 0x70, r, ((a10 & 3) << 5) | 5);
+            r = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], r, ((a10 & 3) << 5) | 5);
         } else {
             r = GameQueueTileTrans(a0, r, a1, a2, x, y, a7, a8, a9);
             if (a6 != 0) {
-                r = GameQueueTileTrans(a0, r, a1, a2 + 1, x, y + 1, a7, a8, a9);
+                r = GameQueueTileTrans(a0, r, a1, a2 + 1U, x, y + 1U, a7, a8, a9);
             }
         }
-        *(int *)SCRATCHPAD = r;
+        ((GpuScratchPointers *)SCRATCHPAD)->cursor = r;
     }
 }
 
-#undef CurrentDrawBuf
 
-int func_80022848(struct A *a0) {
-    int t = 0x800 - TrackNodes[a0->idx].x;
-    return (unsigned)(((a0->ang - t) & 0xFFF) - 0x401) < 0x7FF;
+int IsCarFacingReverse(RaceVehicle *vehicle) {
+    int reverseHeading = 0x800 - TrackNodes[vehicle->trackNodeF0].heading12;
+    return (unsigned)(((vehicle->heading1D4 - reverseHeading) & 0xFFF) - 0x401) < 0x7FF;
 }

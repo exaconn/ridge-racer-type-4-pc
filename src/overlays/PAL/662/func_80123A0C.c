@@ -2,7 +2,7 @@
 #include "rr/overlay662_tool_action.h"
 
 void ovl662_func_80123A0C(void) {
-    u16 *pal = (u16 *)((RrPaletteAddress)(RrPalette16 *)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]+(ovl662_D_801276A8.config22*2));
+    u16 *pal = (u16 *)((PaletteAddress)(Palette16 *)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]+(ovl662_D_801276A8.config22*2));
     s32 val = (*pal >> 10) & 0x1F;
 
     if (ovl662_D_80127668.words[0] & 8) {
@@ -25,7 +25,7 @@ void ovl662_func_80123A0C(void) {
     }
     if (ovl662_D_80127668.words[1] & 0x40) {
         val--;
-        ((RrGarageButton *)ovl662_D_801273B8[44])->timer0E = 7;
+        ((GarageButton *)ovl662_D_801273B8[44])->timer0E = 7;
         if (val < 0) {
             val = 0;
             PlaySfx(4);

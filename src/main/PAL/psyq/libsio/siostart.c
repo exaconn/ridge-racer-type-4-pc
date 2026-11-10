@@ -1,22 +1,21 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
-#include "m2c_macros.h"
 #include "rr/serial.h"
 #include "psyq/libsio/siostart.h"
 
 extern int EnterCriticalSection();
 extern int ExitCriticalSection();
 extern int AddDrv();
-extern M2C_UNK SioDeviceBlock;
-M2C_UNK FlushCache();
+extern s32 SioDeviceBlock;
+s32 FlushCache();
 /* extern */
-M2C_UNK DelDrv(M2C_UNK *);
+s32 DelDrv(s32 *);
 /* extern */
-extern M2C_UNK StrSioDeviceName;
+extern s32 StrSioDeviceName;
 
 void DelSIO(void);
-void func_8009A944(void);
-s32 _sio_write_async(s32 first, s32 second);
+void _sio_Flush(void);
+s32 _sio_write_async(u8 *buffer, s32 length);
 
 void AddSIO(void) {
     s32 temp_s0;
@@ -27,9 +26,6 @@ void AddSIO(void) {
         ExitCriticalSection();
     }
 }
-
-/* legacy typing of shared globals in this part of the unit */
-#define ExitCriticalSection ((M2C_UNK (*)())ExitCriticalSection)
 
 void DelSIO(void) {
     s32 temp_s0;
@@ -42,18 +38,17 @@ void DelSIO(void) {
     }
 }
 
-#undef ExitCriticalSection
 
-void func_8009A944(void) {
+void _sio_Flush(void) {
 }
 
-s32 _sio_write_async(s32 first, s32 second) {
-    volatile RrSerialRequest *request = &SioRequest;
-    RrSerialPortRegisters *registers;
+s32 _sio_write_async(u8 *buffer, s32 length) {
+    volatile SerialRequest *request = &SioRequest;
+    SerialPortRegisters *registers;
 
     if (request->active == 0) {
-        request->second = second;
-        request->first = first;
+        request->remaining = length;
+        request->cursor = buffer;
         registers = SIO1_REGS;
         request->active = 1;
         /* Keep the separate read/write operations on the control register. */

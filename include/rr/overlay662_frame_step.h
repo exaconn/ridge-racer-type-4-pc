@@ -4,7 +4,7 @@
 extern u32 D_800F4D38;
 extern s32 ScreenFrame;
 extern u32 *D_800F39A0;
-extern RrGarageTimBytes *D_800F399C;
+extern GarageTimBytes *D_800F399C;
 void ovl662_func_8011E070(void);
 void ovl662_func_8011E36C(s32 mode);
 void ovl662_func_8011B8B4(void);

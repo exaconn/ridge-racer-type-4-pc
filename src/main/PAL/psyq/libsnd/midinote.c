@@ -8,13 +8,13 @@ void _SsNoteOn(s32 bank, s32 row, s32 value, s32 mode) {
     register s32 raw_bank __asm__("$8") = bank;
     register s32 raw_value = value;
     /* ASM_BARRIER: Retain the original register across the bank lookup and callback dispatch. */
-    register RrLibStateB0 **table __asm__("$3");
+    register LibStateB0 **table __asm__("$3");
     s32 index;
     s32 units, offset;
-    register RrLibStateB0 *state;
+    register LibStateB0 *state;
     register s32 mode_byte;
     register s32 previous;
-    RrLibStateB0 *bank_base;
+    LibStateB0 *bank_base;
     u8 *selected;
     s32 slot;
     /* ASM_BARRIER: Retain the original register across the bank lookup and callback dispatch. */
@@ -29,17 +29,17 @@ void _SsNoteOn(s32 bank, s32 row, s32 value, s32 mode) {
     /* ASM_BARRIER: Complete both offsets before materializing the PAL table page. */
     __asm__ volatile("" : : "r"(index), "r"(offset) : "$3");
     /* PAL mapping: table[-0xF98 / 4] selects _ss_score[bank]. */
-    table = (RrLibStateB0 **)0x80110000U;
+    table = (LibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL lookup page without a symbol-address macro. */
     __asm__("" : "=r"(table) : "0"(table));
-    table = (RrLibStateB0 **)((u8 *)table + index);
+    table = (LibStateB0 **)((u8 *)table + index);
     bank_base = table[-0xF98 / 4];
     /* ASM_BARRIER: Load the bank base before normalizing the callback mode. */
     __asm__("" : "=r"(mode) : "0"(mode), "r"(bank_base));
     mode_byte = mode & 255;
     /* ASM_BARRIER: Retain the complete mode byte for the fifth callback argument. */
     __asm__("" : "=r"(mode_byte) : "0"(mode_byte));
-    state = (RrLibStateB0 *)((u8 *)bank_base + offset);
+    state = (LibStateB0 *)((u8 *)bank_base + offset);
     /* The active slot selects one of the sixteen b27/b37 entries. */
     slot = state->b17;
     selected = (u8 *)state + slot;
@@ -48,11 +48,11 @@ void _SsNoteOn(s32 bank, s32 row, s32 value, s32 mode) {
     __asm__("" : "=r"(previous) : "0"(previous));
     if (mode & 255) {
         if(!((state->h80 >> slot) & 1)) {
-            row_bits = (u32)row << 8;
+            row_bits = row * 0x100U;
             _SsVmKeyOn((s16)(raw_bank | row_bits), state->b26, selected[0x37], raw_value & 255, mode_byte, previous);
         }
     } else {
-        row_bits = (u32)row << 8;
+        row_bits = row * 0x100U;
         _SsVmKeyOff((s16)(raw_bank | row_bits), state->b26, selected[0x37], raw_value & 255);
     }
 }

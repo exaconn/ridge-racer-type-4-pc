@@ -11,6 +11,7 @@ class Overlay663MenuHandlerTest(unittest.TestCase):
         body=read_c_source(root/'src/overlays/PAL/663/func_80115964.c')
         source=r'''
 #include <assert.h>
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -21,11 +22,11 @@ class Overlay663MenuHandlerTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4||offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay663_menu_handler.h"
 #include "rr/frame_storage_types.h"
-typedef struct {u32 guard[4];RrUiRow24 rows[2][4];s32 selection,limit,accepted;u16 phase,scene;s16 timer,nextScene;unsigned root,bank;u32 tail[4];} State;
+typedef struct {u32 guard[4];UiRow24 rows[2][4];s32 selection,limit,accepted;u16 phase,scene;s16 timer,nextScene;unsigned root,bank;u32 tail[4];} State;
 typedef struct {s32 kind,args[7];u32 hash;} Event;
 typedef struct {State s;Event events[16];unsigned calls;} World;
 static World actual,reference,initial,*w;
-static RrFrameStorage frames[2],frameSnapshot[2];
+static FrameStorage frames[2],frameSnapshot[2];
 static s32 choices[9]={-91,0,0x12345678,2147483647,-7,11,22,33,44};
 static unsigned scenario,mutation,phaseSeen[10];
 #define ovl663_available_courses choices
@@ -48,20 +49,20 @@ static void change(void){unsigned n=w->calls;if(!mutation)return;
  w->s.timer=(s16)(scenario+n*8191U);w->s.accepted=(scenario+n)%3-1;
  w->s.rows[w->s.root][0].byte14=(scenario+n)%5;
 }
-s32 func_8003BEA8(s32 resource){Event *e=event(1);e->args[0]=resource;change();return scenario&1?-1:0;}
+s32 LoadCoursePreviewStep(s32 resource){Event *e=event(1);e->args[0]=resource;change();return scenario&1?-1:0;}
 void SetMenuFrameOptions(s32 a,s32 b,s32 c){Event *e=event(2);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
 void StepMenuValue(s32 a,s32 b,char *selection,s32 limit,s32 flags){Event *e=event(3);assert(selection==(char*)&w->s.selection);e->args[0]=a;e->args[1]=b;e->args[2]=limit;e->args[3]=flags;change();}
 void ResetScreenCounters(void){event(4);change();}
 void ovl663_draw_preview(void){event(5);change();}
 void PlaySfx(s32 a){event(6)->args[0]=a;change();}
-void AddScreenFadeTiles(u32 *order,s32 fade,u32 flags){Event *e=event(7);assert(order==frames[w->s.bank].ordering.ordering70);assert((uintptr_t)order>UINT32_MAX);e->args[0]=w->s.bank;e->args[1]=fade;e->args[2]=flags;change();}
+void AddScreenFadeTiles(u32 *order,s32 fade,u32 flags){Event *e=event(7);assert(order==frames[w->s.bank].ordering.ordering70.words);assert((uintptr_t)order>UINT32_MAX);e->args[0]=w->s.bank;e->args[1]=fade;e->args[2]=flags;change();}
 void ovl663_init_menu(void){event(8);change();}
 void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){Event *v=event(9);s32 args[]={a,b,c,d,e,f,g};memcpy(v->args,args,sizeof(args));change();}
 void DrawUiRow(s32 a){event(10)->args[0]=a;change();}
 void UpdateScreenFade(s32 a){event(11)->args[0]=a;change();}
 ''' + body + r'''
 static void expected(void){State *s=&w->s;int old;
- int loaded=func_8003BEA8(choices[s->selection]);
+ int loaded=LoadCoursePreviewStep(choices[s->selection]);
  if(loaded){
   unsigned phase=s->phase;if(phase<10)phaseSeen[phase]++;
   if(phase==0){if(s->rows[s->root][0].byte14==2){SetMenuFrameOptions(1,1,0);s->phase=1;}}
@@ -70,7 +71,7 @@ static void expected(void){State *s=&w->s;int old;
    s->rows[s->root][0].cells[0]=2;
    if(s->accepted){PlaySfx(1);SetMenuFrameOptions(0,1,0);s->phase=8;s->rows[s->root][0].cells[0]=1;s->timer=64;s->rows[s->root][0].byte14=3;}
   }else if(phase==8){u16 bits=(u16)s->timer-1;memcpy(&s->timer,&bits,2);
-   AddScreenFadeTiles(frames[s->bank].ordering.ordering70,(64-s->timer)*4,69);
+   AddScreenFadeTiles(frames[s->bank].ordering.ordering70.words,(64-s->timer)*4,69);
    if(s->timer<=0){ovl663_init_menu();s->scene=1;s->nextScene=74;s->phase=0;return;}
   }
  }

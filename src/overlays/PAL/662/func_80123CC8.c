@@ -5,46 +5,48 @@ void ovl662_func_80123CC8(void) {
     s32 trackTravel;
     s32 limit;
     s32 imageThumb;
-    s32 trackThumb;
+    u32 trackThumb;
     s32 projected;
     s32 relative;
     u16 narrowed;
     s32 coordinate;
-    RrGarageSelectionPrefix *selection;
+    GarageSelectionPrefix *selection;
 
     if (ovl662_D_80127668.words[0] & 8) {
         if (ovl662_D_80127668.words[1] & 4) {
-            ovl662_D_80127668.words[0] = (s32) (ovl662_D_80127668.words[0] & ~8);
+            ovl662_D_80127668.words[0] = (ovl662_D_80127668.words[0] & ~8);
             ovl662_func_8011E7C0(0xD, 0x3F, 0x126, 0x15A);
             return;
         }
-        goto update_position;
-    }
-    if (((u8) ovl662_D_801276A8.config1C >= 4U) && (ovl662_func_8011E6C8(0x5A, 0x151, 0x70, 8) == 0) && (ovl662_D_80127668.words[1] & 1)) {
+    } else if (((u8) ovl662_D_801276A8.config1C >= 4U) && (ovl662_func_8011E6C8(0x5A, 0x151, 0x70, 8) == 0) && (ovl662_D_80127668.words[1] & 1)) {
         ovl662_D_80127668.words[4] = 0x2E;
-        ovl662_D_80127668.words[0] = (s32) (ovl662_D_80127668.words[0] | 8);
+        ovl662_D_80127668.words[0] = (ovl662_D_80127668.words[0] | 8);
         ovl662_func_8011E7C0(0x5A, 0x151, 0x70, 8);
-        imageThumb = 0x40 / (s32) ((u8) ovl662_D_801276A8.config1C >> 1);
+        imageThumb = 0x40 / ((u8) ovl662_D_801276A8.config1C >> 1);
+        /* ASM_BARRIER: prevent CSE of config1C >> 1 across divisions */
         __asm__("" : : : "memory");
-        trackThumb = 0x70 / (s32) ((u8) ovl662_D_801276A8.config1C >> 1);
+        trackThumb = 0x70 / ((u8) ovl662_D_801276A8.config1C >> 1);
         imageTravel = 0x40 - imageThumb;
         trackTravel = 0x70 - trackThumb;
-        projected = (s32) ((ovl662_D_80127668.points.cursor14.x - 0x5A) * imageTravel) / trackTravel;
+        projected = ((ovl662_D_80127668.points.cursor14.x - 0x5A) * imageTravel) / trackTravel;
         ovl662_D_8012726C = imageThumb;
         ovl662_D_80127270 = imageTravel;
         ovl662_D_80127274 = trackThumb;
         ovl662_D_80127278 = trackTravel;
         relative = projected - (s16) ovl662_D_801276A8.reset08[0];
         if ((relative < 0) || (relative >= imageThumb)) {
-            ovl662_D_80127268 = (u16) ((s32) (((u32) trackThumb >> 1) * imageTravel) / trackTravel);
+            ovl662_D_80127268 = (u16) ((s32) ((trackThumb >> 1) * imageTravel) / trackTravel);
         } else {
             ovl662_D_80127268 = projected - ovl662_D_801276A8.reset08[0];
         }
-update_position:
+    } else {
+        return;
+    }
+    {
         coordinate=ovl662_D_8012767C-0x5A;
         limit = ovl662_D_80127270;
         selection=&ovl662_D_801276A8;
-        narrowed = ((s32) (coordinate * limit) / (s32) ovl662_D_80127278) - ovl662_D_80127268;
+        narrowed = ((coordinate * limit) / ovl662_D_80127278) - ovl662_D_80127268;
         selection->reset08[0] = narrowed;
         if ((s16) narrowed < 0) {
             selection->reset08[0] = 0U;

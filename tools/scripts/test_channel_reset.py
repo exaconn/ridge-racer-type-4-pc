@@ -30,15 +30,15 @@ class ChannelResetTest(unittest.TestCase):
 #include "types.h"
 ''' + header + r'''
 static union {uint64_t alignment;u8 bytes[0x4000];} ram;
-#define _svm_voice (*(RrChannelControlRow36 (*)[24])(ram.bytes+0x1908))
+#define _svm_voice (*(ChannelControlRow36 (*)[24])(ram.bytes+0x1908))
 #define _snd_ev_flag (*(s32 *)(ram.bytes+0x105C))
-#define D_80110118 (*(u16 *)(ram.bytes+0x2118))
+#define _svm_voice_cursor (*(u16 *)(ram.bytes+0x2118))
 ''' + body + r'''
 static int voice,fast_calls,ordinary_calls,dynamic;
 static u8 snapshot[sizeof(ram)],expected[sizeof(ram)];
 static void halfword(u8 *pointer,u16 value) {memcpy(pointer,&value,2);}
 static void mutation(u8 *memory) {
-    RrChannelControlRow36 *rows=(RrChannelControlRow36 *)(memory+0x1908);
+    ChannelControlRow36 *rows=(ChannelControlRow36 *)(memory+0x1908);
     int other=(voice+1)%24;
     rows[voice].value00=-123;
     rows[voice].match18=17;rows[voice].match14=-29;rows[voice].group0E=31;
@@ -59,7 +59,7 @@ static void callback(void) {
 }
 void vmNoiseOff(u8 index) {assert(index==voice);fast_calls++;callback();}
 void _SsVmKeyOffNow(s32 unused) {
-    assert(unused==0&&D_80110118==voice);ordinary_calls++;callback();
+    assert(unused==0&&_svm_voice_cursor==voice);ordinary_calls++;callback();
 }
 static void prepare(int selected,int lock,s16 bank,s16 program,s16 instrument,s16 group,s16 kind,int live) {
     memset(ram.bytes,0xA5,sizeof(ram.bytes));
@@ -83,7 +83,7 @@ static void run(s32 rawvoice,s32 bank,s32 program,s32 instrument,s32 group) {
               &&_svm_voice[voice].value00==255;
             if(!fast)halfword(expected+0x2118,voice);
             if(dynamic)mutation(expected);
-            RrChannelControlRow36 *rows=(RrChannelControlRow36 *)(expected+0x1908);
+            ChannelControlRow36 *rows=(ChannelControlRow36 *)(expected+0x1908);
             halfword(rows[voice].pad1E,0);halfword(rows[voice].pad1E+12,0);
         }
         s32 zero=0;memcpy(expected+0x105C,&zero,4);

@@ -1,5 +1,7 @@
 """Actual status predicates with MMIO access adapters and an unchanged RAM run."""
 import ctypes as C
+from serial_native_types import RequestWords
+from c_functions import definition_source
 from pathlib import Path
 import random
 import re
@@ -28,11 +30,11 @@ typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + headers + '''
-RrInterruptRegisters test_irq;
-RrInterruptRegisters *I_STAT_PadVsync=&test_irq, *I_STAT_Card=&test_irq, *I_STAT_Sio=&test_irq;
-RrSerialReceiveRequest SioReceiveRequest;
-RrSerialPortRegisters test_serial;
-RrSerialPortRegisters *SIO1_REGS=&test_serial;
+InterruptRegisters test_irq;
+InterruptRegisters *I_STAT_PadVsync=&test_irq, *I_STAT_Card=&test_irq, *I_STAT_Sio=&test_irq;
+volatile SerialReceiveRequest SioReceiveRequest;
+SerialPortRegisters test_serial;
+SerialPortRegisters *SIO1_REGS=&test_serial;
 u32 test_info, test_control, test_readback;
 u32 test_last_data, test_last_control, test_count;
 u32 test_log[16][2];
@@ -65,7 +67,9 @@ void test_reset(u32 info,u32 control,u32 readback) {
 '''
         for name in ('800954D8', '80097680', '8009BAD8', '8009BB18', '8009B380'):
             path = root / ('tools/scripts/fixtures/legacy/func_'+name+'.c')
-            if name in ('8009BAD8', '8009BB18'):
+            if name == '8009B380':
+                body = definition_source((root / 'src/main/PAL/psyq/libsio/sioint.c').read_text(), '_sio_irq_check')
+            elif name in ('8009BAD8', '8009BB18'):
                 # Each actual definition is extracted from the shared, contiguous TU.
                 tu = (root / 'tools/scripts/fixtures/legacy/interrupt_queries.c').read_text()
                 start = tu.index('s32 ' + __import__('c_functions').name_at(int(name,16)|0x80000000) + '(')
@@ -135,7 +139,7 @@ void test_reset(u32 info,u32 control,u32 readback) {
             function.argtypes = []
             function.restype = C.c_int32
         cls.serial = (C.c_uint8 * 16).in_dll(cls.lib, 'test_serial')
-        cls.request = (C.c_int32 * 4).in_dll(cls.lib, 'SioReceiveRequest')
+        cls.request = RequestWords.in_dll(cls.lib, 'SioReceiveRequest', receive=True)
         cls.serial_pointer = C.c_void_p.in_dll(cls.lib, 'SIO1_REGS')
         cls.reset = cls.lib.test_reset
         cls.reset.argtypes = [C.c_uint32] * 3

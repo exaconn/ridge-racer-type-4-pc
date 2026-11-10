@@ -1,11 +1,13 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* GCC_VERSION: 2.7.2 */
+#include "psyq/libgte/gteatan.h"
+
 extern short ratan_tbl[]; /* ratan_tbl */
 
 /* PsyQ libgte ratan2(y, x) */
 
-long ratan2(long y, long x) {
-    long v, r, ret, c;
+s32 ratan2(s32 y, s32 x) {
+    s32 v, r, ret, c;
     int s1 = 0, s2 = 0;
 
     if (x < 0) {

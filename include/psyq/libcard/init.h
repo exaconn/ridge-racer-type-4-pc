@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int InitCARD();
+void InitCARD();
 void StartCARD(void);
 void StopCARD(void);
 

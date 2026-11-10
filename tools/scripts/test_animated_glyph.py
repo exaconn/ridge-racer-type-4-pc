@@ -11,6 +11,7 @@ s=r'''
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "rr/frame_storage_types.h"
 #include <string.h>
 #include "rr/layout.h"
 #undef RR_ASSERT_SIZE
@@ -18,12 +19,12 @@ s=r'''
 #define RR_ASSERT_SIZE(t,n)
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/animated_sprite_grid.h"
-static RrGpuScratchPointers nativeScratch;
+static GpuScratchPointers nativeScratch;
 #define RR_GLYPH_ANIMATION_SCRATCH (&nativeScratch)
 #include "rr/animated_glyph.h"
 #include "rr/frame_storage_types.h"
-static RrFrameStorage frames[2];
-RrIconSpriteContext *CurrentDrawBuf;
+static FrameStorage frames[2];
+FrameStorage *CurrentDrawBuf;
 static u8 *allocation,*arena,*initialCursor;
 static s16 animation[2];
 static u32 seed,calls;
@@ -31,7 +32,7 @@ static u32 mix(u32 x){return x*1664525U+1013904223U;}
 static u8 *stream(u32 x){return arena+(x%3)*4096;}
 static void mutate(u32 event){
  u32 x=mix(seed+event*73U);
- CurrentDrawBuf=(RrIconSpriteContext*)&frames[(x>>3)&1];
+ CurrentDrawBuf=(FrameStorage*)&frames[(x>>3)&1];
  nativeScratch.cursor=stream((x>>4)%3)+128+event*64;
  nativeScratch.order=(u32*)&frames[(x>>7)&1].bytes[0xB70];
  if(event==2 && (seed&1))animation[0]=(s16)(x>>8);
@@ -41,24 +42,25 @@ void SetSprt(void *output){
  ((u8*)output)[3]=4;((u8*)output)[7]=0x64;mutate(1);
 }
 void AddPrim(u32 *ordering,u32 *output){
- assert(calls==1||calls==3);assert(ordering==&CurrentDrawBuf->head70);
+ assert(calls==1||calls==3);assert(ordering==&CurrentDrawBuf->buffer.ordering70.words[0]);
  assert((u8*)output==initialCursor+(calls==1?0:20));
  u32 tag;memcpy(&tag,output,4);tag=(tag&0xFF000000U)|(*ordering&0xFFFFFFU);memcpy(output,&tag,4);
  *ordering=(*ordering&0xFF000000U)|((uintptr_t)output&0xFFFFFFU);
  mutate(++calls);
 }
-void SetDrawMode(void *output,s32 a,s32 b,s32 page,RrGpuRectangleFields *window){
+void SetDrawMode(void *output,s32 a,s32 b,s32 page,GpuRectangleFields *window){
  assert(calls++==2);assert(output==initialCursor+20&&a==0&&b==1&&window==0);
  u32 words[3]={0x02000000U,0xE1000000U|((u32)page&0xFFFFU),0};memcpy(output,words,12);mutate(3);
 }
 '''
-s+=re.sub(r'^#include[^\n]*\n','',source.read_text(),count=1,flags=re.M)
+from c_functions import definition_source, source_owners
+s+=definition_source((source.read_text() if len(sys.argv)>1 else source_owners(root/'src/main/PAL')['DrawAnimatedGlyph'].read_text()),'DrawAnimatedGlyph')
 s+=r'''
 void setup(u32 caseSeed,s16 timer,u32 head0,u32 head1){
  if(!allocation){assert(!posix_memalign((void**)&allocation,0x1000000,0x1000000));arena=allocation+0x200000;assert((uintptr_t)arena>UINT32_MAX);}
  seed=caseSeed;calls=0;memset(frames,0xA5,sizeof(frames));memset(arena,0x5A,12288);
- frames[0].ordering.ordering70[0]=head0;frames[1].ordering.ordering70[0]=head1;
- CurrentDrawBuf=(RrIconSpriteContext*)&frames[seed&1];
+ frames[0].ordering.ordering70.words[0]=head0;frames[1].ordering.ordering70.words[0]=head1;
+ CurrentDrawBuf=(FrameStorage*)&frames[seed&1];
  initialCursor=stream((seed>>1)%3)+64;nativeScratch.cursor=initialCursor;
  nativeScratch.order=(u32*)&frames[(seed>>3)&1].bytes[0x70];
  animation[0]=timer;animation[1]=(s16)0xA5B6;assert((uintptr_t)animation>UINT32_MAX);
@@ -68,7 +70,7 @@ void *packet_bytes(void){return arena;}
 void *frame_bytes(u32 bank){return &frames[bank&1];}
 u32 cursor_offset(void){return nativeScratch.cursor-arena;}
 u32 order_offset(void){return (u8*)nativeScratch.order-(u8*)frames;}
-u32 root_index(void){return ((RrFrameStorage*)CurrentDrawBuf)-frames;}
+u32 root_index(void){return ((FrameStorage*)CurrentDrawBuf)-frames;}
 u32 animation_word(void){u32 word;memcpy(&word,animation,4);return word;}
 '''
 (P/'native.c').write_text(s)

@@ -2,8 +2,8 @@
 #define RR_OVERLAY665_DISPATCH_H
 #include "rr/overlay665_calibration.h"
 #include "rr/menu_transition.h"
-void InitMotionController(void);
-void StepCameraScript(void);
+#include "game/camera/campath.h"
+#include "game/camera/camrun.h"
 void StartAttractDemo();
 void ovl665_func_80116D10(s32);
 void ovl665_func_801151A4(void);

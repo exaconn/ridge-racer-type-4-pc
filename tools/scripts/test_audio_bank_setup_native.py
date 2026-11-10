@@ -12,13 +12,13 @@ body=re.sub(r'((?:__asm__|asm)\(""\s*:\s*"\+r"\((\w+)\))',lambda m:'asm("" : : "
 body=re.sub(r'(?:__asm__|asm)\s*\(\s*""\s*:\s*:\s*:\s*"\$21"\s*,\s*"\$22"\s*,\s*"\$2"\s*,\s*"memory"\s*\)', 'asm("" : : : "memory")', body)
 # Physical MIPS FP clobber has no logical operation in the host C model.
 for reg in ['$30','$fp','fp']:body=body.replace('asm("" : : : "'+reg+'");','asm("" : : : "memory");')
-services=[('SsVabClose','s32',['s16']),('func_80096434','void',['void*','s32']),('SsVabOpenHeadSticky','s32',['const u8*','s32','s32']),('SsVabTransBody','s32',['const u16*','s32']),('SsVabTransCompleted','s32',['s32']),('SlotLoadCurves','void',['RrAudioProgramData*','s32']),('SsUtGetVagAtr','s32',['s32','s16','s32','u8*'])]
+services=[('SsVabClose','void',['s16']),('PsyqBzero','void',['void*','s32']),('SsVabOpenHeadSticky','s32',['const u8*','s32','s32']),('SsVabTransBody','s32',['const u16*','s32']),('SsVabTransCompleted','s32',['s32']),('SlotLoadCurves','void',['AudioProgramData*','s32']),('SsUtGetVagAtr','s32',['s32','s16','s32','u8*'])]
 class Setup(C.Structure):_fields_=[('bank00',C.c_void_p),('data04',C.c_void_p),('group08',C.c_void_p),('slot0C',C.c_int32)]
 sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();pack=lambda x:struct.pack('<I',x&0xffffffff)
 with TemporaryDirectory(prefix='rr50bcc-')as td:
- d=Path(td);code='#include <stdint.h>\n#include <stddef.h>\n#include "rr/layout.h"\n#undef RR_ASSERT_SIZE\n#undef RR_ASSERT_OFFSET\n#define RR_ASSERT_SIZE(t,n)\n#define RR_ASSERT_OFFSET(t,f,n)\n#include "rr/audio_bank_setup.h"\nstruct {u8 a[16];RrAudioState v;u8 b[16];} state;\nstruct {u8 a[16];RrAudioBankSetup v;u8 b[16];} input;\nstruct {u8 a[16];u8 v[3064];u8 b[16];} resources;\nstruct {u8 a[16];RrAudioState v;u8 b[16];} rootBox;\n#define SoundState rootBox.v\n#define SoundSlots (SoundState.slots38)\ntypedef uintptr_t(*Callback)(unsigned,uintptr_t*);static Callback cb;void set_callback(Callback p){cb=p;}\n'
+ d=Path(td);code='#include <stdint.h>\n#include <stddef.h>\n#include "rr/layout.h"\n#undef RR_ASSERT_SIZE\n#undef RR_ASSERT_OFFSET\n#define RR_ASSERT_SIZE(t,n)\n#define RR_ASSERT_OFFSET(t,f,n)\n#include "rr/audio_bank_setup.h"\nstruct {u8 a[16];AudioState v;u8 b[16];} state;\nstruct {u8 a[16];AudioBankSetup v;u8 b[16];} input;\nstruct {u8 a[16];u8 v[3064];u8 b[16];} resources;\nstruct {u8 a[16];AudioState v;u8 b[16];} rootBox;\n#define SoundState rootBox.v\n#define SoundSlots (SoundState.slots38)\ntypedef uintptr_t(*Callback)(unsigned,uintptr_t*);static Callback cb;void set_callback(Callback p){cb=p;}\n'
  # The actual canonical owner is surrounded by separate explicit guards below.
- code=code.replace('struct {u8 a[16];RrAudioState v;u8 b[16];} state;','')
+ code=code.replace('struct {u8 a[16];AudioState v;u8 b[16];} state;','')
  for i,(name,ret,types)in enumerate(services):
   code+=ret+' '+name+'('+','.join(t+' a'+str(j)for j,t in enumerate(types))+'){uintptr_t a[]={'+','.join('(uintptr_t)a'+str(j)for j in range(len(types)))+'};uintptr_t r=cb('+str(i)+',a);'+('return('+ret+')r;'if ret!='void'else'')+'}\n'
  code+=body+'\nvoid *owner(int n){return n==0?(void*)&SoundState:n==1?(void*)&input.v:(void*)resources.v;}\nvoid run(void){SlotSetupBank(&input.v);}\n'
@@ -67,7 +67,7 @@ with TemporaryDirectory(prefix='rr50bcc-')as td:
   if name in ['SsVabOpenHeadSticky','SsVabTransBody']:normal.append(get(normal[0],32,native))
   if name=='SlotLoadCurves':normal.append(get(normal[0],0x5BC,native))
   event=(i,normal,snapshot(native));(observed if native else events).append(event);coverage.add(name)
-  if name=='func_80096434':assert normal[:2]==[A[0]+0x38+bankIndex*0x620,0x620];put(normal[0],b'\0'*0x620,native)
+  if name=='PsyqBzero':assert normal[:2]==[A[0]+0x38+bankIndex*0x620,0x620];put(normal[0],b'\0'*0x620,native)
   if name=='SlotLoadCurves':put(A[0]+0x74+normal[1]*0x620,get(normal[0],0x5BC,native),native)
   # Mutations stay in the complete canonical owner and can affect subsequent reloads.
   if case&1:

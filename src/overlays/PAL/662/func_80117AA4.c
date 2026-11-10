@@ -11,7 +11,7 @@ void ovl662_func_80117AA4(u32 *arg0, void *arg1, s32 arg2) {
     for (i = 0; i < 4; i++) {
         if (SelectionRows.bytes[0] == SaveProgress.history6C[i].selection &&
             SelectionRows.bytes[1] == SaveProgress.history6C[i].variant) {
-            flag = rsin(((s32)(((u32)ScreenFrame << 7) - 682U)) & 0xFFE) < 0;
+            flag = rsin((((ScreenFrame * 128U) - 682U)) & 0xFFE) < 0;
             break;
         }
     }

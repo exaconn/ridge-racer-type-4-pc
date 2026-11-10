@@ -4,6 +4,7 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
 
 ROOT=Path(__file__).resolve().parents[2]
 
@@ -13,13 +14,13 @@ class SequenceQueueTest(unittest.TestCase):
     def setUpClass(cls):
         cls.temporary=TemporaryDirectory()
         cls.addClassCleanup(cls.temporary.cleanup)
-        header=(ROOT/'include/rr/sequence_queue.h').read_text()
-        header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(ROOT/'tools/scripts/fixtures/views/func_8004F2D8.c').read_text()
-        body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
-        body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
-        assert body.count('(u8*)0x800F0000U')==1
-        body=body.replace('(u8*)0x800F0000U','state_page.bytes')
+        owner=source_owners(ROOT/'src/main/PAL')['SoundQueueEnqueue']
+        owner_text=owner.read_text()
+        helper=definition_source(owner_text,'ResetQueuedSoundPlayback')
+        body=definition_source(owner_text,'SoundQueueEnqueue')
+        body=re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
+        body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
+        assert '0x800F0000' not in body
         code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -27,40 +28,42 @@ class SequenceQueueTest(unittest.TestCase):
 #include <stdlib.h>
 #include <string.h>
 #include "types.h"
-''' + header + r'''
-static union {uint64_t alignment;u8 bytes[0x8000];} state_page;
-#define SoundState (*(RrSequenceQueueState *)(state_page.bytes+0x4DB8))
-''' + body + r'''
+#include "rr/sequence_queue.h"
+''' + r'''
+typedef union {uint64_t alignment;u8 bytes[0x10000];struct {u8 prefix[0x4DB8];AudioState sound;} owned;} StatePage;
+static StatePage state_page,expected_page;
+#define expected expected_page.bytes
+#define SoundState state_page.owned.sound
+''' + helper + body + r'''
 s16 *SoundSequenceTable[RR_SEQUENCE_TABLE_COUNT][2];
 s32 D_800F6784;
-static u8 expected[0x8000];
 static s16 values[20],other[2]={123,0};
 static int model(int id,int restart) {
-    RrSequenceQueueState *state=(RrSequenceQueueState *)(expected+0x4DB8);
+    AudioState *state=&expected_page.owned.sound;
     const s16 *input=SoundSequenceTable[id][D_800F6784!=0];
     if(input==(s16*)-1)return -1;
     int used=0;
-    if(!state->active19D0 || restart) {
-        if(!state->active19D0)state->active19D0=1;
-        state->timer19D8=state->timer19DC=0;
-        state->mode19E0=restart;state->x19E4=state->y19E6=80;
+    if(!state->sequence19D0.active || restart) {
+        if(!state->sequence19D0.active)state->sequence19D0.active=1;
+        state->sequence19D0.readIndex=state->sequence19D0.unknown0C=0;
+        state->sequence19D0.startImmediately=restart;state->sequence19D0.leftVolume=state->sequence19D0.rightVolume=80;
     } else {
         int length=0;
         while(input[length]>0)length++;
-        used=state->count19D4;
+        used=state->sequence19D0.count;
         if(used+length>=8)return -1;
     }
     int copied=0;
-    while(*input>0){state->items19E8[used++]=(u16)*input++;copied++;}
-    state->items19E8[used]=65535;
-    state->count19D4=used;
-    if(!copied)state->active19D0=0;
+    while(*input>0){state->sequence19D0.programs[used++]=(u16)*input++;copied++;}
+    state->sequence19D0.programs[used]=-1;
+    state->sequence19D0.count=used;
+    if(!copied)state->sequence19D0.active=0;
     return used*2;
 }
 static void prepare(int active,int used,int length,int terminal) {
     memset(state_page.bytes,0xA5,sizeof(state_page.bytes));
-    SoundState.active19D0=active;SoundState.count19D4=used;
-    for(int i=0;i<8;i++)SoundState.items19E8[i]=100+i;
+    SoundState.sequence19D0.active=active;SoundState.sequence19D0.count=used;
+    for(int i=0;i<8;i++)SoundState.sequence19D0.programs[i]=100+i;
     for(int i=0;i<length;i++)values[i]=(i&1)?32767:1+i;
     values[length]=terminal;
     for(int i=length+1;i<20;i++)values[i]=-222;
@@ -106,15 +109,15 @@ int main(int argc,char **argv) {
     } else {
         /* Repeated appends must preserve older entries, and a rejection is inert. */
         prepare(0,7,2,0);D_800F6784=0;SoundSequenceTable[0][0]=values;
-        run(0,0);assert(SoundState.count19D4==2);
-        run(0,0);assert(SoundState.count19D4==4);
-        run(0,0);assert(SoundState.count19D4==6);
-        run(0,0);assert(SoundState.count19D4==6);
+        run(0,0);assert(SoundState.sequence19D0.count==2);
+        run(0,0);assert(SoundState.sequence19D0.count==4);
+        run(0,0);assert(SoundState.sequence19D0.count==6);
+        run(0,0);assert(SoundState.sequence19D0.count==6);
         values[0]=0;run(0,0);
-        assert(SoundState.active19D0==0&&SoundState.count19D4==6);
+        assert(SoundState.sequence19D0.active==0&&SoundState.sequence19D0.count==6);
         values[0]=32767;values[1]=-1;run(0,0);
-        assert(SoundState.active19D0==1&&SoundState.count19D4==1);
-        run(0,-7);assert(SoundState.count19D4==1&&SoundState.mode19E0==-7);
+        assert(SoundState.sequence19D0.active==1&&SoundState.sequence19D0.count==1);
+        run(0,-7);assert(SoundState.sequence19D0.count==1&&SoundState.sequence19D0.startImmediately==-7);
     }
     return 0;
 }

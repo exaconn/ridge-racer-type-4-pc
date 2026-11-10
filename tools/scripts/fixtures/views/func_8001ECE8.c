@@ -23,8 +23,8 @@ void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags) {
     /* ASM_BARRIER: preserve flags until the RGB24 loop value is extracted. */
     register u32 saved_flags asm("$22");
     /* ASM_BARRIER: reuse S0 for the arena after the input flags have been consumed. */
-    register RrFrameStorage *env asm("$16");
-    RrGpuRectangleFields window;
+    register FrameStorage *env asm("$16");
+    GpuRectangleFields window;
     register s32 i;
     register u16 *settings;
     register s32 one;
@@ -87,6 +87,6 @@ loop:
     }
     i++;
     if(i<2)goto loop;
-    func_8001ECE0(0);
-    func_8001ECE0(1);
+    InitFrameEnvStub(0);
+    InitFrameEnvStub(1);
 }

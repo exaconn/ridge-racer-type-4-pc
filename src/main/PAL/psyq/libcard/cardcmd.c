@@ -5,10 +5,10 @@
 extern s32 SysDeqIntRP(s32,void *);
 s32 _cardSioHandler(void) {
     s32 result;
-    RrInterruptRegisters *registers;
+    InterruptRegisters *registers;
     /* ASM_BARRIER: Use the original address temporary for stores in call delay slots. */
     register s32 *page __asm__("$1");
-    u32 count=(u32)D_800ABDE8+1;
+    u32 count=CardTxCount+1U;
     /* ASM_BARRIER: Finish the counter read before materializing its mapped page. */
     __asm__("" : : : "$1");
     page=(s32 *)0x800B0000U;
@@ -42,16 +42,16 @@ s32 _cardSioHandler(void) {
                 if(retry!=0) {
                     _cardCmdReset(CardCommandRequest);
                     CardCommandStatus=2;
-                    CardRetriesLeft=(u32)CardRetriesLeft-1;
+                    CardRetriesLeft=CardRetriesLeft-1;
                     /* ASM_BARRIER: Finish retry bookkeeping before preparing the event argument again. */
                     __asm__("" : : : "$4", "memory");
                     flag=1;
                 }
-                event=D_800ABDC0;
+                event=CardIrqQueueEntryPtr;
                 /* Ordinary write view preserves the original jump-delay store. */
                 *(u16 *)&CardSio0Regs->control=0;
             } else {
-                event=D_800ABDC0;
+                event=CardIrqQueueEntryPtr;
                 /* Ordinary write view preserves the original jump-delay store. */
                 *(u16 *)&CardSio0Regs->control=0;
                 CardCommandStatus=0x21;

@@ -1,8 +1,8 @@
 #include "rr/audio_loop.h"
 
 void SoundLoopUpdate(void) {
-    RrAudioLoopState *state=&SoundState;
-    RrAudioSettings *settings=&Options.audio;
+    AudioLoopState *state=&SoundState;
+    AudioSettings *settings=&Options.audio;
     /* ASM_BARRIER: retain this phase value in its original MIPS register. */
     register u16 left asm("$19"),right asm("$18");
     s32 rp,lp;
@@ -30,7 +30,7 @@ void SoundLoopUpdate(void) {
         right=l;
     }
     if(state->muted04) {right=0;left=right;}
-    if(D_800F4D44==5) {right=0;left=right;}
+    if(GameModeType==5) {right=0;left=right;}
     rinput=(s32)((u32)right<<16);
 
     gain=state->gain18;
@@ -67,7 +67,7 @@ void SoundLoopUpdate(void) {
 
     i=0;
     if(lresult>0) {
-        RrAudioLoopState *live=state;
+        AudioLoopState *live=state;
         /* ASM_BARRIER: retain this phase value in its original MIPS register. */
         register s32 voice_word asm("$17");
         /* ASM_BARRIER: retain this phase value in its original MIPS register. */
@@ -110,7 +110,7 @@ void SoundLoopUpdate(void) {
             voice_word+=0x10000;
         }while(i<2);
         {
-            RrAudioLoopState *after=&SoundState;
+            AudioLoopState *after=&SoundState;
             if(!after->active1A00) {
                 s32 key=60;
 

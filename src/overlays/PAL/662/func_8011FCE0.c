@@ -41,7 +41,7 @@ ovl662_D_801276A8.optionIndices98.flat[0] = 3;
                     ovl662_D_801276A8.saved64[3] = 2;
                     ovl662_D_801276A8.saved64[4] = 3;
                 }
-                ((RrGarageButton *)ovl662_D_801273B8[8])->timer0E = 7;
+                ((GarageButton *)ovl662_D_801273B8[8])->timer0E = 7;
                 PlaySfx(1);
                 ovl662_D_801276A8.config1C <<= 1;
                 if (ovl662_D_801276A8.config1C >= 0x11) {

@@ -1,42 +1,29 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* GCC_VERSION: 2.7.2 */
+/* GCC_VERSION: 970318 */
 #include "rr/library.h"
-#include "rr/channel_stream.h"
+#include "rr/sequencer_init.h"
 s32 _SsReadDeltaValue(s32 raw_bank, s32 raw_row) {
     s16 bank = raw_bank;
     s16 row = raw_row;
-    /* ASM_BARRIER: Preserve the original decoder register allocation and overlapping lifetimes. */
-    register RrLibStateB0 **table __asm__("$3");
-    register RrLibStateB0 *bank_base;
-    register RrLibStateB0 *state;
-    /* ASM_BARRIER: Preserve the original decoder register allocation and overlapping lifetimes. */
-    register u8 *cursor __asm__("$2");
-    /* ASM_BARRIER: Preserve the original decoder register allocation and overlapping lifetimes. */
-    register u32 result __asm__("$2");
-    u32 value, next;
-    table = _ss_score;
-    table += bank;
-    bank_base = *table;
-    state = bank_base + row;
-    cursor = state->c0;
-    value = *cursor;
-    cursor++;
+    LibStateB0 *state = &_ss_score[bank][row];
+    u8 *cursor = state->c0;
+    u32 value = *cursor++;
+    u32 next;
+    u32 result;
     state->c0 = cursor;
-    result = 0;
-    if (value != 0) {
-        if (value & 128) {
-            value &= 127;
-            do {
-                cursor = state->c0;
-                next = *cursor;
-                cursor++;
-                state->c0 = cursor;
-                value = (value << 7) + (next & 127);
-            } while (next & 128);
-        }
-        result = value * 4;
-        result = (result + value) * 2;
-        state->w88 = (u32)state->w88 + result;
+    if (value == 0) {
+        return 0;
     }
+    if (value & 128) {
+        value &= 127;
+        do {
+            u8 *cursor2 = state->c0;
+            next = *cursor2++;
+            state->c0 = cursor2;
+            value = (value << 7) + (next & 127);
+        } while (next & 128);
+    }
+    result = value * 10;
+    state->w88 = state->w88 + result;
     return result;
 }

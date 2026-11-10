@@ -2,14 +2,14 @@
 extern void SetSprt(void *),SetSemiTrans(void *,s32),AddPrim(u32 *,u32 *);
 extern s32 PsyqRand(void);
 extern u8 *AddDrawModePrim(u32 *,u8 *,u16);
-u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
+u8 *AddJitterSprites(u32 *ordering,u8 *cursor,SpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
     /* ASM_BARRIER: retain the loop bound in callee-saved S5 across helpers. */
     register s32 count asm("$21")=count_arg;
     /* ASM_BARRIER: retain the full signed intensity in callee-saved S7. */
     register s32 strength asm("$23")=strength_arg;
-    register RrSpritePacket *sprite;
+    register SpritePacket *sprite;
     /* ASM_BARRIER: retain the source in callee-saved S2 across helpers. */
-    register RrSpriteEffectSource *descriptor asm("$18");
+    register SpriteEffectSource *descriptor asm("$18");
     register s32 i;
     /* ASM_BARRIER: use A1 for jitter only until the transparency helper. */
     register s32 jitter asm("$5");
@@ -20,14 +20,14 @@ u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_a
     /* ASM_BARRIER: capture the incoming cursor in A1 before the saved copy. */
     register u8 *incoming_cursor asm("$5")=cursor;
     /* ASM_BARRIER: capture the incoming source in A2 before the saved copy. */
-    register RrSpriteEffectSource *incoming_descriptor asm("$6")=descriptor_arg;
+    register SpriteEffectSource *incoming_descriptor asm("$6")=descriptor_arg;
     u32 *saved_ordering;
     /* ASM_BARRIER: capture stack arguments before copying the pointer arguments. */
     __asm__("" : "+r"(count), "+r"(strength), "+r"(incoming_order), "+r"(incoming_cursor), "+r"(incoming_descriptor));
     saved_ordering=incoming_order;
     /* ASM_BARRIER: finish saving the ordering pointer before the other copies. */
     __asm__("" : "+r"(incoming_cursor), "+r"(incoming_descriptor) : "r"(saved_ordering));
-    sprite=(RrSpritePacket *)incoming_cursor;
+    sprite=(SpritePacket *)incoming_cursor;
     descriptor=incoming_descriptor;
     /* ASM_BARRIER: finish the source copy before initializing the loop index. */
     __asm__("" : "+r"(descriptor));
@@ -54,7 +54,7 @@ u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_a
         sprite->w=descriptor->uv.w;
         sprite->h=descriptor->uv.h;
         sprite->u=descriptor->uv.u;
-        {u8 v=((volatile RrSpriteEffectSource *)descriptor)->uv.v;
+        {u8 v=((volatile SpriteEffectSource *)descriptor)->uv.v;
         s32 transparency=*(volatile s32 *)&semi;
         sprite->v=v;
         SetSemiTrans(sprite,transparency);}
@@ -75,7 +75,7 @@ u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_a
             else page=descriptor->page;
             out_cursor=(u8 *)sprite;
             i++;
-            sprite=(RrSpritePacket *)AddDrawModePrim((u32 *)(CurrentDrawBuf+0x70),out_cursor,page);
+            sprite=(SpritePacket *)AddDrawModePrim((u32 *)(CurrentDrawBuf+0x70),out_cursor,page);
         }
     }
     return (u8 *)sprite;

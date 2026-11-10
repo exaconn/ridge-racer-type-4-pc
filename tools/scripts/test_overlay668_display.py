@@ -27,33 +27,33 @@ class OverlayStrDisplayTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n)
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/overlay668_display.h"
-#define PREFIX(j) (offsetof(RrStrContextPrefix,activeB8)-offsetof(RrStrBufferSet,buffers)-(j)*sizeof(void*))
+#define PREFIX(j) (offsetof(StrContextPrefix,activeB8)-offsetof(StrBufferSet,buffers)-(j)*sizeof(void*))
 typedef union {
- RrStrContextPrefix context;
- struct {u8 before[PREFIX(0)];RrStrBufferSet set;} from0;
- struct {u8 before[PREFIX(1)];RrStrBufferSet set;} from1;
- struct {u8 before[PREFIX(2)];RrStrBufferSet set;} from2;
- struct {u8 before[PREFIX(3)];RrStrBufferSet set;} from3;
- struct {u8 before[PREFIX(4)];RrStrBufferSet set;} from4;
+ StrContextPrefix context;
+ struct {u8 before[PREFIX(0)];StrBufferSet set;} from0;
+ struct {u8 before[PREFIX(1)];StrBufferSet set;} from1;
+ struct {u8 before[PREFIX(2)];StrBufferSet set;} from2;
+ struct {u8 before[PREFIX(3)];StrBufferSet set;} from3;
+ struct {u8 before[PREFIX(4)];StrBufferSet set;} from4;
 } RootViews;
 /* The real partition addresses each contain a complete possible buffer owner. */
 typedef struct {
- RrStrBufferSet at0;
- u8 gap0[0xA000-sizeof(RrStrBufferSet)];
- RrStrBufferSet atA000;
- u8 gap1[0xA000-sizeof(RrStrBufferSet)];
- RrStrBufferSet at14000;
- u8 gap2[0x2D00-sizeof(RrStrBufferSet)];
- RrStrBufferSet at16D00;
- u8 gap3[0x2D00-sizeof(RrStrBufferSet)];
- RrStrBufferSet at19A00;
+ StrBufferSet at0;
+ u8 gap0[0xA000-sizeof(StrBufferSet)];
+ StrBufferSet atA000;
+ u8 gap1[0xA000-sizeof(StrBufferSet)];
+ StrBufferSet at14000;
+ u8 gap2[0x2D00-sizeof(StrBufferSet)];
+ StrBufferSet at16D00;
+ u8 gap3[0x2D00-sizeof(StrBufferSet)];
+ StrBufferSet at19A00;
 } PartitionArena;
 static struct BufferWorld {
- u32 guards0[8];RootViews root;RrStrBufferSet sets[2];
+ u32 guards0[8];RootViews root;StrBufferSet sets[2];
  PartitionArena arena;u32 guards1[8];
 } bworld,binitial,bexpected;
 static struct DisplayWorld {
- u32 guards0[8];RrStrDisplayConfig configs[3];s32 format;u32 guards1[8];
+ u32 guards0[8];StrDisplayConfig configs[3];s32 format;u32 guards1[8];
 } dworld,dinitial,dexpected;
 #define RaceContext bworld.root.context
 #define DrawBufIndex dworld.format
@@ -66,7 +66,7 @@ static void half(s16 *dest,s32 value){u16 bits=(u16)(u32)value;memcpy(dest,&bits
 static int display(void){
  u32 k,i;
  for(k=0;k<65536;k++){
-  s32 args[4];RrStrDisplayConfig *config;
+  s32 args[4];StrDisplayConfig *config;
   fill(&dworld,sizeof(dworld));
   args[0]=signed32((next()&0xffff0000U)|k);
   args[1]=signed32((next()&0xffff0000U)|((k*109U+17U)&65535));
@@ -90,7 +90,7 @@ static int display(void){
 }
 static int buffers(void){
  static const size_t offsets[]={0,0xA000,0x14000,0x16D00,0x19A00};
- u32 k,i;RrStrBufferSet *owners[5];
+ u32 k,i;StrBufferSet *owners[5];
  assert(sizeof(void*)==8 && (uintptr_t)&bworld.arena>UINT32_MAX);
  assert(offsetof(PartitionArena,atA000)==0xA000);
  assert(offsetof(PartitionArena,at14000)==0x14000);
@@ -119,7 +119,7 @@ static int buffers(void){
   }
   memcpy(&binitial,&bworld,sizeof(bworld));
   for(i=0;i<5;i++){
-   RrStrBufferSet *target=bworld.root.context.activeB8;
+   StrBufferSet *target=bworld.root.context.activeB8;
    target->buffers[i]=(u8*)&bworld.arena+offsets[i];
   }
   memcpy(&bexpected,&bworld,sizeof(bworld));memcpy(&bworld,&binitial,sizeof(bworld));

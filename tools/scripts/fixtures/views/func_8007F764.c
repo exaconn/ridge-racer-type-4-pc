@@ -2,6 +2,6 @@
 
 #include "rr/library.h"
 
-RrLibInterruptCallback _SpuDataCallback(RrLibInterruptCallback callback) {
+LibInterruptCallback _SpuDataCallback(LibInterruptCallback callback) {
     return DMACallback(4,callback);
 }

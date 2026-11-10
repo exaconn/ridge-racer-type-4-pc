@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern short D_800ABD48[];
-int _sio_read(int first, int second);
+extern short SioRxFifoSizeTable[];
+int _sio_read(u8 *buffer, int length);
 
 #endif /* RR_PSYQ_LIBSIO_SIORECV_H */

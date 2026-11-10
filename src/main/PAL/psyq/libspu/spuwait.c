@@ -3,7 +3,7 @@
 #include "psyq/libspu/s_crwa.h"
 #include "psyq/libspu/spuregs2.h"
 #include "rr/bios_events.h"
-extern int _spu_inTransfer;
+#include "rr/spu.h"
 int SpuIsTransferCompleted(int a0) {
   int r;
   if (_spu_trans_mode == 1 || _spu_inTransfer == 1) return 1;

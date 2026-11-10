@@ -34,9 +34,9 @@ typedef int16_t s16;
 typedef uint32_t u32;
 typedef int32_t s32;
 ''' + header + '''
-RrChannelValueRecordB0 *test_pointer_ram[0x4100];
-RrChannelValueRecordB0 test_records[256][256];
-s16 D_80110114;
+ChannelValueRecordB0 *test_pointer_ram[0x4100];
+ChannelValueRecordB0 test_records[256][256];
+s16 _svm_cur_vab_id;
 void test_initialize(void) {
     unsigned bank, row;
     memset(test_records, 0xA5, sizeof(test_records));
@@ -48,7 +48,7 @@ void test_initialize(void) {
             test_records[bank][row].value5A = (bank * 31 + row * 251) ^ 0xFFFF;
         }
     }
-    D_80110114 = -123;
+    _svm_cur_vab_id = -123;
 }
 '''
         body = (root / 'tools/scripts/fixtures/legacy/vmchval.c').read_text()
@@ -56,7 +56,7 @@ void test_initialize(void) {
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+", ', '', body)
         body = re.sub(r' : "\$[0-9]+"', '', body)
-        body = body.replace('(RrChannelValueRecordB0 **)0x80110000U', '(test_pointer_ram + 0x4000)')
+        body = body.replace('(ChannelValueRecordB0 **)0x80110000U', '(test_pointer_ram + 0x4000)')
         source += body
         (directory / 'functions.c').write_text(source)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'functions.c'),
@@ -64,7 +64,7 @@ void test_initialize(void) {
         cls.library = C.CDLL(str(directory / 'functions.so'))
         cls.records = (Record * (256 * 256)).in_dll(cls.library, 'test_records')
         cls.pointers = (C.c_void_p * 0x4100).in_dll(cls.library, 'test_pointer_ram')
-        cls.selected = C.c_int16.in_dll(cls.library, 'D_80110114')
+        cls.selected = C.c_int16.in_dll(cls.library, '_svm_cur_vab_id')
         cls.left = cls.library._SsVmGetSeqLVol
         cls.right = cls.library._SsVmGetSeqRVol
         for function in (cls.left, cls.right):

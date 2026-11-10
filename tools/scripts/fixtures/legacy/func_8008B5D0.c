@@ -2,10 +2,10 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/interrupt_dispatch.h"
 void trapIntr(void) {
-    RrLibSavedState *state=&D_800A52C8;
-    RrLibInterruptCallback *base;
+    LibSavedState *state=&IntrDispatchState;
+    LibInterruptCallback *base;
     register u32 one __asm__("$19");
-    RrLibInterruptCallback *callbacks;
+    LibInterruptCallback *callbacks;
     u32 pending;
     u32 next;
     register s32 index __asm__("$17");
@@ -39,7 +39,7 @@ void trapIntr(void) {
 again:
                 if(index>=11)goto reread;
                 if(pending&1) {
-                    RrLibInterruptCallback callback;
+                    LibInterruptCallback callback;
                     RR_IRQ_ACK16(I_STAT,~(one<<index));
                     callback=*callbacks;
                     if(callback) callback();
@@ -52,7 +52,7 @@ again:
 reread:
             {
                 register volatile u16 *status __asm__("$4")=I_STAT;
-                u32 enabled=D_800A52C8.enabled_mask;
+                u32 enabled=IntrDispatchState.enabled_mask;
                 volatile u16 *mask=I_MASK;
                 register u32 statusValue __asm__("$4")=*status;
                 register u32 maskValue __asm__("$2")=*mask;
@@ -79,6 +79,6 @@ reread:
             }
         } else IntrStuckCount=0;
     }
-    D_800A52C8.dispatching02=0;
+    IntrDispatchState.dispatching02=0;
     ReturnFromException();
 }

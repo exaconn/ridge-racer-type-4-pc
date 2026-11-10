@@ -1,10 +1,8 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
-#include "m2c_macros.h"
 #include "psyq/libapi/pad2.h"
 #include "psyq/libapi/pad1.h"
-#include "psyq/libapi/pad2.h"
 #include "rr/interrupts.h"
 #include "rr/spu_tick_control.h"
 
@@ -24,7 +22,6 @@ extern int D_801143F4;
 extern int D_801143EC[];
 
 void SetInitPadFlag(s32 value);
-s32 ReadInitPadFlag(void);
 void PAD_init();
 void InitPAD();
 s32 StartPAD(void);
@@ -48,8 +45,6 @@ void PAD_init(a0, a1, a2, a3) int a0, a1, a2, a3; {
     _padInstallVsyncHook();
     PAD_init2(a0, a1, a2, a3);
     InitPadFlag = 1;
-    /* ASM_BARRIER: keep the final global store before the epilogue loads */
-    __asm__ volatile("" : : : "memory");
 }
 
 void InitPAD(a0, a1, a2, a3) int a0; int a1; int a2; int a3; {
@@ -61,8 +56,6 @@ void InitPAD(a0, a1, a2, a3) int a0; int a1; int a2; int a3; {
     _padInstallVsyncHook();
     InitPAD2(a0, a1, a2, a3);
     InitPadFlag = 1;
-    /* ASM_BARRIER: keeps epilogue stack loads (lw ra/s*) after the final global stores; sched2 otherwise hoists/sinks them */
-    __asm__ volatile ("" : : : "memory");
 }
 
 s32 StartPAD(void) {
@@ -87,6 +80,5 @@ int _padInstallVsyncHook(void) {
     SysDeqIntRP(1, s);
     SysEnqIntRP(1, s);
     ExitCriticalSection();
-    /* ASM_BARRIER: keeps li v0,1 as a live constant so it is emitted before the epilogue loads (original order) */
-    { int r; __asm__("" : "=r"(r) : "0"(1)); return r; }
+    { int r; r = 1; return r; }
 }

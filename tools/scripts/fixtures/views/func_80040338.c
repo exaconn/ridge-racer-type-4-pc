@@ -12,13 +12,13 @@ extern u8 *MenuTextTemplates[];
 
 extern char *D_8009FD8C[], *D_8009FD9C;
 
-extern RrMenuSettings2C SelectionState;
+extern MenuSettings2C SelectionState;
 
 extern s8 D_800AD4F1;
 
 extern s16 ReverseCourse, CourseIndex;
 
-extern RrTimeRecord16 RaceRecords[2][8][5], LapRecords[2][8][5];
+extern TimeRecord16 RaceRecords[2][8][5], LapRecords[2][8][5];
 
 extern u8 *CarRecordPtrs[];
 

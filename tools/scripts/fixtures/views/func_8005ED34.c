@@ -4,16 +4,16 @@
 
 #include "rr/cpu_md_leaf.h"
 
-void UpdateScrollTrack(RrMotionClock20 *arg0)
+void UpdateScrollTrack(MotionClock20 *arg0)
 {
-    register RrMotionClock20 *clock asm("$6");
-    register RrMotionControllerPrefix *root asm("$4");
+    register MotionClock20 *clock asm("$6");
+    register MotionControllerPrefix *root asm("$4");
     register u32 tempo asm("$3");
     register u32 keyGlyph asm("$2");
     register s32 product asm("$3");
-    register RrScrollKey4 *keyBase asm("$4"),*keyPointer asm("$2");
+    register ScrollKey4 *keyBase asm("$4"),*keyPointer asm("$2");
     register u32 indexWord asm("$2");
-    register RrScrollKey4 *keyBaseSecond asm("$3");
+    register ScrollKey4 *keyBaseSecond asm("$3");
     s32 channelIndex;
     s32 temp_v0;
     s32 temp_v0_2;
@@ -24,9 +24,9 @@ void UpdateScrollTrack(RrMotionClock20 *arg0)
     register s32 var_v0 asm("$2");
     u16 temp_v0_4;
     register u32 temp_hi asm("$6");
-    register RrScrollTrack40 *temp_a1 asm("$5");
-    register RrScrollChannelCursor *temp_v1_3 asm("$3");
-    RrScrollChannelCursor *var_a0;
+    register ScrollTrack40 *temp_a1 asm("$5");
+    register ScrollChannelCursor *temp_v1_3 asm("$3");
+    ScrollChannelCursor *var_a0;
     clock = arg0;
     asm("" : "+r"(clock));
     root = MotionController;
@@ -119,9 +119,9 @@ void UpdateScrollTrack(RrMotionClock20 *arg0)
     indexWord=(u32)temp_a1->index;
     keyBase=temp_a1->keys;
     indexWord<<=2;
-    keyPointer=(RrScrollKey4*)((unsigned long)indexWord+(unsigned long)keyBase);
+    keyPointer=(ScrollKey4*)((unsigned long)indexWord+(unsigned long)keyBase);
     keyGlyph=(u16)keyPointer->glyph;
-    temp_v1_3=(RrScrollChannelCursor*)((u8*)temp_a1+product);
+    temp_v1_3=(ScrollChannelCursor*)((u8*)temp_a1+product);
     temp_v1_3->channel.offset=0;
     temp_v1_3->channel.glyph=keyGlyph;
     temp_a1->hold = ((s32)(((u32)temp_a1->keys[temp_a1->index].timing)<<16)) >> 24;
@@ -134,7 +134,7 @@ void UpdateScrollTrack(RrMotionClock20 *arg0)
     indexWord=(u32)temp_a1->index;
     keyBaseSecond=temp_a1->keys;
     indexWord<<=2;
-    keyPointer=(RrScrollKey4*)((unsigned long)indexWord+(unsigned long)keyBaseSecond);
+    keyPointer=(ScrollKey4*)((unsigned long)indexWord+(unsigned long)keyBaseSecond);
     /* This is the last clock read. GPR6 now holds a scalar HI result. */
     RR_MD_HI(temp_hi);
     tempo=(u8)keyPointer->timing;
@@ -156,7 +156,7 @@ void UpdateScrollTrack(RrMotionClock20 *arg0)
     temp_a1->state = 1;
     animate:
     var_a2 = 0;
-    var_a0 = (RrScrollChannelCursor *) temp_a1;
+    var_a0 = (ScrollChannelCursor *) temp_a1;
     do
     {
         if (var_a0->channel.glyph > 0)
@@ -169,7 +169,7 @@ void UpdateScrollTrack(RrMotionClock20 *arg0)
             }
         }
         var_a2 += 1;
-        var_a0 = (RrScrollChannelCursor *) (((u8 *) var_a0) + 4);
+        var_a0 = (ScrollChannelCursor *) (((u8 *) var_a0) + 4);
     }
     while (var_a2 < 2);
 }

@@ -38,18 +38,18 @@ typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-RrLibTransferState38 CdReadState;
+LibTransferState38 CdReadState;
 u32 CD_read_dma_mode;
-struct { u8 prefix[0x63F0]; RrLibNotificationCallback callback;
-         u8 suffix[0x10000 - 0x63F0 - sizeof(RrLibNotificationCallback)]; } test_page;
-void (*test_first)(RrLibCompletionCallback);
-void (*test_second)(RrLibCompletionCallback);
-void (*test_control)(RrLibCompletionCallback);
+struct { u8 prefix[0x63F0]; LibNotificationCallback callback;
+         u8 suffix[0x10000 - 0x63F0 - sizeof(LibNotificationCallback)]; } test_page;
+void (*test_first)(LibCompletionCallback);
+void (*test_second)(LibCompletionCallback);
+void (*test_control)(LibCompletionCallback);
 void (*test_command)(s32, s32);
 s32 test_unexpected_calls;
-void CdReadyCallback(RrLibCompletionCallback callback) { test_first(callback); }
-void CdDataCallback(RrLibCompletionCallback callback) { test_second(callback); }
-void CdSyncCallback(RrLibCompletionCallback callback) { test_control(callback); }
+void CdReadyCallback(LibCompletionCallback callback) { test_first(callback); }
+void CdDataCallback(LibCompletionCallback callback) { test_second(callback); }
+void CdSyncCallback(LibCompletionCallback callback) { test_control(callback); }
 s32 CdControlF(s32 command, const u8 *value) { test_command(command, (s32)(unsigned long)value); return 0; }
 void cd_read_restore_sync(void) { test_unexpected_calls++; }
 void test_callback_first(void) { test_unexpected_calls++; }

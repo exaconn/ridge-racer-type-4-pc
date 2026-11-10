@@ -1,53 +1,38 @@
 /* RODATA 0x80011068 0x20 */
 #include "types.h"
-#include "m2c_macros.h"
+#include "rr/load_cursor.h"
 #include "game/data/cdfile2.h"
 #include "game/course/trkres2.h"
 #include "game/data/trkld1.h"
 #include "game/gfx/gfxotag.h"
-#include "game/course/trkres2.h"
 #include "game/data/cdfile1.h"
-#include "game/data/cdfile2.h"
 #include "rr/course_choices.h"
 #include "game/gfx/model.h"
+#include "rr/audio_bank_setup.h"
+#include "game/sound/sndown.h"
 #include "game/sound/sndsys.h"
+#include "rr/audio_loop.h"
+#include "game/course/trkintp2.h"
 
 extern int D_800A02BC;
 extern int D_800A029C[];
-extern short D_800F4D44;
-extern int LoadTimList();
-extern int LoadTimImage();
-extern int LoadTimList();
-extern int SlotSetupBank();
-extern struct { int a, b, c, d; } SlotBankSetup;
-extern int LoadVab();
+extern AudioBankSetup SlotBankSetup;
+extern void LoadVab();
 extern int D_800A0228[];
-extern struct { char pad[0x2858]; char *p[1]; } SoundState;
 extern char *VabLoadArgs[2];
 extern int D_8010C218;
 extern int RaceContext[];
 extern int D_800ACBBC;
 
-int LoadCarSpecStep();
 void SetRaceLoadCursor(s32 arg0);
 s32 GetRaceLoadCursor(void);
-int func_8004D7D8();
-int func_8004D994();
 int LoadSlotBankStep(int a0, int a1);
 int LoadComSlotBankStep(int a0);
 int LoadSoundBanksStep();
 int LoadSfxVabStep(int a0, int a1);
-void RaceLoadReset(void);
-int LoadVabPairStep(char *a0);
-s32 func_8004E184(void);
-s32 func_8004E18C(void);
-int LoadRaceSoundStep(void);
+s32 LoadMenuSoundSeqStep(void);
 
-int LoadCarSpecStep(a0, a1, a2)
-int a0;
-int a1;
-int a2;
-{
+int LoadCarSpecStep(int a0, int a1, int a2) {
   int v;
   int t;
   int e;
@@ -56,7 +41,7 @@ int a2;
   switch (RaceLoadState)
   {
     case 0:
-      switch (D_800F4D44)
+      switch (GameModeType)
     {
       case 1:
         D_800A02BC = GetR4FileIndex(2, D_800A029C[a0] + (a2 + v));
@@ -112,60 +97,53 @@ s32 GetRaceLoadCursor(void) {
     return RaceLoadCursor;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define RaceLoadCursor ((int *)RaceLoadCursor)
-#define RaceContext (*(struct { char pad[0x24C]; char *p; char pad2[0x560 - 0x250]; char *r560; } (*))&RaceContext)
-
-int func_8004D7D8(a0, a1) int a0, a1;
-{
+int LoadMenuCarStep(int a0, int a1) {
     int v, t, e;
     e = 0x86;
     switch (RaceLoadState) {
     case 0:
         v = CdFileReadStart(GetR4FileIndex(2, (a0 * 4) + (a1 + e)), RaceLoadCursor);
-        if (v == 0) goto out;
-        RaceLoadState++;
-    case 1:
-        t = CdFileBytesLoaded();
-        if (t != 0) {
-            LoadTimList((char *)RaceLoadCursor + RaceLoadCursor[1]);
-            LoadTimImage((char *)RaceLoadCursor + RaceLoadCursor[2]);
+        if (v != 0) {
             RaceLoadState++;
+    case 1:
+            t = CdFileBytesLoaded();
+            if (t != 0) {
+                LoadTimList((char *)RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
+                LoadTimImage((char *)RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
+                RaceLoadState++;
+            }
+            v = 0;
         }
-        return 0;
+        return v;
     case 2:
         v = CdFileReadStart(GetR4FileIndex(2, 0x96), RaceLoadCursor);
-        if (v == 0) goto out;
-        RaceLoadState++;
+        if (v != 0) {
+            RaceLoadState++;
     case 3:
-        t = CdFileBytesLoaded();
-        if (t != 0) {
-            RegisterModelBank((char *)RaceLoadCursor + RaceLoadCursor[1], 8);
-            RelocateOffsetTable((char *)RaceLoadCursor + RaceLoadCursor[2]);
-            RaceContext.r560 = (char *)RaceLoadCursor + RaceLoadCursor[2];
-            ((int *)RaceContext.p)[0x138 / 4] = (int)((char *)RaceLoadCursor + RaceLoadCursor[3]);
-            v = AlignUp4(t);
-            RaceLoadState = 0;
-            RaceLoadCursor = (int *)((char *)RaceLoadCursor + v);
-            return 1;
+            t = CdFileBytesLoaded();
+            if (t != 0) {
+                RegisterModelBank((RroModelBank *)((char *)RaceLoadCursor + ((int *)RaceLoadCursor)[1]), 8);
+                RelocateOffsetTable((char *)RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
+                RaceContext[0x560 / 4] = ((char *)RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
+                ((int *)RaceContext[0x24C / 4])[0x138 / 4] = ((char *)RaceLoadCursor + ((int *)RaceLoadCursor)[3]);
+                v = AlignUp4(t);
+                RaceLoadState = 0;
+                RaceLoadCursor += v;
+                return 1;
+            }
+            v = 0;
         }
-        return 0;
+        return v;
     default:
         return 0;
     }
-out:
-    return v;
 }
 
-#undef RaceLoadCursor
-#undef RaceContext
-
-int func_8004D994(a0, a1) int a0, a1;
-{
+int LoadCourseAssetsStep(int a0, int a1) {
     int v, t;
     switch (RaceLoadState) {
     case 0:
-        if (D_800F4D44 != 1) return 1;
+        if (GameModeType != 1) return 1;
         v = CdFileReadStart(GetR4FileIndex(2, a1 * 2 + 0x7D), RaceLoadCursor);
         if (v == 0) goto out;
         RaceLoadState++;
@@ -177,7 +155,7 @@ int func_8004D994(a0, a1) int a0, a1;
     case 3:
         t = CdFileBytesLoaded();
         if (t != 0) {
-            RegisterModelBank(RaceLoadCursor, 8);
+            RegisterModelBank((RroModelBank *)(RaceLoadCursor), 8);
             v = AlignUp4(t);
             RaceLoadCursor += v;
             if (D_8009FE60[a0] < 7) {
@@ -208,7 +186,7 @@ int func_8004D994(a0, a1) int a0, a1;
     case 7:
         t = CdFileBytesLoaded();
         if (t != 0) {
-            RegisterModelBank(RaceLoadCursor, 9);
+            RegisterModelBank((RroModelBank *)(RaceLoadCursor), 9);
             v = AlignUp4(t);
             RaceLoadCursor += v;
             RaceLoadState = 0;
@@ -222,9 +200,6 @@ out:
     return v;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define RaceLoadCursor ((char *)RaceLoadCursor)
-
 int LoadSlotBankStep(int a0, int a1) {
     int v;
     if (a0 < 0) return 1;
@@ -235,11 +210,11 @@ int LoadSlotBankStep(int a0, int a1) {
             RaceLoadSubState += 1;
     case 1:
             if (CdFileBytesLoaded() != 0) {
-                SlotBankSetup.c = (int)(RaceLoadCursor + *(int *)(RaceLoadCursor + 4));
-                SlotBankSetup.a = (int)(RaceLoadCursor + *(int *)(RaceLoadCursor + 8));
-                SlotBankSetup.b = (int)(RaceLoadCursor + *(int *)(RaceLoadCursor + 0xC));
-                SlotBankSetup.d = a1;
-                RaceLoadCursor += AlignUp4(*(int *)(RaceLoadCursor + 0xC));
+                SlotBankSetup.group08 = (AudioProgramData *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
+                SlotBankSetup.bank00 = (const u8 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
+                SlotBankSetup.data04 = (const u16 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[3]);
+                SlotBankSetup.slot0C = a1;
+                RaceLoadCursor += AlignUp4(((int *)RaceLoadCursor)[3]);
                 RaceLoadSubState += 1;
             }
             v = 0;
@@ -254,11 +229,6 @@ int LoadSlotBankStep(int a0, int a1) {
     }
 }
 
-#undef RaceLoadCursor
-
-/* legacy typing of shared globals in this part of the unit */
-#define RaceLoadCursor ((char *)RaceLoadCursor)
-
 int LoadComSlotBankStep(int a0) {
     int v;
     if (a0 < 0) return 1;
@@ -269,11 +239,11 @@ int LoadComSlotBankStep(int a0) {
             RaceLoadSubState += 1;
     case 1:
             if (CdFileBytesLoaded() != 0) {
-                SlotBankSetup.c = (int)(RaceLoadCursor + *(int *)(RaceLoadCursor + 4));
-                SlotBankSetup.a = (int)(RaceLoadCursor + *(int *)(RaceLoadCursor + 8));
-                SlotBankSetup.b = (int)(RaceLoadCursor + *(int *)(RaceLoadCursor + 0xC));
-                SlotBankSetup.d = 0;
-                RaceLoadCursor += AlignUp4(*(int *)(RaceLoadCursor + 0xC));
+                SlotBankSetup.group08 = (AudioProgramData *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
+                SlotBankSetup.bank00 = (const u8 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
+                SlotBankSetup.data04 = (const u16 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[3]);
+                SlotBankSetup.slot0C = 0;
+                RaceLoadCursor += AlignUp4(((int *)RaceLoadCursor)[3]);
                 RaceLoadSubState += 1;
             }
             v = 0;
@@ -288,11 +258,7 @@ int LoadComSlotBankStep(int a0) {
     }
 }
 
-#undef RaceLoadCursor
-
-int LoadSoundBanksStep(a0, a1, a2)
-int a0, a1, a2;
-{
+int LoadSoundBanksStep(int a0, int a1, int a2) {
     switch (RaceLoadState) {
     case 0:
         if (LoadSlotBankStep(a0, 0) == 0) return 0;
@@ -314,14 +280,12 @@ int a0, a1, a2;
     return 0;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define RaceLoadCursor ((char *)RaceLoadCursor)
-
 int LoadSfxVabStep(int a0, int a1) {
     int s0 = 0;
     int *s2 = D_800A0228 + a0 * 3;
     int v, t;
-    char *v1, *v0;
+    int *v1;
+    char *v0;
     switch (RaceLoadSubState) {
     case 0:
         v = CdFileReadStart(GetR4FileIndex(2, s2[0]), RaceLoadCursor);
@@ -330,14 +294,14 @@ int LoadSfxVabStep(int a0, int a1) {
     case 1:
             if (CdFileBytesLoaded() != 0) {
                 if (a1 > 0) s0 += a1;
-                v1 = (char *)(s0 * 4 + (int)RaceLoadCursor);
-                VabLoadArgs[0] = RaceLoadCursor + *(int *)(v1 + 4);
-                v0 = RaceLoadCursor + *(int *)(v1 + 8);
+                v1 = (int *)(s0 * 4 + RaceLoadCursor);
+                VabLoadArgs[0] = RaceLoadCursor + v1[1];
+                v0 = RaceLoadCursor + v1[2];
                 VabLoadArgs[1] = v0;
                 s0 = v0 - RaceLoadCursor;
                 LoadVab(VabLoadArgs, s2[1], s2[2], RaceLoadCursor);
                 if (a1 > 0) {
-                    SoundState.p[D_8010C218] = RaceLoadCursor + *(int *)(RaceLoadCursor + 4);
+                    SoundState.seqAddr2858[D_8010C218] = (char *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
                 }
                 s0 = AlignUp4(s0);
                 RaceLoadSubState = 0;
@@ -352,8 +316,6 @@ int LoadSfxVabStep(int a0, int a1) {
     }
 }
 
-#undef RaceLoadCursor
-
 void RaceLoadReset(void) {
     RaceLoadStepIndex = 0;
     RaceLoadState = 0;
@@ -361,10 +323,6 @@ void RaceLoadReset(void) {
     D_800A0218 = 0;
     RaceLoadCursor = LoadCursor;
 }
-
-/* legacy typing of shared globals in this part of the unit */
-#define RaceLoadCursor ((char *)RaceLoadCursor)
-#define VabLoadArgs (*(int (*)[2])&VabLoadArgs)
 
 int LoadVabPairStep(char *a0) {
     int v;
@@ -387,8 +345,8 @@ int LoadVabPairStep(char *a0) {
             RaceLoadStepIndex += 1;
     case 3:
             if (CdFileBytesLoaded() != 0) {
-                VabLoadArgs[0] = (int)a0;
-                VabLoadArgs[1] = (int)RaceLoadCursor;
+                VabLoadArgs[0] = a0;
+                VabLoadArgs[1] = RaceLoadCursor;
                 LoadVab(VabLoadArgs, t[1], t[2]);
                 RaceLoadStepIndex = 0;
                 return 1;
@@ -401,14 +359,11 @@ int LoadVabPairStep(char *a0) {
     }
 }
 
-#undef RaceLoadCursor
-#undef VabLoadArgs
-
-s32 func_8004E184(void) {
+s32 LoadMenuSoundVabStep(void) {
     return 1;
 }
 
-s32 func_8004E18C(void) {
+s32 LoadMenuSoundSeqStep(void) {
     return 1;
 }
 

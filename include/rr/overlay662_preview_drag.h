@@ -3,8 +3,8 @@
 #include "rr/overlay662_image_drag.h"
 /* Genuine adjacent grab halfwords at27290/27292,followed by image thumb
  * and complementary travel at27294/27298. */
-typedef u16 RrGaragePreviewGrab[2];
-extern RrGaragePreviewGrab ovl662_D_80127290;
+typedef u16 GaragePreviewGrab[2];
+extern GaragePreviewGrab ovl662_D_80127290;
 extern s32 ovl662_D_80127294,ovl662_D_80127298;
 /* Active updates require saved image travel32..64 and unsigned16 grab values.
  * Start requires zoom>=4 and a hit in237,71,64,128. After clip,zoom remains
@@ -14,5 +14,5 @@ extern s32 ovl662_D_80127294,ovl662_D_80127298;
  * narrow to signed16 before clamping. Initial Y grab uses cursorY/2-35;
  * active Y uses (cursorY-71)/2,with signed truncation toward zero in both. */
 void ovl662_func_801246E4(void);
-RR_ASSERT_SIZE(RrGaragePreviewGrab,4);
+RR_ASSERT_SIZE(GaragePreviewGrab,4);
 #endif

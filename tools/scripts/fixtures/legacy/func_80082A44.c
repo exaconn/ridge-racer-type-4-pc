@@ -4,25 +4,25 @@
 
 /* Anchors originate in the complete timer object. Signed native-width
  * offset differences keep every scalar access within that object. */
-#define FIELD(p,type,member) (*(type *)((p)+((long)RR_FIELD_OFFSET(RrSpuTickState20,member)-(long)RR_FIELD_OFFSET(RrSpuTickState20,flags))))
-#define FLAG(p,member) (*(s8 *)((p)+(long)RR_FIELD_OFFSET(RrSpuTickFlags4,member)))
+#define FIELD(p,type,member) (*(type *)((p)+((long)RR_FIELD_OFFSET(SpuTickState20,member)-(long)RR_FIELD_OFFSET(SpuTickState20,flags))))
+#define FLAG(p,member) (*(s8 *)((p)+(long)RR_FIELD_OFFSET(SpuTickFlags4,member)))
 void _SsStart(s32 direct)
 {
     s32 wait=999;
     u32 counter;
     register s32 period __asm__("$17");
-    RrSpuTickCallback callback;
+    SpuTickCallback callback;
     register s32 interrupt __asm__("$4");
     u8 *setup;
     u8 *state;
     do {wait--;} while(wait>=0);
     counter=0xF2000002;
     period=0x44E8;
-    setup=(u8 *)&_snd_seq_tick_env+RR_FIELD_OFFSET(RrSpuTickState20,flags);
+    setup=(u8 *)&_snd_seq_tick_env+RR_FIELD_OFFSET(SpuTickState20,flags);
     FLAG(setup,interrupt)=6;
     FLAG(setup,direct)=0;
     FLAG(setup,divided)=0;
-    FIELD(setup,RrSpuTickCallback,previous)=0;
+    FIELD(setup,SpuTickCallback,previous)=0;
     switch(FIELD(setup,s32,selector)) {
     case 0:FLAG(setup,interrupt)=127;return;
     case 5:
@@ -34,7 +34,7 @@ void _SsStart(s32 direct)
     case 3:period=0x89D0;break;
     default:
         {
-        register u8 *active=(u8 *)&_snd_seq_tick_env+RR_FIELD_OFFSET(RrSpuTickState20,active);
+        register u8 *active=(u8 *)&_snd_seq_tick_env+RR_FIELD_OFFSET(SpuTickState20,active);
         if(*(s32 *)active!=0) return;
         {
             register s32 frequency=*(s32 *)(active-4);
@@ -43,18 +43,18 @@ void _SsStart(s32 direct)
                 register s32 quotient=0x204CC0/frequency;
                 /* ASM_BARRIER: Capture the initialized quotient before the flag phase. */
                 __asm__("" : : "r"(quotient));
-                parent[RR_FIELD_OFFSET(RrSpuTickState20,flags)+1]++;
+                parent[RR_FIELD_OFFSET(SpuTickState20,flags)+1]++;
                 /* ASM_BARRIER: Publish the divided flag before assigning the period. */
-                __asm__("" : : "m"(parent[RR_FIELD_OFFSET(RrSpuTickState20,flags)+1]), "r"(quotient) : "$17");
+                __asm__("" : : "m"(parent[RR_FIELD_OFFSET(SpuTickState20,flags)+1]), "r"(quotient) : "$17");
                 period=quotient;
             } else { register s32 quotient __asm__("$2")=0x409980/frequency;  period=quotient; }
         }
         }
     }
-    state=(u8 *)&_snd_seq_tick_env+RR_FIELD_OFFSET(RrSpuTickState20,flags);
+    state=(u8 *)&_snd_seq_tick_env+RR_FIELD_OFFSET(SpuTickState20,flags);
     if(FLAG(state,direct)) {
         EnterCriticalSection();
-        VSyncCallback(FIELD(state,RrSpuTickCallback,callback));
+        VSyncCallback(FIELD(state,SpuTickCallback,callback));
     } else {
         EnterCriticalSection();
         ResetRCnt(counter);
@@ -64,12 +64,12 @@ void _SsStart(s32 direct)
             interrupt=0;
             /* ASM_BARRIER: Keep the initialized IRQ argument distinct from null. */
             __asm__("" : "+r"(interrupt));
-            FIELD(state,RrSpuTickCallback,previous)=InterruptCallback(interrupt,0);
+            FIELD(state,SpuTickCallback,previous)=InterruptCallback(interrupt,0);
             interrupt=FLAG(state,interrupt);
             callback=_SsTickCallback;
         } else {
             callback=_SsTickCallbackDivided;
-            if(FLAG(state,divided)==0) callback=FIELD(state,RrSpuTickCallback,callback);
+            if(FLAG(state,divided)==0) callback=FIELD(state,SpuTickCallback,callback);
         }
         InterruptCallback(interrupt,callback);
     }

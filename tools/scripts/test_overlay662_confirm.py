@@ -12,11 +12,12 @@ class Overlay662ConfirmTest(unittest.TestCase):
         blob=(root/'disc/PAL/R4.BIN').read_bytes();sector=struct.unpack_from('<I',blob,4+662*4)[0]
         rows=[struct.unpack_from('<8h',blob,sector*2048+0x80126F88-0x80114878+16*i) for i in range(46)]
         self.assertEqual(sorted(r[6] for r in rows),list(range(46)))
-        data='static const RrGarageButton original[46]={\n'+',\n'.join('{{'+','.join(map(str,r[:4]))+'},'+','.join(map(str,r[4:]))+'}' for r in rows)+'\n};\n'
+        data='static const GarageButton original[46]={\n'+',\n'.join('{{'+','.join(map(str,r[:4]))+'},'+','.join(map(str,r[4:]))+'}' for r in rows)+'\n};\n'
         paths=['src/overlays/PAL/662/func_8011E734.c','src/overlays/PAL/662/func_8011E694.c','tools/scripts/fixtures/views/func_8004F218.c','tools/scripts/fixtures/views/func_8004F24C.c','src/overlays/PAL/662/func_8011F888.c']
         bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',(root/p).read_text(),flags=re.M) for p in paths)
         source=r'''
 #include <assert.h>
+#include "game/system/pad.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -27,16 +28,16 @@ class Overlay662ConfirmTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_confirm.h"
 #include "rr/audio_pan.h"
-_Static_assert(sizeof(RrGarageButton)==16,"complete button owner");
-static struct World {u32 guard[4];RrGarageSelectionPrefix garage;RrGarageWorkingStorage work;RrGarageButton buttons[46];RrGarageRectangle *table[46];RrMenuTextState text[3],*textroot;RrBadgeRow1C badges[3][2],*badgeroot;RrMenuItemState5C items[2];s16 pending,scene,latch;u16 transition;u32 tail[4];} world,expected,map_checkpoint,sound_checkpoint;
+_Static_assert(sizeof(GarageButton)==16,"complete button owner");
+static struct World {u32 guard[4];GarageSelectionPrefix garage;GarageWorkingStorage work;GarageButton buttons[46];GarageRectangle *table[46];MenuTextState text[3],*textroot;BadgeRow1C badges[3][2],*badgeroot;ControllerState5C items[2];s16 pending,scene,latch;u16 transition;u32 tail[4];} world,expected,map_checkpoint,sound_checkpoint;
 static unsigned scenario,family,slot,postbyte,expected_map,expected_sound,map_calls,sound_calls;static s32 mapped_mode;
 #define ovl662_D_801276A8 world.garage
 #define ovl662_D_80127668 world.work
 #define ovl662_D_801273B8 world.table
-#define D_800AC590 world.textroot
+#define CardDialogueStatePtr world.textroot
 #define BadgeRows world.badgeroot
 #define PlayerControllers world.items
-#define D_800FFC18 world.pending
+#define CardMenuOperation world.pending
 #define D_800F3A26 world.scene
 #define D_800F4D8A world.latch
 #define ModeGroup world.transition
@@ -45,7 +46,7 @@ static u32 rng=0x1FB2C;
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static s16 half(u32 n){u16 bits=(u16)n;s16 v;memcpy(&v,&bits,2);return v;}
-static unsigned button_slot(RrGarageRectangle *p){return (unsigned)((RrGarageButton*)p-world.buttons);}
+static unsigned button_slot(GarageRectangle *p){return (unsigned)((GarageButton*)p-world.buttons);}
 static void map_effect(struct World *w){w->garage.optionIndices98.flat[0]=word(scenario^0x87654321U);w->garage.selectorsB8[2]=word(scenario^0x12345678U);w->garage.config1E=255;w->work.words[0]^=0xA5678901U;}
 static void sound_effect(struct World *w){unsigned n=button_slot(w->table[slot]);assert(n<46);
  w->table[slot]=&world.buttons[(n+1)%46].rectangle;
@@ -60,8 +61,8 @@ void TriggerSfx(s32 program,s32 level,s32 pan,s32 pitch,s32 voice){
  assert(memcmp(&world,&sound_checkpoint,sizeof(world))==0);
  sound_effect(&world);
 }
-static unsigned text_index(RrMenuTextState*p){unsigned i;for(i=0;i<3;i++)if(p==world.text+i)return i;assert(0);return 0;}
-static unsigned badge_index(RrBadgeRow1C*p){unsigned i;for(i=0;i<3;i++)if(p==world.badges[i])return i;assert(0);return 0;}
+static unsigned text_index(MenuTextState*p){unsigned i;for(i=0;i<3;i++)if(p==world.text+i)return i;assert(0);return 0;}
+static unsigned badge_index(BadgeRow1C*p){unsigned i;for(i=0;i<3;i++)if(p==world.badges[i])return i;assert(0);return 0;}
 static void sound(void){expected_sound=1;memcpy(&sound_checkpoint,&expected,sizeof(expected));sound_effect(&expected);}
 static void reference(s32 mode){unsigned j,t,b;
  if(mode<0){expected.garage.optionIndices98.flat[0]=2;return;}
@@ -75,7 +76,7 @@ static void reference(s32 mode){unsigned j,t,b;
  b=badge_index(expected.badgeroot);t=text_index(expected.textroot);
  if(scenario&8){if(expected.badges[b][0].state10!=3)return;
   if(expected.garage.fade00<0){expected.garage.flagsD1|=4;
-   if(expected.text[t].st==4&&expected.items[0].type01!=0x12&&expected.items[0].a!=0){expected.garage.fade00=64;sound();}
+   if(expected.text[t].st==4&&expected.items[0].input00.fields.type!=0x12&&expected.items[0].action28!=0){expected.garage.fade00=64;sound();}
   }else if(expected.garage.fade00==0){expected.pending=6;expected.transition=1;expected.scene=71;expected.latch=0;}return;
  }
  if(!(scenario&4)||!(scenario&2))return;
@@ -93,14 +94,14 @@ int main(void){unsigned path,j,n;uint64_t cases=0;
   for(j=0;j<16;j++)world.work.words[j]=next();world.work.words[0]=0xA5510000U|((scenario&1)?4U:0U)|((scenario&8)?8U:0U);world.work.words[1]=0xABC00000U|((scenario&2)?1U:0U);
   for(j=0;j<46;j++){world.table[(unsigned)world.buttons[j].key0C]=&world.buttons[j].rectangle;world.buttons[j].timer0E=half(scenario+j);}
   n=scenario%46;world.table[slot]=&world.buttons[n].rectangle;world.buttons[n].rectangle[0]=world.buttons[n].rectangle[1]=0;world.buttons[n].rectangle[2]=320;world.buttons[n].rectangle[3]=480;
-  world.work.points.cursor14=(RrGaragePoint){(scenario&4)?146:-1,199};
+  world.work.points.cursor14=(GaragePoint){(scenario&4)?146:-1,199};
   switch(path){case 0:mode=word(0x80000000U|scenario|(scenario<<16));break;case 1:mode=0;break;case 2:mode=1;break;case 3:mode=2;break;case 4:mode=4;break;case 5:mode=8;break;case 6:mode=3;break;default:mode=scenario%4==0?65536:scenario%4==1?INT32_MAX:word(next());break;}
   world.textroot=world.text+scenario%3;world.badgeroot=world.badges[scenario%3];
   for(j=0;j<sizeof(world.text);j++)((u8*)world.text)[j]=(u8)(scenario+j*7);
   for(j=0;j<sizeof(world.badges);j++)((u8*)world.badges)[j]=(u8)(scenario+j*13);
   for(j=0;j<3;j++)world.text[j].p=0;
   world.text[scenario%3].st=(scenario&32)?4:-128;world.badges[scenario%3][0].state10=(scenario&16)?3:-1;
-  world.items[0].type01=(scenario&256)?0x12:255;world.items[0].a=(scenario&512)?0:word(0x87654321U);
+  world.items[0].input00.fields.type=(scenario&256)?0x12:255;world.items[0].action28=(scenario&512)?0:word(0x87654321U);
   switch((scenario>>6)&3){case 0:world.garage.fade00=INT32_MIN;break;case 1:world.garage.fade00=-1;break;case 2:world.garage.fade00=0;break;default:world.garage.fade00=INT32_MAX;break;}
   world.garage.flagsD1=(u8)(scenario>>8);world.pending=half(next());world.transition=(u16)next();world.scene=half(next());world.latch=half(next());
   expected_map=expected_sound=map_calls=sound_calls=0;

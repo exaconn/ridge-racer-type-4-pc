@@ -1,14 +1,15 @@
 #include "rr/overlay665_panels.h"
+#include "rr/frame_storage_types.h"
 void ovl665_func_80115CFC(void) {
     s32 i,x;
-    const RrUiUvRect *glyph;
+    const UiUvRect *glyph;
     void *cursor;
-    RrGpuSingleCommandPacket *packet;
+    GpuSingleCommandPacket *packet;
     switch(ovl665_D_80119768.layout0C) {
     case 0:
         ovl665_func_80115C8C();
-        func_8005B2D4(0);
-        ovl665_D_80119768.layout0C=(s32)((u32)ovl665_D_80119768.layout0C+1U);
+        SetPresentationDrawEnabled(0);
+        ovl665_D_80119768.layout0C=(ovl665_D_80119768.layout0C+1U);
         break;
     case 1:
         if(BadgeRows[0].state10==3)ovl665_D_80119768.layout0C=2;
@@ -18,16 +19,16 @@ void ovl665_func_80115CFC(void) {
             PlaySfx(1);
             BadgeRows[0].state10=4;
             D_800AC5D0=64;
-            ovl665_D_80119768.layout0C=(s32)((u32)ovl665_D_80119768.layout0C+1U);
+            ovl665_D_80119768.layout0C=(ovl665_D_80119768.layout0C+1U);
         }
         break;
     case 3:
         D_800AC5D0--;
-        AddScreenFadeTiles(((RrFrameOrderingPrefix*)CurrentDrawBuf)->ordering70,(64-D_800AC5D0)*4,69);
+        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,(64-D_800AC5D0)*4,69);
         if(D_800AC5D0<=0 && BadgeRows[0].state10==11) {
             ovl665_func_80114A24();
             ovl665_D_80119768.layout0C=0;
-            ovl665_D_80119768.scene00=(s32)((u32)ovl665_D_80119768.scene00-1U);
+            ovl665_D_80119768.scene00=(ovl665_D_80119768.scene00-1U);
             return;
         }
         break;
@@ -37,16 +38,16 @@ void ovl665_func_80115CFC(void) {
     glyph=&ovl665_D_80119028;
     x=24;
     for(;i<8;x+=36,i++) {
-        cursor=AddSpritePrim(((RrFrameOrderingPrefix*)CurrentDrawBuf)->ordering70,cursor,x,144,glyph,0x7F38,((7-i)*223)/7+32);
+        cursor=AddSpritePrim(CurrentDrawBuf->buffer.ordering70.words,cursor,x,144,glyph,0x7F38,((7-i)*223)/7+32);
     }
-    packet=(RrGpuSingleCommandPacket*)cursor;
+    packet=(GpuSingleCommandPacket*)cursor;
     RR_PROJECTION_SCRATCH->pointers.cursor=(u8*)packet;
     ((u8*)&packet->tag)[3]=1;
     {
-        RrFrameOrderingPrefix *context=(RrFrameOrderingPrefix*)CurrentDrawBuf;
+        FrameStorage *context=CurrentDrawBuf;
         packet->command=0xE1000239U;
-        packet->tag=(packet->tag&0xFF000000U)|(context->ordering70[0]&0xFFFFFFU);
-        context->ordering70[0]=(context->ordering70[0]&0xFF000000U)|((u32)(unsigned long)packet&0xFFFFFFU);
+        packet->tag=(packet->tag&0xFF000000U)|(context->buffer.ordering70.words[0]&0xFFFFFFU);
+        context->buffer.ordering70.words[0]=(context->buffer.ordering70.words[0]&0xFF000000U)|((unsigned long)packet&0xFFFFFFU);
         packet++;
         RR_PROJECTION_SCRATCH->pointers.cursor=(u8*)packet;
     }
@@ -54,20 +55,20 @@ void ovl665_func_80115CFC(void) {
         DrawHudDigit(0,28+i*36,192,128);
         DrawHudDigit(i+1,34+i*36,192,128);
     }
-    packet=(RrGpuSingleCommandPacket*)RR_PROJECTION_SCRATCH->pointers.cursor;
+    packet=(GpuSingleCommandPacket*)RR_PROJECTION_SCRATCH->pointers.cursor;
     ((u8*)&packet->tag)[3]=1;
     {
-        RrFrameOrderingPrefix *context=(RrFrameOrderingPrefix*)CurrentDrawBuf;
+        FrameStorage *context=CurrentDrawBuf;
         packet->command=0xE1000238U;
-        packet->tag=(packet->tag&0xFF000000U)|(context->ordering70[0]&0xFFFFFFU);
-        context->ordering70[0]=(context->ordering70[0]&0xFF000000U)|((u32)(unsigned long)packet&0xFFFFFFU);
+        packet->tag=(packet->tag&0xFF000000U)|(context->buffer.ordering70.words[0]&0xFFFFFFU);
+        context->buffer.ordering70.words[0]=(context->buffer.ordering70.words[0]&0xFF000000U)|((unsigned long)packet&0xFFFFFFU);
         packet++;
         RR_PROJECTION_SCRATCH->pointers.cursor=(u8*)packet;
     }
-    D_800AC590->b4=27;
+    CardDialogueStatePtr->b4=27;
     UpdateBadgeRowAnim(0);
     if(BadgeRows[0].state10==3) {
-        UpdateDialogue(BadgeRows[0].x04+10,BadgeRows[0].y06+40,D_800AC590);
+        UpdateDialogue(BadgeRows[0].x04+10,BadgeRows[0].y06+40,CardDialogueStatePtr);
     }
     UpdateScreenFade(0x1007C);
 }

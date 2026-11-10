@@ -1,7 +1,7 @@
 """Actual serial receive/select and transmit/retry bodies with typed BIOS mocks.
 
 Event-ready receive packets obey the original ring-index precondition0..7.
-Control bits are not stripped by the target; out-of-range flags are outside this
+RaceVehicleControl bits are not stripped by the target; out-of-range flags are outside this
 memory-safe domain. BIOS event/read/write and device queries are simulated.
 """
 from pathlib import Path
@@ -30,9 +30,9 @@ struct State {
  u32 guard[4],handle;
  s32 halt,request,pending,serial,rxcount,timeouts,txcount,failures,command,peer,phase,local,reader,writer;
  u8 read,write,selected,error,remote,received,sent;
- RrOverlay667SerialStorage rx,tx;
- RrOverlay667SerialRing ring;
- RrOverlay667ChoicePair payload,incoming,outgoing;
+ Overlay667SerialStorage rx,tx;
+ Overlay667SerialRing ring;
+ Overlay667ChoicePair payload,incoming,outgoing;
  u32 tail[4];
 };
 struct Event {s32 kind,args[3];u32 hash;};
@@ -70,7 +70,7 @@ static s32 eventResult,queryResult,writeResult;
 static const u32 edges[]={0,1,2,0xFFFFFFFFU,0x7FFFFFFFU,0x80000000U};
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static s32 inc(s32 n){return word((u32)((uint64_t)(u32)n+1));}
-static u8 checksum(const RrOverlay667SerialPacket *p) {
+static u8 checksum(const Overlay667SerialPacket *p) {
  unsigned i;u8 sum=0;
  for(i=0;i<4;i++)sum^=p->first04.bytes[i]^p->second08.bytes[i];
  return sum;
@@ -104,7 +104,7 @@ static s32 event(s32 kind,s32 a,s32 b,s32 c) {
  if(mutation)effect(n);
  return kind==0?eventResult:kind==3?writeResult:queryResult;
 }
-s32 TestEvent(RrBiosEventHandle handle) {
+s32 TestEvent(BiosEventHandle handle) {
  assert(handle==w->s.handle);return event(0,word(handle),0,0);
 }
 s32 FileRead(s32 descriptor,void *buffer,s32 count) {

@@ -3,7 +3,7 @@
 #include "rr/bios_events.h"
 #include "rr/driver_control.h"
 #include "rr/overlay667_status.h"
-extern RrBiosEventHandle ovl667_D_80118ED8,ovl667_D_80118EDC;
+extern BiosEventHandle ovl667_D_80118ED8,ovl667_D_80118EDC;
 extern s32 ovl667_D_80118EE0,ovl667_D_80118EE8;
 extern s32 LinkWriteHandle,LinkReadHandle;
 extern const char ovl667_D_8011487C[];

@@ -4,16 +4,11 @@
 #include "psyq/libspu/smutil.h"
 #include "psyq/libspu/spuregs2.h"
 #include "psyq/libspu/s_crwa.h"
-#include "psyq/libspu/s_crwa.h"
 #include "rr/spu.h"
 
 extern s32 _spu_t(s32 mode, ...);
 extern s32 WaitEvent(s32 event);
-extern s32 _spu_mem_mode_plus;
-extern u32 _spu_rev_startaddr[];
 extern u8 SpuZeroBlock[];
-
-s32 SpuClearReverbWorkArea(u32 preset);
 
 void SpuInit(void) { _SpuInit(0); }
 
@@ -44,7 +39,6 @@ s32 SpuClearReverbWorkArea(u32 preset) {
         _spu_transMode = 0;
         /* ASM_BARRIER: reload 1 instead of reusing the comparison's v0.
          * This emits no instructions and has no effect on the algorithm. */
-        __asm__ volatile("" : : : "$2");
         restore_mode = 1;
     }
     more = 1;

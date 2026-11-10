@@ -35,12 +35,12 @@
 
 #undef GPU_STATUS
 
-extern u32 D_80112788[10];
+extern u32 GpuDrawEnvPacket[10];
 
 extern u32 D_801127B0[4];
 
-s32 _clr(RrGpuRectangle *arg0, u32 arg1) {
-    register RrGpuRectangle *rect=arg0;
+s32 _clr(GpuRectangle *arg0, u32 arg1) {
+    register GpuRectangle *rect=arg0;
     register u32 color;
     /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
     register s32 signed_side asm("$3");
@@ -69,7 +69,7 @@ s32 _clr(RrGpuRectangle *arg0, u32 arg1) {
         register u32 full_area=0xE4FFFFFFU;
         /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
         register u32 tail_tag asm("$7")=0x03FF0000U;
-        register u32 *packet=D_80112788;
+        register u32 *packet=GpuDrawEnvPacket;
         u32 *secondary=D_801127B0;
         /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
         register u32 link asm("$2");
@@ -116,7 +116,7 @@ s32 _clr(RrGpuRectangle *arg0, u32 arg1) {
         /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
         register u32 header asm("$2")=0x05FFFFFFU;
         register u32 mask=0xFFFFFFU;
-        register u32 *packet=D_80112788;
+        register u32 *packet=GpuDrawEnvPacket;
         /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
         register u32 encoded asm("$3");
         /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
@@ -147,7 +147,7 @@ s32 _clr(RrGpuRectangle *arg0, u32 arg1) {
         packet[4]=rect->words[0];
         packet[5]=rect->words[1];
     }
-    _cwc((unsigned long)D_80112788);
+    _cwc((unsigned long)GpuDrawEnvPacket);
     {
         register s32 result=0;
         /* ASM_BARRIER: form the zero return value before restoring saved registers. */

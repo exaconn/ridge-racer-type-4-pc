@@ -18,7 +18,7 @@ class GarageSpriteTest(unittest.TestCase):
         rows=[struct.unpack_from('<iHHBBHiI',blob,address+20*i) for i in range(72)]
         self.assertEqual(sorted(row[6] for row in rows),list(range(72)))
         self.assertTrue(all(4<=row[0]<=11 for row in rows))
-        original='static const RrGarageSpriteRecord original[72]={\n'+',\n'.join('{'+','.join(map(str,row))+'}' for row in rows)+'\n};\n'
+        original='static const GarageSpriteRecord original[72]={\n'+',\n'.join('{'+','.join(map(str,row))+'}' for row in rows)+'\n};\n'
         source=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -30,9 +30,9 @@ class GarageSpriteTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_sprites.h"
-typedef union {u32 words[704];struct {u32 prefix[128];RrSpritePacket packets[64];} view;} Ordering;
-typedef union {RrGarageSpriteRecord records[4];struct {u32 prefix;RrSpritePacket packets[3];} view;u32 words[20];} Aliased;
-static struct World {u32 guard[4];RrGpuScratchPointers scratch;RrGarageSpriteRecord records[72];RrGarageSpriteRecord *lookup[72];Ordering order;Aliased alias;RrSpritePacket packets[4];u32 tail[4];} world,expected;
+typedef union {u32 words[704];struct {u32 prefix[128];SpritePacket packets[64];} view;} Ordering;
+typedef union {GarageSpriteRecord records[4];struct {u32 prefix;SpritePacket packets[3];} view;u32 words[20];} Aliased;
+static struct World {u32 guard[4];GpuScratchPointers scratch;GarageSpriteRecord records[72];GarageSpriteRecord *lookup[72];Ordering order;Aliased alias;SpritePacket packets[4];u32 tail[4];} world,expected;
 #define RR_GPU_SCRATCH (&world.scratch)
 #define ovl662_D_80126260 world.records
 #define ovl662_D_80127548 world.lookup
@@ -43,12 +43,12 @@ static s32 signed_word(u32 raw){s32 result;memcpy(&result,&raw,4);return result;
 static void put16(void *base,unsigned offset,u32 value){u8 *p=base;p[offset]=(u8)value;p[offset+1]=(u8)(value>>8);}
 static void put32(void *base,unsigned offset,u32 value){u8 *p=base;unsigned i;for(i=0;i<4;i++)p[offset+i]=(u8)(value>>(8*i));}
 static u32 get32(const void *base,unsigned offset){const u8 *p=base;return (u32)p[offset]|((u32)p[offset+1]<<8)|((u32)p[offset+2]<<16)|((u32)p[offset+3]<<24);}
-static RrSpritePacket *packet(struct World *v,unsigned mode){
+static SpritePacket *packet(struct World *v,unsigned mode){
  if(mode==0)return &v->packets[0];if(mode==1)return &v->alias.view.packets[0];return &v->order.view.packets[0];
 }
-static RrGarageSpriteRecord *record(struct World *v,unsigned mode,unsigned index){return mode==1?&v->alias.records[0]:&v->records[index];}
+static GarageSpriteRecord *record(struct World *v,unsigned mode,unsigned index){return mode==1?&v->alias.records[0]:&v->records[index];}
 static void reference(unsigned mode,unsigned index,s32 x,s32 y){
- u8 *p=(u8*)packet(&expected,mode);RrGarageSpriteRecord *r=record(&expected,mode,index);s32 depth;
+ u8 *p=(u8*)packet(&expected,mode);GarageSpriteRecord *r=record(&expected,mode,index);s32 depth;
  p[3]=4;p[7]=0x64;p[7]=(r->flags10&1)?0x66:0x64;
  put16(p,8,(u32)x);put16(p,10,(u32)y);p[7]|=1;
  put16(p,16,r->width04);put16(p,18,r->height06);
@@ -60,8 +60,8 @@ static void reference(unsigned mode,unsigned index,s32 x,s32 y){
 }
 static void randomize(void){unsigned i;for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();}
 int main(void){unsigned k,i,index,mode;const u32 negatives[]={0x80000000U,0xffffffffU,0xfffffff0U,0x80000001U};
- _Static_assert(sizeof(RrGarageSpriteRecord)==20,"serialized record");
- _Static_assert(sizeof(RrSpritePacket)==20,"serialized packet");
+ _Static_assert(sizeof(GarageSpriteRecord)==20,"serialized record");
+ _Static_assert(sizeof(SpritePacket)==20,"serialized packet");
  /* Initialization with original records and independently shuffled key maps. */
  for(k=0;k<1024;k++){
   u8 *returned;randomize();memcpy(world.records,original,sizeof(original));
@@ -76,7 +76,7 @@ int main(void){unsigned k,i,index,mode;const u32 negatives[]={0x80000000U,0xffff
  /* Every low16 coordinate and record dimension, arbitrary high bits, all72
   * indices, full-word flags, and three genuine overlapping packet owners. */
  for(k=0;k<196608;k++){
-  s32 x,y;u8 *returned;RrGarageSpriteRecord *r;
+  s32 x,y;u8 *returned;GarageSpriteRecord *r;
   randomize();memcpy(world.records,original,sizeof(original));index=k%72;mode=k/65536;
   world.scratch.order=world.order.words;world.scratch.cursor=(u8*)packet(&world,mode);
   for(i=0;i<72;i++)world.lookup[i]=&world.records[i];

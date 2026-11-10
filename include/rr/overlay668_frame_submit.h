@@ -9,5 +9,5 @@ void ovl668_func_80116958(u8 *data,void *commands);
  * exhausted polling returns-1 without touching command storage or releasing.
  * Acquire may mutate the complete display config and replace the stream root.
  */
-s32 ovl668_func_801150D8(RrStrDisplayConfig *config);
+s32 ovl668_func_801150D8(StrDisplayConfig *config);
 #endif

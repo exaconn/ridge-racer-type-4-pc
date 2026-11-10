@@ -27,7 +27,7 @@ class GarageBackSetupTest(unittest.TestCase):
 #include "rr/menu_setup.h"
 static const char save_message[]="enter SaveBack\n",load_message[]="enter LoadBack\n";
 static u32 buffers[4][512];
-struct State {u32 guard[4];RrGarageSelectionPrefix garage;s16 row,position,selection;u32 tail[4];};
+struct State {u32 guard[4];GarageSelectionPrefix garage;s16 row,position,selection;u32 tail[4];};
 static struct World {struct State s;unsigned calls;struct {s32 kind,arg[10];u32 hash;} events[12];} actual,expected,initial,*w;
 static unsigned scenario,mutation,kind;
 #define ovl662_D_801276A8 w->s.garage

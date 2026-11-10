@@ -19,8 +19,8 @@ class SpritePresetTest(unittest.TestCase):
         body=(ROOT/'tools/scripts/fixtures/views/func_8001BAF8.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
-        assert body.count('(RrGpuScratchPointers*)0x1F800000U')==1
-        body=body.replace('(RrGpuScratchPointers*)0x1F800000U','&actual.scratch')
+        assert body.count('(GpuScratchPointers*)0x1F800000U')==1
+        body=body.replace('(GpuScratchPointers*)0x1F800000U','&actual.scratch')
         code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -31,10 +31,10 @@ class SpritePresetTest(unittest.TestCase):
 ''' + header('gpu_scratch_types.h')+header('gpu.h') + header('animated_sprite_grid.h') + header('sprite_preset.h') + r'''
 typedef struct {
     u8 guard[32];
-    RrGpuScratchPointers scratch;
+    GpuScratchPointers scratch;
     u32 ordering[4];
     u8 pad[32];
-    RrSpritePreset presets[32];
+    SpritePreset presets[32];
     u8 packets[64];
     u8 suffix[32];
 } World;
@@ -102,7 +102,7 @@ int main(int argc,char **argv) {
         for(int index=1;index<31;index++)for(int delta=-12;delta<=8;delta+=4) {
             for(unsigned i=0;i<sizeof(extremes)/sizeof(*extremes);i++) {
                 initialize(i*137U+index);
-                actual.scratch.cursor=(u8*)&actual+offsetof(World,presets)+index*sizeof(RrSpritePreset)+delta;
+                actual.scratch.cursor=(u8*)&actual+offsetof(World,presets)+index*sizeof(SpritePreset)+delta;
                 check(extremes[i],index);
             }
         }
@@ -110,13 +110,13 @@ int main(int argc,char **argv) {
             /* The first head write redirects the full native page pointer to
              * the packet. Its next reload must clear packet byte 7. */
             initialize(i);
-            actual.scratch.order=(u32*)((u8*)&actual+offsetof(World,scratch)+offsetof(RrGpuScratchPointers,order)-4);
+            actual.scratch.order=(u32*)((u8*)&actual+offsetof(World,scratch)+offsetof(GpuScratchPointers,order)-4);
             check(extremes[i],i%32);
             initialize(i);
             actual.scratch.order=(u32*)((u8*)&actual+offsetof(World,packets)-4);
             check(extremes[i],i%32);
             initialize(i);
-            actual.scratch.order=(u32*)((u8*)&actual+offsetof(World,scratch)+offsetof(RrGpuScratchPointers,cursor)-4);
+            actual.scratch.order=(u32*)((u8*)&actual+offsetof(World,scratch)+offsetof(GpuScratchPointers,cursor)-4);
             check(extremes[i],i%32);
         }
     } else {

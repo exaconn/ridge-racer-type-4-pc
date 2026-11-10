@@ -1,23 +1,20 @@
+#include "rr/projection_state.h"
+#include "rr/camera_matrices.h"
+#include "psyq/libgte/gtemat4.h"
+#include "psyq/libgte/gtemat.h"
 #include "types.h"
 #include "scratchpad.h"
-#include "m2c_macros.h"
 #include "psyq/libgte/gtemat7.h"
 #include "rr/matrix_workspace.h"
 #include "rr/menu_overlay_runtime.h"
+#include "game/math/rotmat.h"
+#include "game/data/globals.h"
 
-extern short D_800AC0A4;
-extern unsigned short D_800AD598[];
-extern char CameraViewMatrix[];
-extern char D_800FF6B8[];
-extern char D_800FF6D8[];
-extern void MulMatrix0();
 extern short AtanTable[];
 
 void BuildRotMatrixZ(short *a0, int a1);
-void BuildRotMatrixY(void *arg0, M2C_UNK arg1);
-void BuildRotMatrixX(void *arg0, M2C_UNK arg1);
-void SetIdentityMatrix(void *arg0);
-void BuildRotMatrixAngles(int *a0);
+void BuildRotMatrixY(void *arg0, s32 arg1);
+void BuildRotMatrixX(void *arg0, s32 arg1);
 s32 Atan2Table(int a0, int a1);
 
 void BuildRotMatrixZ(short *a0, int a1) {
@@ -34,91 +31,80 @@ void BuildRotMatrixZ(short *a0, int a1) {
     a0[8] = 0x1000;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define rsin ((int (*)())rsin)
-#define rcos ((int (*)())rcos)
-
-void BuildRotMatrixY(void *arg0, M2C_UNK arg1) {
+void BuildRotMatrixY(void *arg0, s32 arg1) {
     s16 temp_s1;
     s16 temp_v0;
 
     temp_s1 = rsin(arg1);
     temp_v0 = rcos(arg1);
-    M2C_FIELD(arg0, s16 *, 4) = (s16) -temp_s1;
-    M2C_FIELD(arg0, s16 *, 0) = temp_v0;
-    M2C_FIELD(arg0, s16 *, 2) = 0;
-    M2C_FIELD(arg0, s16 *, 6) = 0;
-    M2C_FIELD(arg0, s16 *, 8) = 0x1000;
-    M2C_FIELD(arg0, s16 *, 0xA) = 0;
-    M2C_FIELD(arg0, s16 *, 0xC) = temp_s1;
-    M2C_FIELD(arg0, s16 *, 0xE) = 0;
-    M2C_FIELD(arg0, s16 *, 0x10) = temp_v0;
+    ((s16 *)arg0)[2] = (s16) -temp_s1;
+    ((s16 *)arg0)[0] = temp_v0;
+    ((s16 *)arg0)[1] = 0;
+    ((s16 *)arg0)[3] = 0;
+    ((s16 *)arg0)[4] = 0x1000;
+    ((s16 *)arg0)[5] = 0;
+    ((s16 *)arg0)[6] = temp_s1;
+    ((s16 *)arg0)[7] = 0;
+    ((s16 *)arg0)[8] = temp_v0;
 }
 
-#undef rsin
-#undef rcos
-
-/* legacy typing of shared globals in this part of the unit */
-#define rsin ((int (*)())rsin)
-#define rcos ((int (*)())rcos)
-
-void BuildRotMatrixX(void *arg0, M2C_UNK arg1) {
+void BuildRotMatrixX(void *arg0, s32 arg1) {
     s16 temp_s1;
     s16 temp_v0;
 
     temp_s1 = rsin(arg1);
     temp_v0 = rcos(arg1);
-    M2C_FIELD(arg0, s16 *, 0) = 0x1000;
-    M2C_FIELD(arg0, s16 *, 2) = 0;
-    M2C_FIELD(arg0, s16 *, 4) = 0;
-    M2C_FIELD(arg0, s16 *, 6) = 0;
-    M2C_FIELD(arg0, s16 *, 8) = temp_v0;
-    M2C_FIELD(arg0, s16 *, 0xA) = (s16) -temp_s1;
-    M2C_FIELD(arg0, s16 *, 0xC) = 0;
-    M2C_FIELD(arg0, s16 *, 0xE) = temp_s1;
-    M2C_FIELD(arg0, s16 *, 0x10) = temp_v0;
+    ((s16 *)arg0)[0] = 0x1000;
+    ((s16 *)arg0)[1] = 0;
+    ((s16 *)arg0)[2] = 0;
+    ((s16 *)arg0)[3] = 0;
+    ((s16 *)arg0)[4] = temp_v0;
+    ((s16 *)arg0)[5] = (s16) -temp_s1;
+    ((s16 *)arg0)[6] = 0;
+    ((s16 *)arg0)[7] = temp_s1;
+    ((s16 *)arg0)[8] = temp_v0;
 }
 
-#undef rsin
-#undef rcos
-
-void SetIdentityMatrix(void *arg0) {
-    M2C_FIELD(arg0, s16 *, 0) = 0x1000;
-    M2C_FIELD(arg0, s16 *, 2) = 0;
-    M2C_FIELD(arg0, s16 *, 4) = 0;
-    M2C_FIELD(arg0, s16 *, 6) = 0;
-    M2C_FIELD(arg0, s16 *, 8) = 0x1000;
-    M2C_FIELD(arg0, s16 *, 0xA) = 0;
-    M2C_FIELD(arg0, s16 *, 0xC) = 0;
-    M2C_FIELD(arg0, s16 *, 0xE) = 0;
-    M2C_FIELD(arg0, s16 *, 0x10) = 0x1000;
-    M2C_FIELD(arg0, s32 *, 0x14) = 0;
-    M2C_FIELD(arg0, s32 *, 0x18) = 0;
-    M2C_FIELD(arg0, s32 *, 0x1C) = 0;
+void SetIdentityMatrix(MatrixWords32 *matrix) {
+    matrix->fields.rotation00[0][0] = 0x1000;
+    matrix->fields.rotation00[0][1] = 0;
+    matrix->fields.rotation00[0][2] = 0;
+    matrix->fields.rotation00[1][0] = 0;
+    matrix->fields.rotation00[1][1] = 0x1000;
+    matrix->fields.rotation00[1][2] = 0;
+    matrix->fields.rotation00[2][0] = 0;
+    matrix->fields.rotation00[2][1] = 0;
+    matrix->fields.rotation00[2][2] = 0x1000;
+    matrix->fields.translation14[0] = 0;
+    matrix->fields.translation14[1] = 0;
+    matrix->fields.translation14[2] = 0;
 }
 
 void BuildCameraMatrices(void) {
-    char sp10[32];
-    int *g = (int *)SCRATCHPAD;
-    BuildRotMatrixY(SCRATCH_ROT_MATRIX, g[7]);
-    BuildRotMatrixY(CameraViewMatrix, g[7]);
-    SetIdentityMatrix(D_800FF6B8);
-    BuildRotMatrixY(D_800FF6D8, g[7]);
-    BuildRotMatrixX(sp10, g[6]);
-    MulMatrix2(sp10, SCRATCH_ROT_MATRIX);
-    MulMatrix2(sp10, CameraViewMatrix);
-    MulMatrix2(sp10, D_800FF6B8);
-    BuildRotMatrixZ(sp10, g[8]);
-    MulMatrix2(sp10, SCRATCH_ROT_MATRIX);
-    MulMatrix2(sp10, CameraViewMatrix);
-    MulMatrix2(sp10, D_800FF6B8);
-    BuildRotMatrixY(sp10, 0x800);
-    MulMatrix0(sp10, SCRATCH_ROT_MATRIX, D_800AD598);
-    BuildRotMatrixX(sp10, D_800AC0A4 * 2);
-    MulMatrix2(sp10, D_800AD598);
-    D_800AD598[0] = -D_800AD598[0];
-    D_800AD598[1] = -D_800AD598[1];
-    D_800AD598[2] = -D_800AD598[2];
+    MatrixWords32 rotation;
+    ProjectionScratchPrefix *view = (ProjectionScratchPrefix *)SCRATCHPAD;
+    BuildRotMatrixY(SCRATCH_ROT_MATRIX, view->pose08.angles10.xyz.y);
+    BuildRotMatrixY(&CameraViewMatrix, view->pose08.angles10.xyz.y);
+    SetIdentityMatrix(&D_800FF6B8);
+    BuildRotMatrixY(&D_800FF6D8, view->pose08.angles10.xyz.y);
+    BuildRotMatrixX(&rotation, view->pose08.angles10.xyz.x);
+    MulMatrix2(&rotation, (MatrixWords32 *)(SCRATCH_ROT_MATRIX));
+    MulMatrix2(&rotation, &CameraViewMatrix);
+    MulMatrix2(&rotation, &D_800FF6B8);
+    BuildRotMatrixZ(&rotation, view->pose08.angles10.xyz.z);
+    MulMatrix2(&rotation, (MatrixWords32 *)(SCRATCH_ROT_MATRIX));
+    MulMatrix2(&rotation, &CameraViewMatrix);
+    MulMatrix2(&rotation, &D_800FF6B8);
+    BuildRotMatrixY(&rotation, 0x800);
+    MulMatrix0(
+        &rotation,
+        (const MatrixWords32 *)(SCRATCH_ROT_MATRIX),
+        &D_800AD598);
+    BuildRotMatrixX(&rotation, D_800AC0A4 * 2);
+    MulMatrix2(&rotation, &D_800AD598);
+    D_800AD598.halves[0] = -D_800AD598.halves[0];
+    D_800AD598.halves[1] = -D_800AD598.halves[1];
+    D_800AD598.halves[2] = -D_800AD598.halves[2];
     SetRotMatrix(SCRATCH_ROT_MATRIX);
 }
 
@@ -126,9 +112,9 @@ void BuildRotMatrixAngles(int *a0) {
     char sp10[32];
     BuildRotMatrixY((SCRATCHPAD + 0x108), a0[1]);
     BuildRotMatrixX(sp10, a0[0]);
-    MulMatrix2(sp10, (SCRATCHPAD + 0x108));
+    MulMatrix2((const MatrixWords32 *)(sp10), (MatrixWords32 *)((SCRATCHPAD + 0x108)));
     BuildRotMatrixZ(sp10, a0[2]);
-    MulMatrix2(sp10, (SCRATCHPAD + 0x108));
+    MulMatrix2((const MatrixWords32 *)(sp10), (MatrixWords32 *)((SCRATCHPAD + 0x108)));
 }
 
 int Atan2Table(int a0, int a1)

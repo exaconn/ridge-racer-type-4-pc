@@ -19,7 +19,7 @@ class Overlay662FrameStepTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_frame_step.h"
-static struct World{u32 head[4];RrGarageSelectionPrefix garage;u32 buffers[4][8];RrGarageTimBytes tim[4];u32 clock;s32 pulse;u32*image;RrGarageTimBytes*file;u32 tail[4];}world,expected,checkpoints[8];
+static struct World{u32 head[4];GarageSelectionPrefix garage;u32 buffers[4][8];GarageTimBytes tim[4];u32 clock;s32 pulse;u32*image;GarageTimBytes*file;u32 tail[4];}world,expected,checkpoints[8];
 static unsigned scenario,calls;static u32 rng=0x1AAF4;
 #define ovl662_D_801276A8 world.garage
 #define D_800F4D38 world.clock

@@ -5,5 +5,11 @@
 
 void DrawMenuTextRow(s32 a0);
 void SetGlyphRowImageBase();
+void DrawResultsRankIcons(void);
+void SetMenuTextRowStyle(int a0, int a1, int a2);
+void ModeSelectMenuEnter(void);
+void InitModeSelectMenu(void);
+void ModeSelectMenuUpdate(void);
+
 
 #endif /* RR_GAME_MENU_MNTROW_H */

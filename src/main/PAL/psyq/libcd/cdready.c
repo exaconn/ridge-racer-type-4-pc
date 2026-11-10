@@ -20,21 +20,14 @@ loop:
     {
     s32 status=CdInitAttempt();
     s32 expected=1;
-    /* ASM_BARRIER: Keep the probe result comparison separate from returned success. */
-    __asm__("" : "+r"(expected));
     if(status==expected) {
         result=1;
         CD_cbsync=def_cbsync;
         CD_cbready=def_cbready;
         CD_cbread=def_cbread;
         {
-            /* ASM_BARRIER: Preserve the assembler temporary for the final state store. */
-            register u32 *page __asm__("$1");
-            /* ASM_BARRIER: Publish callback pointers before the completion state. */
-            __asm__("" : : : "$1", "memory");
+            u32 *page;
             page=(u32 *)0x800A0000U;
-            /* ASM_BARRIER: Expose the success cleanup store in the jump delay slot. */
-            __asm__("" : "+r"(page));
             page[0x63F4/4]=0;
         }
         goto out;

@@ -5,23 +5,23 @@
 s32 _card_format(s32 arg0){
     register s32 port=arg0;
     register s32 i=0;
-    RrCardFormatSector *scratch=&D_80114328;
-    RrCardDirectoryRecord *base=CardFormatDirRecords;
+    CardFormatSector *scratch=&D_80114328;
+    CardDirectoryRecord *base=CardFormatDirRecords;
     register s32 state=0xA0,last=0xFFFF,success=1;
     register s32 next;
     s32 status;
     s32 result;
-    register RrCardDirectoryRecord *entry;
+    register CardDirectoryRecord *entry;
     /* ASM_BARRIER: retain the byte-aligned directory view for this copy phase. */
-    register RrCardDirectoryWire *wire asm("$17");
+    register CardDirectoryWire *wire asm("$17");
     register u32 offset;
-    RrCardBrokenRecord *slot;
+    CardBrokenRecord *slot;
 
     do {
-        func_80096434(scratch,128);
+        PsyqBzero(scratch,128);
         offset=(u32)i*32U;
-        entry=(RrCardDirectoryRecord*)((unsigned long)offset+(unsigned long)base);
-        func_80096434(entry,32);
+        entry=(CardDirectoryRecord*)((unsigned long)offset+(unsigned long)base);
+        PsyqBzero(entry,32);
         wire=&entry->wire;
 
         CardFormatDirRecords[i].fields.state=state;
@@ -59,10 +59,10 @@ s32 _card_format(s32 arg0){
         i=next;
     }while(i<15);
     {
-    register RrCardFormatSector *second;
+    register CardFormatSector *second;
     register s32 invalid;
     register s32 one;
-    register RrCardWireWord *word;
+    register CardWireWord *word;
     u32 tail;
     i=0;
     invalid=-1;second=scratch;one=1;
@@ -72,10 +72,10 @@ s32 _card_format(s32 arg0){
         slot->value=invalid;
         /* ASM_BARRIER: preserve this clear/copy/write preparation boundary. */
         __asm__("" : : "m"(slot->wire.bytes[0]));
-        func_80096434(second,128);
+        PsyqBzero(second,128);
         word=&slot->wire.word;
 
-        slot=(RrCardBrokenRecord*)word;
+        slot=(CardBrokenRecord*)word;
         tail=word->value;
         second->broken.word.value=tail;
         /* ASM_BARRIER: preserve this clear/copy/write preparation boundary. */
@@ -85,7 +85,7 @@ s32 _card_format(s32 arg0){
         if(status!=one){result=0;goto done;}
         slot++;
     }while(i<20);
-    func_80096434(second,128);
+    PsyqBzero(second,128);
     second->bytes[0]='M';second->bytes[1]='C';
     result=_card_sector_write(port,0,second->bytes)==1;
 }

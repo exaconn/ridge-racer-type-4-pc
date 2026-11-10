@@ -7,7 +7,7 @@ extern short MenuFrameState;
 extern short D_800F4D2C;
 extern int AddTileGrid2x2();
 extern int DrawMenuFrame();
-extern int func_8005B2D4();
+extern int SetPresentationDrawEnabled();
 extern int StepCameraScript();
 extern int SetDispMask();
 
@@ -56,7 +56,7 @@ void UpdateScreenFade(a0) int a0; {
     }
     DrawMenuFrame(a0 >> 2);
     if (D_800F4D2C != 6 && D_800F4D2C != 8) {
-        func_8005B2D4(a0 & 1);
+        SetPresentationDrawEnabled(a0 & 1);
         StepCameraScript();
     }
 }

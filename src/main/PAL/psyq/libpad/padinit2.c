@@ -6,99 +6,50 @@
 #include "rr/serial.h"
 #include "psyq/libpad/padrecv.h"
 
-typedef struct { char pad[0x3C]; char *f3c; } T;
+#include "rr/channel_init.h"
 
-typedef struct { char p0[0xC]; int fC; char p1[0x27]; unsigned char f37; } O;
+extern s32 PadMultitapActive,PadPacketBytesLeft,D_800ABCA4;
+extern s32 (*D_800ABC98)(void),(*D_800ABC94)(void);
+s32 _padRecvStage0(PadChannel *channel);
+s32 _padRecvStage1(PadChannel *channel);
+s32 _padRecvStage2(PadChannel *channel);
+s32 _padRecvStage3(PadChannel *channel);
+s32 _padTransferPacket(PadChannel *channel);
 
-typedef struct Rec8009991C {
-    u8 pad00[0xC];
-    struct Rec8009991C *unk0C;
-    u8 pad10[0x27];
-    u8 unk37;
-    u8 pad38[4];
-    u8 *unk3C;
-    u8 pad40[4];
-    u8 unk44;
-    u8 pad45[0xF0 - 0x45];
-} Rec8009991C;
-
-typedef struct {
-    u8 unk00;
-    u8 pad01[0xD];
-    u16 unk0E;
-} Unk800ABCE4;
-
-extern int (*D_800ABC80)();
-extern int D_800ABCE8;
-extern int PadActiveChannel;
-extern int PadFirstChannel;
-extern int D_800ABCA4;
-extern int (*D_800ABC98)();
-extern int (*D_800ABC94)();
-extern int D_800ABCB4;
-extern int PadPacketBytesLeft;
-/* Partial transfer state; field purposes beyond this routine are still unknown. */
-typedef struct {
-    u8 pad00[0x37];
-    u8 flag37;
-    u8 pad38[4];
-    u8 *packet;
-} RrTransferState;
-RR_ASSERT_SIZE(RrTransferState, 0x40);
-RR_ASSERT_OFFSET(RrTransferState, flag37, 0x37);
-extern s32 (*PadTxByteCallback)(RrTransferState *, s32);
-extern void (*PadAdvanceChannelFn)(s32);
-extern void (*D_800ABC74)(Rec8009991C *);
-extern void (*PadPacketDoneCallback)(Rec8009991C *);
-extern void (*PadSaveCommandCallback)(Rec8009991C *);
-extern Rec8009991C *PadChannelRecords;
-extern s32 D_800ABCC0[];
-extern Unk800ABCE4 *JOY_DATA;
-
-void func_800996C4(T *a0);
-void func_8009970C();
-int func_800997E4();
-s32 func_80099890(RrTransferState *state);
-s32 _padTransferPacket(Rec8009991C *arg0);
-
-void func_800996C4(T *a0) {
-    int r = D_800ABC80(a0);
-    char *p = a0->f3c;
-    D_800ABCE8 = r;
+s32 _padRecvStage0(PadChannel *a0) {
+    int r = PadChannelDispatchFn(a0);
+    u8 *p = a0->packet;
+    PadMultitapActive = r;
     *p = 0;
-    _padSioRW(a0, -2);
+    return _padSioRW(a0, -2);
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define _padSioRW2 ((int (*)())_padSioRW2)
-
-void func_8009970C(o) O *o; {
+s32 _padRecvStage1(PadChannel *o) {
+    s32 result;
     if (PadActiveChannel == PadFirstChannel) {
         if (D_800ABCA4 != 0) {
             D_800ABC98();
             D_800ABC94();
         }
     }
-    if (D_800ABCE8 != 0) {
-        D_800ABC80(o->fC);
-        D_800ABC80(o->fC + 0xF0);
+    if (PadMultitapActive != 0) {
+        PadChannelDispatchFn(o->children0C);
+        PadChannelDispatchFn(o->children0C + 1);
     }
-    if (o->f37 == 0) _padSioRW2(o, 0x42); else _padSioRW2(o, o->f37);
+    if (o->command37 == 0) result = _padSioRW2(o, 0x42);
+    else result = _padSioRW2(o, o->command37);
+    return result;
 }
 
-#undef _padSioRW2
 
-/* legacy typing of shared globals in this part of the unit */
-#define _padSioRW2 ((int (*)())_padSioRW2)
-
-int func_800997E4(a0) unsigned char *a0; {
+s32 _padRecvStage2(PadChannel *a0) {
   int a1, v, t;
-  if (D_800ABCE8 != 0) {
-    D_800ABC80(*(int *)(a0 + 0xC) + 0x1E0);
-    D_800ABC80(*(int *)(a0 + 0xC) + 0x2D0);
+  if (PadMultitapActive != 0) {
+    PadChannelDispatchFn(a0->children0C + 2);
+    PadChannelDispatchFn(a0->children0C + 3);
   }
   a1 = 0;
-  if (a0[0x37] == 0) a1 = D_800ABCB4;
+  if (a0->command37 == 0) a1 = PadMultitapEnabled;
   v = _padSioRW2(a0, a1);
   if (v < 0) return v;
   t = (v & 0xF) * 2;
@@ -107,37 +58,31 @@ int func_800997E4(a0) unsigned char *a0; {
   return 0;
 }
 
-#undef _padSioRW2
 
-s32 func_80099890(RrTransferState *state) {
+s32 _padRecvStage3(PadChannel *state) {
     s32 mode = 0;
     s32 result;
 
     if ((state->packet[0] >> 4) == 8) {
-        mode = state->flag37 == 0;
+        mode = state->command37 == 0;
     }
     result = _padSioRW2(state, (u8)PadTxByteCallback(state, mode));
     if (result == 0x5A || result == 0 || result < 0) return result;
     return -4;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define PadTxByteCallback (*(s32 (*(*))(Rec8009991C *, s32))&PadTxByteCallback)
-#define _padSioRW ((s32 (*)(Rec8009991C *, u8))_padSioRW)
-#define _padSioRW2 ((s32 (*)(Rec8009991C *, u8))_padSioRW2)
-
-s32 _padTransferPacket(Rec8009991C *arg0) {
+s32 _padTransferPacket(PadChannel *arg0) {
     s32 i;
     s32 res;
     s32 idx;
-    Rec8009991C *ptr;
+    PadChannel *ptr;
     s32 mode;
     s32 b;
 
-    D_800ABC74(arg0);
+    PadAllocGatesFn(arg0);
     mode = 0;
-    if (D_800ABCB4 != 0 && ((b = arg0->unk3C[0]) >> 4) == 8) {
-        mode = (arg0->unk37 == 0);
+    if (PadMultitapEnabled != 0 && ((b = arg0->packet[0]) >> 4) == 8) {
+        mode = (arg0->command37 == 0);
     }
 
     if (mode != 0) {
@@ -146,7 +91,7 @@ s32 _padTransferPacket(Rec8009991C *arg0) {
                 break;
             }
             if (i >= 0) {
-                D_800ABC74(&arg0->unk0C[i]);
+                PadAllocGatesFn(&arg0->children0C[i]);
             }
             res = _padSioRW2(arg0, (u8)PadTxByteCallback(arg0, 1));
             if (res < 0) {
@@ -162,30 +107,27 @@ s32 _padTransferPacket(Rec8009991C *arg0) {
     ptr = 0;
     idx = (PadActiveChannel == 0);
     while (PadPacketBytesLeft >= 2) {
-        if (D_800ABCC0[idx] < 0) {
+        if (PadMultitapSlotIndex[idx] < 0) {
             break;
         }
-        if (D_800ABCC0[idx] > 0) {
-            ptr = &PadChannelRecords[idx].unk0C[D_800ABCC0[idx]] - 1;
+        if (PadMultitapSlotIndex[idx] > 0) {
+            ptr = &PadChannelRecords[idx].children0C[PadMultitapSlotIndex[idx]] - 1;
             PadPacketDoneCallback(ptr);
-            {
-                void *a0r;
-            }
         }
-        switch (D_800ABCC0[idx]) {
+        switch (PadMultitapSlotIndex[idx]) {
         case 4:
-            D_800ABCC0[idx] = 3;
+            PadMultitapSlotIndex[idx] = 3;
             break;
         case 3:
             PadPacketDoneCallback(ptr - 1);
-            D_800ABCC0[idx] = 1;
+            PadMultitapSlotIndex[idx] = 1;
             break;
         case 0:
         case 1:
             ptr = &PadChannelRecords[idx];
             PadPacketDoneCallback(ptr);
             PadSaveCommandCallback(ptr);
-            D_800ABCC0[idx] = -1;
+            PadMultitapSlotIndex[idx] = -1;
             break;
         }
         res = _padSioRW(arg0, (u8)PadTxByteCallback(arg0, mode));
@@ -204,7 +146,7 @@ s32 _padTransferPacket(Rec8009991C *arg0) {
         if (res < 0) {
             return res;
         }
-        if (JOY_DATA->unk0E != 0x22) {
+        if (JOY_DATA->baud != 0x22) {
             setRC2wait(0x3C);
             if (_padClrIntSio0() == 0) {
                 res = -3;
@@ -214,13 +156,10 @@ s32 _padTransferPacket(Rec8009991C *arg0) {
     }
 
     _padWaitRXready();
-    arg0->unk3C[arg0->unk44++] = JOY_DATA->unk00;
+    arg0->packet[arg0->b44++] = JOY_DATA->data;
     PadAdvanceChannelFn(0);
     res = 0;
 end:
     return res;
 }
 
-#undef PadTxByteCallback
-#undef _padSioRW
-#undef _padSioRW2

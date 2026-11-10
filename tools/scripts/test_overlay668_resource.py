@@ -20,11 +20,11 @@ C=r'''
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay668_resource.h"
-typedef struct {u8 header[0x130];RrStrArchiveEntry entries[16];u8 tail[16];} Archive;
-typedef struct {RrStrContextPrefix prefix;u8 tail[0x4B8-0xD4];} Context;
+typedef struct {u8 header[0x130];StrArchiveEntry entries[16];u8 tail[16];} Archive;
+typedef struct {StrContextPrefix prefix;u8 tail[0x4B8-0xD4];} Context;
 typedef struct {
- u8 guard[16];RrStrArchiveAudioState audio;Context context;Archive archives[2];
- RrStrCdFileInfo file;u32 sectors;u8 active[64],end[16];
+ u8 guard[16];StrArchiveAudioState audio;Context context;Archive archives[2];
+ StrCdFileInfo file;u32 sectors;u8 active[64],end[16];
 } World;
 static World actual,expected;
 static unsigned scenario,bank,id,alias,calls;
@@ -70,10 +70,10 @@ u8 *CdIntToPos(s32 sector,u8 *location){
 TAIL=r'''
 int main(void){unsigned i,b,j;unsigned seen[8]={0},counts[16]={0},roots[2]={0};
  _Static_assert(sizeof(void*)==8,"full native pointers");
- _Static_assert(sizeof(RrStrArchiveEntry)==8,"directory stride");
- _Static_assert(offsetof(RrStrArchiveAudioState,archive2638)==0x2638,"native archive offset");
- _Static_assert(sizeof(RrStrArchiveAudioState)==0xA8D8,"full native audio owner");
- _Static_assert(offsetof(RrStrContextPrefix,locationBC)==0xC0,"native context offset");
+ _Static_assert(sizeof(StrArchiveEntry)==8,"directory stride");
+ _Static_assert(offsetof(StrArchiveAudioState,archive2638)==0x2638,"native archive offset");
+ _Static_assert(sizeof(StrArchiveAudioState)==0xA8D8,"full native audio owner");
+ _Static_assert(offsetof(StrContextPrefix,locationBC)==0xC0,"native context offset");
  for(scenario=0;scenario<8192;scenario++){
   for(i=0;i<sizeof actual;i++)((u8*)&actual)[i]=(u8)(scenario*29+i*7);
   id=scenario%16;bank=(scenario/16)%2;alias=(scenario/32)%8;calls=0;

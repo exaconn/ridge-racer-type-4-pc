@@ -3,9 +3,9 @@
 #include "rr/cd_read_request.h"
 
 /* Overlapping window beginning at the full transfer-position pointer. */
-typedef struct { u8 *position08; u32 mode0C,step10; } RrCdPositionView;
-typedef void (*RrCdDataNotify)(s32 event,u8 *result);
-extern RrCdPositionView D_800A67B8;
+typedef struct { u8 *position08; u32 mode0C,step10; } CdPositionView;
+typedef void (*CdDataNotify)(s32 event,u8 *result);
+extern CdPositionView D_800A67B8;
 extern u32 D_800A67D0;
 
 /* ILP32 PAL and LP64 native layouts: the first scalar word is padded to pointer
@@ -19,6 +19,6 @@ extern u32 D_800A67D0;
  * Timers compare signed32 ticks against wrapping32(start+1200), reloading start
  * after each clock call. Notification receives the original full result pointer. */
 void cb_read(s32 event,u8 *result);
-RR_ASSERT_SIZE(RrCdPositionView,0xC);
-RR_ASSERT_OFFSET(RrCdPositionView,step10,8);
+RR_ASSERT_SIZE(CdPositionView,0xC);
+RR_ASSERT_OFFSET(CdPositionView,step10,8);
 #endif

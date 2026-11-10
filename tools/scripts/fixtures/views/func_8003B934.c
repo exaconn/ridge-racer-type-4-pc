@@ -78,9 +78,9 @@ extern int D_800AD564;
 
 extern char D_80104DB0[];
 
-extern Z *D_800AC590;
+extern Z *CardDialogueStatePtr;
 
-int func_8003B934(void) {
+int LoadMenuCarModelsStep(void) {
     int r = 0;
     char *s;
     int a1;
@@ -99,14 +99,14 @@ int func_8003B934(void) {
             LoadTimImage(s);
             s += 0x4E20;
             LoadState = 3;
-            D_800AC590 = (Z *)s;
+            CardDialogueStatePtr = (Z *)s;
             InitDialogueState(s);
     case 3:
             if (D_800F4CA8 == 2) {
                 a1 = 0x44;
             } else if (D_800F4CA8 == 4) {
                 a1 = 0x46;
-                D_800AC590->b = 2;
+                CardDialogueStatePtr->b = 2;
             } else {
                 a1 = 0x45;
             }

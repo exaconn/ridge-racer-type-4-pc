@@ -1,4 +1,5 @@
 #include "scratchpad.h"
+#include "rr/frame_storage_types.h"
 #include "rr/gouraud_quad.h"
 #include "rr/gpu_line.h"
 #include "rr/gpu_scratch_types.h"
@@ -6,11 +7,11 @@
 #include "rr/ui_primitives.h"
 #include "rr/fade_sprite.h"
 
-enum { ORDERING_TABLE_WORD = RR_FIELD_OFFSET(RrFrameOrderingPrefix, ordering70) / sizeof(u32) };
+enum { ORDERING_TABLE_WORD = RR_FIELD_OFFSET(FrameOrderingPrefix, ordering70) / sizeof(u32) };
 
-void AddVerticalGradientRect(RrGpuRectangleFields *rect, RrGpuColorCommand *top, RrGpuColorCommand *bottom, s32 depth)
+void AddVerticalGradientRect(GpuRectangleFields *rect, GpuColorCommand *top, GpuColorCommand *bottom, s32 depth)
 {
-    RrPolyG4Storage *primitive = (RrPolyG4Storage *)((RrGpuScratchPointers *)SCRATCHPAD)->cursor;
+    PolyG4Storage *primitive = (PolyG4Storage *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
     u32 *ordering;
     primitive->packet.len = 8;
     primitive->packet.code = 0x3A;
@@ -38,13 +39,13 @@ void AddVerticalGradientRect(RrGpuRectangleFields *rect, RrGpuColorCommand *top,
     primitive->words[0] = (primitive->words[0] & 0xFF000000U) | (ordering[ORDERING_TABLE_WORD] & 0xFFFFFFU);
     ordering[ORDERING_TABLE_WORD] = (ordering[ORDERING_TABLE_WORD] & 0xFF000000U) | ((unsigned long)primitive & 0xFFFFFFU);
     primitive++;
-    ((RrGpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)primitive;
+    ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)primitive;
 }
 
-void AddGouraudRect(RrGpuRectangleFields *rect, RrGpuColorCommand *color0, RrGpuColorCommand *color1,
-    RrGpuColorCommand *color2, RrGpuColorCommand *color3, s32 depth)
+void AddGouraudRect(GpuRectangleFields *rect, GpuColorCommand *color0, GpuColorCommand *color1,
+    GpuColorCommand *color2, GpuColorCommand *color3, s32 depth)
 {
-    RrPolyG4Storage *primitive = (RrPolyG4Storage *)((RrGpuScratchPointers *)SCRATCHPAD)->cursor;
+    PolyG4Storage *primitive = (PolyG4Storage *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
     u32 *ordering;
     primitive->packet.len = 8;
     primitive->packet.code = 0x3A;
@@ -72,12 +73,12 @@ void AddGouraudRect(RrGpuRectangleFields *rect, RrGpuColorCommand *color0, RrGpu
     primitive->words[0] = (primitive->words[0] & 0xFF000000U) | (ordering[ORDERING_TABLE_WORD] & 0xFFFFFFU);
     ordering[ORDERING_TABLE_WORD] = (ordering[ORDERING_TABLE_WORD] & 0xFF000000U) | ((unsigned long)primitive & 0xFFFFFFU);
     primitive++;
-    ((RrGpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)primitive;
+    ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)primitive;
 }
 
 void AddLineF2Prim(const s16 coordinates[4], const u8 rgb[3], s32 blend, s32 depth)
 {
-    RrGpuLineF2Packet *primitive = (RrGpuLineF2Packet *)((RrGpuScratchPointers *)SCRATCHPAD)->cursor;
+    GpuLineF2Packet *primitive = (GpuLineF2Packet *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
     u32 *ordering;
     u32 tag;
     primitive->tag.bytes.length = 3;
@@ -95,5 +96,5 @@ void AddLineF2Prim(const s16 coordinates[4], const u8 rgb[3], s32 blend, s32 dep
     primitive->tag.word = (tag & 0xFF000000U) | (ordering[ORDERING_TABLE_WORD] & 0xFFFFFFU);
     ordering[ORDERING_TABLE_WORD] = (ordering[ORDERING_TABLE_WORD] & 0xFF000000U) | ((unsigned long)primitive & 0xFFFFFFU);
     primitive++;
-    ((RrGpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)primitive;
+    ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)primitive;
 }

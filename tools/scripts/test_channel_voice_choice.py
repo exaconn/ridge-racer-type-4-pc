@@ -31,12 +31,12 @@ class ChannelVoiceChoiceTest(unittest.TestCase):
             #define RR_ASSERT_SIZE(t,s)
             #define RR_ASSERT_OFFSET(t,f,o)
             #include "rr/channel_voice_choice.h"
-            _Static_assert(sizeof(RrChannelControlRow36)==54,"row stride");
-            _Static_assert(offsetof(RrChannelControlRow36,age02)==2,"age");
-            _Static_assert(offsetof(RrChannelControlRow36,value06)==6,"gate");
-            _Static_assert(offsetof(RrChannelControlRow36,priority1A)==26,"priority");
-            _Static_assert(offsetof(RrChannelControlRow36,flags1D)==29,"active");
-            _Static_assert(offsetof(RrChannelControlRow36,pad1E)==30,"tail");
+            _Static_assert(sizeof(ChannelControlRow36)==54,"row stride");
+            _Static_assert(offsetof(ChannelControlRow36,age02)==2,"age");
+            _Static_assert(offsetof(ChannelControlRow36,value06)==6,"gate");
+            _Static_assert(offsetof(ChannelControlRow36,priority1A)==26,"priority");
+            _Static_assert(offsetof(ChannelControlRow36,flags1D)==29,"active");
+            _Static_assert(offsetof(ChannelControlRow36,pad1E)==30,"tail");
             typedef union {uint64_t alignment;uint8_t bytes[4096];} World;
             static World initial,actual,expected;
             static uint8_t *page;

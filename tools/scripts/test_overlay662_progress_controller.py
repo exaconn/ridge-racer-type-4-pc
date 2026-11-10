@@ -12,6 +12,8 @@ class ProgressControllerTest(unittest.TestCase):
                            for a in ('8011662C', '801161FC'))
         source = r'''
 #include <assert.h>
+#include "game/system/pad.h"
+#include "rr/frame_storage_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -23,14 +25,14 @@ class ProgressControllerTest(unittest.TestCase):
 #include "rr/overlay662_progress_controller.h"
 typedef struct {
  u32 guards[4],rng; s32 frame,tick,resource;
- s16 phase,timer,nextScene,mode;u16 scene;RrMenuChoice4 choice;
- RrMenuItemState5C controllers[2];RrUiRow24 ui[2][4];RrBadgeRow1C badges[2][4];RrMenuGlyphRow1C glyphs[2][4];
+ s16 phase,timer,nextScene,mode;u16 scene;MenuChoice4 choice;
+ ControllerState5C controllers[2];UiRow24 ui[2][4];BadgeRow1C badges[2][4];MenuGlyphRow1C glyphs[2][4];
  u16 counts[4],grid[4][4];unsigned uiRoot,badgeRoot,glyphRoot,frameRoot;u32 tail[4];
 } State;
 typedef struct {s32 kind,args[8];u32 hash;} Event;
 typedef struct {State s;Event e[24];unsigned calls;} World;
 static World actual,reference,initial,*w;
-static RrFrameOrderingPrefix frames[2],frameSnapshot[2];
+static FrameStorage frames[2],frameSnapshot[2];
 static unsigned scenario,mutation,phaseSeen[9],branchSeen[8],timerSeen[8];
 static const s16 phases[6]={0,1,2,3,4,8};
 static const u16 timers[8]={0,1,63,64,32767,32768,65534,65535};
@@ -48,7 +50,7 @@ static const u16 timers[8]={0,1,63,64,32767,32768,65534,65535};
 #define UiRows w->s.ui[w->s.uiRoot]
 #define BadgeRows w->s.badges[w->s.badgeRoot]
 #define GlyphRows w->s.glyphs[w->s.glyphRoot]
-#define CurrentDrawBuf ((RrIconSpriteContext*)&frames[w->s.frameRoot])
+#define CurrentDrawBuf ((FrameStorage*)&frames[w->s.frameRoot])
 #define ovl662_D_801272D8 w->s.counts
 #define ovl662_D_80127328 w->s.grid
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
@@ -62,7 +64,7 @@ static void change(void){unsigned i,j,n=w->calls;if(!mutation)return;
  w->s.frame=word(next());w->s.tick=word(next());w->s.resource=word(next());w->s.phase=half(next());w->s.mode=(s16)(next()%3)-1;
  w->s.uiRoot=next()%2;w->s.badgeRoot=next()%2;w->s.glyphRoot=next()%2;w->s.frameRoot=next()%2;
  w->s.timer=half(next());w->s.choice.bytes[0]=next()%4;w->s.choice.bytes[1]=next()%4;
- w->s.controllers[0].a=next()%2;w->s.controllers[0].b=next()%2;
+ w->s.controllers[0].action28=next()%2;w->s.controllers[0].action2C=next()%2;
  w->s.ui[w->s.uiRoot][0].byte14=(scenario+n)%7;
  w->s.badges[w->s.badgeRoot][0].state10=((scenario+n)%3==0)?3:((scenario+n)%3==1)?11:-1;
  for(i=0;i<4;i++){w->s.counts[i]=(u16)next();for(j=0;j<4;j++)w->s.grid[i][j]=(u16)next();}
@@ -79,7 +81,7 @@ void PlaySfx(s32 sound){event(7)->args[0]=sound;change();}
 void ovl662_func_80115EC4(s32 base){event(8)->args[0]=base;change();}
 void ovl662_func_80116960(void){event(9);change();}
 void ovl662_func_80116020(void){event(10);change();}
-void AddScreenFadeTiles(u32 *order,s32 fade,u32 flags){Event *e=event(11);assert((uintptr_t)order>UINT32_MAX);assert(order==frames[w->s.frameRoot].ordering70);e->args[0]=w->s.frameRoot;e->args[1]=fade;e->args[2]=flags;change();}
+void AddScreenFadeTiles(u32 *order,s32 fade,u32 flags){Event *e=event(11);assert((uintptr_t)order>UINT32_MAX);assert(order==frames[w->s.frameRoot].buffer.ordering70.words);e->args[0]=w->s.frameRoot;e->args[1]=fade;e->args[2]=flags;change();}
 void ovl662_func_8011512C(void){event(12);change();}
 void DrawUiRow(s32 a){event(13)->args[0]=a;change();}
 void UpdateBadgeRowAnim(s32 a){event(14)->args[0]=a;change();}
@@ -95,11 +97,11 @@ static void expected(void){s32 flags=65538;unsigned phase=(u16)w->s.phase;
   if(phase==3)flags=65542;
   if(captured==3){
    if(completed){if(phase==1)ovl662_func_80116690();else ovl662_func_80116808();}
-   if(w->s.controllers[0].a){
+   if(w->s.controllers[0].action28){
     s32 count=phase==1?half(w->s.counts[w->s.choice.bytes[0]]):half(w->s.grid[w->s.choice.bytes[0]][w->s.choice.bytes[1]]);
     if(count<=0){PlaySfx(4);branchSeen[0]++;}
     else{PlaySfx(1);w->s.frame=0;w->s.phase=phase==1?2:4;w->s.ui[w->s.uiRoot][0].byte14=3;w->s.badges[w->s.badgeRoot][0].state10=4;branchSeen[1]++;}
-   }else if(w->s.controllers[0].b){
+   }else if(w->s.controllers[0].action2C){
     PlaySfx(2);if(phase==1){w->s.phase=8;w->s.timer=64;}else{w->s.mode=1;w->s.phase=4;}
     w->s.ui[w->s.uiRoot][0].byte14=3;w->s.badges[w->s.badgeRoot][0].state10=4;branchSeen[2]++;
    }
@@ -114,7 +116,7 @@ static void expected(void){s32 flags=65538;unsigned phase=(u16)w->s.phase;
    }
   }
  }else{assert(phase==8);w->s.timer=half((u16)w->s.timer-1U);SetMenuFrameOptions(0,1,1);
-  AddScreenFadeTiles(frames[w->s.frameRoot].ordering70,(64-(s32)w->s.timer)*4,69);
+  AddScreenFadeTiles(frames[w->s.frameRoot].buffer.ordering70.words,(64-(s32)w->s.timer)*4,69);
   if(w->s.timer<=0){ovl662_func_8011512C();w->s.scene=1;w->s.nextScene=64;w->s.phase=0;branchSeen[6]++;}else branchSeen[7]++;
  }
  DrawUiRow(0);UpdateBadgeRowAnim(0);UpdateScreenFade(flags);
@@ -133,7 +135,7 @@ int main(void){unsigned p,i,j,k;uint64_t cases=0;
   w->s.resource=word(next());w->s.phase=phases[p];w->s.timer=half(timers[scenario%8]);timerSeen[scenario%8]++;
   w->s.mode=(s16)((scenario>>3)%3)-1;w->s.scene=(u16)next();w->s.nextScene=half(next());
   for(i=0;i<4;i++)w->s.choice.bytes[i]=next()%4;
-  w->s.controllers[0].a=(scenario>>4)&1;w->s.controllers[0].b=(scenario>>5)&1;
+  w->s.controllers[0].action28=(scenario>>4)&1;w->s.controllers[0].action2C=(scenario>>5)&1;
   w->s.uiRoot=(scenario>>6)&1;w->s.badgeRoot=(scenario>>7)&1;w->s.glyphRoot=(scenario>>8)&1;w->s.frameRoot=(scenario>>9)&1;
   actual=reference=initial;w=&actual;ovl662_func_801161FC();w=&reference;expected();
   assert(!memcmp(&actual,&reference,sizeof(actual)));assert(!memcmp(frames,frameSnapshot,sizeof(frames)));phaseSeen[phases[p]]++;cases++;

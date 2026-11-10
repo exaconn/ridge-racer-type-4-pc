@@ -31,11 +31,11 @@ class ChannelPitchTest(unittest.TestCase):
 #include "types.h"
 ''' + header('spu.h') + header('channels.h') + header('channel_pitch.h') + r'''
 static union {uint64_t alignment;u8 bytes[0x4000];} ram;
-#define _svm_voice (*(RrChannelControlRow36 (*)[24])(ram.bytes+0x1908))
-#define _svm_sreg_dirty (*(RrSpuVolumeCache *)(ram.bytes+0x1E18))
-#define D_8011010C (*(RrSpuPitchRequest *)(ram.bytes+0x210C))
-#define D_80110114 (*(s16 *)(ram.bytes+0x2114))
-#define D_80110118 (*(u16 *)(ram.bytes+0x2118))
+#define _svm_voice (*(ChannelControlRow36 (*)[24])(ram.bytes+0x1908))
+#define _svm_sreg_dirty (*(SpuVolumeCache *)(ram.bytes+0x1E18))
+#define D_8011010C (*(SpuPitchRequest *)(ram.bytes+0x210C))
+#define _svm_cur_vab_id (*(s16 *)(ram.bytes+0x2114))
+#define _svm_voice_cursor (*(u16 *)(ram.bytes+0x2118))
 ''' + body + r'''
 static int voice,selection_calls,pitch_calls,mutate;
 static s32 selection_status,seen_bank,seen_program;
@@ -53,7 +53,7 @@ s32 _SsVmVSetUp(s32 bank,s32 program) {
 }
 u16 note2pitch2(s32 first,s32 second) {
     assert(selection_calls==1);
-    assert(D_80110114==0x21&&D_80110118==voice);
+    assert(_svm_cur_vab_id==0x21&&_svm_voice_cursor==voice);
     assert(ram.bytes[0x210C]==_svm_voice[voice].pad16[0]);
     assert(first>=0&&first<=65535&&second>=0&&second<=65535);
     pitch_calls++;seen_first=first;seen_second=second;
@@ -86,8 +86,8 @@ static void run(s32 rawvoice,s32 bank,s32 program,s32 group,u32 first,u32 second
     s32 expected_bank=_svm_voice[voice].match18;
     s32 expected_program=_svm_voice[voice].match14;
     if(valid) {
-        RrChannelControlRow36 *rows=(RrChannelControlRow36 *)(expected+0x1908);
-        RrSpuVolumeCache *cache=(RrSpuVolumeCache *)(expected+0x1E18);
+        ChannelControlRow36 *rows=(ChannelControlRow36 *)(expected+0x1908);
+        SpuVolumeCache *cache=(SpuVolumeCache *)(expected+0x1E18);
         if(mutate) {
             rows[voice].pad16[0]=0xEC;rows[voice].match18=1234;
             rows[voice].match14=-2468;rows[voice].group0E=777;

@@ -1,113 +1,99 @@
+#include "psyq/libgte/rotmat.h"
+#include "rr/rro_model.h"
+#include "game/gfx/model.h"
+#include "psyq/libgte/rotmatz.h"
+#include "game/camera/viewcam.h"
 #include "types.h"
 #include "scratchpad.h"
 #include "rr_asm.h"
-#include "m2c_macros.h"
 #include "game/gfx/sky.h"
 #include "psyq/libgte/gtemat2.h"
 #include "game/gfx/skyrot1.h"
 #include "rr/driver_control.h"
+#include "rr/race_setup.h"
 
 struct V8 { unsigned char c[8]; };
 
-struct M { int a[8]; };
-
-extern int SelectModelBank();
-extern int RotMatrix();
-extern int SetGteObjectTransform();
-extern int func_8005F0D0();
 extern char D_8001013C[];
-extern int D_800F2FD8;
 extern struct V8 D_800101E4;
-extern struct { char pad[0xA8]; unsigned short v; } *D_8010BF78;
 extern int RotMatrixX();
 extern int RotMatrixY();
-extern int RotMatrixZ();
 extern char D_8009E88C[];
 extern s16 D_800AC5D0;
-extern s32 VSyncThreshold;
 extern s16 D_800F3A26;
 extern s16 ModeGroup;
 extern s16 D_800F4D8A;
 
-int func_8001BD40(int a0, int a1);
-void DrawRotatingSky(void);
-void func_8001BFA8(int a0, int a1, int a2);
-void func_8001C0F8(void);
+void IntroSceneModeEnter(void);
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_8010BF78 ((char *)D_8010BF78)
-
-int func_8001BD40(int a0, int a1)
+int DrawRotatingTitleModel(int objectIndex, int animate)
 {
-    int t[8];
-    short *s3 = (short *)(SCRATCHPAD + 0x7C);
-    int s2;
+    MatrixWords32 rotation;
+    RroScratchWork *work = &((RroModelScratch *)SCRATCHPAD)->work7C;
+    int yaw;
     SelectModelBank(4);
-    s2 = *(short *)(D_8010BF78 + (a0 << 1) + 0xAA);
-    if (a1 || (s2 && (s2 & 0x3FF) > 0x20)) s2 += 0x20;
-    else if (s2) s2 = 0;
-    s2 &= 0xFFF;
-    *(short *)(D_8010BF78 + (a0 << 1) + 0xAA) = s2;
-    s3[0] = 0;
-    s3[2] = 0;
-    s3[1] = -s2;
-    RotMatrix(s3, (char *)s3 + 8);
-    RR_GTE_SETROT(D_8010BF78);
-    MulRotMatrix0((char *)s3 + 8, (char *)s3 + 0x28);
-    RR_GTE_SETLLM((char *)s3 + 0x28);
-    RR_GTE_SETROT(SCRATCH_ROT_MATRIX);
-    MulRotMatrix0((char *)s3 + 8, t);
-    SetGteObjectTransform((SCRATCHPAD + 0x7C), D_8001013C + a0 * 16, t);
-    *(int *)(SCRATCHPAD + 0x78) = 0;
-    func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
-    return s2;
+    yaw = D_8010BF78->objectYawAA[objectIndex];
+    if (animate || (yaw && (yaw & 0x3FF) > 0x20)) yaw += 0x20;
+    else if (yaw) yaw = 0;
+    yaw &= 0xFFF;
+    D_8010BF78->objectYawAA[objectIndex] = yaw;
+    work->setup.angles.fields.x = 0;
+    work->setup.angles.fields.z = 0;
+    work->setup.angles.fields.y = -yaw;
+    RotMatrix(&work->setup.angles.fields, &work->setup.rotation);
+    RR_GTE_SETROT(D_8010BF78->mat00.w);
+    MulRotMatrix0(&work->setup.rotation, &work->setup.light);
+    RR_GTE_SETLLM(work->setup.light.w);
+    RR_GTE_SETROT(((RroModelScratch *)SCRATCHPAD)->scene.view.matrix28.w);
+    MulRotMatrix0(&work->setup.rotation, &rotation);
+    SetGteObjectTransform(&((RroModelScratch *)SCRATCHPAD)->work7C.transform, (const s16 *)(D_8001013C + objectIndex * 16), rotation.w);
+    ((RroModelScratch *)SCRATCHPAD)->scene.draw74.draw.counter = 0;
+    SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, ModelBankFormat < 1, 0, 0);
+    return yaw;
 }
-
-#undef D_8010BF78
 
 void DrawRotatingSky(void)
 {
     struct V8 sp10;
-    struct M sp18;
+    MatrixWords32 sp18;
     int t;
     sp10 = D_800101E4;
-    D_8010BF78->v += 0x20;
-    sp18.a[4] = 0x1000;
-    sp18.a[2] = 0x1000;
-    sp18.a[3] = 0;
-    sp18.a[1] = 0;
-    t = (short)D_8010BF78->v;
-    sp18.a[0] = 0x1000;
+    D_8010BF78->uA8 += 0x20;
+    sp18.w[4] = 0x1000;
+    sp18.w[2] = 0x1000;
+    sp18.w[3] = 0;
+    sp18.w[1] = 0;
+    t = (short)D_8010BF78->uA8;
+    sp18.w[0] = 0x1000;
     RotMatrixY(t, &sp18);
     RotMatrixX(0x100, &sp18);
     RotMatrixZ(0xAA, &sp18);
-    func_800197C8(D_8009E88C, &sp18, &sp10, 0xC8);
+    RenderSkyToRect(D_8009E88C, &sp18, &sp10, 0xC8);
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_8010BF78 ((char *)D_8010BF78)
-
-void func_8001BFA8(int a0, int a1, int a2)
+void DrawTransformedTitleModel(int modelIndex, const Vec3s8 *angles,
+                               const VectorWords16 *position)
 {
-    int t[8];
+    MatrixWords32 rotation;
     SelectModelBank(4);
-    RotMatrix(a1, (SCRATCHPAD + 0x84));
-    RR_GTE_SETROT(D_8010BF78 + 0x20);
-    MulRotMatrix0((SCRATCHPAD + 0x84), (SCRATCHPAD + 0xA4));
-    RR_GTE_SETLLM((SCRATCHPAD + 0xA4));
-    RR_GTE_SETROT(SCRATCH_ROT_MATRIX);
-    MulRotMatrix0((SCRATCHPAD + 0x84), t);
-    SetGteObjectTransform((SCRATCHPAD + 0x7C), a2, t);
-    *(int *)(SCRATCHPAD + 0x78) = 0;
-    func_8005F0D0(SCRATCHPAD, a0 < D_800F2FD8 ? a0 : 1, 0, 0);
+    RotMatrix(&angles->fields, &((RroModelScratch *)SCRATCHPAD)->work7C.setup.rotation);
+    RR_GTE_SETROT(D_8010BF78->mat20.w);
+    MulRotMatrix0(&((RroModelScratch *)SCRATCHPAD)->work7C.setup.rotation,
+                  &((RroModelScratch *)SCRATCHPAD)->work7C.setup.light);
+    RR_GTE_SETLLM(((RroModelScratch *)SCRATCHPAD)->work7C.setup.light.w);
+    RR_GTE_SETROT(((RroModelScratch *)SCRATCHPAD)->scene.view.matrix28.w);
+    MulRotMatrix0(&((RroModelScratch *)SCRATCHPAD)->work7C.setup.rotation, &rotation);
+    SetGteObjectTransform(&((RroModelScratch *)SCRATCHPAD)->work7C.transform,
+                          (const s16 *)position->words, rotation.w);
+    ((RroModelScratch *)SCRATCHPAD)->scene.draw74.draw.counter = 0;
+    SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD,
+                modelIndex < ModelBankFormat ? modelIndex : 1, 0, 0);
 }
 
-#undef D_8010BF78
-
-void func_8001C0F8(void) {
+void IntroSceneModeEnter(void) {
     VSyncThreshold = 0x80;
     D_800AC5D0 = 0;
-    D_8010BF7C = 0;
+    TitleSceneStage = 0;
     SetDispMask(1);
     ModeGroup = 0;
     D_800F3A26 = 2;

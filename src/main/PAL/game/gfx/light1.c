@@ -2,8 +2,7 @@
 #include "scratchpad.h"
 #include "rr_asm.h"
 #include "rr/menu_overlay_runtime.h"
-void func_80019C90(a0) int a0;
-{
+void SetSineLightColors(int a0) {
     int *p; 
     register int x asm("$17"); /* ASM_BARRIER: pin to s-reg like the original saves */
     register int s2 asm("$18"); /* ASM_BARRIER: pin to s-reg like the original saves */
@@ -24,5 +23,5 @@ void func_80019C90(a0) int a0;
     RR_GTE_SETLCM(p);
     z = 0x40;
     RR_GTE_SETBK(z, z, z);
-    asm volatile("" : : "r"(s2)); /* ASM_BARRIER: keep s2 live so mask goes through a0 */
+    asm ("" : : "r"(s2)); /* ASM_BARRIER: keep s2 live so mask goes through a0 */
 }

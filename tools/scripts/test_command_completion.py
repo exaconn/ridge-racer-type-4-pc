@@ -5,6 +5,8 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source, name_at
+from test_cd_disc_probe import native_body
 
 Poll = C.CFUNCTYPE(C.c_int32)
 Hook = C.CFUNCTYPE(None)
@@ -21,21 +23,22 @@ class CommandCompletionTest(unittest.TestCase):
             text = (root / ('include/rr/' + name + '.h')).read_text()
             text = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', text, flags=re.M)
             text = re.sub(r'^extern s32 CardCommandStatus,[^\n]*\n', '', text, flags=re.M)
+            text = re.sub(r'^extern volatile s32 CardTxCount;\n', '', text, flags=re.M)
             headers += text
         source = '''#include <stdint.h>
 #include <string.h>
 typedef uint8_t u8; typedef uint16_t u16; typedef uint32_t u32; typedef int32_t s32;
 s32 test_ram[0x4000];
 #define CardCommandStatus test_ram[0xBDE4/4]
-#define D_800ABDE8 test_ram[0xBDE8/4]
+#define CardTxCount (*(volatile s32*)&test_ram[0xBDE8/4])
 #define CardCommandRequest test_ram[0xBDEC/4]
 #define CardReceiveIndex test_ram[0xBDF4/4]
 #define CardRxCount test_ram[0xBDF8/4]
 ''' + headers + '''
-s32 CardRetriesLeft,D_80114730;
-u8 D_800ABDC0[16];
-RrInterruptRegisters test_irq[2],*I_STAT_Card;
-RrSerialPortRegisters test_serial[2],*CardSio0Regs;
+s32 CardRetriesLeft,CardBytesRemaining;
+u8 CardIrqQueueEntryPtr[16];
+InterruptRegisters test_irq[2],*I_STAT_Card;
+SerialPortRegisters test_serial[2],*CardSio0Regs;
 s32 (*test_poll)(void);void (*test_restart_hook)(void);
 s32 test_restart_calls,test_request,test_event_calls,test_event_flag;
 void *test_event_pointer;
@@ -50,20 +53,22 @@ s32 test_restart(s32 request) {
 }
 s32 SysDeqIntRP(s32 flag,void *event) {
  test_event_calls++;test_event_flag=flag;test_event_pointer=event;
- test_event_state=CardCommandStatus;test_event_counter=D_800ABDE8;
+ test_event_state=CardCommandStatus;test_event_counter=CardTxCount;
  return -123;
 }
 void test_reset(void) {
  memset(test_ram,0xA5,sizeof(test_ram));memset(test_irq,0,sizeof(test_irq));
  memset(test_serial,0x5A,sizeof(test_serial));
  I_STAT_Card=&test_irq[0];CardSio0Regs=&test_serial[0];
- CardCommandStatus=3;D_800ABDE8=10;CardCommandRequest=123;
- CardRetriesLeft=0;CardReceiveIndex=9;CardRxCount=11;D_80114730=17;
+ CardCommandStatus=3;CardTxCount=10;CardCommandRequest=123;
+ CardRetriesLeft=0;CardReceiveIndex=9;CardRxCount=11;CardBytesRemaining=17;
  test_restart_calls=test_event_calls=0;test_restart_hook=0;
 }
 '''
+        owners=source_owners(root/'src/main/PAL')
         for name in ('8009C0A4', '8009BC3C'):
-            body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
+            symbol=name_at(int(name,16))
+            body = native_body(definition_source(owners[symbol].read_text(),symbol))
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
             body = re.sub(r'^extern s32 D_[^\n]*\n', '', body, flags=re.M)
             body = body.replace('(s32 *)0x800B0000U', '(test_ram+0x4000)')
@@ -142,7 +147,7 @@ void test_reset(void) {
                     self.assertEqual(self.scalar('test_event_flag').value, 1)
                     self.assertEqual(self.scalar('test_event_counter').value, 0)
                     self.assertEqual(self.scalar('test_event_state').value, state)
-                    event = (C.c_uint8 * 16).in_dll(self.lib, 'D_800ABDC0')
+                    event = (C.c_uint8 * 16).in_dll(self.lib, 'CardIrqQueueEntryPtr')
                     self.assertEqual(self.pointer('test_event_pointer').value, C.addressof(event))
                 self.assertEqual(bytes(self.serial), bytes(expected))
 
@@ -158,7 +163,7 @@ void test_reset(void) {
             self.assertEqual(self.scalar('test_restart_state').value, 0x41)
             self.assertEqual(self.ram[0xBDF4//4], 0)
             self.assertEqual(self.ram[0xBDF8//4], 0)
-            self.assertEqual(self.scalar('D_80114730').value, 0)
+            self.assertEqual(self.scalar('CardBytesRemaining').value, 0)
             self.scalar('CardRetriesLeft').value = -0x80000000
             self.ram[0xBDE4//4] = 99
             self.ram[0xBDE8//4] = 999

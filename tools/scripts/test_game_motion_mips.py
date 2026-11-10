@@ -10,9 +10,9 @@ ns={'__file__':str(fixture)};script=fixture.read_text();exec(script[:script.inde
 setup=src[src.index('u32 seed=i*0x9e3779b9U;',src.index('int main')):src.index(' if(t->state==0',src.index('int main'))]
 validation=src[src.index(' if(t->state==0',src.index('int main')):src.index('reference=actual;',src.index('int main'))].replace('continue;','return 0;')
 src=src[:src.index('int main')]+'''static unsigned currentIndex;
-int setup(unsigned i){currentIndex=i;'''+setup+validation+'''MotionController=&actual.controller;return 1;}
+int setup(unsigned i){currentIndex=i;'''+setup+validation+'''RaceContext.controller3D8=&actual.controller;return 1;}
 void run(void){UpdateMotionTrack(&clock);}
-void snapshot(u8 *out){RrMotionTrack44 *t=&actual.controller.track;memcpy(out,&actual.controller,0x15C);out+=0x15C;
+void snapshot(u8 *out){MotionTrack44 *t=&actual.controller.track;memcpy(out,&actual.controller,0x15C);out+=0x15C;
 #define PUT(f,n) memcpy(out,&t->f,n);out+=n;
  PUT(state,4);PUT(disabled,4);PUT(word08,4);u32 key=0x80200000+32*(currentIndex%4);memcpy(out,&key,4);out+=4;
  PUT(elapsed,2);PUT(duration,2);PUT(position,8);PUT(scale,4);PUT(word20,4);PUT(word24,4);PUT(velocity,4);
@@ -47,7 +47,7 @@ for serial in range(serials):
 print(count,'cases;', 'compiled MIPS' if os.getenv('RR_COMPILED_ELF') else 'original MIPS','versus full native pointer owners')
 
 if os.getenv('RR_AUDIT_JSON'):
- source=Path(sys.argv[1]) if len(sys.argv)>1 else root/'tools/scripts/fixtures/views/func_8005AC0C.c'
+ source=ns['path']
  sha=lambda f:hashlib.sha256(Path(f).read_bytes()).hexdigest()
  report=dict(source=str(source),source_sha256=sha(source),test_sha256=sha(__file__),fixture_sha256=sha(fixture),header_sha256=sha(root/'include/rr/game_motion.h'),cases=count,serial_cases=serials,engine='compiled MIPS' if os.getenv('RR_COMPILED_ELF') else 'original MIPS',full_host_pointers=True,guarded_controller=True,unchanged_clock_and_key=True,poisoned_caller_saved_and_hi_lo=True,sanitizers=['undefined','bounds'])
  if os.getenv('RR_COMPILED_ELF'):report['elf_sha256']=sha(os.environ['RR_COMPILED_ELF'])

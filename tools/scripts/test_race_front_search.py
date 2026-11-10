@@ -4,6 +4,7 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
 
 ROOT=Path(__file__).resolve().parents[2]
 
@@ -13,11 +14,12 @@ class RaceFrontSearchTest(unittest.TestCase):
     def setUpClass(cls):
         cls.temporary=TemporaryDirectory()
         cls.addClassCleanup(cls.temporary.cleanup)
-        def header(name):
-            text=(ROOT/'include/rr'/name).read_text()
-            return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-        body=(ROOT/'tools/scripts/fixtures/legacy/func_800469A4.c').read_text()
-        body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
+        owner=source_owners(ROOT/'src/main/PAL')['FindNearestCarAhead']
+        text=owner.read_text()
+        body=definition_source(text,'FindNearestCarAhead')
+        dependencies=re.findall(r'^#define RR_STANDING_(?:PREFIX_SIZE|ROW)\b[^\n]*(?:\n[^\n]*)?',text,flags=re.M)
+        assert len(dependencies)==2
+        body='\n'.join(dependencies)+'\n'+body
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         code=r'''
 #include <assert.h>
@@ -26,17 +28,19 @@ class RaceFrontSearchTest(unittest.TestCase):
 #include <stdlib.h>
 #include <string.h>
 #include "rr/layout.h"
-''' + header('race_types.h') + header('race.h') + header('race_front_search.h') + r'''
+#include "rr/geometry.h"
+#include "rr/race_front_search.h"
+
 typedef union {
-    RrRaceStandingsTable table;
+    RaceStandingsTable table;
     struct {u8 pad[0x14];s16 value;} count;
 } CountStorage;
 typedef struct {
     u8 prefix[32];
-    RrRaceVehicle vehicle;
-    RrRaceDistanceContextPrefix context;
+    RaceVehicle vehicle;
+    RaceDistanceContextPrefix context;
     CountStorage counter;
-    RrRaceStandingsTable ordinary,track;
+    RaceStandingsTable ordinary,track;
     u8 suffix[32];
 } World;
 static World actual,expected;
@@ -54,7 +58,7 @@ static s32 get32(const void *address) {
 static s32 bits(u32 value) {s32 result;memcpy(&result,&value,4);return result;}
 static int reference(void) {
     s32 desired=bits((u32)(expected.vehicle.flags1E4&15)-1U+(u32)expected.context.mode);
-    RrRaceStandingsTable *table=(RrRaceStandingsTable*)expected.context.result;
+    RaceStandingsTable *table=(RaceStandingsTable*)expected.context.result;
     int rows=expected.counter.count.value;
     int target=desired;
     for(int row=0;row<rows;row++) {
@@ -81,10 +85,10 @@ static int reference(void) {
     }
     return winner;
 }
-static RrRaceStandingsTable *initialize(int rows,s32 length,u32 seed,int alias) {
+static RaceStandingsTable *initialize(int rows,s32 length,u32 seed,int alias) {
     memset(&actual,(u8)(seed^(seed>>8)),sizeof(actual));
-    RrRaceStandingsTable *table=alias==1?&actual.counter.table:alias==2?&actual.track:&actual.ordinary;
-    actual.context.result=(RrRaceDistanceResult*)table;
+    RaceStandingsTable *table=alias==1?&actual.counter.table:alias==2?&actual.track:&actual.ordinary;
+    actual.context.result=(RaceDistanceResult*)table;
     actual.context.mode=1;
     actual.vehicle.flags1E4=0xFFF0;
     actual.vehicle.input=100;
@@ -112,8 +116,8 @@ static int permutation(int *values) {
     return 1;
 }
 int main(int argc,char **argv) {
-    assert(argc==2);assert(sizeof(void*)>4);assert(sizeof(RrRaceStandingEntry0C)>12);
-    assert(offsetof(RrRaceStandingsTable,entries18)==sizeof(RrRaceStandingsTable)-sizeof(((RrRaceStandingsTable*)0)->entries18));
+    assert(argc==2);assert(sizeof(void*)>4);assert(sizeof(RaceStandingEntry0C)>12);
+    assert(offsetof(RaceStandingsTable,entries18)==sizeof(RaceStandingsTable)-sizeof(((RaceStandingsTable*)0)->entries18));
     int mode=atoi(argv[1]);
     if(mode==0) {
         const s32 lengths[]={1,2,3,4,5,7,8,127,128,1023,65535,2147483647};
@@ -130,7 +134,7 @@ int main(int argc,char **argv) {
         }
         for(int rows=0;rows<=8;rows++)for(unsigned l=0;l<12;l++) {
             for(int target=0;target<8;target++)for(int delta=-130;delta<=130;delta++) {
-                RrRaceStandingsTable *t=initialize(rows,lengths[l],rows*71+target,0);
+                RaceStandingsTable *t=initialize(rows,lengths[l],rows*71+target,0);
                 actual.context.mode=target+1;
                 for(int i=0;i<8;i++)t->entries18[i].totalDist04=delta+i*17;
                 check();
@@ -138,27 +142,27 @@ int main(int argc,char **argv) {
         }
         const s32 distance[]={(-2147483647-1),-2147483647,-65536,-1,0,1,65535,2147483646,2147483647};
         for(unsigned a=0;a<9;a++)for(unsigned b=0;b<9;b++)for(unsigned l=0;l<12;l++) {
-            RrRaceStandingsTable *t=initialize(8,lengths[l],a*7+b,0);
+            RaceStandingsTable *t=initialize(8,lengths[l],a*7+b,0);
             for(int i=0;i<8;i++)t->entries18[i].totalDist04=i?distance[b]:distance[a];
             check();
         }
     } else if(mode==1) {
         int ids[8]={0,1,2,3,4,5,6,7};u32 seed=0;
         do {
-            RrRaceStandingsTable *t=initialize(8,511,seed++,0);
+            RaceStandingsTable *t=initialize(8,511,seed++,0);
             for(int i=0;i<8;i++){t->entries18[i].unk00=ids[i];t->entries18[i].totalDist04=(i%3)*31;}
             actual.context.mode=ids[seed%8]+1;
             check();
         }while(permutation(ids));
         for(int alias=1;alias<=2;alias++)for(int rows=2;rows<=8;rows++) {
             for(int selected=0;selected<rows;selected++)for(int n=0;n<127;n++) {
-                RrRaceStandingsTable *t=initialize(rows,127,n,alias);
+                RaceStandingsTable *t=initialize(rows,127,n,alias);
                 for(int i=0;i<8;i++)t->entries18[i].totalDist04=i*i*7+n;
                 actual.context.mode=selected+1;
                 check();
             }
         }
-        RrRaceStandingsTable *aliased=initialize(8,127,0,1);
+        RaceStandingsTable *aliased=initialize(8,127,0,1);
         const s32 count_gaps[8]={0,3,20,25,35,45,49,1};
         for(int i=0;i<8;i++)aliased->entries18[i].totalDist04=count_gaps[i];
         check(); /* First gap changes global count3; last row still wins at1. */
@@ -181,7 +185,7 @@ int main(int argc,char **argv) {
         /* The lookup may miss: the original identifier then remains the
          * reference index, provided it still names an accessible row. */
         for(int target=0;target<8;target++) {
-            RrRaceStandingsTable *t=initialize(8,1000,target,0);
+            RaceStandingsTable *t=initialize(8,1000,target,0);
             for(int i=0;i<8;i++)t->entries18[i].unk00=(target+1)%8;
             actual.context.mode=target+1;check();
         }

@@ -1,15 +1,15 @@
 /* RODATA 0x800103e0 0x1c */
 /* CC1_FLAGS: -fno-strength-reduce */
 #include "types.h"
+#include "rr/frame_storage_types.h"
 #include "scratchpad.h"
 #include "rr/hud_rotating_quad.h"
 #include "rr/trig.h"
 #include "rr/hud_number.h"
-#include "m2c_macros.h"
 #include "game/ui/window2.h"
 #include "game/ui/window1.h"
 #include "rr/race_setup.h"
-#include "game/gfx/drawbuf.h"
+#include "game/ui/badge1.h"
 
 struct W3G0A { char *p0; char *p4; short s8, sA, sC, sE, s10, s12; char *p14; char *p18; short s1C, s1E, s20, s22, s24, s26; };
 
@@ -17,18 +17,14 @@ extern char D_800ADB60[];
 extern char D_800D02D8[];
 extern char D_800AE660[];
 extern char D_800D0DD8[];
-extern int AddDrawModePrim();
 extern char D_8009EA90[];
 extern char D_8009EACC[];
 
-void func_800211A4();
+void DrawViewportBorderFrames();
 void DrawHudRotatingQuad(s32 phase,s32 index);
 void *EmitHudGlyph12(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 void *EmitHudGlyph12Alt(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5);
 void DrawHudNumber3(int a0, int a1);
-
-/* legacy typing of shared globals in this part of the unit */
-#define HudNumberTargets (*(struct W3G0A (*))&HudNumberTargets)
 
 void InitHudNumberTargets(int a0) {
     switch (a0) {
@@ -39,39 +35,35 @@ void InitHudNumberTargets(int a0) {
             goto w3g0b;
         }
     }
-    HudNumberTargets.p0 = D_800ADB60;
-    HudNumberTargets.p4 = D_800D02D8;
-    HudNumberTargets.s8 = 0x106;
-    HudNumberTargets.sA = 0xE6;
-    HudNumberTargets.sC = 0x122;
-    HudNumberTargets.sE = 0xDC;
-    HudNumberTargets.s10 = 0x112;
-    HudNumberTargets.s12 = 0xCE;
+    ((struct W3G0A *)HudNumberTargets)->p0 = D_800ADB60;
+    ((struct W3G0A *)HudNumberTargets)->p4 = D_800D02D8;
+    ((struct W3G0A *)HudNumberTargets)->s8 = 0x106;
+    ((struct W3G0A *)HudNumberTargets)->sA = 0xE6;
+    ((struct W3G0A *)HudNumberTargets)->sC = 0x122;
+    ((struct W3G0A *)HudNumberTargets)->sE = 0xDC;
+    ((struct W3G0A *)HudNumberTargets)->s10 = 0x112;
+    ((struct W3G0A *)HudNumberTargets)->s12 = 0xCE;
     return;
 w3g0b:
-    HudNumberTargets.p0 = D_800AE660;
-    HudNumberTargets.p4 = D_800D0DD8;
-    HudNumberTargets.s8 = 0xFC;
-    HudNumberTargets.sA = 0x58;
-    HudNumberTargets.sC = 0x128;
-    HudNumberTargets.sE = 0x4A;
-    HudNumberTargets.s10 = 0xFC;
-    HudNumberTargets.s12 = 0x68;
-    HudNumberTargets.p14 = D_800AE660;
-    HudNumberTargets.p18 = D_800D0DD8;
-    HudNumberTargets.s1C = 0xFC;
-    HudNumberTargets.s1E = 0xD8;
-    HudNumberTargets.s20 = 0x122;
-    HudNumberTargets.s22 = 0xCA;
-    HudNumberTargets.s24 = 0xFC;
-    HudNumberTargets.s26 = 0xE8;
+    ((struct W3G0A *)HudNumberTargets)->p0 = D_800AE660;
+    ((struct W3G0A *)HudNumberTargets)->p4 = D_800D0DD8;
+    ((struct W3G0A *)HudNumberTargets)->s8 = 0xFC;
+    ((struct W3G0A *)HudNumberTargets)->sA = 0x58;
+    ((struct W3G0A *)HudNumberTargets)->sC = 0x128;
+    ((struct W3G0A *)HudNumberTargets)->sE = 0x4A;
+    ((struct W3G0A *)HudNumberTargets)->s10 = 0xFC;
+    ((struct W3G0A *)HudNumberTargets)->s12 = 0x68;
+    ((struct W3G0A *)HudNumberTargets)->p14 = D_800AE660;
+    ((struct W3G0A *)HudNumberTargets)->p18 = D_800D0DD8;
+    ((struct W3G0A *)HudNumberTargets)->s1C = 0xFC;
+    ((struct W3G0A *)HudNumberTargets)->s1E = 0xD8;
+    ((struct W3G0A *)HudNumberTargets)->s20 = 0x122;
+    ((struct W3G0A *)HudNumberTargets)->s22 = 0xCA;
+    ((struct W3G0A *)HudNumberTargets)->s24 = 0xFC;
+    ((struct W3G0A *)HudNumberTargets)->s26 = 0xE8;
 }
 
-#undef HudNumberTargets
-
-void func_800211A4(a0)
-int a0;
-{
+void DrawViewportBorderFrames(int a0) {
     unsigned *s0;
     unsigned *s2;
     char *s1;
@@ -84,7 +76,7 @@ int a0;
 
     s0 = *(unsigned **)SCRATCHPAD;
     if (a0 >= 2) {
-        s2 = (unsigned *)(CurrentDrawBuf + 0xB70);
+        s2 = (unsigned *)(&CurrentDrawBuf->buffer.secondaryOrderingB70.words[0]);
         s5 = 4;
         if (a0 == 3) s5 = 2;
         s3 = 0;
@@ -106,7 +98,7 @@ int a0;
         m2 = 0xFFFFFF;
         h2 = 0xFF000000;
         s4 = D_8009EA90;
-        s2 = (unsigned *)(CurrentDrawBuf + 0x70);
+        s2 = (unsigned *)(&CurrentDrawBuf->buffer.ordering70.words[0]);
         s1 = (char *)s0 + 0xA;
         do {
             InitHudSpritePacket(s0, s4);
@@ -120,22 +112,26 @@ int a0;
             s0 += 5;
         } while (s3 < 3);
     }
-    *(int *)SCRATCHPAD = AddDrawModePrim(s2, s0, 5);
+    *(void **)SCRATCHPAD = AddDrawModePrim(s2, s0, 5);
 }
 
 void DrawHudRotatingQuad(s32 phase,s32 index) {
-    RrHudQuadColor colors[4];
-    s32 angle,sine;
-    s32 cosine;
+    HudQuadColor colors[4];
+    u32 sine;
+    s32 angle;
+    u32 cosine;
     s32 i;
-    RrHudQuadColor *color;
-    RrHudQuadCorner *corner;
-    RrNumberTarget *target;
+    HudQuadColor *color;
+    HudQuadCorner *corner;
+    NumberTarget *target;
     u32 *head;
-    register RrHudQuadEmission *packet __asm__("$8");
+    /* ASM_BARRIER: keep output packet base in $t0 across vertex loop and tag linkage */
+    register HudQuadEmission *packet __asm__("$8");
     u8 *output;
-    register RrNumberTarget (*base)[] __asm__("$4");
+    /* ASM_BARRIER: stage HudNumberTargets base pointer in $a0 before computing target/head */
+    register NumberTarget (*base)[] __asm__("$4");
     unsigned long row;
+    /* ASM_BARRIER: keep target X/Y center coordinates in $t5/$a0 across the 4-corner loop */
     register u32 x __asm__("$13");
     register u32 y __asm__("$4");
     u32 linkMask;
@@ -151,25 +147,25 @@ void DrawHudRotatingQuad(s32 phase,s32 index) {
     colors[3].rgb.r=0x34;
     colors[3].rgb.g=6;
     colors[3].rgb.b=12;
-    angle=(s32)((u32)phase*0xA00U)/10000+0xE00;
+    angle=(s32)(phase*0xA00U)/10000+0xE00;
     sine=rsin(angle);
     cosine=rcos(angle);
     i=0;color=colors;corner=D_8009EE38;
     base=&HudNumberTargets;
-    row=(unsigned long)index*sizeof(RrNumberTarget);
-    target=(RrNumberTarget *)((u8 *)base+row);
-    packet=(RrHudQuadEmission *)RR_HUD_QUAD_SCRATCH->cursor;
+    row=index*sizeof(NumberTarget);
+    target=(NumberTarget *)((u8 *)base+row);
+    packet=(HudQuadEmission *)RR_HUD_QUAD_SCRATCH->cursor;
     /* Full native-width addresses retain the original sum order. */
-    head=*(u32 **)((unsigned long)DrawBufIndex*sizeof(u32 *)+row+(unsigned long)base);
+    head=*(u32 **)(DrawBufIndex*sizeof(u32 *)+row+(unsigned long)base);
     x=(u16)target->x;y=(u16)target->y;
     output=(u8 *)packet+8;
     packet->r=0xB0;packet->g=0xB0;packet->b=0;
     do {
-        *(s16 *)output=(s16)(x+(u32)((s32)((u32)cosine*(u32)(s32)corner->x-(u32)sine*(u32)(s32)corner->y)/4096));
-        *(s16 *)(output+2)=(s16)(y+(u32)((s32)((u32)sine*(u32)(s32)corner->x+(u32)cosine*(u32)(s32)corner->y)/4096));
+        ((s16 *)output)[0]=(s16)(x+((s32)(cosine*corner->x-sine*corner->y)/4096));
+        ((s16 *)output)[1]=(s16)(y+((s32)(sine*corner->x+cosine*corner->y)/4096));
         output+=4;
         /* Keep the initialized color destination after the XY writes. */
-        *(RrHudQuadColor *)output=*color;
+        *(HudQuadColor *)output=*color;
         color++;corner++;i++;output+=4;
     }while(i<4);
     linkMask=0xFFFFFF;
@@ -181,51 +177,46 @@ void DrawHudRotatingQuad(s32 phase,s32 index) {
 }
 
 void *EmitHudGlyph12(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
-    M2C_FIELD(arg1, s8 *, 3) = 4;
-    M2C_FIELD(arg1, s8 *, 7) = 0x65;
-    M2C_FIELD(arg1, s16 *, 0x10) = 0xC;
-    M2C_FIELD(arg1, s16 *, 0x12) = 0x10;
-    M2C_FIELD(arg1, s16 *, 8) = arg2;
-    M2C_FIELD(arg1, s16 *, 0xA) = arg3;
-    M2C_FIELD(arg1, u8 *, 0xD) = 0xF0;
-    M2C_FIELD(arg1, s8 *, 0xC) = (s8) (arg4 * 0xC);
-    M2C_FIELD(arg1, s16 *, 0xE) = (s16) arg5;
-    M2C_FIELD(arg1, s32 *, 0) = (s32) ((M2C_FIELD(arg1, s32 *, 0) & 0xFF000000) | (*arg0 & 0xFFFFFF));
+    ((s8 *)arg1)[3] = 4;
+    ((s8 *)arg1)[7] = 0x65;
+    ((s16 *)arg1)[8] = 0xC;
+    ((s16 *)arg1)[9] = 0x10;
+    ((s16 *)arg1)[4] = arg2;
+    ((s16 *)arg1)[5] = arg3;
+    ((u8 *)arg1)[13] = 0xF0;
+    ((s8 *)arg1)[12] = (s8) (arg4 * 0xC);
+    ((s16 *)arg1)[7] = (s16) arg5;
+    ((s32 *)arg1)[0] = ((((s32 *)arg1)[0] & 0xFF000000) | (*arg0 & 0xFFFFFF));
     *arg0 = (*arg0 & 0xFF000000) | ((s32) arg1 & 0xFFFFFF);
     return arg1 + 0x14;
 }
 
 void *EmitHudGlyph12Alt(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5) {
-    M2C_FIELD(arg1, s8 *, 3) = 4;
-    M2C_FIELD(arg1, s8 *, 7) = 0x65;
-    M2C_FIELD(arg1, s16 *, 0x10) = 0xC;
-    M2C_FIELD(arg1, s16 *, 0x12) = 0x10;
-    M2C_FIELD(arg1, s16 *, 8) = arg2;
-    M2C_FIELD(arg1, s16 *, 0xA) = arg3;
-    M2C_FIELD(arg1, u8 *, 0xD) = 0xF0;
-    M2C_FIELD(arg1, s8 *, 0xC) = (s8) ((arg4 * 0xC) + 0x78);
-    M2C_FIELD(arg1, s16 *, 0xE) = (s16) arg5;
-    M2C_FIELD(arg1, s32 *, 0) = (s32) ((M2C_FIELD(arg1, s32 *, 0) & 0xFF000000) | (*arg0 & 0xFFFFFF));
+    ((s8 *)arg1)[3] = 4;
+    ((s8 *)arg1)[7] = 0x65;
+    ((s16 *)arg1)[8] = 0xC;
+    ((s16 *)arg1)[9] = 0x10;
+    ((s16 *)arg1)[4] = arg2;
+    ((s16 *)arg1)[5] = arg3;
+    ((u8 *)arg1)[13] = 0xF0;
+    ((s8 *)arg1)[12] = (s8) ((arg4 * 0xC) + 0x78);
+    ((s16 *)arg1)[7] = (s16) arg5;
+    ((s32 *)arg1)[0] = ((((s32 *)arg1)[0] & 0xFF000000) | (*arg0 & 0xFFFFFF));
     *arg0 = (*arg0 & 0xFF000000) | ((s32) arg1 & 0xFFFFFF);
     return arg1 + 0x14;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define HudNumberTargets (*(char (*)[])&HudNumberTargets)
-
 void DrawHudNumber3(int a0, int a1)
 {
-    char *b = HudNumberTargets;
+    char *b = (char *)HudNumberTargets;
     int off = a1 * 0x14;
     char *t = b + off;
-    short x = *(short *)(t + 8);
-    short y = *(short *)(t + 10);
-    int s1 = *(int *)(DrawBufIndex * 4 + off + (int)b);
+    short x = ((short *)t)[4];
+    short y = ((short *)t)[5];
+    u32 *s1 = *(u32 **)(DrawBufIndex * 4 + off + b);
     int h, tn, on;
     h = a0 / 100;
     tn = (a0 / 10) - h * 10;
     on = a0 % 10;
-    *(int *)SCRATCHPAD = AddDrawModePrim(s1, EmitHudGlyph12(s1, EmitHudGlyph12(s1, EmitHudGlyph12(s1, *(int *)SCRATCHPAD, x, y, h, 0x7EFA), x + 8, y, tn, 0x7EFA), x + 0x10, y, on, 0x7EFA), 5);
+    *(void **)SCRATCHPAD = AddDrawModePrim(s1, EmitHudGlyph12(s1, EmitHudGlyph12(s1, EmitHudGlyph12(s1, *(void **)SCRATCHPAD, x, y, h, 0x7EFA), x + 8, y, tn, 0x7EFA), x + 0x10, y, on, 0x7EFA), 5);
 }
-
-#undef HudNumberTargets

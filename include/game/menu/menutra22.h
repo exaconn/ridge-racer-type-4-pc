@@ -3,8 +3,10 @@
 
 #include "types.h"
 
-void func_8007D448(int a0, int a1);
-void func_8007D560(int a0, int a1);
-void func_8007D65C(int a0);
+void UpdateCardSlotUiRows(int a0, int a1);
+void CardSlotUiNoop(void);
+void DrawCardMenuCommandRows(int a0, int a1);
+void DrawSaveSlotTableHeader(int a0);
+void MainLoopStartupHook(void);
 
 #endif /* RR_GAME_MENU_MENUTRA22_H */

@@ -1,16 +1,13 @@
 #include "types.h"
-#include "m2c_macros.h"
 #include "rr/record_banks.h"
 #include "game/data/ldscn1.h"
 #include "game/menu/menu13.h"
 #include "game/data/bankrec.h"
 
-extern int CarRecordPtrs[];
-extern s32 D_800F4D90;
 
-void func_800293D0(s32 layout,s32 mode);
+void SetupRaceMemoryArena(s32 layout,s32 mode);
 
-void SetupDialogueTable(a) char *a; {
+void SetupDialogueTable(char *a) {
     int i;
     unsigned short *p;
     void **q;
@@ -22,13 +19,15 @@ void SetupDialogueTable(a) char *a; {
     D_800ACBFC = a + 0x78;
 }
 
-void SetCarRecordPtr(a, i) int a; int i; { CarRecordPtrs[i] = a; }
-
-void SetLightTable(s32 arg0) {
-    D_800F4D90 = arg0;
+void SetCarRecordPtr(CarRecord *record, s32 index) {
+    CarRecordPtrs[index] = record;
 }
 
-void func_800293D0(s32 layout,s32 mode) {
+void SetLightTable(TrackLighting2C *table) {
+    TrackLightTable = table;
+}
+
+void SetupRaceMemoryArena(s32 layout,s32 mode) {
     /* ASM_BARRIER: keep each loop's index in the consumed mode register. */
     register s32 i __asm__("$5");
     register u32 factor;
@@ -36,12 +35,12 @@ void func_800293D0(s32 layout,s32 mode) {
     /* ASM_BARRIER: finish each shared arena address before copying its base. */
     register u8 *loaded __asm__("$2");
     register u8 *bankbase;
-    register RrBankRecord320 **source_slots;
+    register RaceVehicle **source_slots;
     register u32 offset;
-    register RrBankRecord320 **bank_source_slots;
-    register u8 **bank_slots;
+    register RaceVehicle **bank_source_slots;
+    register ReplayFrame4 **bank_slots;
     register u32 bank_offset;
-    RrBankRecord320 **restore_source,**restore_dest;
+    RaceVehicle **restore_source,**restore_dest;
     s32 bound;
     register u8 *read_page;
     u8 *bound_page;
@@ -54,17 +53,17 @@ void func_800293D0(s32 layout,s32 mode) {
         /* ASM_BARRIER: capture the count page before testing and retaining it. */
         __asm__("" : "+r"(read_page));
         i=0;
-        if (*(s16 *)(read_page-0x3A64)>0) {
+        if (((s16 *)read_page)[-0x3A64/2]>0) {
             bound_page=read_page;
             restore_dest=CarTable;
             restore_source=CarSnapshots;
             do {
                 **restore_dest=**restore_source;
-                if ((*restore_dest)->value1E4>=17) {
-                    (*restore_dest)->value1E4&=255;
+                if ((s16)(*restore_dest)->flags1E4>=17) {
+                    (*restore_dest)->flags1E4&=255;
                 }
                 restore_dest++;
-                bound=*(s16 *)(bound_page-0x3A64);
+                bound=((s16 *)bound_page)[-0x3A64/2];
                 /* ASM_BARRIER: reload the limit before incrementing the index. */
                 __asm__("" : "+r"(bound));
                 i++;
@@ -78,16 +77,16 @@ void func_800293D0(s32 layout,s32 mode) {
             loaded=D_800FFC48;
             base=loaded;
             source_slots=CarSnapshots;
-            offset=0x5468;
+            offset=RR_FIELD_OFFSET(ReplayTwoStorage,snapshots);
             ReplayLength=2700;
-            ReplayInputs[0]=base;
-            ReplayInputs[1]=base+0x2A34;
+            ReplayInputs[0]=(ReplayFrame4 *)base;
+            ReplayInputs[1]=(ReplayFrame4 *)(base+sizeof(((ReplayTwoStorage*)0)->inputs[0]));
             do {
-                *source_slots=(RrBankRecord320 *)((unsigned long)offset+
+                *source_slots=(RaceVehicle *)(offset+
                                                 (unsigned long)base);
                 source_slots++;
                 i++;
-                offset+=0x320;
+                offset+=sizeof(RaceVehicle);
             } while (i<4);
         } else if (layout==2) {
             ReplayLength=900;
@@ -95,20 +94,20 @@ void func_800293D0(s32 layout,s32 mode) {
              * the previous fixed-register index value is dead at this point. */
             __asm__("" : : : "$5");
             i=0;
-            factor=901;
+            factor=sizeof(((ReplayLinkStorage*)0)->inputs[0])/sizeof(ReplayFrame4);
             bankbase=D_800FFC48;
             bank_source_slots=CarSnapshots;
-            bank_offset=0x3850;
+            bank_offset=RR_FIELD_OFFSET(ReplayLinkStorage,snapshots);
             bank_slots=ReplayInputs;
             do {
-                register u32 scaled=(u32)i*4U;
+                register u32 scaled=i*sizeof(ReplayFrame4);
                 u32 product;
                 product=factor*scaled;
-                *bank_slots=(u8 *)((unsigned long)product+(unsigned long)bankbase);
-                *bank_source_slots=(RrBankRecord320 *)((unsigned long)bank_offset+
+                *bank_slots=(ReplayFrame4 *)(product+(unsigned long)bankbase);
+                *bank_source_slots=(RaceVehicle *)(bank_offset+
                                                      (unsigned long)bankbase);
                 bank_source_slots++;
-                bank_offset+=0x320;
+                bank_offset+=sizeof(RaceVehicle);
                 i++;
                 bank_slots++;
             } while (i<4);
@@ -116,15 +115,15 @@ void func_800293D0(s32 layout,s32 mode) {
             loaded=D_800FFC48;
             base=loaded;
             source_slots=CarSnapshots;
-            offset=0x3844;
+            offset=RR_FIELD_OFFSET(ReplaySingleStorage,snapshots);
             ReplayLength=3600;
-            ReplayInputs[0]=base;
+            ReplayInputs[0]=(ReplayFrame4 *)base;
             do {
-                *source_slots=(RrBankRecord320 *)((unsigned long)offset+
+                *source_slots=(RaceVehicle *)(offset+
                                                 (unsigned long)base);
                 source_slots++;
                 i++;
-                offset+=0x320;
+                offset+=sizeof(RaceVehicle);
             } while (i<8);
         }
     }

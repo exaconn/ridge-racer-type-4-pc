@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int _padIsVsync();
+s32 _padIsVsync(void);
 
 #endif /* RR_PSYQ_LIBPAD_PADINTR_H */

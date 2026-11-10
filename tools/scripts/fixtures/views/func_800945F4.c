@@ -38,8 +38,8 @@
 /* The small CPU tail uses compiler-fenced stores so GCC can place the final
  * write in a branch delay slot. The per-iteration and final memory fences
  * make every port write visible and ordered before subsequent accesses. */
-s32 _dws(RrGpuRectangle *arg0,const u32 *arg1) {
-    register RrGpuRectangle *rect=arg0;
+s32 _dws(GpuRectangle *arg0,const u32 *arg1) {
+    register GpuRectangle *rect=arg0;
     register const u32 *cursor;
     register s32 signed_side;
     /* ASM_BARRIER: retain the raw halfword reload register. */

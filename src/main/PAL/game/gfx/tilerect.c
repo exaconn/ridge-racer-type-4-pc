@@ -1,6 +1,13 @@
+#include "psyq/libgte/rotmat.h"
+#include "rr/model_table.h"
+#include "rr/camera_matrices.h"
+#include "rr/track_object_render.h"
+#include "rr/gpu.h"
 /* RODATA 0x8001011c 0x20 */
 #include "scratchpad.h"
+#include "rr/load_cursor.h"
 #include "rr/tiled_rectangle.h"
+#include "rr/geometry.h"
 #include "rr_asm.h"
 #include "game/data/cdfile2.h"
 #include "game/effect/spfade.h"
@@ -9,26 +16,22 @@
 #include "game/gfx/gtemodel.h"
 #include "game/gfx/tilerect.h"
 #include "game/data/cdfile1.h"
-#include "game/data/cdfile2.h"
 #include "psyq/libgpu/gpuenv.h"
 #include "rr/menu_background.h"
 #include "rr/sprite_preset.h"
 #include "rr/memory.h"
 #include "rr/controller_hud.h"
+#include "rr/course_choices.h"
+#include "game/math/rotmat.h"
+#include "game/menu/mnrows.h"
+#include "game/gfx/light1.h"
+#include "game/course/trkintp2.h"
 
 #define GS ((SPD *)SCRATCHPAD)
-#define W(o) (*(int *)(GS->cur + (o)))
-#define LNK(n, t) \
-    W(0) = *(int *)(GS->ot + (t)); \
-    *(char *)(GS->cur + 3) = (n); \
-    *(int *)(GS->ot + (t)) = (int)GS->cur; \
-    *(char *)(GS->ot + (t) + 3) = 0
-
-struct B8 { unsigned char c[8]; };
 
 typedef struct {
-    char pad0[0x20];
-    struct B8 unk20;
+    MatrixWords32 matrix00;
+    Vec3sFields8 unk20;
     char unk28[0x08];
     int unk30;
     int unk34;
@@ -44,131 +47,47 @@ typedef struct {
 } S_8010BF70;
 
 typedef struct {
-    char *cur;
-    char *ot;
+    union {
+        int word;
+        struct { char b0, b1, b2, len; } b;
+    } tag;
+    int code;
+} GpuCmd8;
+
+typedef struct {
+    GpuCmd8 *cur;
+    union {
+        int word;
+        struct { char b0, b1, b2, len; } b;
+    } *ot;
 } SPD;
 
-typedef struct {
-    int v01;
-    int v23;
-    int pad08;
-    int uv0;
-    int uv1;
-    int uv23;
-    signed char b18;
-    signed char b19;
-    unsigned short vz;
-    int vxy;
-} Poly1A52C;
-
-typedef struct {
-    int rot[5];
-    int pad14[5];
-    int ir3;
-    int vxy;
-    short vz;
-    short pad32;
-    union {
-        struct {
-            int sxy0;
-            int sxy1;
-            int sxy2;
-            int sxy3;
-        } w;
-        struct {
-            short sx0, sy0;
-            short sx1, sy1;
-            short sx2, sy2;
-            short sx3, sy3;
-        } s;
-    } u;
-} Ctx1A52C;
-
-typedef struct {
-    unsigned short v0;
-    unsigned short v1;
-    unsigned short v2;
-    unsigned short v3;
-    int pad08;
-    int uv0;
-    int uv1;
-    int uv23;
-    signed char b18;
-    signed char b19;
-    short pad1A;
-} Poly1A8DC;
-
-typedef struct {
-    int pad00[7];
-    int otz;
-    int mac0;
-    union {
-        struct {
-            int sxy0;
-            int sxy1;
-            int sxy2;
-            int sxy3;
-        } w;
-        struct {
-            short sx0, sy0;
-            short sx1, sy1;
-            short sx2, sy2;
-            short sx3, sy3;
-        } s;
-    } u;
-} Ctx1A8DC;
-
-typedef struct {
-    int v01;
-    unsigned short v2;
-    unsigned short pad;
-    int c0;
-    int c1;
-    int c2;
-} Tri20;
-
-typedef struct {
-    char pad[0x2C];
-    char *p2C;
-    Tri20 *p30;
-} S_8001AC24;
-
-extern struct B8 D_80010104;
+extern GpuRectangleFields D_80010104;
 extern int SetMenuFrameOptions();
-extern int InitMenuArenas();
 extern short D_800AC5D0;
 extern int VSyncThreshold;
 extern short D_800F3A26;
 extern short ModeGroup;
 extern short D_800F4D8A;
 extern int D_8010BF74;
-extern struct B8 D_8001010C;
-extern struct B8 D_80010114;
+extern Vec3sFields8 D_8001010C;
+extern GpuRectangleFields D_80010114;
 extern int D_8009E268;
-extern char *LoadCursor;
 extern unsigned char D_800AD4EA;
 extern int D_800F3A60;
 extern S_8010BF70 *TileRectScene;
-extern int SetupRenderer();
-extern int func_80019C90();
-extern int ResetScreenCounters();
-extern int LoadTimImage();
-extern int LoadTimList();
-extern int BuildCameraMatrices();
-extern int RotMatrix();
+
 extern int TileFadeColorTable[];
 extern int D_8009E36C[];
 
-void EmitTiledRect(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head);
-void func_80019F20(void);
-void func_80019FC8(void);
-void func_8001A52C(int a0);
-int *func_8001AC24(S_8001AC24 *a0, int *a1, int *a2);
+void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head);
+void TileRectSceneModeEnter(void);
+void TileRectSceneModeUpdate(void);
 
-void EmitTiledRect(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head) {
+void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head) {
     register s32 value;
     register u32 command;
-    register RrGpuRectangleFields *rect = rectangle;
+    register GpuRectangleFields *rect = rectangle;
     register u32 *ordering = head;
     register s32 height, y, width, x;
     register s32 tile_h, tile_w;
@@ -191,37 +110,23 @@ void EmitTiledRect(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head) {
     register s32 xpage asm("$3");
     /* ASM_BARRIER: retain the output/biased-field cursors in T4/T0. */
     register u8 *packet asm("$12"), *fields asm("$8");
-    RrGpuScratchPointers *scratch;
-    if (shade >= 0) {
-        value = shade < 256;
-
-        if (value) goto clamp_low;
-        value = 255;
-    } else {
-clamp_low:
-        value = shade;
-        if (shade < 0) value = 0;
-    }
-    shade = value;
+    GpuScratchPointers *scratch;
+    shade = (shade < 0 ? 0 : shade) > 255 ? 255 : (shade < 0 ? 0 : shade);
     command = 0xE6000000U;
-    /* ASM_BARRIER: stage E6000000 before forming the high color byte. */
-    __asm__("" : : "r"(command));
-    high = (u32)shade<<16;
+    high = shade * 0x10000U;
     packet = *(u8 **)SCRATCHPAD;
-    *(u32 *)(packet+4) = command;
-    /* ASM_BARRIER: publish the first mask command before completing color packing. */
-    __asm__("" : "+r"(shade) : : "memory");
-    middle = (u32)shade<<8;
+    ((u32 *)packet)[1] = command;
+    middle = shade * 0x100U;
     middle |= 0x66000000U;
     high |= middle;
-    shade = (s32)((u32)shade|high);
+    shade = (shade|high);
     *(u32 *)packet = *ordering;
     packet[3] = 1;
     *ordering = (u32)(unsigned long)packet;
     ((u8 *)ordering)[3] = 0;
     height = rect->h;
     y = rect->y;
-    packet+=sizeof(RrGpuSingleCommandPacket);
+    packet+=sizeof(GpuSingleCommandPacket);
     if (height > 0) {
         limit = 256;
         do {
@@ -236,15 +141,15 @@ clamp_low:
             value = y-1;
             if (width > 0) {
 
-                top = (u32)value<<16;
-                bits_h = (u32)tile_h<<16;
+                top = value * 0x10000U;
+                bits_h = tile_h * 0x10000U;
                 /* ASM_BARRIER: keep the texture remainder separate from packed V. */
                 __asm__("" : : "r"(v));
                 vpart = (u32)v<<8;
                 value = y&256;
                 /* ASM_BARRIER: retain the signed Y-page shift after masking. */
                 __asm__("" : "+r"(value));
-                ypage = (u32)(value>>4);
+                ypage = (value>>4);
                 fields = packet+3;
                 do {
                     u = x&63;
@@ -258,28 +163,28 @@ clamp_low:
                     value = x&65535;
                     xpage = x&1023;
                     x+=tile_w;
-                    packed = top|(u32)value;
-                    *(u32 *)(fields+9) = packed;
-                    packed = bits_h|(u32)tile_w;
-                    *(u32 *)(fields+17) = packed;
-                    packed = vpart|(u32)u;
+                    packed = top|value;
+                    ((u32 *)(fields+1))[2] = packed;
+                    packed = bits_h|tile_w;
+                    ((u32 *)(fields+1))[4] = packed;
+                    packed = vpart|u;
                     /* ASM_BARRIER: retain an arithmetic X-page shift. */
                     __asm__("" : "+r"(xpage));
                     xpage >>= 6;
                     xpage |= 256;
-                    xpage = (s32)ypage|xpage;
-                    *(u32 *)(fields+5) = (u32)shade;
-                    *(u32 *)(fields+13) = packed;
-                    *(u32 *)(fields+1) = (u32)xpage|drawmode;
+                    xpage = ypage|xpage;
+                    ((u32 *)(fields+1))[1] = shade;
+                    ((u32 *)(fields+1))[3] = packed;
+                    ((u32 *)(fields+1))[0] = xpage|drawmode;
                     packed = *ordering;
                     width-=tile_w;
                     *(u32 *)packet = packed;
                     length = 5;
 
                     fields[0] = length;
-                    fields+=sizeof(RrTiledRectanglePacket);
+                    fields+=sizeof(TiledRectanglePacket);
                     *ordering = (u32)(unsigned long)packet;
-                    packet+=sizeof(RrTiledRectanglePacket);
+                    packet+=sizeof(TiledRectanglePacket);
                     ((u8 *)ordering)[3] = 0;
                 } while (width > 0);
             }
@@ -287,22 +192,22 @@ clamp_low:
             y+=tile_h;
         } while (height > 0);
     }
-    scratch = (RrGpuScratchPointers *)SCRATCHPAD;
-    *(u32 *)(packet+4) = 0xE6000001U;
+    scratch = (GpuScratchPointers *)SCRATCHPAD;
+    ((u32 *)packet)[1] = 0xE6000001U;
     *(u32 *)packet = scratch->order[703];
     packet[3] = 1;
     scratch->order[703] = (u32)(unsigned long)packet;
     ((u8 *)&scratch->order[703])[3] = 0;
-    scratch->cursor = packet+sizeof(RrGpuSingleCommandPacket);
+    scratch->cursor = packet+sizeof(GpuSingleCommandPacket);
 }
 
-void func_80019F20(void) {
-    struct B8 sp10;
+void TileRectSceneModeEnter(void) {
+    GpuRectangle sp10;
     VSyncThreshold = 0x80;
     InitMenuArenas();
     SetMenuFrameOptions(0, 1, 0);
     UpdateScreenFade(0x1000C);
-    sp10 = D_80010104;
+    sp10.rect = D_80010104;
     ClearImage2(&sp10, 0, 0, 0);
     D_800AC5D0 = 0;
     D_8010BF74 = 0;
@@ -311,8 +216,8 @@ void func_80019F20(void) {
     D_800F4D8A = 0;
 }
 
-void func_80019FC8(void) {
-    struct B8 sp10;
+void TileRectSceneModeUpdate(void) {
+    GpuRectangleFields sp10;
     int s1;
 
     UpdateScreenFade(0x1000C);
@@ -402,7 +307,7 @@ void func_80019FC8(void) {
     }
 
     TileRectScene->s3C++;
-    *(short *)((char *)TileRectScene + 0x22) -= 4;
+    TileRectScene->unk20.y -= 4;
     RampValueToLimit(&TileRectScene->s3E, &TileRectScene->s42, 0x80);
     RampValueToLimit(&TileRectScene->s40, &TileRectScene->s44, 0x80);
 
@@ -420,46 +325,26 @@ void func_80019FC8(void) {
         }
 
         p = TileRectScene;
-        /* ASM_BARRIER: GTE INTPL setup and execution on p->s4A */
-        __asm__ volatile(
-            "lhu $8, 0x4A(%1)\n\t"
-            "nop\n\t"
-            "mtc2 $8, $8\n\t"
-            "addiu $9, $0, 0x720\n\t"
-            "mtc2 $9, $9\n\t"
-            "addu $10, $0, $0\n\t"
-            "ctc2 $10, $21\n\t"
-            "addiu $11, $0, 0x90\n\t"
-            "mtc2 $11, $10\n\t"
-            "addiu $8, $0, 0xFF\n\t"
-            "ctc2 $8, $22\n\t"
-            "nop\n\t"
-            "nop\n\t"
-            ".word 0x4A980011\n\t"
-            "addiu %1, %1, 0x30\n\t"
-            "swc2 $9, 0(%1)\n\t"
-            "mfc2 %0, $10"
-            : "=r"(ir2), "+r"(p)
-            :
-            : "memory"
-        );
+        RR_GTE_TILERECT_INTPL(ir2, p);
         D_8009E268 = ir2;
     }
 
     EmitPresetSprite(TileRectScene->s3E, 0x25);
     EmitPresetSprite(TileRectScene->s40, 0x26);
 
-    W(4) = 0xE1000229;
-    LNK(1, 4);
-    GS->cur += 8;
+    GS->cur->code = 0xE1000229;
+    GS->cur->tag.word = GS->ot[1].word;
+    GS->cur->tag.b.len = 1;
+    GS->ot[1].word = GS->cur;
+    GS->ot[1].b.len = 0;
+    GS->cur++;
     RampValueTo4096(&TileRectScene->s46, &TileRectScene->s48);
 
     if (TileRectScene->s46 != 0) {
-        /* ASM_BARRIER: Keep &sp10 in $a2 before unaligned struct copy */
-        register struct B8 *a2 asm("$6");
-        func_80019C90(TileRectScene->s46);
+        GpuRectangleFields *a2;
+        SetSineLightColors(TileRectScene->s46);
         BuildCameraMatrices();
-        RotMatrix(&TileRectScene->unk20, TileRectScene);
+        RotMatrix(&TileRectScene->unk20, &TileRectScene->matrix00);
         /* ASM_BARRIER: Emit 8-byte unaligned struct copy using $8, $9, $10 without spilling $8 at earlier block move */
         __asm__(
             "addiu $6, $29, 0x10\n\t"
@@ -475,295 +360,282 @@ void func_80019FC8(void) {
             "swr $10, 0x14($29)"
             : "=r"(a2), "=m"(sp10)
         );
-        func_800197C8(TileRectScene->unk28, TileRectScene, a2, D_8009E268);
+        RenderSkyToRect(TileRectScene->unk28, TileRectScene, a2, D_8009E268);
     }
-    W(4) = 0xE6000001;
-    LNK(1, 0xAFC);
-    GS->cur += 8;
+    GS->cur->code = 0xE6000001;
+    GS->cur->tag.word = GS->ot[703].word;
+    GS->cur->tag.b.len = 1;
+    GS->ot[703].word = GS->cur;
+    GS->ot[703].b.len = 0;
+    GS->cur++;
 }
 
-void func_8001A52C(int a0) {
-    Ctx1A52C *a3 = (Ctx1A52C *)(SCRATCHPAD + 0x7C);
-    /* ASM_BARRIER: pin scratchpad base pointer to $a1 ($5) to match original pre-loop CSE */
-    register int *g asm("$5");
-    int *v1;
-    int *pkt;
-    Poly1A52C *t3;
-    char *verts;
+void DrawTrackObjectBillboard(int modelIndex) {
+    TrackObjectBillboardWork *work = &((TrackObjectBillboardScratch *)SCRATCHPAD)->work7C;
+    RroSceneScratchPrefix *scene;
+    const RroModelTable *table;
+    GpuPolyFT4 *packet;
+    const TrackObjectQuad *quad;
+    const Vec3s8 *vertices;
     /* ASM_BARRIER: pin count to $t8 ($24) to match original caller-saved loop allocation */
     register int count asm("$24");
-    int s2;
-    int s1;
-    int s0;
-    int v0, v1_tmp, a1, a2, t2;
+    u32 *orderingBase;
+    int depthShift;
+    int depthBucket;
+    int word0, word1, word2, word3;
+    u32 phaseOffset;
 
-    a3->rot[4] = 0x4000;
-    a3->rot[2] = 0x4000;
-    a3->rot[0] = 0x4000;
-    a3->rot[3] = 0;
-    a3->rot[1] = 0;
-    RR_GTE_SETROT(a3);
-    RR_GTE_SETLLM((int *)SCRATCH_ROT_MATRIX);
-    RR_GTE_SETBK_P(D_800FF6A4);
+    work->rotation00.w[4] = 0x4000;
+    work->rotation00.w[2] = 0x4000;
+    work->rotation00.w[0] = 0x4000;
+    work->rotation00.w[3] = 0;
+    work->rotation00.w[1] = 0;
+    RR_GTE_SETROT(&work->rotation00);
+    RR_GTE_SETLLM(&((RroSceneScratchPrefix *)SCRATCHPAD)->view.matrix28);
+    RR_GTE_SETBK_P(CameraViewMatrix.fields.translation14);
 
-    g = (int *)SCRATCHPAD;
-    /* ASM_BARRIER: keep SCRATCHPAD base pointer in $a1 and mark t2 global across basic blocks */
-    __asm__("" : "+r"(g), "=r"(t2));
-    v1 = (int *)((char *)g[0x48 / 4] - 4);
-    pkt = (int *)g[0];
-    v1 = (int *)((char *)v1 + a0 * 12);
-    t3 = (Poly1A52C *)v1[3];
-    verts = (char *)v1[1];
-    count = ((unsigned short *)t3)[1];
-    t3 = (Poly1A52C *)((char *)t3 + 4);
-    v0 = t3->vxy;
-    a2 = t3->vz;
-    /* ASM_BARRIER: schedule count post-decrement and order global-alloc priorities t3 ($t3) > pkt ($t7) > verts ($t9) */
-    __asm__("" : "+r"(count) : "r"(v0), "r"(a2), "r"(t3), "r"(t3), "r"(t3), "r"(t3), "r"(pkt), "r"(pkt));
-    a3->vxy = v0;
-    a3->vz = a2;
-    s2 = g[1] + 0x200;
-    s1 = g[0x60 / 4] + 2;
+    scene = (RroSceneScratchPrefix *)SCRATCHPAD;
+    table = (const RroModelTable *)((const u8 *)scene->modelEntries48 - RR_FIELD_OFFSET(RroModelTable, entries));
+    packet = (GpuPolyFT4 *)scene->view.projection.pointers.cursor;
+    quad = (const TrackObjectQuad *)table->entries[modelIndex].commands;
+    vertices = table->entries[modelIndex].vertices;
+    count = ((const RroBodyCommandHeader *)quad)->fields.count;
+    quad = (const TrackObjectQuad *)((const u8 *)quad + sizeof(RroBodyCommandHeader));
+    word0 = quad->translationXY1C;
+    word2 = quad->translationZ1A;
+    /* ASM_BARRIER: schedule count post-decrement and order global-alloc priorities quad ($t3) > packet ($t7) > vertices ($t9) */
+    __asm__("" : "+r"(count) : "r"(word0), "r"(word2), "r"(quad), "r"(packet), "r"(packet));
+    work->input2C.signedWords[0] = word0;
+    work->input2C.fields.z = word2;
+    orderingBase = scene->view.projection.pointers.order + 128;
+    depthShift = scene->depthShift60 + 2;
     while (count-- > 0) {
-        RR_GTE_MVMVA_LLM_BK_LDV0(&a3->vxy);
-        v0 = t3[1].vxy;
-        a2 = t3[1].vz;
-        a3->vxy = v0;
-        a3->vz = a2;
-        RR_GTE_SWC2_IR3(&a3->ir3);
-        v0 = a3->ir3;
-        if (v0 >= 0) {
-            s0 = v0 >> s1;
-            if (s0 < 0x1C0) {
+        RR_GTE_MVMVA_LLM_BK_LDV0(&work->input2C.signedWords[0]);
+        word0 = quad[1].translationXY1C;
+        word2 = quad[1].translationZ1A;
+        work->input2C.signedWords[0] = word0;
+        work->input2C.fields.z = word2;
+        RR_GTE_SWC2_IR3(&work->depth28);
+        word0 = work->depth28;
+        if (word0 >= 0) {
+            depthBucket = word0 >> depthShift;
+            if (depthBucket < 0x1C0) {
                 RR_GTE_TR_FROM_IR();
-                v0 = t3->v01;
-                a1 = t3->v23;
-                a2 = v0 >> 16;
-                t2 = a1 >> 16;
-                v0 &= 0xFFFF;
-                a1 &= 0xFFFF;
+                word0 = quad->vertices.words[0];
+                word1 = quad->vertices.words[1];
+                word2 = word0 >> 16;
+                word3 = word1 >> 16;
+                word0 &= 0xFFFF;
+                word1 &= 0xFFFF;
                 RR_GTE_RTPT_LDV(
-                    verts + (v0 << 3),
-                    verts + (a2 << 3),
-                    verts + (a1 << 3)
+                    &vertices[word0],
+                    &vertices[word2],
+                    &vertices[word1]
                 );
-                v0 = t3->uv0;
-                a2 = t3->uv1;
-                pkt[3] = v0;
-                pkt[5] = a2;
-                v0 = t3->uv23;
-                a2 = v0 >> 16;
-                pkt[7] = v0;
-                pkt[9] = a2;
-                RR_GTE_SWC2_SXYZ(&a3->u.w.sxy0);
-                RR_GTE_RTPS_LDV(verts + (t2 << 3));
-                a2 = a3->u.w.sxy0;
-                a1 = a3->u.w.sxy1;
-                t2 = a3->u.w.sxy2;
-                v0 = TileFadeColorTable[(ScreenFrame - (v1_tmp = t3->b18 - 0x40)) & 0x3F];
-                pkt[2] = a2;
-                pkt[4] = a1;
-                pkt[6] = t2;
-                pkt[1] = v0;
-                RR_GTE_SWC2_SXY2(&a3->u.w.sxy3);
-                pkt[8] = a3->u.w.sxy3;
+                word0 = quad->uv0C;
+                word2 = quad->uv10;
+                packet->words.uv0 = word0;
+                packet->words.uv1 = word2;
+                word0 = quad->uv14;
+                word2 = word0 >> 16;
+                packet->words.uv2 = word0;
+                packet->words.uv3 = word2;
+                RR_GTE_SWC2_SXYZ(&work->projected34[0].word);
+                RR_GTE_RTPS_LDV(&vertices[word3]);
+                word2 = work->projected34[0].word;
+                word1 = work->projected34[1].word;
+                word3 = work->projected34[2].word;
+                word0 = TileFadeColorTable[(ScreenFrame - (phaseOffset = quad->flashPhase18 - 0x40)) & 0x3F];
+                packet->words.xy0 = word2;
+                packet->words.xy1 = word1;
+                packet->words.xy2 = word3;
+                packet->words.color04 = word0;
+                RR_GTE_SWC2_SXY2(&work->projected34[3].word);
+                packet->words.xy3 = work->projected34[3].word;
                 {
-                    int x0 = a3->u.s.sx0;
-                    int x1 = a3->u.s.sx1;
-                    int x2 = a3->u.s.sx2;
-                    int x3 = a3->u.s.sx3;
+                    int x0 = work->projected34[0].xy.x;
+                    int x1 = work->projected34[1].xy.x;
+                    int x2 = work->projected34[2].xy.x;
+                    int x3 = work->projected34[3].xy.x;
                     if ((x0 >= 0 || x1 >= 0 || x2 >= 0 || x3 >= 0) &&
                         (x0 < 0x140 || x1 < 0x140 || x2 < 0x140 || x3 < 0x140)) {
-                        int y0 = a3->u.s.sy0;
-                        int y1 = a3->u.s.sy1;
-                        int y2 = a3->u.s.sy2;
-                        int y3 = a3->u.s.sy3;
+                        int y0 = work->projected34[0].xy.y;
+                        int y1 = work->projected34[1].xy.y;
+                        int y2 = work->projected34[2].xy.y;
+                        int y3 = work->projected34[3].xy.y;
                         if ((y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0) &&
                             (y0 < 0x100 || y1 < 0x100 || y2 < 0x100 || y3 < 0x100)) {
-                            pkt[0] = *(int *)((t3->b19 << 2) + ((s0 << 2) + s2));
-                            ((char *)pkt)[3] = 9;
-                            *(int *)((t3->b19 << 2) + ((s0 << 2) + s2)) = (int)pkt;
-                            pkt += 10;
-                            *(char *)((t3->b19 << 2) + ((s0 << 2) + s2) + 3) = 0;
+                            packet->words.tag.word = (orderingBase + depthBucket)[quad->orderingBias19];
+                            packet->words.tag.bytes.length = 9;
+                            (orderingBase + depthBucket)[quad->orderingBias19] = (u32)(unsigned long)packet;
+                            packet++;
+                            ((GpuDmaTag *)&(orderingBase + depthBucket)[quad->orderingBias19])->bytes.length = 0;
                         }
                     }
                 }
             }
         }
-        t3++;
+        quad++;
     }
-    *(int **)SCRATCHPAD = pkt;
+    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packet;
 }
 
-void func_8001A8DC(int a0) {
-    Ctx1A8DC *a3 = (Ctx1A8DC *)(SCRATCHPAD + 0x7C);
+void DrawTrackObjectFlashQuads(int modelIndex) {
+    TrackObjectFlashWork *work = &((TrackObjectFlashScratch *)SCRATCHPAD)->work7C;
     /* ASM_BARRIER: pin scratchpad base pointer to $a1 ($5) to match original pre-loop CSE */
-    register int *g asm("$5");
-    int *v1;
-    int *pkt;
-    Poly1A8DC *t1;
-    char *verts;
+    register RroSceneScratchPrefix *scene asm("$5");
+    const RroModelTable *table;
+    GpuPolyFT4 *packet;
+    const RroTexturedQuadPrefix *quad;
+    const Vec3s8 *vertices;
     /* ASM_BARRIER: pin count to $t3 ($11) to match original caller-saved loop allocation */
     register int count asm("$11");
-    int t5;
-    int t6;
-    int t7;
-    int v0, v1_tmp, a1, a2, off, g64;
+    u32 *orderingBase;
+    int windingMask;
+    int depthShift;
+    int word0, word1, word2, word3, entryOffset, renderFlags;
 
-    RR_GTE_SETROT((int *)SCRATCH_ROT_MATRIX);
-    RR_GTE_SETTR((int *)(SCRATCHPAD + 0x3C));
+    RR_GTE_SETROT(&((RroSceneScratchPrefix *)SCRATCHPAD)->view.matrix28);
+    RR_GTE_SETTR(((RroSceneScratchPrefix *)SCRATCHPAD)->view.matrix28.fields.translation14);
 
-    off = a0 * 12;
-    g = (int *)SCRATCHPAD;
-    /* ASM_BARRIER: keep SCRATCHPAD base pointer in $a1 and finish a0*12 before v1 load so v1 gets $a0 */
-    __asm__("" : "+r"(g) : "r"(off));
-    v1 = (int *)((char *)g[0x48 / 4] - 4);
-    pkt = (int *)g[0];
-    t7 = g[0x60 / 4] + 2;
-    v1 = (int *)((char *)v1 + off);
-    t1 = (Poly1A8DC *)v1[3];
-    t5 = g[1] + 0x200;
-    verts = (char *)v1[1];
-    count = ((unsigned short *)t1)[1];
-    t1 = (Poly1A8DC *)((char *)t1 + 4);
-    g64 = g[0x64 / 4];
-    /* ASM_BARRIER: materialize count in $t3 after g[0x64/4] load and order global-alloc priorities t1 ($t1) > pkt ($t2) > verts ($t4) > t5 ($t5) */
-    __asm__("" : "+r"(count) : "r"(t1), "r"(t1), "r"(t1), "r"(t5), "r"(g64));
-    t6 = (g64 != 0) << 31;
+    entryOffset = modelIndex * sizeof(RroEffectMesh);
+    scene = (RroSceneScratchPrefix *)SCRATCHPAD;
+    /* ASM_BARRIER: keep SCRATCHPAD base pointer in $a1 and finish modelIndex*12 before table load so table gets $a0 */
+    __asm__("" : "+r"(scene) : "r"(entryOffset));
+    table = (const RroModelTable *)((const u8 *)scene->modelEntries48 - RR_FIELD_OFFSET(RroModelTable, entries));
+    packet = (GpuPolyFT4 *)scene->view.projection.pointers.cursor;
+    depthShift = scene->depthShift60 + 2;
+    quad = (const RroTexturedQuadPrefix *)table->entries[modelIndex].commands;
+    orderingBase = scene->view.projection.pointers.order + 128;
+    vertices = table->entries[modelIndex].vertices;
+    count = ((const RroBodyCommandHeader *)quad)->fields.count;
+    quad = (const RroTexturedQuadPrefix *)((const u8 *)quad + sizeof(RroBodyCommandHeader));
+    renderFlags = scene->renderFlags64;
+    /* ASM_BARRIER: materialize count in $t3 after scene[0x64/4] load and order global-alloc priorities quad ($t1) > packet ($t2) > vertices ($t4) > orderingBase ($t5) */
+    __asm__("" : "+r"(count) : "r"(quad), "r"(quad), "r"(quad), "r"(orderingBase), "r"(renderFlags));
+    windingMask = renderFlags ? (-2147483647 - 1) : 0;
     while (count-- > 0) {
         RR_GTE_RTPT_LDV(
-            verts + (t1->v0 << 3),
-            verts + (t1->v1 << 3),
-            verts + (t1->v2 << 3)
+            &vertices[quad->vertices.indices[0]],
+            &vertices[quad->vertices.indices[1]],
+            &vertices[quad->vertices.indices[2]]
         );
-        a2 = t1->uv0;
-        a1 = t1->uv1;
-        pkt[3] = a2;
-        pkt[5] = a1;
-        a2 = t1->uv23;
-        a1 = a2 >> 16;
-        pkt[7] = a2;
-        pkt[9] = a1;
+        word3 = quad->uv0C;
+        word2 = quad->uv10;
+        packet->words.uv0 = word3;
+        packet->words.uv1 = word2;
+        word3 = quad->uv14;
+        word2 = word3 >> 16;
+        packet->words.uv2 = word3;
+        packet->words.uv3 = word2;
         RR_GTE14_NCLIP();
-        RR_GTE_SWC2_SXYZ(&a3->u.w.sxy0);
-        RR_GTE14_SWC2_MAC0(&a3->mac0);
-        if ((a3->mac0 ^ t6) >= 0) {
-            RR_GTE_RTPS_LDV(verts + (t1->v3 << 3));
-            a2 = D_8009E36C[(ScreenFrame + t1->b18) & 0x3F];
-            a1 = a3->u.w.sxy0;
-            v0 = a3->u.w.sxy1;
-            v1_tmp = a3->u.w.sxy2;
-            pkt[2] = a1;
-            pkt[4] = v0;
-            pkt[6] = v1_tmp;
-            pkt[1] = a2;
+        RR_GTE_SWC2_SXYZ(&work->projected24[0].word);
+        RR_GTE14_SWC2_MAC0(&work->area20);
+        if ((work->area20 ^ windingMask) >= 0) {
+            RR_GTE_RTPS_LDV(&vertices[quad->vertices.indices[3]]);
+            word3 = D_8009E36C[(0U + ScreenFrame + quad->flashPhase18) & 0x3F];
+            word2 = work->projected24[0].word;
+            word0 = work->projected24[1].word;
+            word1 = work->projected24[2].word;
+            packet->words.xy0 = word2;
+            packet->words.xy1 = word0;
+            packet->words.xy2 = word1;
+            packet->words.color04 = word3;
             RR_GTE14_NOP2();
             RR_GTE14_AVSZ4();
-            RR_GTE_SWC2_SXY2(&a3->u.w.sxy3);
-            RR_GTE14_SWC2_OTZ(&a3->otz);
-            pkt[8] = a3->u.w.sxy3;
+            RR_GTE_SWC2_SXY2(&work->projected24[3].word);
+            RR_GTE14_SWC2_OTZ(&work->depth1C);
+            packet->words.xy3 = work->projected24[3].word;
             {
-                /* ASM_BARRIER: keep shifted otz in $v0 ($2) so sw $v0, 0x1C($a3) stays before slti $v0, $v0, 0x1C0 */
-                register int otz asm("$2") = a3->otz;
+                int otz = work->depth1C;
                 if (otz > 0) {
-                    otz >>= t7;
-                    a3->otz = otz;
+                    otz >>= depthShift;
+                    work->depth1C = otz;
                     if (otz < 0x1C0) {
-                        int x0 = a3->u.s.sx0;
-                        int x1 = a3->u.s.sx1;
-                        int x2 = a3->u.s.sx2;
-                        int x3 = a3->u.s.sx3;
+                        int x0 = work->projected24[0].xy.x;
+                        int x1 = work->projected24[1].xy.x;
+                        int x2 = work->projected24[2].xy.x;
+                        int x3 = work->projected24[3].xy.x;
                         if ((x0 >= 0 || x1 >= 0 || x2 >= 0 || x3 >= 0) &&
                             (x0 < 0x140 || x1 < 0x140 || x2 < 0x140 || x3 < 0x140)) {
-                            int y0 = a3->u.s.sy0;
-                            int y1 = a3->u.s.sy1;
-                            int y2 = a3->u.s.sy2;
-                            int y3 = a3->u.s.sy3;
+                            int y0 = work->projected24[0].xy.y;
+                            int y1 = work->projected24[1].xy.y;
+                            int y2 = work->projected24[2].xy.y;
+                            int y3 = work->projected24[3].xy.y;
                             if ((y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0) &&
                                 (y0 < 0x100 || y1 < 0x100 || y2 < 0x100 || y3 < 0x100)) {
-                                /* ASM_BARRIER: give pkt+3 GIV higher priority than t1+0x19 GIV ($a2 vs $t0) and t6 higher priority than t7 ($t6 vs $t7) */
-                                __asm__("" : : "m"(((char *)pkt)[1]), "m"(((char *)pkt)[2]), "r"(t1), "r"(pkt), "r"(pkt), "r"(t6));
-                                pkt[0] = *(int *)((t1->b19 << 2) + ((a3->otz << 2) + t5));
-                                ((char *)pkt)[3] = 9;
-                                *(int *)((t1->b19 << 2) + ((a3->otz << 2) + t5)) = (int)pkt;
-                                pkt += 10;
-                                *(char *)((t1->b19 << 2) + ((a3->otz << 2) + t5) + 3) = 0;
+                                /* ASM_BARRIER: give packet+3 GIV higher priority than quad+0x19 GIV ($a2 vs $t0) and windingMask higher priority than depthShift ($t6 vs $t7) */
+                                __asm__("" : : "m"(((char *)packet)[1]), "m"(((char *)packet)[2]), "r"(quad), "r"(packet), "r"(packet), "r"(windingMask));
+                                packet->words.tag.word = (orderingBase + work->depth1C)[quad->orderingBias19];
+                                packet->words.tag.bytes.length = 9;
+                                (orderingBase + work->depth1C)[quad->orderingBias19] = (u32)(unsigned long)packet;
+                                packet++;
+                                ((GpuDmaTag *)&(orderingBase + work->depth1C)[quad->orderingBias19])->bytes.length = 0;
                             }
                         }
                     }
                 }
             }
         }
-        t1++;
+        quad++;
     }
-    *(int **)SCRATCHPAD = pkt;
+    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packet;
 }
 
-int *func_8001AC24(S_8001AC24 *a0, int *a1, int *a2) {
-    Tri20 *p = a0->p30;
-    char *verts = a0->p2C;
-    /* ASM_BARRIER: allocate count to $t5 ($13) so verts gets $t6 ($14) */
-    register int count __asm__("$13") = ((unsigned short *)p)[1];
+u8 *EmitModelTrisGT3(const TrackObjectLitWork *work, u32 *head, u8 *packetCursor) {
+    const TrackObjectTriangle *triangle = (const TrackObjectTriangle *)work->commands30;
+    const Vec3s8 *vertices = work->vertices2C;
+    /* ASM_BARRIER: allocate count to $t5 ($13) so vertices gets $t6 ($14) */
+    register int count __asm__("$13") = ((unsigned short *)triangle)[1];
     int x0, x1, x2, y0, y1, y2;
-    int *ret;
+    u8 *ret;
 
-    p = (Tri20 *)((char *)p + 4);
+    triangle = (const TrackObjectTriangle *)((const u8 *)triangle + 4);
     do {
-        x0 = p->v01;
-        x2 = p->v2;
+        x0 = triangle->vertices.words[0];
+        x2 = triangle->vertices.indices[2];
         x1 = x0 >> 16;
         x0 &= 0xFFFF;
         RR_GTE_RTPT_LDV(
-            verts + (x0 << 3),
-            verts + (x1 << 3),
-            verts + (x2 << 3)
+            &vertices[x0],
+            &vertices[x1],
+            &vertices[x2]
         );
-        x0 = p->c0;
-        x1 = p->c1;
-        x2 = p->c2;
-        a2[1] = x0;
-        a2[3] = x1;
-        a2[5] = x2;
-        /* ASM_BARRIER: GTE SXY0/SXY1/SXY2 stores and reads */
-        __asm__ volatile(
-            "swc2 $12, 8(%3)\n\t"
-            "swc2 $13, 16(%3)\n\t"
-            "swc2 $14, 24(%3)\n\t"
-            "mfc2 %0, $12\n\t"
-            "mfc2 %1, $13\n\t"
-            "mfc2 %2, $14"
-            : "=r"(x0), "=r"(x1), "=r"(x2)
-            : "r"(a2)
-            : "memory"
-        );
+        x0 = triangle->colors08[0];
+        x1 = triangle->colors08[1];
+        x2 = triangle->colors08[2];
+        ((GpuPolyG3 *)packetCursor)->color0 = x0;
+        ((GpuPolyG3 *)packetCursor)->color1 = x1;
+        ((GpuPolyG3 *)packetCursor)->color2 = x2;
+        RR_GTE_STORE_READ_SXY3(packetCursor, x0, x1, x2);
         y0 = x0 >> 16;
         y1 = x1 >> 16;
         y2 = x2 >> 16;
         if ((y0 >= 0 || y1 >= 0 || y2 >= 0) &&
             (y0 < 0x100 || y1 < 0x100 || y2 < 0x100)) {
-            x0 <<= 16;
-            x1 <<= 16;
-            x2 <<= 16;
+            x0 = (x0 * 0x10000U);
+            x1 = (x1 * 0x10000U);
+            x2 = (x2 * 0x10000U);
             x0 >>= 16;
             x1 >>= 16;
             x2 >>= 16;
             if ((x0 >= 0 || x1 >= 0 || x2 >= 0) &&
                 (x0 < 0x140 || x1 < 0x140 || x2 < 0x140)) {
-                a2[0] = *a1;
-                ((char *)a2)[3] = 6;
-                *a1 = (int)a2;
-                a2 += 7;
-                ((char *)a1)[3] = 0;
+                ((GpuPolyG3 *)packetCursor)->tag.word = *head;
+                ((GpuDmaTag *)packetCursor)->bytes.length = 6;
+                *head = (u32)(unsigned long)packetCursor;
+                packetCursor += sizeof(GpuPolyG3);
+                ((char *)head)[3] = 0;
             }
         }
-        p++;
+        triangle++;
         count--;
     } while (count > 0);
-    a2[1] = 0xE1000220;
-    a2[0] = *a1;
-    ((char *)a2)[3] = 1;
-    ret = a2 + 2;
-    *a1 = (int)a2;
-    ((char *)a1)[3] = 0;
+    ((GpuCommandPacket *)packetCursor)->command = 0xE1000220;
+    ((GpuPolyG3 *)packetCursor)->tag.word = *head;
+    ((GpuDmaTag *)packetCursor)->bytes.length = 1;
+    ret = packetCursor + sizeof(GpuCommandPacket);
+    *head = (u32)(unsigned long)packetCursor;
+    ((char *)head)[3] = 0;
     return ret;
 }

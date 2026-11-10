@@ -1,4 +1,5 @@
 #include "rr/overlay662_screen_init.h"
+#include "rr/load_cursor.h"
 void ovl662_func_80118ED8(void) {
     ModeFrame = 0;
     ScreenFrame = 0;
@@ -17,6 +18,6 @@ void ovl662_func_80118ED8(void) {
     SetupRenderer(5);
     ModeGroup = 1;
     D_800F3A26 = 68;
-    LoadCursor = MenuArenas.first = D_800F4D40;
+    LoadCursor = MenuArenas.first = MenuArenaBase;
     D_800F4D8A = 0;
 }

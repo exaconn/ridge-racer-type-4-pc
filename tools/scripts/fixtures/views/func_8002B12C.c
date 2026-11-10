@@ -57,7 +57,7 @@ extern s8 D_8009EFFC[];
 
 extern char D_80010460[];
 
-extern s32 func_8002071C();
+extern s32 EmitPolyF3();
 
 extern s32 MenuStepDirection;
 
@@ -68,10 +68,10 @@ void DrawMenuStepArrows(p0, p1, p2, p3, p4, a5, a6) s32 p0; s32 p1; s32 p2; s32 
     register s32 a4 __asm__("$20"); /* ASM_BARRIER: pin s-reg order (saved reg priority) */
     s32 a0, a1;
     s32 a2; 
-    RrVec2s *p, *bp;
+    Vec2s *p, *bp;
     char *ub;
     s8 *tb, *nv;
-    struct { RrVec2s v[3]; s32 pad; B8 u; } w;
+    struct { Vec2s v[3]; s32 pad; B8 u; } w;
     a0 = p0; a1 = p1; a2 = p2; a3 = p3;
     i = 0;
     bp = w.v;
@@ -112,7 +112,7 @@ B12:
         } else {
 B14:
             ub = (char *)&w.u;
-            t0 = func_8002071C(CurrentDrawBuf + 0x70, t0, ((s32 *)w.v)[0], ((s32 *)w.v)[1], ((s32 *)w.v)[2], ub + (sel << 2), 0);
+            t0 = EmitPolyF3(CurrentDrawBuf + 0x70, t0, ((s32 *)w.v)[0], ((s32 *)w.v)[1], ((s32 *)w.v)[2], ub + (sel << 2), 0);
         }
     }
     i++;

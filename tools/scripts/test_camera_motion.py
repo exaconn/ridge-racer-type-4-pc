@@ -1,13 +1,15 @@
 """Camera motion controller: native C arithmetic against original and linked MIPS."""
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import re
 import subprocess,struct,random,sys,json,hashlib,os
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN
 from elftools.elf.elffile import ELFFile
 from unicorn.mips_const import *
+from c_functions import source_owners, definition_source
 sys.path.insert(0,'tools/scripts');from mips_preview_engine import Mips,signed
 ROOT=Path(__file__).resolve().parents[2];os.chdir(ROOT)
-p=ROOT/'include/rr';src=ROOT/'tools/scripts/fixtures/views/func_8005B9F4.c';rng=random.Random(0x5B9F4);cases=[];profiles={}
+p=ROOT/'include/rr';src=source_owners(ROOT/'src/main/PAL')['UpdateCameraMotion'];rng=random.Random(0x5B9F4);cases=[];profiles={}
 for i in range(8192):
  b=bytearray(rng.randbytes(1484));base=16;motion=base+0x74
  put=lambda off,fmt,v:struct.pack_into('<'+fmt,b,off,v)
@@ -32,13 +34,14 @@ c_head=r'''
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/camera_motion.h"
-RrCameraRootPrefix RaceContext;
-typedef struct {u8 pre[16];RrCameraObjectPrefix object;u8 remaining[0x484];u8 post[16];} World;
+#include "rr/cpu_md_leaf.h"
+PresentationContextPrefix RaceContext;
+typedef struct {u8 pre[16];PresentationController object;u8 remaining[0x484];u8 post[16];} World;
 static World world;
-static RrCameraKey16 keys[3];
+static CameraKey16 keys[3];
 '''
 c_tail=r'''
-int main(void){u8 data[1484],before[sizeof(World)],allowed[sizeof(World)];RrCameraMotionInput14 input;unsigned i,j;
+int main(void){u8 data[1484],before[sizeof(World)],allowed[sizeof(World)];MotionClock20 input;unsigned i,j;
  _Static_assert(sizeof(keys)==48 && sizeof(input)==20,"native key/input sizes");
  _Static_assert(sizeof(void*)==8 && sizeof(unsigned long)==sizeof(void*),"full native pointers");
  memset(allowed,0,sizeof allowed);
@@ -49,10 +52,10 @@ int main(void){u8 data[1484],before[sizeof(World)],allowed[sizeof(World)];RrCame
   memcpy(&world.object.motion74,data+16+0x74,12);world.object.motion74.keys0C=keys;
   memcpy(world.object.motion74.start10,data+16+0x84,0x60);
   memcpy(world.remaining,data+16+0xE4,0x484);memcpy(world.post,data+1400,16);
-  memcpy(&input,data+1416,20);memcpy(keys,data+1436,48);RaceContext.camera3D8=&world.object;
+  memcpy(&input,data+1416,20);memcpy(keys,data+1436,48);RaceContext.controller3D8=&world.object;
   assert((uintptr_t)&world.object>UINT32_MAX && (uintptr_t)keys>UINT32_MAX && (uintptr_t)&input>UINT32_MAX);
   memcpy(before,&world,sizeof world);UpdateCameraMotion(&input);
-  assert(RaceContext.camera3D8==&world.object && world.object.motion74.keys0C==keys);
+  assert(RaceContext.controller3D8==&world.object && world.object.motion74.keys0C==keys);
   assert(!memcmp(&input,data+1416,20) && !memcmp(keys,data+1436,48));
   for(i=0;i<sizeof world;i++)if(!allowed[i])assert(((u8*)&world)[i]==before[i]);
   memcpy(data,world.pre,16);memcpy(data+16,&world.object,0x74);
@@ -63,7 +66,8 @@ int main(void){u8 data[1484],before[sizeof(World)],allowed[sizeof(World)];RrCame
 }
 '''
 with TemporaryDirectory() as tmp:
- c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(c_head+'\n'+__import__('re').sub(r' __asm__\("\$\d+"\)','',src.read_text())+c_tail)
+ helpers='\n'.join(re.findall(r'^#define W_.*$',src.read_text(),re.M))
+ c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(c_head+'\n'+helpers+'\n'+re.sub(r' __asm__\("\$\d+"\)','',definition_source(src.read_text(),'UpdateCameraMotion'))+c_tail)
  subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-Wno-implicit-fallthrough','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-I'+str(p),str(c),'-o',str(exe)],check=True)
  r=subprocess.run([str(exe)],input=b''.join(cases),capture_output=True)
  assert r.returncode==0,r.stderr.decode();native=r.stdout

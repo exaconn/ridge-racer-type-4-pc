@@ -5,20 +5,10 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import source_owners, definition_source
 
 
-class ChannelStatus(C.Structure):
-    _fields_ = [('pad00', C.c_uint8 * 4), ('entries04', C.c_void_p), ('pad08', C.c_uint8 * 4), ('reset0C', C.c_int32), ('owner10', C.c_void_p), ('update14', C.c_void_p),
-                ('pad18', C.c_uint8 * 12), ('argument24', C.c_uint8), ('pad25', C.c_uint8 * 3), ('data28', C.c_void_p),
-                ('data2C', C.c_void_p), ('input30', C.c_void_p), ('length34', C.c_uint8), ('pad35', C.c_uint8), ('length36', C.c_uint8),
-                ('command37', C.c_uint8), ('pad38', C.c_uint8 * 4), ('packet', C.c_void_p),
-                ('buffer40', C.c_void_p), ('pad44', C.c_uint8 * 2), ('phase', C.c_uint8), ('state47', C.c_uint8),
-                ('pad48', C.c_uint8), ('state49', C.c_uint8), ('pad4A', C.c_uint8 * (0x57-0x4A)), ('gates57', C.c_uint8 * 6), ('payload5D', C.c_uint8 * 6), ('pad63', C.c_uint8 * (0xE4-0x63)),
-                ('argumentE4', C.c_uint8), ('padE5', C.c_uint8), ('pending', C.c_uint16)]
-
-
-class ChannelRecord(C.Structure):
-    _fields_ = [('status', ChannelStatus), ('responseE8', C.c_uint8), ('entry_countE9', C.c_uint8), ('padEA', C.c_uint8 * 6)]
+from channel_native_types import PadChannel
 
 
 class ChannelCallbacksTest(unittest.TestCase):
@@ -30,25 +20,26 @@ class ChannelCallbacksTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         header = (root / 'include/rr/channels.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        header = header.replace('extern RrChannelUpdateCallback PadPacketDoneCallback;', '')
+        header = header.replace('extern ChannelUpdateCallback PadPacketDoneCallback;', '')
         source = '''#include <stdint.h>
 typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16;
 typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-RrChannelStatusCallback D_800ABC80, PadChannelBusyFn;
-RrChannelUpdateCallback test_slots[0x10000 / sizeof(RrChannelUpdateCallback)];
-#define PadPacketDoneCallback test_slots[0xBC88 / sizeof(RrChannelUpdateCallback)]
+ChannelStatusCallback PadChannelDispatchFn, PadChannelBusyFn;
+ChannelUpdateCallback test_slots[0x10000 / sizeof(ChannelUpdateCallback)];
+#define PadPacketDoneCallback test_slots[0xBC88 / sizeof(ChannelUpdateCallback)]
 void *test_last_channel;
 s32 _padChannelDispatch(void *channel) { return 101; }
 void _padPacketDone(void *channel) { test_last_channel = channel; }
-s32 test_first_status(void *channel) { return D_800ABC80(channel); }
+s32 test_first_status(void *channel) { return PadChannelDispatchFn(channel); }
 s32 test_second_status(void *channel) { return PadChannelBusyFn(channel); }
 void test_update(void *channel) { PadPacketDoneCallback(channel); }
 '''
+        owners=source_owners(root/'src/main/PAL')
         for name in ('_padInitDirSeq', '_padChannelBusy'):
-            body = (root / 'tools/scripts/fixtures/views' / (name + '.c')).read_text()
+            body = definition_source(owners[name].read_text(),name)
             body = body.replace('#include "rr/channels.h"', '')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+", ', '', body)
@@ -74,7 +65,7 @@ void test_update(void *channel) { PadPacketDoneCallback(channel); }
         first = C.cast(self.library._padChannelDispatch, C.c_void_p).value
         second = C.cast(self.library._padChannelBusy, C.c_void_p).value
         update = C.cast(self.library._padPacketDone, C.c_void_p).value
-        C.c_void_p.in_dll(self.library, 'D_800ABC80').value = second
+        C.c_void_p.in_dll(self.library, 'PadChannelDispatchFn').value = second
         C.c_void_p.in_dll(self.library, 'PadChannelBusyFn').value = first
         index = 0xBC88 // C.sizeof(C.c_void_p)
         self.slots[index - 1:index + 2] = [update, None, update]
@@ -82,17 +73,17 @@ void test_update(void *channel) { PadPacketDoneCallback(channel); }
         expected[index] = update
         for _ in range(2):
             self.install()
-            self.assertEqual(C.c_void_p.in_dll(self.library, 'D_800ABC80').value, first)
+            self.assertEqual(C.c_void_p.in_dll(self.library, 'PadChannelDispatchFn').value, first)
             self.assertEqual(C.c_void_p.in_dll(self.library, 'PadChannelBusyFn').value, second)
             self.assertEqual(list(self.slots), expected)
-        state = ChannelStatus()
+        state = PadChannel()
         self.assertEqual(self.library.test_first_status(C.byref(state)), 101)
         self.library.test_update(C.byref(state))
         self.assertEqual(C.c_void_p.in_dll(self.library, 'test_last_channel').value, C.addressof(state))
 
     def test_readiness_callback_uses_pending_count_and_phase(self):
         self.install()
-        state = ChannelStatus()
+        state = PadChannel()
         for phase in range(256):
             state.phase = phase
             for pending in (0, 1, 0x7FFF, 0x8000, 0xFFFF):

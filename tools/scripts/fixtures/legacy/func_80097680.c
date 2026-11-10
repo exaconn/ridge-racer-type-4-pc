@@ -1,7 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/interrupts.h"
 s32 _padVsyncHookCheck(void) {
-    RrInterruptRegisters *registers=I_STAT_PadVsync;
+    InterruptRegisters *registers=I_STAT_PadVsync;
     /* ASM_BARRIER: Keep the predicate result in the original return register. */
     register s32 result;
     if(registers->mask&1) {

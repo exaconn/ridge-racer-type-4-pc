@@ -1,9 +1,9 @@
 #include "types.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4CE0 (*(unsigned short (*))&D_800F4CE0)
+#define RearViewMirrorY (*(unsigned short (*))&RearViewMirrorY)
 
-#undef D_800F4CE0
+#undef RearViewMirrorY
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_8010E78C ((char *)D_8010E78C)
@@ -16,23 +16,23 @@
 #undef D_8010E78C
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010E790 (*(s32 (*))&D_8010E790)
+#define SegmentVisibilityTable (*(s32 (*))&SegmentVisibilityTable)
 
-#undef D_8010E790
+#undef SegmentVisibilityTable
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010E798 (*(s32 (*))&D_8010E798)
+#define OctantLookupTable (*(s32 (*))&OctantLookupTable)
 
-#undef D_8010E798
+#undef OctantLookupTable
 
-extern s16 D_800AD50C;
+extern s16 RearViewMirrorEnabled;
 
-extern s32 D_800F4CE0;
+extern s32 RearViewMirrorY;
 
-extern s32 D_8010E730;
+extern s32 RearViewMirrorVisible;
 
-void func_80070440(void) {
-    D_800AD50C = 1;
-    D_800F4CE0 = -0x24;
-    D_8010E730 = 0;
+void InitRearViewMirrorState(void) {
+    RearViewMirrorEnabled = 1;
+    RearViewMirrorY = -0x24;
+    RearViewMirrorVisible = 0;
 }

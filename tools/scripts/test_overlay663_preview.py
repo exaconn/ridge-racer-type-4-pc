@@ -20,10 +20,10 @@ class Overlay663PreviewTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay663_preview.h"
-typedef struct {s32 args[10],local,frame,position[3],rotation[3],scratch[7];s8 flag;RrBadgeRow1C *root;u8 *cursor;u32 *order;} Event;
+typedef struct {s32 args[10],local,frame,position[3],rotation[3],scratch[7];s8 flag;BadgeRow1C *root;u8 *cursor;u32 *order;} Event;
 static struct World {
- u32 guard[4];RrRaceVehicle cars[2];RrProjectionScratchPrefix scratch;
- RrBadgeRow1C badges[3][2],*root;s32 local,frame;s8 flag;
+ u32 guard[4];RaceVehicle cars[2];ProjectionScratchPrefix scratch;
+ BadgeRow1C badges[3][2],*root;s32 local,frame;s8 flag;
  unsigned calls;Event events[4];u32 tail[4];
 } world,expected;
 static u8 packets[64];static u32 orders[32];static unsigned scenario;
@@ -42,17 +42,17 @@ static void effect(struct World *w,unsigned n){unsigned j;u8 *bytes=(u8*)w->cars
  for(j=0;j<sizeof(w->badges);j++)((u8*)w->badges)[j]=(u8)(scenario+n+j*7);
  w->local=word(scenario*0x9E3779B9U+n);w->frame=word(scenario*0x1234567U+n);w->flag=(s8)(scenario+n);
  w->scratch.pointers.cursor=packets+(scenario+n)%64;w->scratch.pointers.order=orders+(scenario+n)%32;
- w->scratch.word08=word(scenario+n);w->scratch.word0C=word(scenario+n+1);w->scratch.word10=word(scenario+n+2);
- w->scratch.word14=word(scenario+n+3);w->scratch.word18=word(scenario+n+4);w->scratch.word1C=word(scenario+n+5);w->scratch.word20=word(scenario+n+6);
+ w->scratch.pose08.position00.words[0]=word(scenario+n);w->scratch.pose08.position00.words[1]=word(scenario+n+1);w->scratch.pose08.position00.words[2]=word(scenario+n+2);
+ w->scratch.pose08.position00.words[3]=word(scenario+n+3);w->scratch.pose08.angles10.xyz.x=word(scenario+n+4);w->scratch.pose08.angles10.xyz.y=word(scenario+n+5);w->scratch.pose08.angles10.xyz.z=word(scenario+n+6);
  w->root=world.badges[(scenario+n)%3];
 }
 static void event(struct World *w,const s32 args[10]){unsigned n=w->calls,j;Event *e;assert(n<4);e=&w->events[w->calls++];
  for(j=0;j<10;j++)e->args[j]=args[j];
  e->local=w->local;e->frame=w->frame;e->flag=w->flag;e->root=w->root;
- for(j=0;j<3;j++)e->position[j]=w->cars[0].pos20[j];
+ for(j=0;j<3;j++)e->position[j]=w->cars[0].position20.words[j];
  e->rotation[0]=w->cars[0].rot50;e->rotation[1]=w->cars[0].rot54;e->rotation[2]=w->cars[0].rot58;
- e->scratch[0]=w->scratch.word08;e->scratch[1]=w->scratch.word0C;e->scratch[2]=w->scratch.word10;e->scratch[3]=w->scratch.word14;
- e->scratch[4]=w->scratch.word18;e->scratch[5]=w->scratch.word1C;e->scratch[6]=w->scratch.word20;
+ e->scratch[0]=w->scratch.pose08.position00.words[0];e->scratch[1]=w->scratch.pose08.position00.words[1];e->scratch[2]=w->scratch.pose08.position00.words[2];e->scratch[3]=w->scratch.pose08.position00.words[3];
+ e->scratch[4]=w->scratch.pose08.angles10.xyz.x;e->scratch[5]=w->scratch.pose08.angles10.xyz.y;e->scratch[6]=w->scratch.pose08.angles10.xyz.z;
  e->cursor=w->scratch.pointers.cursor;e->order=w->scratch.pointers.order;effect(w,n);
 }
 void ClearScreenOverlayState(void){s32 a[10]={0};assert(world.calls==0);assert(world.local==0);event(&world,a);}
@@ -61,9 +61,9 @@ void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){
 void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==3);event(&world,args);}
 static void reference(void){s32 a[10]={0};expected.local=0;event(&expected,a);expected.flag=2;expected.frame=0;
  {s32 args[10]={3};event(&expected,args);}
- expected.scratch.word08=expected.scratch.word0C=expected.scratch.word10=0;
- expected.scratch.word18=expected.scratch.word1C=expected.scratch.word20=0;
- expected.cars[0].pos20[0]=0;expected.cars[0].pos20[1]=-200;expected.cars[0].pos20[2]=2024;
+ expected.scratch.pose08.position00.words[0]=expected.scratch.pose08.position00.words[1]=expected.scratch.pose08.position00.words[2]=0;
+ expected.scratch.pose08.angles10.xyz.x=expected.scratch.pose08.angles10.xyz.y=expected.scratch.pose08.angles10.xyz.z=0;
+ expected.cars[0].position20.words[0]=0;expected.cars[0].position20.words[1]=-200;expected.cars[0].position20.words[2]=2024;
  expected.cars[0].rot50=40;expected.cars[0].rot54=expected.cars[0].rot58=0;
  {s32 args[10]={0,12,64,68,32,0,0,1,0,83};event(&expected,args);}
  {s32 args[10]={0,12,128,76,34,0,0xC01};event(&expected,args);}

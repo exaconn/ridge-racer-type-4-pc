@@ -3,8 +3,8 @@
 
 #include "types.h"
 
-int func_8002F0E0();
-void DrawModeSelectRows();
+int RunIntroScriptStep(void);
+void DrawModeSelectRows(void);
 int ModeSelectMenuStep(void);
 
 #endif /* RR_GAME_SYSTEM_MODEPAD_H */

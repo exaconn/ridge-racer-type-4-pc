@@ -18,7 +18,7 @@ void ovl667_func_80118634(void) {
     /* The active participant count is0..8; order entries and the preexisting
      * inverse position for participant0 are valid slots0..7. */
     ModeFrame = 0;
-    InitMenuTextRows(D_800FFC48);
+    InitMenuTextRows((MenuTextRow60 *)D_800FFC48);
     MenuCursor = 0;
     MenuItemCount = 3;
     for (i = 0; i < 11; i++) {

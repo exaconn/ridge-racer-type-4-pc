@@ -48,12 +48,12 @@ void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
     s32 baseV;
     s16 tileV;
 #ifdef __mips__
-    register RrSpritePacketSignedClut *sprites __asm__("$16");
+    register SpritePacketSignedClut *sprites __asm__("$16");
 #else
-    RrSpritePacketSignedClut *sprites;
+    SpritePacketSignedClut *sprites;
 #endif
     u8 *cursor;
-    RrSpritePacketSignedClut *linkPacket;
+    SpritePacketSignedClut *linkPacket;
 
     cursor = RR_GLYPH_ANIMATION_SCRATCH->cursor;
     row = glyph/32;
@@ -68,7 +68,7 @@ void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
     pass = 0;
     shadowBrightness = RR_GLYPH_PREF(8,"$23");
     __asm__("" : "+r"(tileU));
-    sprites = (RrSpritePacketSignedClut *)cursor;
+    sprites = (SpritePacketSignedClut *)cursor;
     /* The original retains a shadow branch, but runs only pass zero. */
     do {
         SetSprt(cursor);

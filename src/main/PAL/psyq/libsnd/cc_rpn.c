@@ -3,7 +3,7 @@
 #include "psyq/libsnd/cc_rpn.h"
 void _SsSetNrpnVabAttr12(a0, a1, a2, s, c)
     s16 a0, a1, a2;
-    RrLibBlock24Fields s;
+    LibBlock24Fields s;
     s32 c;
 {
     s16 loc[12];

@@ -1,4 +1,6 @@
+#include "game/sound/sndque.h"
 #include "scratchpad.h"
+#include "rr/frame_storage_types.h"
 #include "rr/gpu.h"
 #include "game/ui/uipart1.h"
 #include "game/race/raceset.h"
@@ -6,29 +8,29 @@
 #include "rr/fade_sprite.h"
 #include "rr/audio_loop.h"
 #include "rr/race_setup.h"
-struct O { char pad[0x70]; u32 addr:24; u32 len:8; };
-extern s32 SoundQueueEnqueue();
+#include "game/gfx/sprpkt.h"
+struct O { s32 unk00[28]; u32 addr:24; u32 len:8; };
 extern s32 RaceState;
-extern s32 D_8010C120[];
-void func_8003BFC8(a0) s32 a0;
+extern s32 SplitTimes[];
+void DrawRaceOverlaySprites(s32 a0)
 {
     s32 s1, s2, s3, s4, s5, t;
     s32 c;
-    RrSpritePacket *p;
-    if (D_800F4D44 == 0 && RaceState != 0 && RaceState < 4) {
-        t = D_8010C120[D_8010C12C];
+    SpritePacket *p;
+    if (GameModeType == 0 && RaceState != 0 && RaceState < 4) {
+        t = SplitTimes[D_8010C12C];
         if (t < 0) {
             s3 = -1;
             s4 = -1;
             s2 = 0;
         } else {
             s4 = t;
-            if (D_8010C114 > 0) {
-                if (a0 == 0) D_8010C114--;
+            if (SplitDeltaTimer > 0) {
+                if (a0 == 0) SplitDeltaTimer--;
                 s3 = D_8010C10C;
                 s2 = D_8010C104;
                 s4 = D_8010C108;
-                s1 = D_8010C120[s2] - s3;
+                s1 = SplitTimes[s2] - s3;
                 s5 = 0x84;
                 if (s1 < 0) {
                     s5 = 0x78;
@@ -37,17 +39,17 @@ void func_8003BFC8(a0) s32 a0;
                 } else {
                     c = 0x16;
                 }
-                if (D_8010C114 == 0x3B && s2 < 2 && a0 == 0) SoundQueueEnqueue(c, 0);
-                *(RrSpritePacket **)SCRATCHPAD = GameQueueSprite((char *)CurrentDrawBuf + 0x70, *(RrSpritePacket **)SCRATCHPAD, 0x70, 0x60, 0xC, 0xC, s5, 0xA8, 0x7EF8);
+                if (SplitDeltaTimer == 0x3B && s2 < 2 && a0 == 0) SoundQueueEnqueue(c, 0);
+                *(SpritePacket **)SCRATCHPAD = GameQueueSprite((char *)&CurrentDrawBuf->buffer.ordering70.words[0], *(SpritePacket **)SCRATCHPAD, 0x70, 0x60, 0xC, 0xC, s5, 0xA8, 0x7EF8);
                 DrawRaceTime(0x80, 0x60, s1, 0x7EF8, 1);
             } else {
-                s3 = D_8010C0F8[D_8010C12C];
+                s3 = BestSplitTimes[D_8010C12C];
                 s2 = D_8010C12C;
             }
         }
         DrawRaceTime(0x14, 0x1C, s3, 0x7EF8, 0);
         DrawRaceTime(0x14, 0x26, s4, 0x7EF8, 0);
-        p = *(RrSpritePacket **)SCRATCHPAD;
+        p = *(SpritePacket **)SCRATCHPAD;
         p->len = 4;
         p->code = 0x64;
         p->x = 0xA;
@@ -59,9 +61,9 @@ void func_8003BFC8(a0) s32 a0;
         p->clut = 0x7EF8;
         p->code |= 1;
         p->addr = ((struct O *)CurrentDrawBuf)->addr;
-        ((struct O *)CurrentDrawBuf)->addr = (u32)p++;
+        ((struct O *)CurrentDrawBuf)->addr = p++;
         /* ASM_BARRIER: keeps the SCRATCHPAD pointer store after the bitfield store (original order) */
-        __asm__ volatile("" : : : "memory");
-        *(RrSpritePacket **)SCRATCHPAD = p;
+        __asm__ ("" : : : "memory");
+        *(SpritePacket **)SCRATCHPAD = p;
     }
 }

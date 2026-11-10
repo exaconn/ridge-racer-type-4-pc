@@ -26,8 +26,8 @@ static u32 seed=0x7E0B4U;
 static u32 next(void){u32 n=seed;n^=n<<13;n^=n>>17;n^=n<<5;return seed=n;}
 static s32 signed_bits(u32 n){s32 r;memcpy(&r,&n,4);return r;}
 '''+helper+r'''
-RrWide64 _dbl_shift(s32 direction,RrWide64 value,s32 count){
- struct {u32 guard[4];RrWide64 value;u32 tail[4];} box;
+Wide64 _dbl_shift(s32 direction,Wide64 value,s32 count){
+ struct {u32 guard[4];Wide64 value;u32 tail[4];} box;
  uint64_t bits=(uint64_t)(u32)value.hi<<32|value.lo,shifted;
  memset(&box,0xA5,sizeof(box));assert(direction==0&&count==10);shifts++;
  box.value=actual_shift(direction,value,count);shifted=bits<<10;
@@ -54,7 +54,7 @@ static void check(uint64_t bits){struct {u32 guard[4];u64 bits;u32 tail[4];} inp
  exponentSeen[e][sign]++;cases++;
 }
 int main(void){unsigned e,sign,f,l,n;u32 frac;static const u32 lows[8]={0,1,3,0x3FFFFF,0x400000,0x7FFFFFFF,0x80000000,0xFFFFFFFF};
- _Static_assert(sizeof(RrWide64)==8&&sizeof(u64)==8,"word pair");_Static_assert(offsetof(RrWide64,hi)==4,"high word");_Static_assert(INT_MIN==(-2147483647-1),"signed32 encoding");
+ _Static_assert(sizeof(Wide64)==8&&sizeof(u64)==8,"word pair");_Static_assert(offsetof(Wide64,hi)==4,"high word");_Static_assert(INT_MIN==(-2147483647-1),"signed32 encoding");
  assert((uintptr_t)&exponentSeen>UINT32_MAX);
  for(e=0;e<2048;e++)for(sign=0;sign<2;sign++)for(f=0;f<32;f++)for(l=0;l<8;l++){
   switch(f){case 0:frac=0;break;case 1:frac=1;break;case 2:frac=2;break;case 3:frac=0xFFFFF;break;case 4:frac=0xFFFFE;break;case 5:frac=0x7FFFF;break;default:if(f<26)frac=1U<<(f-6);else frac=next()&0xFFFFF;}

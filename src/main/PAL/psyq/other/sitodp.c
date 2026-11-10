@@ -2,9 +2,9 @@
 u64 __floatsidf(s32 a0)
 {
     unsigned s3 = 0;
-    int s2;
-    union { u64 bits; RrWide64 s; } r;
-    RrWide64 t;
+    u32 s2;
+    union { u64 bits; Wide64 s; } r;
+    Wide64 t;
     /* ASM_BARRIER: Keep the sign accumulator distinct from literal zero results. */
     __asm__("" : "+r"(s3));
     s2 = 0x41D;
@@ -22,11 +22,11 @@ u64 __floatsidf(s32 a0)
             a0 = -a0;
         }
         while (a0 <= 0xFFFFFF) {
-            a0 = (s32)((u32)a0 << 4);
+            a0 = (a0 * 16U);
             s2 -= 4;
         }
         while (a0 <= 0x3FFFFFFF) {
-            a0 = (s32)((u32)a0 << 1);
+            a0 = (a0 * 2U);
             s2 -= 1;
         }
         t.hi = a0;
@@ -34,7 +34,7 @@ u64 __floatsidf(s32 a0)
         _dbl_shift_us(&t, 1, t, 10);
         t.hi &= 0xFFEFFFFF;
         r.s.hi = t.hi | s3;
-        r.s.hi |= (u32)s2 << 20;
+        r.s.hi |= s2 << 20;
         r.s.lo = t.lo;
     }
     return r.bits;

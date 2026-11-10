@@ -1,10 +1,10 @@
 #ifndef RR_OVERLAY662_PALETTE_CONTROLLER_H
 #define RR_OVERLAY662_PALETTE_CONTROLLER_H
+#include "game/system/pad.h"
 #include "rr/menu_transition.h"
 #include "rr/overlay662_palette_initializer.h"
 #include "rr/overlay662_image_fade.h"
 #include "rr/tables.h"
-extern RrMenuItemState5C PlayerControllers[2];
 void ovl662_func_80118ED8(void);
 s32 UpdateRect16Row(s32);
 void DrawUiRow(s32);

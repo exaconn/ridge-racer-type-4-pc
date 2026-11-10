@@ -19,8 +19,8 @@ void ovl662_func_8011FE84(s32 mode);
  * An already empty layer rejects without backup or clearing. */
 void ovl662_func_8011F678(s32 mode);
 /* unsigned long is the complete address word on both PAL and native LP64. */
-typedef unsigned long RrGarageImageAddress;
-typedef char RrGarageImageAddressWidth[(sizeof(RrGarageImageAddress)==sizeof(void*))?1:-1];
+typedef unsigned long GarageImageAddress;
+typedef char GarageImageAddressWidth[(sizeof(GarageImageAddress)==sizeof(void*))?1:-1];
 /* Slot3 backs up images/palette, then copies rows63..0 from the inverse
  * buffer into the freshly selected layer. Buffers cover512 words; ordered
  * writes observe overlaps rather than staging a complete input copy. */

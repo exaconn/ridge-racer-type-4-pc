@@ -3,10 +3,12 @@
 
 #include "types.h"
 
-s32 func_80012208(s32 arg0);
-int func_80012210();
+s32 GetCourseFileIndex(s32 arg0);
+int GetCarFileIndex();
 int GetR4FileIndex();
 void LoadR4Directory(void);
 void InitCdFileDirectory(void);
+void DrawLoadingTriangle(void);
+
 
 #endif /* RR_GAME_DATA_CDFILE1_H */

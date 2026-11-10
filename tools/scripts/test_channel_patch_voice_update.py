@@ -37,19 +37,19 @@ s32 (*test_command_sink)(s32 *);
 s32 SpuSetReverbModeParam(s32 *command) { return test_command_sink(command); }
 s16 test_mode_page[32768];
 #define _svm_damper test_mode_page[0xA0/2]
-RrLibControllerCallback test_loop_callbacks[0x200];
-RrLibStateB0 *test_table[0x4100];
-RrLibStateB0 test_records[9][17];
+LibControllerCallback test_loop_callbacks[0x200];
+LibStateB0 *test_table[0x4100];
+LibStateB0 test_records[9][17];
 u8 test_streams[9][17][32];
-u32 test_layout[] = {sizeof(RrLibStateB0), offsetof(RrLibStateB0,c0),
- offsetof(RrLibStateB0,b17), offsetof(RrLibStateB0,b26), offsetof(RrLibStateB0,b27),
- offsetof(RrLibStateB0,b37), offsetof(RrLibStateB0,h60), offsetof(RrLibStateB0,w88),
- offsetof(RrLibStateB0,w90), offsetof(RrLibStateB0,b1b),
- offsetof(RrLibStateB0,b1a), offsetof(RrLibStateB0,b15), offsetof(RrLibStateB0,b1d),
- offsetof(RrLibStateB0,b1c), offsetof(RrLibStateB0,b1f), offsetof(RrLibStateB0,c8)};
-RrLibControllerCallback SsCtrlHandlerCC6,D_8010EFE4,D_8010EFE8,D_8010EFEC,SsCtrlHandlerCC64;
-RrLibControllerCallback SsCtrlHandlerCC98,D_8010EFF8,D_8010EFFC,D_8010F000,D_8010F004;
-RrLibControllerResetCallback SsCtrlHandlerCC121;
+u32 test_layout[] = {sizeof(LibStateB0), offsetof(LibStateB0,c0),
+ offsetof(LibStateB0,b17), offsetof(LibStateB0,b26), offsetof(LibStateB0,b27),
+ offsetof(LibStateB0,b37), offsetof(LibStateB0,h60), offsetof(LibStateB0,w88),
+ offsetof(LibStateB0,w90), offsetof(LibStateB0,b1b),
+ offsetof(LibStateB0,b1a), offsetof(LibStateB0,b15), offsetof(LibStateB0,b1d),
+ offsetof(LibStateB0,b1c), offsetof(LibStateB0,b1f), offsetof(LibStateB0,c8)};
+LibControllerCallback SsCtrlHandlerCC6,D_8010EFE4,D_8010EFE8,D_8010EFEC,SsCtrlHandlerCC64;
+LibControllerCallback SsCtrlHandlerCC98,D_8010EFF8,D_8010EFFC,D_8010F000,D_8010F004;
+LibControllerResetCallback SsCtrlHandlerCC121;
 void test_bind_controller(void) { D_8010EFEC=_SsContExpression; }
 s32 (*test_patch)(s32,s32,s32);
 void (*test_voice)(s32,s32,s32,u32,u32);
@@ -88,10 +88,10 @@ void test_prepare(s32 bank,s32 row,const u8 *input,u32 length,u32 accumulator) {
             body = body.replace('extern int _svm_rattr[];', '')
             body = body.replace('_svm_rattr', 'test_commands')
             body = body.replace('(s16 *)0x80110000U', 'test_mode_page')
-            body = body.replace('extern RrLibStateB0 *_ss_score[];', '')
+            body = body.replace('extern LibStateB0 *_ss_score[];', '')
             body = body.replace('_SsMarkCallback', '(test_loop_callbacks + 0x100)')
             body = body.replace('_ss_score', '(test_table + 0x4000 - 0xF98 / 4)')
-            body = body.replace('(RrLibStateB0 **)0x80110000U', '(test_table + 0x4000)')
+            body = body.replace('(LibStateB0 **)0x80110000U', '(test_table + 0x4000)')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
             source += body

@@ -36,8 +36,8 @@ class SaveInitializersTest(unittest.TestCase):
 #include "rr/overlay662_progress_init.h"
 static const char format660[]="course",format662[]="garage",format663[]="records";
 struct State {
- u32 guard[4];RrSaveProgressRecord7C save;RrCourseChoice4 choices[2][9];
- char name[12];RrMenuChoice4 current;u8 order[9];s32 ids[9],values[9],count;
+ u32 guard[4];SaveProgressRecord7C save;CourseChoice4 choices[2][9];
+ char name[12];MenuChoice4 current;u8 order[9];s32 ids[9],values[9],count;
  s16 row,col,local,setting,position,timer;u16 mode;s32 zoom,driverSetting;u32 tail[4];
 };
 static struct World {struct State s;unsigned calls;struct {s32 service,arg[4];u32 hash;} events[12];} actual,expected,initial,*w;
@@ -102,7 +102,7 @@ static void event(s32 service,s32 a,s32 b,s32 c,s32 d){
 void SetDispMask(s32 mode){assert(mode==0);event(1,mode,0,0,0);}
 void ClearScreenOverlayState(void){event(2,0,0,0,0);}
 void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags){event(3,r,g,b,(s32)flags);}
-void ovl660_func_80114920(void){event(4,0,0,0,0);}
+void ovl660_init_menu(void){event(4,0,0,0,0);}
 void ovl662_func_80114998(void){event(5,0,0,0,0);}
 void ovl663_init_menu(void){
  if(w==&actual){assert(w->s.count>=0 && w->s.count<=9);seenCounts[w->s.count]=1;}
@@ -119,7 +119,7 @@ static void reference(void){
   copy_name(w->s.name,w->s.save.prefix.progress.prefix00.fields.name);SetupDrawDispEnvs(0,0,0,2);
   flags=w->s.save.prefix.progress.prefix00.fields.configuration0C;w->s.setting=0;
   w->s.zoom=flags>=16?8:4;if((u32)flags&256)w->s.zoom=16;
-  ovl660_func_80114920();
+  ovl660_init_menu();
   {s32 glyph=w->s.choices[0][0].glyph;w->s.current.bytes[0]=(u8)(glyph/160);w->s.current.bytes[1]=(u8)(glyph/40-(glyph/160)*4);w->s.current.bytes[2]=(u8)(glyph%40);}
   w->s.mode=1;w->s.position=50;w->s.timer=0;DebugPrintStub(format660);SeqStartTrack(0);
  }else if(kind==1){
@@ -135,14 +135,14 @@ static void reference(void){
  }
 }
 int main(void){unsigned i;
- _Static_assert(sizeof(RrSaveProgressRecord7C)==124,"full save");
- _Static_assert(offsetof(RrSaveProgressRecord7C,history6C)==108,"history");
+ _Static_assert(sizeof(SaveProgressRecord7C)==124,"full save");
+ _Static_assert(offsetof(SaveProgressRecord7C,history6C)==108,"history");
  assert((uintptr_t)actual.s.name>UINT32_MAX);
  for(kind=0;kind<3;kind++)for(scenario=0;scenario<65536;scenario++)for(mutation=0;mutation<2;mutation++){
   memset(&initial,0,sizeof(initial));w=&initial;effect(9);
   for(i=0;i<4;i++){w->s.guard[i]=0x12345678U+i;w->s.tail[i]=0x87654321U-i;}
   actual=initial;expected=initial;w=&actual;
-  if(kind==0)ovl660_func_80114C40();else if(kind==1)ovl662_func_80114B9C();else ovl663_init_scene();
+  if(kind==0)ovl660_init_scene();else if(kind==1)ovl662_func_80114B9C();else ovl663_init_scene();
   w=&expected;reference();assert(memcmp(&actual,&expected,sizeof(actual))==0);
  }
  for(i=0;i<10;i++)assert(seenCounts[i]);return 0;

@@ -31,7 +31,7 @@
 
 #undef _sio_control
 
-void func_8007ABCC(void) {
+void CardMenuModeEnter(void) {
     unsigned long clearAddress;
     u16 clockLow;
     s32 selection;
@@ -43,7 +43,7 @@ void func_8007ABCC(void) {
     s32 layout;
     u16 phase;
 
-    if (D_800F4D44 == 4) {
+    if (GameModeType == 4) {
         UpdateLinkHandshake(2);
         if (LinkState == -1) {
             _sio_control(1, 1, 0);
@@ -55,14 +55,14 @@ void func_8007ABCC(void) {
         SetDispMask(0);
         SetupDrawDispEnvs(0x20, 0x20, 0x20, 2);
         ModeFrame = 0;
-        D_800F4D3C = 0;
+        GpSaveSlotCursor = 0;
         D_80109478[D_8010948E] = 3;
         /* ASM_BARRIER: finish the choice write before the clock read. */
         __asm__("" : : : "memory");
         __builtin_memcpy(&clockLow, &D_800AC5D4, sizeof(clockLow));
         bank = clockLow & 1;
-        D_800AC594 = bank;
-        D_800FFC00 = bank;
+        MenuActiveControllerIndex = bank;
+        CardActivePort = bank;
         ClearScreenOverlayState();
         i = 23;
         /* ASM_BARRIER: retain the initialized byte counter before indexing. */
@@ -77,10 +77,10 @@ void func_8007ABCC(void) {
             clearAddress--;
         } while (i >= 0);
         CopyStringClearTail(CardTargetFileName,CardSaveFileName);
-        selection = D_800FFC18;
+        selection = CardMenuOperation;
         /* ASM_BARRIER: keep the signed snapshot separate from the range read. */
         __asm__("" : "+r"(selection));
-        modeRange = (u16)D_800FFC18;
+        modeRange = (u16)CardMenuOperation;
         modeRange = (u16)(modeRange - 6);
         if (selection == 0) {
             InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
@@ -117,14 +117,14 @@ void func_8007ABCC(void) {
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
                 D_800A45B8 = 0x10012;
-                if (D_800FFC18 == 3) {
+                if (CardMenuOperation == 3) {
                     MenuStateIndex = 0x17;
                 } else {
                     MenuStateIndex = 0x20;
                 }
                 InitBadgeRow(1, 0x80, 0x58, 0xA8, 0x80, 0, 0x702);
                 BadgeRows[1].half02 = 1;
-                D_800F3AF8 = (s16) (u16) D_800FFC18;
+                D_800F3AF8 = (s16) (u16) CardMenuOperation;
             } else if (selection == 2) {
                 D_800A45B8 = 0x10016;
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x65);
@@ -159,7 +159,7 @@ void func_8007ABCC(void) {
         if (D_800F3A26 == phase) {
             SetDispMask(1);
         }
-        ready = func_8003B934();
+        ready = LoadMenuCarModelsStep();
         if (ready == phase) {
             SetDispMask(1);
             ModeGroup = ready;

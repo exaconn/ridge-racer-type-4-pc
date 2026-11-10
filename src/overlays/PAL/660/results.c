@@ -1,6 +1,8 @@
+#include "game/system/pad.h"
 #include "rr/overlay660.h"
+#include "rr/frame_storage_types.h"
 
-void ovl660_func_801154D8(void)
+void ovl660_init_results(void)
 {
     s32 i;
     s32 off;
@@ -8,14 +10,14 @@ void ovl660_func_801154D8(void)
 
     ModeFrame = 0;
     if (TotalRaceTime != -1) {
-        ovl660_func_801162D8();
-        ovl660_race_record_rank = ovl660_func_80115FA8(0, LapTimes[(s16)D_800AC1A0]);
-        ovl660_lap_record_rank = ovl660_func_80115FA8(1, TotalRaceTime);
+        ovl660_rank_standings();
+        ovl660_race_record_rank = ovl660_insert_record(0, LapTimes[(s16)D_800AC1A0]);
+        ovl660_lap_record_rank = ovl660_insert_record(1, TotalRaceTime);
     } else {
         ovl660_race_record_rank = 6;
         ovl660_lap_record_rank = 6;
     }
-    InitMenuTextRows(D_800FFC48);
+    InitMenuTextRows((MenuTextRow60 *)D_800FFC48);
     MenuCursor = 0;
     MenuItemCount = 3;
     off = 0;
@@ -42,15 +44,15 @@ void ovl660_func_801154D8(void)
     SetMenuFrameOptions(0, 1, 0);
 }
 
-s32 ovl660_func_801156A8(s32 reserved){
- func_80041320(MenuCursor+37,0,0);
+s32 ovl660_update_retry_choice(s32 reserved){
+ SetMenuTextRowStyle(MenuCursor+37,0,0);
  StepMenuValue(0,2,(char*)&MenuCursor,MenuItemCount,0);
- func_80041320(MenuCursor+37,1,1);
+ SetMenuTextRowStyle(MenuCursor+37,1,1);
  if(D_800F3A60){PlaySfx(1);return MenuCursor;}
  return -1;
 }
 
-void ovl660_func_8011572C(void) {
+void ovl660_update_results(void) {
     s32 group;
     s32 base;
     s32 row;
@@ -86,8 +88,8 @@ void ovl660_func_8011572C(void) {
             row = base + i;
             FormatDecimalDigits((char *)&MenuTextRows[row].bytes[32], i + 1, 0);
             FormatRaceTime((char *)&MenuTextRows[row].bytes[35], LapTimes[i]);
-            if (i == PlayerCars[0].steering288.finish20 && ovl660_race_record_rank < 5) {
-                func_80041320(row, 1, -1);
+            if (i == PlayerCars[0].control.dynamics94.steering.finish20 && ovl660_race_record_rank < 5) {
+                SetMenuTextRowStyle(row, 1, -1);
                 CopyStringClearTail((char *)&MenuTextRows[row].bytes[45], ovl660_new_record_label);
             }
         }
@@ -96,7 +98,7 @@ void ovl660_func_8011572C(void) {
             base = 10;
         }
         if (ovl660_lap_record_rank < 5) {
-            func_80041320(base, 1, -1);
+            SetMenuTextRowStyle(base, 1, -1);
             CopyStringClearTail((char *)&MenuTextRows[base].bytes[45], ovl660_new_record_label);
         }
         break;
@@ -110,7 +112,7 @@ void ovl660_func_8011572C(void) {
                 CopyStringClearTail((char *)&MenuTextRows[entry].bytes[42], ovl660_record_name);
             }
             CopyStringClearTail(LapRecords[ReverseCourse][CourseIndex][ovl660_race_record_rank].name, ovl660_record_name);
-            func_80041320(ovl660_race_record_rank + 15, 1, -((ovl660_name_cursor + 15) << 8));
+            SetMenuTextRowStyle(ovl660_race_record_rank + 15, 1, -((ovl660_name_cursor + 15) << 8));
         }
         if (MenuTextRows[15].signedBytes[3] >= 15) {
             SetMenuFrameOptions(1, 1, 0);
@@ -132,7 +134,7 @@ void ovl660_func_8011572C(void) {
                 CopyStringClearTail((char *)&MenuTextRows[entry].bytes[42], ovl660_record_name);
             }
             CopyStringClearTail(RaceRecords[ReverseCourse][CourseIndex][ovl660_lap_record_rank].name, ovl660_record_name);
-            func_80041320(ovl660_lap_record_rank + 26, 1, -((ovl660_name_cursor + 15) << 8));
+            SetMenuTextRowStyle(ovl660_lap_record_rank + 26, 1, -((ovl660_name_cursor + 15) << 8));
         }
         if (MenuTextRows[15].signedBytes[3] >= 15) {
             SetMenuFrameOptions(1, 1, 0);
@@ -147,7 +149,7 @@ void ovl660_func_8011572C(void) {
         group = 33;
         if (MenuTextRows[38].signedBytes[3] >= 17) {
             SetMenuFrameOptions(1, 1, 0);
-            if (ovl660_func_801156A8(0) >= 0) {
+            if (ovl660_update_retry_choice(0) >= 0) {
                 SetMenuFrameOptions(0, 1, 0);
                 ResetScreenCounters();
                 InitMenuArenas();
@@ -165,7 +167,7 @@ void ovl660_func_8011572C(void) {
                               &MenuTextRows[42].bytes[29]);
                 MenuTextRows[42].bytes[42] = 34;
                 ovl660_result_transition = 2;
-            } else if (ovl660_result_transition == 0 && (*(s32 *)&PlayerControllers[0] & 0x900000) == 0x900000) {
+            } else if (ovl660_result_transition == 0 && (PlayerControllers[0].input00.word & 0x900000) == 0x900000) {
                 ovl660_result_transition = 1;
             }
         }
@@ -173,7 +175,7 @@ void ovl660_func_8011572C(void) {
     case 4:
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (64 - timer) * 4, 69);
         group = 33;
         if (D_800AC5D0 <= 0) {
             MenuScriptId = 0;
@@ -185,7 +187,7 @@ void ovl660_func_8011572C(void) {
     case 5:
         timer = (u16)D_800AC5D0 - 2;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (64 - timer) * 4, 69);
         group = 33;
         if (D_800AC5D0 <= 0) {
             group = -1;
@@ -195,7 +197,7 @@ void ovl660_func_8011572C(void) {
     case 6:
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (64 - timer) * 4, 69);
         group = -1;
         if (D_800AC5D0 <= 0) {
             ModeGroup = 1;
@@ -207,7 +209,7 @@ void ovl660_func_8011572C(void) {
         ready = LoadResultsSceneStep();
         if (ready == 1) {
             SeqStartTrack(0);
-            ovl660_func_80114920();
+            ovl660_init_menu();
             ModeGroup = ready;
             D_800F3A26 = 50;
             D_800F4D8A = 0;
@@ -215,7 +217,7 @@ void ovl660_func_8011572C(void) {
         return;
     }
     UpdateScreenFade(0x1000C);
-    func_8003662C(ModeFrame);
+    DrawResultsStandingsOverlay(ModeFrame);
     if (group >= 0) {
         i = 0;
         do {
@@ -223,12 +225,12 @@ void ovl660_func_8011572C(void) {
             i++;
         } while (i < 11);
     }
-    if ((u32)(MenuTextRows[0].bytes[2] - 3) < 5 || (u32)(MenuTextRows[44].bytes[2] - 3) < 5) {
-        func_800411D4();
+    if ((MenuTextRows[0].bytes[2] - 3) < 5U || (MenuTextRows[44].bytes[2] - 3) < 5U) {
+        DrawResultsRankIcons();
     }
 }
 
-s32 ovl660_func_80115FA8(s32 mode, s32 time) {
+s32 ovl660_insert_record(s32 mode, s32 time) {
     s32 times[6];
     s16 order[6];
     s32 i;
@@ -282,7 +284,7 @@ s32 ovl660_func_80115FA8(s32 mode, s32 time) {
     return i;
 }
 
-void ovl660_func_801162D8(void)
+void ovl660_rank_standings(void)
 {
     s32 values[6];
     u16 indices[6];

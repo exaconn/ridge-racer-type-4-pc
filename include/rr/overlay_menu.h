@@ -3,12 +3,12 @@
 #include "rr/menu_choice.h"
 
 extern s16 MenuCursor,MenuItemCount;
-void func_80041320(s32 row,s32 first,s32 second);
+void SetMenuTextRowStyle(s32 row,s32 first,s32 second);
 void StepMenuValue(s32 mode,s32 width,char *selection,s32 limit,s32 flags);
 void DrawMenuStepArrows(s32 x,s32 y,s32 width,s32 mode,s32 selected,s32 first,s32 second);
 s32 UpdateGlyphRow(s32 selected);
 
-s32 ovl660_func_801156A8(s32 reserved);
+s32 ovl660_update_retry_choice(s32 reserved);
 s32 ovl661_func_80117E10(void);
 s32 ovl666_update_retry_choice(s32 mode);
 /* Four-position selection, backed by at least three UI rows and four glyph

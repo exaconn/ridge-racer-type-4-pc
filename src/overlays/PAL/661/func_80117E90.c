@@ -1,4 +1,5 @@
 #include "rr/menu_text_rows.h"
+#include "rr/frame_storage_types.h"
 
 extern s32 ModeFrame, TotalRaceTime, D_800F3A60;
 extern u16 D_800F4D8A;
@@ -9,7 +10,6 @@ extern char ovl661_D_80118420[2][12];
 extern s16 ovl661_D_80118448[2];
 extern char ovl661_D_801148EC[];
 extern char ovl661_D_801148F8[];
-extern u8 *CurrentDrawBuf;
 
 void SetMenuFrameOptions(s32, s32, s32);
 void PlaySfx(s32);
@@ -20,9 +20,9 @@ void AddScreenFadeTiles(u32 *, s32, u32);
 void ResetScreenCounters(void);
 void InitMenuArenas(void);
 void UpdateScreenFade(s32);
-void func_8003662C(s32);
+void DrawResultsStandingsOverlay(s32);
 void UpdateMenuTextRow(s32);
-void func_800411D4(void);
+void DrawResultsRankIcons(void);
 s32 LoadResultsSceneStep(void);
 void SeqStartTrack(s32);
 s32 ovl661_func_80117E10(s32);
@@ -78,7 +78,7 @@ void ovl661_func_80117E90(void) {
         break;
     case 4:
         D_800AC5D0--;
-        AddScreenFadeTiles((u32 *)(CurrentDrawBuf + 0x70), (64 - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - D_800AC5D0) * 4, 69);
         group = 3;
         if (D_800AC5D0 <= 0) {
             MenuScriptId = 0;
@@ -90,7 +90,7 @@ void ovl661_func_80117E90(void) {
         break;
     case 5:
         D_800AC5D0 -= 2;
-        AddScreenFadeTiles((u32 *)(CurrentDrawBuf + 0x70), (64 - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - D_800AC5D0) * 4, 69);
         group = 3;
         if (D_800AC5D0 <= 0) {
             group = -1;
@@ -99,7 +99,7 @@ void ovl661_func_80117E90(void) {
         break;
     case 6:
         D_800AC5D0--;
-        AddScreenFadeTiles((u32 *)(CurrentDrawBuf + 0x70), (64 - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - D_800AC5D0) * 4, 69);
         group = -1;
         if (D_800AC5D0 <= 0) {
             ModeGroup = 1;
@@ -119,13 +119,13 @@ void ovl661_func_80117E90(void) {
         return;
     }
     UpdateScreenFade(0x1000C);
-    func_8003662C(ModeFrame);
+    DrawResultsStandingsOverlay(ModeFrame);
     if (group >= 0) {
         for (i = 0; i < 11; i++) {
             UpdateMenuTextRow(i + group * 11);
         }
     }
     if ((u8)(MenuTextRows[0].bytes[2] - 3) < 5 || (u8)(MenuTextRows[11].bytes[2] - 3) < 5) {
-        func_800411D4();
+        DrawResultsRankIcons();
     }
 }

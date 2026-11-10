@@ -27,7 +27,7 @@ class OverlayArenaTest(unittest.TestCase):
 typedef struct {s32 kind,a,b,c;void *observed;} Event;
 static u8 arena[3][0x2d080],original_arena[3][0x2d080];
 static struct World {
- u32 before[8];RrMenuArenas slots;u8 *base;void *active;
+ u32 before[8];MenuArenas8 slots;u8 *base;void *active;
  u8 *base_after_reset,*scratch_after_load,*scratch_after_ui,*active_after_ui;
  s8 flag0,flag1;s32 counter;u32 calls;Event events[4];u32 after[8];
 } world,expected;
@@ -60,7 +60,7 @@ static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 int main(void){unsigned k,i,j;
  for(i=0;i<3;i++)for(j=0;j<sizeof(arena[0]);j++)arena[i][j]=(u8)next();
  memcpy(original_arena,arena,sizeof(arena));
- assert(sizeof(void*)==8 && sizeof(RrMenuArenas)==16);
+ assert(sizeof(void*)==8 && sizeof(MenuArenas8)==16);
  for(k=0;k<65536;k++){
   unsigned index=k%3,offset=k&127;
   memset(&world,0,sizeof(world));

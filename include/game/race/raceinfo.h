@@ -3,6 +3,9 @@
 
 #include "types.h"
 
-extern int D_8010BFC8;
+extern int TrackPreviewTick;
+void DrawCourseInfoPanel(int arg0, int arg1);
+void DrawCourseMapPreview(int unusedSelection,int unusedMode);
+
 
 #endif /* RR_GAME_RACE_RACEINFO_H */

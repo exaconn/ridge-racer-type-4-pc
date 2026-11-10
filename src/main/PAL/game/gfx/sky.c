@@ -8,12 +8,11 @@
 #include "rr/menu_overlay_runtime.h"
 
 #define GS ((SPD *)SCRATCHPAD)
-#define W(o) (*(int *)(GS->cur + (o)))
 #define LNK(n, t) \
-    W(0) = *(int *)(GS->ot + (t)); \
-    *(char *)(GS->cur + 3) = (n); \
-    *(int *)(GS->ot + (t)) = (int)GS->cur; \
-    *(char *)(GS->ot + (t) + 3) = 0
+    GS->cur[0] = GS->ot[(t) / 4].word; \
+    ((char *)GS->cur)[3] = (n); \
+    GS->ot[(t) / 4].word = GS->cur; \
+    GS->ot[(t) / 4].b.len = 0
 
 typedef struct {
     int v01;
@@ -128,7 +127,7 @@ typedef struct {
     union {
         int uv2;
         struct {
-            char pad[3];
+            char unk0[3];
             signed char b1F;
         } b;
     } u1C;
@@ -139,30 +138,107 @@ typedef struct {
     int ot;
 } Scratch17A90;
 
-typedef struct { char *cur; char *ot; } SPD;
+typedef struct {
+    int *cur;
+    union {
+        int word;
+        struct { char b0, b1, b2, len; } b;
+    } *ot;
+} SPD;
+
+typedef struct {
+    unsigned short v0, v1, v2;
+    unsigned short n0, n1, n2;
+    int unk0C;
+    unsigned char b10;
+    signed char b11;
+    short unk12;
+} SkyLitTri14;
+
+typedef struct {
+    unsigned short v0, v1, v2, v3;
+    unsigned short n0, n1, n2, n3;
+    int rgb10;
+    unsigned char b14;
+    signed char b15;
+    short unk16;
+} SkyLitQuad18;
+
+typedef struct {
+    unsigned short v0, v1, v2, v3;
+    unsigned short n0, n1, n2, n3;
+    int rgb10;
+    int uv0;
+    int uv1;
+    union {
+        int word;
+        struct { short lo, hi; } h;
+    } uv2;
+    unsigned char b20;
+    signed char b21;
+    short unk22;
+} SkyLitTexQuad24;
+
+typedef struct {
+    int unk00[28];
+    char *verts70;
+    int unk74[28];
+    int countE4;
+    int otzE8;
+    int mac0EC;
+    int mac0F0;
+    int rgbF4;
+    int pageF8;
+    int clutFC;
+    struct { int x, y, z; } ir100;
+    struct { int x, y, z; } ir10C;
+    struct { int x, y, z; } ir118;
+    struct { int x, y, z; } ir124;
+    int unk130[4];
+    union {
+        struct {
+            int sxy0;
+            int sxy1;
+            int sxy2;
+            int sxy3;
+        } w;
+        struct {
+            short sx0, sy0;
+            short sx1, sy1;
+            short sx2, sy2;
+            short sx3, sy3;
+        } s;
+    } sxy140;
+} SkyLitCtx;
+
+typedef struct {
+    int unk00;
+    int verts04;
+    int unk08;
+    int *cmds0C;
+} SkyCmdHeader;
 
 extern char D_800100D0[];
 extern short *CourseSkyKeyframePtrs[];
-extern short *D_8009E224[];
+extern short *CourseSceneryRangePtrs[];
 extern char D_8009E248[];
 extern int SetGeomOffset();
 extern int SetDrawArea();
 
-SkyTri *func_80017310(SkyTri *a0, SkyCtx *a1, int a2);
-SkyQuad17528 *func_80017528(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2);
-SkyQuad177E4 *func_800177E4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2);
-SkyTri17A90 *func_80017A90(SkyTri17A90 *a0, SkyCtx *a1, int a2);
+SkyTri *SkyEmitTriFT3(SkyTri *a0, SkyCtx *a1, int a2);
+SkyQuad17528 *SkyEmitQuadG4(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2);
+SkyQuad177E4 *SkyEmitQuadFT4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2);
+SkyTri17A90 *EmitSkyDepthCuedGT3(SkyTri17A90 *a0, SkyCtx *a1, int a2);
 void DrawTrackScenery();
-char *func_80017F84(char *a0, char *a1);
-char *func_800183EC(char *a0, char *a1);
-char *func_800189AC(char *a0, char *a1);
-char *func_80018D44(char *a0, char *a1);
-char *func_80019144(char *a0, char *a1);
+SkyLitTri14 *SkyEmitLitTriG3(SkyLitTri14 *a0, SkyLitCtx *a1);
+SkyLitQuad18 *SkyEmitLitTexQuadGT4(SkyLitQuad18 *a0, SkyLitCtx *a1);
+SkyLitQuad18 *SkyEmitLitQuadG4(SkyLitQuad18 *a0, SkyLitCtx *a1);
+SkyLitTexQuad24 *EmitSkyLitGT4(SkyLitTexQuad24 *a0, SkyLitCtx *a1);
+SkyLitTexQuad24 *SkyEmitSpecTexQuadGT4(SkyLitTexQuad24 *a0, SkyLitCtx *a1);
 void RunSkyCommandList(char *a0, int a1);
-void func_800195BC(char *a0, volatile unsigned short *a1);
-void func_800197C8(int a0, int a1, short *a2, int a3);
+void RenderSkyToRect(int a0, int a1, short *a2, int a3);
 
-SkyTri *func_80017310(SkyTri *a0, SkyCtx *a1, int a2) {
+SkyTri *SkyEmitTriFT3(SkyTri *a0, SkyCtx *a1, int a2) {
     int v0 = a0->v01;
     int a3 = a0->v2;
     char *verts = a1->verts;
@@ -176,24 +252,9 @@ SkyTri *func_80017310(SkyTri *a0, SkyCtx *a1, int a2) {
     a1->v2 = verts + (a3 << 3);
     pkt = ((Scratch17310 *)SCRATCHPAD)->pkt;
     do {
-        /* ASM_BARRIER: load V0..V2 from a1->v0..v2 into GTE $0..$5 */
-        __asm__ volatile(
-            "lw $13, 0x18(%0)\n\t"
-            "lw $14, 0x1C(%0)\n\t"
-            "lw $15, 0x20(%0)\n\t"
-            "lwc2 $0, 0($13)\n\t"
-            "lwc2 $1, 4($13)\n\t"
-            "lwc2 $2, 0($14)\n\t"
-            "lwc2 $3, 4($14)\n\t"
-            "lwc2 $4, 0($15)\n\t"
-            "lwc2 $5, 4($15)"
-            :
-            : "r"(a1)
-            : "$13", "$14", "$15"
-        );
+        RR_GTE_LOAD_SKY_TRI_VERTS(a1);
         v0 = a0[1].v01;
-        /* ASM_BARRIER: GTE RTPT after 1-cycle load delay */
-        __asm__ volatile("nop\n\t.word 0x4A280030");
+        RR_GTE_CMD_1NOP(0x4A280030);
         a3 = a0[1].v2;
         v1 = v0 >> 16;
         v0 &= 0xFFFF;
@@ -223,29 +284,13 @@ SkyTri *func_80017310(SkyTri *a0, SkyCtx *a1, int a2) {
                     v0 = a0->c0;
                     v1 = a0->c1;
                     a3 = a0->c2;
-                    /* ASM_BARRIER: load IR0, RGB0..RGB2, run DPCT, store RGB0..RGB2 */
-                    __asm__ volatile(
-                        "lwc2 $8, 0(%0)\n\t"
-                        "mtc2 %1, $6\n\t"
-                        "mtc2 %1, $20\n\t"
-                        "mtc2 %2, $21\n\t"
-                        "mtc2 %3, $22\n\t"
-                        "nop\n\t"
-                        "nop\n\t"
-                        ".word 0x4AF8002A\n\t"
-                        "swc2 $20, 4(%4)\n\t"
-                        "swc2 $21, 12(%4)\n\t"
-                        "swc2 $22, 20(%4)"
-                        :
-                        : "r"(a1), "r"(v0), "r"(v1), "r"(a3), "r"(pkt)
-                        : "memory"
-                    );
+                    RR_GTE_DPCT_SKY_TRI(a1, v0, v1, a3, pkt);
                     g = (int *)SCRATCHPAD;
-                    pkt[0] = *(int *)((a0->b7 << 2) + g[1] + 0xAF8);
+                    pkt[0] = ((int *)((a0->b7 << 2) + g[1]))[0xAF8 / 4];
                     ((char *)pkt)[3] = 6;
-                    *(int *)((a0->b7 << 2) + g[1] + 0xAF8) = (int)pkt;
+                    ((int *)((a0->b7 << 2) + g[1]))[0xAF8 / 4] = pkt;
                     pkt += 7;
-                    *(char *)((a0->b7 << 2) + g[1] + 0xAFB) = 0;
+                    ((char *)((a0->b7 << 2) + g[1]))[0xAFB] = 0;
                 }
             }
         }
@@ -256,7 +301,7 @@ SkyTri *func_80017310(SkyTri *a0, SkyCtx *a1, int a2) {
     return a0;
 }
 
-SkyQuad17528 *func_80017528(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2) {
+SkyQuad17528 *SkyEmitQuadG4(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2) {
     int v1 = a0->v01;
     int a3 = a0->v23;
     char *verts = a1->verts;
@@ -274,24 +319,7 @@ SkyQuad17528 *func_80017528(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2) {
     a1->v3 = (int *)(verts + (t1 << 3));
     pkt = ((Scratch17528 *)SCRATCHPAD)->pkt;
     do {
-        /* ASM_BARRIER: load V0..V2 from a1->v0..v2 into GTE $0..$5 and run RTPT */
-        __asm__ volatile(
-            "lw $15, 0x18(%0)\n\t"
-            "lw $24, 0x1C(%0)\n\t"
-            "lw $25, 0x20(%0)\n\t"
-            "lwc2 $0, 0($15)\n\t"
-            "lwc2 $1, 4($15)\n\t"
-            "lwc2 $2, 0($24)\n\t"
-            "lwc2 $3, 4($24)\n\t"
-            "lwc2 $4, 0($25)\n\t"
-            "lwc2 $5, 4($25)\n\t"
-            "nop\n\t"
-            "nop\n\t"
-            ".word 0x4A280030"
-            :
-            : "r"(a1)
-            : "$15", "$24", "$25"
-        );
+        RR_GTE_RTPT_SKY_QUAD_VERTS(a1);
         p = a1->v3;
         v1 = p[0];
         t0 = p[1];
@@ -311,12 +339,10 @@ SkyQuad17528 *func_80017528(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2) {
         RR_GTE14_SWC2_OTZ(&a1->otz);
         if (a1->otz > 0) {
             RR_GTE_SWC2_SXYZ(&a1->u.w.sxy0);
-            /* ASM_BARRIER: load V0 from a1->v3_0..v3_1 */
-            __asm__ volatile("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(&a1->v3_0));
+            RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, &a1->v3_0);
             v1 = a1->u.w.sxy0;
             t0 = a1->u.w.sxy1;
-            /* ASM_BARRIER: GTE RTPS */
-            __asm__ volatile(".word 0x4A180001");
+            RR_GTE14_RTPS();
             a3 = a1->u.w.sxy2;
             pkt[2] = v1;
             pkt[4] = t0;
@@ -339,34 +365,14 @@ SkyQuad17528 *func_80017528(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2) {
                     t0 = a0->c1;
                     a3 = a0->c2;
                     t1 = a0->c3;
-                    /* ASM_BARRIER: load IR0, RGB0..RGB2, run DPCT, store RGB0..RGB2, load RGB3, run DPCS */
-                    __asm__ volatile(
-                        "lwc2 $8, 0(%0)\n\t"
-                        "mtc2 %1, $6\n\t"
-                        "mtc2 %1, $20\n\t"
-                        "mtc2 %2, $21\n\t"
-                        "mtc2 %3, $22\n\t"
-                        "nop\n\t"
-                        "nop\n\t"
-                        ".word 0x4AF8002A\n\t"
-                        "swc2 $20, 4(%5)\n\t"
-                        "swc2 $21, 12(%5)\n\t"
-                        "swc2 $22, 20(%5)\n\t"
-                        "mtc2 %4, $6\n\t"
-                        "nop\n\t"
-                        "nop\n\t"
-                        ".word 0x4A780010"
-                        :
-                        : "r"(a1), "r"(v1), "r"(t0), "r"(a3), "r"(t1), "r"(pkt)
-                        : "memory"
-                    );
+                    RR_GTE_DPCT_DPCS_SKY_QUAD(a1, v1, t0, a3, t1, pkt);
                     RR_GTE14_SWC2_RGB2(pkt + 7);
                     g = (int *)SCRATCHPAD;
-                    pkt[0] = *(int *)((a0->b19 << 2) + g[1] + 0xAF8);
+                    pkt[0] = ((int *)((a0->b19 << 2) + g[1]))[0xAF8 / 4];
                     ((char *)pkt)[3] = 8;
-                    *(int *)((a0->b19 << 2) + g[1] + 0xAF8) = (int)pkt;
+                    ((int *)((a0->b19 << 2) + g[1]))[0xAF8 / 4] = pkt;
                     pkt += 9;
-                    *(char *)((a0->b19 << 2) + g[1] + 0xAFB) = 0;
+                    ((char *)((a0->b19 << 2) + g[1]))[0xAFB] = 0;
                 }
             }
         }
@@ -377,7 +383,7 @@ SkyQuad17528 *func_80017528(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2) {
     return a0;
 }
 
-SkyQuad177E4 *func_800177E4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2) {
+SkyQuad177E4 *SkyEmitQuadFT4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2) {
     int v1 = a0->v01;
     int a3 = a0->v23;
     char *verts = a1->verts;
@@ -396,24 +402,7 @@ SkyQuad177E4 *func_800177E4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2) {
     a1->v3 = (int *)(verts + (t1 << 3));
     pkt = ((Scratch177E4 *)SCRATCHPAD)->pkt;
     do {
-        /* ASM_BARRIER: load V0..V2 from a1->v0..v2 into GTE $0..$5 and run RTPT */
-        __asm__ volatile(
-            "lw $15, 0x18(%0)\n\t"
-            "lw $24, 0x1C(%0)\n\t"
-            "lw $25, 0x20(%0)\n\t"
-            "lwc2 $0, 0($15)\n\t"
-            "lwc2 $1, 4($15)\n\t"
-            "lwc2 $2, 0($24)\n\t"
-            "lwc2 $3, 4($24)\n\t"
-            "lwc2 $4, 0($25)\n\t"
-            "lwc2 $5, 4($25)\n\t"
-            "nop\n\t"
-            "nop\n\t"
-            ".word 0x4A280030"
-            :
-            : "r"(a1)
-            : "$15", "$24", "$25"
-        );
+        RR_GTE_RTPT_SKY_QUAD_VERTS(a1);
         p = a1->v3;
         v1 = p[0];
         t0 = p[1];
@@ -435,11 +424,9 @@ SkyQuad177E4 *func_800177E4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2) {
         RR_GTE14_SWC2_OTZ(&a1->otz);
         if (a1->otz > 0) {
             RR_GTE_SWC2_SXYZ(&a1->u.w.sxy0);
-            /* ASM_BARRIER: load V0 from a1->v3_0..v3_1 */
-            __asm__ volatile("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(&a1->v3_0));
+            RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, &a1->v3_0);
             a3 = a0->uv23;
-            /* ASM_BARRIER: GTE RTPS after 1-cycle load delay */
-            __asm__ volatile("nop\n\t.word 0x4A180001");
+            RR_GTE_CMD_1NOP(0x4A180001);
             v0 = a3 >> 16;
             /* ASM_BARRIER: keep sra $v0, $a3, 16 right after rtps and before pkt stores */
             __asm__ volatile("" : "+r"(v0));
@@ -447,9 +434,9 @@ SkyQuad177E4 *func_800177E4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2) {
             pkt[5] = t0;
             pkt[9] = v0;
             pkt[7] = a3;
-            v1 = *(int *)((char *)a1 + 0x28);
-            t0 = *(int *)((char *)a1 + 0x2C);
-            a3 = *(int *)((char *)a1 + 0x30);
+            v1 = a1->u.w.sxy0;
+            t0 = a1->u.w.sxy1;
+            a3 = a1->u.w.sxy2;
             pkt[2] = v1;
             pkt[4] = t0;
             pkt[6] = a3;
@@ -468,24 +455,14 @@ SkyQuad177E4 *func_800177E4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2) {
                 if ((v1 >= 0 || t0 >= 0 || a3 >= 0 || t1 >= 0) &&
                     (v1 < 0x100 || t0 < 0x100 || a3 < 0x100 || t1 < 0x100)) {
                     t1 = a0->c0;
-                    /* ASM_BARRIER: load IR0, RGB0, run DPCS */
-                    __asm__ volatile(
-                        "lwc2 $8, 0(%0)\n\t"
-                        "mtc2 %1, $6\n\t"
-                        "nop\n\t"
-                        "nop\n\t"
-                        ".word 0x4A780010"
-                        :
-                        : "r"(a1), "r"(t1)
-                        : "memory"
-                    );
+                    RR_GTE_DPCS_SKY_FT4(a1, t1);
                     RR_GTE14_SWC2_RGB2(pkt + 1);
                     g = (int *)SCRATCHPAD;
-                    pkt[0] = *(int *)((a0->b19 << 2) + g[1] + 0xAF8);
+                    pkt[0] = ((int *)((a0->b19 << 2) + g[1]))[0xAF8 / 4];
                     ((char *)pkt)[3] = 9;
-                    *(int *)((a0->b19 << 2) + g[1] + 0xAF8) = (int)pkt;
+                    ((int *)((a0->b19 << 2) + g[1]))[0xAF8 / 4] = pkt;
                     pkt += 10;
-                    *(char *)((a0->b19 << 2) + g[1] + 0xAFB) = 0;
+                    ((char *)((a0->b19 << 2) + g[1]))[0xAFB] = 0;
                 }
             }
         }
@@ -496,7 +473,7 @@ SkyQuad177E4 *func_800177E4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2) {
     return a0;
 }
 
-SkyTri17A90 *func_80017A90(SkyTri17A90 *a0, SkyCtx *a1, int a2) {
+SkyTri17A90 *EmitSkyDepthCuedGT3(SkyTri17A90 *a0, SkyCtx *a1, int a2) {
     int v0 = a0->v01;
     int a3 = a0->v2;
     char *verts = a1->verts;
@@ -510,24 +487,9 @@ SkyTri17A90 *func_80017A90(SkyTri17A90 *a0, SkyCtx *a1, int a2) {
     a1->v2 = verts + (a3 << 3);
     pkt = ((Scratch17A90 *)SCRATCHPAD)->pkt;
     do {
-        /* ASM_BARRIER: load V0..V2 from a1->v0..v2 into GTE $0..$5 */
-        __asm__ volatile(
-            "lw $13, 0x18(%0)\n\t"
-            "lw $14, 0x1C(%0)\n\t"
-            "lw $15, 0x20(%0)\n\t"
-            "lwc2 $0, 0($13)\n\t"
-            "lwc2 $1, 4($13)\n\t"
-            "lwc2 $2, 0($14)\n\t"
-            "lwc2 $3, 4($14)\n\t"
-            "lwc2 $4, 0($15)\n\t"
-            "lwc2 $5, 4($15)"
-            :
-            : "r"(a1)
-            : "$13", "$14", "$15"
-        );
+        RR_GTE_LOAD_SKY_TRI_VERTS(a1);
         v0 = a0[1].v01;
-        /* ASM_BARRIER: GTE RTPT after 1-cycle load delay */
-        __asm__ volatile("nop\n\t.word 0x4A280030");
+        RR_GTE_CMD_1NOP(0x4A280030);
         a3 = a0[1].v2;
         v1 = v0 >> 16;
         v0 &= 0xFFFF;
@@ -563,29 +525,13 @@ SkyTri17A90 *func_80017A90(SkyTri17A90 *a0, SkyCtx *a1, int a2) {
                     v0 = a0->c0;
                     v1 = a0->c1;
                     a3 = a0->c2;
-                    /* ASM_BARRIER: load IR0, RGB0..RGB2, run DPCT, store RGB0..RGB2 */
-                    __asm__ volatile(
-                        "lwc2 $8, 0(%0)\n\t"
-                        "mtc2 %1, $6\n\t"
-                        "mtc2 %1, $20\n\t"
-                        "mtc2 %2, $21\n\t"
-                        "mtc2 %3, $22\n\t"
-                        "nop\n\t"
-                        "nop\n\t"
-                        ".word 0x4AF8002A\n\t"
-                        "swc2 $20, 4(%4)\n\t"
-                        "swc2 $21, 16(%4)\n\t"
-                        "swc2 $22, 28(%4)"
-                        :
-                        : "r"(a1), "r"(v0), "r"(v1), "r"(a3), "r"(pkt)
-                        : "memory"
-                    );
+                    RR_GTE_DPCT_SKY_GT3(a1, v0, v1, a3, pkt);
                     g = (int *)SCRATCHPAD;
-                    pkt[0] = *(int *)((a0->u1C.b.b1F << 2) + g[1] + 0xAF8);
+                    pkt[0] = ((int *)((a0->u1C.b.b1F << 2) + g[1]))[0xAF8 / 4];
                     ((char *)pkt)[3] = 9;
-                    *(int *)((a0->u1C.b.b1F << 2) + g[1] + 0xAF8) = (int)pkt;
+                    ((int *)((a0->u1C.b.b1F << 2) + g[1]))[0xAF8 / 4] = pkt;
                     pkt += 10;
-                    *(char *)((a0->u1C.b.b1F << 2) + g[1] + 0xAFB) = 0;
+                    ((char *)((a0->u1C.b.b1F << 2) + g[1]))[0xAFB] = 0;
                 }
             }
         }
@@ -596,7 +542,7 @@ SkyTri17A90 *func_80017A90(SkyTri17A90 *a0, SkyCtx *a1, int a2) {
     return a0;
 }
 
-void DrawTrackScenery(a0) int a0; {
+void DrawTrackScenery(int a0) {
     int *s4;
     short *a1;
     int s1;
@@ -641,7 +587,7 @@ void DrawTrackScenery(a0) int a0; {
     }
     k = 0;
     RR_GTE_SETFC(k, k, k);
-    a1 = D_8009E224[CourseIndex];
+    a1 = CourseSceneryRangePtrs[CourseIndex];
     if (a1 != 0) {
         while (a1[0] < a0) a1 += 2;
         s3 = a1[1];
@@ -660,10 +606,10 @@ void DrawTrackScenery(a0) int a0; {
                 k = w & 0xFFFF;
                 w = w >> 16;
                 switch (k) {
-                case 7: r = (int)func_80017310(r, s0, w); break;
-                case 8: r = (int)func_80017528(r, s0, w); break;
-                case 1: r = (int)func_800177E4(r, s0, w); break;
-                case 11: r = (int)func_80017A90(r, s0, w); break;
+                case 7: r = SkyEmitTriFT3(r, s0, w); break;
+                case 8: r = SkyEmitQuadG4(r, s0, w); break;
+                case 1: r = SkyEmitQuadFT4(r, s0, w); break;
+                case 11: r = EmitSkyDepthCuedGT3(r, s0, w); break;
                 default: DebugPrintStub(D_800100D0, k, w); return;
                 }
             }
@@ -673,67 +619,65 @@ void DrawTrackScenery(a0) int a0; {
     }
 }
 
-char *func_80017F84(char *a0, char *a1) {
-    volatile int *hw;
+SkyLitTri14 *SkyEmitLitTriG3(SkyLitTri14 *a0, SkyLitCtx *a1) {
+    int *hw;
     int n;
     int *pkt;
     int shift;
     char *verts;
 
-    *(int *)(a1 + 0xF4) = 0x34808080;
-    RR_GTE14_LWC2_RGB(a1 + 0xF4);
+    a1->rgbF4 = 0x34808080;
+    RR_GTE14_LWC2_RGB(&a1->rgbF4);
 
-    hw = (volatile int *)SCRATCHPAD;
-    n = *(int *)(a1 + 0xE4);
+    hw = (int *)SCRATCHPAD;
+    n = a1->countE4;
     pkt = (int *)hw[0];
     shift = hw[0x60 / 4];
-    verts = *(char **)(a1 + 0x70);
+    verts = a1->verts70;
 
     while (n-- > 0) {
         RR_GTE_RTPT_LDV(
-            verts + (*(unsigned short *)(a0 + 0) << 3),
-            verts + (*(unsigned short *)(a0 + 2) << 3),
-            verts + (*(unsigned short *)(a0 + 4) << 3)
+            verts + (a0->v0 << 3),
+            verts + (a0->v1 << 3),
+            verts + (a0->v2 << 3)
         );
         RR_GTE14_NOP2();
         RR_GTE14_NCLIP();
-        RR_GTE14_SWC2_MAC0(a1 + 0xEC);
+        RR_GTE14_SWC2_MAC0(&a1->mac0EC);
 
-        if (*(int *)(a1 + 0xEC) > 0) {
-            RR_GTE14_SWC2_SXYZ(a1 + 0x140);
-            pkt[2] = *(int *)(a1 + 0x140);
-            pkt[5] = *(int *)(a1 + 0x144);
-            pkt[8] = *(int *)(a1 + 0x148);
+        if (a1->mac0EC > 0) {
+            RR_GTE14_SWC2_SXYZ(&a1->sxy140.w.sxy0);
+            pkt[2] = a1->sxy140.w.sxy0;
+            pkt[5] = a1->sxy140.w.sxy1;
+            pkt[8] = a1->sxy140.w.sxy2;
             RR_GTE14_NOP2();
             RR_GTE_OP(0x4B58002D);
 
-            if (*(short *)(a1 + 0x140) >= 0 || *(short *)(a1 + 0x144) >= 0 || *(short *)(a1 + 0x148) >= 0) {
-                if (*(short *)(a1 + 0x140) < 0x140 || *(short *)(a1 + 0x144) < 0x140 || *(short *)(a1 + 0x148) < 0x140) {
-                    if (*(short *)(a1 + 0x142) >= 0 || *(short *)(a1 + 0x146) >= 0 || *(short *)(a1 + 0x14A) >= 0) {
-                        if (*(short *)(a1 + 0x142) < 0x200 || *(short *)(a1 + 0x146) < 0x200 || *(short *)(a1 + 0x14A) < 0x200) {
+            if (a1->sxy140.s.sx0 >= 0 || a1->sxy140.s.sx1 >= 0 || a1->sxy140.s.sx2 >= 0) {
+                if (a1->sxy140.s.sx0 < 0x140 || a1->sxy140.s.sx1 < 0x140 || a1->sxy140.s.sx2 < 0x140) {
+                    if (a1->sxy140.s.sy0 >= 0 || a1->sxy140.s.sy1 >= 0 || a1->sxy140.s.sy2 >= 0) {
+                        if (a1->sxy140.s.sy0 < 0x200 || a1->sxy140.s.sy1 < 0x200 || a1->sxy140.s.sy2 < 0x200) {
                             int u, v, z;
 
-                            RR_GTE14_SWC2_OTZ(a1 + 0xE8);
+                            RR_GTE14_SWC2_OTZ(&a1->otzE8);
                             RR_GTE14_LWC2_V0_V1_V2(
-                                *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 6) << 3),
-                                *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 8) << 3),
-                                *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 10) << 3)
+                                a1->verts70 + (a0->n0 << 3),
+                                a1->verts70 + (a0->n1 << 3),
+                                a1->verts70 + (a0->n2 << 3)
                             );
                             RR_GTE14_NOP2();
                             RR_GTE14_LIGHT0();
                             RR_GTE14_LIGHT1();
                             RR_GTE14_LIGHT2();
-                            /* ASM_BARRIER: store GTE RGB0/RGB1/RGB2 into packet offsets 4, 16, 28 */
-                            __asm__ volatile("swc2 $20, 4(%0); swc2 $21, 16(%0); swc2 $22, 28(%0)" : : "r"(pkt) : "memory");
+                            RR_GTE_SWC2_RGB012_ENV(pkt);
                             RR_GTE14_NOP2();
                             RR_GTE_OP(0x4A486012);
-                            /* ASM_BARRIER: store GTE IR1/IR2/IR3 to context at +0x100 with memory clobber */
-                            __asm__ volatile("swc2 $9, 0(%0); swc2 $10, 4(%0); swc2 $11, 8(%0)" : : "r"(a1 + 0x100) : "memory");
+                            RR_GTE_STORE_IR_MEM(&a1->ir100);
                             RR_GTE14_NOP2();
                             RR_GTE_OP(0x4A48E012);
 
-                            u = (*(int *)(a1 + 0x100) >> 6) + 0x40;
-                            v = (*(int *)(a1 + 0x104) >> 7) + 0x40;
+                            u = (a1->ir100.x >> 6) + 0x40;
+                            v = (a1->ir100.y >> 7) + 0x40;
                             if (u < 0) {
                                 u = 0;
                             } else if (u >= 0x80) {
@@ -744,15 +688,14 @@ char *func_80017F84(char *a0, char *a1) {
                             } else if (v >= 0x80) {
                                 v = 0x7F;
                             }
-                            pkt[3] = (v << 8) | u | *(int *)(a1 + 0xFC);
+                            pkt[3] = (v << 8) | u | a1->clutFC;
 
-                            /* ASM_BARRIER: store GTE IR1/IR2/IR3 to context at +0x10C with memory clobber */
-                            __asm__ volatile("swc2 $9, 0(%0); swc2 $10, 4(%0); swc2 $11, 8(%0)" : : "r"(a1 + 0x10C) : "memory");
+                            RR_GTE_STORE_IR_MEM(&a1->ir10C);
                             RR_GTE14_NOP2();
                             RR_GTE_OP(0x4A496012);
 
-                            u = (*(int *)(a1 + 0x10C) >> 6) + 0x40;
-                            v = (*(int *)(a1 + 0x110) >> 7) + 0x40;
+                            u = (a1->ir10C.x >> 6) + 0x40;
+                            v = (a1->ir10C.y >> 7) + 0x40;
                             if (u < 0) {
                                 u = 0;
                             } else if (u >= 0x80) {
@@ -763,12 +706,11 @@ char *func_80017F84(char *a0, char *a1) {
                             } else if (v >= 0x80) {
                                 v = 0x7F;
                             }
-                            pkt[6] = (v << 8) | u | *(int *)(a1 + 0xF8);
+                            pkt[6] = (v << 8) | u | a1->pageF8;
 
-                            /* ASM_BARRIER: store GTE IR1/IR2/IR3 to context at +0x118 with memory clobber */
-                            __asm__ volatile("swc2 $9, 0(%0); swc2 $10, 4(%0); swc2 $11, 8(%0)" : : "r"(a1 + 0x118) : "memory");
-                            u = (*(int *)(a1 + 0x118) >> 6) + 0x40;
-                            v = (*(int *)(a1 + 0x11C) >> 7) + 0x40;
+                            RR_GTE_STORE_IR_MEM(&a1->ir118);
+                            u = (a1->ir118.x >> 6) + 0x40;
+                            v = (a1->ir118.y >> 7) + 0x40;
                             if (u < 0) {
                                 u = 0;
                             } else if (u >= 0x80) {
@@ -781,15 +723,15 @@ char *func_80017F84(char *a0, char *a1) {
                             }
                             pkt[9] = (v << 8) | u;
 
-                            z = *(int *)(a1 + 0xE8) >> shift;
+                            z = a1->otzE8 >> shift;
                             if (z > 0) {
                                 if (z < 0x1C0) {
-                                    volatile int *g = (volatile int *)SCRATCHPAD;
-                                    pkt[0] = *(int *)((*(signed char *)(a0 + 0x11) << 2) + ((z << 2) + g[1]) + 0x200);
+                                    int *g = (int *)SCRATCHPAD;
+                                    pkt[0] = *(int *)((a0->b11 << 2) + ((z << 2) + g[1]) + 0x200);
                                     ((char *)pkt)[3] = 9;
-                                    *(int *)((*(signed char *)(a0 + 0x11) << 2) + ((z << 2) + g[1]) + 0x200) = (int)pkt;
+                                    *(int *)((a0->b11 << 2) + ((z << 2) + g[1]) + 0x200) = pkt;
                                     pkt += 10;
-                                    *(char *)((*(signed char *)(a0 + 0x11) << 2) + ((z << 2) + g[1]) + 0x203) = 0;
+                                    *(char *)((a0->b11 << 2) + ((z << 2) + g[1]) + 0x203) = 0;
                                 }
                             }
                         }
@@ -797,7 +739,7 @@ char *func_80017F84(char *a0, char *a1) {
                 }
             }
         }
-        a0 += 0x14;
+        a0++;
     }
 
     /* ASM_BARRIER: extend live ranges of n and a0 past loop for register allocation priority */
@@ -806,73 +748,71 @@ char *func_80017F84(char *a0, char *a1) {
     return a0;
 }
 
-char *func_800183EC(char *a0, char *a1) {
-    volatile int *hw;
+SkyLitQuad18 *SkyEmitLitTexQuadGT4(SkyLitQuad18 *a0, SkyLitCtx *a1) {
+    int *hw;
     int n;
     int *pkt;
     int shift;
     char *verts;
 
-    *(int *)(a1 + 0xF4) = 0x3C808080;
-    RR_GTE14_LWC2_RGB(a1 + 0xF4);
+    a1->rgbF4 = 0x3C808080;
+    RR_GTE14_LWC2_RGB(&a1->rgbF4);
 
-    hw = (volatile int *)SCRATCHPAD;
-    n = *(int *)(a1 + 0xE4);
+    hw = (int *)SCRATCHPAD;
+    n = a1->countE4;
     pkt = (int *)hw[0];
     shift = hw[0x60 / 4];
-    verts = *(char **)(a1 + 0x70);
+    verts = a1->verts70;
 
     while (n-- > 0) {
         RR_GTE_RTPT_LDV(
-            verts + (*(unsigned short *)(a0 + 0) << 3),
-            verts + (*(unsigned short *)(a0 + 2) << 3),
-            verts + (*(unsigned short *)(a0 + 4) << 3)
+            verts + (a0->v0 << 3),
+            verts + (a0->v1 << 3),
+            verts + (a0->v2 << 3)
         );
         RR_GTE14_NOP2();
         RR_GTE14_NCLIP();
-        RR_GTE14_SWC2_MAC0(a1 + 0xEC);
-        RR_GTE14_SWC2_SXYZ(a1 + 0x140);
-        RR_GTE_RTPS_LDV(verts + (*(unsigned short *)(a0 + 6) << 3));
-        pkt[2] = *(int *)(a1 + 0x140);
-        pkt[5] = *(int *)(a1 + 0x144);
-        pkt[8] = *(int *)(a1 + 0x148);
+        RR_GTE14_SWC2_MAC0(&a1->mac0EC);
+        RR_GTE14_SWC2_SXYZ(&a1->sxy140.w.sxy0);
+        RR_GTE_RTPS_LDV(verts + (a0->v3 << 3));
+        pkt[2] = a1->sxy140.w.sxy0;
+        pkt[5] = a1->sxy140.w.sxy1;
+        pkt[8] = a1->sxy140.w.sxy2;
         RR_GTE14_NOP2();
         RR_GTE14_NCLIP();
-        RR_GTE14_SWC2_SXY2(a1 + 0x14C);
-        RR_GTE14_SWC2_MAC0(a1 + 0xF0);
+        RR_GTE14_SWC2_SXY2(&a1->sxy140.w.sxy3);
+        RR_GTE14_SWC2_MAC0(&a1->mac0F0);
 
-        if (*(int *)(a1 + 0xEC) > 0 || *(int *)(a1 + 0xF0) < 0) {
+        if (a1->mac0EC > 0 || a1->mac0F0 < 0) {
             RR_GTE14_NOP2();
             RR_GTE14_AVSZ4();
-            pkt[11] = *(int *)(a1 + 0x14C);
+            pkt[11] = a1->sxy140.w.sxy3;
 
-            if (*(short *)(a1 + 0x140) >= 0 || *(short *)(a1 + 0x144) >= 0 || *(short *)(a1 + 0x148) >= 0 || *(short *)(a1 + 0x14C) >= 0) {
-                if (*(short *)(a1 + 0x140) < 0x140 || *(short *)(a1 + 0x144) < 0x140 || *(short *)(a1 + 0x148) < 0x140 || *(short *)(a1 + 0x14C) < 0x140) {
-                    if (*(short *)(a1 + 0x142) >= 0 || *(short *)(a1 + 0x146) >= 0 || *(short *)(a1 + 0x14A) >= 0 || *(short *)(a1 + 0x14E) >= 0) {
-                        if (*(short *)(a1 + 0x142) < 0x200 || *(short *)(a1 + 0x146) < 0x200 || *(short *)(a1 + 0x14A) < 0x200 || *(short *)(a1 + 0x14E) < 0x200) {
+            if (a1->sxy140.s.sx0 >= 0 || a1->sxy140.s.sx1 >= 0 || a1->sxy140.s.sx2 >= 0 || a1->sxy140.s.sx3 >= 0) {
+                if (a1->sxy140.s.sx0 < 0x140 || a1->sxy140.s.sx1 < 0x140 || a1->sxy140.s.sx2 < 0x140 || a1->sxy140.s.sx3 < 0x140) {
+                    if (a1->sxy140.s.sy0 >= 0 || a1->sxy140.s.sy1 >= 0 || a1->sxy140.s.sy2 >= 0 || a1->sxy140.s.sy3 >= 0) {
+                        if (a1->sxy140.s.sy0 < 0x200 || a1->sxy140.s.sy1 < 0x200 || a1->sxy140.s.sy2 < 0x200 || a1->sxy140.s.sy3 < 0x200) {
                             int u, v, z;
 
-                            RR_GTE14_SWC2_OTZ(a1 + 0xE8);
+                            RR_GTE14_SWC2_OTZ(&a1->otzE8);
                             RR_GTE14_LWC2_V0_V1_V2(
-                                *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 8) << 3),
-                                *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 10) << 3),
-                                *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 12) << 3)
+                                a1->verts70 + (a0->n0 << 3),
+                                a1->verts70 + (a0->n1 << 3),
+                                a1->verts70 + (a0->n2 << 3)
                             );
                             RR_GTE14_NOP2();
                             RR_GTE14_LIGHT0();
                             RR_GTE14_LIGHT1();
                             RR_GTE14_LIGHT2();
-                            /* ASM_BARRIER: store GTE RGB0/RGB1/RGB2 into packet offsets 4, 16, 28 */
-                            __asm__ volatile("swc2 $20, 4(%0); swc2 $21, 16(%0); swc2 $22, 28(%0)" : : "r"(pkt) : "memory");
+                            RR_GTE_SWC2_RGB012_ENV(pkt);
                             RR_GTE14_NOP2();
                             RR_GTE_OP(0x4A486012);
-                            /* ASM_BARRIER: store GTE IR1/IR2/IR3 to context at +0x100 with memory clobber */
-                            __asm__ volatile("swc2 $9, 0(%0); swc2 $10, 4(%0); swc2 $11, 8(%0)" : : "r"(a1 + 0x100) : "memory");
+                            RR_GTE_STORE_IR_MEM(&a1->ir100);
                             RR_GTE14_NOP2();
                             RR_GTE_OP(0x4A48E012);
 
-                            u = (*(int *)(a1 + 0x100) >> 6) + 0x40;
-                            v = (*(int *)(a1 + 0x104) >> 7) + 0x40;
+                            u = (a1->ir100.x >> 6) + 0x40;
+                            v = (a1->ir100.y >> 7) + 0x40;
                             if (u < 0) {
                                 u = 0;
                             } else if (u >= 0x80) {
@@ -883,15 +823,14 @@ char *func_800183EC(char *a0, char *a1) {
                             } else if (v >= 0x80) {
                                 v = 0x7F;
                             }
-                            pkt[3] = (v << 8) | u | *(int *)(a1 + 0xFC);
+                            pkt[3] = (v << 8) | u | a1->clutFC;
 
-                            /* ASM_BARRIER: store GTE IR1/IR2/IR3 to context at +0x10C with memory clobber */
-                            __asm__ volatile("swc2 $9, 0(%0); swc2 $10, 4(%0); swc2 $11, 8(%0)" : : "r"(a1 + 0x10C) : "memory");
+                            RR_GTE_STORE_IR_MEM(&a1->ir10C);
                             RR_GTE14_NOP2();
                             RR_GTE_OP(0x4A496012);
 
-                            u = (*(int *)(a1 + 0x10C) >> 6) + 0x40;
-                            v = (*(int *)(a1 + 0x110) >> 7) + 0x40;
+                            u = (a1->ir10C.x >> 6) + 0x40;
+                            v = (a1->ir10C.y >> 7) + 0x40;
                             if (u < 0) {
                                 u = 0;
                             } else if (u >= 0x80) {
@@ -902,19 +841,18 @@ char *func_800183EC(char *a0, char *a1) {
                             } else if (v >= 0x80) {
                                 v = 0x7F;
                             }
-                            pkt[6] = (v << 8) | u | *(int *)(a1 + 0xF8);
+                            pkt[6] = (v << 8) | u | a1->pageF8;
 
-                            /* ASM_BARRIER: store GTE IR1/IR2/IR3 to context at +0x118 with memory clobber */
-                            __asm__ volatile("swc2 $9, 0(%0); swc2 $10, 4(%0); swc2 $11, 8(%0)" : : "r"(a1 + 0x118) : "memory");
-                            RR_GTE14_LWC2_V0(*(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 14) << 3));
+                            RR_GTE_STORE_IR_MEM(&a1->ir118);
+                            RR_GTE14_LWC2_V0(a1->verts70 + (a0->n3 << 3));
                             RR_GTE14_NOP2();
                             RR_GTE14_LIGHT0();
                             RR_GTE14_SWC2_RGB2(pkt + 10);
                             RR_GTE14_NOP2();
                             RR_GTE_OP(0x4A486012);
 
-                            u = (*(int *)(a1 + 0x118) >> 6) + 0x40;
-                            v = (*(int *)(a1 + 0x11C) >> 7) + 0x40;
+                            u = (a1->ir118.x >> 6) + 0x40;
+                            v = (a1->ir118.y >> 7) + 0x40;
                             if (u < 0) {
                                 u = 0;
                             } else if (u >= 0x80) {
@@ -927,10 +865,9 @@ char *func_800183EC(char *a0, char *a1) {
                             }
                             pkt[9] = (v << 8) | u;
 
-                            /* ASM_BARRIER: store GTE IR1/IR2/IR3 to context at +0x124 with memory clobber */
-                            __asm__ volatile("swc2 $9, 0(%0); swc2 $10, 4(%0); swc2 $11, 8(%0)" : : "r"(a1 + 0x124) : "memory");
-                            u = (*(int *)(a1 + 0x124) >> 6) + 0x40;
-                            v = (*(int *)(a1 + 0x128) >> 7) + 0x40;
+                            RR_GTE_STORE_IR_MEM(&a1->ir124);
+                            u = (a1->ir124.x >> 6) + 0x40;
+                            v = (a1->ir124.y >> 7) + 0x40;
                             if (u < 0) {
                                 u = 0;
                             } else if (u >= 0x80) {
@@ -943,15 +880,15 @@ char *func_800183EC(char *a0, char *a1) {
                             }
                             pkt[12] = (v << 8) | u;
 
-                            z = *(int *)(a1 + 0xE8) >> shift;
+                            z = a1->otzE8 >> shift;
                             if (z > 0) {
                                 if (z < 0x1C0) {
-                                    volatile int *g = (volatile int *)SCRATCHPAD;
-                                    pkt[0] = *(int *)((*(signed char *)(a0 + 0x15) << 2) + ((z << 2) + g[1]) + 0x200);
+                                    int *g = (int *)SCRATCHPAD;
+                                    pkt[0] = *(int *)((a0->b15 << 2) + ((z << 2) + g[1]) + 0x200);
                                     ((char *)pkt)[3] = 0xC;
-                                    *(int *)((*(signed char *)(a0 + 0x15) << 2) + ((z << 2) + g[1]) + 0x200) = (int)pkt;
+                                    *(int *)((a0->b15 << 2) + ((z << 2) + g[1]) + 0x200) = pkt;
                                     pkt += 13;
-                                    *(char *)((*(signed char *)(a0 + 0x15) << 2) + ((z << 2) + g[1]) + 0x203) = 0;
+                                    *(char *)((a0->b15 << 2) + ((z << 2) + g[1]) + 0x203) = 0;
                                 }
                             }
                         }
@@ -959,7 +896,7 @@ char *func_800183EC(char *a0, char *a1) {
                 }
             }
         }
-        a0 += 0x18;
+        a0++;
     }
 
     /* ASM_BARRIER: extend live range of n past loop for register allocation priority */
@@ -968,70 +905,70 @@ char *func_800183EC(char *a0, char *a1) {
     return a0;
 }
 
-char *func_800189AC(char *a0, char *a1) {
-    volatile int *hw = (volatile int *)SCRATCHPAD;
-    int n = *(int *)(a1 + 0xE4);
+SkyLitQuad18 *SkyEmitLitQuadG4(SkyLitQuad18 *a0, SkyLitCtx *a1) {
+    int *hw = (int *)SCRATCHPAD;
+    int n = a1->countE4;
     int *pkt = (int *)hw[0];
     int shift = hw[0x60 / 4];
-    char *verts = *(char **)(a1 + 0x70);
+    char *verts = a1->verts70;
 
     while (n-- > 0) {
         RR_GTE_RTPT_LDV(
-            verts + (*(unsigned short *)(a0 + 0) << 3),
-            verts + (*(unsigned short *)(a0 + 2) << 3),
-            verts + (*(unsigned short *)(a0 + 4) << 3)
+            verts + (a0->v0 << 3),
+            verts + (a0->v1 << 3),
+            verts + (a0->v2 << 3)
         );
         RR_GTE14_NOP2();
         RR_GTE14_NCLIP();
-        RR_GTE14_SWC2_MAC0(a1 + 0xEC);
+        RR_GTE14_SWC2_MAC0(&a1->mac0EC);
         RR_GTE14_NOP2();
         RR_GTE_OP(0x4B58002D);
-        RR_GTE14_SWC2_OTZ(a1 + 0xE8);
-        if (*(int *)(a1 + 0xE8) > 0) {
-            RR_GTE14_SWC2_SXYZ(a1 + 0x140);
-            RR_GTE_RTPS_LDV(verts + (*(unsigned short *)(a0 + 6) << 3));
+        RR_GTE14_SWC2_OTZ(&a1->otzE8);
+        if (a1->otzE8 > 0) {
+            RR_GTE14_SWC2_SXYZ(&a1->sxy140.w.sxy0);
+            RR_GTE_RTPS_LDV(verts + (a0->v3 << 3));
             RR_GTE14_NOP2();
             RR_GTE14_NCLIP();
-            RR_GTE14_SWC2_MAC0(a1 + 0xF0);
-            if (*(int *)(a1 + 0xEC) > 0 || *(int *)(a1 + 0xF0) < 0) {
-                RR_GTE14_SWC2_SXY2(a1 + 0x14C);
-                pkt[2] = *(int *)(a1 + 0x140);
-                pkt[4] = *(int *)(a1 + 0x144);
-                pkt[6] = *(int *)(a1 + 0x148);
-                pkt[8] = *(int *)(a1 + 0x14C);
-                if ((*(short *)(a1 + 0x140) >= 0 || *(short *)(a1 + 0x144) >= 0 || *(short *)(a1 + 0x148) >= 0 || *(short *)(a1 + 0x14C) >= 0) &&
-                    (*(short *)(a1 + 0x140) < 0x140 || *(short *)(a1 + 0x144) < 0x140 || *(short *)(a1 + 0x148) < 0x140 || *(short *)(a1 + 0x14C) < 0x140)) {
-                    if ((*(short *)(a1 + 0x142) >= 0 || *(short *)(a1 + 0x146) >= 0 || *(short *)(a1 + 0x14A) >= 0 || *(short *)(a1 + 0x14E) >= 0) &&
-                        (*(short *)(a1 + 0x142) < 0x200 || *(short *)(a1 + 0x146) < 0x200 || *(short *)(a1 + 0x14A) < 0x200 || *(short *)(a1 + 0x14E) < 0x200)) {
-                        int z = *(int *)(a1 + 0xE8) >> shift;
+            RR_GTE14_SWC2_MAC0(&a1->mac0F0);
+            if (a1->mac0EC > 0 || a1->mac0F0 < 0) {
+                RR_GTE14_SWC2_SXY2(&a1->sxy140.w.sxy3);
+                pkt[2] = a1->sxy140.w.sxy0;
+                pkt[4] = a1->sxy140.w.sxy1;
+                pkt[6] = a1->sxy140.w.sxy2;
+                pkt[8] = a1->sxy140.w.sxy3;
+                if ((a1->sxy140.s.sx0 >= 0 || a1->sxy140.s.sx1 >= 0 || a1->sxy140.s.sx2 >= 0 || a1->sxy140.s.sx3 >= 0) &&
+                    (a1->sxy140.s.sx0 < 0x140 || a1->sxy140.s.sx1 < 0x140 || a1->sxy140.s.sx2 < 0x140 || a1->sxy140.s.sx3 < 0x140)) {
+                    if ((a1->sxy140.s.sy0 >= 0 || a1->sxy140.s.sy1 >= 0 || a1->sxy140.s.sy2 >= 0 || a1->sxy140.s.sy3 >= 0) &&
+                        (a1->sxy140.s.sy0 < 0x200 || a1->sxy140.s.sy1 < 0x200 || a1->sxy140.s.sy2 < 0x200 || a1->sxy140.s.sy3 < 0x200)) {
+                        int z = a1->otzE8 >> shift;
                         if (z > 0) {
                             if (z < 0x1C0) {
-                                volatile int *g = (volatile int *)SCRATCHPAD;
-                                RR_GTE14_LWC2_RGB(a0 + 0x10);
+                                int *g = (int *)SCRATCHPAD;
+                                RR_GTE14_LWC2_RGB(&a0->rgb10);
                                 RR_GTE14_LWC2_V0_V1_V2(
-                                    *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 8) << 3),
-                                    *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 10) << 3),
-                                    *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 12) << 3)
+                                    a1->verts70 + (a0->n0 << 3),
+                                    a1->verts70 + (a0->n1 << 3),
+                                    a1->verts70 + (a0->n2 << 3)
                                 );
                                 RR_GTE14_NOP2();
                                 RR_GTE_OP(0x4B18043F);
                                 RR_GTE14_SWC2_RGB012(pkt);
-                                RR_GTE14_LWC2_V0(*(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 14) << 3));
+                                RR_GTE14_LWC2_V0(a1->verts70 + (a0->n3 << 3));
                                 RR_GTE14_NOP2();
                                 RR_GTE_OP(0x4B08041B);
                                 RR_GTE14_SWC2_RGB2(pkt + 7);
-                                pkt[0] = *(int *)((*(signed char *)(a0 + 0x15) << 2) + ((z << 2) + g[1]) + 0x200);
+                                pkt[0] = *(int *)((a0->b15 << 2) + ((z << 2) + g[1]) + 0x200);
                                 ((char *)pkt)[3] = 8;
-                                *(int *)((*(signed char *)(a0 + 0x15) << 2) + ((z << 2) + g[1]) + 0x200) = (int)pkt;
+                                *(int *)((a0->b15 << 2) + ((z << 2) + g[1]) + 0x200) = pkt;
                                 pkt += 9;
-                                *(char *)((*(signed char *)(a0 + 0x15) << 2) + ((z << 2) + g[1]) + 0x203) = 0;
+                                *(char *)((a0->b15 << 2) + ((z << 2) + g[1]) + 0x203) = 0;
                             }
                         }
                     }
                 }
             }
         }
-        a0 += 0x18;
+        a0++;
         /* ASM_BARRIER: boost n ref count in loop so n gets $t3 */
         __asm__("" : "+r"(n));
     }
@@ -1041,71 +978,70 @@ char *func_800189AC(char *a0, char *a1) {
     return a0;
 }
 
-char *func_80018D44(char *a0, char *a1) {
-    volatile int *hw = (volatile int *)SCRATCHPAD;
-    int n = *(int *)(a1 + 0xE4);
+SkyLitTexQuad24 *EmitSkyLitGT4(SkyLitTexQuad24 *a0, SkyLitCtx *a1) {
+    int *hw = (int *)SCRATCHPAD;
+    int n = a1->countE4;
     int *pkt = (int *)hw[0];
     int shift = hw[0x60 / 4];
-    char *verts = *(char **)(a1 + 0x70);
+    char *verts = a1->verts70;
     int z;
 
     while (n-- > 0) {
         RR_GTE_RTPT_LDV(
-            verts + (*(unsigned short *)(a0 + 0) << 3),
-            verts + (*(unsigned short *)(a0 + 2) << 3),
-            verts + (*(unsigned short *)(a0 + 4) << 3)
+            verts + (a0->v0 << 3),
+            verts + (a0->v1 << 3),
+            verts + (a0->v2 << 3)
         );
         RR_GTE14_NOP2();
         RR_GTE14_NCLIP();
-        RR_GTE14_SWC2_MAC0(a1 + 0xEC);
+        RR_GTE14_SWC2_MAC0(&a1->mac0EC);
         RR_GTE14_NOP2();
         RR_GTE_OP(0x4B58002D);
-        RR_GTE14_SWC2_OTZ(a1 + 0xE8);
-        if (*(int *)(a1 + 0xE8) > 0) {
-            RR_GTE14_SWC2_SXYZ(a1 + 0x140);
-            RR_GTE_RTPS_LDV(verts + (*(unsigned short *)(a0 + 6) << 3));
+        RR_GTE14_SWC2_OTZ(&a1->otzE8);
+        if (a1->otzE8 > 0) {
+            RR_GTE14_SWC2_SXYZ(&a1->sxy140.w.sxy0);
+            RR_GTE_RTPS_LDV(verts + (a0->v3 << 3));
             RR_GTE14_NOP2();
             RR_GTE14_NCLIP();
-            RR_GTE14_SWC2_MAC0(a1 + 0xF0);
-            if (*(int *)(a1 + 0xEC) > 0 || *(int *)(a1 + 0xF0) < 0) {
-                RR_GTE14_SWC2_SXY2(a1 + 0x14C);
-                pkt[2] = *(int *)(a1 + 0x140);
-                pkt[5] = *(int *)(a1 + 0x144);
-                pkt[8] = *(int *)(a1 + 0x148);
-                pkt[11] = *(int *)(a1 + 0x14C);
-                if ((*(short *)(a1 + 0x140) >= 0 || *(short *)(a1 + 0x144) >= 0 || *(short *)(a1 + 0x148) >= 0 || *(short *)(a1 + 0x14C) >= 0) &&
-                    (*(short *)(a1 + 0x140) < 0x140 || *(short *)(a1 + 0x144) < 0x140 || *(short *)(a1 + 0x148) < 0x140 || *(short *)(a1 + 0x14C) < 0x140)) {
-                    if ((*(short *)(a1 + 0x142) >= 0 || *(short *)(a1 + 0x146) >= 0 || *(short *)(a1 + 0x14A) >= 0 || *(short *)(a1 + 0x14E) >= 0) &&
-                        (*(short *)(a1 + 0x142) < 0x200 || *(short *)(a1 + 0x146) < 0x200 || *(short *)(a1 + 0x14A) < 0x200 || *(short *)(a1 + 0x14E) < 0x200)) {
-                        pkt[3] = *(int *)(a0 + 0x14);
-                        pkt[6] = *(int *)(a0 + 0x18);
-                        pkt[9] = *(int *)(a0 + 0x1C);
-                        pkt[12] = *(short *)(a0 + 0x1E);
-                        z = *(int *)(a1 + 0xE8) >> shift;
+            RR_GTE14_SWC2_MAC0(&a1->mac0F0);
+            if (a1->mac0EC > 0 || a1->mac0F0 < 0) {
+                RR_GTE14_SWC2_SXY2(&a1->sxy140.w.sxy3);
+                pkt[2] = a1->sxy140.w.sxy0;
+                pkt[5] = a1->sxy140.w.sxy1;
+                pkt[8] = a1->sxy140.w.sxy2;
+                pkt[11] = a1->sxy140.w.sxy3;
+                if ((a1->sxy140.s.sx0 >= 0 || a1->sxy140.s.sx1 >= 0 || a1->sxy140.s.sx2 >= 0 || a1->sxy140.s.sx3 >= 0) &&
+                    (a1->sxy140.s.sx0 < 0x140 || a1->sxy140.s.sx1 < 0x140 || a1->sxy140.s.sx2 < 0x140 || a1->sxy140.s.sx3 < 0x140)) {
+                    if ((a1->sxy140.s.sy0 >= 0 || a1->sxy140.s.sy1 >= 0 || a1->sxy140.s.sy2 >= 0 || a1->sxy140.s.sy3 >= 0) &&
+                        (a1->sxy140.s.sy0 < 0x200 || a1->sxy140.s.sy1 < 0x200 || a1->sxy140.s.sy2 < 0x200 || a1->sxy140.s.sy3 < 0x200)) {
+                        pkt[3] = a0->uv0;
+                        pkt[6] = a0->uv1;
+                        pkt[9] = a0->uv2.word;
+                        pkt[12] = a0->uv2.h.hi;
+                        z = a1->otzE8 >> shift;
                         if (z > 0) {
                             if (z < 0x1C0) {
-                                volatile int *g = (volatile int *)SCRATCHPAD;
-                                RR_GTE14_LWC2_RGB(a0 + 0x10);
+                                int *g = (int *)SCRATCHPAD;
+                                RR_GTE14_LWC2_RGB(&a0->rgb10);
                                 RR_GTE14_LWC2_V0_V1_V2(
-                                    *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 8) << 3),
-                                    *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 10) << 3),
-                                    *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 12) << 3)
+                                    a1->verts70 + (a0->n0 << 3),
+                                    a1->verts70 + (a0->n1 << 3),
+                                    a1->verts70 + (a0->n2 << 3)
                                 );
                                 RR_GTE14_NOP2();
                                 RR_GTE14_LIGHT0();
                                 RR_GTE14_LIGHT1();
                                 RR_GTE14_LIGHT2();
-                                /* ASM_BARRIER: store GTE RGB0..RGB2 into POLY_GT4 packet offsets 4, 16, 28 */
-                                __asm__ volatile("swc2 $20, 4(%0); swc2 $21, 16(%0); swc2 $22, 28(%0)" : : "r"(pkt) : "memory");
-                                RR_GTE14_LWC2_V0(*(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 14) << 3));
+                                RR_GTE_SWC2_RGB012_ENV(pkt);
+                                RR_GTE14_LWC2_V0(a1->verts70 + (a0->n3 << 3));
                                 RR_GTE14_NOP2();
                                 RR_GTE14_LIGHT0();
                                 RR_GTE14_SWC2_RGB2(pkt + 10);
-                                pkt[0] = *(int *)((*(signed char *)(a0 + 0x21) << 2) + ((z << 2) + g[1]) + 0x200);
+                                pkt[0] = *(int *)((a0->b21 << 2) + ((z << 2) + g[1]) + 0x200);
                                 ((char *)pkt)[3] = 0xC;
-                                *(int *)((*(signed char *)(a0 + 0x21) << 2) + ((z << 2) + g[1]) + 0x200) = (int)pkt;
+                                *(int *)((a0->b21 << 2) + ((z << 2) + g[1]) + 0x200) = pkt;
                                 pkt += 13;
-                                *(char *)((*(signed char *)(a0 + 0x21) << 2) + ((z << 2) + g[1]) + 0x203) = 0;
+                                *(char *)((a0->b21 << 2) + ((z << 2) + g[1]) + 0x203) = 0;
                                 /* ASM_BARRIER: extend z live range to end of block so pkt+3 gets $t0 and z gets $t1 */
                                 __asm__("" : : "r"(z));
                             }
@@ -1114,7 +1050,7 @@ char *func_80018D44(char *a0, char *a1) {
                 }
             }
         }
-        a0 += 0x24;
+        a0++;
         /* ASM_BARRIER: boost n ref count in loop so n gets $t3 */
         __asm__("" : "+r"(n));
     }
@@ -1124,72 +1060,70 @@ char *func_80018D44(char *a0, char *a1) {
     return a0;
 }
 
-char *func_80019144(char *a0, char *a1) {
-    volatile int *hw = (volatile int *)SCRATCHPAD;
-    int n = *(int *)(a1 + 0xE4);
+SkyLitTexQuad24 *SkyEmitSpecTexQuadGT4(SkyLitTexQuad24 *a0, SkyLitCtx *a1) {
+    int *hw = (int *)SCRATCHPAD;
+    int n = a1->countE4;
     int *pkt = (int *)hw[0];
     int shift = hw[0x60 / 4];
-    char *verts = *(char **)(a1 + 0x70);
+    char *verts = a1->verts70;
 
     while (n-- > 0) {
         RR_GTE_RTPT_LDV(
-            verts + (*(unsigned short *)(a0 + 0) << 3),
-            verts + (*(unsigned short *)(a0 + 2) << 3),
-            verts + (*(unsigned short *)(a0 + 4) << 3)
+            verts + (a0->v0 << 3),
+            verts + (a0->v1 << 3),
+            verts + (a0->v2 << 3)
         );
         RR_GTE14_NOP2();
         RR_GTE14_NCLIP();
-        RR_GTE14_SWC2_MAC0(a1 + 0xEC);
+        RR_GTE14_SWC2_MAC0(&a1->mac0EC);
         RR_GTE14_NOP2();
         RR_GTE_OP(0x4B58002D);
-        RR_GTE14_SWC2_OTZ(a1 + 0xE8);
-        if (*(int *)(a1 + 0xE8) > 0) {
-            RR_GTE14_SWC2_SXYZ(a1 + 0x140);
-            RR_GTE_RTPS_LDV(verts + (*(unsigned short *)(a0 + 6) << 3));
+        RR_GTE14_SWC2_OTZ(&a1->otzE8);
+        if (a1->otzE8 > 0) {
+            RR_GTE14_SWC2_SXYZ(&a1->sxy140.w.sxy0);
+            RR_GTE_RTPS_LDV(verts + (a0->v3 << 3));
             RR_GTE14_NOP2();
             RR_GTE14_NCLIP();
-            RR_GTE14_SWC2_MAC0(a1 + 0xF0);
-            if (*(int *)(a1 + 0xEC) > 0 || *(int *)(a1 + 0xF0) < 0) {
-                RR_GTE14_SWC2_SXY2(a1 + 0x14C);
-                pkt[2] = *(int *)(a1 + 0x140);
-                pkt[4] = *(int *)(a1 + 0x144);
-                pkt[6] = *(int *)(a1 + 0x148);
-                pkt[8] = *(int *)(a1 + 0x14C);
-                if ((*(short *)(a1 + 0x140) >= 0 || *(short *)(a1 + 0x144) >= 0 || *(short *)(a1 + 0x148) >= 0 || *(short *)(a1 + 0x14C) >= 0) &&
-                    (*(short *)(a1 + 0x140) < 0x140 || *(short *)(a1 + 0x144) < 0x140 || *(short *)(a1 + 0x148) < 0x140 || *(short *)(a1 + 0x14C) < 0x140)) {
-                    if ((*(short *)(a1 + 0x142) >= 0 || *(short *)(a1 + 0x146) >= 0 || *(short *)(a1 + 0x14A) >= 0 || *(short *)(a1 + 0x14E) >= 0) &&
-                        (*(short *)(a1 + 0x142) < 0x200 || *(short *)(a1 + 0x146) < 0x200 || *(short *)(a1 + 0x14A) < 0x200 || *(short *)(a1 + 0x14E) < 0x200)) {
+            RR_GTE14_SWC2_MAC0(&a1->mac0F0);
+            if (a1->mac0EC > 0 || a1->mac0F0 < 0) {
+                RR_GTE14_SWC2_SXY2(&a1->sxy140.w.sxy3);
+                pkt[2] = a1->sxy140.w.sxy0;
+                pkt[4] = a1->sxy140.w.sxy1;
+                pkt[6] = a1->sxy140.w.sxy2;
+                pkt[8] = a1->sxy140.w.sxy3;
+                if ((a1->sxy140.s.sx0 >= 0 || a1->sxy140.s.sx1 >= 0 || a1->sxy140.s.sx2 >= 0 || a1->sxy140.s.sx3 >= 0) &&
+                    (a1->sxy140.s.sx0 < 0x140 || a1->sxy140.s.sx1 < 0x140 || a1->sxy140.s.sx2 < 0x140 || a1->sxy140.s.sx3 < 0x140)) {
+                    if ((a1->sxy140.s.sy0 >= 0 || a1->sxy140.s.sy1 >= 0 || a1->sxy140.s.sy2 >= 0 || a1->sxy140.s.sy3 >= 0) &&
+                        (a1->sxy140.s.sy0 < 0x200 || a1->sxy140.s.sy1 < 0x200 || a1->sxy140.s.sy2 < 0x200 || a1->sxy140.s.sy3 < 0x200)) {
                         int z;
-                        pkt[3] = *(int *)(a0 + 0x14);
-                        pkt[5] = *(int *)(a0 + 0x18);
-                        pkt[7] = *(int *)(a0 + 0x1C);
-                        pkt[9] = *(short *)(a0 + 0x1E);
-                        z = *(int *)(a1 + 0xE8) >> shift;
+                        pkt[3] = a0->uv0;
+                        pkt[5] = a0->uv1;
+                        pkt[7] = a0->uv2.word;
+                        pkt[9] = a0->uv2.h.hi;
+                        z = a1->otzE8 >> shift;
                         if (z > 0) {
                             if (z < 0x1C0) {
-                                volatile int *g = (volatile int *)SCRATCHPAD;
-                                RR_GTE14_LWC2_RGB(a0 + 0x10);
-                                RR_GTE14_LWC2_V0(*(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 8) << 3));
+                                int *g = (int *)SCRATCHPAD;
+                                RR_GTE14_LWC2_RGB(&a0->rgb10);
+                                RR_GTE14_LWC2_V0(a1->verts70 + (a0->n0 << 3));
                                 RR_GTE14_NOP2();
                                 RR_GTE14_LIGHT0();
                                 RR_GTE14_SWC2_RGB2(pkt + 1);
-                                pkt[0] = *(int *)((*(signed char *)(a0 + 0x21) << 2) + ((z << 2) + g[1]) + 0x200);
+                                pkt[0] = *(int *)((a0->b21 << 2) + ((z << 2) + g[1]) + 0x200);
                                 ((char *)pkt)[3] = 9;
-                                *(int *)((*(signed char *)(a0 + 0x21) << 2) + ((z << 2) + g[1]) + 0x200) = (int)pkt;
+                                *(int *)((a0->b21 << 2) + ((z << 2) + g[1]) + 0x200) = pkt;
                                 pkt += 10;
-                                *(char *)((*(signed char *)(a0 + 0x21) << 2) + ((z << 2) + g[1]) + 0x203) = 0;
+                                *(char *)((a0->b21 << 2) + ((z << 2) + g[1]) + 0x203) = 0;
                             }
                         }
                     }
                 }
             }
         }
-        a0 += 0x24;
+        a0++;
         /* ASM_BARRIER: weight pkt, n, a0 loop references for register allocation order */
         __asm__("" : "+r"(n) : "r"(pkt), "r"(a0));
     }
-    /* ASM_BARRIER: extend verts live range after loop so pkt=$t0, n=$t1, a0=$t2, verts=$t3 */
-    __asm__("" : : "r"(pkt), "r"(n), "r"(a0), "r"(verts));
     *(int **)SCRATCHPAD = pkt;
     return a0;
 }
@@ -1199,39 +1133,39 @@ void RunSkyCommandList(char *a0, int a1)
     int *s = (int *)(SCRATCHPAD + 0x7C);
     int w, v;
     int *p;
-    a0 += a1 * 12;
-    v = *(int *)(a0 + 4);
+    SkyCmdHeader *h = (SkyCmdHeader *)(a0 + a1 * 12);
+    v = h->verts04;
     s[0x3F] = 0x20180000;
     s[0x3E] = 0x60000;
     s[0x1C] = v;
-    p = *(int **)(a0 + 0xC);
+    p = h->cmds0C;
     w = *p++;
     while (w) {
         s[0x39] = w >> 16;
         switch (w & 0xFFFF) {
         case 9:
-            p = func_80017F84(p, s);
+            p = (int *)SkyEmitLitTriG3((SkyLitTri14 *)p, (SkyLitCtx *)s);
             break;
         case 10:
-            p = func_800183EC(p, s);
+            p = (int *)SkyEmitLitTexQuadGT4((SkyLitQuad18 *)p, (SkyLitCtx *)s);
             break;
         case 13:
-            p = func_800189AC(p, s);
+            p = (int *)SkyEmitLitQuadG4((SkyLitQuad18 *)p, (SkyLitCtx *)s);
             break;
         case 15:
-            p = func_80018D44(p, s);
+            p = (int *)EmitSkyLitGT4((SkyLitTexQuad24 *)p, (SkyLitCtx *)s);
             break;
         case 16:
-            p = func_80019144(p, s);
+            p = (int *)SkyEmitSpecTexQuadGT4((SkyLitTexQuad24 *)p, (SkyLitCtx *)s);
             break;
         }
         w = *p++;
     }
 }
 
-void func_800195BC(char *a0, volatile unsigned short *a1)
+void SetupSkyLightMatrices(char *a0, unsigned short *a1_in)
 {
-    volatile unsigned short *p = (unsigned short *)(SCRATCHPAD + 0x7C);
+    volatile unsigned short *p = (unsigned short *)(SCRATCHPAD + 0x7C), *a1 = a1_in;
     RR_GTE_SETROT(D_8009E248);
     RR_GTE_MV3_COL(a1);
     RR_GTE_ST3_COL(p);
@@ -1254,31 +1188,31 @@ void func_800195BC(char *a0, volatile unsigned short *a1)
     RunSkyCommandList(D_800AC64C, 0);
 }
 
-void func_800197C8(int a0, int a1, short *a2, int a3) {
+void RenderSkyToRect(int a0, int a1, short *a2, int a3) {
     short sp10[4];
-    int c; 
+    int c;
     register int *p __asm__("$4"); /* ASM_BARRIER: pin temp reg to match original allocation */
-    int k; 
-    int m; 
+    int k;
+    int m;
     int *q, *p1;
     int n;
 
-    W(8) = 0x65000000;
-    W(0xC) = (a2[1] << 16) | a2[0];
-    W(0x14) = a2[2] | 0x01000000;
-    W(0x10) = 0;
-    W(4) = 0xE1000307;
+    GS->cur[2] = 0x65000000;
+    GS->cur[3] = (a2[1] << 16) | a2[0];
+    GS->cur[5] = a2[2] | 0x01000000;
+    GS->cur[4] = 0;
+    GS->cur[1] = 0xE1000307;
     LNK(5, 0x10);
-    p1 = (int *)(GS->cur + 0x18);
-    GS->cur = (char *)p1;
+    p1 = GS->cur + 6;
+    GS->cur = p1;
     if (a2[3] >= 0x101) {
         p1[2] = 0x65000000;
-        W(0xC) = ((a2[1] + 0x100) << 16) | a2[0];
-        W(0x14) = ((a2[3] - 0x100) << 16) | a2[2];
-        W(0x10) = 0;
-        W(4) = 0xE1000317;
+        GS->cur[3] = ((a2[1] + 0x100) << 16) | a2[0];
+        GS->cur[5] = ((a2[3] - 0x100) << 16) | a2[2];
+        GS->cur[4] = 0;
+        GS->cur[1] = 0xE1000317;
         LNK(5, 0x10);
-        GS->cur = GS->cur + 0x18;
+        GS->cur = GS->cur + 6;
     }
     sp10[2] = 0x140;
     sp10[0] = 0;
@@ -1286,28 +1220,28 @@ void func_800197C8(int a0, int a1, short *a2, int a3) {
     sp10[3] = 0x1E0;
     SetDrawArea(GS->cur, sp10);
     LNK(2, 0x10);
-    GS->cur = GS->cur + 0xC;
+    GS->cur = GS->cur + 3;
     SetDrawOffset(GS->cur, sp10);
     LNK(2, 0x10);
-    GS->cur = GS->cur + 0xC;
+    GS->cur = GS->cur + 3;
     SetGeomOffset((short)(unsigned short)a2[2] / 2, (short)(unsigned short)a2[3] / 2);
-    func_800195BC(a0, a1);
+    SetupSkyLightMatrices(a0, a1);
     c = a3 << 16;
     n = a3 << 8;
     m = 0x66000000;
     n = n | m;
     c = c | n;
     c = c | a3;
-    p = (int *)GS->cur;
+    p = GS->cur;
     p[2] = c;
     p[3] = 0xFFFF0000;
     p[5] = a2[2] | 0x01000000;
     p[4] = 0;
     p[1] = 0xE1000307;
-    p[0] = *(int *)(GS->ot + 0x10);
-    *(char *)((int)p + 3) = 5;
-    *(int *)(GS->ot + 0x10) = (int)p;
-    *(char *)(GS->ot + 0x13) = 0;
+    p[0] = GS->ot[4].word;
+    ((char *)p)[3] = 5;
+    GS->ot[4].word = p;
+    GS->ot[4].b.len = 0;
     p = p + 6;
     q = p;
     q[2] = c;
@@ -1316,29 +1250,29 @@ void func_800197C8(int a0, int a1, short *a2, int a3) {
     q[4] = 0;
     k = 0xE1000317;
     q[1] = k;
-    q[0] = *(int *)(GS->ot + 0x10);
-    *(char *)((int)q + 3) = 5;
-    *(int *)(GS->ot + 0x10) = (int)q;
-    *(char *)(GS->ot + 0x13) = 0;
+    q[0] = GS->ot[4].word;
+    ((char *)q)[3] = 5;
+    GS->ot[4].word = q;
+    GS->ot[4].b.len = 0;
     p = p + 6;
-    GS->cur = (char *)p;
+    GS->cur = p;
     p[1] = 0x60000000;
-    W(8) = 0;
-    W(0xC) = (a2[3] << 16) | a2[2];
-    W(0) = *(int *)(GS->ot + 0xAF0);
-    *(char *)(GS->cur + 3) = 3;
-    *(int *)(GS->ot + 0xAF0) = (int)GS->cur;
-    *(char *)(GS->ot + 0xAF3) = 0;
+    GS->cur[2] = 0;
+    GS->cur[3] = (a2[3] << 16) | a2[2];
+    GS->cur[0] = GS->ot[700].word;
+    ((char *)GS->cur)[3] = 3;
+    GS->ot[700].word = GS->cur;
+    GS->ot[700].b.len = 0;
     sp10[0] = 0x1C0;
     sp10[1] = 0;
-    p = (int *)(GS->cur + 0x10);
-    GS->cur = (char *)p;
+    p = GS->cur + 4;
+    GS->cur = p;
     sp10[2] = a2[2];
     sp10[3] = a2[3];
     SetDrawArea(p, sp10);
     LNK(2, 0xAF0);
-    GS->cur = GS->cur + 0xC;
+    GS->cur = GS->cur + 3;
     SetDrawOffset(GS->cur, sp10);
     LNK(2, 0xAF0);
-    GS->cur = GS->cur + 0xC;
+    GS->cur = GS->cur + 3;
 }

@@ -4,8 +4,8 @@ void ovl662_func_8011E36C(s32 mode)
 {
     s32 i;
     s16 selected;
-    RrGarageActionRecord16 *a;
-    RrGarageButton *p4, *p9, *p11, *p12, *p14;
+    GarageActionRecord16 *a;
+    GarageButton *p4, *p9, *p11, *p12, *p14;
 
     if (mode) {
         for (i = 0; i < 53; i++) {
@@ -38,21 +38,21 @@ void ovl662_func_8011E36C(s32 mode)
         case 3: selected = 14; break;
         case 4: selected = 4; break;
         }
-        p4 = (RrGarageButton *)ovl662_D_801273B8[4];
-        p9 = (RrGarageButton *)ovl662_D_801273B8[9];
-        p11 = (RrGarageButton *)ovl662_D_801273B8[11];
-        p12 = (RrGarageButton *)ovl662_D_801273B8[12];
-        p14 = (RrGarageButton *)ovl662_D_801273B8[14];
+        p4 = (GarageButton *)ovl662_D_801273B8[4];
+        p9 = (GarageButton *)ovl662_D_801273B8[9];
+        p11 = (GarageButton *)ovl662_D_801273B8[11];
+        p12 = (GarageButton *)ovl662_D_801273B8[12];
+        p14 = (GarageButton *)ovl662_D_801273B8[14];
         p4->timer0E = 0;
         p14->timer0E = 0;
         p12->timer0E = 0;
         p11->timer0E = 0;
         p9->timer0E = 0;
-        ((RrGarageButton *)ovl662_D_801273B8[selected])->timer0E = -1;
+        ((GarageButton *)ovl662_D_801273B8[selected])->timer0E = -1;
         if (!ovl662_D_801276A8.flagsD1) {
             for (i = 0; i < 53; i++) {
                 /* Recover the complete owner from its initial prefix member. */
-                a = (RrGarageActionRecord16 *)ovl662_D_80127470[i];
+                a = (GarageActionRecord16 *)ovl662_D_80127470[i];
                 a->render(a->argument);
             }
             ovl662_func_8011BF04();

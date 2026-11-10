@@ -1,19 +1,18 @@
 #include "rr/overlay662_palette.h"
 #ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((RrGpuScratchPointers *)0x1F800000)
+#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000)
 #endif
 
 /* BF04 passes channel0..2 and a masked five-bit component. The tens
  * descriptor is read again after emitting that digit, for the ones position. */
 void ovl662_func_8011C00C(s32 channel, s32 value)
 {
-    RrGpuScratchPointers *scratch = RR_GPU_SCRATCH;
+    GpuScratchPointers *scratch = RR_GPU_SCRATCH;
     s16 sliderX;
     s16 sliderY;
     s16 digitX;
     s16 digitY;
-    /* ASM_BARRIER: keep the tens-digit sprite index in $s0 across the first digit call. */
-    register s32 tensSprite __asm__("$16");
+    s32 tensSprite;
 
     switch (channel) {
     case 0:

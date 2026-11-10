@@ -1,59 +1,23 @@
+#include "game/sound/sndque.h"
 #include "rr/overlay661_init.h"
+#include "rr/audio_state_types.h"
 #include "game/car/carspec2.h"
-typedef struct { char p[0xF8]; int f0, f4; unsigned short a[6]; unsigned short b[6]; short c, d; char pad[0x320 - 0x11C]; } T;
+#include "rr/audio_loop.h"
+typedef struct { u8 reserved00[0xF8]; int f0, f4; unsigned short a[6]; unsigned short b[6]; short c, d; u8 reserved11C[0x320 - 0x11C]; } T;
 
 typedef struct {
     short x, y;
 } CurvePt;
 
-typedef struct {
-    int a[2];
-    int b[2];
-    int pad10[2];
-    int f18;
-    int pad1C[2];
-    int f24;
-} RaceDist;
-
-typedef struct {
-    char pad00[0x44];
-    short boostTimer44;
-    char pad46[0x58 - 0x46];
-    int f58;
-    char pad5C[0x11C - 0x5C];
-    short divisor11C;
-} VehicleCtrl;
-
-typedef struct {
-    char pad00[0x1D8];
-    short input1D8;
-    char pad1DA[0x1E4 - 0x1DA];
-    short flags1E4;
-    char pad1E6[0x1F4 - 0x1E6];
-    VehicleCtrl ctrl;
-} Vehicle;
-
-typedef struct {
-    char pad[0x1A08];
-    int f1A08;
-    int f1A0C[7];
-    int f1A28;
-    int f1A2C;
-    int f1A30;
-} GlobalF4DB8;
-
 extern T D_8010738C[];
 extern CurvePt RubberBandCurve[];
 extern short D_8009FE78;
-extern RaceDist *RaceStandings;
+extern RaceStandingsTable *RaceStandings;
 extern int ReplayState;
-extern short D_800F4D44;
-extern GlobalF4DB8 SoundState;
 extern int RaceState;
-extern void SoundQueueEnqueue();
 
 void AverageCarSpec(int x, int y, int z);
-int CalcRubberBandFactor(Vehicle *a0, int a1);
+int CalcRubberBandFactor(RaceVehicle *a0, int a1);
 
 void AverageCarSpec(int x, int y, int z) {
     int i;
@@ -71,10 +35,17 @@ void AverageCarSpec(int x, int y, int z) {
     tx->d = (ty->d + tz->d) / 2;
 }
 
-int CalcRubberBandFactor(Vehicle *a0, int a1) {
+typedef struct {
+    s32 a[2];
+    s32 b[2];
+    s32 unk10[2];
+    RaceStandingEntry0C entries18[8];
+} RaceStandingsArrayView;
+
+int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
     int s1 = 0;
-    RaceDist *s2 = RaceStandings;
-    VehicleCtrl *t0 = &a0->ctrl;
+    RaceStandingsArrayView *s2 = (RaceStandingsArrayView *)RaceStandings;
+    RaceVehicleControl *t0 = &a0->control;
     int d;
     int i;
     int lo;
@@ -93,15 +64,15 @@ int CalcRubberBandFactor(Vehicle *a0, int a1) {
             d = s2->b[a1] - RubberBandCurve[i].x;
             lo = ((RubberBandCurve[i].y - RubberBandCurve[i - 1].y) * d) / (RubberBandCurve[i].x - RubberBandCurve[i - 1].x);
             s1 = RubberBandCurve[i].y + lo;
-            d = t0->f58 - s2->a[a1];
+            d = t0->lateralSpeed58 - s2->a[a1];
             if (d < 0) {
                 d = 0;
             }
-            if (d > a0->input1D8) {
-                d = a0->input1D8;
+            if (d > a0->input) {
+                d = a0->input;
             }
-            if (a0->input1D8 > 0) {
-                d = (d << 10) / a0->input1D8;
+            if (a0->input > 0) {
+                d = (d << 10) / a0->input;
             }
             if (d >= 0x100) {
                 d = 0x400 - (((d - 0x100) * 4) / 3);
@@ -110,8 +81,9 @@ int CalcRubberBandFactor(Vehicle *a0, int a1) {
             i = t0->boostTimer44;
             if (i > 0) {
                 i = i << 10;
+                /* Note: keep sll before the lh (original schedule) and keep lo global */
                 /* ASM_BARRIER: keep sll before the lh (original schedule) and keep lo global */
-                __asm__ volatile("" : "=r"(i), "=r"(lo) : "0"(i));
+                __asm__ ("" : "=r"(i), "=r"(lo) : "0"(i));
                 v1 = t0->divisor11C;
                 if (v1 < 0) {
                     v1 = -v1;
@@ -124,49 +96,50 @@ int CalcRubberBandFactor(Vehicle *a0, int a1) {
             d = s2->b[a1] - RubberBandCurve[i].x;
             denom = RubberBandCurve[i].x - RubberBandCurve[i - 1].x;
             lo2 = ((RubberBandCurve[i].y - RubberBandCurve[i - 1].y) * d) / denom;
+            /* Note: extend denom past div so local_alloc does not combine denom with lo2 */
             /* ASM_BARRIER: extend denom past div so local_alloc does not combine denom with lo2 */
-            __asm__ volatile("" : : "r"(denom));
+            __asm__ ("" : : "r"(denom));
             s1 = RubberBandCurve[i].y + lo2;
             s1 += 0x800;
         }
-        if (D_800F4D44 == 1 || D_800F4D44 == 6) {
-            if (RaceStandings->f18 == 0 && RaceStandings->f24 == a0->flags1E4 && s2->b[a1] > D_8009FE78) {
+        if (GameModeType == 1 || GameModeType == 6) {
+            if (RaceStandings->entries18[0].unk00 == 0 && RaceStandings->entries18[1].unk00 == (s16)a0->flags1E4 && s2->b[a1] > D_8009FE78) {
                 s1 = 0xC00;
             }
         }
     }
     if (ReplayState != 2 && RaceState < 4) {
         if (s2->b[a1] < 0x7D0) {
-            if (SoundState.f1A0C[(a0->flags1E4 & 0xF) - 1] == 0) {
-                if (SoundState.f1A28 == 0) {
+            if (SoundState.unk1A0C[((s16)a0->flags1E4 & 0xF) - 1] == 0) {
+                if (SoundState.unk1A28 == 0) {
                     v0 = PsyqRand() & 1;
-                    SoundState.f1A2C = v0;
+                    SoundState.unk1A2C = v0;
                     SoundQueueEnqueue(v0 + 0xD, 0);
                 }
-                SoundState.f1A0C[(a0->flags1E4 & 0xF) - 1] = 1;
-                SoundState.f1A28 = 0x4B;
+                SoundState.unk1A0C[((s16)a0->flags1E4 & 0xF) - 1] = 1;
+                SoundState.unk1A28 = 0x4B;
             }
         }
         if (s2->b[a1] >= 0x1771) {
-            if (SoundState.f1A0C[(a0->flags1E4 & 0xF) - 1] != 0) {
-                SoundState.f1A0C[(a0->flags1E4 & 0xF) - 1] = 0;
+            if (SoundState.unk1A0C[((s16)a0->flags1E4 & 0xF) - 1] != 0) {
+                SoundState.unk1A0C[((s16)a0->flags1E4 & 0xF) - 1] = 0;
             }
         }
-        if (RaceStandings->f18 == a0->flags1E4 && RaceStandings->f24 == 0) {
+        if (RaceStandings->entries18[0].unk00 == (s16)a0->flags1E4 && RaceStandings->entries18[1].unk00 == 0) {
             if (s2->b[a1] >= -0x5DB) {
-                if (SoundState.f1A08 == 0) {
-                    if (SoundState.f1A28 == 0) {
+                if (SoundState.unk1A08 == 0) {
+                    if (SoundState.unk1A28 == 0) {
                         v0 = PsyqRand() & 1;
-                        SoundState.f1A30 = v0;
+                        SoundState.unk1A30 = v0;
                         SoundQueueEnqueue(v0 + 0xB, 0);
                     }
-                    SoundState.f1A08 = 1;
-                    SoundState.f1A28 = 0x4B;
+                    SoundState.unk1A08 = 1;
+                    SoundState.unk1A28 = 0x4B;
                 }
             }
             if (s2->b[a1] < -0x1388) {
-                if (SoundState.f1A08 != 0) {
-                    SoundState.f1A08 = 0;
+                if (SoundState.unk1A08 != 0) {
+                    SoundState.unk1A08 = 0;
                 }
             }
         }

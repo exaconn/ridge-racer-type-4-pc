@@ -23,7 +23,7 @@ s32 SsVabTransBody(const u16 *source,s32 raw) {
   __asm__("" : "+r"(two));
   if(flag==two) {
    register unsigned long allocation __asm__("$16");
-   offset=(u32)bank*4;
+   offset=bank*4U;
    /* ASM_BARRIER: Finish scaling before materializing the allocation page. */
    __asm__("" : : "r"(offset) : "$16");
    allocation=0x80110000U;

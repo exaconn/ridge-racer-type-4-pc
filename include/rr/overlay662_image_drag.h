@@ -2,7 +2,7 @@
 #define RR_OVERLAY662_IMAGE_DRAG_H
 #include "rr/overlay662_garage.h"
 #include "rr/overlay662_image_scroll.h"
-extern RrGaragePoint ovl662_D_801277AC;
+extern GaragePoint ovl662_D_801277AC;
 void ovl662_func_8011E7C0(s32 x,s32 y,s32 width,s32 height);
 /* Active drag coordinates (scroll origins plus offsets6/7) and saved anchor
  * lie in0..63. active21 selects0/1; image buffers have512 words and palette

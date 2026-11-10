@@ -26,14 +26,14 @@ class ExtraLabelsTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay_extra_labels.h"
 typedef struct {
- u32 guard0[4],rng;RrBadgeRow1C rows[4];RrUiUvRect uv;
+ u32 guard0[4],rng;BadgeRow1C rows[4];UiUvRect uv;
  s32 counts[9],index,tick;s8 selected;u8 letters[8];u32 guard1[4];
 } State;
 typedef struct {s32 op,x,y,a,b,c,d,e;size_t cursor;u32 before;u8 data[8];} Event;
 typedef struct {State s;unsigned count;Event events[32];} World;
 static World actual,reference,initial,*w;
 static u8 arena[1024];static u32 ordering[4];
-RrBadgeRow1C *BadgeRows;
+BadgeRow1C *BadgeRows;
 #define ovl663_record_label w->s.uv
 #define ovl663_selected_record w->s.index
 #define ovl663_course_unlock_levels w->s.counts
@@ -51,10 +51,10 @@ static void change(void){unsigned i;BadgeRows=w->s.rows+next()%4;
 }
 static Event *event(s32 op,void *p){Event *e;assert(w->count<32);e=&w->events[w->count++];memset(e,0,sizeof(*e));e->op=op;e->before=hash();if(p)e->cursor=(u8*)p-arena;return e;}
 s32 rcos(s32 angle){Event *e=event(1,0);s32 v=(s32)(next()%3)-1;e->a=angle;e->b=v;change();return v;}
-void *AddSpritePrim(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){Event *e=event(2,p);assert(ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=color;memcpy(e->data,uv,4);change();return (u8*)p+20;}
+void *AddSpritePrim(u32 *ot,void *p,s32 x,s32 y,const UiUvRect *uv,u16 clut,s32 color){Event *e=event(2,p);assert(ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=color;memcpy(e->data,uv,4);change();return (u8*)p+20;}
 void *AddTextSprites(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 spacing,s32 color){Event *e=event(3,p);size_t n=strlen(text);assert(n<8&&ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=spacing;e->c=color;memcpy(e->data,text,n+1);change();return (u8*)p+20*n;}
 void *AddTilePrim(u32 *ot,void *p,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){Event *e=event(4,p);assert(ot==ordering);e->x=x;e->y=y;e->a=width;e->b=height;e->c=r;e->d=g;e->e=b;change();return (u8*)p+16;}
-void *AddDrawModePrim(u32 *ot,void *p,u16 mode){Event *e=event(5,p);assert(ot==ordering);e->a=mode;change();return (u8*)p+12;}
+void *AddDrawModePrim(u32 *ot,GpuDrawModePacket *mode_packet,u16 mode){ void *p = (void *)mode_packet;Event *e=event(5,p);assert(ot==ordering);e->a=mode;change();return (u8*)p+12;}
 static void *expected(unsigned kind,s32 row){
  int x=BadgeRows[row].x04+8,y=BadgeRows[row].y06+(kind?72:32);void *p=arena;
  if(!kind){char text[8]={0};int n;p=AddSpritePrim(ordering,p,x,y,&w->s.uv,32760,0);x+=w->s.uv.w;n=w->s.counts[w->s.index];text[0]='0'+n/10;text[1]='0'+n%10;p=AddTextSprites(ordering,p,x,y,text,32760,0,0);}

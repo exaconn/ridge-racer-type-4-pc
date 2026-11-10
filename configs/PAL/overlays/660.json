@@ -26,85 +26,85 @@
     {
       "address": 2148616464,
       "size": 16,
-      "symbol": "ovl660_func_80114910",
+      "symbol": "ovl660_select_scene",
       "source": "src/overlays/PAL/660/course_menu.c"
     },
     {
       "address": 2148616480,
       "size": 800,
-      "symbol": "ovl660_func_80114920",
+      "symbol": "ovl660_init_menu",
       "source": "src/overlays/PAL/660/course_menu.c"
     },
     {
       "address": 2148617280,
       "size": 248,
-      "symbol": "ovl660_func_80114C40",
+      "symbol": "ovl660_init_scene",
       "source": "src/overlays/PAL/660/course_menu.c"
     },
     {
       "address": 2148617528,
       "size": 1952,
-      "symbol": "ovl660_func_80114D38",
+      "symbol": "ovl660_update_menu",
       "source": "src/overlays/PAL/660/course_menu.c"
     },
     {
       "address": 2148619480,
       "size": 464,
-      "symbol": "ovl660_func_801154D8",
+      "symbol": "ovl660_init_results",
       "source": "src/overlays/PAL/660/results.c"
     },
     {
       "address": 2148619944,
       "size": 132,
-      "symbol": "ovl660_func_801156A8",
+      "symbol": "ovl660_update_retry_choice",
       "source": "src/overlays/PAL/660/results.c"
     },
     {
       "address": 2148620076,
       "size": 2172,
-      "symbol": "ovl660_func_8011572C",
+      "symbol": "ovl660_update_results",
       "source": "src/overlays/PAL/660/results.c"
     },
     {
       "address": 2148622248,
       "size": 816,
-      "symbol": "ovl660_func_80115FA8",
+      "symbol": "ovl660_insert_record",
       "source": "src/overlays/PAL/660/results.c"
     },
     {
       "address": 2148623064,
       "size": 236,
-      "symbol": "ovl660_func_801162D8",
+      "symbol": "ovl660_rank_standings",
       "source": "src/overlays/PAL/660/results.c"
     },
     {
       "address": 2148623300,
       "size": 364,
-      "symbol": "ovl660_func_801163C4",
+      "symbol": "ovl660_init_preview",
       "source": "src/overlays/PAL/660/preview.c"
     },
     {
       "address": 2148623664,
       "size": 2900,
-      "symbol": "ovl660_func_80116530",
+      "symbol": "ovl660_update_preview",
       "source": "src/overlays/PAL/660/preview.c"
     },
     {
       "address": 2148626564,
       "size": 168,
-      "symbol": "ovl660_func_80117084",
+      "symbol": "ovl660_check_reverse_run",
       "source": "src/overlays/PAL/660/race.c"
     },
     {
       "address": 2148626732,
       "size": 96,
-      "symbol": "ovl660_func_8011712C",
+      "symbol": "ovl660_exit_race",
       "source": "src/overlays/PAL/660/race.c"
     },
     {
       "address": 2148626828,
       "size": 1684,
-      "symbol": "ovl660_func_8011718C",
+      "symbol": "ovl660_update_race",
       "source": "src/overlays/PAL/660/race.c"
     }
   ],

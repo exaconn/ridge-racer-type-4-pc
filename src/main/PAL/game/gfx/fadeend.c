@@ -1,9 +1,9 @@
 #include "game/gfx/fadeset.h"
 extern int RaceContext[];
 extern short SoundState[];
-extern void SsVabClose();
+#include "psyq/libsnd/vmcfg.h"
 
-void func_8005CA14(void) {
+void StartDemoFadeOutAndCloseVab(void) {
     RaceContext[0x434 / 4] = 2;
     RaceContext[0x43C / 4] = 0;
     SetParticleBrightFade(0x20, 0x100, 0);

@@ -7,39 +7,35 @@
 #include "rr/track_interpolation.h"
 #include "rr/race.h"
 #include "rr/track_lateral.h"
+#include "game/data/globals.h"
+#include "game/course/trkproj.h"
+#include "rr/audio_loop.h"
+#include "rr/vehicle_drive.h"
 
 /* Keep the original table-relative cursors, while using the canonical native
  * record stride and array offset (the pointer-bearing row grows on a host). */
 #define RR_STANDING_PREFIX_SIZE \
-    (sizeof(RrRaceStandingsTable)-sizeof(((RrRaceStandingsTable*)0)->entries18))
+    (sizeof(RaceStandingsTable)-sizeof(((RaceStandingsTable*)0)->entries18))
 #define RR_STANDING_ROW(base) \
-    ((RrRaceStandingEntry0C*)((base)+RR_STANDING_PREFIX_SIZE))
+    ((RaceStandingEntry0C*)((base)+RR_STANDING_PREFIX_SIZE))
 #define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -SinTable[0x400 - ((x) & 0x3FF)] : -SinTable[(x) & 0x3FF]) : (((x) & 0x400) ? SinTable[0x400 - ((x) & 0x3FF)] : SinTable[(x) & 0x3FF]))
 
-extern RrRaceStandingsTable *RaceStandings;
+extern RaceStandingsTable *RaceStandings;
 extern s8 D_80010F2C[][16];
 extern s8 D_80010F8C[][16];
-extern s16 D_800F4D44;
-extern s32 ScanCurveAhead();
-extern int NumPlayers;
 
-void func_8004638C(RrRaceVehicle *vehicle);
-void ProjectToTrackSegment(RrTrackOffsetArgument offsetX, RrTrackOffsetArgument offsetZ, s32 node, s16 *fraction, s16 *lateral, s32 *remaining);
-void UpdateCarTrackProjection(RrRaceVehicle *vehicle);
-s32 FindNearestCarAhead(RrRaceVehicle *vehicle);
-s32 ScoreOvertakeOpportunity(RrRaceVehicle *arg0, s32 arg1);
-void UpdateComCarOvertake(RrRaceVehicle *p);
-void InterpolateLanePointXZ(const RrTrackSample3C *first, const RrTrackSample3C *second, s32 lateral, s32 fraction, s32 *output);
-void InterpolateLanePointXYZ(const RrTrackSample3C *first, const RrTrackSample3C *second, s32 lateral, s32 fraction, s32 *output);
-void UpdateComCarTargetPoint(RrRaceVehicle *vehicle);
+void ProjectToTrackSegment(TrackOffsetArgument offsetX, TrackOffsetArgument offsetZ, s32 node, s16 *fraction, s16 *lateral, s32 *remaining);
+s32 ScoreOvertakeOpportunity(RaceVehicle *arg0, s32 arg1);
+void InterpolateLanePointXZ(const TrackSample3C *first, const TrackSample3C *second, s32 lateral, s32 fraction, s32 *output);
+void InterpolateLanePointXYZ(const TrackSample3C *first, const TrackSample3C *second, s32 lateral, s32 fraction, s32 *output);
 
-void func_8004638C(RrRaceVehicle *vehicle)
+void ComputeCarTrackSurfaceProj(RaceVehicle *vehicle)
 {
     struct {
-        RrTrackOffsetArgument a;
-        RrTrackOffsetArgument b;
-        RrVector first;
-        RrVector second;
+        TrackOffsetArgument a;
+        TrackOffsetArgument b;
+        Vector first;
+        Vector second;
         s16 fraction;
         int remaining;
     } line;
@@ -48,9 +44,9 @@ void func_8004638C(RrRaceVehicle *vehicle)
     int firstNode;
     int secondNode;
     int fraction;
-    RrTrackLaneOffset8 *offset;
-    RrTrackLaneOffset8 *sample;
-    RrRaceVehicleControl *control = (RrRaceVehicleControl *)((u8 *)vehicle + RR_RACE_CONTROL_OFFSET);
+    TrackLaneOffset8 *offset;
+    TrackLaneOffset8 *sample;
+    RaceVehicleControl *control = &vehicle->control;
     if (rounded < 0) {
         rounded += 0x3FF;
     }
@@ -83,7 +79,7 @@ void func_8004638C(RrRaceVehicle *vehicle)
         }
         line.b.value = line.first.z + (dz >> 10);
     }
-    ProjectToTrackSegment(line.a, line.b, vehicle->trackNodeF0, &line.fraction, &vehicle->laneCurrent232, &line.remaining);
+    ProjectToTrackSegment(line.a, line.b, vehicle->trackNodeF0, &line.fraction, &vehicle->control.laneCurrent3E, &line.remaining);
     if (control->laneTimer38 == 0) {
         control->laneTarget3C = control->laneCurrent3E;
     }
@@ -91,10 +87,10 @@ void func_8004638C(RrRaceVehicle *vehicle)
 
 #define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -SinTable[0x400 - ((x) & 0x3FF)] : -SinTable[(x) & 0x3FF]) : (((x) & 0x400) ? SinTable[0x400 - ((x) & 0x3FF)] : SinTable[(x) & 0x3FF]))
 
-void ProjectToTrackSegment(RrTrackOffsetArgument offsetX, RrTrackOffsetArgument offsetZ, s32 node, s16 *fraction, s16 *lateral, s32 *remaining) {
+void ProjectToTrackSegment(TrackOffsetArgument offsetX, TrackOffsetArgument offsetZ, s32 node, s16 *fraction, s16 *lateral, s32 *remaining) {
     s32 nextNode;
-    RrTrackSample3C *sample;
-    RrTrackSample3C *nextSample;
+    TrackSample3C *sample;
+    TrackSample3C *nextSample;
     s32 angle;
     s32 cosine;
     s32 along;
@@ -153,26 +149,26 @@ void ProjectToTrackSegment(RrTrackOffsetArgument offsetX, RrTrackOffsetArgument 
     }
 }
 
-void UpdateCarTrackProjection(RrRaceVehicle *vehicle)
+void UpdateCarTrackProjection(RaceVehicle *vehicle)
 {
-    struct { RrTrackOffsetArgument x, z; } offset;
-    offset.x.value = vehicle->pos20[0] - TrackNodes[vehicle->trackNodeF0].x08;
-    offset.z.value = vehicle->pos20[2] - TrackNodes[vehicle->trackNodeF0].z0C;
+    struct { TrackOffsetArgument x, z; } offset;
+    offset.x.value = vehicle->position20.words[0] - TrackNodes[vehicle->trackNodeF0].x08;
+    offset.z.value = vehicle->position20.words[2] - TrackNodes[vehicle->trackNodeF0].z0C;
     ProjectToTrackSegment(offset.x, offset.z, vehicle->trackNodeF0,
         &vehicle->trackFraction170, &vehicle->lateralOffset172, &vehicle->second);
 }
 
-s32 FindNearestCarAhead(RrRaceVehicle *vehicle) {
+s32 FindNearestCarAhead(RaceVehicle *vehicle) {
     s32 best=-1,index=0,selected,limit,count,fresh_count,id;
     s32 first_count,second_count,distance,half,negative_half;
     /* ASM_BARRIER: keep the captured track length in the consumed mode register. */
     register s32 circumference __asm__("$5");
-    RrRaceStandingsTable *table;
+    RaceStandingsTable *table;
     /* ASM_BARRIER: retain the second pass's table-relative cursor. */
     register u8 *cursor __asm__("$9");
     u8 *reference;
-    RrRaceDistanceContextPrefix *context;
-    s32 flags;
+    RaceDistanceContextPrefix *context;
+    u32 flags;
     /* ASM_BARRIER: retain context mode until the initial identifier is formed. */
     register s32 mode __asm__("$5");
     s32 input;
@@ -181,12 +177,12 @@ s32 FindNearestCarAhead(RrRaceVehicle *vehicle) {
     flags=vehicle->flags1E4;
     mode=context->mode;
     input=vehicle->input;
-    table=(RrRaceStandingsTable*)context->result;
+    table=(RaceStandingsTable*)context->result;
     flags=(flags&15)+best;
     input++;
     limit=input*16;
     count=NumCars;
-    selected=(s32)((u32)flags+(u32)mode);
+    selected=(flags+mode);
     if(count>0) {
         first_count=count;
         lookup_cursor=(u8*)table;
@@ -194,7 +190,7 @@ lookup:
         if(selected==RR_STANDING_ROW(lookup_cursor)->unk00)selected=index;
         else {
             index++;
-            lookup_cursor+=sizeof(RrRaceStandingEntry0C);
+            lookup_cursor+=sizeof(RaceStandingEntry0C);
             if(index<first_count)goto lookup;
         }
     }
@@ -203,20 +199,20 @@ lookup:
     index=0;
     fresh_count=NumCars;
     if(fresh_count>0) {
-        reference=(u8*)table+selected*sizeof(RrRaceStandingEntry0C);
+        reference=(u8*)table+selected*sizeof(RaceStandingEntry0C);
         second_count=fresh_count;
         circumference=TrackLength;
         cursor=(u8*)table;
         half=circumference/2;
-        negative_half=(s32)(0U-(u32)circumference)/2;
+        negative_half=(s32)(0U-circumference)/2;
         do {
             if(index!=selected) {
                 id=RR_STANDING_ROW(cursor)->unk00;
                 distance=table->entries18[id].totalDist04;
-                distance=(s32)((u32)distance-(u32)RR_STANDING_ROW(reference)->totalDist04);
+                distance=((u32)distance-RR_STANDING_ROW(reference)->totalDist04);
                 distance%=circumference;
-                if(distance>=half)distance=(s32)((u32)distance-(u32)circumference);
-                if(distance<negative_half)distance=(s32)((u32)distance+(u32)circumference);
+                if(distance>=half)distance=((u32)distance-circumference);
+                if(distance<negative_half)distance=((u32)distance+circumference);
                 if(distance>0&&distance<limit) {
                     best=id;
                     limit=distance;
@@ -224,22 +220,19 @@ lookup:
                 }
             }
             index++;
-            cursor+=sizeof(RrRaceStandingEntry0C);
+            cursor+=sizeof(RaceStandingEntry0C);
         }while(index<second_count);
     }
     return best;
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define CalcSteerLimit ((s32 (*)())CalcSteerLimit)
-
-s32 ScoreOvertakeOpportunity(RrRaceVehicle *arg0, s32 arg1) {
+s32 ScoreOvertakeOpportunity(RaceVehicle *arg0, s32 arg1) {
     s32 sp18;
     s32 sp1C;
     s32 s0;
-    Control *s1;
-    RrRaceStandingsTable *t;
-    RrRaceVehicle *other;
+    RaceVehicleControl *s1;
+    RaceStandingsTable *t;
+    RaceVehicle *other;
     s32 i;
     s32 v1;
     s32 a2;
@@ -249,14 +242,14 @@ s32 ScoreOvertakeOpportunity(RrRaceVehicle *arg0, s32 arg1) {
 
     s0 = 0;
     t = RaceStandings;
-    s1 = (Control *)((char *)arg0 + 0x1F4);
+    s1 = &arg0->control;
     other = t->entries18[arg1].vehicle08;
 
     i = -other->heading1D4 + 0x400;
     i -= TrackNodes[other->trackNodeF0].heading12;
     v1 = -((SIN(i) * other->input) / 4096);
     a1 = t->gap14;
-    a2 = s1->unk58 - v1;
+    a2 = s1->lateralSpeed58 - v1;
     a1 /= 100;
     if (a1 >= 16) {
         a1 = 15;
@@ -272,7 +265,7 @@ s32 ScoreOvertakeOpportunity(RrRaceVehicle *arg0, s32 arg1) {
             a2 = 79;
         }
         a2 /= 5;
-        if (D_800F4D44 != 5) {
+        if (GameModeType != 5) {
             s0 += D_80010F2C[2][a2];
         } else {
             s0 += D_80010F8C[2][a2];
@@ -281,27 +274,25 @@ s32 ScoreOvertakeOpportunity(RrRaceVehicle *arg0, s32 arg1) {
         s0 -= 8;
     }
 
-    s1->unk70 = ScanCurveAhead(arg0, 0, &s1->unk80, &s1->unk74, &s1->unk78);
-    s1->unk7C = ScanCurveAhead(arg0, 10, &s1->unk84, &sp18, &sp1C);
+    s1->curveDistance70 = ScanCurveAhead(arg0, 0, &s1->curveSample80, &s1->relDist74, &s1->relDist78);
+    s1->previewDistance7C = ScanCurveAhead(arg0, 10, &s1->previewSample84.node, &sp18, &sp1C);
     temp_v0 = CalcSteerLimit(arg0);
-    s1->unk6E = temp_v0;
+    s1->limit6E = temp_v0;
     v1_2 = temp_v0 << 12;
 
     if (s0 > 0) {
-        if (v1_2 < s1->unk7C) {
+        if (v1_2 < s1->previewDistance7C) {
             s0 = 0;
         }
     }
     return s0;
 }
 
-#undef CalcSteerLimit
-
-void UpdateComCarOvertake(RrRaceVehicle *p)
+void UpdateComCarOvertake(RaceVehicle *p)
 {
-  RrRaceVehicleControl *q;
-  RrRaceStandingsTable *s5;
-  RrRaceVehicle *s1;
+  RaceVehicleControl *q;
+  RaceStandingsTable *s5;
+  RaceVehicle *s1;
   int x8;
   int u1;
   int u2;
@@ -328,12 +319,12 @@ void UpdateComCarOvertake(RrRaceVehicle *p)
   s6 = 0;
   s4 = -1;
   s5 = RaceStandings;
-  q = (RrRaceVehicleControl *)((char *)p + 0x1F4);
+  q = &p->control;
   s2 = FindNearestCarAhead(p);
   if (s2 >= 0)
   {
     k = s2 * 12;
-    s1 = ((RrRaceStandingsTable *)((char *)s5 + k))->entries18[0].vehicle08;
+    s1 = ((RaceStandingsTable *)((char *)s5 + k))->entries18[0].vehicle08;
     if ((ScoreOvertakeOpportunity(p, s2) > 0) && (q->boostTimer44 == 0))
     {
       if (q->laneActive6A == 0)
@@ -360,7 +351,7 @@ void UpdateComCarOvertake(RrRaceVehicle *p)
           else
           {
             tt = e1 - 0x400; tt = tt + ((unsigned)tt >> 31);
-            __asm__ volatile("" : "=r"(tt) : "0"(tt)); /* ASM_BARRIER: keep the two /2 arms from being cross-jumped */
+            __asm__ ("" : "=r"(tt) : "0"(tt)); /* ASM_BARRIER: keep the two /2 arms from being cross-jumped */
             e2 = tt >> 1;
           }
         }
@@ -521,7 +512,7 @@ void UpdateComCarOvertake(RrRaceVehicle *p)
       {
         q->laneTimer38 = 0;
         q->laneActive6A = 1;
-        func_8004638C(p);
+        ComputeCarTrackSurfaceProj(p);
         v1 = (u16)q->laneTarget3C;
         a0 = (u16)q->laneStart3A;
         q->laneMode88 = 3;
@@ -537,16 +528,16 @@ static __inline__ s32 extend_track_edge(s32 edge, s32 width, s32 extension)
 }
 
 /* Interpolate the lateral road position in the horizontal plane. */
-void InterpolateLanePointXZ(const RrTrackSample3C *first, const RrTrackSample3C *second,
+void InterpolateLanePointXZ(const TrackSample3C *first, const TrackSample3C *second,
     s32 lateral, s32 fraction, s32 *output)
 {
-    RrVector firstPoint;
-    RrVector secondPoint;
+    Vector firstPoint;
+    Vector secondPoint;
     /* ASM_BARRIER: retain the lateral magnitude in t1. */
     register s32 offset __asm__("$9");
     /* ASM_BARRIER: retain the shared Z edge component in v1. */
     register s32 edgeZ __asm__("$3");
-    const RrTrackSample3C *sample;
+    const TrackSample3C *sample;
 
     offset = lateral;
     if (lateral < 0) offset = -offset;
@@ -561,7 +552,7 @@ void InterpolateLanePointXZ(const RrTrackSample3C *first, const RrTrackSample3C 
         edgeZ = extend_track_edge(second->leftOffsetZ06, second->leftWidth18, second->leftExtension2E);
     } else {
         /* ASM_BARRIER: retain a separate base for the first sample. */
-        __asm__ volatile ("" : "=r"(sample) : "0"(sample));
+        __asm__ ("" : "=r"(sample) : "0"(sample));
         firstPoint.x = extend_track_edge(sample->rightOffsetX00, sample->rightWidth1A, sample->rightExtension2C);
         firstPoint.x = (firstPoint.x * offset) / 1024 + sample->x08;
         firstPoint.z = extend_track_edge(sample->rightOffsetZ02, sample->rightWidth1A, sample->rightExtension2C);
@@ -574,22 +565,22 @@ void InterpolateLanePointXZ(const RrTrackSample3C *first, const RrTrackSample3C 
     secondPoint.z = edgeZ;
     secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
     /* ASM_BARRIER: keep final firstPoint/secondPoint reloads after the secondPoint.z store */
-    __asm__ volatile ("");
+    __asm__ ("");
     output[0] = (secondPoint.x - firstPoint.x) * fraction / 1024 + firstPoint.x;
     output[2] = (secondPoint.z - firstPoint.z) * fraction / 1024 + firstPoint.z;
 }
 
 /* The camera path also needs the height of the centre line. */
-void InterpolateLanePointXYZ(const RrTrackSample3C *first, const RrTrackSample3C *second,
+void InterpolateLanePointXYZ(const TrackSample3C *first, const TrackSample3C *second,
     s32 lateral, s32 fraction, s32 *output)
 {
-    RrVector firstPoint;
-    RrVector secondPoint;
+    Vector firstPoint;
+    Vector secondPoint;
     /* ASM_BARRIER: retain the lateral magnitude in t1. */
     register s32 offset __asm__("$9");
     /* ASM_BARRIER: retain the shared Z edge component in v1. */
     register s32 edgeZ __asm__("$3");
-    const RrTrackSample3C *sample;
+    const TrackSample3C *sample;
 
     offset = lateral;
     if (lateral < 0) offset = -offset;
@@ -606,7 +597,7 @@ void InterpolateLanePointXYZ(const RrTrackSample3C *first, const RrTrackSample3C
         edgeZ = extend_track_edge(second->leftOffsetZ06, second->leftWidth18, second->leftExtension2E);
     } else {
         /* ASM_BARRIER: retain a separate base for the first sample. */
-        __asm__ volatile ("" : "=r"(sample) : "0"(sample));
+        __asm__ ("" : "=r"(sample) : "0"(sample));
         firstPoint.x = extend_track_edge(sample->rightOffsetX00, sample->rightWidth1A, sample->rightExtension2C);
         firstPoint.x = (firstPoint.x * offset) / 1024 + sample->x08;
         firstPoint.y = sample->y10;
@@ -621,27 +612,27 @@ void InterpolateLanePointXYZ(const RrTrackSample3C *first, const RrTrackSample3C
     secondPoint.z = edgeZ;
     secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
     /* ASM_BARRIER: keep final firstPoint/secondPoint reloads after the secondPoint.z store */
-    __asm__ volatile ("");
+    __asm__ ("");
     output[0] = (secondPoint.x - firstPoint.x) * fraction / 1024 + firstPoint.x;
     output[1] = (secondPoint.y - firstPoint.y) * fraction / 1024 + firstPoint.y;
     output[2] = (secondPoint.z - firstPoint.z) * fraction / 1024 + firstPoint.z;
 }
 
-void UpdateComCarTargetPoint(RrRaceVehicle *vehicle) {
-    RrVector firstPoint;
-    RrVector secondPoint;
-    RrVector target;
-    RrRaceVehicleControl *control;
+void UpdateComCarTargetPoint(RaceVehicle *vehicle) {
+    Vector firstPoint;
+    Vector secondPoint;
+    Vector target;
+    RaceVehicleControl *control;
     s32 fraction;
     s32 firstNode;
     s32 secondNode;
-    RrTrackSample3C *firstSample;
-    RrTrackSample3C *secondSample;
-    RrTrackLaneOffset8 *firstOffset;
-    RrTrackLaneOffset8 *secondOffset;
+    TrackSample3C *firstSample;
+    TrackSample3C *secondSample;
+    TrackLaneOffset8 *firstOffset;
+    TrackLaneOffset8 *secondOffset;
     s32 delta;
 
-    control = (RrRaceVehicleControl *)((u8 *)vehicle + RR_RACE_CONTROL_OFFSET);
+    control = &vehicle->control;
     fraction = 0x400 - vehicle->trackFraction170;
     firstNode = vehicle->trackNodeF0 - fraction / 1024;
     if (firstNode < 0) {
@@ -654,7 +645,7 @@ void UpdateComCarTargetPoint(RrRaceVehicle *vehicle) {
     firstSample = &TrackNodes[firstNode];
     secondSample = &TrackNodes[secondNode];
     /* ASM_BARRIER: form both sample pointers before selecting the lane state. */
-    __asm__ volatile("");
+    __asm__ ("");
     fraction &= 0x3FF;
     if (control->laneActive6A == 0) {
         switch (control->laneTimer38) {
@@ -703,6 +694,6 @@ void UpdateComCarTargetPoint(RrRaceVehicle *vehicle) {
         }
         InterpolateLanePointXZ(firstSample, secondSample, control->laneStart3A, fraction, (s32 *)&target);
     }
-    vehicle->pathDeltaX224 = target.x - vehicle->pos20[0];
-    vehicle->pathDeltaZ228 = target.z - vehicle->pos20[2];
+    vehicle->control.pathDeltaX30 = target.x - vehicle->position20.words[0];
+    vehicle->control.pathDeltaZ34 = target.z - vehicle->position20.words[2];
 }

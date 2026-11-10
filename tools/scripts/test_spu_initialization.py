@@ -10,11 +10,13 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class SpuInitializationTest(unittest.TestCase):
  def test_all_status_words_modes_and_poll_boundaries(self):
-  body=(ROOT/'tools/scripts/fixtures/legacy/func_8007EAC4.c').read_text()
-  body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
-  body=re.sub(r' __asm__\("\$\d+"\)','',body)
-  body=re.sub(r'__asm__\(""[^;]*;',';',body)
-  body=body.replace('#define STATUS(bank) ((bank)->halves[215])','#ifdef DIRECT_STATUS\n#define STATUS(bank) ((bank)->halves[215])\n#else\n#define STATUS(bank) status_read(bank)\n#endif')
+  from c_functions import definition_source, source_owners
+  owner=source_owners(ROOT/'src/main/PAL')['_spu_init'].read_text()
+  status_macro='#define STATUS(bank) ((bank)->spu_status)'
+  assert status_macro in owner
+  body=status_macro+'\n'+definition_source(owner,'_spu_init')
+  assert 'asm' not in body
+  body=body.replace(status_macro,'#ifdef DIRECT_STATUS\n'+status_macro+'\n#else\n#define STATUS(bank) status_read((SpuRegisterStorage *)(bank))\n#endif')
   code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -22,7 +24,7 @@ class SpuInitializationTest(unittest.TestCase):
 #include <string.h>
 #include <stdarg.h>
 #include "rr/spu_init.h"
-typedef struct {u32 guard[4];RrSpuRegisterStorage bank;u32 tail[4];} Bank;
+typedef struct {u32 guard[4];SpuRegisterStorage bank;u32 tail[4];} Bank;
 typedef struct {
  u16 banks[2][256],entries[10],transfer;
  u32 guards[2][4],tails[2][4],entryGuard[4],entryTail[4],dma[2];
@@ -36,17 +38,17 @@ typedef struct {
  volatile u32 dma[2];volatile u16 transfer;
  s32 f4,f8,fc,mode,active;u32 shift,rounding;volatile u32 unknown;
  void (*volatile callback)(void);
- RrSpuRegisterStorage *root;volatile u32 *dmaRoot;
+ SpuRegisterStorage *root;volatile u32 *dmaRoot;
  u32 seed,phase,plan,reads,count;Event events[16];
 } Environment;
 static Environment actual,expected,*g;
 const u16 D_800A4818[8]={0x707,0x707,0x707,0x707,0x707,0x707,0x707,0x707};
-const char D_80011698[]="timeout",SpuWaitResetStr[]="reset";
+const char SpuTimeoutFmt[]="timeout",SpuWaitResetStr[]="reset";
 #define _spu_RXX (&g->root->registers)
 #define SPU_DPCR (g->dmaRoot)
 #define _spu_tsa (g->transfer)
 #define _spu_transMode (g->f4)
-#define D_800A47F8 (g->f8)
+#define _spu_addrMode (g->f8)
 #define _spu_mem_mode (g->fc)
 #define _spu_mem_mode_plus (g->mode)
 #define _spu_mem_mode_unit (g->shift)
@@ -74,8 +76,8 @@ static void mutate(u32 service){u32 r,i;if(!g->phase)return;r=next(&g->seed);
 }
 void _spu_Fw1ts(void){event(1,0,0);mutate(1);}
 void _spu_FwriteByIO(const u16 *p,u32 n){assert(p==D_800A4818&&n==16);for(unsigned i=0;i<8;i++)assert(p[i]==0x707);event(2,n,0);mutate(2);}
-s32 DebugPrintStub(const char *f,...){va_list ap;const char *reason;va_start(ap,f);reason=va_arg(ap,const char*);va_end(ap);assert(f==D_80011698&&reason==SpuWaitResetStr);event(3,0,0);mutate(3);return -123;}
-static u16 status_read(RrSpuRegisterStorage *bank){
+s32 DebugPrintStub(const char *f,...){va_list ap;const char *reason;va_start(ap,f);reason=va_arg(ap,const char*);va_end(ap);assert(f==SpuTimeoutFmt&&reason==SpuWaitResetStr);event(3,0,0);mutate(3);return -123;}
+static u16 status_read(SpuRegisterStorage *bank){
 #ifdef DIRECT_STATUS
  return bank->halves[215];
 #else
@@ -85,11 +87,11 @@ static u16 status_read(RrSpuRegisterStorage *bank){
 #endif
 }
 '''+body+r'''
-static s32 model(s32 warm){u32 i,attempt;RrSpuRegisterStorage *b;
+static s32 model(s32 warm){u32 i,attempt;SpuRegisterStorage *b;
  *g->dmaRoot|=0xB0000;g->f4=0;g->f8=0;g->transfer=0;
  b=g->root;b->halves[192]=0;b->halves[193]=0;b->halves[213]=0;
  _spu_Fw1ts();b=g->root;b->halves[192]=0;b->halves[193]=0;
- if(status_read(b)&2047){for(attempt=0;attempt<3840;attempt++)if(!(status_read(g->root)&2047))break;if(attempt==3840)DebugPrintStub(D_80011698,SpuWaitResetStr);}
+ if(status_read(b)&2047){for(attempt=0;attempt<3840;attempt++)if(!(status_read(g->root)&2047))break;if(attempt==3840)DebugPrintStub(SpuTimeoutFmt,SpuWaitResetStr);}
  g->fc=2;g->mode=3;g->shift=8;g->rounding=7;
  b=g->root;b->halves[214]=4;b->halves[194]=0;b->halves[195]=0;b->halves[198]=65535;b->halves[199]=65535;b->halves[204]=0;b->halves[205]=0;
  for(i=0;i<10;i++)g->entries.values[i]=0;
@@ -112,7 +114,7 @@ static void initialize(Environment *e,u32 status,u32 phase,u32 plan,u32 *rng){un
  e->transfer=(u16)next(rng);e->f4=(s32)next(rng);e->f8=(s32)next(rng);e->fc=(s32)next(rng);e->mode=(s32)next(rng);e->active=(s32)next(rng);e->shift=next(rng);e->rounding=next(rng);e->unknown=next(rng);e->callback=callback;e->root=&e->banks[status&1].bank;e->dmaRoot=&e->dma[(status>>1)&1];
 }
 int main(void){u32 n,phase,seed=0x7EAC4,planSeen[8]={0},modeSeen[2]={0},timeoutSeen[2]={0};Snapshot a,b;s32 warm;unsigned i;uint64_t cases=0;
- _Static_assert(sizeof(RrSpuRegisterStorage)==512,"complete bank");_Static_assert(sizeof(D_800A4818)==16,"bounded input");_Static_assert(sizeof(actual.entries.values)==20,"complete entry owner");
+ _Static_assert(sizeof(SpuRegisterStorage)==512,"complete bank");_Static_assert(sizeof(D_800A4818)==16,"bounded input");_Static_assert(sizeof(actual.entries.values)==20,"complete entry owner");
  assert((uintptr_t)&actual>UINT32_MAX&&(uintptr_t)&actual.banks[1]>UINT32_MAX);
  for(n=0;n<65536;n++)for(phase=0;phase<4;phase++){
   u32 plan=(n+phase)%8,initialSeed;

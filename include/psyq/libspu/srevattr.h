@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-s32 SpuSetReverbModeParam(s32 *);
+s32 SpuSetReverbModeParam(void *attr);
 
 #endif /* RR_PSYQ_LIBSPU_SREVATTR_H */

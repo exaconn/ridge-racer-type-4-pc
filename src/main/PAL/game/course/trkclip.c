@@ -1,13 +1,7 @@
 #include "types.h"
 #include "rr_asm.h"
+#include "rr/track_sample_types.h"
 #include "game/course/trkclip.h"
-
-struct S
-{
-  char pad[0x12];
-  short x;
-  char pad2[0x3C - 0x14];
-};
 
 typedef struct {
     u16 h0, h2, h4, h6, h8, ha, hc, he, h10, h12, pad14, pad16;
@@ -15,25 +9,14 @@ typedef struct {
     s32 r1c;
 } StackFrame;
 
-extern struct S *TrackNodes;
-extern s32 TrackNodeCount;
-
-void func_80026A20(int a, int b, short *c);
-int FindTrackNode(s32 *pos, s32 startIdx, s32 maxIter);
-
-void func_80026A20(int a, int b, short *c)
+void GetTrackSegmentAndYaw(int node, int yaw, short *output)
 {
-  int q = a / 5;
-  int k = 0x800 - (&TrackNodes[a])->x;
-  int new_var;
-  new_var = k;
-  k = (b - new_var) & 0xFFF;
-  c[1] = k;
-  c[0] = q;
+    int segment = node / 5;
+    int relativeYaw = 0x800 - TrackNodes[node].heading12;
+    relativeYaw = ((u32)yaw - relativeYaw) & 0xFFF;
+    output[1] = relativeYaw;
+    output[0] = segment;
 }
-
-/* legacy typing of shared globals in this part of the unit */
-#define TrackNodes (*(s32 (*))&TrackNodes)
 
 s32 FindTrackNode(s32 *pos, s32 startIdx, s32 maxIter) {
     StackFrame sp;
@@ -42,7 +25,7 @@ s32 FindTrackNode(s32 *pos, s32 startIdx, s32 maxIter) {
     s32 px, pz;
     s32 next;
     s32 w78, w80;
-    char *p, *q;
+    TrackSample3C *p, *q;
     /* ASM_BARRIER: GTE NCLIP operand registers ($s0, $t8, $t9) */
     register s32 r1 __asm__("$16");
     /* ASM_BARRIER: GTE NCLIP operand registers ($s0, $t8, $t9) */
@@ -56,22 +39,22 @@ s32 FindTrackNode(s32 *pos, s32 startIdx, s32 maxIter) {
     pz = pos[2];
     for (;;) {
         next = (idx + 1) % TrackNodeCount;
-        p = (char *)TrackNodes + idx * 0x3C;
-        q = (char *)TrackNodes + next * 0x3C;
-        w78 = *(s32 *)(p + 8);
-        w80 = *(s32 *)(p + 12);
-        sp.h4 = sp.h8 = *(u16 *)(q + 8) - (u16)w78;
-        sp.h6 = sp.ha = *(u16 *)(q + 12) - (u16)w80;
+        p = &TrackNodes[idx];
+        q = &TrackNodes[next];
+        w78 = p->x08;
+        w80 = p->z0C;
+        sp.h4 = sp.h8 = (u16)q->x08 - (u16)w78;
+        sp.h6 = sp.ha = (u16)q->z0C - (u16)w80;
         sp.h0 = (u16)px - (u16)w78;
         sp.h2 = (u16)pz - (u16)w80;
-        sp.h4 += *(u16 *)(q + 0);
-        sp.h6 += *(u16 *)(q + 2);
-        sp.h8 += *(u16 *)(q + 4);
-        sp.ha += *(u16 *)(q + 6);
-        sp.hc = *(u16 *)(p + 0);
-        sp.he = *(u16 *)(p + 2);
-        sp.h10 = *(u16 *)(p + 4);
-        sp.h12 = *(u16 *)(p + 6);
+        sp.h4 += (u16)q->rightOffsetX00;
+        sp.h6 += (u16)q->rightOffsetZ02;
+        sp.h8 += (u16)q->leftOffsetX04;
+        sp.ha += (u16)q->leftOffsetZ06;
+        sp.hc = (u16)p->rightOffsetX00;
+        sp.he = (u16)p->rightOffsetZ02;
+        sp.h10 = (u16)p->leftOffsetX04;
+        sp.h12 = (u16)p->leftOffsetZ06;
         r3 = *(s32 *)&sp.h0;
         r1 = *(s32 *)&sp.hc;
         r2 = *(s32 *)&sp.h10;
@@ -98,4 +81,3 @@ s32 FindTrackNode(s32 *pos, s32 startIdx, s32 maxIter) {
     return idx;
 }
 
-#undef TrackNodes

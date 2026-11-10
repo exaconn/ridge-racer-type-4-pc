@@ -1,9 +1,7 @@
 #include "game/ui/uicnt.h"
 #include "game/course/trkintp2.h"
 #include "game/ui/uicode.h"
-extern int ChecksumBytes();
-void EncodePasswordCode(a0, a1) unsigned char *a0; int a1;
-{
+void EncodePasswordCode(unsigned char *a0, int a1) {
     int s5, s2, s1, s0, t;
     unsigned char *s3, *v0, *tab, *p;
     XorBytes37(a0, 6);
@@ -11,8 +9,8 @@ void EncodePasswordCode(a0, a1) unsigned char *a0; int a1;
     s5 = ChecksumBytes(a0, 6);
     s2 = 0;
     s3 = a0;
-    tab = D_8009FE2C;
-    s1 = ((unsigned)(s5 & 0xFF) % 11) & 0xFF;
+    tab = PasswordCipherKey;
+    s1 = ((s5 & 0xFF) % 11U) & 0xFF;
     do {
         v0 = (unsigned char *)(s1 + (int)tab);
         s1++;

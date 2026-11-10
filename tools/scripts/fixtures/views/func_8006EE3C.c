@@ -8,26 +8,26 @@
 #undef LightMatrix
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80060C70 ((int (*)())func_80060C70)
+#define SubmitCourseHorizon ((int (*)())SubmitCourseHorizon)
 
-#define func_8006E834 ((int (*)())func_8006E834)
+#define BuildViewSegmentObjectList ((int (*)())BuildViewSegmentObjectList)
 
-#define func_80071348 ((int (*)())func_80071348)
+#define ApplySegmentVisibilityMask ((int (*)())ApplySegmentVisibilityMask)
 
-#undef func_80060C70
+#undef SubmitCourseHorizon
 
-#undef func_8006E834
+#undef BuildViewSegmentObjectList
 
-#undef func_80071348
+#undef ApplySegmentVisibilityMask
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8006E834 ((int (*)())func_8006E834)
+#define BuildViewSegmentObjectList ((int (*)())BuildViewSegmentObjectList)
 
-#define func_80060C70 ((int (*)())func_80060C70)
+#define SubmitCourseHorizon ((int (*)())SubmitCourseHorizon)
 
-#undef func_8006E834
+#undef BuildViewSegmentObjectList
 
-#undef func_80060C70
+#undef SubmitCourseHorizon
 
 extern int SetTransMatrix();
 

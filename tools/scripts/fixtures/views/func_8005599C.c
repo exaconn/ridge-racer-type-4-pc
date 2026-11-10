@@ -43,7 +43,7 @@
 
 typedef struct { int w[4]; } Q16;
 
-typedef RrMatrixWords32 M32;
+typedef MatrixWords32 M32;
 
 typedef struct { short m[3][3]; short pad[7]; } S70;
 

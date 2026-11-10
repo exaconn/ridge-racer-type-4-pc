@@ -1,5 +1,7 @@
 """Host behavior checks; fd.py checks the target instruction sequence."""
 import ctypes as C
+from serial_native_types import RequestWords
+from c_functions import definition_source
 from pathlib import Path
 import re
 import subprocess
@@ -22,24 +24,24 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef int32_t s32;
 """ + header
-        for name in ('8009A94C', '8009ABF8'):
-            body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
-            source += body.replace('#include "rr/serial.h"', '')
-        source += '\nvolatile RrSerialRequest SioRequest;\nRrSerialReceiveRequest SioReceiveRequest;\nRrSerialPortRegisters *SIO1_REGS;\n'
+        for unit, name in (('siostart', '_sio_write_async'), ('siowait', '_sio_read_async')):
+            body = (root / f'src/main/PAL/psyq/libsio/{unit}.c').read_text()
+            source += definition_source(body, name)
+        source += '\nvolatile SerialRequest SioRequest;\nvolatile SerialReceiveRequest SioReceiveRequest;\nSerialPortRegisters *SIO1_REGS;\n'
         (directory / 'function.c').write_text(source)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
         cls.function = cls.library._sio_write_async
-        cls.function.argtypes = [C.c_int32, C.c_int32]
+        cls.function.argtypes = [C.c_void_p, C.c_int32]
         cls.function.restype = C.c_int32
         cls.receive = cls.library._sio_read_async
-        cls.receive.argtypes = [C.c_int32, C.c_int32]
+        cls.receive.argtypes = [C.c_void_p, C.c_int32]
         cls.receive.restype = C.c_int32
 
     def setUp(self):
-        self.request = (C.c_int32 * 3).in_dll(self.library, 'SioRequest')
-        self.receive_request = (C.c_int32 * 4).in_dll(self.library, 'SioReceiveRequest')
+        self.request = RequestWords.in_dll(self.library, 'SioRequest')
+        self.receive_request = RequestWords.in_dll(self.library, 'SioReceiveRequest', receive=True)
         self.registers = (C.c_uint16 * 8)(*range(8))
         C.c_void_p.in_dll(self.library, 'SIO1_REGS').value = C.addressof(self.registers)
 
@@ -55,7 +57,7 @@ typedef int32_t s32;
             for second in (-(1 << 31), -1, 0, 1, (1 << 31) - 1):
                 self.request[:] = [0, 123, 456]
                 self.registers[:] = range(8)
-                self.assertEqual(self.function(first, second), 0)
+                self.assertEqual(self.function(C.c_uint32(first).value, second), 0)
                 self.assertEqual(list(self.request), [1, first, second])
                 self.assertEqual(list(self.registers), [0, 1, 2, 3, 4, 0x825, 6, 7])
 
@@ -73,7 +75,7 @@ typedef int32_t s32;
                     self.receive_request[:] = [0, 123, 456, 987]
                     self.registers[:] = range(8)
                     self.registers[2] = status
-                    self.assertEqual(self.receive(first, second), 0)
+                    self.assertEqual(self.receive(C.c_uint32(first).value, second), 0)
                     self.assertEqual(list(self.receive_request), [1, first, second, status & 0x80])
                     self.assertEqual(list(self.registers), [0, 1, status, 3, 4, 0x405, 6, 7])
 

@@ -2,53 +2,66 @@
 #include "rr/audio_bank_setup.h"
 #include "game/sound/sndown.h"
 
-void SlotSetupBank(RrAudioBankSetup *arg0);
+void SlotSetupBank(AudioBankSetup *arg0);
 void SetPlayerVoice(int a0, int a1, int a2, int a3);
 
-void SlotSetupBank(RrAudioBankSetup *arg0)
+void SlotSetupBank(AudioBankSetup *arg0)
 {
-  register u8 *bankOwner asm("$23");
-  register u8 *read asm("$18");
-  u8 *loopRoot;register s32 zeroArg asm("$6");register u8 *toneArg asm("$7");
+  s32 zeroArg;
+  u8 *toneArg;
   s32 new_var; u8 *slotBase;
-  register u8 *write asm("$17");
+  AudioState *write;
+  /* ASM_BARRIER: retain this phase value in its original MIPS register. */
   register s32 readOffset asm("$19");
-  register s32 writeOffset asm("$20");
+  s32 writeOffset;
+  /* ASM_BARRIER: retain this phase value in its original MIPS register. */
   register s32 semitone asm("$16");
-register s32 channelOffset asm("$4");
+  s32 channelOffset;
   s32 channels[2];
-  RrSpuTone32 toneRecord;
-  register u8 *tone asm("$22");
-  register s32 bankIndex asm("$18");
+  u8 toneRecord[32];
+  u8 *tone;
+  /* ASM_BARRIER: retain this phase value in its original MIPS register. */
+  s32 bankIndex;
+  /* ASM_BARRIER: retain this phase value in its original MIPS register. */
   register s32 offset asm("$16");
+  /* ASM_BARRIER: retain this phase value in its original MIPS register. */
   register s32 i asm("$21");
-  s32 mode;register s32 voice asm("$2");
-  register s32 *channel asm("$19");
-  RrAudioSlot620 *slot;
-  register RrAudioState *owner asm("$20");
+  s32 mode;s32 voice;
+  s32 *channel;
+  AudioSlot620 *slot;
+  /* ASM_BARRIER: retain this phase value in its original MIPS register. */
+  register AudioState *owner asm("$20");
   u8 *programCursor;
   u8 *pitchCursor;
-  s16 handle;register s32 calculation asm("$2");
-  register RrAudioState *bankView asm("$3");
-  register RrAudioState *bankPointer asm("$16");
-  register RrAudioBankSetup *input asm("$22") = arg0;
+  s16 handle;
+  /* ASM_BARRIER: retain this phase value in its original MIPS register. */
+  register s32 calculation asm("$2");
+  AudioState *bankView;
+  AudioState *bankPointer;
+  /* ASM_BARRIER: retain this phase value in its original MIPS register. */
+  register AudioBankSetup *input asm("$22") = arg0;
+  AudioState *bankOwner;
+  AudioState *read;
+  u8 *loopRoot;
   new_var = input->slot0C;
   bankIndex = new_var;
   channels[0] = 5;
-  channels[1] = 6;slotBase=(u8*)SoundSlots;asm("" : : "r"(slotBase));
+  channels[1] = 6;slotBase=(u8*)SoundSlots;
+  /* ASM_BARRIER: preserve this arithmetic or helper boundary. */
+  /* ASM_BARRIER: preserve this arithmetic or helper boundary. */
   asm("" : "+r"(input));
-  calculation=((bankIndex*3)<<4)+bankIndex;asm("" : "+r"(calculation));offset=calculation<<5;
+  calculation=((bankIndex*3)<<4)+bankIndex;offset=calculation<<5;
   channelOffset=bankIndex<<2;channel=(s32*)((u8*)channels+channelOffset);
-  owner = (RrAudioState *) (slotBase - 0x38);
-  handle = *((s16 *) ((((u8 *) owner) + 0x24) + ((*channel) * 2)));
-  slot = (RrAudioSlot620 *) (slotBase + offset);
+  owner = (AudioState *) (slotBase - 0x38);
+  handle = owner->bank24[*channel];
+  slot = (AudioSlot620 *) (slotBase + offset);
   
   if (handle > (0 - 1))
   {
     SsVabClose(handle);
-    *((s16 *) ((((u8 *) owner) + 0x24) + ((*channel) * 2))) = -1;
+    owner->bank24[*channel] = -1;
   }
-  func_80096434(slot, 0x620);
+  PsyqBzero(slot, 0x620);
   mode = 0x5D000;
   if (bankIndex == 0)
   {
@@ -57,19 +70,19 @@ register s32 channelOffset asm("$4");
   if (input->bank00 != ((const u8 *) (~0UL)))
   {
     handle = (s16) SsVabOpenHeadSticky(input->bank00, -1, mode);
-    *((s16 *) ((((u8 *) owner) + 0x24) + ((*channel) * 2))) = handle;
-    bankView = (RrAudioState *) (((u8 *) owner) + offset);
-    *((RrAudioBankStorage32*)&bankView->slots38[0].bank04) = (s32) handle;
+    owner->bank24[*channel] = handle;
+    bankView = (AudioState *) (((u8 *) owner) + offset);
+    *((AudioBankStorage32*)&bankView->slots38[0].bank04) = handle;
   }
   if (input->data04 != ((const u16 *) (~0UL)))
   {
-    bankPointer = (RrAudioState *) (((u8 *) owner) + offset);
+    bankPointer = (AudioState *) (((u8 *) owner) + offset);
     handle = (s16) SsVabTransBody(input->data04, bankPointer->slots38[0].bank04);
-    *((s16 *) ((((u8 *) owner) + 0x24) + ((*channel) * 2))) = handle;
-    *((RrAudioBankStorage32*)&bankPointer->slots38[0].bank04) = (s32) handle;
+    owner->bank24[*channel] = handle;
+    *((AudioBankStorage32*)&bankPointer->slots38[0].bank04) = handle;
     SsVabTransCompleted(1);
   }
-  if (input->group08 != (RrAudioProgramData*)~0UL)
+  if (input->group08 != (AudioProgramData*)~0UL)
   {
     SlotLoadCurves(input->group08, bankIndex);
   }
@@ -80,6 +93,7 @@ register s32 channelOffset asm("$4");
   slot->reserved26 = 0;
   if (!bankIndex)
   {
+    /* ASM_BARRIER: preserve branch structure. */
     asm("");voice=20;
   }
   else
@@ -87,56 +101,49 @@ register s32 channelOffset asm("$4");
     voice = 0x10;
   }
   slot->voice08 = voice;
-  slot->count0C = 4;asm("" : : : "$21", "$22", "$2", "memory");
+  slot->count0C = 4;
+  /* ASM_BARRIER: preserve register live ranges before loop. */
+  asm("" : : : "$21", "$22", "$2", "memory");
   i = 0;
-  loopRoot = (u8 *) (&SoundState);asm("" : : "r"(loopRoot));
-  calculation=((bankIndex*3)<<4)+bankIndex;asm("" : "+r"(calculation));calculation<<=5;
-  bankOwner=loopRoot+calculation;
-tone=(u8*)&toneRecord;
-readOffset=calculation;writeOffset=readOffset;
+  loopRoot = (u8 *) (&SoundState);
+  /* ASM_BARRIER: preserve this arithmetic or helper boundary. */
+  asm("" : : "r"(loopRoot));
+  calculation=((bankIndex*3)<<4)+bankIndex;calculation<<=5;
+  bankOwner=(AudioState *)(loopRoot+calculation);
+  tone=toneRecord;
+  readOffset=calculation;writeOffset=readOffset;
   do
   {
-zeroArg=0;toneArg=tone;
-    read = (u8*)((unsigned long)readOffset+(unsigned long)loopRoot);
-    write = (u8*)((unsigned long)writeOffset+(unsigned long)loopRoot);
-asm("" : : "r"(write));
-    SsUtGetVagAtr(*((s16 *) (bankOwner + 0x3C)), *((s16 *) (read + 0x614)), zeroArg, toneArg);
+    zeroArg=0;toneArg=tone;
+    read = (AudioState *)(readOffset+(unsigned long)loopRoot);
+    write = (AudioState *)(writeOffset+(unsigned long)loopRoot);
+    SsUtGetVagAtr(bankOwner->slots38[0].bank04, (s16)read->slots38[0].programs5DC[0][0], zeroArg, toneArg);
     writeOffset = writeOffset + 4;
     readOffset = readOffset + 2;
     semitone = 0x3C;
-    *((s16 *) (write + 0x630)) = (s16) (semitone - ((u8 *) (&toneRecord))[12]);
-    *((s16 *) (write + 0x632)) = (s16) ((((u8 *) (&toneRecord))[13] + ((u8 *) (&toneRecord))[12]) << 7);
-    SsUtGetVagAtr(*((s16 *) (bankOwner + 0x3C)), *((s16 *) (read + 0x61E)), 0, tone);
-    *((s16 *) (write + 0x644)) = (s16) (semitone - ((u8 *) (&toneRecord))[12]);
+    write->slots38[0].pitch5F8[0][0].coarse = (s16) (semitone - toneRecord[12]);
+    write->slots38[0].pitch5F8[0][0].fine = (s16) ((toneRecord[13] + toneRecord[12]) << 7);
+    SsUtGetVagAtr(bankOwner->slots38[0].bank04, (s16)read->slots38[0].programs5DC[1][0], 0, tone);
+    write->slots38[0].pitch5F8[1][0].coarse = (s16) (semitone - toneRecord[12]);
     i++;
-    *((s16 *) (write + 0x646)) = (s16) ((((u8 *) (&toneRecord))[13] + ((u8 *) (&toneRecord))[12]) << 7);
+    write->slots38[0].pitch5F8[1][0].fine = (s16) ((toneRecord[13] + toneRecord[12]) << 7);
   }
   while (i <= (5 - 1));
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define SoundState (*(struct { char pad[0x26]; s16 h; char pad2[0x195C - 0x28]; struct { s32 a, b, c; char p[16]; } e[2]; } (*))&SoundState)
-
 void ResetPlayerVoices(void) {
     int i;
     for (i = 0; i < 2; i++) {
-        SoundState.e[i].c = 0;
-        SoundState.e[i].a = SoundState.h;
-        SoundState.e[i].b = i + 12;
+        SoundState.playerVoices195C[i].mode08 = 0;
+        SoundState.playerVoices195C[i].bank00 = SoundState.bank24[1];
+        SoundState.playerVoices195C[i].voice04 = i + 12;
     }
 }
-
-#undef SoundState
-
-/* legacy typing of shared globals in this part of the unit */
-#define SoundState (*(struct { char pad[0x1964]; struct { s32 a, pad, b, c; char pad2[12]; } e[1]; } (*))&SoundState)
 
 void SetPlayerVoice(int a0, int a1, int a2, int a3) {
-    SoundState.e[a3].a = a0;
+    SoundState.playerVoices195C[a3].mode08 = a0;
     if (a0 != 0) {
-        SoundState.e[a3].b = a1;
-        SoundState.e[a3].c = a2;
+        SoundState.playerVoices195C[a3].pitch10 = a1;
+        SoundState.playerVoices195C[a3].vol14 = a2;
     }
 }
-
-#undef SoundState

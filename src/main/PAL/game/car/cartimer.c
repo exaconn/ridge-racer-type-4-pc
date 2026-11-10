@@ -1,32 +1,30 @@
 /* CC1_FLAGS: -fno-schedule-insns */
-typedef struct { int x0; int x4; int x8; char p0[0x198 - 0xC]; short s198, s19a, s19c, s19e; char p1[0x1E4 - 0x1A0]; unsigned short s1e4; char p2[0x224 - 0x1E6]; short s224; } W10_5A;
+#include "rr/race_types.h"
+#include "game/car/cartimer.h"
 
-void DecayCarOffset(a0) W10_5A *a0;
-{
-    W10_5A *a1;
-    /* ASM_BARRIER: pin copy reg */
-    a1 = a0;
-    if (a1->s19c != 0) {
-        if (a1->s19e > 0) {
-            a1->s19e = a1->s19e - 1;
-            if (a1->s19e <= 0) {
-                a1->s19c = 0;
-                a1->s19e = 0;
-                if (a1->s1e4 & 0x10) a1->s224 = 0;
+void DecayCarOffset(RaceVehicle *vehicle) {
+    RaceVehicle *car = vehicle;
+    if (car->shakeActive19C != 0) {
+        if (car->shakeTimer19E > 0) {
+            car->shakeTimer19E = car->shakeTimer19E - 1;
+            if (car->shakeTimer19E <= 0) {
+                car->shakeActive19C = 0;
+                car->shakeTimer19E = 0;
+                if (car->flags1E4 & 0x10) car->control.pathDeltaX30 = 0;
             }
             {
-                /* ASM_BARRIER: pin v1 to $3 for original reg order */
-                register int v1 __asm__("$3");
-                int a, t;
-                v1 = a1->s198;
-                a = a1->s19a;
-                a1->x0 = a1->x0 - v1;
-                a1->x8 = a1->x8 - a;
-                t = v1 * 7;
-                /* ASM_BARRIER: forced reg copy */
-                __asm__("" : "=r"(v1) : "0"(a));
-                a1->s198 = t >> 3;
-                a1->s19a = (v1 * 7) >> 3;
+                /* ASM_BARRIER: retained original offset register assignment. */
+                register s32 offsetX __asm__("$3");
+                s32 offsetY, scaledX;
+                offsetX = car->shakeX198;
+                offsetY = car->shakeY19A;
+                car->posScaled00[0] = (s32)((u32)car->posScaled00[0] - (u32)offsetX);
+                car->posScaled00[2] = (s32)((u32)car->posScaled00[2] - (u32)offsetY);
+                scaledX = offsetX * 7;
+                /* ASM_BARRIER: retained original scalar copy before the stores. */
+                __asm__("" : "=r"(offsetX) : "0"(offsetY));
+                car->shakeX198 = scaledX >> 3;
+                car->shakeY19A = (offsetX * 7) >> 3;
             }
         }
     }

@@ -10,11 +10,11 @@ typedef struct {
         s32 word;
         s16 half;
     } value;
-} RrTrackEventEntry;
+} TrackEventEntry;
 
 typedef struct {
     s16 key, value;
-} RrTrackEventPair;
+} TrackEventPair;
 
 typedef struct {
     char pad00[4];
@@ -22,23 +22,23 @@ typedef struct {
     s32 reserved0C;
     void *auxiliary10;
     void *auxiliary14;
-    RrTrackEventEntry *table0;
-    RrTrackEventEntry *table1;
-    RrTrackEventEntry *table2;
-    RrTrackEventEntry *table3;
+    TrackEventEntry *table0;
+    TrackEventEntry *table1;
+    TrackEventEntry *table2;
+    TrackEventEntry *table3;
     void *auxiliary28;
-} RrLookupTables32;
+} LookupTables32;
 
 typedef struct {
     s16 count0, count1;
     char pad04[8];
     s16 count2;
     char pad0E[2];
-    RrTrackEventPair *table0;
-    RrTrackEventPair *table1;
+    TrackEventPair *table0;
+    TrackEventPair *table1;
     char pad18[0x10];
-    RrTrackEventPair *table2;
-} RrLookupTables16;
+    TrackEventPair *table2;
+} LookupTables16;
 
 typedef struct {
     char pad000[0x550];
@@ -47,15 +47,15 @@ typedef struct {
     u8 *workspace558;
     u8 *workspace55C;
     char reserved560[8];
-    RrLookupTables32 *lookupTables;
-} RrTrackResourceContext;
+    LookupTables32 *lookupTables;
+} TrackResourceContext;
 
-extern RrTrackResourceContext RaceContext;
-extern RrLookupTables16 *TrackEventTables;
+extern TrackResourceContext RaceContext;
+extern LookupTables16 *TrackEventTables;
 
 s32 LookupTrackEventPair(s32 key, s32 selection);
 /* A terminal threshold of sampleCount - 1 denotes a range wrapping to zero. */
-s32 FindTrackEventIndex(const RrTrackEventEntry *entries, s32 count, s32 key);
+s32 FindTrackEventIndex(const TrackEventEntry *entries, s32 count, s32 key);
 s32 LookupTrackEventTable0(s32 key);
 s32 LookupTrackEventTable1(s32 key);
 s32 LookupTrackEventTable2(s32 key);
@@ -64,18 +64,18 @@ s32 LookupTrackEventPair2(s32 key);
 /* selection is one of the seven track-event tables (0..6). */
 s32 LookupTrackEvent(s32 selection, s32 key);
 
-RR_ASSERT_SIZE(RrTrackEventEntry, 8);
-RR_ASSERT_SIZE(RrTrackEventPair, 4);
-RR_ASSERT_OFFSET(RrTrackEventEntry, value, 4);
-RR_ASSERT_SIZE(RrLookupTables32, 0x2C);
-RR_ASSERT_OFFSET(RrLookupTables32, count0, 4);
-RR_ASSERT_OFFSET(RrLookupTables32, count3, 0xA);
-RR_ASSERT_OFFSET(RrLookupTables32, table0, 0x18);
-RR_ASSERT_OFFSET(RrLookupTables32, table3, 0x24);
-RR_ASSERT_SIZE(RrLookupTables16, 0x2C);
-RR_ASSERT_OFFSET(RrLookupTables16, count2, 0xC);
-RR_ASSERT_OFFSET(RrLookupTables16, table0, 0x10);
-RR_ASSERT_OFFSET(RrLookupTables16, table2, 0x28);
-RR_ASSERT_OFFSET(RrTrackResourceContext, lookupTables, 0x568);
+RR_ASSERT_SIZE(TrackEventEntry, 8);
+RR_ASSERT_SIZE(TrackEventPair, 4);
+RR_ASSERT_OFFSET(TrackEventEntry, value, 4);
+RR_ASSERT_SIZE(LookupTables32, 0x2C);
+RR_ASSERT_OFFSET(LookupTables32, count0, 4);
+RR_ASSERT_OFFSET(LookupTables32, count3, 0xA);
+RR_ASSERT_OFFSET(LookupTables32, table0, 0x18);
+RR_ASSERT_OFFSET(LookupTables32, table3, 0x24);
+RR_ASSERT_SIZE(LookupTables16, 0x2C);
+RR_ASSERT_OFFSET(LookupTables16, count2, 0xC);
+RR_ASSERT_OFFSET(LookupTables16, table0, 0x10);
+RR_ASSERT_OFFSET(LookupTables16, table2, 0x28);
+RR_ASSERT_OFFSET(TrackResourceContext, lookupTables, 0x568);
 
 #endif

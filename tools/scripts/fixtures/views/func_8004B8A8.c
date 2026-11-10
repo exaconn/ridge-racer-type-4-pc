@@ -1,18 +1,18 @@
 #include "rr/menu_pulse.h"
 
-void func_8004B8A8(void) {
-    RrMenuItemState5C *next_output;
-    RrPulseState18 *next_state;
+void PadStepPulse(void) {
+    MenuItemState5C *next_output;
+    PulseState18 *next_state;
     /* ASM_BARRIER: reuse V1 for selector, step and duration in disjoint lifetimes. */
     register s32 word asm("$3");
     s32 port;
     u16 repeat_tick;
     u16 once_tick;
-    const RrPulseRow *repeat_row;
-    const RrPulseRow *once_row;
+    const PulseRow *repeat_row;
+    const PulseRow *once_row;
 
-    RrPulseSetting4 *settings;
-    const RrPulseRow **repeat, **once;
+    PulseSetting4 *settings;
+    const PulseRow **repeat, **once;
     s32 small;
     port = 0;
     settings = Options.controls.pulse;
@@ -23,9 +23,9 @@ void func_8004B8A8(void) {
     next_state = PadPulseState;
     do {
         /* ASM_BARRIER: keep the per-port state cursor in A2 inside the loop. */
-        register RrPulseState18 *state asm("$6") = next_state;
+        register PulseState18 *state asm("$6") = next_state;
         /* ASM_BARRIER: keep the output cursor in A1 after address initialization. */
-        register RrMenuItemState5C *output asm("$5") = next_output;
+        register MenuItemState5C *output asm("$5") = next_output;
         if (settings[port].disabled02 != 0) {
             /* ASM_BARRIER: retain the disabled-port path before the shared clear. */
             __asm__ volatile("" ::: "memory");

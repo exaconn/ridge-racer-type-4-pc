@@ -4,7 +4,7 @@
 #include "psyq/libsnd/ssatr2.h"
 #include "rr/channel_stream.h"
 
-#define P ((RrLibStateB0 *)(offset + (unsigned long)*q))
+#define P ((LibStateB0 *)(offset + (unsigned long)*q))
 
 extern u32 _snd_openflag;
 extern short _snd_seq_t_max;
@@ -15,28 +15,21 @@ void _SsClose(s32 raw_bank) {
     s16 a0=raw_bank;
     s32 i;
     s32 offset;
-    /* ASM_BARRIER: Retain the original register for argument, loop, or store scheduling. */
-    register s32 argument_bank __asm__("$4");
+    s32 argument_bank;
     register s32 zero;
     s32 minus_one;
     register s32 maximum;
-    RrLibStateB0 **q;
+    LibStateB0 **q;
     argument_bank=a0;
-    /* ASM_BARRIER: Prepare the bank argument before reusing a1 for zero. */
-    __asm__("" : "+r"(argument_bank) : : "$5");
     zero=0;
-    /* ASM_BARRIER: Keep the two zero arguments independent in their original registers. */
-    __asm__("" : "+r"(zero));
     _SsVmSetSeqVol(argument_bank, zero, 0, 1);
     _SsVmSeqKeyOff(a0);
     _snd_openflag &= ~(1U << a0);
     i = 0;
     if (_snd_seq_t_max > 0) {
-        unsigned long b; b = (unsigned long)_ss_score; q = (RrLibStateB0 **)(a0 * sizeof(*q) + b);
+        unsigned long b; b = (unsigned long)_ss_score; q = (LibStateB0 **)(a0 * sizeof(*q) + b);
         minus_one=-1;
         maximum=127;
-        /* ASM_BARRIER: Keep the loop count distinct from the zero byte offset. */
-        __asm__("" : "+r"(i) : "r"(q), "r"(minus_one), "r"(maximum));
         offset=0;
         do {
             P->w98 = 0;
@@ -54,8 +47,8 @@ void _SsClose(s32 raw_bank) {
             P->h58[0] = maximum;
             i++;
             {
-                register RrLibStateB0 *last=P;
-                offset+=sizeof(RrLibStateB0);
+                register LibStateB0 *last=P;
+                offset+=sizeof(LibStateB0);
                 last->h58[1]=maximum;
             }
         } while (i < _snd_seq_t_max);

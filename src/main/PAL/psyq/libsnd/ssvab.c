@@ -1,7 +1,9 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
+#include "rr/spu.h"
 #include "psyq/libsnd/vmmain.h"
+#include "psyq/libsnd/ssvab.h"
 
 typedef struct {
     u32 form;
@@ -32,17 +34,6 @@ typedef struct {
     u16 reserved2;
 } ProgAtr;
 
-extern void _spu_setInTransfer(s32);
-
-extern ProgAtr *_svm_vab_pg[];
-extern u8 *_svm_vab_vh[];
-extern u8 *_svm_vab_tn[];
-extern s16 kMaxPrograms;
-extern u8 _svm_vab_used[];
-extern u32 _svm_vab_total[];
-extern u16 _svm_vab_count;
-extern u32 _svm_vab_start[];
-
 static inline void vab_count_dec(void) {
     /* ASM_BARRIER: keep the decremented count in v1 as in the target */
     register u16 c __asm__("$3");
@@ -50,9 +41,7 @@ static inline void vab_count_dec(void) {
     _svm_vab_count = c - 1;
 }
 
-typedef s32 (*VabTransFunc)(u32, s32, s16);
-
-s16 _SsVabOpenHeadWithMode(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
+s32 _SsVabOpenHeadWithMode(void *addr, s16 vabid, VabTransFunc func, s32 mode) {
     s16 vab_id = 0x10;
     u8 *p;
     VabHdr *vab_h;
@@ -122,7 +111,7 @@ s16 _SsVabOpenHeadWithMode(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
         vab_count_dec();
         goto err;
     }
-    _svm_vab_pg[vab_id] = (ProgAtr *)p;
+    _svm_vab_pg[vab_id] = (SpuProgram *)p;
     prog_atr = (ProgAtr *)p;
     p += kMaxPrograms * sizeof(ProgAtr);
     i = 0;
@@ -131,8 +120,7 @@ s16 _SsVabOpenHeadWithMode(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
     tot_size = 0;
     if ((s32)tot_size < kMaxPrograms) {
         s32 limit = kMaxPrograms;
-        /* ASM_BARRIER: keep the loop pointer in v1 as in the target */
-        register ProgAtr *cur __asm__("$3") = prog_atr;
+        ProgAtr *cur = prog_atr;
         do {
             cur->reserved1 = tot_size;
             if (cur->tones != 0) {
@@ -177,8 +165,7 @@ s16 _SsVabOpenHeadWithMode(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
     /* ASM_BARRIER: hide zero in tot_size from reload_cse */
     __asm__("" : "+r"(tot_size));
     {
-        /* ASM_BARRIER: keep zero-extended num_vags in v1 before copying to loop limit */
-        register s32 nv __asm__("$3") = num_vags;
+        s32 nv = num_vags;
         s32 zero = 0;
         s32 cond = (nv < zero);
         /* ASM_BARRIER: schedule slti before i = 0 so reload_cse keeps slti and reorg fills delay slot with i = 0 */

@@ -6,10 +6,10 @@
 extern const char ovl663_scene_name[];
 extern u8 ovl663_course_order[9];
 extern u8 ovl663_time_text[10];
-extern RrUiUvRect ovl663_record_badges[2];
+extern UiUvRect ovl663_record_badges[2];
 extern u8 ovl663_race_column_widths[4];
 extern u8 ovl663_lap_column_widths[4];
-extern RrUiUvRect ovl663_record_label;
+extern UiUvRect ovl663_record_label;
 extern s32 ovl663_selected_record;
 extern s32 ovl663_course_count;
 extern s32 ovl663_available_courses[9];

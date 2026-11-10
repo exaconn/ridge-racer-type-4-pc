@@ -14,7 +14,7 @@ class CheckpointTest(unittest.TestCase):
 #include <stdio.h>
 #include <limits.h>
 #include "rr/overlay667_checkpoint.h"
-typedef struct {u32 prefix[4];RrRaceCheckpointVehicle vehicle;u32 suffix[4];
+typedef struct {u32 prefix[4];RaceVehicle vehicle;u32 suffix[4];
  s32 length,target,state,flag;s16 timer;u16 pad;u32 tail[4];} Environment;
 static Environment actual,expected,pre[3];
 static unsigned events[3],eventCount,eventIndex,mutation;
@@ -24,7 +24,7 @@ static s32 sign32(u32 x){s32 result;memcpy(&result,&x,4);return result;}
 static s16 sign16(u16 x){s16 result;memcpy(&result,&x,2);return result;}
 static void mutate(Environment *e,unsigned event){
  if(mutation&1){e->vehicle.first=sign32((u32)e->vehicle.first+0xfedcba98U);
- e->vehicle.control.steering94.count22=sign16((u16)(0x8000U+event));}
+ e->vehicle.control.dynamics94.steering.count22=sign16((u16)(0x8000U+event));}
  if(mutation&2){e->length=sign32(0xdeadbeefU);e->target=INT_MIN;e->state=-12345;
  e->flag=77;e->timer=-123;}
 }
@@ -45,12 +45,12 @@ static void *SoundQueueEnqueue(s32 a,s32 b){service(2,a,b);return 0;}
 #define D_800AC5D0 (actual.timer)
 '''+body+r'''
 static void model(void){
- int old=expected.vehicle.control.steering94.count22;
+ int old=expected.vehicle.control.dynamics94.steering.count22;
  s32 sum=sign32((u32)expected.vehicle.first+(u32)expected.vehicle.second);
  s32 threshold=sign32((u32)((int64_t)old*expected.length));
  if(sum<threshold){paths[0]++;return;}
  if(old>expected.target){paths[1]++;return;}
- old=sign16((u16)(old+1));expected.vehicle.control.steering94.count22=(s16)old;
+ old=sign16((u16)(old+1));expected.vehicle.control.dynamics94.steering.count22=(s16)old;
  if(old==expected.target){paths[2]++;expect_event(0);return;}
  if(old<=expected.target){paths[3]++;return;}
  if(expected.state>=4){paths[4]++;return;}
@@ -63,7 +63,7 @@ int main(void){unsigned raw,phase,i;uint64_t cases=0;
   int lap=sign16((u16)raw);s32 threshold;
   /* Every byte, including reserved fields and guards, participates in comparison. */
   for(i=0;i<sizeof(actual);i++)bytes[i]=(unsigned char)(i*37U+raw+phase);
-  actual.vehicle.control.steering94.count22=(s16)lap;
+  actual.vehicle.control.dynamics94.steering.count22=(s16)lap;
   actual.length=sign32(next());actual.target=phase<8?lap+(int)(phase%4)-1:sign32(next());
   actual.state=(phase/4)&1?3:4;actual.flag=sign32(next());actual.timer=sign16((u16)next());
   threshold=sign32((u32)((int64_t)lap*actual.length));
@@ -72,7 +72,7 @@ int main(void){unsigned raw,phase,i;uint64_t cases=0;
   mutation=(raw+phase)&3;expected=actual;eventCount=eventIndex=0;
   model();ovl667_func_80115508(&actual.vehicle);
   assert(eventIndex==eventCount);assert(!memcmp(&actual,&expected,sizeof(actual)));
-  if(lap==32767&&actual.vehicle.control.steering94.count22==-32768)paths[6]++;
+  if(lap==32767&&actual.vehicle.control.dynamics94.steering.count22==-32768)paths[6]++;
   if(mutation&&eventCount)paths[7]++;cases++;
  }
  for(i=0;i<8;i++)assert(paths[i]);

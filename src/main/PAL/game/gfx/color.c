@@ -1,34 +1,31 @@
 /* RODATA 0x8001104c 0x18 */
 #include "rr/color_conversion.h"
 #include "game/gfx/color.h"
+#include "game/system/pad.h"
 #include "rr/channels.h"
-#include "game/gfx/color.h"
+#include "rr/audio_state_types.h"
+#include "rr/audio_cd_controller.h"
+#include "game/sound/sndctrl.h"
+#include "game/sound/cdmain.h"
 
-typedef struct { char pad[0x1C]; short f1c; char pad2[0x3E]; } T;
 
-extern T PlayerControllers[];
-extern int SetCdMixMode();
-extern int CdAudioSetVolumeRaw();
-extern int SeqSetVolume();
-extern char SoundState[];
+void EnablePadAnalogMode(int i);
+void HsvToRgb(const HsvColor input,RgbColor output);
 
-void func_8004C098(int i);
-void HsvToRgb(const RrHsvColor input,RrRgbColor output);
-
-void func_8004C098(int i) {
-    if (PlayerControllers[i].f1c != 0) {
+void EnablePadAnalogMode(int i) {
+    if (PlayerControllers[i].kind1C != 0) {
         PadSetMainMode(i * 16, 1, 0);
     }
 }
 
 void ApplySoundVolumes(void) {
-    char *p = SoundState;
-    CdAudioSetVolumeRaw(*(unsigned short *)(p + 0x26C4));
-    SeqSetVolume(*(short *)(p + 0x2888));
+    short *p = (short *)&SoundState;
+    CdAudioSetVolumeRaw((unsigned short)p[0x26C4 / 2]);
+    SeqSetVolume(p[0x2888 / 2]);
     SetCdMixMode(D_800AD55A);
 }
 
-void HsvToRgb(const RrHsvColor input,RrRgbColor output) {
+void HsvToRgb(const HsvColor input,RgbColor output) {
     s32 s=input[1];
     s32 hue=input[0];
     s32 v=input[2];

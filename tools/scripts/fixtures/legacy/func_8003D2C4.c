@@ -3,16 +3,16 @@
 
 /* Caller-facing O32 arguments retain full register words; the existing helpers
  * narrow coordinates and packet fields when writing the GPU representation. */
-extern RrSpritePacket *AddSpritePrim(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32);
-extern RrSpritePacket *GameQueueSprite(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32);
+extern SpritePacket *AddSpritePrim(u32*,SpritePacket*,s32,s32,UiUvRect*,u16,s32);
+extern SpritePacket *GameQueueSprite(u32*,SpritePacket*,s32,s32,s32,s32,s32,s32,s32);
 extern void *AddTilePrim(u32*,void*,s32,s32,s32,s32,s32,s32,s32);
 
-RrSpritePacket *DrawBadgeTitleBar(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 style) {
+SpritePacket *DrawBadgeTitleBar(u32 *order,SpritePacket *cursor,s32 x,s32 y,s32 style) {
     /* ASM_BARRIER: keep the ordering pointer live across every helper call. */
     register u32 *ordering __asm__("$21")=order;
     s32 xpos,ypos,offset,index;
     /* ASM_BARRIER: retain the captured descriptor across live count reloads. */
-    register RrUiBarDescriptor *descriptor __asm__("$18");
+    register UiBarDescriptor *descriptor __asm__("$18");
     /* ASM_BARRIER: stage each horizontal coordinate in the outgoing argument. */
     register s32 x_stage __asm__("$6")=x;
     /* ASM_BARRIER: stage each vertical coordinate in the outgoing argument. */
@@ -22,7 +22,7 @@ RrSpritePacket *DrawBadgeTitleBar(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,
     register s32 selector __asm__("$2");
     s32 width,sampled;
     u32 *out_order;
-    RrSpritePacket *out_cursor;
+    SpritePacket *out_cursor;
     /* ASM_BARRIER: capture the saved ordering pointer before position setup. */
     __asm__("" : "+r"(x_stage) : "r"(ordering));
     xpos=x_stage;
@@ -32,8 +32,8 @@ RrSpritePacket *DrawBadgeTitleBar(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,
     offset=4;
     index=0;
     descriptor_base=(u8*)D_8009F968;
-    selector=(u32)style*sizeof(RrUiBarDescriptor);
-    descriptor=(RrUiBarDescriptor*)(descriptor_base+selector);
+    selector=(u32)style*sizeof(UiBarDescriptor);
+    descriptor=(UiBarDescriptor*)(descriptor_base+selector);
     cursor=AddSpritePrim(ordering,cursor,x_stage,y_stage,
                        &D_8009F94C[descriptor->glyph],0x7FFB,0);
     out_order=ordering;

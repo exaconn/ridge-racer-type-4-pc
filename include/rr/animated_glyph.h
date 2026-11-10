@@ -3,7 +3,7 @@
 #include "rr/icon_sprites.h"
 #include "rr/draw_environment.h"
 #ifndef RR_GLYPH_ANIMATION_SCRATCH
-#define RR_GLYPH_ANIMATION_SCRATCH ((RrGpuScratchPointers *)0x1F800000U)
+#define RR_GLYPH_ANIMATION_SCRATCH ((GpuScratchPointers *)0x1F800000U)
 #endif
 void SetSprt(void *packet);
 void AddPrim(u32 *ordering,u32 *packet);

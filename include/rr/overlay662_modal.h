@@ -1,9 +1,9 @@
 #ifndef RR_OVERLAY662_MODAL_H
 #define RR_OVERLAY662_MODAL_H
+#include "game/system/pad.h"
 #include "rr/overlay662_tool_action.h"
 #include "rr/menu_text_state.h"
 #include "rr/tables.h"
-extern RrMenuItemState5C PlayerControllers[2];
 extern s16 D_800F3A26,ModeGroup,D_800F4D8A;
 extern s32 ovl662_D_801272E8;
 /* Negative modes reset the first option index. Modes1/2/4/8 configure

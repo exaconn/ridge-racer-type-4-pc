@@ -1,14 +1,13 @@
 /* CC1_FLAGS: -fno-cse-follow-jumps -fno-rerun-cse-after-loop */
 #include "rr/overlay662_scrollbar.h"
 
-void ovl662_func_8011C174(s32 arg0, RrGpuRectangleFields *arg1)
+void ovl662_func_8011C174(s32 arg0, GpuRectangleFields *arg1)
 {
     /* ASM_BARRIER: match GCC local-alloc assignment of $v0/$v1/$a0 so global-alloc keeps base in $a1 */
     register s32 q __asm__("$2");
     /* ASM_BARRIER: match GCC local-alloc assignment of 64 to $v1 */
     register s32 c64 __asm__("$3");
-    /* ASM_BARRIER: match GCC local-alloc assignment of extent diff to $a0 */
-    register s32 diff __asm__("$4");
+    s32 diff;
 
     if (arg0 == 0) {
         arg1->w = 112 / (ovl662_D_801276A8.config1C >> 1);

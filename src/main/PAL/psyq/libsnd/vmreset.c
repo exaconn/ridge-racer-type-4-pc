@@ -1,42 +1,15 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
+#include "rr/channels.h"
+#include "rr/spu.h"
 #include "psyq/libspu/libspu.h"
 #include "psyq/libsnd/vmtick2.h"
+#include "psyq/libsnd/vmreset.h"
+#include "psyq/libsnd/vmvinit.h"
 #include "psyq/libspu/sminit.h"
 #include "game/data/globals.h"
-
-
-
-typedef struct {
-    s16 f00;
-    s16 f02;
-    s16 f04;
-    s16 f06;
-    s16 f08;
-    s8 f0A;
-    s8 f0B;
-    s16 f0C;
-    s16 f0E;
-    s16 f10;
-    s16 f12;
-    s16 f14;
-    s16 f16;
-    u8 pad18[5];
-    s8 f1D;
-    s16 f1E;
-    s16 f20;
-    s16 f22;
-    s16 f24;
-    s16 f26;
-    s16 f28;
-    s16 f2A;
-    s16 f2C;
-    s16 f2E;
-    s16 f30;
-    s16 f32;
-    s16 f34;
-} SpuVoiceRow36;
+#include "rr/spu_voice_cache.h"
 
 typedef struct {
     s32 unk0;
@@ -45,20 +18,7 @@ typedef struct {
     s16 unkA;
 } Unk80110008;
 
-extern void SpuSetVoiceAttr(SpuVoiceAttr *);
-extern void _spu_setInTransfer(s32);
-extern void _SsVmKeyOffNow(s32);
-
-extern SpuVoiceRow36 _svm_voice[];
-extern u8 _svm_sreg_dirty[];
-extern u16 _svm_sreg_buf[];
 extern Unk80110008 _svm_rattr;
-extern s16 _svm_damper;
-extern s16 kMaxPrograms;
-extern s8 spuVmMaxVoice;
-extern s16 D_80110118;
-extern u8 _svm_vab_used[];
-extern s16 _svm_vab_count;
 extern u8 D_801101C8[];
 
 void _SsVmInit(s32 arg0) {
@@ -73,14 +33,14 @@ void _SsVmInit(s32 arg0) {
     SpuInitMalloc(0x20, D_801101C8);
 
     i = 0;
-    p = _svm_sreg_buf;
+    p = (u16 *)_svm_sreg_buf;
     do {
         p[i] = 0;
         i++;
     } while (i < 0xC0);
 
     for (i = 0; i < 0x18; i++) {
-        _svm_sreg_dirty[i] = 0;
+        _svm_sreg_dirty.flags[i] = 0;
     }
 
     _svm_vab_count = 0;
@@ -90,7 +50,7 @@ void _SsVmInit(s32 arg0) {
     }
 
     v = (s8)arg0;
-    if ((u32)v >= 0x18) {
+    if (v >= 0x18U) {
         spuVmMaxVoice = 0x18;
     } else {
         spuVmMaxVoice = v;
@@ -112,31 +72,31 @@ void _SsVmInit(s32 arg0) {
         c40 = 0x40;
         c1 = 1;
         do {
-            _svm_voice[i].f02 = c18;
-            _svm_voice[i].f00 = cff;
-            _svm_voice[i].f1D = 0;
-            _svm_voice[i].f04 = 0;
-            _svm_voice[i].f06 = 0;
-            _svm_voice[i].f10 = cm1;
-            _svm_voice[i].f12 = 0;
-            _svm_voice[i].f14 = 0;
-            _svm_voice[i].f16 = cff;
-            _svm_voice[i].f08 = 0;
-            _svm_voice[i].f0C = 0;
-            _svm_voice[i].f0A = c40;
-            _svm_voice[i].f1E = 0;
-            _svm_voice[i].f20 = 0;
-            _svm_voice[i].f22 = 0;
-            _svm_voice[i].f24 = 0;
-            _svm_voice[i].f2A = 0;
-            _svm_voice[i].f2C = 0;
-            _svm_voice[i].f2E = 0;
-            _svm_voice[i].f30 = 0;
-            _svm_voice[i].f32 = 0;
-            _svm_voice[i].f26 = 0;
+            _svm_voice[i].age02 = c18;
+            _svm_voice[i].value00 = cff;
+            _svm_voice[i].flags1D = 0;
+            _svm_voice[i].value04 = 0;
+            _svm_voice[i].value06 = 0;
+            _svm_voice[i].match10 = cm1;
+            _svm_voice[i].unk12 = 0;
+            _svm_voice[i].match14 = 0;
+            _svm_voice[i].unk16 = cff;
+            _svm_voice[i].unk08 = 0;
+            _svm_voice[i].unk0C = 0;
+            _svm_voice[i].unk0A = c40;
+            _svm_voice[i].field1E = 0;
+            _svm_voice[i].field20 = 0;
+            _svm_voice[i].field22 = 0;
+            _svm_voice[i].field24 = 0;
+            _svm_voice[i].field2A = 0;
+            _svm_voice[i].field2C = 0;
+            _svm_voice[i].field2E = 0;
+            _svm_voice[i].field30 = 0;
+            _svm_voice[i].field32 = 0;
+            _svm_voice[i].field26 = 0;
             attr.voice = c1 << i;
             SpuSetVoiceAttr(&attr);
-            D_80110118 = i;
+            _svm_voice_cursor = i;
             _SsVmKeyOffNow(1);
             i++;
         } while (i < spuVmMaxVoice);

@@ -4,7 +4,7 @@
 
 #include "rr/spu_key.h"
 
-#define HW (((RrSpuRegisterStorage *)_spu_RXX)->halves)
+#define HW (((SpuRegisterStorage *)_spu_RXX)->halves)
 
 void SpuSetKey(s32 mode,u32 mask) {
     u32 high;

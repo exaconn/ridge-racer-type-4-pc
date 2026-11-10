@@ -1,28 +1,20 @@
 /* RODATA 0x80011588 0x1c */
 #include "types.h"
 #include "rr/mode_menu_state.h"
-#include "m2c_macros.h"
 #include "game/data/cardini.h"
 #include "game/menu/menustep.h"
-#include "game/data/cardini.h"
 #include "game/data/savedat.h"
 #include "game/menu/loadmenu.h"
 #include "game/data/globals.h"
+#include "game/ui/uidraw.h"
 
 extern short D_800A41EC;
 extern short D_800A41EE;
-extern int UpdateBadgeRowAnim();
 
-void func_8007AB8C(int arg0);
-void func_8007B3A0(void);
+void ExitCardMenuToMode(int arg0);
+void CardMenuModeUpdate(void);
 
-/* legacy typing of shared globals in this part of the unit */
-#define CardTargetFileName (*(char (*)[])&CardTargetFileName)
-
-int CardLoadStep(a0, a1)
-short a0;
-int a1;
-{
+int CardLoadStep(short a0, int a1) {
     int i;
     int r;
     int q;
@@ -82,13 +74,8 @@ int a1;
     return D_800A41EC;
 }
 
-#undef CardTargetFileName
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F3A26 (*(short (*))&D_800F3A26)
-#define D_800F4D8A (*(short (*))&D_800F4D8A)
-
-void func_8007AB8C(int arg0) {
+void ExitCardMenuToMode(int arg0) {
     if (arg0 == -1) {
         ModeGroup = 1;
         D_800F3A26 = 3;
@@ -99,10 +86,8 @@ void func_8007AB8C(int arg0) {
     D_800F4D8A = 0;
 }
 
-#undef D_800F3A26
-#undef D_800F4D8A
 
-void func_8007ABCC(void) {
+void CardMenuModeEnter(void) {
     unsigned long clearAddress;
     u16 clockLow;
     s32 selection;
@@ -114,7 +99,7 @@ void func_8007ABCC(void) {
     s32 layout;
     u16 phase;
 
-    if (D_800F4D44 == 4) {
+    if (GameModeType == 4) {
         UpdateLinkHandshake(2);
         if (LinkState == -1) {
             _sio_control(1, 1, 0);
@@ -126,19 +111,17 @@ void func_8007ABCC(void) {
         SetDispMask(0);
         SetupDrawDispEnvs(0x20, 0x20, 0x20, 2);
         ModeFrame = 0;
-        D_800F4D3C = 0;
+        GpSaveSlotCursor = 0;
         D_80109478[D_8010948E] = 3;
         /* ASM_BARRIER: finish the choice write before the clock read. */
         __asm__("" : : : "memory");
         __builtin_memcpy(&clockLow, &D_800AC5D4, sizeof(clockLow));
         bank = clockLow & 1;
-        D_800AC594 = bank;
-        D_800FFC00 = bank;
+        MenuActiveControllerIndex = bank;
+        CardActivePort = bank;
         ClearScreenOverlayState();
         i = 23;
-        /* ASM_BARRIER: retain the initialized byte counter before indexing. */
-        __asm__("" : "+r"(i));
-        clearAddress = (unsigned long)CardTargetFileName;
+        clearAddress = CardTargetFileName;
         /* ASM_BARRIER: retain the real buffer address before its byte offset. */
         __asm__("" : "+r"(clearAddress));
         clearAddress += i;
@@ -148,10 +131,10 @@ void func_8007ABCC(void) {
             clearAddress--;
         } while (i >= 0);
         CopyStringClearTail(CardTargetFileName,CardSaveFileName);
-        selection = D_800FFC18;
+        selection = CardMenuOperation;
         /* ASM_BARRIER: keep the signed snapshot separate from the range read. */
         __asm__("" : "+r"(selection));
-        modeRange = (u16)D_800FFC18;
+        modeRange = (u16)CardMenuOperation;
         modeRange = (u16)(modeRange - 6);
         if (selection == 0) {
             InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
@@ -188,14 +171,14 @@ void func_8007ABCC(void) {
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
                 D_800A45B8 = 0x10012;
-                if (D_800FFC18 == 3) {
+                if (CardMenuOperation == 3) {
                     MenuStateIndex = 0x17;
                 } else {
                     MenuStateIndex = 0x20;
                 }
                 InitBadgeRow(1, 0x80, 0x58, 0xA8, 0x80, 0, 0x702);
                 BadgeRows[1].half02 = 1;
-                D_800F3AF8 = (s16) (u16) D_800FFC18;
+                D_800F3AF8 = (s16) (u16) CardMenuOperation;
             } else if (selection == 2) {
                 D_800A45B8 = 0x10016;
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x65);
@@ -226,11 +209,11 @@ void func_8007ABCC(void) {
         D_800F4D8A = 1;
         break;
     case 1:
-        ModeFrame = (s32)((u32)ModeFrame + 1U);
+        ModeFrame = (ModeFrame + 1U);
         if (D_800F3A26 == phase) {
             SetDispMask(1);
         }
-        ready = func_8003B934();
+        ready = LoadMenuCarModelsStep();
         if (ready == phase) {
             SetDispMask(1);
             ModeGroup = ready;
@@ -243,39 +226,20 @@ void func_8007ABCC(void) {
     SetMenuFrameOptions(0, 1, 1);
 }
 
-/* legacy typing of shared globals in this part of the unit */
-#define UpdateScreenFade ((int (*)())UpdateScreenFade)
-#define SetMenuFrameOptions ((int (*)())SetMenuFrameOptions)
-#define UpdateLinkHandshake ((int (*)())UpdateLinkHandshake)
-#define _sio_control ((int (*)())_sio_control)
-
-void func_8007B3A0(void) {
+void CardMenuModeUpdate(void) {
     ModeFrame += 1;
-    if (D_800F4D44 == 4) {
+    if (GameModeType == 4) {
         UpdateLinkHandshake(2);
         if (LinkState == -1) {
             _sio_control(1, 1, 0);
         }
     }
-    func_8007B460();
+    StepCardMenuStateMachine();
     UpdateBadgeRowAnim(0);
-    if (D_800FFC18 != 3) {
-        if (D_800FFC18 != 6) {
-            if (D_800FFC18 == 7) {
-                goto block_6;
-            }
-        } else {
-            goto block_6;
-        }
-    } else {
-block_6:
+    if (CardMenuOperation == 3 || CardMenuOperation == 6 || CardMenuOperation == 7) {
         UpdateBadgeRowAnim(1);
     }
     UpdateScreenFade(D_800A45B8);
     SetMenuFrameOptions(1, 1, 1);
 }
 
-#undef UpdateScreenFade
-#undef SetMenuFrameOptions
-#undef UpdateLinkHandshake
-#undef _sio_control

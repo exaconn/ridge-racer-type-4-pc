@@ -10,7 +10,7 @@ void ovl662_func_80117854(u32 *order, void *cursor, s32 row)
     for (i = 0; i < 4; i++) {
         if (SelectionRows.bytes[0] == SaveProgress.history6C[i].selection) {
             flag = rsin(
-                ((s32)(((u32)ScreenFrame << 7) - 682U)) & 0xFFE) < 0;
+                (((ScreenFrame * 128U) - 682U)) & 0xFFE) < 0;
             break;
         }
     }

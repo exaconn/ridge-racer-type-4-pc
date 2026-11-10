@@ -12,7 +12,7 @@ class Overlay662ColorsSevenFifteenTest(unittest.TestCase):
         blob=(root/'disc/PAL/R4.BIN').read_bytes();sector=struct.unpack_from('<I',blob,4+662*4)[0]
         rows=[struct.unpack_from('<8h',blob,sector*2048+0x80126F88-0x80114878+16*i) for i in range(46)]
         self.assertEqual(sorted(r[6] for r in rows),list(range(46)))
-        data='static const RrGarageButton original[46]={\n'+',\n'.join('{{'+','.join(map(str,r[:4]))+'},'+','.join(map(str,r[4:]))+'}' for r in rows)+'\n};\n'
+        data='static const GarageButton original[46]={\n'+',\n'.join('{{'+','.join(map(str,r[:4]))+'},'+','.join(map(str,r[4:]))+'}' for r in rows)+'\n};\n'
         paths=['src/overlays/PAL/662/func_8011E734.c','src/overlays/PAL/662/func_8011E694.c','tools/scripts/fixtures/views/func_8004F218.c','tools/scripts/fixtures/views/func_8004F24C.c','src/overlays/PAL/662/func_80122188.c','src/overlays/PAL/662/func_80122310.c','src/overlays/PAL/662/func_801224AC.c','src/overlays/PAL/662/func_80122638.c','src/overlays/PAL/662/func_801227C4.c','src/overlays/PAL/662/func_80122954.c','src/overlays/PAL/662/func_80122AEC.c','src/overlays/PAL/662/func_80122C74.c','src/overlays/PAL/662/func_80122E14.c']
         bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',(root/p).read_text(),flags=re.M) for p in paths)
         source=r'''
@@ -27,8 +27,8 @@ class Overlay662ColorsSevenFifteenTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_tool_action.h"
 #include "rr/audio_pan.h"
-_Static_assert(sizeof(RrGarageButton)==16,"complete button owner");
-static struct World {u32 guard[4];RrGarageSelectionPrefix garage;RrGarageWorkingStorage work;RrGarageButton buttons[46];RrGarageRectangle *table[46];u32 tail[4];} world,expected,map_checkpoint,sound_checkpoint;
+_Static_assert(sizeof(GarageButton)==16,"complete button owner");
+static struct World {u32 guard[4];GarageSelectionPrefix garage;GarageWorkingStorage work;GarageButton buttons[46];GarageRectangle *table[46];u32 tail[4];} world,expected,map_checkpoint,sound_checkpoint;
 static unsigned scenario,family,slot,postbyte,expected_map,expected_sound,map_calls,sound_calls,seen[9][256];static s32 mapped_mode;
 #define ovl662_D_801276A8 world.garage
 #define ovl662_D_80127668 world.work
@@ -38,7 +38,7 @@ static u32 rng=0x1FB2C;
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static s16 half(u32 n){u16 bits=(u16)n;s16 v;memcpy(&v,&bits,2);return v;}
-static unsigned button_slot(RrGarageRectangle *p){return (unsigned)((RrGarageButton*)p-world.buttons);}
+static unsigned button_slot(GarageRectangle *p){return (unsigned)((GarageButton*)p-world.buttons);}
 static void map_effect(struct World *w){w->garage.optionIndices98.flat[0]=word(scenario^0x87654321U);w->garage.selectorsB8[2]=word(scenario^0x12345678U);w->garage.config1E=255;w->work.words[0]^=0xA5678901U;}
 static void sound_effect(struct World *w){unsigned n=button_slot(w->table[slot]);assert(n<46);
  w->table[slot]=&world.buttons[(n+1)%46].rectangle;
@@ -94,7 +94,7 @@ int main(void){unsigned path,j,n;uint64_t cases=0;
   for(j=0;j<16;j++)world.work.words[j]=next();world.work.words[0]=0xA5510000U|((scenario&1)?4U:0U);world.work.words[1]=0xABC00000U|((scenario&2)?1U:0U);
   for(j=0;j<46;j++){world.table[(unsigned)world.buttons[j].key0C]=&world.buttons[j].rectangle;world.buttons[j].timer0E=half(scenario+j);}
   n=scenario%46;world.table[slot]=&world.buttons[n].rectangle;world.buttons[n].rectangle[0]=world.buttons[n].rectangle[1]=0;world.buttons[n].rectangle[2]=320;world.buttons[n].rectangle[3]=480;
-  world.work.points.cursor14=(RrGaragePoint){(scenario&4)?146:-1,199};
+  world.work.points.cursor14=(GaragePoint){(scenario&4)?146:-1,199};
   switch(path){case 0:mode=word(0x80000000U|scenario|(scenario<<16));break;case 1:mode=0;break;case 2:mode=1;break;case 3:mode=2;break;case 4:mode=4;break;case 5:mode=8;break;case 6:mode=3;break;default:mode=scenario%4==0?65536:scenario%4==1?INT32_MAX:word(next());break;}
   expected_map=expected_sound=map_calls=sound_calls=0;
   memcpy(&expected,&world,sizeof(world));reference(mode);switch(family){case 0:ovl662_func_80122188(mode);break;case 1:ovl662_func_80122310(mode);break;case 2:ovl662_func_801224AC(mode);break;case 3:ovl662_func_80122638(mode);break;case 4:ovl662_func_801227C4(mode);break;case 5:ovl662_func_80122954(mode);break;case 6:ovl662_func_80122AEC(mode);break;case 7:ovl662_func_80122C74(mode);break;case 8:ovl662_func_80122E14(mode);break;}

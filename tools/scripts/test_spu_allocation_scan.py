@@ -27,15 +27,15 @@ class SpuAllocationScanTest(unittest.TestCase):
 typedef uint8_t u8; typedef int8_t s8; typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 '''+header+'''
-RrSpuAllocation table[80];
-RrSpuAllocation *_spu_memList=table;
+SpuAllocation table[80];
+SpuAllocation *_spu_memList=table;
 s32 reads,kind[160],entry[160],replace_base;
-u32 read_flags(RrSpuAllocation *p) {
+u32 read_flags(SpuAllocation *p) {
     kind[reads]=0;entry[reads++]=p-table;
     if(replace_base)_spu_memList=0;
     return p->address_flags;
 }
-u32 read_size(RrSpuAllocation *p) {kind[reads]=1;entry[reads++]=p-table;return p->size;}
+u32 read_size(SpuAllocation *p) {kind[reads]=1;entry[reads++]=p-table;return p->size;}
 '''+body+observed
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)

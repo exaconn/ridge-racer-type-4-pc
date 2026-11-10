@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "rr/overlay662_exit_dialog.h"
 
 void ovl662_func_80121074(s32 mode) {
@@ -39,22 +40,22 @@ void ovl662_func_80121074(s32 mode) {
             capturedFlags = ovl662_D_801276A8.flagsD1;
             if (capturedFlags == 0) {
                 if (ovl662_D_801276A8.fade00 == 0) {
-                    ovl662_D_80127668.words[0] = (s32) (ovl662_D_80127668.words[0] & ~9);
+                    ovl662_D_80127668.words[0] = (ovl662_D_80127668.words[0] & ~9);
                     ovl662_D_801276A8.fade00 = -1;
                     ModeGroup=1;D_800F3A26=0x27;D_800F4D8A=0;return;
                 }
             } else {
                 phase = UiRows[0].byte14;
-                switch ((s32) phase) {
+                switch (phase) {
                 case 2:
-                    if ((BadgeRows->state10 == 3) && (ovl662_D_801276A8.flagsD1 = (u8) (capturedFlags | 4), (D_800AC590->st == 4))) {
-                        if (PlayerControllers[0].type01 != 0x12) {
-                            if (PlayerControllers[0].buttons0A & 0x1000) {
+                    if ((BadgeRows->state10 == 3) && (ovl662_D_801276A8.flagsD1 = (u8) (capturedFlags | 4), (CardDialogueStatePtr->st == 4))) {
+                        if (PlayerControllers[0].input00.fields.type != 0x12) {
+                            if (PlayerControllers[0].edges08.fields.repeat & 0x1000) {
                                 if (ovl662_D_801276A8.stateD2 != 0) {
                                     ovl662_D_801276A8.stateD2 = 0U;
                                     goto block_32;
                                 }
-                            } else if (PlayerControllers[0].buttons0A & 0x4000) {
+                            } else if (PlayerControllers[0].edges08.fields.repeat & 0x4000) {
                                 if (ovl662_D_801276A8.stateD2 != 1) {
                                     ovl662_D_801276A8.stateD2 = 1U;
 block_32:
@@ -97,7 +98,7 @@ block_32:
                 case 5:
                 case 6:
                     if (BadgeRows->state10 == 0xB) {
-                        ovl662_D_80127668.words[0] = (s32) (ovl662_D_80127668.words[0] & ~9);
+                        ovl662_D_80127668.words[0] = (ovl662_D_80127668.words[0] & ~9);
                         ovl662_D_801276A8.flagsD1 = 0U;
                         return;
                     }
@@ -125,16 +126,16 @@ block_32:
                 ovl662_D_801276A8.saved64[4] = 2;
             }
             ovl662_D_80127668.words[4] = 0x12;
-            ovl662_D_80127668.words[0] = (s32) (ovl662_D_80127668.words[0] | 8);
+            ovl662_D_80127668.words[0] = (ovl662_D_80127668.words[0] | 8);
             PlaySfx(1);
-            ovl662_D_80127668.words[0] = (s32) (ovl662_D_80127668.words[0] | 1);
+            ovl662_D_80127668.words[0] = (ovl662_D_80127668.words[0] | 1);
             if (ovl662_D_801276A8.dirtyD3 == 0) {
                 ovl662_D_801276A8.fade00 = 0x40;
                 return;
             }
-            D_800AC590->b4 = 7;
-            D_800AC590->b5 = -1;
-            D_800AC590->st = 0;
+            CardDialogueStatePtr->b4 = 7;
+            CardDialogueStatePtr->b5 = -1;
+            CardDialogueStatePtr->st = 0;
             ovl662_D_801276A8.flagsD1 = 3U;
             BadgeRows->half02 = 1;
             BadgeRows->state10 = 0;

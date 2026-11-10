@@ -1,6 +1,7 @@
 #include "rr/overlay662_palette_initializer.h"
+#include "rr/load_cursor.h"
 void ovl662_func_80119B44(void) {
- s32 i;s16 val;RrBadgeRow1C *badge;
+ s32 i;s16 val;BadgeRow1C *badge;
  ModeFrame=0;ScreenFrame=0;ovl662_D_801272D4=0;ovl662_D_801272C0=0;MenuCursor=0;
  LoadCursor=MenuArenas.second;
  if(!ovl662_D_801272E8)MenuItemCount=2;else MenuItemCount=1;

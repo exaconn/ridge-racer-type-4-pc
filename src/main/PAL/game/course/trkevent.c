@@ -6,7 +6,7 @@
 
 s32 LookupTrackEventPair(s32 key, s32 selection) {
     s32 lower = 0, upper, middle;
-    RrTrackEventPair *entries;
+    TrackEventPair *entries;
     if (selection == 0) {
         upper = TrackEventTables->count0;
         entries = TrackEventTables->table0;
@@ -24,7 +24,7 @@ s32 LookupTrackEventPair(s32 key, s32 selection) {
     return -1;
 }
 
-s32 FindTrackEventIndex(const RrTrackEventEntry *entries, s32 count, s32 key) {
+s32 FindTrackEventIndex(const TrackEventEntry *entries, s32 count, s32 key) {
     s32 index = 0;
     s32 middle;
     s32 threshold;
@@ -75,9 +75,9 @@ s32 LookupTrackEventTable3(s32 key) {
 }
 
 s32 LookupTrackEventPair2(s32 key) {
-    RrLookupTables16 *tables = TrackEventTables;
+    LookupTables16 *tables = TrackEventTables;
     s32 upper = tables->count2;
-    RrTrackEventPair *entries = tables->table2;
+    TrackEventPair *entries = tables->table2;
     s32 lower = 0, middle;
     while (lower < upper) {
         middle = (lower + upper) / 2;

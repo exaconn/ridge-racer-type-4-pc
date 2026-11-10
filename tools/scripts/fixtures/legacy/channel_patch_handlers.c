@@ -2,7 +2,7 @@
 #include "rr/channels.h"
 
 void _padMainModeUpdate(void *raw) {
-    RrChannelPatchCommand *a0=raw;
+    ChannelPatchCommand *a0=raw;
     int t = a0->phase;
     switch (t) {
     case 2:
@@ -19,7 +19,7 @@ void _padMainModeUpdate(void *raw) {
 }
 
 s32 _padMainModeComplete(void *raw) {
-    RrChannelPatchCommand *arg0=raw;
+    ChannelPatchCommand *arg0=raw;
     if (arg0->equal != 0) {
         if (arg0->phase == 2) {
             return 1;
@@ -27,7 +27,7 @@ s32 _padMainModeComplete(void *raw) {
         arg0->phase = 0xFEU;
         goto block_5;
     }
-    D_800ABC6C(raw);
+    PadResetChannelFn(raw);
 block_5:
     return 0;
 }

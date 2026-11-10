@@ -1,5 +1,5 @@
 #include "rr/overlay668_display.h"
-void ovl668_func_8011535C(RrStrDisplayConfig *config,s32 mode)
+void ovl668_func_8011535C(StrDisplayConfig *config,s32 mode)
 {
     u32 ready=config->ready0C;
     volatile u32 counter=0x800000;

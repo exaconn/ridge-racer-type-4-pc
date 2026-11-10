@@ -2,7 +2,7 @@
 /* Reserve the unused T4 register to retain the original division temporary. */
 #include "scratchpad.h"
 #include "rr/hud_number.h"
-extern u8 *AddDrawModePrim(u32 *,u8 *,u16);
+#include "rr/sprite_emit.h"
 void DrawHudNumber5(s32 value_arg,s32 index) {
     register s32 value=value_arg;
     register s32 palette=0x7EFA;
@@ -10,11 +10,11 @@ void DrawHudNumber5(s32 value_arg,s32 index) {
     s32 digit_thousands=thousands%10;
     s32 hundreds=value/100;
     register s32 tens=value/10;
-    register RrNumberTarget *targets=HudNumberTargets;
-    unsigned long row_offset=(unsigned long)index*sizeof(RrNumberTarget);
-    register RrNumberTarget *target=(RrNumberTarget *)(row_offset+(unsigned long)targets);
-    register u32 *ordering=*(u32 **)((unsigned long)DrawBufIndex*sizeof(u32 *)+row_offset+(unsigned long)targets);
-    u8 *incoming_cursor=((RrGpuScratchPointers *)SCRATCHPAD)->cursor;
+    register NumberTarget *targets=HudNumberTargets;
+    unsigned long row_offset=index*sizeof(NumberTarget);
+    register NumberTarget *target=(NumberTarget *)(row_offset+(unsigned long)targets);
+    register u32 *ordering=*(u32 **)(DrawBufIndex*sizeof(u32 *)+row_offset+(unsigned long)targets);
+    u8 *incoming_cursor=((GpuScratchPointers *)SCRATCHPAD)->cursor;
     register s32 x=target->x;
     register s32 y=target->y;
     register s32 digit_hundreds=hundreds-thousands*10;
@@ -30,5 +30,5 @@ void DrawHudNumber5(s32 value_arg,s32 index) {
     register s32 last_y=y;
     value-=tens*10;
     cursor=EmitHudGlyph12(last_order,last_cursor,last_x,last_y,value,palette);}
-    ((RrGpuScratchPointers *)SCRATCHPAD)->cursor=AddDrawModePrim(ordering,cursor,5);
+    ((GpuScratchPointers *)SCRATCHPAD)->cursor=AddDrawModePrim(ordering,(GpuDrawModePacket *)cursor,5);
 }

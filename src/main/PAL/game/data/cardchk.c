@@ -4,12 +4,10 @@
 extern int D_8010EF88[];
 extern int D_8010EF90[];
 extern unsigned char CardCheckCounts[];
-extern unsigned char D_800F3A24[];
+extern unsigned char CardPortPollStatus[];
 extern unsigned char CardFileCounts[];
 
-void PollCardStatus(a0, a1, a2)
-int a0; int a1; int a2;
-{
+void PollCardStatus(int a0, int a1, int a2) {
     int r, flag, k, s3, t, v;
     /* ASM_BARRIER: pin loop counter to s2 to reproduce original register numbering */
     register int i asm("$18");
@@ -36,7 +34,7 @@ int a0; int a1; int a2;
     }
     i = 0;
     flag = 0;
-    b0 = D_800F3A24;
+    b0 = CardPortPollStatus;
     s3 = a0 & 0xFF;
     p0 = b0 + s3;
     p1 = D_8010B2DC + s3;

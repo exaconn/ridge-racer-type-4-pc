@@ -26,11 +26,11 @@ class SequencerDispatchTest(unittest.TestCase):
 #include "types.h"
 ''' + header('spu.h') + header('library.h') + header('sequencer_init.h') + header('sequencer_dispatch.h') + r'''
 typedef struct {
-    RrLibStateB0 *table[32];
+    LibStateB0 *table[32];
     s32 lock;
     u32 mask;
     s16 banks,rows;
-    RrLibStateB0 primary[32][3],alternate[32][3];
+    LibStateB0 primary[32][3],alternate[32][3];
 } World;
 static World actual,expected;
 #define _ss_score actual.table
@@ -162,7 +162,7 @@ static void live(int which) {
 }
 static void maximum_rows(void) {
     prepare(0,1,32767,1,0);
-    RrLibStateB0 *records=calloc(32767,sizeof(*records));
+    LibStateB0 *records=calloc(32767,sizeof(*records));
     assert(records);
     actual.table[0]=records;records[32766].w98=4;
     expected=actual;

@@ -23,7 +23,7 @@ class SpuTickTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n)
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/spu_tick.h"
-typedef struct {u32 guard[4];RrSpuTickState20 timer;u32 tail[4];s32 rate,system;} Environment;
+typedef struct {u32 guard[4];SpuTickState20 timer;u32 tail[4];s32 rate,system;} Environment;
 static Environment actual,expected;
 static unsigned calls;
 static u32 seed=0x84004;
@@ -50,12 +50,12 @@ static void model(s32 mode){s32 selected;unsigned flag=((u32)mode/4096U)&1U;
  }
 }
 int main(void){u32 n,phase,i;uint64_t cases=0;unsigned flags[2]={0},selectors[8]={0},systems[4]={0};s32 mode,selected;
- _Static_assert(sizeof(RrSpuTickFlags4)==4,"flag owner");
- _Static_assert(offsetof(RrSpuTickState20,active)==4,"active alias");
- _Static_assert(offsetof(RrSpuTickState20,callback)==8,"callback");
- _Static_assert(offsetof(RrSpuTickState20,previous)==8+sizeof(void*),"native callback stride");
- _Static_assert(offsetof(RrSpuTickState20,flags)==8+2*sizeof(void*),"native flags");
- _Static_assert(sizeof(RrSpuTickState20)==24+2*sizeof(void*),"complete native timer");
+ _Static_assert(sizeof(SpuTickFlags4)==4,"flag owner");
+ _Static_assert(offsetof(SpuTickState20,active)==4,"active alias");
+ _Static_assert(offsetof(SpuTickState20,callback)==8,"callback");
+ _Static_assert(offsetof(SpuTickState20,previous)==8+sizeof(void*),"native callback stride");
+ _Static_assert(offsetof(SpuTickState20,flags)==8+2*sizeof(void*),"native flags");
+ _Static_assert(sizeof(SpuTickState20)==24+2*sizeof(void*),"complete native timer");
  _Static_assert(sizeof(unsigned long)>=sizeof(void*),"address width");
  assert((uintptr_t)&actual.timer>UINT32_MAX);assert((uintptr_t)callback0>UINT32_MAX);
  for(n=0;n<65536;n++)for(phase=0;phase<10;phase++){

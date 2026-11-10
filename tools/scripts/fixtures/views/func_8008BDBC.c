@@ -4,7 +4,7 @@
 
 #include "rr/library.h"
 
-void DMA_memclr(RrLibInterruptCallback *callbacks, s32 count) {
+void DMA_memclr(LibInterruptCallback *callbacks, s32 count) {
     u32 remaining=(u32)count-1;
     if(count) {
         do {

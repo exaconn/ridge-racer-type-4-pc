@@ -1,4 +1,5 @@
 #include "rr/overlay665_menu.h"
+#include "rr/load_cursor.h"
 
 void ovl665_func_80114A24(void) {
     ClearScreenOverlayState();
@@ -22,5 +23,5 @@ void ovl665_func_80114A24(void) {
     D_800AC5D0=64;
     RaceLoadReset();
     SeqStartTrack(0);
-    D_800AC590->b4=-1;
+    CardDialogueStatePtr->b4=-1;
 }

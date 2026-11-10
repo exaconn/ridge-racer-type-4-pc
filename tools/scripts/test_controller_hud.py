@@ -17,7 +17,7 @@ head=r'''
 #define RR_ASSERT_SIZE(t,n)
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/controller_hud.h"
-ControllerState5C PlayerControllers[2];u32 ScreenFrame;s16 D_8009EE68[2];u8 D_8009EE5C[6],D_8009EE64[3];
+ControllerState5C PlayerControllers[2];u32 ScreenFrame;s16 HudLapFlashToggles[2];u8 HudRotatingQuadVerts[6],HudIndicatorTriColor[3];
 static GpuScratchPointers scratch;static u32 streams[3][1024];
 _Static_assert(sizeof(ControllerState5C)==0x5c,"input owner");
 _Static_assert(offsetof(ControllerState5C,protocol10)==16,"status");
@@ -31,8 +31,8 @@ void *AddDrawModePrim(u32*h,GpuDrawModePacket *mode_packet,u16 page){ void *p = 
 SpritePacketSignedClut *GameQueueSprite(u32*h,SpritePacketSignedClut*p,s32 x,s32 y,s32 w,s32 he,s32 u,s32 v,s32 c){uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,(u32)x,(u32)y,(u32)w,(u32)he,(u32)u,(u32)v,(u32)c};return(SpritePacketSignedClut*)cb(2,a);}
 void *AddTilePrim(u32*h,void*p,s32 x,s32 y,s32 w,s32 he,s32 r,s32 g,s32 b){uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,(u32)x,(u32)y,(u32)w,(u32)he,(u32)r,(u32)g,(u32)b};return(void*)cb(3,a);}
 PolyF3Packet *EmitPolyF3(u32*h,PolyF3Packet*p,s32 a,s32 b,s32 c,const u8*rgb,s32 f){uintptr_t args[9]={(uintptr_t)h,(uintptr_t)p,(u32)a,(u32)b,(u32)c,(uintptr_t)rgb,(u32)f};return(PolyF3Packet*)cb(4,args);}
-void *object(unsigned n){switch(n){case 0:return PlayerControllers;case 1:return streams;case 2:return D_8009EE5C;case 3:return D_8009EE64;case 4:return D_8009EE68;case 5:return &ScreenFrame;case 6:return &scratch;default:abort();}}
-size_t object_size(unsigned n){switch(n){case 0:return sizeof(PlayerControllers);case 1:return sizeof(streams);case 2:return sizeof(D_8009EE5C);case 3:return sizeof(D_8009EE64);case 4:return sizeof(D_8009EE68);case 5:return sizeof(ScreenFrame);case 6:return sizeof(scratch);default:abort();}}
+void *object(unsigned n){switch(n){case 0:return PlayerControllers;case 1:return streams;case 2:return HudRotatingQuadVerts;case 3:return HudIndicatorTriColor;case 4:return HudLapFlashToggles;case 5:return &ScreenFrame;case 6:return &scratch;default:abort();}}
+size_t object_size(unsigned n){switch(n){case 0:return sizeof(PlayerControllers);case 1:return sizeof(streams);case 2:return sizeof(HudRotatingQuadVerts);case 3:return sizeof(HudIndicatorTriColor);case 4:return sizeof(HudLapFlashToggles);case 5:return sizeof(ScreenFrame);case 6:return sizeof(scratch);default:abort();}}
 '''
 file=P/(source.stem+'_native.c');file.write_text(head+body)
 subprocess.run(['cc','-std=gnu11','-O2','-funsigned-char','-shared','-fPIC','-Iinclude','-I'+str(source.parent),'-fsanitize=undefined,bounds','-fno-sanitize-recover=all',str(file),'-o',str(file.with_suffix('.dylib'))],check=True)

@@ -15,10 +15,10 @@
 extern int InitBadgeRow();
 extern int SetGeomOffset();
 extern int SetGeomScreen();
-extern short D_8009F1A0[];
-extern short D_8009F1B0[];
-extern short D_8009F1C0[];
-extern short D_8009F1D0[];
+extern short MenuIconRowStartX[];
+extern short MenuIconRowStartY[];
+extern short MenuIconRowWidth[];
+extern short MenuIconRowHeight[];
 extern BadgeRow1C *BadgeRows;
 
 void DrawMenuCarPreviewScene(int a0) {
@@ -30,7 +30,7 @@ void DrawMenuCarPreviewScene(int a0) {
         s0 = 0;
         do {
             t0 = (s0 == 1 || s0 == 7) ? 8 : 0;
-            InitBadgeRow(s0, D_8009F1A0[s0], D_8009F1B0[s0], D_8009F1C0[s0], D_8009F1D0[s0], (short)t0, -1);
+            InitBadgeRow(s0, MenuIconRowStartX[s0], MenuIconRowStartY[s0], MenuIconRowWidth[s0], MenuIconRowHeight[s0], (short)t0, -1);
             s0++;
         } while (s0 < 8);
         one = 1;

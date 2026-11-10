@@ -218,10 +218,10 @@ typedef struct {
     int *cmds0C;
 } SkyCmdHeader;
 
-extern char D_800100D0[];
+extern char UnknownSkyModeFmt[];
 extern short *CourseSkyKeyframePtrs[];
 extern short *CourseSceneryRangePtrs[];
-extern char D_8009E248[];
+extern char SkyDefaultRotMatrix[];
 extern int SetGeomOffset();
 extern int SetDrawArea();
 
@@ -607,7 +607,7 @@ void DrawTrackScenery(int a0) {
                 case 8: r = SkyEmitQuadG4(r, s0, w); break;
                 case 1: r = SkyEmitQuadFT4(r, s0, w); break;
                 case 11: r = EmitSkyDepthCuedGT3(r, s0, w); break;
-                default: DebugPrintStub(D_800100D0, k, w); return;
+                default: DebugPrintStub(UnknownSkyModeFmt, k, w); return;
                 }
             }
             s1++;
@@ -1139,7 +1139,7 @@ void RunSkyCommandList(char *a0, int a1)
 void SetupSkyLightMatrices(char *a0, unsigned short *a1_in)
 {
     volatile unsigned short *p = (unsigned short *)(SCRATCHPAD + 0x7C), *a1 = a1_in;
-    RR_GTE_SETROT(D_8009E248);
+    RR_GTE_SETROT(SkyDefaultRotMatrix);
     RR_GTE_MV3_COL(a1);
     RR_GTE_ST3_COL(p);
     RR_GTE_MV3_COL(a1 + 1);

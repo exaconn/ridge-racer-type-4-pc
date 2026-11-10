@@ -80,7 +80,7 @@ extern void SetGeomScreen(int);
 extern int *TrackNodes;
 extern int D_800AC548[];
 extern int ScaleMatrix();
-extern V4 D_80010F1C;
+extern V4 MenuCarDefaultScale;
 extern int RotTransPers();
 extern B D_800D0DD8[];
 extern B D_800AE660[];
@@ -251,7 +251,7 @@ void BuildObjectLightAndRotMatrices(A0 *a0, MatrixWords32 *a1) {
     MatrixWords32 t90;
     V4 b0;
     int a3;
-    b0 = D_80010F1C;
+    b0 = MenuCarDefaultScale;
     BuildRotMatrixY(&s.m50, -a0->rotY12);
     MulMatrix2((const MatrixWords32 *)((int *)SCRATCH_ROT_MATRIX), &s.m50);
     BuildRotMatrixX(&s.m10, -a0->rotX10);

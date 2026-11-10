@@ -66,19 +66,19 @@ extern s32 rsin();
 
 extern s32 rcos();
 
-extern char D_80010924[];
+extern char StrDigitOne[];
 
-extern char D_80010928[];
+extern char StrDigitTwo[];
 
 extern char StrPleaseWait[];
 
 extern FontGlyph4 UiFontGlyphs[];
 
-extern FontGlyph4 D_8009FB80[];
+extern FontGlyph4 SaveSlotStatusUvs[];
 
-extern FontGlyph4 D_8009FC0C[];
+extern FontGlyph4 SaveSlotTrophyUvs[];
 
-extern s8 D_8009FC14[][4];
+extern s8 SaveSlotStageTrophyMap[][4];
 
 extern s8 D_8009FC7C[][8];
 
@@ -243,7 +243,7 @@ s32 DrawUiRow(s32 arg0) {
             s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &base_0[sp34], fp | 0x7FF8, s2);
             if (s6 != 0) {
                 for (s1 = 0; s1 < 2; s1++) {
-                    s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4 + 0x1E + s1 * 0x16, s7 + 8, &D_8009FC0C[s1], 0x7FF8, 0);
+                    s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4 + 0x1E + s1 * 0x16, s7 + 8, &SaveSlotTrophyUvs[s1], 0x7FF8, 0);
                     if (s1 == 0) {
                         D_8009FD00[0] = s0 / 10;
                     } else {
@@ -261,7 +261,7 @@ s32 DrawUiRow(s32 arg0) {
     case 8:
     case 9:
         for (s1 = 0; s1 < 4; s1++) {
-            s0 = D_8009FC14[sp34][s1];
+            s0 = SaveSlotStageTrophyMap[sp34][s1];
             if (s0 == -1) {
                 break;
             }
@@ -277,7 +277,7 @@ s32 DrawUiRow(s32 arg0) {
             }
             s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
         } else if ((u32)(s6 - 8) < 2U) {
-            s3 = AddTextSprites(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, (s6 == 8) ? D_80010924 : D_80010928, fp | 0x7FF8, 0, s2);
+            s3 = AddTextSprites(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, (s6 == 8) ? StrDigitOne : StrDigitTwo, fp | 0x7FF8, 0, s2);
         }
         break;
     case 2:
@@ -320,8 +320,8 @@ s32 DrawUiRow(s32 arg0) {
         break;
     case 10:
     case 11:
-        s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &D_8009FB80[0], 0x7FF8, 0);
-        s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4 + 0x44, s7 + 8, &D_8009FB80[1], 0x7FF8, 0);
+        s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &SaveSlotStatusUvs[0], 0x7FF8, 0);
+        s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4 + 0x44, s7 + 8, &SaveSlotStatusUvs[1], 0x7FF8, 0);
         if (s6 == 10) {
             s0 = D_80119754;
         } else {

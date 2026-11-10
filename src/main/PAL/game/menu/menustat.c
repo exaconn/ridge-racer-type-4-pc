@@ -22,7 +22,7 @@ extern unsigned int ModeFrame;
 extern unsigned short SubmodeState;
 extern S4D8 SelectionState;
 extern RaceVehicle PlayerCars[2];
-extern unsigned char D_8009F070[];
+extern unsigned char MenuCameraPresetIndices[];
 extern int D_800F3A60;
 extern unsigned short FadeCountdown;
 extern short ModeIndex;
@@ -46,7 +46,7 @@ void CarStandingsModeUpdate(void) {
                 ResetCarState(PlayerCars);
                 SavedLoadCursor = LoadCursor;
                 r = (p->b17 - 1) / 2;
-                x = D_8009F070[p->b14];
+                x = MenuCameraPresetIndices[p->b14];
                 if (r >= 3) { r = 2; x = x * 3; }
                 InitCameraState(r, x);
                 SetRaceLoadCursor(LoadCursor);

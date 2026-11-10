@@ -36,11 +36,11 @@ typedef struct {
     s32 unk14[25];
     s32 col78;
 } Scratch2D784;
-extern u8 D_8009F02C[];
-extern u8 D_8009F034[];
-extern u8 D_8009F03C[];
-extern u8 D_8009F044[];
-extern LodDist6 D_8009F04C[];
+extern u8 CarPartModelIndices[];
+extern u8 CarPartRenderModes[];
+extern u8 CarPartTransformIndices[];
+extern u8 CarPartMatrixIndices[];
+extern LodDist6 CarModelLodDistances[];
 
 int TriggerWheelBump(RaceVehicle *a, int b);
 
@@ -140,16 +140,16 @@ void DrawPreviewCar(RaceVehicle *arg0, PreviewRgb3 color, s32 arg2, s32 flags) {
     }
 
     for (i = 0; i < 8; i++) {
-        u8 s0_mode = D_8009F034[i];
-        if (s0_mode != 1 || DrawRroModel(&sp158[D_8009F03C[i]], &sp98[D_8009F044[i]], D_8009F02C[i], 0) != s0_mode) {
+        u8 s0_mode = CarPartRenderModes[i];
+        if (s0_mode != 1 || DrawRroModel(&sp158[CarPartTransformIndices[i]], &sp98[CarPartMatrixIndices[i]], CarPartModelIndices[i], 0) != s0_mode) {
             SetGteObjectTransform(
                 (ObjectTransform38 *)(SCRATCHPAD + 0x7C),
-                (const s16 *)&sp158[D_8009F03C[i]],
-                sp98[D_8009F044[i]].w);
+                (const s16 *)&sp158[CarPartTransformIndices[i]],
+                sp98[CarPartMatrixIndices[i]].w);
             G->col78 = 0;
             a1_val = 1;
-            if (D_8009F02C[i] < ModelBankFormat) {
-                a1_val = D_8009F02C[i];
+            if (CarPartModelIndices[i] < ModelBankFormat) {
+                a1_val = CarPartModelIndices[i];
             }
             SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1_val, i != 0, 0);
         }
@@ -245,16 +245,16 @@ void DrawPlayerCar(RaceVehicle *arg0, s32 viewMode) {
     }
     DrawWheelTrailEffects(arg0, &sp168[1], &spA8[1], &sp80, slot_idx, s5_val, 0);
     for (i = 0; i < 8; i++) {
-        u8 s0_mode = D_8009F034[i];
-        if (s0_mode != 1 || DrawRroModel(&sp168[D_8009F03C[i]], &spA8[D_8009F044[i]], D_8009F02C[i], 0) != s0_mode) {
+        u8 s0_mode = CarPartRenderModes[i];
+        if (s0_mode != 1 || DrawRroModel(&sp168[CarPartTransformIndices[i]], &spA8[CarPartMatrixIndices[i]], CarPartModelIndices[i], 0) != s0_mode) {
             SetGteObjectTransform(
                 (ObjectTransform38 *)(SCRATCHPAD + 0x7C),
-                (const s16 *)&sp168[D_8009F03C[i]],
-                spA8[D_8009F044[i]].w);
+                (const s16 *)&sp168[CarPartTransformIndices[i]],
+                spA8[CarPartMatrixIndices[i]].w);
             G->col78 = 0;
             a1_val = 1;
-            if (D_8009F02C[i] < ModelBankFormat) {
-                a1_val = D_8009F02C[i];
+            if (CarPartModelIndices[i] < ModelBankFormat) {
+                a1_val = CarPartModelIndices[i];
             }
             SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1_val, i != 0, 0);
         }
@@ -321,7 +321,7 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
         MulMatrix(&sp80, &sp40);
         MulMatrix0(&LightMatrix.matrix, &sp80, &sp60);
         RR_GTE_SETLLM(&sp60);
-        if (i < D_8009F04C[arg1].d0) {
+        if (i < CarModelLodDistances[arg1].d0) {
             BuildRotMatrixY(&sp20, -arg0->rot54);
             MulMatrix2((MatrixWords32 *)SCRATCH_ROT_MATRIX, &sp20);
             BuildRotMatrixX(&spA8[0], arg0->wheelRotX1A8 - arg0->rot50);
@@ -374,22 +374,22 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
             }
             DrawWheelTrailEffects(arg0, &sp168[1], &spA8[1], &sp80, slot_idx, s5_val, 0);
             for (i = 0; i < 8; i++) {
-                u8 s0_mode = D_8009F034[i];
-                if (s0_mode != 1 || DrawRroModel(&sp168[D_8009F03C[i]], &spA8[D_8009F044[i]], D_8009F02C[i], fp_val) != s0_mode) {
+                u8 s0_mode = CarPartRenderModes[i];
+                if (s0_mode != 1 || DrawRroModel(&sp168[CarPartTransformIndices[i]], &spA8[CarPartMatrixIndices[i]], CarPartModelIndices[i], fp_val) != s0_mode) {
                     SetGteObjectTransform(
                         (ObjectTransform38 *)(SCRATCHPAD + 0x7C),
-                        (const s16 *)&sp168[D_8009F03C[i]],
-                        spA8[D_8009F044[i]].w);
+                        (const s16 *)&sp168[CarPartTransformIndices[i]],
+                        spA8[CarPartMatrixIndices[i]].w);
                     G->col78 = fp_val;
                     a1_val = 1;
-                    if (D_8009F02C[i] < ModelBankFormat) {
-                        a1_val = D_8009F02C[i];
+                    if (CarPartModelIndices[i] < ModelBankFormat) {
+                        a1_val = CarPartModelIndices[i];
                     }
                     SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1_val, i != 0, 0);
                 }
             }
             return;
-        } else if (i < D_8009F04C[arg1].d2) {
+        } else if (i < CarModelLodDistances[arg1].d2) {
             BuildRotMatrixY(&sp20, -arg0->rot54);
             MulMatrix2((MatrixWords32 *)SCRATCH_ROT_MATRIX, &sp20);
             BuildRotMatrixX(&spA8[0], arg0->wheelRotX1A8 - arg0->rot50);
@@ -421,7 +421,7 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
                 SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, 1, 1, s7_val);
             }
             return;
-        } else if (i < D_8009F04C[arg1].d4) {
+        } else if (i < CarModelLodDistances[arg1].d4) {
             MulMatrix0((const MatrixWords32 *)((void *)SCRATCH_ROT_MATRIX), &sp80, &spA8[0]);
             sp168[0].x = arg0->pos10[0];
             sp168[0].y = arg0->pos10[1];

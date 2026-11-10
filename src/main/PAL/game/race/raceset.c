@@ -12,7 +12,7 @@
 #include "game/sound/sndctrl.h"
 #include "game/race/racesetp.h"
 
-extern u8 D_8009F910[];
+extern u8 GpStageRivalRankLimits[];
 extern s16 FadeCountdown;
 extern s32 CourseBestLap[2][8];
 extern s16 ReverseCourse;
@@ -102,7 +102,7 @@ void UpdateLapTiming(RaceVehicle *arg0) {
                     SoundSetMasterVolume(0, 0x47);
                     if (GameModeType != 1) {
                         msg = 0x13;
-                    } else if (arg0->half1EE <= D_8009F910[SelectionState.phase17 / 2]) {
+                    } else if (arg0->half1EE <= GpStageRivalRankLimits[SelectionState.phase17 / 2]) {
                         msg = 0x13;
                     } else if (SelectionState.retries08[SelectionState.phase17] > 0) {
                         msg = 0x14;

@@ -2,7 +2,7 @@
 #include "rr/frame_storage_types.h"
 #include "rr/menu_label_render.h"
 typedef struct { int x; } __attribute__((packed)) U4;
-extern U4 D_8009EE4C[];
+extern U4 HudPlayerLabelGlyphs[];
 extern int NumLaps;
 
 void DrawLapCounter(int a0, int a1) {
@@ -18,11 +18,11 @@ void DrawLapCounter(int a0, int a1) {
     a = *(int *)SCRATCHPAD;
     i = 0;
     do {
-        buf = D_8009EE4C[i];
+        buf = HudPlayerLabelGlyphs[i];
         a = AddSpritePrim(s4, a, 0xEC + i * 0x38, s5, &buf, 0x7EF8, 0);
         i++;
     } while (i < 2);
-    buf = D_8009EE4C[2];
+    buf = HudPlayerLabelGlyphs[2];
     i = 0;
     if (a1 <= 0) {
         a1 = 1;

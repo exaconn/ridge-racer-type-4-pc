@@ -6,7 +6,7 @@ void FormatDecimalDigits(char *output, s32 value, s32 digits);
 
 void FormatRaceTime(char *output, s32 time);
 
-extern char D_80010BF0[], LapTimeTemplateStr[];
+extern char StrStarSpacePrefix[], LapTimeTemplateStr[];
 
 extern u8 *MenuTextTemplates[];
 
@@ -94,7 +94,7 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
             break;
         case 17:
             value = D_800AD4F1;
-            CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[0], D_80010BF0);
+            CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[0], StrStarSpacePrefix);
             if (value == 0) {
                 value = 1;
             }

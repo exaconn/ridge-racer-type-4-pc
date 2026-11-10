@@ -14,7 +14,10 @@
 
   /* _ss_score */
 
-void _SsContDataEntry(s16 bank, s16 row, u8 data) {
+void _SsContDataEntry(s32 raw_bank, s32 raw_row, s32 raw_data) {
+    s16 bank = raw_bank;
+    s16 row = raw_row;
+    u8 data = raw_data;
     LibStateB0 *s;
     ProgAtr progAtr;
     VagAtr vagAtr;

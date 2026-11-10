@@ -62,7 +62,7 @@ typedef struct {
     } *ot;
 } SPD;
 
-extern GpuRectangleFields D_80010104;
+extern GpuRectangleFields TileRectSkyVramRect;
 extern int SetMenuFrameOptions();
 extern short FadeCountdown;
 extern int VSyncThreshold;
@@ -70,15 +70,15 @@ extern short ModeIndex;
 extern short ModeGroup;
 extern short SubmodeState;
 extern int D_8010BF74;
-extern Vec3sFields8 D_8001010C;
-extern GpuRectangleFields D_80010114;
-extern int D_8009E268;
+extern Vec3sFields8 TileRectDefaultAngles;
+extern GpuRectangleFields TileRectCaptureVramRect;
+extern int TileRectSkyHorizonY;
 extern unsigned char D_800AD4EA;
 extern int D_800F3A60;
 extern S_8010BF70 *TileRectScene;
 
 extern int TileFadeColorTable[];
-extern int D_8009E36C[];
+extern int TileRectFlashColors[];
 
 void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head);
 void TileRectSceneModeEnter(void);
@@ -205,7 +205,7 @@ void TileRectSceneModeEnter(void) {
     InitMenuArenas();
     SetMenuFrameOptions(0, 1, 0);
     UpdateScreenFade(0x1000C);
-    sp10.rect = D_80010104;
+    sp10.rect = TileRectSkyVramRect;
     ClearImage2(&sp10, 0, 0, 0);
     FadeCountdown = 0;
     D_8010BF74 = 0;
@@ -266,7 +266,7 @@ void TileRectSceneModeUpdate(void) {
         TileRectScene = (S_8010BF70 *)(LoadCursor += s1);
         LoadCursor = (char *)TileRectScene + 0x4C;
         SetupRenderer(3);
-        TileRectScene->unk20 = D_8001010C;
+        TileRectScene->unk20 = TileRectDefaultAngles;
         PsyqMemset(TileRectScene->unk28, 0, 0x10);
         {
             S_8010BF70 *p = TileRectScene;
@@ -324,7 +324,7 @@ void TileRectSceneModeUpdate(void) {
 
         p = TileRectScene;
         RR_GTE_TILERECT_INTPL(ir2, p);
-        D_8009E268 = ir2;
+        TileRectSkyHorizonY = ir2;
     }
 
     EmitPresetSprite(TileRectScene->s3E, 0x25);
@@ -346,8 +346,8 @@ void TileRectSceneModeUpdate(void) {
         /* ASM_BARRIER: Emit 8-byte unaligned struct copy using $8, $9, $10 without spilling $8 at earlier block move */
         __asm__(
             "addiu $6, $29, 0x10\n\t"
-            "lui $2, %%hi(D_80010114)\n\t"
-            "addiu $8, $2, %%lo(D_80010114)\n\t"
+            "lui $2, %%hi(TileRectCaptureVramRect)\n\t"
+            "addiu $8, $2, %%lo(TileRectCaptureVramRect)\n\t"
             "lwl $9, 3($8)\n\t"
             "lwr $9, 0($8)\n\t"
             "lwl $10, 7($8)\n\t"
@@ -358,7 +358,7 @@ void TileRectSceneModeUpdate(void) {
             "swr $10, 0x14($29)"
             : "=r"(a2), "=m"(sp10)
         );
-        RenderSkyToRect(TileRectScene->unk28, TileRectScene, a2, D_8009E268);
+        RenderSkyToRect(TileRectScene->unk28, TileRectScene, a2, TileRectSkyHorizonY);
     }
     GS->cur->code = 0xE6000001;
     GS->cur->tag.word = GS->ot[703].word;
@@ -520,7 +520,7 @@ void DrawTrackObjectFlashQuads(int modelIndex) {
         RR_GTE14_SWC2_MAC0(&work->area20);
         if ((work->area20 ^ windingMask) >= 0) {
             RR_GTE_RTPS_LDV(&vertices[quad->vertices.indices[3]]);
-            word3 = D_8009E36C[(0U + ScreenFrame + quad->flashPhase18) & 0x3F];
+            word3 = TileRectFlashColors[(0U + ScreenFrame + quad->flashPhase18) & 0x3F];
             word2 = work->projected24[0].word;
             word0 = work->projected24[1].word;
             word1 = work->projected24[2].word;

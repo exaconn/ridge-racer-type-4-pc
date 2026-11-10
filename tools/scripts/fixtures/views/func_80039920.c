@@ -66,7 +66,7 @@
 
 #undef SetupViewport
 
-extern unsigned char D_8009F810[];
+extern unsigned char ProgressBitMasks[];
 
 extern unsigned char SelectionState[];
 
@@ -76,7 +76,7 @@ extern unsigned char SaveProgress[];
 
 void UpdateUnlockedCarMask(void) {
     int i = SelectionState[0x1C] * 2 + (SelectionState[0x1D] >> 1);
-    int v = D_8009F810[i];
+    int v = ProgressBitMasks[i];
     if (v < 0) {
         v = 0;
     } else if (v >= 9) {

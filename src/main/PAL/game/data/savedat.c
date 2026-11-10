@@ -30,7 +30,7 @@ extern CourseChoice4 D_80118458[2][2][9];
 extern int D_801272F0[];
 extern char StrFmtPercentS[];
 extern GpuRectangle D_8010EF98;
-extern char D_80011568[];
+extern char StrCardMagicCrd0[];
 extern GpuRectangle D_8010EFA0;
 
 void BuildCardHeaderAnim(char *a0, int a1, int a2, int a3, int a4, int a5);
@@ -171,7 +171,7 @@ void BuildCardHeaderStatic(unsigned char *a0, int a1, int a2, int a3, int a4, in
     PsyqSprintf(a0 + 4, StrFmtPercentS, a1);
     a0[0x50] = 1;
     a0[0x51] = 0;
-    PsyqSprintf(a0 + 0x52, StrFmtPercentS, D_80011568);
+    PsyqSprintf(a0 + 0x52, StrFmtPercentS, StrCardMagicCrd0);
     D_8010EFA0.rect.x = a2;
     D_8010EFA0.rect.w = 0x10;
     D_8010EFA0.rect.y = a3;

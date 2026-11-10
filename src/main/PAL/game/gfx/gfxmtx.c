@@ -16,19 +16,19 @@ void SetLightColorsScaled(int a0)
     int x;
 
     for (i = 0; i < 3; i++) {
-        LightMatrix.matrix.fields.rotation00[i][0] = D_8009F934[i].x;
-        LightMatrix.matrix.fields.rotation00[i][1] = D_8009F934[i].y;
-        LightMatrix.matrix.fields.rotation00[i][2] = D_8009F934[i].z;
-        colors.fields.rotation00[0][i] = D_8009F928[i].red << 4;
-        colors.fields.rotation00[1][i] = D_8009F928[i].green << 4;
-        colors.fields.rotation00[2][i] = D_8009F928[i].blue << 4;
+        LightMatrix.matrix.fields.rotation00[i][0] = MenuCarLightVectors[i].x;
+        LightMatrix.matrix.fields.rotation00[i][1] = MenuCarLightVectors[i].y;
+        LightMatrix.matrix.fields.rotation00[i][2] = MenuCarLightVectors[i].z;
+        colors.fields.rotation00[0][i] = MenuCarLightColors[i].red << 4;
+        colors.fields.rotation00[1][i] = MenuCarLightColors[i].green << 4;
+        colors.fields.rotation00[2][i] = MenuCarLightColors[i].blue << 4;
     }
-    x = D_8009F924[0] * a0;
+    x = MenuCarDefaultAmbient[0] * a0;
     {
-        int y = D_8009F924[1] * a0;
+        int y = MenuCarDefaultAmbient[1] * a0;
         x >>= 8;
         y >>= 8;
-        SetBackColor(x, y, (D_8009F924[2] * a0) >> 8);
+        SetBackColor(x, y, (MenuCarDefaultAmbient[2] * a0) >> 8);
     }
     SetColorMatrix(&colors);
 }

@@ -52,11 +52,11 @@ extern short D_80107182;
 extern short D_80107184;
 extern short *SegmentVisibilityTable;
 extern unsigned char *OctantLookupTable;
-extern struct PreviewBytes8 D_80011324;
-extern struct PreviewBytes8 D_8001132C;
-extern struct PreviewBytes8 D_80011334;
-extern struct PreviewBytes8 D_8001133C;
-extern struct PreviewBytes8 D_80011344;
+extern struct PreviewBytes8 EmblemPreviewClutRect0;
+extern struct PreviewBytes8 EmblemPreviewClutRect1;
+extern struct PreviewBytes8 EmblemPreviewImageRect0;
+extern struct PreviewBytes8 EmblemPreviewStripRect;
+extern struct PreviewBytes8 EmblemPreviewImageRect1;
 
 void RelocateCountedOffsetTable(int *a0);
 int SetupRearViewMirror(void);
@@ -462,12 +462,12 @@ void SetOctantLookupTable(s32 arg0) {
 
 void InitSplashDispEnv(void) {
     struct PreviewBytes8 a, b, c, d, e, f;
-    a = D_80011324;
-    b = D_80011324;
-    c = D_8001132C;
-    d = D_80011334;
-    e = D_8001133C;
-    f = D_80011344;
+    a = EmblemPreviewClutRect0;
+    b = EmblemPreviewClutRect0;
+    c = EmblemPreviewClutRect1;
+    d = EmblemPreviewImageRect0;
+    e = EmblemPreviewStripRect;
+    f = EmblemPreviewImageRect1;
     SetDispMask(0);
     SetupDrawDispEnvs(0, 0, 0, 3);
     VSyncThreshold = 0x80;

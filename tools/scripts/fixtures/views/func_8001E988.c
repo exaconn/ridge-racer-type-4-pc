@@ -56,7 +56,7 @@ extern char StrTotalInitLog[];
 
 extern char DefaultPlayerName[];
 
-extern char D_8001030C[];
+extern char TeamNameDigRacingTeam[];
 
 extern char TeamAbbrevDRT[];
 
@@ -68,7 +68,7 @@ extern char StrPacRacingClub[];
 
 extern char TeamAbbrevPRC[];
 
-extern char D_8001036C[];
+extern char TeamNameRacingTeamSolvalou[];
 
 extern char TeamAbbrevRTS[];
 
@@ -190,13 +190,13 @@ void SystemInit(void)
     CopyStringClearTail(D_800F39D8 + 0xC, SaveProgress);
     CopyStringClearTail(D_800F39D8 + 0x18, SaveProgress);
     CopyStringClearTail(D_800F39D8 + 0x24, SaveProgress);
-    TeamStringPtrTable[0] = (int)D_8001030C;
+    TeamStringPtrTable[0] = (int)TeamNameDigRacingTeam;
     TeamStringPtrTable[4] = (int)TeamAbbrevDRT;
     TeamStringPtrTable[1] = (int)TeamNameMicroMouseMappy;
     TeamStringPtrTable[5] = (int)TeamAbbrevMicroMouseMappy;
     TeamStringPtrTable[2] = (int)StrPacRacingClub;
     TeamStringPtrTable[6] = (int)TeamAbbrevPRC;
-    TeamStringPtrTable[3] = (int)D_8001036C;
+    TeamStringPtrTable[3] = (int)TeamNameRacingTeamSolvalou;
     TeamStringPtrTable[7] = (int)TeamAbbrevRTS;
     RivalTeamNamePtrTable[0] = (int)TeamNameAssoluto;
     RivalTeamNamePtrTable[1] = (int)TeamNameLizard;

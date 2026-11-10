@@ -54,7 +54,7 @@ s32 BadgeRowCount,Rect16RowCount,GlyphRowCount,ImageRowCount,UiRowCount,MenuText
 u8 LoadState;
 char LoadIndex;
 s16 GameModeType,MainMenuChoice;
-char D_8001075C[64],StrSizeEqLdFmt[64],SizeLdFmt[64];
+char StrCdReadPtrFmt[64],StrSizeEqLdFmt[64],SizeLdFmt[64];
 typedef u32 (*Observer)(u32,const uintptr_t *);
 static Observer observer;
 void set_observer(Observer value){observer=value;}
@@ -64,7 +64,7 @@ void PsyqBzero(void *buffer,s32 size){
 }
 s32 DebugPrintStub(const char *format,...){
  uintptr_t args[]={(uintptr_t)format,0,0};va_list ap;va_start(ap,format);
- if(format==D_8001075C)args[1]=(uintptr_t)va_arg(ap,void *);
+ if(format==StrCdReadPtrFmt)args[1]=(uintptr_t)va_arg(ap,void *);
  else args[1]=(u32)va_arg(ap,int);
  va_end(ap);return observer(1,args);
 }
@@ -110,9 +110,9 @@ class MenuArenaPipelineTest(unittest.TestCase):
         cls.pointer_cells={n:C.c_void_p.in_dll(cls.library,n)for n in POINTERS}
         cls.arena_cells=(C.c_void_p*2).in_dll(cls.library,'MenuArenas')
         cls.scalar_cells={n:(C.c_ubyte*size).in_dll(cls.library,n)for n,size in SCALARS}
-        cls.messages=[(C.c_ubyte*64).in_dll(cls.library,n)for n in ('D_8001075C','StrSizeEqLdFmt','SizeLdFmt')]
+        cls.messages=[(C.c_ubyte*64).in_dll(cls.library,n)for n in ('StrCdReadPtrFmt','StrSizeEqLdFmt','SizeLdFmt')]
         cls.mapping=[(C.addressof(buf),pal,SIZE)for buf,pal in zip(cls.buffers,ARENAS)]
-        cls.mapping += [(C.addressof(buf),address_of(n),64)for buf,n in zip(cls.messages,('D_8001075C','StrSizeEqLdFmt','SizeLdFmt'))]
+        cls.mapping += [(C.addressof(buf),address_of(n),32)for buf,n in zip(cls.messages,('StrCdReadPtrFmt','StrSizeEqLdFmt','SizeLdFmt'))]
         assert all(base>0xFFFFFFFF for base,_,_ in cls.mapping)
         cls.original=(ROOT/'assets/PAL/main.exe').read_bytes()[0x800:]
         with(ROOT/'build/PAL/main.elf').open('rb')as stream:
@@ -153,7 +153,7 @@ class MenuArenaPipelineTest(unittest.TestCase):
 
     def service(self,index,args,native):
         args=list(args[:3]);pointers={0:(0,),1:(0,),2:(1,),3:()}[index]
-        if index==1 and (self.pal(args[0])if native else args[0])==address_of('D_8001075C'):pointers=(0,1)
+        if index==1 and (self.pal(args[0])if native else args[0])==address_of('StrCdReadPtrFmt'):pointers=(0,1)
         for i in range(3):args[i]=self.pal(args[i])if native and i in pointers else args[i]&0xFFFFFFFF
         if index==0:args[2]=0
         if index in (2,3):args[2]=0

@@ -6,9 +6,9 @@
 
 /* Direction components are copied as halfword bit patterns into the GTE matrix. */
 typedef struct {u16 x, y, z, reserved06;} LightDirectionBits8;
-extern u8 D_8009F924[4];
-extern PreviewColor4 D_8009F928[3];
-extern LightDirectionBits8 D_8009F934[3];
+extern u8 MenuCarDefaultAmbient[4];
+extern PreviewColor4 MenuCarLightColors[3];
+extern LightDirectionBits8 MenuCarLightVectors[3];
 
 extern char StrSizeEqLdFmt[];
 void SetLightColorsScaled(int a0);

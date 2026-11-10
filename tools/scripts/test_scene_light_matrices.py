@@ -48,7 +48,7 @@ static unsigned scenario,serial,lightIndex,rotationIndex,recordWire;
 static unsigned aliasSeen[16],serviceSeen[11],mutationSeen[2],colorSeen[8];
 static u8 firstWire[240],lastWire[240],beforeWire[24][240],afterWire[24][240];
 #define LightMatrix live.light
-#define D_800111D4 live.scale
+#define UnitScaleVector live.scale
 #define SCRATCH_ROT_MATRIX (&live.view)
 static u32 next(u32 *seed){u32 n=*seed;n^=n<<13;n^=n>>17;n^=n<<5;return *seed=n;}
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
@@ -187,7 +187,7 @@ class SceneLightMatrixTest(unittest.TestCase):
         # complete MatrixWords32 owners used by this caller without changing ABI.
         for axis in 'XYZ':
             body = body.replace('BuildRotMatrix'+axis+'(', 'traceBuildRot'+axis+'(')
-        prefix = PREFIX.replace('@LIGHT@', hex(address_of('LightMatrix'))+'U').replace('@SCALE@', hex(address_of('D_800111D4'))+'U')
+        prefix = PREFIX.replace('@LIGHT@', hex(address_of('LightMatrix'))+'U').replace('@SCALE@', hex(address_of('UnitScaleVector'))+'U')
         with TemporaryDirectory() as temporary:
             source, library = Path(temporary)/'native.c', Path(temporary)/'native.dylib'
             source.write_text(prefix+body+REFERENCE)
@@ -203,7 +203,7 @@ class SceneLightMatrixTest(unittest.TestCase):
             native.event_data.argtypes = [C.c_uint, C.c_uint];native.event_data.restype = C.c_void_p
             native.argument.argtypes = [C.c_uint];native.argument.restype = C.c_uint32
             regions = [(BASE, 80), (0x1F800028, 32), (BASE+112, 64), (address_of('LightMatrix'), 32),
-                       (address_of('D_800111D4'), 16), (BASE+224, 16)]
+                       (address_of('UnitScaleVector'), 16), (BASE+224, 16)]
             intervals = sorted((a, a+n) for a, n in regions)
             self.assertTrue(all(a[1] <= b[0] for a, b in zip(intervals, intervals[1:])))
             memory = Uc(UC_ARCH_MIPS, UC_MODE_LITTLE_ENDIAN | UC_MODE_MIPS32)

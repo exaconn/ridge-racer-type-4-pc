@@ -16,8 +16,8 @@
 #include "rr/trig.h"
 
 extern short NumCars;
-extern unsigned char D_8009EE40[];
-extern unsigned char D_8009EE44[];
+extern unsigned char HudLapTargetThresholds[];
+extern unsigned char HudRankDigitTileU[];
 extern RaceVehicle PlayerCars[2];
 extern int NumLaps;
 
@@ -58,11 +58,11 @@ void UpdateHudRankDisplay(int a0, int a1) {
             a = NumCars;
         }
     }
-    ((SpritePacket *)(a1 * 0x78 + (int)p2))->u = D_8009EE44[a - 1];
+    ((SpritePacket *)(a1 * 0x78 + (int)p2))->u = HudRankDigitTileU[a - 1];
     if (GameModeType == 1) {
         s0 = 0x40;
         s1 = 0;
-        if (D_800AC0E6 <= D_8009EE40[D_800AD4EF / 2]) {
+        if (D_800AC0E6 <= HudLapTargetThresholds[D_800AD4EF / 2]) {
             s1 = 1;
             v = rsin((ScreenFrame & 0x3F) << 6);
             if (v < 0) v += 0x3F;

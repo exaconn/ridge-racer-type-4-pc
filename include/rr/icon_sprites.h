@@ -7,7 +7,7 @@ typedef struct {
     FrameStorage *currentDrawBuf;
 } FrameStorageSlot;
 
-extern u16 D_8001121C[];
+extern u16 OpeningBannerClutTable[];
 
 /* Requires a valid nonnegative CLUT-table index, a four-byte-aligned cursor
  * with 28 writable bytes, and accessible context heads on both captures.

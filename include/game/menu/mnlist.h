@@ -8,6 +8,6 @@ void *DrawCarSpecBadgePanel(u32 *ordering, void *cursor, s32 row);
 void *DrawGpSaveSlotsPanel(u32 *ordering, void *cursor, s32 row);
 void *DrawControllerConfigPanel(u32 *ordering, void *cursor, s32 row);
 char *FormatCountOfTotal(s32 first, s32 second, s32 digitsMinusOne);
-extern UiUvRect D_8009FBEC;
+extern UiUvRect MenuStepArrowUv;
 
 #endif

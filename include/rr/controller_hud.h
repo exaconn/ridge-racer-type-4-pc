@@ -10,10 +10,10 @@
 typedef union {s16 half[6];s32 word[3];} HudTriangle;
 RR_ASSERT_SIZE(HudTriangle,12);
 extern u32 ScreenFrame;
-extern s16 D_8009EE68[2];
-extern u8 D_8009EE5C[6],D_8009EE64[3];
+extern s16 HudLapFlashToggles[2];
+extern u8 HudRotatingQuadVerts[6],HudIndicatorTriColor[3];
 extern s16 LinkHostFlag;
-extern UiUvRect D_8009EE58;
+extern UiUvRect HudCheckeredFlagUv;
 s32 GetControllerWarning(s32 player);
 /* Layout1 selects port0 at Y112; layout2 selects port1 at Y240.
  * Other layouts select port0 at Y240. Status2 permits the warning and

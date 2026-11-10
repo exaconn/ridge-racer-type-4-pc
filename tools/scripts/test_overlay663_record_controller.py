@@ -67,7 +67,7 @@ static u8 buffers[3][32];static const s32 limits[3]={4,8,16};static const s32 mo
 #define LapRecords w->banks[1]
 #define LoadCursor w->published
 #define MenuArenaBase w->buffer
-#define D_8009F64C w->mapping
+#define CoursePreviewSceneIds w->mapping
 #define ovl663_selected_record w->selected
 #define ovl663_course_count w->limit
 #define ovl663_record_kind w->mode

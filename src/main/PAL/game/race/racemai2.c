@@ -21,7 +21,7 @@
 #include "game/math/rotmat.h"
 
 
-extern unsigned char D_8009F7E0[];
+extern unsigned char CourseStartSteeringBias[];
 extern RaceVehicle PlayerCars[2];
 extern short NumCars;
 extern unsigned short CourseIndex;
@@ -156,10 +156,10 @@ void StepRaceFrame(unsigned int gameMode)
           {
             if (CarTable[i]->contactFlags1F0.bytes[j] != 0)
             {
-              CarTable[i]->input -= D_8009F7E0[courseGroup];
+              CarTable[i]->input -= CourseStartSteeringBias[courseGroup];
               if (CarTable[i]->contactFlags1F0.bytes[j] == 2)
               {
-                CarTable[i]->input += D_8009F7E0[courseGroup];
+                CarTable[i]->input += CourseStartSteeringBias[courseGroup];
               }
               if (courseGroup == 2 || CarTable[i]->contactTimer1A7 == 0)
               {

@@ -38,7 +38,7 @@ static struct World {
 } world,expected;
 #define ScreenFrame world.frame
 #define RacePaused world.paused
-#define D_8009E0B0 world.table
+#define RroEffectColorPresets world.table
 static const u32 modelAddress[2]={0x80260010,0x80261010};
 static const u32 vehicleAddress[2]={0x80180010,0x80190010};
 static const u32 sparkAddress[2]={0x80290010,0x802A0010};
@@ -174,7 +174,7 @@ void run_case(unsigned number,const u8 *input,u8 *output) {
 def main():
     os.chdir(ROOT); owner = source_owners(ROOT/'src/main/PAL')['TransformRroVertices']
     body = definition_source(owner.read_text(), 'TransformRroVertices')
-    table, paused, frame = (address_of(n) for n in ('D_8009E0B0', 'RacePaused', 'ScreenFrame'))
+    table, paused, frame = (address_of(n) for n in ('RroEffectColorPresets', 'RacePaused', 'ScreenFrame'))
     with TemporaryDirectory() as directory:
         source, library = Path(directory)/'native.c', Path(directory)/'native.dylib'
         source.write_text(PREFIX.replace('TABLE_ADDRESS', hex(table)+'U').replace('STATE_SIZE', str(STATE))+body+TAIL.replace('STATE_SIZE', str(STATE)).replace('OUTPUT_SIZE', str(OUTPUT)))

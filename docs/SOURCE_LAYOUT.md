@@ -196,7 +196,9 @@ field. The fixture sets the program-table limit explicitly, exercising both
 successful selection and the deliberately ignored selection failures.
 `SsSeqOpen`'s mixed callback-table `void **` view still requires unification.
 
-`cc_6.c` imports the actual public getter/setter interfaces. Its verified stock
+`cc_6.c` imports the actual public getter/setter interfaces. Its entry point
+accepts three promoted words, matching `LibControllerCallback`, and explicitly
+normalizes bank/row to signed halfwords and data to a byte. Its verified stock
 GCC 970318 profile disables CSE block skipping (`-fno-cse-skip-blocks`), preserving
 the original allocation with the correct argument types and signed-halfword
 tone transport. This is a matching reconstruction profile, not evidence that
@@ -1581,7 +1583,7 @@ that C-level return contract even though the last renderer's value happened to
 remain in the MIPS return register. The implementation now explicitly returns
 the full `AddDrawModePrim` cursor. `game/menu/mnlist.h` owns all three resident
 panel callback declarations, the fraction formatter and the typed four-byte
-`D_8009FBEC` UV record; the menu-label header re-exports the formatter.
+`MenuStepArrowUv` UV record; the menu-label header re-exports the formatter.
 
 The controller label reads `ControllerState5C.protocol10` and the existing
 `RuntimeSettings` owner, replacing its three private prefix records and the

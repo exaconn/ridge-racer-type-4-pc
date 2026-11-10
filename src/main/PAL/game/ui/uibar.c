@@ -62,11 +62,11 @@ SpritePacket *DrawBadgeTitleBar(u32 *order,SpritePacket *cursor,s32 x,s32 y,s32 
     y_stage=(ypos+5U);
     offset=4;
     index=0;
-    descriptor_base=(u8*)D_8009F968;
+    descriptor_base=(u8*)SelectionBarDescriptors;
     selector=style*sizeof(UiBarDescriptor);
     descriptor=(UiBarDescriptor*)(descriptor_base+selector);
     cursor=AddSpritePrim(ordering,cursor,x_stage,y_stage,
-                       &D_8009F94C[descriptor->glyph],0x7FFB,0);
+                       &SelectionBarGlyphUvs[descriptor->glyph],0x7FFB,0);
     out_order=ordering;
     out_cursor=cursor;
     x_stage=xpos;
@@ -127,7 +127,7 @@ void DrawBadgeRow(s32 index) {
         {
             void *call_cursor = cursor;
             if (high_raw >> 24) {
-                call_cursor = D_8009F984[(high_raw >> 24) - 1](order, call_cursor, index);
+                call_cursor = UiRowDrawHandlers[(high_raw >> 24) - 1](order, call_cursor, index);
             }
             cursor = call_cursor;
         }

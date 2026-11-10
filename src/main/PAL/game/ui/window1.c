@@ -27,9 +27,9 @@ typedef struct {
     s32 semiTrans10;
 } HudSpriteDef14;
 
-extern char D_8009EBBC[];
-extern char D_8009EB1C[];
-extern char D_8009EC48[];
+extern char BadgeRowPresetTableA[];
+extern char BadgeRowPresetTableB[];
+extern char Rect16RowDefaultPresets[];
 extern char D_800D0160[];
 
 void InitHudSpritePacket(struct HudSpritePacket20 *a0, HudSpriteDef14 *a1);
@@ -68,11 +68,11 @@ void InitRaceHudPackets(int a0)
     case 5:
     default:
         n = 4;
-        tab = D_8009EBBC;
+        tab = BadgeRowPresetTableA;
         break;
     case 1:
         n = 8;
-        tab = D_8009EB1C;
+        tab = BadgeRowPresetTableB;
         break;
     case 2:
     case 3:
@@ -83,7 +83,7 @@ void InitRaceHudPackets(int a0)
         } else {
             n = 12;
         }
-        tab = D_8009EC48;
+        tab = Rect16RowDefaultPresets;
         break;
     }
     for (i = 0; i < n; i++) {

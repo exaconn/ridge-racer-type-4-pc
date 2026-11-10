@@ -152,7 +152,7 @@ void SkipDialoguePage(MenuTextState *arg0) {
 
 s32 DecodeCourseIndex(s32 a0) {
     ReverseCourse = a0 >= 8;
-    return D_8009F64C[a0 & 7];
+    return CoursePreviewSceneIds[a0 & 7];
 }
 
 void EmitSpinningWheelIcon(int a0, int a1, int a2, int a3, int a4) {

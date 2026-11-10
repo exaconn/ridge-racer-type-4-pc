@@ -353,10 +353,10 @@ void *DrawControllerConfigPanel(u32 *ordering, void *cursor, s32 row)
 
   }
 
-  result = AddSpritePrim(ordering, cursor, x, y, &D_8009FBEC, 0x7FF8, 0);
+  result = AddSpritePrim(ordering, cursor, x, y, &MenuStepArrowUv, 0x7FF8, 0);
   text[0] = layout + 0x41;
   textX = x + 2;
-  x = textX + D_8009FBEC.w;
+  x = textX + MenuStepArrowUv.w;
   result = AddDrawModePrim(ordering, AddTextSprites(ordering, result, x, y, text, 0x7FF8, 0, 0), 0x38);
   return result;
 }

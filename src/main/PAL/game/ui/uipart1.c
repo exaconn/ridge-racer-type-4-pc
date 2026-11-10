@@ -61,26 +61,26 @@ typedef struct { u8 c[8]; } B8;
 
 extern S ScreenFadeState;
 extern B4 ScreenFadeColors[];
-extern unsigned short D_80010440[];
-extern R4 D_8009EE70[];
-extern R4 D_8009EEC8;
-extern signed char D_8009EF3C[][4];
-extern short D_8009EFD8[];
-extern short D_8009EFE8[];
-extern R4 D_8009EFF8;
+extern unsigned short UiTitleMaskVramRect[];
+extern R4 BadgeTitleGlyphUvs[];
+extern R4 BadgeTitleColonUv;
+extern signed char BadgeTitleGlyphIndices[][4];
+extern short BadgeTitleColumnX[];
+extern short BadgeTitleBarX[];
+extern R4 BadgeTitleDigitUv;
 extern void *AddSpritePrim();
 extern void *AddTileSemiTransPrim();
 extern S_F4CB0 MenuFrameState;
-extern s8 D_8009EFFC[];
-extern char D_80010460[];
+extern s8 BeamFadeStripHeights[];
+extern char UiBeamFadePalettePair[];
 extern s32 MenuStepDirection;
 extern void PlaySfx();
 extern char RaceTimeDigits[];
 extern int NumLaps;
 extern int LapTimes[];
 extern char TimeTextMMSS[];
-extern unsigned short D_8009F01C[];
-extern char D_8009F020[];
+extern unsigned short StepProgressBarWidths[];
+extern char StepProgressBarColors[];
 extern int ReplayState;
 
 void ClearScreenOverlayState(void);
@@ -250,7 +250,7 @@ void DrawMenuFrame(int arg0) {
         break;
     }
 
-    pc = D_80010440;
+    pc = UiTitleMaskVramRect;
     sp40 = (((sp38 + 1) & 3) << 5) | 0x1E;
     a1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200);
     a1 = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.words[0], a1, 0x10, 0x24, 0x20, 0x10, 0, 0x20, sp40, 0x7F38, 1, (unsigned short)s7);
@@ -259,19 +259,19 @@ void DrawMenuFrame(int arg0) {
     s5 = 0x24;
     s7++;
 
-    c = D_8009EF3C[s6][0];
+    c = BadgeTitleGlyphIndices[s6][0];
     while (c != -1) {
-        r = &D_8009EE70[c];
+        r = &BadgeTitleGlyphUvs[c];
         a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s4, s5, r, 0x7F38, ((unsigned short)s7 << 1) | 1);
-        c = D_8009EF3C[s6][++s1];
+        c = BadgeTitleGlyphIndices[s6][++s1];
         { int t = s4 + 2; s4 = t + r->w; }
     }
 
     if (MenuFrameState.w8 > 0) {
-        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s4, s5, &D_8009EEC8, 0x7F38, ((unsigned short)s7 << 1) | 1);
-        D_8009EFF8.u = MenuFrameState.w8 * 8;
-        { int t = s4 + 2; s4 = t + D_8009EEC8.w; }
-        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s4, s5, &D_8009EFF8, 0x7F38, 1, ((unsigned short)s7 << 1) | 1);
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s4, s5, &BadgeTitleColonUv, 0x7F38, ((unsigned short)s7 << 1) | 1);
+        BadgeTitleDigitUv.u = MenuFrameState.w8 * 8;
+        { int t = s4 + 2; s4 = t + BadgeTitleColonUv.w; }
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s4, s5, &BadgeTitleDigitUv, 0x7F38, 1, ((unsigned short)s7 << 1) | 1);
     }
 
     a1 = AddTileSemiTransPrim(
@@ -282,9 +282,9 @@ void DrawMenuFrame(int arg0) {
     a1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, MenuFrameState.s10, MenuFrameState.s12, MenuFrameState.s14, MenuFrameState.s16);
 
     for (j = 2; j < 7; j++) {
-        s4 = D_8009EFD8[j];
+        s4 = BadgeTitleColumnX[j];
         s5 = (j >= 2) ? 0x1BE : 0x1AA;
-        sp30 = D_8009EE70[j];
+        sp30 = BadgeTitleGlyphUvs[j];
         if ((unsigned int)(j - 3) < 2) {
             s2 = (PlayerControllers[ActivePlayerIndex & 1].protocol10 == 1);
             if (s2 == 1) {
@@ -314,8 +314,8 @@ void DrawMenuFrame(int arg0) {
     }
     if (ScreenFadeState.a == 2) {
         j = sp38 + 0x7DBA;
-        a1 = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, D_8009EFE8[7], y, 1, 0xC, 0xF0, 0x7A, 0x14);
-        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, D_8009EFE8[7] + 8, s5, &D_8009EE70[s2], j, 0);
+        a1 = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, BadgeTitleBarX[7], y, 1, 0xC, 0xF0, 0x7A, 0x14);
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, BadgeTitleBarX[7] + 8, s5, &BadgeTitleGlyphUvs[s2], j, 0);
     }
 
     col2 = *pc;
@@ -324,7 +324,7 @@ void DrawMenuFrame(int arg0) {
         u8 *p;
         int w, w2, w3, d;
         for (j = 3; j < 7; j++) {
-            a1 = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, D_8009EFE8[j], (j >= 3) ? y : 0x1A8, 1, 0xC, col2, col2, col2);
+            a1 = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, BadgeTitleBarX[j], (j >= 3) ? y : 0x1A8, 1, 0xC, col2, col2, col2);
             /* ASM_BARRIER: define p after last loop call so p is live-in to next block without crossing calls */
             __asm__("" : "=r"(p));
         }
@@ -364,9 +364,9 @@ void DrawArrowTrianglePair(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5) {
     struct { Vec2s v[3]; s32 pad; B8 u; } w;
     i = 0;
     bp = w.v;
-    tb = D_8009EFFC;
+    tb = BeamFadeStripHeights;
     t0 = *(s32 *)SCRATCHPAD;
-    w.u = *(B8 *)D_80010460;
+    w.u = *(B8 *)UiBeamFadePalettePair;
 L0:
     j = 0;
 L1:
@@ -413,8 +413,8 @@ void DrawMenuStepArrows(s32 p0, s32 p1, s32 p2, s32 p3, s32 p4, s32 a5, s32 a6) 
     a4 = p4;
     t0 = *(s32 *)SCRATCHPAD;
     g = MenuStepDirection;
-    nv = D_8009EFFC;
-    w.u = *(B8 *)D_80010460;
+    nv = BeamFadeStripHeights;
+    w.u = *(B8 *)UiBeamFadePalettePair;
 L0:
     k = 0;
     sg = one - (i & 1) * 2;
@@ -713,7 +713,7 @@ void DrawTimeRemaining(int a)
     char *p = (CurrentDrawBuf->buffer.packets1670 + 0x2107C);
     int r = FormatFrameTimeMMSS(a);
     int i = a < 0x5DC;
-    int t = D_8009F01C[i];
+    int t = StepProgressBarWidths[i];
     int s = (NumLaps - 3) * 10 + 0x50;
     DrawDigitString8(&CurrentDrawBuf->buffer.ordering70.words[0], 0x111, s, r, t);
     ((short *)p)[5] = s;
@@ -733,7 +733,7 @@ void DrawTimeRemainingForPlayer(int a, int b)
     }
     r = FormatFrameTimeMMSS(a);
     i = a < 0x5DC;
-    t = D_8009F01C[i];
+    t = StepProgressBarWidths[i];
     DrawDigitString8(q, 0x111, ((short *)p)[5], r, t);
 }
 
@@ -746,7 +746,7 @@ char *FormatMillisecondsTime(int t)
     b = a / 60;
     c = a % 60;
     a = t % 1000;
-    p = D_8009F020;
+    p = StepProgressBarColors;
     p[0] = b / 10 + '0';
     p[1] = b % 10 + '0';
     p[3] = c / 10 + '0';

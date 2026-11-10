@@ -20,7 +20,7 @@
 #include "rr/menu_screen_exit.h"
 
 #include "rr/cd_directory_buffer.h"
-extern char D_8001075C[];
+extern char StrCdReadPtrFmt[];
 extern void ClearScreenOverlayState();
 #include "rr/menu_arena_base.h"
 extern short SelectedMakerIndex;
@@ -54,7 +54,7 @@ void UpdateSelectionRank(void) {
    sum=0;
    i=phase-1;
    if(i<=phase) {
-    weights=D_8009F81C;
+    weights=CarSpecStatWeights;
     choices=(s8 *)first;
     do {
      s32 choice=*(s8 *)(i+(unsigned long)choices);
@@ -75,7 +75,7 @@ void UpdateSelectionRank(void) {
    middle=(SelectionStatePrefix *)(middle_page-0x2B28);
    i=0;
    if(middle->phase<4) {
-    s8 *thresholds=D_8009F82C;
+    s8 *thresholds=CarSpecStatThresholds;
     /* ASM_BARRIER: hold the configuration pointer separately from threshold values. */
     register SelectionStatePrefix *config asm("$9");
 
@@ -168,7 +168,7 @@ void InitMenuArenas(void) {
   MenuTextRowCount = 0x37;
   MenuArenas.second = CdDirectoryBuffer + arenaOffset;
   LoadCursor = MenuArenas.second;
-  DebugPrintStub(D_8001075C, LoadCursor);
+  DebugPrintStub(StrCdReadPtrFmt, LoadCursor);
   LoadCursor = LoadCursor + AllocBadgeRows(LoadCursor);
   LoadCursor = LoadCursor + AllocRect16Rows(LoadCursor);
   LoadCursor = LoadCursor + AllocGlyphRows(LoadCursor);

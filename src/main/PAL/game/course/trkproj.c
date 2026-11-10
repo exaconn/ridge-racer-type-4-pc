@@ -21,8 +21,8 @@
 #define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -SinTable[0x400 - ((x) & 0x3FF)] : -SinTable[(x) & 0x3FF]) : (((x) & 0x400) ? SinTable[0x400 - ((x) & 0x3FF)] : SinTable[(x) & 0x3FF]))
 
 extern RaceStandingsTable *RaceStandings;
-extern s8 D_80010F2C[][16];
-extern s8 D_80010F8C[][16];
+extern s8 CarShadowOffsetTableA[][16];
+extern s8 CarShadowOffsetTableB[][16];
 
 void ProjectToTrackSegment(TrackOffsetArgument offsetX, TrackOffsetArgument offsetZ, s32 node, s16 *fraction, s16 *lateral, s32 *remaining);
 s32 ScoreOvertakeOpportunity(RaceVehicle *arg0, s32 arg1);
@@ -256,7 +256,7 @@ s32 ScoreOvertakeOpportunity(RaceVehicle *arg0, s32 arg1) {
     }
 
     for (i = 0; i < 2; i++) {
-        s0 += D_80010F2C[i][a1];
+        s0 += CarShadowOffsetTableA[i][a1];
     }
 
     a2 = (a2 * 160) / 1168;
@@ -266,9 +266,9 @@ s32 ScoreOvertakeOpportunity(RaceVehicle *arg0, s32 arg1) {
         }
         a2 /= 5;
         if (GameModeType != 5) {
-            s0 += D_80010F2C[2][a2];
+            s0 += CarShadowOffsetTableA[2][a2];
         } else {
-            s0 += D_80010F8C[2][a2];
+            s0 += CarShadowOffsetTableB[2][a2];
         }
     } else {
         s0 -= 8;

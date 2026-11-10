@@ -6,7 +6,7 @@
 
 extern s32 D_800ACA3C,D_800ACA38;
 extern UiUvRect D_800A1FB0[];
-extern u32 D_80011248[];
+extern u32 FadeSpriteDrawModes[];
 /* Index names an accessible UV entry. Pointer slots and returned packet must
  * be accessible and aligned; helper return must provide eight writable bytes.
  * Products wrap to signed32 before each division by256 (truncation toward0).

@@ -38,8 +38,8 @@ extern int MaskBitSetting;
 extern s32 ModelTexturePage;
 extern char UnknownRroTypeFmt[];
 extern signed char RacePaused;
-extern RroEffectColorTable D_8009E0B0;
-extern int D_8009E0E0[];
+extern RroEffectColorTable RroEffectColorPresets;
+extern int SpotlightConeRingInner[];
 
 
 
@@ -1262,8 +1262,8 @@ void TransformRroVertices(CarSlotBufferC8 *slot, RroEffectWork *work)
         slot->intensity64 = intensity;
     }
     RR_GTE_MTC2_IR0(intensity);
-    input = D_8009E0B0.input;
-    farColor = D_8009E0B0.farColor;
+    input = RroEffectColorPresets.input;
+    farColor = RroEffectColorPresets.farColor;
     output = work->colors15C.words;
     remaining = 6;
     do {
@@ -1317,7 +1317,7 @@ void DrawGlowFan(CarSlotBufferC8 *slot, RroEffectWork *work) {
         depth >>= ((RroSceneScratchPrefix *)SCRATCHPAD)->depthShift60 + 2;
         if (depth < 0x1C0) {
             RR_GTE_SETROT_IDENTITY_CLEAR_Z();
-            ring = D_8009E0E0;
+            ring = SpotlightConeRingInner;
             projected = work->projection188.fan.xy;
             remaining = 0x11;
             do {
@@ -1562,7 +1562,7 @@ const RroGlowPointCommand *EmitProjectedLitQuadsGT4(const RroGlowPointCommand *i
             register s32 previous __asm__("$15");
             s32 color;
             RR_GTE_SETTR(&projection->translation);
-            ring = D_8009E124;
+            ring = SpotlightConeRingOuter;
             center = projection->centerXY;
             RR_GTE_RTPS_LDV(ring);
             RR_GTE_MFC2(previous, 14);

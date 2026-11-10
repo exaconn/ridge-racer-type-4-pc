@@ -69,7 +69,7 @@ void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
             (s32)(((u32)scale << 1) | 1U));
         command = 0xE1000200U;
         low = 0xFFFFFFU;
-        modes = D_80011248;
+        modes = FadeSpriteDrawModes;
         mode = (u32)selector * 4U;
         mode = *(u32 *)((u8 *)modes + mode);
         /* ASM_BARRIER: capture the mode word before publishing the packet. */

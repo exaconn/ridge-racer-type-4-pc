@@ -1,7 +1,7 @@
 #ifndef RR_MENU_SELECTION_H
 #define RR_MENU_SELECTION_H
 #include "rr/layout.h"
-extern u8 D_8009F64C[8];
+extern u8 CoursePreviewSceneIds[8];
 extern s16 ReverseCourse,SelectedCourseChoice,CourseIndex;
 extern s32 ActivePlayerIndex;
 /* Word result0..255: the original loads the byte with zero extension. */

@@ -30,11 +30,11 @@ extern int CourseBestLapTimes[2][8][3];
 extern int CourseBestLapRecords[8];
 extern TimeRecord16 LapRecords[2][8][5];
 extern CourseChoice4 CourseChoiceTable[2][9];
-extern unsigned short D_8009EA80[];
+extern unsigned short DefaultCourseChoiceGlyphs[];
 extern unsigned char SaveDataWork[];
 extern unsigned char CustomEmblemBuffers[];
 #include "rr/cd_directory_buffer.h"
-extern s32 D_800103B8;
+extern s32 StrTitle0Log;
 extern s32 VSyncThreshold;
 extern s32 ModeFrame;
 extern s16 ModeIndex;
@@ -88,7 +88,7 @@ void InitCourseChoices(void)
             if (j == 8) {
                 CourseChoiceTable[i][j].glyph = -1;
             } else {
-                CourseChoiceTable[i][j].glyph = D_8009EA80[j];
+                CourseChoiceTable[i][j].glyph = DefaultCourseChoiceGlyphs[j];
                 CourseChoiceTable[i][j].first = (j / 2) + (j < 4);
             }
         }
@@ -115,7 +115,7 @@ void MenuSceneNoop(void) {
 void SplashModeEnter(void) {
     int reserved[6];
     SetDispMask(0);
-    DebugPrintStub(&D_800103B8);
+    DebugPrintStub(&StrTitle0Log);
     LoadCursor = CdDirectoryBuffer;
     InitSplashDispEnv();
     CardMenuOperation = 0;

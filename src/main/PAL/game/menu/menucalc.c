@@ -28,10 +28,10 @@
 
 extern unsigned char BadgeGlyphUvTable[][4];
 extern signed char BadgeStripPatterns[][8];
-extern unsigned char D_8009F1E0[];
-extern unsigned char D_8009F1E4[];
+extern unsigned char CourseSelectGroupCounts[];
+extern unsigned char GpStageCourseBaseIndex[];
 extern MenuSettings2C SelectionState;
-extern unsigned char D_8009F1EC[];
+extern unsigned char MakerTeamCarCounts[];
 extern int ModeFrame;
 extern int SetMenuFrameOptions();
 extern int UpdateBadgeRowAnim();
@@ -94,13 +94,13 @@ int DrawCarStatBars(int x, int a1)
         a = s0;
       }
     }
-    s3 += D_8009F1E0[i];
+    s3 += CourseSelectGroupCounts[i];
     x = AddBadgeSpriteStrip(a, &CurrentDrawBuf->buffer.ordering70.words[0], x, 0x20, s3, s2);
     if (i == 1)
     {
       unsigned char *t;
       int b = BadgeStripPatterns[s0][4];
-      s0 = D_8009F1E4[SelectionState.phase17] + 0x20;
+      s0 = GpStageCourseBaseIndex[SelectionState.phase17] + 0x20;
       new_var = BadgeGlyphUvTable;
       t = new_var[s0];
       x = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.words[0], x, b + 0x34, s3, t[2], t[3], t[0], t[1], 0x4A, 0x2E28, i, s2);
@@ -117,7 +117,7 @@ int DrawStepProgressBar(int a0, int a1) {
     int i = 0;
     int v, y;
     do {
-        s0 += D_8009F1EC[i];
+        s0 += MakerTeamCarCounts[i];
         if (sel == i) {
             v = rsin((ModeFrame << 6) & 0xFC0) / 64 + 0xBF;
         } else if (i < sel) {

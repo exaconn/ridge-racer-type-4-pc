@@ -4,9 +4,9 @@
 #include "types.h"
 #include "rr/ui_bar.h"
 
-extern UiUvRect D_8009F6AC[8];
-extern u16 D_8009F6CC[2], D_8009F6D0[4];
-extern u8 D_8009F6D8[4];
+extern UiUvRect PauseMenuLabelUvs[8];
+extern u16 PauseTitleClutIds[2], PauseRowClutIds[4];
+extern u8 PauseRowOffsetX[4];
 
 void DrawStartCountdown(u32 *ordering, s32 frame);
 void DrawPauseMenu(u32 *ordering, s32 mode);

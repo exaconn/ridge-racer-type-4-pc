@@ -34,8 +34,8 @@ typedef MenuSettings2C SaveSlotSelection;
 extern unsigned char D_800AD4F5;
 extern short CardMenuOperation;
 #include "rr/sprite_effect.h"
-extern SpriteEffectSource D_8009F3F8;
-extern SpriteEffectSource D_8009F404;
+extern SpriteEffectSource MenuJitterSpritePresetA;
+extern SpriteEffectSource MenuJitterSpritePresetB;
 extern int SetMenuFrameOptions();
 extern short NumCars;
 extern void ClearScreenOverlayState(void);
@@ -203,7 +203,7 @@ void UpdateDialoguePanel(void) {
     case 0:
         var_a1 = *(void **)SCRATCHPAD;
         if ((u16)temp_s2 >= 3) {
-            var_a1 = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], var_a1, &D_8009F3F8, 1, 0xFF, 2);
+            var_a1 = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], var_a1, &MenuJitterSpritePresetA, 1, 0xFF, 2);
         }
         *(void **)SCRATCHPAD = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[1], var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         if ((u16)temp_s2 >= 0x15) {
@@ -226,8 +226,8 @@ void UpdateDialoguePanel(void) {
                 &CurrentDrawBuf->buffer.ordering70.words[3],
                 AddJitterSprites(
                     &CurrentDrawBuf->buffer.ordering70.words[0],
-                    AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], *(void **)SCRATCHPAD, &D_8009F404, 1, temp_s2, 1),
-                    &D_8009F3F8, 1, (0x80 - temp_s2) * 2, two),
+                    AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], *(void **)SCRATCHPAD, &MenuJitterSpritePresetB, 1, temp_s2, 1),
+                    &MenuJitterSpritePresetA, 1, (0x80 - temp_s2) * 2, two),
                 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
             if (temp_s2 >= 0x80U) {
                 Dialogue->b1F = 0;
@@ -241,7 +241,7 @@ void UpdateDialoguePanel(void) {
     default:
         var_a1 = *(void **)SCRATCHPAD;
         if (Dialogue->b1C >= 0) {
-            var_a1 = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], var_a1, &D_8009F404, 0, 0x80, 1);
+            var_a1 = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], var_a1, &MenuJitterSpritePresetB, 0, 0x80, 1);
         }
         *(void **)SCRATCHPAD = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[1], var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         break;

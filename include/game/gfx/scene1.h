@@ -4,7 +4,7 @@
 #include "rr/scene_camera_types.h"
 #include "rr/matrix_words.h"
 
-extern VectorWords16 D_800111D4;
+extern VectorWords16 UnitScaleVector;
 
 void QueueDrawStp(void);
 void DrawSceneOverlayIfActive(void);

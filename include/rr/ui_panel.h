@@ -5,7 +5,7 @@
 #include "rr/sprite_emit.h"
 
 typedef void *(*PanelDraw)(u32 *,void *,s32);
-extern PanelDraw D_8009F984[];
+extern PanelDraw UiRowDrawHandlers[];
 
 /* The selected row and signed high-byte callback index must name accessible
  * entries; index*row size must fit signed32. FFFF status emits nothing.

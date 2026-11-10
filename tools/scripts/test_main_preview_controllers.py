@@ -78,7 +78,7 @@ static const s8 modes[]={INT8_MIN,-1,0,1,2,3,INT8_MAX};
 #define ModeGroup live.group
 #define ModeIndex live.next
 #define FadeCountdown live.fade
-#define D_8009F818 live.table
+#define GpStageShowcaseModes live.table
 #define LoadState live.load
 #define MenuScriptStep live.step
 #define ScreenFrame live.screen
@@ -305,7 +305,7 @@ class MainPreviewControllerTest(unittest.TestCase):
                        (address_of('UiRows'),4),(address_of('BadgeRows'),4),(address_of('ModeFrame'),4),
                        (address_of('SubmodeState'),2),(address_of('D_800F3A60'),4),(address_of('ModeGroup'),2),
                        (address_of('ModeIndex'),2),(address_of('FadeCountdown'),2),(address_of('ScreenFrame'),4),
-                       (address_of('LoadState'),1),(address_of('MenuScriptStep'),1),(address_of('D_8009F818'),4)]
+                       (address_of('LoadState'),1),(address_of('MenuScriptStep'),1),(address_of('GpStageShowcaseModes'),4)]
             size = native.wire_size();self.assertEqual(sum(n for _,n in regions),size)
             intervals = sorted((a,a+n) for a,n in regions)
             self.assertTrue(all(a[1]<=b[0] for a,b in zip(intervals,intervals[1:])))

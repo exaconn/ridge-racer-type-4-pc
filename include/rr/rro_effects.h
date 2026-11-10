@@ -141,7 +141,7 @@ void EmitProjectedLitTrisGT3(const RroTrailPanelCommand *commands, s32 count,
                            RroEffectWork *work);
 
 /* Nine ring vertices include the repeated closing point. */
-extern Vec3s8 D_8009E124[9];
+extern Vec3s8 SpotlightConeRingOuter[9];
 
 /* Legacy name: each visible point emits eight untextured G3 triangles followed
  * by E1, totaling 232 bytes. Count is the signed command-header halfword; a

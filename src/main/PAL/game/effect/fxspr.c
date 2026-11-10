@@ -12,7 +12,7 @@ typedef struct { u32 tag; u32 code; } Pkt8;
 
 extern int D_800A2098[];
 extern const char D_800A1FC8[13][16];
-extern unsigned int D_80011258;
+extern unsigned int OverlayTextSpriteUv;
 extern FadeRaceContext RaceContext;
 void DrawIntroRippleSprites(void)
 {
@@ -55,7 +55,7 @@ void DrawIntroRippleSprites(void)
 
   }
 
-  w = D_80011258;
+  w = OverlayTextSpriteUv;
   *((unsigned char **) SCRATCHPAD) = p;
   p[3] = 1;
     head = &CurrentDrawBuf->buffer.ordering70.words[10];

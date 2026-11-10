@@ -36,17 +36,17 @@ typedef struct {
     short x, y, z;
 } Vec3s6;
 
-extern Vec3s6 D_8009F694[];
-extern Vec3s6 D_8009F6A0[];
+extern Vec3s6 StartSignalLightOffsetsA[];
+extern Vec3s6 StartSignalLightOffsetsB[];
 extern short AngleDiffSigned();
 extern int ViewUsesCarTrackNode;
 extern s32 RaceState;
 extern int RaceVoiceFlags;
 extern short FadeCountdown;
 extern void PlaySfx();
-extern unsigned char D_8009F6DC[];
+extern unsigned char PauseMenuMaxChoices[];
 extern signed char PauseCursor;
-extern int D_8009F6E4[];
+extern int PauseAbortNextModes[];
 extern char SelectionState[];
 extern int RankEntries;
 extern int TrackLength;
@@ -56,12 +56,12 @@ extern short ModeGroup;
 extern short SubmodeState;
 extern int GameQueueSprite();
 extern int EmitPolyF3();
-extern unsigned char D_8009F71C[][4];
+extern unsigned char PauseMenuChoiceMap[][4];
 extern int SioDeviceName[];
 extern int LinkWriteHandle;
 extern int LinkReadHandle;
 extern s16 LinkState;
-extern int D_8009F728;
+extern int RaceStartSignalState;
 extern signed char LinkEntryState[];
 extern signed char D_800ABEBE;
 extern int RaceTimeRemaining;
@@ -85,12 +85,12 @@ void SetupMenuCarCamera(int a)
 {
   int *g = (int *) SCRATCHPAD;
   int i;
-  g[2] = D_8009F6A0[a].x;
-  g[3] = D_8009F6A0[a].y;
-  g[4] = D_8009F6A0[a].z;
-  g[6] = D_8009F694[a].x;
-  g[7] = D_8009F694[a].y;
-  g[8] = D_8009F694[a].z;
+  g[2] = StartSignalLightOffsetsB[a].x;
+  g[3] = StartSignalLightOffsetsB[a].y;
+  g[4] = StartSignalLightOffsetsB[a].z;
+  g[6] = StartSignalLightOffsetsA[a].x;
+  g[7] = StartSignalLightOffsetsA[a].y;
+  g[8] = StartSignalLightOffsetsA[a].z;
   BuildCameraMatrices();
   ScaleMatrixRow1(2, (MatrixWords32 *)SCRATCH_ROT_MATRIX);
   if (PlayerControllers[ActivePlayerIndex & 1].input00.fields.buttons & 4)
@@ -213,8 +213,8 @@ void DrawStartCountdown(u32 *ordering, s32 frame) {
         if (GameModeType == 1) {
             if (phase >= 4) {
                 palette = ((frame >> 2) & 1) + 2;
-                glyph = D_8009F6AC[7];
-                cursor = AddSpritePrim(ordering, cursor, D_8009F6D8[3] + 0x60, top + 0x39, &glyph, D_8009F6D0[palette], 0);
+                glyph = PauseMenuLabelUvs[7];
+                cursor = AddSpritePrim(ordering, cursor, PauseRowOffsetX[3] + 0x60, top + 0x39, &glyph, PauseRowClutIds[palette], 0);
             } else if (phase > 0) {
                 xOffset = 0;
                 for (index = 0; index < 0x10;) {
@@ -225,15 +225,15 @@ void DrawStartCountdown(u32 *ordering, s32 frame) {
                     }
                     b = index & 1;
                     c = b << 1;
-                    cursor = AddSpritePrim(ordering, cursor, xOffset + 0x78, top + 0x39, &D_8009F6AC[2 + b], D_8009F6D0[b * 2], 0);
+                    cursor = AddSpritePrim(ordering, cursor, xOffset + 0x78, top + 0x39, &PauseMenuLabelUvs[2 + b], PauseRowClutIds[b * 2], 0);
                     index++;
                     xOffset += 1 << (c + 1);
                 }
                 palette = 0;
-                glyph = D_8009F6AC[5];
-                glyph = D_8009F6AC[6];
+                glyph = PauseMenuLabelUvs[5];
+                glyph = PauseMenuLabelUvs[6];
                 glyph.u += (phase - 1) * 12;
-                cursor = AddSpritePrim(ordering, cursor, D_8009F6D8[2] + 0x60, top + 0x39, &glyph, D_8009F6D0[0], 0);
+                cursor = AddSpritePrim(ordering, cursor, PauseRowOffsetX[2] + 0x60, top + 0x39, &glyph, PauseRowClutIds[0], 0);
             }
         } else {
             if (phase == 0) {
@@ -246,34 +246,34 @@ void DrawStartCountdown(u32 *ordering, s32 frame) {
                     }
                     b = index & 1;
                     c = b << 1;
-                    cursor = AddSpritePrim(ordering, cursor, xOffset + 0x78, top + 0x39, &D_8009F6AC[2 + b], D_8009F6D0[b * 2], 0);
+                    cursor = AddSpritePrim(ordering, cursor, xOffset + 0x78, top + 0x39, &PauseMenuLabelUvs[2 + b], PauseRowClutIds[b * 2], 0);
                     index++;
                     xOffset += 1 << (c + 1);
                 }
             } else if (phase >= 4) {
                 palette = ((frame >> 2) & 1) + 2;
-                glyph = D_8009F6AC[5];
+                glyph = PauseMenuLabelUvs[5];
                 glyph.u += 0x60;
                 for (index = 0; index < 3; index++) {
                     if (index == 2) {
-                        glyph = D_8009F6AC[7];
+                        glyph = PauseMenuLabelUvs[7];
                         index = 3;
                     }
-                    cursor = AddSpritePrim(ordering, cursor, D_8009F6D8[index] + 0x60, top + 0x39, &glyph, D_8009F6D0[palette], 0);
+                    cursor = AddSpritePrim(ordering, cursor, PauseRowOffsetX[index] + 0x60, top + 0x39, &glyph, PauseRowClutIds[palette], 0);
                 }
             } else {
                 palette = 0;
-                glyph = D_8009F6AC[5];
+                glyph = PauseMenuLabelUvs[5];
                 for (index = 0; index < 3; index++) {
                     if (index == 0) {
                         glyph.u += ((tick * 9) / 25) * 12;
                     } else if (index == 1) {
-                        glyph.u = D_8009F6AC[5].u + phase * 0x18;
+                        glyph.u = PauseMenuLabelUvs[5].u + phase * 0x18;
                     } else {
-                        glyph = D_8009F6AC[6];
+                        glyph = PauseMenuLabelUvs[6];
                         glyph.u += (phase - 1) * 12;
                     }
-                    cursor = AddSpritePrim(ordering, cursor, D_8009F6D8[index] + 0x60, top + 0x39, &glyph, D_8009F6D0[palette], 0);
+                    cursor = AddSpritePrim(ordering, cursor, PauseRowOffsetX[index] + 0x60, top + 0x39, &glyph, PauseRowClutIds[palette], 0);
                 }
             }
         }
@@ -281,12 +281,12 @@ void DrawStartCountdown(u32 *ordering, s32 frame) {
             y = top + 0x39;
             xOffset = 0;
             for (index = 0; index < 10; index++) {
-                cursor = AddSpritePrim(ordering, cursor, xOffset + 0x78, y, &D_8009F6AC[4], D_8009F6D0[(index - 3U) < 4U ? 3 : palette], 0);
+                cursor = AddSpritePrim(ordering, cursor, xOffset + 0x78, y, &PauseMenuLabelUvs[4], PauseRowClutIds[(index - 3U) < 4U ? 3 : palette], 0);
                 xOffset += 8;
             }
         }
-        cursor = AddSpritePrim(ordering, cursor, 0x68, top + 0x1A, &D_8009F6AC[1], D_8009F6CC[phase >= 4], (intensity << 1) | 1);
-        cursor = AddSpritePrim(ordering, cursor, 0x60, top, &D_8009F6AC[0], 0x797C, 0);
+        cursor = AddSpritePrim(ordering, cursor, 0x68, top + 0x1A, &PauseMenuLabelUvs[1], PauseTitleClutIds[phase >= 4], (intensity << 1) | 1);
+        cursor = AddSpritePrim(ordering, cursor, 0x60, top, &PauseMenuLabelUvs[0], 0x797C, 0);
         ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawModePrim(ordering, cursor, 0x3F);
         if (ordering == &CurrentDrawBuf->buffer.secondaryOrderingB70.words[0]) {
             s32 y;
@@ -367,7 +367,7 @@ void UpdatePauseMenu(int a0) {
         }
     }
     if (Pad0Buttons & 0x4000) {
-        if (PauseCursor < D_8009F6DC[a0]) {
+        if (PauseCursor < PauseMenuMaxChoices[a0]) {
             PauseCursor = PauseCursor + 1;
             PlaySfx(0);
         }
@@ -390,14 +390,14 @@ void ApplyPauseMenuChoice(int arg0) {
         RankEntries = -TrackLength;
         if (PauseCursor == 2) {
             SubmodeState = 0;
-            ModeGroup = D_8009F6E4[3] >> 8;
-            ModeIndex = *(unsigned char *)&D_8009F6E4[3];
+            ModeGroup = PauseAbortNextModes[3] >> 8;
+            ModeIndex = *(unsigned char *)&PauseAbortNextModes[3];
             return;
         }
         FinishRace(SelectionState, PauseCursor);
         return;
     }
-    b = D_8009F6E4;
+    b = PauseAbortNextModes;
     RaceState = 6;
     t = (int *)((PauseCursor - 1) * 4 + arg0 * 8 + b);
     ModeGroup = *t >> 8;
@@ -440,7 +440,7 @@ void DrawPauseMenu(u32 *a0, int a1) {
         rgb[1] = 0x20;
         j = i / 3;
         j = j == 1;
-        base = D_8009F71C;
+        base = PauseMenuChoiceMap;
         t = base[j];
         p = EmitPolyF3(a0, p, v[t[0]], v[t[1]], v[t[2]], rgb, 1);
         rgb[0] = 0xFF;
@@ -542,7 +542,7 @@ int UpdateLinkHandshake(int a0)
       {
         LinkHostFlag = 0;
         D_800ABEBE = 1;
-        D_8009F728 = 3;
+        RaceStartSignalState = 3;
         LinkState = 10;
       }
       else
@@ -570,14 +570,14 @@ int UpdateLinkHandshake(int a0)
       break;
 
     case 11:
-      if (D_8009F728 > 0)
+      if (RaceStartSignalState > 0)
     {
       _sio_control(1, 1, 2);
-      D_8009F728 -= 1;
+      RaceStartSignalState -= 1;
       if (k == 1)
       {
         LinkState = 2;
-        D_8009F728 = 0;
+        RaceStartSignalState = 0;
       }
       break;
     }
@@ -595,17 +595,17 @@ int UpdateLinkHandshake(int a0)
       if (k == 2)
     {
       LinkState = k;
-      D_8009F728 = 4;
+      RaceStartSignalState = 4;
     }
       break;
 
     case 3:
       _sio_control(1, 1, 1);
-      if (D_8009F728 > 0)
+      if (RaceStartSignalState > 0)
     {
       if (a0 == 0)
       {
-        D_8009F728 -= 1;
+        RaceStartSignalState -= 1;
         break;
       }
     }

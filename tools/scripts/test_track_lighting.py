@@ -34,9 +34,9 @@ static struct {
 } world;
 #define LightMatrix world.alias.basis
 #define TrackLightTable world.table
-#define D_8009F924 world.ambient
-#define D_8009F928 world.colors
-#define D_8009F934 world.directions
+#define MenuCarDefaultAmbient world.ambient
+#define MenuCarLightColors world.colors
+#define MenuCarLightVectors world.directions
 static u8 *result;static unsigned scenario,event_count;
 enum {STATE_SIZE=44+2*8*44+4+12+24+4};
 static u32 address(const void *p) {
@@ -116,7 +116,7 @@ def main():
                     assert symbol['st_value'] == address_of(name)
                     write(symbol['st_value'], section.data()[offset:offset+symbol['st_size']])
         light, table = address_of('LightMatrix'), address_of('TrackLightTable')
-        ambient, colors, directions = [address_of(n) for n in ('D_8009F924', 'D_8009F928', 'D_8009F934')]
+        ambient, colors, directions = [address_of(n) for n in ('MenuCarDefaultAmbient', 'MenuCarLightColors', 'MenuCarLightVectors')]
         stack, stop = 0x803F0000, 0x803FF000
         services = {address_of('SetBackColor'): 1, address_of('SetColorMatrix'): 2}
         regions = ((ALIAS, 44), (TABLES, 704), (ambient, 4), (colors, 12), (directions, 24), (table, 4))

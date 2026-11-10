@@ -3,6 +3,7 @@
 
 #include "types.h"
 
-void _SsContDataEntry(s16 bank, s16 row, u8 data);
+/* Controller words normalize to signed bank/row halfwords and a data byte. */
+void _SsContDataEntry(s32 bank, s32 row, s32 data);
 
 #endif /* RR_PSYQ_LIBSND_CC_6_H */

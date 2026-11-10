@@ -69,7 +69,7 @@ static void resetTables(void){
 #define CameraViewMatrix world.camera
 #define ScreenFrame world.frame
 #define TileFadeColorTable world.palettes[0]
-#define D_8009E36C world.palettes[1]
+#define TileRectFlashColors world.palettes[1]
 #define SCENE world.scratch.billboard.scene
 static unsigned kind,scenario,events,hooks,quad,streamIndex;static u32 data[32],control[32],*trace;
 static const s32 depths[]={-2147483647-1,-1,0,1,447,448,1791,1792};
@@ -315,7 +315,7 @@ def main():
             address &= 0x1FFFFFFF
             assert any((a&0x1FFFFFFF) <= address and address+size <= (a&0x1FFFFFFF)+n for a, n in [(WORK, 68), (0x1F800000, 4), (gpu, GPU_SIZE), (STACK-256, 256)]), (hex(address), size)
         cpu = Cpu(memory, 0, 100, 101, 102, check_store)
-        camera = address_of('CameraViewMatrix'); frame_address = address_of('ScreenFrame'); palettes = [address_of('TileFadeColorTable'), address_of('D_8009E36C')]
+        camera = address_of('CameraViewMatrix'); frame_address = address_of('ScreenFrame'); palettes = [address_of('TileFadeColorTable'), address_of('TileRectFlashColors')]
         for kind, name in enumerate(names):
             paths, biases, phases, aliases, shifts, counts, uv_words = (set() for _ in range(7))
             for case in range(CASES):

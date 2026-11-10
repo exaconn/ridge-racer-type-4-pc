@@ -19,7 +19,7 @@ extern short D_800AC1A0;
 extern int NumLaps;
 extern int TotalRaceTime;
 extern int LapTimes[];
-extern char D_8009EE6C[];
+extern char HudSignalLightUv[];
 extern int RaceState;
 
 
@@ -93,7 +93,7 @@ void DrawRaceStartSignalSprite(int a0) {
             a3 = 0x78;
             s0 = &CurrentDrawBuf->buffer.ordering70.words[0];
         }
-        *(int *)SCRATCHPAD = AddDrawModePrim(s0, AddSpritePrim(s0, p, 0x6A, a3, D_8009EE6C, 0x7EF8, 0), 0x3E);
+        *(int *)SCRATCHPAD = AddDrawModePrim(s0, AddSpritePrim(s0, p, 0x6A, a3, HudSignalLightUv, 0x7EF8, 0), 0x3E);
     }
 }
 

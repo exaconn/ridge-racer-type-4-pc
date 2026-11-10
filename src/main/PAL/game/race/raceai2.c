@@ -61,7 +61,7 @@ extern int D_8010C0E0;
 extern char ScreenFadeState;
 extern MenuSettings2C SelectionState;
 extern int TotalRaceTime;
-extern unsigned char D_8009F72C[];
+extern unsigned char GpStageMaxRetryRanks[];
 
 int LinkExchange();
 void LinkWaitModeEnter(void);
@@ -124,7 +124,7 @@ void DrawLinkEntryScreen(s32 mode) {
         DrawBigFontString(44,244,text);
         DrawBigFontString(32,244,SecondsUntilCloseText);
         remaining=(500U-RaceTimeRemaining);
-        DrawBigFontString(((s32)(remaining * 0x100U)/500)+32,224,D_80010674);
+        DrawBigFontString(((s32)(remaining * 0x100U)/500)+32,224,StrLinkProgressBarGlyph);
     }
 }
 
@@ -490,7 +490,7 @@ void EnterRaceResultScreen(void) {
     MenuSettings2C *p;
     if (GameModeType == 1) {
         p = &SelectionState;
-        if (p->result19 > D_8009F72C[p->phase17 / 2]) p->mode1A = 5;
+        if (p->result19 > GpStageMaxRetryRanks[p->phase17 / 2]) p->mode1A = 5;
         else p->mode1A = 4;
     }
     ModeGroup = 1;

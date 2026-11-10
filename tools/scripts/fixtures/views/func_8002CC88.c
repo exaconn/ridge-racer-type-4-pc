@@ -80,13 +80,13 @@ void MulMatrix(Mat8 *, Mat8 *);
 
 void MulMatrix2(Mat8 *, Mat8 *);
 
-extern u8 D_8009F02C[];
+extern u8 CarPartModelIndices[];
 
-extern u8 D_8009F034[];
+extern u8 CarPartRenderModes[];
 
-extern u8 D_8009F03C[];
+extern u8 CarPartTransformIndices[];
 
-extern u8 D_8009F044[];
+extern u8 CarPartMatrixIndices[];
 
 extern s16 LightMatrix[];
 
@@ -182,13 +182,13 @@ void DrawPreviewCar(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     }
 
     for (i = 0; i < 8; i++) {
-        u8 s0_mode = D_8009F034[i];
-        if (s0_mode != 1 || DrawRroModel(&sp158[D_8009F03C[i]], &sp98[D_8009F044[i]], D_8009F02C[i], 0) != s0_mode) {
-            SetGteObjectTransform(0x1F80007C, &sp158[D_8009F03C[i]], &sp98[D_8009F044[i]]);
+        u8 s0_mode = CarPartRenderModes[i];
+        if (s0_mode != 1 || DrawRroModel(&sp158[CarPartTransformIndices[i]], &sp98[CarPartMatrixIndices[i]], CarPartModelIndices[i], 0) != s0_mode) {
+            SetGteObjectTransform(0x1F80007C, &sp158[CarPartTransformIndices[i]], &sp98[CarPartMatrixIndices[i]]);
             *(s32 *)0x1F800078 = 0;
             a1_val = 1;
-            if (D_8009F02C[i] < ModelBankFormat) {
-                a1_val = D_8009F02C[i];
+            if (CarPartModelIndices[i] < ModelBankFormat) {
+                a1_val = CarPartModelIndices[i];
             }
             SubmitModel(0x1F800000, a1_val, i != 0, 0);
         }

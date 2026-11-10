@@ -10,7 +10,7 @@
 #include "rr/audio_cd_controller.h"
 
 extern char VabOpenHeadErrorStr[];
-extern char D_800110F0[];
+extern char VabTransBodyErrorStr[];
 extern s32 D_800F7650;
 
 void SetReverb(int a0, int a1);
@@ -33,7 +33,7 @@ void LoadVab(const VabData *data, s32 mode, s32 bankIndex) {
     transferred = SsVabTransBody(data->samples, (s16)opened);
     SoundState.banks24.ids[bankIndex] = transferred;
     if ((s16)transferred == -1) {
-        DebugPrintStub(D_800110F0);
+        DebugPrintStub(VabTransBodyErrorStr);
         PsyqExit(1);
     }
     SsVabTransCompleted(1);

@@ -20,7 +20,7 @@ extern VectorWords16 D_800A0FC0;
 extern Vec3s8 D_800A0FD0;
 extern int D_800A0FD8;
 extern unsigned char D_800A0DC8[][4];
-extern u16 D_800111FE;
+extern u16 SparkSpriteTexpage;
 extern short *D_800A0F20[];
 extern short *D_800A0F8C[];
 extern short SelectedTeamIndex;
@@ -239,7 +239,7 @@ void DrawHudDigit(s32 a0, s32 a1, s32 a2, s32 a3) {
     p++;
     *(SpritePacketSignedClut **)SCRATCHPAD = p;
     p->len = 1;
-    *((u32 *)p + 1) = (D_800111FE & 0x9FF) | 0xE1000200;
+    *((u32 *)p + 1) = (SparkSpriteTexpage & 0x9FF) | 0xE1000200;
     p->addr = ((SpritePacketSignedClut *)(&CurrentDrawBuf->buffer.ordering70.words[0]))->addr;
     *(u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]) = (*(u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]) & 0xFF000000) | ((u32)p & 0xFFFFFF);
     *(SpritePacketSignedClut **)SCRATCHPAD = (SpritePacketSignedClut *)((u32 *)p + 2);

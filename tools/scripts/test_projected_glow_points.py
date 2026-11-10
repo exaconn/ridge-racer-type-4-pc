@@ -42,7 +42,7 @@ static struct World {
  RroGlowPointCommand input[24];Vec3s8 ring[9];GpuArena gpu;u8 after[16];
 } world,expected;
 #define SCRATCHPAD ((u8*)&world.scratch.scene)
-#define D_8009E124 world.ring
+#define SpotlightConeRingOuter world.ring
 #define WORK world.scratch.work7C
 #define SCENE world.scratch.scene
 static unsigned scenario,commands,events,points;static u32 data[32],control[32],*trace;
@@ -210,7 +210,7 @@ def main():
     owner=source_owners(ROOT/'src/main/PAL')[NAME];body=definition_source(owner.read_text(),NAME)
     pin='register s32 previous __asm__("$15");';assert body.count(pin)==1
     body=body.replace(pin,'s32 previous;');assert '__asm__' not in body and 'volatile' not in body
-    fan=address_of('D_8009E124');entry=address_of(NAME)
+    fan=address_of('SpotlightConeRingOuter');entry=address_of(NAME)
     memory=Uc(UC_ARCH_MIPS,UC_MODE_MIPS32|UC_MODE_LITTLE_ENDIAN);memory.mem_map(0,0x400000);memory.mem_map(SCRATCH,4096)
     write=lambda a,b:memory.mem_write(a&0x1FFFFFFF,bytes(b));read=lambda a,n:bytes(memory.mem_read(a&0x1FFFFFFF,n))
     exe=(ROOT/'assets/PAL/main.exe').read_bytes();base,=struct.unpack_from('<I',exe,0x18);write(base,exe[0x800:])

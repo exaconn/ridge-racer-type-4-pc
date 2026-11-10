@@ -13,7 +13,7 @@ typedef struct {
     HudQuadVertex vertices[4];
 } HudQuadEmission;
 typedef struct {s8 x,y;} HudQuadCorner;
-extern HudQuadCorner D_8009EE38[4];
+extern HudQuadCorner UiBoxCornerOffsets[4];
 #ifndef RR_HUD_QUAD_SCRATCH
 #define RR_HUD_QUAD_SCRATCH ((GpuScratchPointers *)0x1F800000U)
 #endif

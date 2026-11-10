@@ -24,9 +24,9 @@
 typedef struct { int a, b, c, d; } V16;
 
 extern int FlashingLightColorTable[];
-extern GpuRectangleFields D_800101BC;
-extern VectorWords16 D_800101C4;
-extern VectorWords16 D_800101D4;
+extern GpuRectangleFields MenuGridSkyVramRect;
+extern VectorWords16 MenuGridDefaultAngles;
+extern VectorWords16 MenuGridInitialOffset;
 extern VectorWords16 IntroCameraPosKeyframes;
 
 void DrawTrackObjectModel(int a0, int a1);
@@ -252,9 +252,9 @@ void InitIntroSceneLights(void) {
     IntroSceneStatePtr = LoadCursor;
     LoadCursor = (u8 *)LoadCursor + sizeof(*IntroSceneStatePtr);
     SetupRenderer(1);
-    sp18.rect = D_800101BC;
+    sp18.rect = MenuGridSkyVramRect;
     ClearImage2(&sp18, 0, 0, 0);
-    ((ProjectionScratchPrefix *)SCRATCHPAD)->pose08.angles10 = D_800101C4;
+    ((ProjectionScratchPrefix *)SCRATCHPAD)->pose08.angles10 = MenuGridDefaultAngles;
     ((ProjectionScratchPrefix *)SCRATCHPAD)->pose08.position00 = IntroCameraPosKeyframes;
     IntroSceneStatePtr->mat20.w[1] = 0xFAAB;
     IntroSceneStatePtr->mat20.w[2] = 0xFAAB0000;
@@ -337,7 +337,7 @@ void InitIntroSceneLights(void) {
     AllocMenuGridRecords(SharedWorkArena, 1);
     InitMenuGrid(0, 1, 3, 0xB4, 0x60);
     PsyqMemset((u8 *)MenuGridRecords + 0x1C, 0, 0x10);
-    *(VectorWords16 *)&MenuGridRecords->x0C = D_800101D4;
+    *(VectorWords16 *)&MenuGridRecords->x0C = MenuGridInitialOffset;
 }
 
 void BuildScaledCameraMatrices(void)

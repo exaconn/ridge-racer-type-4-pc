@@ -40,7 +40,7 @@ extern s32 ModeFrame;
 extern s16 ModeIndex;
 extern s16 ModeGroup;
 extern u16 SubmodeState;
-extern unsigned char D_8009F810[];
+extern unsigned char ProgressBitMasks[];
 extern unsigned char SelectionState[];
 extern unsigned char D_800AD4EB;
 
@@ -50,7 +50,7 @@ extern s32 VSyncThreshold;
 extern s16 ActiveSceneId;
 extern int SetMenuFrameOptions();
 extern int UpdateCarWorldTransform();
-extern unsigned char D_8009F818[];
+extern unsigned char GpStageShowcaseModes[];
 extern short FadeCountdown;
 extern int D_800F3A60;
 extern void PlaySfx();
@@ -89,7 +89,7 @@ void SelectTeamCarGroup(void) {
     int v;
     if (SelectionState[0x1E] == 0x12) {
         int i = SelectionState[0x1C] * 2 + (SelectionState[0x1D] >> 1);
-        v = D_8009F810[i];
+        v = ProgressBitMasks[i];
     } else {
         v = 1;
     }
@@ -106,7 +106,7 @@ void SelectTeamCarGroup(void) {
 
 void UpdateUnlockedCarMask(void) {
     int i = SelectionState[0x1C] * 2 + (SelectionState[0x1D] >> 1);
-    int v = D_8009F810[i];
+    int v = ProgressBitMasks[i];
     if (v < 0) {
         v = 0;
     } else if (v >= 9) {
@@ -138,7 +138,7 @@ void CarPreviewModeUpdate(void) {
     ModeFrame = (ModeFrame + 1U);
     SetupViewport(6);
     if (SubmodeState == 0) {
-        if (StepCarShowcaseScene(D_8009F818[((MenuSettings2C *)SelectionState)->phase17 / 2]) != 0) {
+        if (StepCarShowcaseScene(GpStageShowcaseModes[((MenuSettings2C *)SelectionState)->phase17 / 2]) != 0) {
             FadeCountdown = 0x40;
             CdAudioFade(0, 0x3C);
             SubmodeState = 1;

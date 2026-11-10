@@ -31,11 +31,11 @@ SpritePacket *DrawBadgeTitleBar(u32 *order,SpritePacket *cursor,s32 x,s32 y,s32 
     y_stage=(s32)((u32)ypos+5U);
     offset=4;
     index=0;
-    descriptor_base=(u8*)D_8009F968;
+    descriptor_base=(u8*)SelectionBarDescriptors;
     selector=(u32)style*sizeof(UiBarDescriptor);
     descriptor=(UiBarDescriptor*)(descriptor_base+selector);
     cursor=AddSpritePrim(ordering,cursor,x_stage,y_stage,
-                       &D_8009F94C[descriptor->glyph],0x7FFB,0);
+                       &SelectionBarGlyphUvs[descriptor->glyph],0x7FFB,0);
     out_order=ordering;
     out_cursor=cursor;
     x_stage=xpos;

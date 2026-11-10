@@ -39,7 +39,7 @@ static struct World {
  CarSlotBufferC8 slot;u8 middle[16];GpuArena gpu[2];s32 fan[18];u8 after[16];
 } world,expected;
 #define SCRATCHPAD ((u8*)&world.scratch.scene)
-#define D_8009E0E0 world.fan
+#define SpotlightConeRingInner world.fan
 static unsigned scenario,events,commands;
 static u32 data[32],control[32],*trace;
 static const s32 depths[]={-32768,-1,0,1,4,92,104,112,120,1788,1792,32767,1787,1791,1793,16384};
@@ -183,7 +183,7 @@ def main():
     owner = source_owners(ROOT/'src/main/PAL')['DrawGlowFan']
     body = definition_source(owner.read_text(), 'DrawGlowFan')
     assert '__asm__' not in body and 'volatile' not in body
-    fan_address = address_of('D_8009E0E0')
+    fan_address = address_of('SpotlightConeRingInner')
     with TemporaryDirectory() as directory:
         source, library = Path(directory)/'native.c', Path(directory)/'native.dylib'
         prefix = PREFIX.replace('FAN_ADDRESS', hex(fan_address)+'U')

@@ -49,7 +49,7 @@ static struct {u8 before[16];u32 words[256];u8 after[16];} scratch;
 RaceVehicle *CarTable[8];
 short NumCars;
 unsigned short CourseIndex;
-u8 D_8009F7E0[4];
+u8 CourseStartSteeringBias[4];
 static unsigned scenario,events;
 static u8 *trace;
 static const s32 sines[]={-4096,-3072,-1,0,1,3072,4096};
@@ -72,7 +72,7 @@ static void snapshot(u8 *out) {
         assert(j<11);word=stageAddresses[j];memcpy(out+4528+i*4,&word,4);
     }
     memcpy(out+4574,&CourseIndex,2);
-    memcpy(out+4576,D_8009F7E0,4);
+    memcpy(out+4576,CourseStartSteeringBias,4);
     memcpy(out+4572,&NumCars,2);
 }
 static unsigned record(u32 kind,u32 a,u32 b) {
@@ -138,7 +138,7 @@ void run_case(unsigned number,u32 mode,const u8 *input,u8 *output) {
     for(i=0;i<8;i++)CarTable[i]=car((number+i)%3);
     for(i=0;i<11;i++)CarUpdateStages[i]=handlers[i];
     NumCars=(s16)((number>>2)%4);CourseIndex=(u16)((number>>4)%(number<2048?6:8));
-    memcpy(D_8009F7E0,input+4576,4);
+    memcpy(CourseStartSteeringBias,input+4576,4);
     assert(sizeof(void*)==8&&(uintptr_t)SCRATCHPAD>UINT32_MAX);
     for(i=0;i<3;i++) {
         assert((uintptr_t)car(i)>UINT32_MAX);
@@ -207,7 +207,7 @@ def main():
         read = lambda address, size: bytes(memory.mem_read(address & 0x1FFFFFFF, size))
         put = lambda address, value, size=4: write(address, (value & ((1 << (8*size))-1)).to_bytes(size, 'little'))
         write(base, executable[0x800:])  # Includes the real race-mode jump table.
-        count, course, friction, car_table = map(address_of, ('NumCars', 'CourseIndex', 'D_8009F7E0', 'CarTable'))
+        count, course, friction, car_table = map(address_of, ('NumCars', 'CourseIndex', 'CourseStartSteeringBias', 'CarTable'))
         def snapshot():
             return (b''.join(read(a, 800) for a in cars)+read(SCRATCH, 1024)+
                     b''.join(read(a, 0x218) for a in RECORDS)+read(car_table, 32)+

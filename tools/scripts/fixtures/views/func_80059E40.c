@@ -20,15 +20,15 @@ extern void EmitIconSpriteRow128(s32, u8);
 
 extern void PsyqSprintf(char *, const char *, s32);
 
-extern const char D_80011228[];
+extern const char StrOpeningIn[];
 
-extern const char D_8001122C[];
+extern const char StrOpeningBacktick[];
 
-extern const char D_80011230[];
+extern const char StrOpeningApostrophe[];
 
 extern const char StrFmtTwoDigitsOpening[];
 
-extern const char D_8001123C[];
+extern const char StrRandomPlay[];
 
 extern char CdTrackTitleStrings[];
 
@@ -154,10 +154,10 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
         DrawGlyphList(OpeningStageGlyphLists[s2], sp18[2], 0);
         DrawGlyphListSloped(OpeningAttemptGlyphLists[OpeningAttemptIndex], sp18[2], 0);
         EmitIconSpriteRow128(0, sp18[3]);
-        DrawFontString(0x9A, 0xA0, D_80011228, sp18[4], 0);
+        DrawFontString(0x9A, 0xA0, StrOpeningIn, sp18[4], 0);
         s0_1 = DrawFontStringCentered(0x60, 0xB0, CourseNames + CourseIndex * 0x18, sp18[4], 0) / 2;
-        DrawFontString(0x9A - s0_1, 0xB0, D_8001122C, sp18[4], 0);
-        DrawFontString(0xA2 + s0_1, 0xB0, D_80011230, sp18[4], 0);
+        DrawFontString(0x9A - s0_1, 0xB0, StrOpeningBacktick, sp18[4], 0);
+        DrawFontString(0xA2 + s0_1, 0xB0, StrOpeningApostrophe, sp18[4], 0);
         AddSetTexpagePrim(0);
 
         if (sp18[5] >= 0x80) {
@@ -197,7 +197,7 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
         DrawFontString(0x5A, 0xC8, sp30, sp18[5], 0);
         AddBrightnessSprite(D_800A1A60 + 0xC, 0x6C, 0xC8, sp18[5]);
         if (SoundState.w28a4 <= 0) {
-            DrawFontString(0x78, 0xC8, D_8001123C, sp18[5], 0);
+            DrawFontString(0x78, 0xC8, StrRandomPlay, sp18[5], 0);
         } else {
             DrawFontString(0x78, 0xC8, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.w28a4 - 1] << 5), sp18[5], 0);
         }
@@ -259,10 +259,10 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
             AddLineF2Prim(sp50, sp58, 1, 0);
         }
 
-        DrawFontString(0x9A, 0x48, D_80011228, sp18[2], 0);
+        DrawFontString(0x9A, 0x48, StrOpeningIn, sp18[2], 0);
         s0_2 = DrawFontStringCentered(0x60, 0x58, CourseNames + CourseIndex * 0x18, sp18[2], 0) / 2;
-        DrawFontString(0x9A - s0_2, 0x58, D_8001122C, sp18[2], 0);
-        DrawFontString(0xA2 + s0_2, 0x58, D_80011230, sp18[2], 0);
+        DrawFontString(0x9A - s0_2, 0x58, StrOpeningBacktick, sp18[2], 0);
+        DrawFontString(0xA2 + s0_2, 0x58, StrOpeningApostrophe, sp18[2], 0);
         AddSetTexpagePrim(0);
 
         if (s2 < 3) {
@@ -301,7 +301,7 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
             if (SoundState.w28a4 > 0) {
                 DrawFontString(0x78, 0xC8, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.w28a4 - 1] << 5), sp18[5], 0);
             } else {
-                DrawFontString(0x78, 0xC8, D_8001123C, sp18[5], 0);
+                DrawFontString(0x78, 0xC8, StrRandomPlay, sp18[5], 0);
             }
         } else {
             s0_3 = 0x88 - DrawFontStringCenteredOffset(0x14, 0xC8, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.w28a4 - 1] << 5), sp18[5], 0) / 2;

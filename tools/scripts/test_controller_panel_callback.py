@@ -62,10 +62,10 @@ static const s16 layoutEdges[]={INT16_MIN,INT16_MIN+1,-65,-1,0,1,65,INT16_MAX};
 #define BadgeRows live.root
 #define Options live.settings.value
 #define PlayerControllers live.controllers.values
-#define D_8009FBEC live.glyph.value
+#define MenuStepArrowUv live.glyph.value
 #define D_800F4CB8 live.counter.value
 /* The original table contains15 entries; slot12 names this resident callback. */
-PanelDraw D_8009F984[15]={[12]=DrawControllerConfigPanel};
+PanelDraw UiRowDrawHandlers[15]={[12]=DrawControllerConfigPanel};
 static u32 next(u32 *seed){u32 n=*seed;n^=n<<13;n^=n>>17;n^=n<<5;return *seed=n;}
 static s16 signed16(const void *p){s16 n;memcpy(&n,p,2);return n;}
 static s32 signed32(const void *p){s32 n;memcpy(&n,p,4);return n;}
@@ -95,7 +95,7 @@ static void mutate(void){
   Options.config.p[i].buttonLayout0C=layoutEdges[(scenario+n+i+3)%8];
   Options.config.w[i].buttonLayout03=(s8)(scenario*37U+n+i);
  }
- for(unsigned i=0;i<4;i++)((u8*)&D_8009FBEC)[i]=(u8)(scenario*73U+n*17U+i);
+ for(unsigned i=0;i<4;i++)((u8*)&MenuStepArrowUv)[i]=(u8)(scenario*73U+n*17U+i);
  D_800F4CB8=selectors[(scenario+n)%10];
  live.heads.values[n%4]^=scenario*0x9E3779B9U+n;
  live.rows[n%2].values[(scenario+n)%6].x04=(s16)(scenario+n*37U);
@@ -140,9 +140,9 @@ static void *referenceCallback(u32 *ordering,void *packet,s32 row){
  else if(protocol==2){s8 n;memcpy(&n,settings+43U+controller*4U,1);layout=n;}
  else layout=signed16(settings+controller*4U);
  for(unsigned i=0;i<8;i++)if(layout==layoutEdges[i])layoutEdgeSeen[i]++;
- void *next=AddSpritePrim(ordering,packet,x,y,&D_8009FBEC,32760,0);
+ void *next=AddSpritePrim(ordering,packet,x,y,&MenuStepArrowUv,32760,0);
  char text[8]={0};text[0]=(char)(u8)((u32)layout+65U);
- next=AddTextSprites(ordering,next,x+2+((const u8*)&D_8009FBEC)[2],y,text,32760,0,0);
+ next=AddTextSprites(ordering,next,x+2+((const u8*)&MenuStepArrowUv)[2],y,text,32760,0,0);
  return AddDrawModePrim(ordering,next,56);
 }
 static void referenceApply(void){
@@ -171,14 +171,14 @@ static void initialize(unsigned n){
 }
 static u32 run(unsigned reference){
  if(kind){if(reference)referenceApply();else ApplyOptionsPadButtonMaps();return 0;}
- assert(D_8009F984[12]==DrawControllerConfigPanel);
- void *p=reference?referenceCallback(head(),cursor(),rowIndex):D_8009F984[12](head(),cursor(),rowIndex);
+ assert(UiRowDrawHandlers[12]==DrawControllerConfigPanel);
+ void *p=reference?referenceCallback(head(),cursor(),rowIndex):UiRowDrawHandlers[12](head(),cursor(),rowIndex);
  assert((uintptr_t)p>UINT32_MAX);return pointer(p);
 }
 unsigned exercise_native(void){
  _Static_assert(sizeof(RuntimeSettings)==64&&sizeof(ControllerState5C)==92,"actual settings/controller owners");
  _Static_assert(sizeof(World)==1920&&offsetof(World,root)==PREFIX_SIZE,"complete native world and pointer");
- _Static_assert(sizeof(D_8009F984)==15*sizeof(PanelDraw)&&sizeof(PanelDraw)==sizeof(void*),"full-width callback slots");
+ _Static_assert(sizeof(UiRowDrawHandlers)==15*sizeof(PanelDraw)&&sizeof(PanelDraw)==sizeof(void*),"full-width callback slots");
  for(unsigned n=0;n<65536;n++){
   initialize(n);assert((uintptr_t)BadgeRows>UINT32_MAX&&(uintptr_t)head()>UINT32_MAX&&(uintptr_t)cursor()>UINT32_MAX);
   capture=&expected;capture->count=0;capture->result=run(1);memcpy(&capture->final,&live,sizeof(live));
@@ -207,10 +207,10 @@ class ControllerPanelCallbackTest(unittest.TestCase):
         owners = source_owners(ROOT/'src/main/PAL')
         bodies = '\n'.join(definition_source(owners[name].read_text(), name) for name in NAMES)
         prefix = PREFIX
-        for token, name in [('OPTIONS', 'Options'), ('CONTROLLERS', 'PlayerControllers'), ('GLYPH', 'D_8009FBEC'), ('COUNTER', 'D_800F4CB8')]:
+        for token, name in [('OPTIONS', 'Options'), ('CONTROLLERS', 'PlayerControllers'), ('GLYPH', 'MenuStepArrowUv'), ('COUNTER', 'D_800F4CB8')]:
             prefix = prefix.replace('@'+token+'@', hex(address_of(name))+'U')
         original = (ROOT/'assets/PAL/main.exe').read_bytes();base = struct.unpack_from('<I', original, 24)[0]
-        self.assertEqual(struct.unpack_from('<I', original, 0x800+address_of('D_8009F984')+12*4-base)[0], address_of(NAMES[0]))
+        self.assertEqual(struct.unpack_from('<I', original, 0x800+address_of('UiRowDrawHandlers')+12*4-base)[0], address_of(NAMES[0]))
         with TemporaryDirectory() as temporary:
             source, library = Path(temporary)/'native.c', Path(temporary)/'native.dylib'
             source.write_text(prefix+bodies+REFERENCE)
@@ -244,7 +244,7 @@ class ControllerPanelCallbackTest(unittest.TestCase):
             self.assertEqual(inputs.hexdigest(), '660409268dced5504fa0c2014e740673adff683483a6248b0900f2098967fcad')
             self.assertEqual(traces.hexdigest(), 'bf425ec1ed0df5b88c2ca83be240c24e5f7cb83a7d0f36ec44e99c72b2c773d5')
             regions = [(0x80180000, 200), (0x80181000, 200), (address_of('Options')-16, 96),
-                       (address_of('PlayerControllers')-16, 208), (address_of('D_8009FBEC')-16, 36),
+                       (address_of('PlayerControllers')-16, 208), (address_of('MenuStepArrowUv')-16, 36),
                        (address_of('D_800F4CB8')-16, 36), (0x80190000, 48), (0x801A0000, 544),
                        (0x801B0000, 544), (address_of('BadgeRows'), 4)]
             self.assertEqual(sum(n for _, n in regions), 1916)

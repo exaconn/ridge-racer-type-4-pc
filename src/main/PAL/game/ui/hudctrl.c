@@ -43,7 +43,7 @@ void DrawRaceMinimap(s32 arg0) {
     var_a1 = RR_HUD_SCRATCH->cursor;
     var_s0 = 0;
     if (NumCars > 0) {
-        s32 yBase;UiUvRect *const glyph=&D_8009EE58;
+        s32 yBase;UiUvRect *const glyph=&HudCheckeredFlagUv;
         do {
             temp_hi = (var_s2 + var_s0) % (s16) NumCars;
             temp_a0 = CarTable[temp_hi];
@@ -109,7 +109,7 @@ void DrawSteeringIndicator(u32 *ordering, s32 layout) {
     status = input->protocol10;
     if (status == 2) {
         if (input->edges08.fields.pressed & 0x100) {
-            toggle = (u16 *)&D_8009EE68[player];
+            toggle = (u16 *)&HudLapFlashToggles[player];
             *toggle ^= 1;
         }
         i = GetControllerWarning(player);
@@ -123,7 +123,7 @@ void DrawSteeringIndicator(u32 *ordering, s32 layout) {
             }
         }
         i = 0;
-        if (D_8009EE68[player] != 0) {
+        if (HudLapFlashToggles[player] != 0) {
             cursor = RR_HUD_SCRATCH->cursor;
             widthBase = 2;
             heightBase = 6;
@@ -147,7 +147,7 @@ void DrawSteeringIndicator(u32 *ordering, s32 layout) {
 drawNeedle:
                 i = 0;
             }
-            shapeBase = D_8009EE5C;
+            shapeBase = HudRotatingQuadVerts;
             shapeOffset = 1;
             outputPoint = triangle.half;
             shapeX = shapeBase;
@@ -161,7 +161,7 @@ drawNeedle:
                 outputPoint[1] = (s16) ((s8) *shapeY + baselineY + 5);
                 outputPoint += 2;
             } while (i < 3);
-            RR_HUD_SCRATCH->cursor = (u8 *)EmitPolyF3(ordering, cursor, triangle.word[0], triangle.word[1], triangle.word[2], D_8009EE64, 0);
+            RR_HUD_SCRATCH->cursor = (u8 *)EmitPolyF3(ordering, cursor, triangle.word[0], triangle.word[1], triangle.word[2], HudIndicatorTriColor, 0);
         }
     }
 }

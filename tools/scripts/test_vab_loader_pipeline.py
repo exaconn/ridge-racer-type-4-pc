@@ -44,7 +44,7 @@ VabData VabLoadArgs;
 char *RaceLoadCursor;
 s32 RaceLoadStepIndex, RaceLoadState;
 VabLoadConfig D_800A0228[4];
-char VabOpenHeadErrorStr[64],D_800110F0[64];
+char VabOpenHeadErrorStr[64],VabTransBodyErrorStr[64];
 typedef uint64_t (*Observer)(u32,const uintptr_t *);
 static Observer observer;
 static jmp_buf exit_context;
@@ -131,11 +131,11 @@ s32 invoke_vab(u32 caller,char *header,s32 mode,s32 bank,s32 *result){
         cls.phase=C.c_int32.in_dll(cls.library,'RaceLoadStepIndex')
         cls.load_state=C.c_int32.in_dll(cls.library,'RaceLoadState')
         cls.table=(Config*4).in_dll(cls.library,'D_800A0228')
-        cls.messages=[(C.c_ubyte*64).in_dll(cls.library,n)for n in ('VabOpenHeadErrorStr','D_800110F0')]
+        cls.messages=[(C.c_ubyte*64).in_dll(cls.library,n)for n in ('VabOpenHeadErrorStr','VabTransBodyErrorStr')]
         cls.payload=[(C.c_uint16*128)()for _ in range(3)]
         cls.native_map=[(C.addressof(cls.audio),address_of('SoundState'),AUDIO_SIZE)]
         cls.native_map += [(C.addressof(p),a,256)for p,a in zip(cls.payload,PAYLOADS)]
-        cls.native_map += [(C.addressof(p),address_of(n),64)for p,n in zip(cls.messages,('VabOpenHeadErrorStr','D_800110F0'))]
+        cls.native_map += [(C.addressof(p),address_of(n),64)for p,n in zip(cls.messages,('VabOpenHeadErrorStr','VabTransBodyErrorStr'))]
         if not all(n>0xFFFFFFFF for n,_,_ in cls.native_map):raise AssertionError('Native owners were not allocated above 4 GiB')
 
     def machines(self):
@@ -272,7 +272,7 @@ s32 invoke_vab(u32 caller,char *header,s32 mode,s32 bank,s32 *result){
             except BaseException as error:errors.append(error);return 0
         callback=callback_type(observe);self.library.set_observer.argtypes=[callback_type];self.library.set_observer(callback)
         image=(ROOT/'assets/PAL/main.exe').read_bytes();base=struct.unpack_from('<I',image,24)[0]
-        for obj,name in zip(self.messages,('VabOpenHeadErrorStr','D_800110F0')):
+        for obj,name in zip(self.messages,('VabOpenHeadErrorStr','VabTransBodyErrorStr')):
             at=0x800+address_of(name)-base;C.memmove(C.addressof(obj),image[at:at+64],64)
         coverage=set()
         for linked,cpu in self.machines():

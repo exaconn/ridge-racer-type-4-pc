@@ -50,10 +50,10 @@ static unsigned branches[7],services[4],mutations[2],orders[4],races[2],modes[2]
 static const s32 times[]={INT32_MIN,INT32_MIN+74,INT32_MIN+75,-1000000,-100,-76,-75,-74,-26,-25,-24,-1,0,1,24,25,49,50,51,74,75,76,81,82,99,100,101,124,125,149,150,174,175,199,200,224,225,249,250,251,INT32_MAX};
 static const s32 raceValues[]={0,1,-1,INT32_MIN,INT32_MAX};
 static const s16 modeValues[]={1,0,2,-1,INT16_MIN,INT16_MAX};
-#define D_8009F6AC (live.rom.glyphs)
-#define D_8009F6CC (live.rom.background)
-#define D_8009F6D0 (live.rom.palettes)
-#define D_8009F6D8 (live.rom.offsets)
+#define PauseMenuLabelUvs (live.rom.glyphs)
+#define PauseTitleClutIds (live.rom.background)
+#define PauseRowClutIds (live.rom.palettes)
+#define PauseRowOffsetX (live.rom.offsets)
 #define RaceState (live.race.value)
 #define GameModeType (live.mode.value)
 #define SCRATCHPAD (&scratch)
@@ -111,7 +111,7 @@ void *AddDrawAreaPrim(u32 *head,void *cursor,s32 x,s32 y,s32 width,s32 height){
 void *AddDrawModePrim(u32 *head,GpuDrawModePacket *packet,u16 page){Event *e=begin(2,head,packet);e->args[2]=page;return finish(e,0);}
 void *AddSpritePrim(u32 *head,void *cursor,s32 x,s32 y,UiUvRect *uv,u16 clut,s32 flags){
  Event *e=begin(3,head,cursor);e->args[2]=x;e->args[3]=y;
- uintptr_t q=(uintptr_t)uv,b=(uintptr_t)D_8009F6AC;
+ uintptr_t q=(uintptr_t)uv,b=(uintptr_t)PauseMenuLabelUvs;
  e->args[4]=q>=b&&q<b+32?pointer(uv):0;memcpy(e->uv,uv,4);e->args[5]=clut;e->args[6]=flags;return finish(e,uv);
 }
 '''
@@ -128,26 +128,26 @@ static void reference(void){
  s32 intensity=phase==1?tick*64/25+64:phase>=5?128:phase>=4?164:phase<=0?1:128;
  unsigned palette=0;UiUvRect glyph;
  if(GameModeType==1){
-  if(phase>=4){palette=((inputFrame>>2)&1)+2;glyph=D_8009F6AC[7];cursor=AddSpritePrim(head,cursor,D_8009F6D8[3]+96,top+57,&glyph,D_8009F6D0[palette],0);}
+  if(phase>=4){palette=((inputFrame>>2)&1)+2;glyph=PauseMenuLabelUvs[7];cursor=AddSpritePrim(head,cursor,PauseRowOffsetX[3]+96,top+57,&glyph,PauseRowClutIds[palette],0);}
   else if(phase>0){
-   s32 offset=0;for(int i=0;i<16&&i<=tick-7;i++){unsigned parity=i&1;cursor=AddSpritePrim(head,cursor,offset+120,top+57,&D_8009F6AC[2+parity],D_8009F6D0[parity*2],0);offset+=1<<(parity*2+1);}
-   glyph=D_8009F6AC[6];glyph.u+=(phase-1)*12;cursor=AddSpritePrim(head,cursor,D_8009F6D8[2]+96,top+57,&glyph,D_8009F6D0[0],0);
+   s32 offset=0;for(int i=0;i<16&&i<=tick-7;i++){unsigned parity=i&1;cursor=AddSpritePrim(head,cursor,offset+120,top+57,&PauseMenuLabelUvs[2+parity],PauseRowClutIds[parity*2],0);offset+=1<<(parity*2+1);}
+   glyph=PauseMenuLabelUvs[6];glyph.u+=(phase-1)*12;cursor=AddSpritePrim(head,cursor,PauseRowOffsetX[2]+96,top+57,&glyph,PauseRowClutIds[0],0);
   }
  }else if(phase==0){
-  s32 offset=0;for(int i=0;i<16&&i<=tick-6;i++){unsigned parity=i&1;cursor=AddSpritePrim(head,cursor,offset+120,top+57,&D_8009F6AC[2+parity],D_8009F6D0[parity*2],0);offset+=1<<(parity*2+1);}
+  s32 offset=0;for(int i=0;i<16&&i<=tick-6;i++){unsigned parity=i&1;cursor=AddSpritePrim(head,cursor,offset+120,top+57,&PauseMenuLabelUvs[2+parity],PauseRowClutIds[parity*2],0);offset+=1<<(parity*2+1);}
  }else if(phase>=4){
-  palette=((inputFrame>>2)&1)+2;glyph=D_8009F6AC[5];glyph.u+=96;
-  cursor=AddSpritePrim(head,cursor,D_8009F6D8[0]+96,top+57,&glyph,D_8009F6D0[palette],0);
-  cursor=AddSpritePrim(head,cursor,D_8009F6D8[1]+96,top+57,&glyph,D_8009F6D0[palette],0);
-  glyph=D_8009F6AC[7];cursor=AddSpritePrim(head,cursor,D_8009F6D8[3]+96,top+57,&glyph,D_8009F6D0[palette],0);
+  palette=((inputFrame>>2)&1)+2;glyph=PauseMenuLabelUvs[5];glyph.u+=96;
+  cursor=AddSpritePrim(head,cursor,PauseRowOffsetX[0]+96,top+57,&glyph,PauseRowClutIds[palette],0);
+  cursor=AddSpritePrim(head,cursor,PauseRowOffsetX[1]+96,top+57,&glyph,PauseRowClutIds[palette],0);
+  glyph=PauseMenuLabelUvs[7];cursor=AddSpritePrim(head,cursor,PauseRowOffsetX[3]+96,top+57,&glyph,PauseRowClutIds[palette],0);
  }else{
-  glyph=D_8009F6AC[5];glyph.u+=tick*9/25*12;cursor=AddSpritePrim(head,cursor,D_8009F6D8[0]+96,top+57,&glyph,D_8009F6D0[0],0);
-  glyph.u=D_8009F6AC[5].u+phase*24;cursor=AddSpritePrim(head,cursor,D_8009F6D8[1]+96,top+57,&glyph,D_8009F6D0[0],0);
-  glyph=D_8009F6AC[6];glyph.u+=(phase-1)*12;cursor=AddSpritePrim(head,cursor,D_8009F6D8[2]+96,top+57,&glyph,D_8009F6D0[0],0);
+  glyph=PauseMenuLabelUvs[5];glyph.u+=tick*9/25*12;cursor=AddSpritePrim(head,cursor,PauseRowOffsetX[0]+96,top+57,&glyph,PauseRowClutIds[0],0);
+  glyph.u=PauseMenuLabelUvs[5].u+phase*24;cursor=AddSpritePrim(head,cursor,PauseRowOffsetX[1]+96,top+57,&glyph,PauseRowClutIds[0],0);
+  glyph=PauseMenuLabelUvs[6];glyph.u+=(phase-1)*12;cursor=AddSpritePrim(head,cursor,PauseRowOffsetX[2]+96,top+57,&glyph,PauseRowClutIds[0],0);
  }
- if(phase>0)for(int i=0;i<10;i++)cursor=AddSpritePrim(head,cursor,120+i*8,top+57,&D_8009F6AC[4],D_8009F6D0[i>=3&&i<7?3:palette],0);
- cursor=AddSpritePrim(head,cursor,104,top+26,&D_8009F6AC[1],D_8009F6CC[phase>=4],intensity*2+1);
- cursor=AddSpritePrim(head,cursor,96,top,&D_8009F6AC[0],0x797C,0);
+ if(phase>0)for(int i=0;i<10;i++)cursor=AddSpritePrim(head,cursor,120+i*8,top+57,&PauseMenuLabelUvs[4],PauseRowClutIds[i>=3&&i<7?3:palette],0);
+ cursor=AddSpritePrim(head,cursor,104,top+26,&PauseMenuLabelUvs[1],PauseTitleClutIds[phase>=4],intensity*2+1);
+ cursor=AddSpritePrim(head,cursor,96,top,&PauseMenuLabelUvs[0],0x797C,0);
  scratch.cursor=AddDrawModePrim(head,(GpuDrawModePacket *)cursor,63);
  if(head==CurrentDrawBuf->buffer.secondaryOrderingB70.words){s32 height=phase==6?(25-tick)*24/25:24;scratch.cursor=AddDrawAreaPrim(head,scratch.cursor,112,top+(24-height)/2+52,96,height);}
 }

@@ -7,7 +7,7 @@
 #include "psyq/libgpu/settrans.h"
 #include "rr/player_status.h"
 
-extern unsigned char D_8009EDF8[];
+extern unsigned char SmallFontGlyphAdvances[];
 
 void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation);
 
@@ -86,9 +86,9 @@ void *AddTextSprites(u32 *ordering, void *cursor, s32 screenX, s32 screenY,
             }
             if (spacing == 1) {
                 margin = 2;
-                screenX = screenX + margin + D_8009EDF8[((tileU / 8) + ((tileV / 16) * 32)) % 54];
+                screenX = screenX + margin + SmallFontGlyphAdvances[((tileU / 8) + ((tileV / 16) * 32)) % 54];
             } else if (spacing == 2) {
-                u32 advance = D_8009EDF8[((tileU / 8) + ((tileV / 16) * 32)) % 54];
+                u32 advance = SmallFontGlyphAdvances[((tileU / 8) + ((tileV / 16) * 32)) % 54];
                 screenX += advance;
             } else {
                 screenX += 6U;

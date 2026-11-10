@@ -29,7 +29,7 @@ extern int D_800F3A60;
 extern int D_800F4D74;
 extern BadgeRow1C *BadgeRows;
 extern int DialogueSceneMode;
-extern char D_8009F648[];
+extern char SaveSlotPanelSpriteUv[];
 
 void YesNoPromptModeUpdate(void);
 
@@ -112,5 +112,5 @@ void DrawDialogueContinueMark(int a0, int a1) {
     v += 0x7F;
   }
   new_var = *((void **) SCRATCHPAD);
-  *((void **) SCRATCHPAD) = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], new_var, a0, a1, D_8009F648, 0x1B56, ((v >> 7) + 0x80) * 2), 0x25);
+  *((void **) SCRATCHPAD) = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], new_var, a0, a1, SaveSlotPanelSpriteUv, 0x1B56, ((v >> 7) + 0x80) * 2), 0x25);
 }

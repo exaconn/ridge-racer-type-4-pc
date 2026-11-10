@@ -44,8 +44,8 @@ extern s32 CdFileSyncResult;
 extern CdLocation CdFileLocation;
 extern u8 D_80109498;
 extern CdFileEntry CdFileTable[];
-extern unsigned char D_8009DFD8[];
-extern unsigned char D_8009DFEC[];
+extern unsigned char CarModelCategoryOffsets[];
+extern unsigned char CarModelFileIndexTable[];
 extern int SceneLoadState;
 extern int D_8010943C;
 extern int D_8010BF60;
@@ -58,7 +58,7 @@ extern int D_80109454;
 void DrawSync(s32);
 extern s32 CarOffsetTables[];
 extern short CourseIndex;
-extern short D_8009E02C[];
+extern short LoadingTriangleBaseVerts[];
 extern short D_800ABED6[];
 extern short D_800ABEDC[];
 
@@ -398,13 +398,13 @@ int ApplyCarWheelTexturePatch(int a0, int a1, int a2, int a3, int a4)
     sp = (short *)(SCRATCHPAD + 0x7C);
     if (a0 == 2 && b1 == 0 && a2 == 0x13)
         return 0x13;
-    t = D_8009DFEC[b1 * 16 + a3];
+    t = CarModelFileIndexTable[b1 * 16 + a3];
     /* ASM_BARRIER: forces copy t->a (original addu a0,v1,zero) */
     __asm__("" : "=r"(a) : "0"(t));
     xx = (t & 7) * 0x10 + 0x340; x = xx;
     if (t < 0) a = t + 7;
     a >>= 3;
-    c = D_8009DFD8[a2];
+    c = CarModelCategoryOffsets[a2];
     b16 = a << 4; b = b16 + (a << 2);
     if (c >= 4) {
         if (c >= 7)
@@ -752,7 +752,7 @@ int ComputeCarSurfaceLighting(char *a0_in, int a1_in) {
     __asm__ ("" : "+r"(v0) : "r"(a0));
     a0 &= 7;
     v1 = ((short *)v0)[0x3914 / 2];
-    v0 = D_8009E02C;
+    v0 = LoadingTriangleBaseVerts;
     a2 <<= 1;
     a1 <<= 1;
     a0 <<= 1;

@@ -20,13 +20,13 @@
 
 typedef struct { unsigned short s[6]; unsigned char b0, b1, reserved[2]; } ImagePreset10;
 
-extern const char D_80010924[];
-extern const char D_80010928[];
+extern const char StrDigitOne[];
+extern const char StrDigitTwo[];
 extern const char StrPleaseWait[];
 extern UiUvRect UiFontGlyphs[];
-extern UiUvRect D_8009FB80[];
-extern UiUvRect D_8009FC0C[];
-extern s8 D_8009FC14[][4];
+extern UiUvRect SaveSlotStatusUvs[];
+extern UiUvRect SaveSlotTrophyUvs[];
+extern s8 SaveSlotStageTrophyMap[][4];
 extern s8 D_8009FC7C[][8];
 extern UiUvRect D_8009FCDC[];
 extern s8 D_8009FD00[];
@@ -38,7 +38,7 @@ extern u8 SaveProgress[];
 extern s32 NumLaps;
 extern s32 D_80119754;
 extern s32 D_80119758;
-extern ImagePreset10 D_8009F9FC[];
+extern ImagePreset10 PreviewImageRowPresets[];
 extern int EmitPolyFT3();
 
 void DrawImageRow(int a0, int a1, int a2, int a3);
@@ -178,7 +178,7 @@ s32 DrawUiRow(s32 arg0) {
             s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, &base_0[sp34], fp | 0x7FF8, s2);
             if (s6 != 0) {
                 for (s1 = 0; s1 < 2; s1++) {
-                    s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4 + 0x1E + s1 * 0x16, s7 + 8, &D_8009FC0C[s1], 0x7FF8, 0);
+                    s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4 + 0x1E + s1 * 0x16, s7 + 8, &SaveSlotTrophyUvs[s1], 0x7FF8, 0);
                     if (s1 == 0) {
                         D_8009FD00[0] = s0 / 10;
                     } else {
@@ -196,7 +196,7 @@ s32 DrawUiRow(s32 arg0) {
     case 8:
     case 9:
         for (s1 = 0; s1 < 4; s1++) {
-            s0 = D_8009FC14[sp34][s1];
+            s0 = SaveSlotStageTrophyMap[sp34][s1];
             if (s0 == -1) {
                 break;
             }
@@ -212,7 +212,7 @@ s32 DrawUiRow(s32 arg0) {
             }
             s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
         } else if ((s6 - 8) < 2U) {
-            s3 = AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, (s6 == 8) ? D_80010924 : D_80010928, fp | 0x7FF8, 0, s2);
+            s3 = AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, (s6 == 8) ? StrDigitOne : StrDigitTwo, fp | 0x7FF8, 0, s2);
         }
         break;
     case 2:
@@ -255,8 +255,8 @@ s32 DrawUiRow(s32 arg0) {
         break;
     case 10:
     case 11:
-        s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, &D_8009FB80[0], 0x7FF8, 0);
-        s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4 + 0x44, s7 + 8, &D_8009FB80[1], 0x7FF8, 0);
+        s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, &SaveSlotStatusUvs[0], 0x7FF8, 0);
+        s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4 + 0x44, s7 + 8, &SaveSlotStatusUvs[1], 0x7FF8, 0);
         if (s6 == 10) {
             s0 = D_80119754;
         } else {
@@ -350,7 +350,7 @@ void InitImageRow(int i, int a, int b, int j) {
         ImageRows[i].f1 = a;
         ImageRows[i].f3 = b;
         p = (ImageRow20 *)(i * sizeof(ImageRow20) + (unsigned long)ImageRows);
-        q = &D_8009F9FC[j];
+        q = &PreviewImageRowPresets[j];
         p->geom.s[0] = q->s[0];
         p->geom.s[1] = q->s[1];
         p->geom.s[2] = q->s[2];

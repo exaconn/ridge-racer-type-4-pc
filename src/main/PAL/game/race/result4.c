@@ -35,8 +35,8 @@ typedef struct {
     int x18;
 } GlyphRow1C;
 
-extern unsigned char D_8009F730[];
-extern unsigned char D_8009F790[];
+extern unsigned char ResultMenuRowTable[];
+extern unsigned char ResultMenuTableIndices[];
 extern unsigned short SelectedCourseChoice;
 extern int ModeFrame;
 #include "rr/menu_arena_base.h"
@@ -109,7 +109,7 @@ void DrawResultsStandingsOverlay(int a0) {
       switch (d)
       {
         case 1:
-          s2 = D_8009F790[(D_800AD4EF * 2) + s1];
+          s2 = ResultMenuTableIndices[(D_800AD4EF * 2) + s1];
           break;
 
         case 0:
@@ -143,7 +143,7 @@ void DrawResultsStandingsOverlay(int a0) {
       int t = s2 + 1;
       s2 = t + (SelectedCourseChoice & 7);
     }
-    p = D_8009F730 + (s2 * 4);
+    p = ResultMenuRowTable + (s2 * 4);
     a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s3, 0x48, p, 0x263A, (s4 + 1) * 2);
     u = s3 + 2;
     s3 = u + p[2];
@@ -168,7 +168,7 @@ void DrawResultsStandingsOverlay(int a0) {
   s1 = 0;
   if (s0 != 0)
   {
-    base = D_8009F730;
+    base = ResultMenuRowTable;
     do
     {
       new_var = s3 - 2;

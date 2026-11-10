@@ -61,12 +61,12 @@ extern short MenuScriptId;
 extern short ModeGroup;
 extern int DialogueSceneMode;
 extern short SubmodeState;
-extern short D_8009E4EC;
+extern short DrawListDefaultVerts;
 #include "rr/cd_directory_buffer.h"
-extern const Vec3s8 D_800101EC;
-extern const VectorWords16 D_8009E510;
-extern const VectorWords16 D_8009E520;
-extern const VectorWords16 D_8009E530;
+extern const Vec3s8 TitleModelZeroAngles;
+extern const VectorWords16 TitleModelPosLayer0A;
+extern const VectorWords16 TitleModelPosLayer0B;
+extern const VectorWords16 TitleModelPosLayer1;
 extern char IntroCameraPosKeyframes[];
 
 void StepIntroScene();
@@ -214,7 +214,7 @@ case 0x4:
     G->s48 = 0x80;
     G->s9C = 0x1000;
     G->s4A = 0;
-    G->p40 = &D_8009E4EC;
+    G->p40 = &DrawListDefaultVerts;
     G->s46 = 0;
     G->s44 = 0;
 case 0x5:
@@ -988,17 +988,17 @@ case 0x27:
     temp_a0_7 = G->s6C;
     if (temp_a0_7 != 0) {
         SetLightColorsFromAngle(temp_a0_7);
-        DrawTransformedTitleModel(1, &D_800101EC, &D_8009E510);
+        DrawTransformedTitleModel(1, &TitleModelZeroAngles, &TitleModelPosLayer0A);
     }
     temp_a0_8 = G->s6E;
     if (temp_a0_8 != 0) {
         SetLightColorsFromAngle(temp_a0_8);
-        DrawTransformedTitleModel(1, &D_800101EC, &D_8009E520);
+        DrawTransformedTitleModel(1, &TitleModelZeroAngles, &TitleModelPosLayer0B);
     }
     temp_a0_9 = G->s70;
     if (temp_a0_9 != 0) {
         SetLightColorsFromAngle(temp_a0_9);
-        DrawTransformedTitleModel(2, &D_800101EC, &D_8009E530);
+        DrawTransformedTitleModel(2, &TitleModelZeroAngles, &TitleModelPosLayer1);
     }
     temp_a0_10 = G->s72;
     if (temp_a0_10 != 0) {

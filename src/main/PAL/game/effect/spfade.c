@@ -23,7 +23,7 @@ typedef struct {
     u32 size0C;
 } GpuTileWords10;
 
-extern short D_8009E874[];
+extern short SpinningWheelBaseVerts[];
 
 void RampValueToLimit(unsigned short *a0, short *a1, int a2);
 void RampValuePairTo4096(unsigned short *a0, unsigned short *a1, short *a2);
@@ -259,7 +259,7 @@ void EmitPresetSprite(s32 intensity,s32 index) {
         offset=selected*sizeof(SpritePreset);
         packet=(GpuSpriteWords20 *)scratch->cursor;
         packet->cmd04=hi;
-        preset=(SpritePreset*)((u8*)D_8009E5E0+offset);
+        preset=(SpritePreset*)((u8*)PresetSpriteDescriptors+offset);
         packet->pos08=preset->position;
         packet->size10=preset->size;
         packet->uv0C=preset->uv;
@@ -313,7 +313,7 @@ void EmitTitleMaskSprites(int a0, int a1)
 {
     struct Pk *p = *(struct Pk **)SCRATCHPAD;
     int col = (((-a1) >> 3) & 3) | 0x1BA4F0D0;
-    short *t = D_8009E874;
+    short *t = SpinningWheelBaseVerts;
     int i = 11;
     int *g;
     do {

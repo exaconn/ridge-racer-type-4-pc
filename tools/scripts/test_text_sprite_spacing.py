@@ -22,7 +22,7 @@ class TextSpriteSpacingTest(unittest.TestCase):
     def test_leading_space_observes_incoming_atlas_registers(self):
         original = (ROOT/'assets/PAL/main.exe').read_bytes()
         load = struct.unpack_from('<I', original, 24)[0]
-        widths_address = address_of('D_8009EDF8')
+        widths_address = address_of('SmallFontGlyphAdvances')
         widths = original[0x800+widths_address-load:0x800+widths_address-load+54]
         other = next(i for i in range(1, 54) if widths[i] != widths[0])
         code = None

@@ -15,11 +15,11 @@
 
 extern int AddPrim();
 
-extern char D_8009EBBC[];
+extern char BadgeRowPresetTableA[];
 
-extern char D_8009EB1C[];
+extern char BadgeRowPresetTableB[];
 
-extern char D_8009EC48[];
+extern char Rect16RowDefaultPresets[];
 
 extern char D_800D0160[];
 
@@ -37,11 +37,11 @@ void InitRaceHudPackets(int a0)
     case 5:
     default:
         n = 4;
-        tab = D_8009EBBC;
+        tab = BadgeRowPresetTableA;
         break;
     case 1:
         n = 8;
-        tab = D_8009EB1C;
+        tab = BadgeRowPresetTableB;
         break;
     case 2:
     case 3:
@@ -52,7 +52,7 @@ void InitRaceHudPackets(int a0)
     l60:
         n = 6;
     l64:
-        tab = D_8009EC48;
+        tab = Rect16RowDefaultPresets;
         break;
     }
     for (i = 0; i < n; i++) {

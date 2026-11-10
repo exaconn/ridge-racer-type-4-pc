@@ -47,7 +47,7 @@ extern int _sio_control();
 
 extern s16 LinkState;
 
-extern int D_8009F728;
+extern int RaceStartSignalState;
 
 extern signed char LinkEntryState[];
 
@@ -85,7 +85,7 @@ int UpdateLinkHandshake(int a0)
       {
         LinkHostFlag = 0;
         D_800ABEBE = 1;
-        D_8009F728 = 3;
+        RaceStartSignalState = 3;
         LinkState = 10;
       }
       else
@@ -113,14 +113,14 @@ int UpdateLinkHandshake(int a0)
       break;
 
     case 11:
-      if (D_8009F728 > 0)
+      if (RaceStartSignalState > 0)
     {
       _sio_control(1, 1, 2);
-      D_8009F728 -= 1;
+      RaceStartSignalState -= 1;
       if (k == 1)
       {
         LinkState = 2;
-        D_8009F728 = 0;
+        RaceStartSignalState = 0;
       }
     }
     else
@@ -142,17 +142,17 @@ int UpdateLinkHandshake(int a0)
       if (k == 2)
     {
       LinkState = k;
-      D_8009F728 = 4;
+      RaceStartSignalState = 4;
     }
       break;
 
     case 3:
       _sio_control(1, 1, 1);
-      if (D_8009F728 > 0)
+      if (RaceStartSignalState > 0)
     {
       if (a0 == 0)
       {
-        D_8009F728 -= 1;
+        RaceStartSignalState -= 1;
         break;
       }
     }

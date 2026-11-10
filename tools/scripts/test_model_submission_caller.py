@@ -41,7 +41,7 @@ static struct {
  RroBankCommand tables[2][2];u8 after[16];
 } world;
 #define SCRATCHPAD ((u8*)&world.scratch)
-#define D_8001013C ((char*)world.positions)
+#define RotatingSkyTransforms ((char*)world.positions)
 IntroSceneState *IntroSceneStatePtr;
 s32 ModelBankFormat;
 static u32 control[32];
@@ -216,7 +216,7 @@ class TransportCpu(Cpu):
 
 def main():
     owners = source_owners(ROOT/'src/main/PAL');body = definition_source(owners['DrawRotatingTitleModel'].read_text(), 'DrawRotatingTitleModel')
-    position = address_of('D_8001013C');entry = address_of('DrawRotatingTitleModel');pointer = address_of('IntroSceneStatePtr');format_at = address_of('ModelBankFormat')
+    position = address_of('RotatingSkyTransforms');entry = address_of('DrawRotatingTitleModel');pointer = address_of('IntroSceneStatePtr');format_at = address_of('ModelBankFormat')
     prefix = PREFIX.replace('static u32 control[32];','static const u32 positionAddress=%dU;\nstatic u32 control[32];' % position)
     executable = (ROOT/'assets/PAL/main.exe').read_bytes();base = struct.unpack_from('<I', executable, 24)[0]
     with TemporaryDirectory() as temp:

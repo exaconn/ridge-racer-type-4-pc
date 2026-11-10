@@ -14,11 +14,11 @@
 
 struct IntroColorBytes8 { unsigned char c[8]; };
 
-extern char D_8001013C[];
-extern struct IntroColorBytes8 D_800101E4;
+extern char RotatingSkyTransforms[];
+extern struct IntroColorBytes8 RotatingSkyDefaultColor;
 extern int RotMatrixX();
 extern int RotMatrixY();
-extern char D_8009E88C[];
+extern char RotatingSkyCommandList[];
 extern s16 FadeCountdown;
 extern s16 ModeIndex;
 extern s16 ModeGroup;
@@ -46,7 +46,7 @@ int DrawRotatingTitleModel(int objectIndex, int animate)
     RR_GTE_SETLLM(work->setup.light.w);
     RR_GTE_SETROT(((RroModelScratch *)SCRATCHPAD)->scene.view.matrix28.w);
     MulRotMatrix0(&work->setup.rotation, &rotation);
-    SetGteObjectTransform(&((RroModelScratch *)SCRATCHPAD)->work7C.transform, (const s16 *)(D_8001013C + objectIndex * 16), rotation.w);
+    SetGteObjectTransform(&((RroModelScratch *)SCRATCHPAD)->work7C.transform, (const s16 *)(RotatingSkyTransforms + objectIndex * 16), rotation.w);
     ((RroModelScratch *)SCRATCHPAD)->scene.draw74.draw.counter = 0;
     SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, ModelBankFormat < 1, 0, 0);
     return yaw;
@@ -57,7 +57,7 @@ void DrawRotatingSky(void)
     struct IntroColorBytes8 sp10;
     MatrixWords32 sp18;
     int t;
-    sp10 = D_800101E4;
+    sp10 = RotatingSkyDefaultColor;
     IntroSceneStatePtr->uA8 += 0x20;
     sp18.w[4] = 0x1000;
     sp18.w[2] = 0x1000;
@@ -68,7 +68,7 @@ void DrawRotatingSky(void)
     RotMatrixY(t, &sp18);
     RotMatrixX(0x100, &sp18);
     RotMatrixZ(0xAA, &sp18);
-    RenderSkyToRect(D_8009E88C, &sp18, &sp10, 0xC8);
+    RenderSkyToRect(RotatingSkyCommandList, &sp18, &sp10, 0xC8);
 }
 
 void DrawTransformedTitleModel(int modelIndex, const Vec3s8 *angles,

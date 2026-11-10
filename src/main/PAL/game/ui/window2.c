@@ -17,8 +17,8 @@ extern char D_800ADB60[];
 extern char D_800D02D8[];
 extern char D_800AE660[];
 extern char D_800D0DD8[];
-extern char D_8009EA90[];
-extern char D_8009EACC[];
+extern char UiRowDefaultPresets[];
+extern char GlyphRowDefaultPresets[];
 
 void DrawViewportBorderFrames();
 void DrawHudRotatingQuad(s32 phase,s32 index);
@@ -83,7 +83,7 @@ void DrawViewportBorderFrames(int a0) {
         if (s5 != 0) {
             m1 = 0xFFFFFF;
             h1 = 0xFF000000;
-            s1 = D_8009EACC;
+            s1 = GlyphRowDefaultPresets;
             do {
                 InitHudSpritePacket(s0, s1);
                 s1 += 0x14;
@@ -97,7 +97,7 @@ void DrawViewportBorderFrames(int a0) {
         s3 = 0;
         m2 = 0xFFFFFF;
         h2 = 0xFF000000;
-        s4 = D_8009EA90;
+        s4 = UiRowDefaultPresets;
         s2 = (unsigned *)(&CurrentDrawBuf->buffer.ordering70.words[0]);
         s1 = (char *)s0 + 0xA;
         do {
@@ -146,7 +146,7 @@ void DrawHudRotatingQuad(s32 phase,s32 index) {
     angle=(s32)(phase*0xA00U)/10000+0xE00;
     sine=rsin(angle);
     cosine=rcos(angle);
-    i=0;color=colors;corner=D_8009EE38;
+    i=0;color=colors;corner=UiBoxCornerOffsets;
     base=&HudNumberTargets;
     row=index*sizeof(NumberTarget);
     target=(NumberTarget *)((u8 *)base+row);

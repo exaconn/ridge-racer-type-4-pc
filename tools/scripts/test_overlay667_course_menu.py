@@ -57,7 +57,7 @@ static State actual,reference,*w;
 #define CurrentDrawBuf (&w->frames[w->frameRoot])
 #define MenuArenas w->arenas
 #define LoadCursor w->published
-#define D_8009F64C w->map
+#define CoursePreviewSceneIds w->map
 ''' + body + mapper + r'''
 typedef struct {unsigned kind;s32 args[7];State before;} Event;
 static Event events[32];

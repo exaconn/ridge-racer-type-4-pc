@@ -205,7 +205,7 @@ void SetupObjectLightMatrices(const SceneCameraPose18 *pose, const PreviewLighti
     MatrixWords32 color;
     VectorWords16 scale;
     int channel;
-    scale = D_800111D4;
+    scale = UnitScaleVector;
     BuildRotMatrixY(&axis, -pose->rotation10.y);
     MulMatrix2((const MatrixWords32 *)(SCRATCH_ROT_MATRIX), &axis);
     BuildRotMatrixX(&basis, -pose->rotation10.x);

@@ -32,11 +32,11 @@ typedef struct {
 } Vec4;
 
 extern s32 MaskBitSetting;
-extern unsigned char D_8009F7CC[];
-extern unsigned char D_8009F7D0[];
-extern unsigned char D_8009F7D4[];
-extern unsigned char D_8009F7D8[];
-extern unsigned char D_8009F7DC[];
+extern unsigned char ReplayCameraViewWeights[];
+extern unsigned char RaceCarStatParam1[];
+extern unsigned char RaceCarStatParam3[];
+extern unsigned char RaceCarStatParam4[];
+extern unsigned char RaceCarStatParam5[];
 extern RaceVehicle PlayerCars[];
 extern RaceVehicle D_80106B58[];
 extern RaceVehicle D_80106E78[];
@@ -63,15 +63,15 @@ void DrawSelectionIconGrid(int arg0) {
     int s0;
     int a1;
     int b;
-    unsigned char *t7 = D_8009F7CC;
+    unsigned char *t7 = ReplayCameraViewWeights;
     unsigned char (*q)[4] = SelectionRows;
     unsigned char *p = q[arg0];
     v[0] = t7[p[1]];
-    v[1] = D_8009F7D0[p[1]];
+    v[1] = RaceCarStatParam1[p[1]];
     v[2] = CarRecordPtrs[arg0]->handling1C8.steeringMode0A > 0 ? 0x18 : 0x19;
-    v[3] = D_8009F7D4[p[0]];
-    v[4] = D_8009F7D8[p[0]];
-    v[5] = D_8009F7DC[p[0]];
+    v[3] = RaceCarStatParam3[p[0]];
+    v[4] = RaceCarStatParam4[p[0]];
+    v[5] = RaceCarStatParam5[p[0]];
     v[6] = CarRecordPtrs[arg0]->stage1F3 + 0x14;
     b = p[3];
     v[7] = b + 0x1A;

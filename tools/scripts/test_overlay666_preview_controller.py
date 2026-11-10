@@ -43,7 +43,7 @@ static struct State {u32 guard[4];s32 frame,player,rowCount; u16 state; s16 scen
  u8 modes[2][3];unsigned root,badgeRoot,modeRoot,contextRoot;u32 tail[4];} actual,reference,*w;
 static u8 buffers[3][32];
 #define ReverseCourse w->highCourse
-#define D_8009F64C w->courseMap
+#define CoursePreviewSceneIds w->courseMap
 #define ModeFrame w->frame
 #define UiRowCount w->rowCount
 #define SubmodeState w->state

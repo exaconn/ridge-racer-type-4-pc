@@ -20,10 +20,10 @@ typedef struct {
 } GlyphPreset14;
 
 extern BadgeRow1C *BadgeRows;
-extern unsigned char D_8009F9C0[];
-extern unsigned char D_8009F9CC[];
+extern unsigned char SmallDigitSpriteUvs[];
+extern unsigned char BigDigitGlyphWidths[];
 extern MenuGlyphRow1C *GlyphRows;
-extern GlyphPreset14 D_8009F9D4[];
+extern GlyphPreset14 AnimatedGlyphPresets[];
 
 void UpdateBadgeRowAnim();
 void InitRect16Row(int i, short a, short b, short c, short d, short e, short f);
@@ -238,8 +238,8 @@ int UpdateRect16Row(int a0) {
         k = 0;
         xs = lx;
         ys = ly;
-        tb = D_8009F9CC;
-        p = D_8009F9C0;
+        tb = BigDigitGlyphWidths;
+        p = SmallDigitSpriteUvs;
     loop:
         AddPartialLine(&CurrentDrawBuf->buffer.ordering70.words[0], *(int *)((char *)xs + (p[0] << 2)), *(int *)((char *)ys + (p[0] << 2)), *(int *)((char *)xs + (p[1] << 2)), *(int *)((char *)ys + (p[1] << 2)), lv[*(u8 *)(k+(unsigned long)tb)], 1, 8, 8, 8, -1);
         p += 2;
@@ -266,7 +266,7 @@ void InitGlyphRow(int a0, int a1, int a2, int a3) {
   {
     (&GlyphRows[a0])->control02 = a1;
     (&GlyphRows[a0])->glyph07 = a2;
-    s = &D_8009F9D4[a3];
+    s = &AnimatedGlyphPresets[a3];
     new_var = (MenuGlyphRow1C *)((a0 * 0x1C) + (unsigned long)GlyphRows);
     q = new_var;
     q->x08 = s->x00;

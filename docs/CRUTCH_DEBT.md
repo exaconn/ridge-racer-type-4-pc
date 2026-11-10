@@ -13,9 +13,9 @@ macros are not expanded. These are cleanup indicators, not matching metrics.
 | gotos | 312 | 66 |
 | pad_arrays | 0 | 0 |
 | raw_offset_derefs | 12 | 0 |
-| integer_casts | 489 | 106 |
+| integer_casts | 512 | 106 |
 | gcc_2_7_2_units | 53 | 13 |
-| cc1_flags_units | 42 | 4 |
+| cc1_flags_units | 43 | 4 |
 | volatile_qualifiers | 235 | 7 |
 | legacy_type_blocks | 0 | 0 |
 | cast_alias_macros | 0 | 0 |

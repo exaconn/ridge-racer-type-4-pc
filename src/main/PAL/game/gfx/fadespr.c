@@ -27,7 +27,7 @@ typedef struct {
 
 extern OptionsState3C Options;
 extern char D_800ACA30[];
-extern struct OptionsDefaultTail16 D_80011260;
+extern struct OptionsDefaultTail16 OptionsDefaultTailData;
 extern unsigned char D_800A1FC4[];
 extern FadeRaceContext RaceContext;
 extern SpritePacket *AddSpritePrim(u32 *, SpritePacket *, s32, s32,
@@ -67,7 +67,7 @@ void InitDemoFadeContext(int a0) {
     int i;
     s16 t;
     FadeRaceContext *p = (FadeRaceContext *)D_800ACA30;
-    v = D_80011260;
+    v = OptionsDefaultTailData;
     PsyqBzero((char *)p, 0x64);
     p = (FadeRaceContext *)((char *)p - 0x3E0);
     p->f400 = 0xCE;
@@ -140,7 +140,7 @@ void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
             (scale * 2U) | 1U);
         command = 0xE1000200U;
         low = 0xFFFFFFU;
-        mode = D_80011248[selector];
+        mode = FadeSpriteDrawModes[selector];
         /* ASM_BARRIER: capture the mode word before publishing the packet. */
         __asm__("" : "+r"(mode) : "r"(low));
         scratch->cursor = (u8 *)p;

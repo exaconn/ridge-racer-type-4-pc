@@ -2,10 +2,11 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess, unittest
+from overlay_units import read_c_source
 ROOT=Path(__file__).resolve().parents[2]
 class CheckpointTest(unittest.TestCase):
  def test_counters_valid_messages_and_latch_reload_after_callbacks(self):
-  body=(ROOT/'src/overlays/PAL/661/func_80114924.c').read_text()
+  body=read_c_source(ROOT/'src/overlays/PAL/661/func_80114924.c')
   body='\n'.join(line for line in body.splitlines() if not line.startswith('#include') and not line.startswith('extern '))
   code=r'''
 #include <assert.h>

@@ -1,6 +1,61 @@
 #include "game/system/pad.h"
+#include "rr/overlay661_checkpoint.h"
 #include "rr/overlay661_race_controller.h"
 #include "rr/frame_storage_types.h"
+
+extern s32 RaceVoiceFlags;
+
+void ovl661_update_checkpoint(RaceVehicle *vehicle) {
+    RaceVehicleControl *control = &vehicle->control;
+    s16 counter;
+    s32 target;
+    s32 message;
+
+    counter = control->dynamics94.steering.count22;
+    if (((s32)((u32)vehicle->second + vehicle->first)) >= ((s32)((u32)(s32)counter * TrackLength))) {
+        target = NumLaps;
+        if (target >= counter) {
+            control->dynamics94.steering.count22=(s16)((u16)control->dynamics94.steering.count22+1U);
+            LapVoicePending = 0;
+            if (control->dynamics94.steering.count22 == target) {
+                SaveCarSnapshots(0);
+            } else if (target < control->dynamics94.steering.count22) {
+                if (RaceState < 4) {
+                    LapVoicePending = -1;
+                    RaceState = 4;
+                    FadeCountdown = 75;
+                    SoundSetMasterVolume(0, 33);
+                    TotalRaceTime = 0;
+                    SoundQueueEnqueue(19, 1);
+                }
+            }
+        }
+    }
+    if (LapVoicePending == 0) {
+        message = (9U - ((u32)NumLaps - control->dynamics94.steering.count22));
+        if (message >= 6) {
+            if (message == 9) {
+                message = 15;
+            }
+            if (!(RaceVoiceFlags & (0x200U << (message - 6U)))) {
+                SoundQueueEnqueue(message, 0);
+                RaceVoiceFlags |= 0x200U << (message - 6U);
+            }
+        }
+        LapVoicePending = -1;
+    }
+}
+
+void ovl661_exit_race(void)
+{
+    StopRaceAudioAndRumble();
+    SetupRaceAndSceneId();
+    ModeGroup = 1;
+    ModeIndex = 38;
+    SubmodeState = 0;
+    AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words, 255, 69);
+}
+
 void ovl661_update_race(void) {
     s32 var_a2;
     s32 var_a2_2;

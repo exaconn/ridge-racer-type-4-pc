@@ -9,7 +9,7 @@ void DrawMenuStepArrows(s32 x,s32 y,s32 width,s32 mode,s32 selected,s32 first,s3
 s32 UpdateGlyphRow(s32 selected);
 
 s32 ovl660_update_retry_choice(s32 reserved);
-s32 ovl661_update_retry_choice(void);
+s32 ovl661_update_retry_choice(s32 mode);
 s32 ovl666_update_retry_choice(s32 mode);
 /* Four-position selection, backed by at least three UI rows and four glyph
  * rows. A sound callback may replace the roots; its signed selection is clamped. */

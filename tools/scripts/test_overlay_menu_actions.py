@@ -79,9 +79,10 @@ static void initialize(u32 k){unsigned i;memset(&world,0,sizeof(world));
  for(i=0;i<4;i++){world.choice.bytes[i]=next();world.changed_choice[i]=next();}
 }
 static s32 results_menu(void){return ovl660_update_retry_choice(0);}
+static s32 vs_retry_menu(void){return ovl661_update_retry_choice(0);}
 static s32 retry_menu(void){return ovl666_update_retry_choice(0);}
 static void menus(unsigned which){u32 k;const s32 offsets[]={37,38,37,39};
- s32 (*functions[])(void)={results_menu,ovl661_update_retry_choice,retry_menu,ovl667_update_retry_choice};
+ s32 (*functions[])(void)={results_menu,vs_retry_menu,retry_menu,ovl667_update_retry_choice};
  for(k=0;k<65536;k++){
   s32 result,wanted,limit;initialize(k);memcpy(&expected,&world,sizeof(world));
   draw(&expected,(s32)expected.selection+offsets[which],0,0);

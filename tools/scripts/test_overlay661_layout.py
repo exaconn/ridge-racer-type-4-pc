@@ -4,12 +4,13 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from overlay_units import read_c_source
 
 
 class Overlay661LayoutTest(unittest.TestCase):
     def test_native_layouts(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = (root / 'src/overlays/PAL/661/func_80115598.c').read_text()
+        bodies = read_c_source(root / 'src/overlays/PAL/661/func_80115598.c')
         bodies = re.sub(r'__asm__\("\$2"\)', '', bodies)
         helpers = '\n'.join(re.sub(r'^extern[^\n]*\n','',
                             (root / f'tools/scripts/fixtures/legacy/func_{a}.c').read_text(),flags=re.M)

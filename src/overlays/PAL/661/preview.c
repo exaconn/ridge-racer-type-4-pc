@@ -1,5 +1,6 @@
 #include "game/system/pad.h"
 #include "rr/menu_overlay_runtime.h"
+#include "rr/renderer_setup.h"
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
 
@@ -11,30 +12,16 @@ extern s16 ovl661_preview_confirmation;
 extern s16 ovl661_available_car_counts[2][2];       /* course count per player/group */
 extern s16 ovl661_selected_cars[2];          /* selected course per player */
 extern s16 ovl661_selected_groups[2];          /* selected group per player */
+extern s16 ovl661_player_win_counts[2];
+extern s16 ComDifficultyLevel, NumCars;
+extern s32 ovl661_available_course_count;
 extern CourseChoice4 ovl661_car_choices[2][2][9];
+extern char ovl661_player_names[24], ovl661_player2_default_name[];
+extern const char ovl661_scene_name[];
 extern s32 UiRowCount, MenuAvailableCourseMask;
 extern s16 CardMenuOperation;
-void SetupMenuCarCamera(s32);
-void SetupViewport(s32);
-s32 LoadCarRangeStep(s32, s32);
-void SetCarBounds(RaceVehicle *);
-void UpdateCarWorldTransform(RaceVehicle *);
-void SetMenuFrameOptions(s32, s32, s32);
-void StepMenuValue(s32, s32, char *, s32, s32);
-void UnpackChoiceGlyph(s8 *, s32);
-s32 PackChoiceGlyph(s8 *);
-void ResetScreenCounters(void);
-void SetModelTexturePage(s32);
-void PlaySfx(s32);
-void DrawUiRow(s32);
-void DrawSelectionIconGrid(s32);
-void UpdateBadgeRowAnim(s32);
-s32 UpdateImageRow(s32);
-void DrawMenuStepArrows(s32, s32, s32, s32, s32, s32, s32);
-void UpdateScreenFade(s32);
-void AddScreenFadeTiles(u32 *, s32, u32);
-void SeqFadeVolume(s32, s32);
-void SeqMuteVolume(void);
+s32 CountChoiceGlyphs(const CourseChoice4 *);
+void CopyStringClearTail(char *destination, char *source);
 void ovl661_init_preview(s32);
 void ovl661_reset_preview_selection(void);
 void ovl661_init_scene(void);
@@ -44,6 +31,131 @@ void ovl661_init_scene(void);
 #define ENTRIES ((SelectionRow *)&SelectionRows)
 #define PLAYER (ActivePlayerIndex & 1)
 #define GROUP_ROW(p, g, i) ovl661_group_ui_rows[p][g][i]
+
+void ovl661_init_preview(s32 mode) {
+    s32 i;
+    ProjectionScratchPrefix *scratch;
+    void *arena;
+    ModeFrame=0;
+    ScreenFrame=0;
+    MenuCursor=0;
+    MenuItemCount=3;
+    ResetScreenCounters();
+    MenuArenas.second=CdDirectoryBuffer+0x2D000;
+    InitMenuArenas();
+    ActivePlayerIndex=mode;
+    LoadCursor=MenuArenas.second;
+    InitUiRow(0,24,88,68,32,0,0,1,0,83);
+    InitUiRow(1,24,128,68,32,0,0,1,0,54);
+    InitUiRow(2,24,168,68,32,0,0,1,0,85);
+    InitUiRow(3,24,88,68,32,0,0,1,0,83);
+    InitUiRow(4,24,128,68,32,0,0,1,0,101);
+    InitUiRow(5,24,168,68,32,0,0,1,0,53);
+    InitUiRow(6,24,208,68,32,0,0,1,0,85);
+    InitUiRow(7,116,88,28,32,0,0,1,0,55);
+    InitUiRow(8,116,128,28,32,0,0,1,0,56);
+    InitUiRow(9,24,88,68,32,0,0,1,0,83);
+    InitUiRow(10,24,128,68,32,0,0,1,0,54);
+    InitUiRow(11,24,168,68,32,0,0,1,0,85);
+    InitUiRow(12,24,88,68,32,0,0,1,0,83);
+    InitUiRow(13,24,128,68,32,0,0,1,0,101);
+    InitUiRow(14,24,168,68,32,0,0,1,0,53);
+    InitUiRow(15,24,208,68,32,0,0,1,0,85);
+    InitUiRow(16,116,88,28,32,0,0,1,0,55);
+    InitUiRow(17,116,128,28,32,0,0,1,0,56);
+    InitUiRow(18,12,64,68,32,0,0,1,0,84);
+    InitUiRow(19,12,104,68,32,0,0,1,0,3);
+    InitUiRow(20,12,144,68,32,0,0,1,1,13);
+    InitUiRow(21,12,184,68,32,0,0,1,0,85);
+    InitUiRow(22,12,368,208,32,0,0,8,4,SelectedCourseChoice);
+    InitUiRow(23,104,104,68,32,0,0,1,5,3);
+    InitUiRow(24,104,144,68,32,0,0,1,6,23);
+    InitUiRow(25,104,184,68,32,0,0,1,7,6);
+    SetupRenderer(5);
+    MenuCursor=0;
+    MenuItemCount=3;
+    ResetScreenCounters();
+    InitPreviewImageRows();
+    /* ASM_BARRIER: reload LoadCursor address after InitPreviewImageRows before storing MenuArenaBase */
+    __asm__("" : "+m"(LoadCursor));
+    arena=MenuArenaBase;
+    ovl661_preview_confirmation=0;
+    LoadCursor=arena;
+    if(!(ActivePlayerIndex&1))MenuArenas.first=arena;
+    else LoadCursor=MenuArenas.first;
+    scratch=RR_PROJECTION_SCRATCH;
+    scratch->pose08.angles10.xyz.x=120;
+    scratch->pose08.position00.words[0]=-16;
+    scratch->pose08.position00.words[1]=-248;
+    scratch->pose08.angles10.xyz.y=0;
+    scratch->pose08.angles10.xyz.z=0;
+    scratch->pose08.position00.words[2]=-96;
+    for (i = 0; i < 2; i++) {
+        ResetCarState(&PlayerCars[i]);
+        PlayerCars[i].position20.words[1] = 10;
+        PlayerCars[i].position20.words[2] = 308;
+        PlayerCars[i].rot54 = 2048;
+    }
+    ovl661_available_car_counts[0][0]=CountChoiceGlyphs(ovl661_car_choices[0][0]);
+    ovl661_available_car_counts[0][1]=CountChoiceGlyphs(ovl661_car_choices[0][1]);
+    ovl661_available_car_counts[1][0]=CountChoiceGlyphs(ovl661_car_choices[1][0]);
+    ovl661_available_car_counts[1][1]=CountChoiceGlyphs(ovl661_car_choices[1][1]);
+    if(ovl661_available_car_counts[mode&1][1]==0)ovl661_selected_groups[mode&1]=0;
+    if(ovl661_selected_cars[ActivePlayerIndex&1]>=ovl661_available_car_counts[ActivePlayerIndex&1][ovl661_selected_groups[ActivePlayerIndex&1]])ovl661_selected_cars[ActivePlayerIndex&1]=0;
+    UnpackChoiceGlyph((s8*)&SelectionRows+ActivePlayerIndex*4,ovl661_car_choices[ActivePlayerIndex&1][ovl661_selected_groups[ActivePlayerIndex&1]][ovl661_selected_cars[ActivePlayerIndex&1]].glyph);
+    PlayerCourseChoices[ActivePlayerIndex].first=ovl661_car_choices[ActivePlayerIndex&1][ovl661_selected_groups[ActivePlayerIndex&1]][ovl661_selected_cars[ActivePlayerIndex&1]].first;
+    PlayerCourseChoices[ActivePlayerIndex].second=ovl661_car_choices[ActivePlayerIndex&1][ovl661_selected_groups[ActivePlayerIndex&1]][ovl661_selected_cars[ActivePlayerIndex&1]].second;
+}
+
+/* Both destination name slots contain a NUL within12 bytes; the saved name
+ * is terminated within its first12 bytes. String-tail cleanup keeps that bound. */
+void ovl661_init_menu(void)
+{
+    s32 i;
+    s32 j;
+
+    SetDispMask(0);
+    ClearScreenOverlayState();
+    for (i = 0; i < 2; i++) {
+        ovl661_selected_groups[i] = 0;
+        ovl661_selected_cars[i] = 0;
+        ovl661_player_win_counts[i] = 0;
+    }
+    ComDifficultyLevel = 0;
+    SelectedCourseChoice = 0;
+    CourseIndex = 0;
+    NumLaps = 3;
+    NumCars = 2;
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 9; j++) {
+            ovl661_car_choices[0][i][j] = CourseChoiceTable[i][j];
+            ovl661_car_choices[1][i][j] = CourseChoiceTable[0][j];
+        }
+    }
+    CopyStringClearTail(ovl661_player_names, (char *)SaveProgress.prefix.progress.prefix00.bytes);
+    CopyStringClearTail(ovl661_player_names + 12, ovl661_player2_default_name);
+    SetupDrawDispEnvs(0, 0, 0, 2);
+    ovl661_init_preview(0);
+    UnpackChoiceGlyph((s8 *)&SelectionRows, CourseChoiceTable[0][0].glyph);
+    UnpackChoiceGlyph((s8 *)&SelectionRows + 4, CourseChoiceTable[0][0].glyph);
+    SeqStartTrack(0);
+    ovl661_available_course_count = 8;
+    ModeGroup = 1;
+    ModeIndex = 56;
+    SubmodeState = 0;
+    DebugPrintStub(ovl661_scene_name);
+    SetMenuFrameOptions(0, 1, 1);
+}
+
+void ovl661_reset_preview_selection(void)
+{
+    ResetScreenCounters();
+    LoadCursor = MenuArenas.first;
+    UnpackChoiceGlyph((s8 *)&SelectionRows + ActivePlayerIndex * 4, ovl661_car_choices[ActivePlayerIndex & 1][ovl661_selected_groups[ActivePlayerIndex & 1]][ovl661_selected_cars[ActivePlayerIndex & 1]].glyph);
+    PlayerCourseChoices[ActivePlayerIndex].first = ovl661_car_choices[ActivePlayerIndex & 1][ovl661_selected_groups[ActivePlayerIndex & 1]][ovl661_selected_cars[ActivePlayerIndex & 1]].first;
+    PlayerCourseChoices[ActivePlayerIndex].second = ovl661_car_choices[ActivePlayerIndex & 1][ovl661_selected_groups[ActivePlayerIndex & 1]][ovl661_selected_cars[ActivePlayerIndex & 1]].second;
+    ImageRows[1] = 6;
+}
 
 void ovl661_update_preview(void)
 {

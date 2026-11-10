@@ -2,6 +2,35 @@
 #include "rr/overlay661_course_menu.h"
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
+#include "rr/menu_selection.h"
+#include "rr/projection_state.h"
+
+extern s16 ActiveSceneId;
+s32 PsyqRand(void);
+#ifndef RR_GPU_PROJECTION_SCRATCH
+#define RR_GPU_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)0x1F800000)
+#endif
+
+void ovl661_select_scene(void) { ActiveSceneId = 0x137; }
+
+void ovl661_init_scene(void)
+{
+    ModeFrame=0;ScreenFrame=0;MenuCursor=0;MenuItemCount=4;
+    PlayerCourseChoices[2].first=(PsyqRand()&3)+10;
+    PlayerCourseChoices[3].first=(PsyqRand()&3)+12;
+    CourseIndex=DecodeCourseIndex(SelectedCourseChoice);
+    ResetScreenCounters();
+    RR_GPU_PROJECTION_SCRATCH->pose08.angles10.xyz.x=512;
+    RR_GPU_PROJECTION_SCRATCH->pose08.position00.words[1]=-416;
+    RR_GPU_PROJECTION_SCRATCH->pose08.angles10.xyz.y=0;
+    RR_GPU_PROJECTION_SCRATCH->pose08.angles10.xyz.z=0;
+    RR_GPU_PROJECTION_SCRATCH->pose08.position00.words[0]=0;
+    RR_GPU_PROJECTION_SCRATCH->pose08.position00.words[2]=0;
+    ComCars.words20[0]=0;ComCars.words20[1]=0;ComCars.words20[2]=0;
+    ActivePlayerIndex=0;
+    LoadCursor=MenuArenas.second;
+    SetMenuFrameOptions(0,1,1);
+}
 
 void ovl661_update_menu(void) {
     s32 var_a0_3;

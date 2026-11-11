@@ -33,6 +33,9 @@
  *                      signed), e.g. "TitleSceneStage:2,FadeCountdown:2".
  *                      name+offset reads a member at a byte offset (decimal
  *                      or 0x hex) into the object, e.g. "SoundState+9904".
+ *                      RR4_TRACE_RAND=1 also prints the BIOS rand() state
+ *                      (PS1: word at 0x80009010; seeded from VSync(1) at
+ *                      race load, so poke it on the reference to compare).
  *   RR4_POKE=list      test hook to fast-forward game state: a comma list of
  *                      name[+offset][:size]=value@vsync (store) or
  *                      name[+offset][:size]+=value@vsync (add), applied once
@@ -136,6 +139,8 @@ static void print_watches(void) {
         }
         fprintf(stderr, " %s=%ld", watches[i].name, v);
     }
+    if (getenv("RR4_TRACE_RAND"))
+        fprintf(stderr, " rand=%08x", Psyz_RandState());
 }
 
 /* Mode anchors for RR4_PAD_SCRIPT / RR4_POKE: "mG/I:d" counts VSyncs from

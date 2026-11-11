@@ -27,13 +27,14 @@ class DuckStation:
         self.p = subprocess.Popen([DS, '-ai-port', str(ai), '-gdb', str(gdb), '-start-paused', '-frames', '10000000',
                                    '--', CUE], stdout=log or subprocess.DEVNULL,
                                   stderr=subprocess.STDOUT, env=env, cwd=os.path.dirname(DS))
-        self.ai_port = ai
         for _ in range(200):
             try:
-                self.greeting = self._ai_connect()
+                self.ai = socket.create_connection(('127.0.0.1', ai))
                 break
             except OSError:
                 time.sleep(0.1)
+        self.aif = self.ai.makefile('rb')
+        self.greeting = self.aif.readline().decode().strip()
         for _ in range(100):
             try:
                 self.g = socket.create_connection(('127.0.0.1', gdb))
@@ -42,29 +43,9 @@ class DuckStation:
                 time.sleep(0.1)
         self.g.settimeout(10)
 
-    def _ai_connect(self):
-        self.ai = socket.create_connection(('127.0.0.1', self.ai_port))
-        self.ai.settimeout(20)
-        self.aif = self.ai.makefile('rb')
-        return self.aif.readline().decode().strip()
-
     def cmd(self, line):
-        # A reply occasionally never arrives on a long-lived control
-        # connection (the server stays responsive to new clients): reconnect
-        # and, for idempotent queries, ask again.
-        for _ in range(3):
-            self.ai.sendall((line + '\n').encode())
-            try:
-                return self.aif.readline().decode().strip()
-            except (socket.timeout, TimeoutError):
-                try:
-                    self.ai.close()
-                except OSError:
-                    pass
-                self._ai_connect()
-                if not line.startswith('status'):
-                    return 'OK (reconnected)'
-        raise RuntimeError('no reply to %r' % line)
+        self.ai.sendall((line + '\n').encode())
+        return self.aif.readline().decode().strip()
 
     def advance(self, n):
         r = self.cmd(f'advance {n}')

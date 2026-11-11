@@ -60,7 +60,10 @@
  *   RR4_AUDIO_CAPTURE=file  write the mixed audio output (44100 Hz 16-bit
  *                      stereo) as a WAV file, finished when exiting. With
  *                      PSYZ_AUDIO_CLOCK=video the samples follow the VSync
- *                      count instead of the wall clock. */
+ *                      count instead of the wall clock.
+ *   PSYZ_HEADLESS runs default to PSYZ_AUDIO_CLOCK=video: unpaced fields
+ *                      would otherwise race the wall-clock sequencer tick
+ *                      (PSYZ_AUDIO_CLOCK=wall keeps the host clock). */
 
 #include <psyz.h>
 #include <psyz/audio.h>
@@ -553,6 +556,15 @@ static const char *disc_path(int argc, char **argv) {
 int main(int argc, char **argv) {
     const char *cue = disc_path(argc, argv);
 
+    /* Headless runs are not paced (PsyZ limitless mode), so wall time has no
+     * relation to the emulated fields. The root counters (the libsnd
+     * sequencer tick, which times the music and the beat-synced front-end
+     * scripts) and the SPU mix then follow the counted fields, as with
+     * PSYZ_AUDIO_CLOCK=video; another PSYZ_AUDIO_CLOCK value keeps the host
+     * clock. Set before PsyZ reads it (kernel and audio initialisation). */
+    if (getenv("PSYZ_HEADLESS") && *getenv("PSYZ_HEADLESS") &&
+        !getenv("PSYZ_AUDIO_CLOCK"))
+        setenv("PSYZ_AUDIO_CLOCK", "video", 1);
     if (!cue) {
         fprintf(stderr,
                 "usage: %s <Ridge Racer Type 4 (Europe).cue>\n"

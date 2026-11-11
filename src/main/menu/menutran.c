@@ -17,7 +17,6 @@ extern unsigned char GpStageQualifyRanks[];
 extern short ComDifficultyLevel;
 extern short SelectedTeamIndex;
 extern short SelectedMakerIndex;
-extern unsigned char MenuTransitionStyleId;
 
 void SetNextModeByGameType(void);
 
@@ -50,7 +49,7 @@ void UpdateGrandPrixStageProgress(void) {
             }
         }
     }
-    a0 = MenuSubmodePendingId;
+    a0 = SelectionState.fields.phase17;
     if (a0 == -1) {
         PsyqBzero(RankEntries, 8 * sizeof(RankEntries[0]));
         j = 0;
@@ -73,7 +72,7 @@ void UpdateGrandPrixStageProgress(void) {
             p[0] = a2;
             p[8] = 3;
         } while (v1 < 8);
-        MenuTransitionStyleId = SaveProgress.unlocked60[1];
+        SelectionState.fields.reserved18 = SaveProgress.unlocked60[1];
     }
     x = (unsigned char)SelectionState.signedBytes[0x17];
     x = (x << 24) >> 25;
@@ -118,6 +117,5 @@ int CountProgressFlags(void) {
 /* Initial values of the globals this module owns. */
 unsigned char GpStageQualifyRanks[4] = {3, 2, 1, 1};
 short ComDifficultyLevel;
-unsigned char MenuTransitionStyleId;
 u16 ActiveSceneId;
 RankEntry8 RankEntries[8];

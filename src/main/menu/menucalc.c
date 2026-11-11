@@ -1,4 +1,5 @@
 #include "game/ui/uipart1.h"
+#include "rr/menu_arena_state.h"
 #include "game/sound/sndvab.h"
 #include "game/menu/mnrows.h"
 #include "rr/save_slots.h"
@@ -43,7 +44,6 @@ extern unsigned short SubmodeState;
 extern s32 VSyncThreshold;
 extern s16 ActiveSceneId;
 extern unsigned short FadeCountdown;
-extern u8 *MenuSharedScratchPtr;
 
 
 void DialogueIntroModeUpdate(void);
@@ -107,7 +107,7 @@ void *DrawCarStatBars(void *x, int a1)
 
 void *DrawStepProgressBar(GpuDmaTag *a0, void *a1) {
     int s0 = 0x28;
-    int sel = MenuSubmodePendingId;
+    int sel = SelectionState.fields.phase17;
     int i = 0;
     int v, y;
     do {
@@ -194,7 +194,7 @@ void DialogueModeUpdate(void) {
                 if (PendingModeId == 0x10F || PendingModeId == 0x12A || PendingModeId == 0x205) {
                     FadeCountdown = 0x40;
                     ResetScreenCounters();
-                    LoadCursor = MenuSharedScratchPtr;
+                    LoadCursor = MenuArenas.second;
                     LoadTimListStep(0);
                     SeqFadeVolume(0, (short)(FadeCountdown - 4));
                     SubmodeState = 1;

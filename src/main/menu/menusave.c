@@ -11,7 +11,6 @@
 
 
 extern CourseChoice4 CourseChoiceTable[2][9];
-extern u8 SaveSlotChoiceGlyphBytes[][4];
 
 void UpdateSaveProgress(void) {
     u8 sp10[4];
@@ -53,7 +52,7 @@ void UpdateSaveProgress(void) {
                 if (slot == 3) {
                     glyph = PackChoiceGlyph(&MenuSelectedChoice);
                 } else {
-                    glyph = PackChoiceGlyph(SaveSlotChoiceGlyphBytes[slot]);
+                    glyph = PackChoiceGlyph(SelectionState.fields.copies[1 + (slot)].bytes);
                 }
                 found = 0;
                 for (j = 0; j < 8; j++) {
@@ -111,6 +110,5 @@ void UpdateSaveProgress(void) {
 }
 
 /* Initial values of the globals this module owns. */
-u8 SaveSlotChoiceGlyphBytes[3][4];
 SaveProgressRecord7C SaveProgress;
 short UnlockNoticeMask;

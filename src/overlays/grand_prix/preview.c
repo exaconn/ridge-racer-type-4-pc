@@ -1,4 +1,5 @@
 #include "rr/save_slots.h"
+#include "rr/menu_arena_state.h"
 #include "game/system/pad.h"
 #include "rr/overlay659.h"
 #include "rr/frame_storage_types.h"
@@ -17,7 +18,7 @@ void ovl659_init_preview(void) {
         ResetScreenCounters();
         ClearScreenOverlayState();
         InitMenuArenas();
-        LoadCursor = MenuSharedScratchPtr;
+        LoadCursor = MenuArenas.second;
         InitUiRow(0, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x54);
         InitUiRow(1, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 1, 0xC);
         InitUiRow(2, 0xC, 0x90, 0x44, 0x20, 0, 0, 1, 0, 0x1D);

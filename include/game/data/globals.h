@@ -3,12 +3,12 @@
 
 /* Scalar globals shared by several units: one declaration each. */
 #include "types.h"
+#include "rr/save_slots.h"
 #include "game/data/savetype.h"
 
 extern int BackColorR;
 extern s32 ActiveViewportIndex;
 #include "rr/save_buffer.h"
-extern signed char MenuSubmodePendingId;
 extern int DefaultSegmentVisibilityMask;
 extern unsigned short PendingModeId;
 extern short ModeSelectBaseCount;

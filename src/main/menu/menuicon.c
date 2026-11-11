@@ -1,4 +1,5 @@
 #include "game/car/carbound.h"
+#include "rr/save_slots.h"
 #include "scratchpad.h"
 #include "rr/frame_storage_types.h"
 #include "rr/badge_row_types.h"
@@ -59,7 +60,7 @@ void DrawMenuCarPreviewScene(int a0) {
         s1 = AddBadgeSpriteStrip(0x11, &CurrentDrawBuf->buffer.ordering70.tags[0], s1, BadgeRows[1].x04 + 0x90, BadgeRows[1].y06, 0x80);
         s1 = DrawStepProgressBar(&CurrentDrawBuf->buffer.ordering70.tags[0], s1);
         s1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s1, BadgeRows[1].x14, BadgeRows[1].y16, BadgeRows[1].w18, BadgeRows[1].h1A);
-        if (MenuSubmodePendingId >= 4) {
+        if (SelectionState.fields.phase17 >= 4) {
             RR_GPU_SCRATCH->cursor = s1;
             BuildCameraMatrices();
             ScaleMatrixRow1(2, (MatrixWords32 *)SCRATCH_ROT_MATRIX);

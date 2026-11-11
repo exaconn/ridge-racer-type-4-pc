@@ -55,7 +55,7 @@ void UpdateSelectionRank(void) {
   }
   word=phase+((u32)phase>>31);
   group=word>>1;
-  if(group==1) {word=MenuSelectionLockedFlag;group=word+1;}
+  if(group==1) {word=SelectionState.fields.reserved10[4];group=word+1;}
   {
    i=0;
    if(state->phase<4) {

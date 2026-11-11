@@ -78,7 +78,7 @@ void CarStandingsModeUpdate(void) {
         AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x20 - (short)FadeCountdown) << 3, 0x45);
         RR_GPU_SCRATCH->cursor = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x200);
         if ((short)FadeCountdown <= 0) {
-            if (MenuActiveDialogId == 6) {
+            if (SelectionState.fields.mode1A == 6) {
                 InitMenuArenas();
                 ModeGroup = 1;
                 ModeIndex = 0x21;

@@ -1,4 +1,5 @@
 #include "game/system/pad.h"
+#include "rr/save_slots.h"
 #include "game/race/result4.h"
 #include "rr/menu_selection.h"
 #include "rr/gpu_scratch_types.h"
@@ -70,7 +71,7 @@ void DrawResultsStandingsOverlay(int fadeLevel) {
       switch (mode)
       {
         case 1:
-          label = ResultMenuTableIndices[(MenuSubmodePendingId * 2) + row];
+          label = ResultMenuTableIndices[(SelectionState.fields.phase17 * 2) + row];
           break;
 
         case 0:
@@ -199,7 +200,7 @@ void NewCarModeUpdate(void) {
             }
         }
     }
-    if (MenuActiveDialogId == 2) {
+    if (SelectionState.fields.mode1A == 2) {
         r = LoadCarRangeStep(0, 1);
         if (r == 1) {
             if (BadgeRows->state10 == 0xB) {

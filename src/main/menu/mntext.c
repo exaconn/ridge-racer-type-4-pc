@@ -15,7 +15,6 @@ extern char LapTimeTemplateStr[];
 extern u8 *MenuTextTemplates[];
 extern char *MenuTransmissionLabels[];
 extern char *MenuBlankLabelStr;
-extern s8 MenuDifficultySetting;
 extern s16 ReverseCourse;
 extern TimeRecord16 RaceRecords[2][8][5];
 extern TimeRecord16 LapRecords[2][8][5];
@@ -97,7 +96,7 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
             FormatDecimalDigits((char *)&MenuTextRows[row].rendering.text[8], SelectionState.fields.retries08[SelectionState.fields.phase17], 0);
             break;
         case 17:
-            value = MenuDifficultySetting;
+            value = SelectionState.fields.result19;
             CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[0], StrStarSpacePrefix);
             if (value == 0) {
                 value = 1;
@@ -145,6 +144,5 @@ char LapTimeTemplateStr[144] = {48, 48, 39, 48, 48, 34, 48, 48, 48, 32, 32};
 u8 *MenuTextTemplates[34] = {(unsigned char *)&StrStarSpacePrefix[488], (unsigned char *)&StrStarSpacePrefix[468], (unsigned char *)&StrStarSpacePrefix[444], (unsigned char *)&StrStarSpacePrefix[420], (unsigned char *)&StrStarSpacePrefix[396], (unsigned char *)&StrStarSpacePrefix[380], (unsigned char *)&StrStarSpacePrefix[372], (unsigned char *)&StrStarSpacePrefix[348], (unsigned char *)&StrStarSpacePrefix[332], (unsigned char *)&StrStarSpacePrefix[324], (unsigned char *)&StrStarSpacePrefix[312], (unsigned char *)&StrStarSpacePrefix[300], (unsigned char *)&StrStarSpacePrefix[280], (unsigned char *)&StrStarSpacePrefix[260], (unsigned char *)&StrStarSpacePrefix[240], (unsigned char *)&StrStarSpacePrefix[228], (unsigned char *)&StrStarSpacePrefix[208], (unsigned char *)&StrStarSpacePrefix[192], (unsigned char *)&StrStarSpacePrefix[168], (unsigned char *)&StrStarSpacePrefix[144], (unsigned char *)&StrStarSpacePrefix[120], (unsigned char *)&StrStarSpacePrefix[96], (unsigned char *)&StrStarSpacePrefix[72], (unsigned char *)&StrStarSpacePrefix[48], (unsigned char *)&StrStarSpacePrefix[28], (unsigned char *)&StrStarSpacePrefix[16], (unsigned char *)&StrStarSpacePrefix[4], (unsigned char *)&StrStarSpacePrefix[0], (unsigned char *)&D_80010B84[96], (unsigned char *)&D_80010B84[80], (unsigned char *)&D_80010B84[56], (unsigned char *)&D_80010B84[40], (unsigned char *)&D_80010B84[20], (unsigned char *)D_80010B84};
 char *MenuTransmissionLabels[4] = {(char *)&StrStarSpacePrefix[532], (char *)&StrStarSpacePrefix[524], (char *)&StrStarSpacePrefix[516], (char *)&StrStarSpacePrefix[508]};
 char *MenuBlankLabelStr = (char *)&StrStarSpacePrefix[500];
-s8 MenuDifficultySetting;
 s32 MenuTextRowCount;
 MenuTextRow60 *MenuTextRows;

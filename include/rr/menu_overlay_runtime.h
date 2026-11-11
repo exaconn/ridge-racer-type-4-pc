@@ -68,7 +68,6 @@ extern s32 LapTimes[10];
 #include "rr/menu_arena_base.h"
 extern s16 GameModeType;
 #include "rr/menu_arena_state.h"
-extern u8 *MenuSharedScratchPtr;
 extern UiRow24 *UiRows;
 extern u16 SubmodeState;
 #include "game/ui/uidraw.h"

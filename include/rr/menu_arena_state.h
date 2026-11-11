@@ -3,7 +3,8 @@
 
 #include "rr/menu_arena_types.h"
 
-/* Two shared CPU pointer cells, retained at full width on native builds. */
+/* Two shared CPU pointer cells, retained at full width on native builds.
+ * The PS1 map also names the second one MenuSharedScratchPtr. */
 extern MenuArenas8 MenuArenas;
 
 #endif

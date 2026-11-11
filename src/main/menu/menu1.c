@@ -178,7 +178,7 @@ void CarStandingsModeEnter(void)
     ScreenFrame = 0;
     VSyncThreshold = 0x80;
     ResetScreenCounters();
-    if (MenuActiveDialogId == 6) {
+    if (SelectionState.fields.mode1A == 6) {
         InitSelectionRows();
         ClearScreenOverlayState();
         InitMenuArenas();

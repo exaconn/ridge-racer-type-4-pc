@@ -1,4 +1,5 @@
 #include "game/system/pad.h"
+#include "rr/save_slots.h"
 #include "game/ui/uipart1.h"
 #include "psyq/libgte/rotmat.h"
 #include "rr/model_table.h"
@@ -66,7 +67,6 @@ extern int TileRectUploadPhase;
 extern Vec3sFields8 TileRectDefaultAngles;
 extern GpuRectangleFields TileRectCaptureVramRect;
 extern int TileRectSkyHorizonY;
-extern unsigned char TileRectBgFileOffset;
 extern S_8010BF70 *TileRectScene;
 
 extern int TileFadeColorTable[];
@@ -160,7 +160,7 @@ void TileRectSceneModeUpdate(void) {
 
     switch (TileRectUploadPhase) {
     case 0:
-        if (CdFileReadStart(GetR4FileIndex(0, TileRectBgFileOffset + 1), LoadCursor) == 0) {
+        if (CdFileReadStart(GetR4FileIndex(0, SelectionState.fields.reserved10[2] + 1), LoadCursor) == 0) {
             return;
         }
         TileRectUploadPhase = 1;
@@ -182,7 +182,7 @@ void TileRectSceneModeUpdate(void) {
         LoadTimImage(LoadCursor);
         TileRectUploadPhase = 4;
     case 4:
-        if (CdFileReadStart(GetR4FileIndex(0, TileRectBgFileOffset + 0xA), LoadCursor) == 0) {
+        if (CdFileReadStart(GetR4FileIndex(0, SelectionState.fields.reserved10[2] + 0xA), LoadCursor) == 0) {
             return;
         }
         TileRectUploadPhase = 5;
@@ -521,6 +521,5 @@ GpuRectangleFields TileRectCaptureVramRect = {.x = 176, .y = 72, .w = 128, .h = 
 int TileRectSkyHorizonY = 128;
 int TileFadeColorTable[64] = {738197504, 739776536, 741355568, 742868807, 744118874, 745171562, 745961078, 746421629, 746619008, 746421629, 745961078, 745171562, 744118874, 742868807, 741355568, 739776536, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504};
 int TileRectFlashColors[64] = {746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746553215, 746355836, 745697906, 744711011, 743395151, 741881912, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 741881912, 743395151, 744711011, 745697906, 746355836, 746553215};
-unsigned char TileRectBgFileOffset;
 S_8010BF70 *TileRectScene;
 int TileRectUploadPhase;

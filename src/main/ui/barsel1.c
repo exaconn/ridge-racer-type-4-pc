@@ -1,4 +1,5 @@
 #include "game/ui/uipart1.h"
+#include "rr/save_slots.h"
 #include "rr/menu_text_state.h"
 #include "types.h"
 #include "game/ui/barsel1.h"
@@ -21,7 +22,7 @@ s32 UpdateModeSelectBarAnim(s32 direction) {
     }
     UpdateBadgeRowAnim(0);
     if (Dialogue->b4 >= 0x22) {
-        if (BadgeRows->state10 == 0xB && MenuActiveDialogId == 0) {
+        if (BadgeRows->state10 == 0xB && SelectionState.fields.mode1A == 0) {
             BadgeRows->state10 = 0;
         } else if (BadgeRows->state10 < 4) {
             DrawMenuStepArrows(0xA0, 0xCC, 0x30, 0, SelectedTeamIndex, 0, 4);

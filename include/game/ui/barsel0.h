@@ -2,8 +2,8 @@
 #define RR_GAME_UI_BARSEL0_H
 
 #include "types.h"
+#include "rr/save_slots.h"
 
-extern short MenuActiveDialogId;
 /* Direction is supplied by the results controller and currently ignored. */
 s32 UpdateResultsBarSelection(s32 direction);
 

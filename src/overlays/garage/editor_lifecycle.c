@@ -1,4 +1,5 @@
 #include "rr/overlay_module.h"
+#include "rr/menu_arena_state.h"
 #include "rr/overlay662_init.h"
 #include "rr/overlay662_arena_init.h"
 #include "rr/load_cursor.h"
@@ -87,9 +88,9 @@ void ovl662_init_editor_arenas(void)
         ovl662_dispatch_editor_actions(-1);
         ovl662_init_option_groups(-1);
         ovl662_reset_editor_state();
-        base.ptr=MenuSharedScratchPtr+4;
+        base.ptr=MenuArenas.second+4;
         owner=&ovl662_editor_workspace;
-        base.ptr-=((GarageArenaAddress)MenuSharedScratchPtr&3U);
+        base.ptr-=((GarageArenaAddress)MenuArenas.second&3U);
         second=base.ptr+0x840;
         /* Retain each publication of the shared arena cursor. */
         tmp1 = base.addr | 1;

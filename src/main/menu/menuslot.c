@@ -1,4 +1,5 @@
 #include "game/system/pad.h"
+#include "rr/menu_arena_state.h"
 #include "game/ui/uipart1.h"
 #include "game/sound/sndvab.h"
 #include "scratchpad.h"
@@ -26,7 +27,6 @@ extern short MenuCursor;
 extern short ModeIndex;
 extern unsigned short SubmodeState;
 extern int ModeFrame;
-extern u8 *MenuSharedScratchPtr;
 extern int DialogueSceneMode;
 extern UiUvRect SaveSlotPanelSpriteUv;
 
@@ -48,7 +48,7 @@ void YesNoPromptModeUpdate(void) {
                 BadgeRows->state10 = 4;
                 UiRows[MenuCursor].cells[0] = 1;
                 FadeCountdown = 0x40;
-                LoadCursor = MenuSharedScratchPtr;
+                LoadCursor = MenuArenas.second;
                 ResetScreenCounters();
                 if (MenuCursor == 0) {
                     SubmodeState = 3;

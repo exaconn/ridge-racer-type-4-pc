@@ -1,4 +1,5 @@
 #include "rr/emblem_images.h"
+#include "rr/menu_arena_state.h"
 #include "rr/runtime_settings.h"
 #include "rr/menu_choice_types.h"
 #include "rr/menu_selection.h"
@@ -31,7 +32,6 @@
 extern unsigned char LoadState;
 #include "rr/cd_directory_buffer.h"
 #include "rr/menu_arena_base.h"
-extern u8 *MenuSharedScratchPtr;
 #include "game/data/selection.h"
 #include "rr/scene_camera_state.h"
 extern int DialogueSceneMode;
@@ -175,7 +175,7 @@ int LoadMenuSoundStep(void) {
             SoundCloseVabsAndReset();
             LoadState = 2;
             InitMenuArenas();
-            LoadCursor = MenuSharedScratchPtr;
+            LoadCursor = MenuArenas.second;
     case 2:
             r = 1;
         }
@@ -415,7 +415,7 @@ int LoadTimListStep(void) {
     case 0:
         LoadIndex = 0;
         LoadState = 1;
-        LoadCursor = MenuSharedScratchPtr;
+        LoadCursor = MenuArenas.second;
     case 1:
         if (CdFileReadStart(GetR4FileIndex(1, 0x13), LoadCursor)) {
             LoadState = 2;
@@ -709,7 +709,6 @@ char *TrackNodesEnd;
 void *PresetEmblemTimPtr;
 int DialogueSceneMode;
 void *MenuArenaBase;
-u8 *MenuSharedScratchPtr;
 unsigned char LoadState;
 /* PS1: 0x5168 bytes. The host layouts placed in it are larger: the dialogue
  * state LoadMenuCarModelsStep puts at +0x4E20 and the replay storage. */

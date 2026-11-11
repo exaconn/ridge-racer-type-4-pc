@@ -1,4 +1,5 @@
 #include "types.h"
+#include "rr/save_slots.h"
 #include "rr/vehicle_table.h"
 #include "rr/menu_selection.h"
 #include "rr/frame_storage_types.h"
@@ -50,7 +51,7 @@ void UpdateHudRankDisplay(int a0, int a1) {
     if (GameModeType == 1) {
         s0 = 0x40;
         s1 = 0;
-        if (HudDisplayedLapIndex <= HudLapTargetThresholds[MenuSubmodePendingId / 2]) {
+        if (HudDisplayedLapIndex <= HudLapTargetThresholds[SelectionState.fields.phase17 / 2]) {
             s1 = 1;
             v = rsin((ScreenFrame & 0x3F) << 6);
             if (v < 0) v += 0x3F;

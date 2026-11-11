@@ -68,6 +68,13 @@ class DuckStation:
         self.release(port)
 
     def screenshot(self, path):
+        """Write the displayed frame as a PPM. DuckStation's regtest reads its
+        RGB5A1 display texture back and expands each 5-bit channel c to
+        (c << 3) | (c & 7) (9 for c=1), while the port presents and captures
+        round(c * 255 / 31) (8 for c=1), the full-range PS1 DAC level that
+        DuckStation's own display shaders also show. Compare frames from the
+        two at 5 bits (value >> 3 recovers c from either), or compare VRAM:
+        `vram <path>` here, RR4_GPU_DUMP_AT in the port (GPUDUMP replay)."""
         self.ai.sendall(b'screenshot\n')
         hdr = self.aif.readline().decode().split()
         if hdr[0] != 'SCREENSHOT':

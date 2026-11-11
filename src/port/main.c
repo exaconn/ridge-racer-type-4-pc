@@ -8,6 +8,16 @@
  *   RR4_VRAM=file      write the whole VRAM as a PPM when exiting
  *   RR4_CAPTURE_AT=l   also write the displayed frame at each VSync of the
  *                      comma list l, as <RR4_CAPTURE or "capture">.<vsync>.ppm
+ *   RR4_GPU_DUMP_AT=l  record the GPU commands of the frame after each
+ *                      VSync of the comma list l (to the next VSync) as
+ *                      <RR4_GPU_DUMP or "gpudump">.<vsync>.psxgpu, a GPUDUMP
+ *                      file DuckStation replays, and the VRAM after it as
+ *                      <...>.<vsync>.vram (raw 1024x512 16-bit pixels).
+ *                      RR4_GPU_DUMP_LEN=n records n VSyncs instead of one
+ *                      (frames that take more than one field).
+ *   RR4_RASTERIZER=gpu draw with PsyZ's GPU rasterizer at 1x as well; by
+ *                      default 1x frames are drawn by the CPU rasterizer,
+ *                      which matches the PS1 GPU pixel for pixel.
  *   RR4_TRACE=n        print the mode state every n VSyncs
  *   RR4_PAD_SCRIPT=s   test input: hold pad buttons over VSync ranges.
  *                      s is a comma list of [2:]button@vsync[+frames]
@@ -89,6 +99,7 @@
 #include <psyz.h>
 #include <psyz/audio.h>
 #include <psyz/cd.h>
+#include <psyz/gpu.h>
 #include <psyz/input.h>
 #include <psyz/system.h>
 #include <psyz/video.h>
@@ -570,10 +581,37 @@ static void capture_at_vsync(long vsync) {
     }
 }
 
+static long gpu_dump_at[64];
+static int gpu_dump_at_len;
+static long gpu_dump_open = -1;
+
+static void gpu_dump_vsync(long vsync) {
+    const char *base = getenv("RR4_GPU_DUMP");
+    char path[512];
+
+    if (!base || !*base)
+        base = "gpudump";
+    const char *len = getenv("RR4_GPU_DUMP_LEN");
+
+    if (gpu_dump_open >= 0 && vsync - gpu_dump_open >= (len ? atol(len) : 1)) {
+        snprintf(path, sizeof(path), "%s.%ld.vram", base, gpu_dump_open);
+        Psyz_GpuDumpEnd(path);
+        gpu_dump_open = -1;
+    }
+    for (int i = 0; i < gpu_dump_at_len; i++) {
+        if (gpu_dump_at[i] == vsync && gpu_dump_open < 0) {
+            snprintf(path, sizeof(path), "%s.%ld.psxgpu", base, vsync);
+            if (Psyz_GpuDumpBegin(path) == 0)
+                gpu_dump_open = vsync;
+        }
+    }
+}
+
 /* The original loop never returns; the host ends it at a VSync. */
 static void host_vsync(void) {
     frame_count++;
     capture_at_vsync(frame_count);
+    gpu_dump_vsync(frame_count);
     update_anchor(frame_count);
     apply_pad_script(frame_count);
     apply_pokes(frame_count);
@@ -649,6 +687,12 @@ int main(int argc, char **argv) {
         return 1;
     }
     snprintf(mounted, sizeof(mounted), "%s", cue);
+    /* At 1x without GPU-only enhancements the CPU rasterizer draws the
+     * frames bit-exactly as the PS1 GPU; higher internal resolutions and the
+     * enhancements use the GPU rasterizer. RR4_RASTERIZER=gpu forces the GPU
+     * rasterizer at 1x too (for comparisons). */
+    Psyz_VideoSetNativeRasterizer(!(getenv("RR4_RASTERIZER") &&
+                                    !strcmp(getenv("RR4_RASTERIZER"), "gpu")));
     if (interactive)
         Rr4PrefsApply(&prefs, 0);
     if (interactive || (getenv("RR4_SETTINGS_SCRIPT") && *getenv("RR4_SETTINGS_SCRIPT")))
@@ -671,6 +715,11 @@ int main(int argc, char **argv) {
         autodrive = getenv("RR4_AUTODRIVE") && atoi(getenv("RR4_AUTODRIVE"));
         if (autodrive && getenv("RR4_AUTODRIVE_LOG"))
             autodrive_log = fopen(getenv("RR4_AUTODRIVE_LOG"), "w");
+        for (const char *l = getenv("RR4_GPU_DUMP_AT"); l && *l && gpu_dump_at_len < 64;) {
+            char *end;
+            gpu_dump_at[gpu_dump_at_len++] = strtol(l, &end, 10);
+            l = *end == ',' ? end + 1 : NULL;
+        }
         for (const char *l = getenv("RR4_CAPTURE_AT"); l && *l && capture_at_len < 64;) {
             char *end;
             capture_at[capture_at_len++] = strtol(l, &end, 10);

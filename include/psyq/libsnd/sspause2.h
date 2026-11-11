@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-/* PsyZ declares SsSeqReplay but does not implement it. */
+/* PsyZ: void SsSeqReplay(short seq_access_num). */
 void SsSeqReplay(short access);
 
 #endif /* RR_PSYQ_LIBSND_SSPAUSE2_H */

@@ -35,9 +35,14 @@
  *                      RR4_AUTODRIVE_LOG=file it writes one line
  *                      "ModeFrame mask" per VSync it drives, which
  *                      tools/port/duckstation.py replays on the reference
- *                      (same ModeFrame -> same buttons) for comparison. */
+ *                      (same ModeFrame -> same buttons) for comparison.
+ *   RR4_AUDIO_CAPTURE=file  write the mixed audio output (44100 Hz 16-bit
+ *                      stereo) as a WAV file, finished when exiting. With
+ *                      PSYZ_AUDIO_CLOCK=video the samples follow the VSync
+ *                      count instead of the wall clock. */
 
 #include <psyz.h>
+#include <psyz/audio.h>
 #include <psyz/cd.h>
 #include <psyz/input.h>
 #include <psyz/system.h>
@@ -331,9 +336,67 @@ static void write_ppm(const char *path, unsigned char *rgb, int w, int h) {
     free(rgb);
 }
 
+/* RR4_AUDIO_CAPTURE: the PCM data follows a 44-byte WAV header that
+ * finish_audio_capture fills in once the length is known. */
+static FILE *audio_capture;
+static unsigned long audio_capture_frames;
+
+static void capture_audio(const short *samples, int frames, void *userdata) {
+    (void)userdata;
+    if (audio_capture && frames > 0) {
+        fwrite(samples, 4, (size_t)frames, audio_capture);
+        audio_capture_frames += (unsigned long)frames;
+    }
+}
+
+static void put_le(unsigned char *p, unsigned long v, int n) {
+    for (int i = 0; i < n; i++)
+        p[i] = (unsigned char)(v >> (8 * i));
+}
+
+static void start_audio_capture(const char *path) {
+    unsigned char header[44] = {0};
+
+    audio_capture = fopen(path, "wb");
+    if (!audio_capture) {
+        fprintf(stderr, "ridge-racer-type-4-pc: cannot write %s\n", path);
+        return;
+    }
+    fwrite(header, 1, sizeof(header), audio_capture);
+    Psyz_AudioSetCaptureCallback(capture_audio, NULL);
+}
+
+static void finish_audio_capture(void) {
+    unsigned char h[44];
+    unsigned long bytes;
+
+    if (!audio_capture)
+        return;
+    Psyz_AudioSetCaptureCallback(NULL, NULL);
+    bytes = audio_capture_frames * 4;
+    memcpy(h, "RIFF", 4);
+    put_le(h + 4, 36 + bytes, 4);
+    memcpy(h + 8, "WAVEfmt ", 8);
+    put_le(h + 16, 16, 4);
+    put_le(h + 20, 1, 2);         /* PCM */
+    put_le(h + 22, 2, 2);         /* stereo */
+    put_le(h + 24, 44100, 4);
+    put_le(h + 28, 44100 * 4, 4); /* bytes per second */
+    put_le(h + 32, 4, 2);         /* bytes per frame */
+    put_le(h + 34, 16, 2);
+    memcpy(h + 36, "data", 4);
+    put_le(h + 40, bytes, 4);
+    fseek(audio_capture, 0, SEEK_SET);
+    fwrite(h, 1, sizeof(h), audio_capture);
+    fclose(audio_capture);
+    audio_capture = NULL;
+}
+
 static void host_exit(void) {
     const char *path;
     int w, h;
+
+    finish_audio_capture();
 
     path = getenv("RR4_CAPTURE");
     if (path && *path)
@@ -412,6 +475,8 @@ int main(int argc, char **argv) {
         parse_watch(getenv("RR4_WATCH"));
         parse_pad_script(getenv("RR4_PAD_SCRIPT"));
         parse_poke(getenv("RR4_POKE"));
+        if (getenv("RR4_AUDIO_CAPTURE") && *getenv("RR4_AUDIO_CAPTURE"))
+            start_audio_capture(getenv("RR4_AUDIO_CAPTURE"));
         autodrive = getenv("RR4_AUTODRIVE") && atoi(getenv("RR4_AUTODRIVE"));
         if (autodrive && getenv("RR4_AUTODRIVE_LOG"))
             autodrive_log = fopen(getenv("RR4_AUTODRIVE_LOG"), "w");

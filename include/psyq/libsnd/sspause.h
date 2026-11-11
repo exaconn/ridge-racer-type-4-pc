@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-/* PsyZ declares SsSeqPause but does not implement it. */
+/* PsyZ: void SsSeqPause(short seq_access_num). */
 void SsSeqPause(short access);
 /* PsyZ: void SsSeqPlay(short seq_access_num, char play_mode, short l_count). */
 void SsSeqPlay(short access, char mode, short count);

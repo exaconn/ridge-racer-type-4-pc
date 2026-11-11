@@ -16,13 +16,5 @@ extern s16 SubmodeState;
  * The threshold is captured once per frame after DrawSync. All later context
  * arguments are read afresh. Dispatch selectors require accessible table rows. */
 void MainLoopStartupHook(void);
-
-/* Host frame pacing. On the PS1 a frame that renders the race world (any
- * SetupPlayerView: races, intro, replays, attract demo, split screen) takes
- * longer than one field, so VSync(0) returns on the second blank and races
- * run at 25 Hz (PAL); lap timing counts 40 ms per frame. The host does the
- * work well inside a field, so SetupPlayerView raises this to 2 and MainLoop
- * waits that many fields since the previous frame (VSync(n)); 1 otherwise. */
-extern s32 HostFrameFields;
 void MainLoop(void);
 #endif

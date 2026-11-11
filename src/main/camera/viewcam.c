@@ -1,4 +1,3 @@
-#include "rr/frame_loop.h"
 #include "psyq/libgte/rotmatyxz.h"
 #include "rr/menu_selection.h"
 #include "psyq/libgte/gtemat5.h"
@@ -107,7 +106,6 @@ void SetupViewLighting(void) {
 
 
 void SetupPlayerView(int player) {
-    HostFrameFields = 2; /* PS1 frame cost of the race world; rr/frame_loop.h */
     BuildViewSegmentObjectList(player);
     ApplySegmentVisibilityMask();
     SetupViewLighting();

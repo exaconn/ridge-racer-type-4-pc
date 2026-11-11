@@ -8,6 +8,5 @@ void *DrawCarSpecBadgePanel(GpuDmaTag *ordering, void *cursor, s32 row);
 void *DrawGpSaveSlotsPanel(GpuDmaTag *ordering, void *cursor, s32 row);
 void *DrawControllerConfigPanel(GpuDmaTag *ordering, void *cursor, s32 row);
 char *FormatCountOfTotal(s32 first, s32 second, s32 digitsMinusOne);
-extern UiUvRect MenuStepArrowUv;
 
 #endif

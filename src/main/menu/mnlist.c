@@ -20,8 +20,8 @@
 
 
 
-extern UiUvRect UiFontGlyphs[];
 extern char SaveSlotDashPlaceholder[];
+extern char SaveSlotPresetLabel[12];
 extern u8 SaveSlotHeaderStepX[];
 extern u8 SaveSlotHeaderGlyphIds[];
 extern u8 SaveSlotDigitGlyphIds[];
@@ -81,21 +81,17 @@ void *DrawCarSpecBadgePanel(GpuDmaTag *arg0, void *arg1, s32 arg2)
     }
     else
     {
-      /* On the PS1 the label "PRESET " was stored directly before the grade
-       * and digit bytes; the host builds the same "PRESET D1" text in one
-       * buffer instead of addressing across separate objects. */
-      static char presetLabel[12] = "PRESET  ";
       if (SelectionRows.entries[ActivePlayerIndex].selection == 0)
       {
-        CopyStringClearTail(presetLabel + 7, "D ");
+        CopyStringClearTail(&SaveSlotPresetLabel[7], "D ");
       }
       else
       {
-        CopyStringClearTail(presetLabel + 7, "G ");
+        CopyStringClearTail(&SaveSlotPresetLabel[7], "G ");
       }
-      q = presetLabel + 8;
+      q = &SaveSlotPresetLabel[8];
       FormatDecimalDigits(q, SelectionRows.entries[ActivePlayerIndex].variant + 1, 0);
-      sp4C = presetLabel;
+      sp4C = q - 8;
     }
   }
   record = CarRecordPtrs[ActivePlayerIndex];
@@ -363,7 +359,10 @@ void *DrawControllerConfigPanel(GpuDmaTag *ordering, void *cursor, s32 row)
 }
 
 /* Initial values of the globals this module owns. */
-UiUvRect MenuStepArrowUv = {.u = 0x68, .v = 0xF0, .w = 0x2D, .h = 0x10};
+/* 0x8009FDB8: the preset label the selection list rewrites in place;
+ * +7 is the grade letter (SaveSlotGradePrefixBuf, 0x8009FDBF) and +8 the
+ * preset digit (SaveSlotQuestionMarks, 0x8009FDC0). */
+char SaveSlotPresetLabel[12] = "PRESET   ";
 char SaveSlotDashPlaceholder[8] = {80, 65, 67, 45, 77, 65, 78};
 u8 SaveSlotHeaderStepX[12] = {8, 0x18, 0x60, 0xE, 0x5F, 0x18, 8, 0x16, 0x62, 0x40, 0x2D, 0x14};
 u8 SaveSlotHeaderGlyphIds[12] = {0x5F, 0x14, 0x40, 0x14, 0x4A, 0x7B, 0x5E, 0x14, 0xE, 0xF, 0x10, 0x7B};

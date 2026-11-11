@@ -4,6 +4,14 @@
 
 typedef struct {u8 u,v,w,h;} UiUvRect;
 typedef struct {s16 glyph,count;} UiBarDescriptor;
+/* UI font glyph UVs. One PS1 table (0x8009FA1C..0x8009FC14) indexed as a
+ * whole by glyph id (labels such as "Save" are ids 89..125); the original
+ * names of its sub-ranges are views into it. */
+extern UiUvRect UiFontGlyphs[126];
+#define RecordsHeaderSpriteUvs (UiFontGlyphs + 33)
+#define SaveSlotStatusUvs (UiFontGlyphs + 89)
+#define MenuStepArrowUv (UiFontGlyphs[116])
+#define SaveSlotTrophyUvs (UiFontGlyphs + 124)
 extern UiUvRect SelectionBarGlyphUvs[];
 extern UiBarDescriptor SelectionBarDescriptors[];
 

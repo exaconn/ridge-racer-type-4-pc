@@ -3,7 +3,6 @@
 #include "rr/menu_label_render.h"
 #include "rr/save_progress.h"
 #include "rr/menu_choice.h"
-extern UiUvRect UiFontGlyphs[];
 extern u32 ScreenFrame;
 extern s8 ovl662_team_count_glyphs[7];
 extern u16 ovl662_team_unlocked_counts[4],ovl662_total_unlocked_cars;

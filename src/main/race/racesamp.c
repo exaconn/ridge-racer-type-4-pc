@@ -40,8 +40,10 @@ extern unsigned char RaceCarStatParam3[];
 extern unsigned char RaceCarStatParam4[];
 extern unsigned char RaceCarStatParam5[];
 extern RaceVehicle PlayerCars[];
-extern RaceVehicle DuelRaceVehicles[];
-extern RaceVehicle GrandPrixRaceVehicles[];
+/* The PS1 map names two windows of the computer car array: DuelRaceVehicles
+ * (ComCars - 2) and GrandPrixRaceVehicles (ComCars - 1), so that car slot i
+ * of a race maps onto ComCars without a gap. */
+extern RaceVehicle ComCars[];
 extern short LinkHostFlag;
 extern short ReverseCourse;
 
@@ -111,7 +113,7 @@ void InitCarTable(int a) {
             if (i == 0) {
                 CarTable[0] = PlayerCars;
             } else {
-                CarTable[i] = GrandPrixRaceVehicles + i;
+                CarTable[i] = ComCars + (i - 1);
             }
         }
         break;
@@ -128,7 +130,7 @@ void InitCarTable(int a) {
         if (i < v) {
             n = v;
             do {
-                CarTable[i] = DuelRaceVehicles + i;
+                CarTable[i] = ComCars + (i - 2);
                 i++;
             } while (i < n);
         }
@@ -261,5 +263,3 @@ unsigned char RaceCarStatParam3[4] = {7, 4, 5, 6};
 unsigned char RaceCarStatParam4[4] = {0xB, 8, 9, 0xA};
 unsigned char RaceCarStatParam5[4] = {0x13, 0x10, 0x11, 0x12};
 s16 NumCars;
-RaceVehicle DuelRaceVehicles[1];
-RaceVehicle GrandPrixRaceVehicles[1];

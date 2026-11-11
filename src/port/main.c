@@ -196,13 +196,14 @@ static unsigned short autodrive_mask(void) {
     lateral = *(const short *)(PlayerCars + 0x172);
     track = *(const short *)(PlayerCars + 0x1EC);
     heading = (short)*(const int *)(PlayerCars + 0x54);
-    error = lateral / 4;
-    if (error > 256)
-        error = 256;
-    if (error < -256)
-        error = -256;
-    error = ((track - error - heading + 0x800) & 0xFFF) - 0x800;
-    mask = 0x0040; /* cross: accelerate */
+    error = lateral / 2;
+    if (error > 400)
+        error = 400;
+    if (error < -400)
+        error = -400;
+    /* The track heading runs mirrored to the car's yaw (0x800 - yaw). */
+    error = ((0x800 - track - error - heading + 0x800) & 0xFFF) - 0x800;
+    mask = error > 300 || error < -300 ? 0 : 0x0040; /* cross: accelerate */
     if (error > 24)
         mask |= 0x2000; /* right */
     else if (error < -24)

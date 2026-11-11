@@ -44,7 +44,11 @@
  *                      e.g. "PlayerCars+388+=170330@3400" adds a lap's worth
  *                      of distance to the first player car; the value may
  *                      also name a 32-bit global read when applied
- *                      ("PlayerCars+388+=TrackLength@..."). The vsync may
+ *                      ("PlayerCars+388+=TrackLength@...", or name+offset
+ *                      as in "PlayerCars+388=PlayerCars+1204@..."). The name
+ *                      "rand" sets the BIOS rand() state instead, e.g.
+ *                      "rand=12345@m1/47:600" to align random sequences
+ *                      with the reference. The vsync may
  *                      be a mode anchor mG/I:d as in RR4_PAD_SCRIPT (applied
  *                      once per entry into that mode).
  *   RR4_AUTODRIVE=1    test driver for whole races: while a race runs
@@ -84,6 +88,7 @@
 #include "game/system/pad.h"
 
 void MainLoop(void);
+void Psyz_Srand(unsigned int seed);
 
 /* Mode state of the original dispatcher, read for RR4_TRACE. */
 extern unsigned short ModeGroup;
@@ -220,7 +225,13 @@ static void parse_poke(const char *list) {
             pokes[poke_count].value = strtol(eq + 1, &num_end, 0);
             pokes[poke_count].value_from = NULL;
             if (num_end == eq + 1 || *num_end) {
+                char *off = strchr(eq + 1, '+');
+                long from_offset = off ? strtol(off + 1, NULL, 0) : 0;
+                if (off)
+                    *off = 0;
                 pokes[poke_count].value_from = dlsym(RTLD_DEFAULT, eq + 1);
+                if (pokes[poke_count].value_from)
+                    pokes[poke_count].value_from = (const int *)((const char *)pokes[poke_count].value_from + from_offset);
                 if (!pokes[poke_count].value_from) {
                     fprintf(stderr, "RR4_POKE: no symbol %s\n", eq + 1);
                     continue;
@@ -240,6 +251,13 @@ static void parse_poke(const char *list) {
             *plus = 0;
             offset = strtol(plus + 1, NULL, 0);
         }
+        if (!strcmp(item, "rand")) {
+            /* The BIOS rand() state (PsyZ keeps it private): store only. */
+            pokes[poke_count].addr = NULL;
+            pokes[poke_count].add = 0;
+            poke_count++;
+            continue;
+        }
         pokes[poke_count].addr = dlsym(RTLD_DEFAULT, item);
         if (!pokes[poke_count].addr) {
             fprintf(stderr, "RR4_POKE: no symbol %s\n", item);
@@ -255,6 +273,10 @@ static void apply_pokes(long vsync) {
         long v = pokes[i].value_from ? *pokes[i].value_from : pokes[i].value;
         if (anchor_time(pokes[i].mode, vsync) != pokes[i].vsync)
             continue;
+        if (!pokes[i].addr) {
+            Psyz_Srand((unsigned int)v);
+            continue;
+        }
         switch (pokes[i].size) {
         case 1:
             *(signed char *)pokes[i].addr = (signed char)(pokes[i].add ? *(signed char *)pokes[i].addr + v : v);

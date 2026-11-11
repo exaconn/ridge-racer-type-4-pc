@@ -6,8 +6,9 @@ original game code with [our PsyZ fork](https://github.com/khasinski/parasite-ev
 ## Status
 
 The port is not playable yet. The whole original game (resident code and all
-mode overlays) builds natively for 64-bit hosts on PsyZ, mounts the disc image
-and runs its boot sequence; the opening movie and the front end are being
+mode overlays) builds natively for 64-bit hosts on PsyZ and boots from the
+disc image through the opening movie to the title screen and main menu; the
+attract demo race renders. Races, the remaining menus and audio are being
 brought up. See the [port plan](docs/PC_PORT_PLAN.md) for the milestones.
 
 ## Play

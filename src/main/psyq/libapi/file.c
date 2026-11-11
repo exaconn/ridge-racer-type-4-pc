@@ -12,6 +12,11 @@
 
 enum { FILE_HANDLE_COUNT = 16 };
 
+/* BIOS open mode bit for asynchronous transfers (romio.h FASYNC). The host
+ * <fcntl.h>, reached through the PsyZ headers, redefines FASYNC as O_ASYNC
+ * (0x40 on macOS, 0x2000 on Linux), so the BIOS value is spelled out. */
+enum { FILE_MODE_ASYNC = 0x8000 };
+
 typedef enum {
     FILE_KIND_FREE,
     FILE_KIND_HOST,
@@ -72,7 +77,7 @@ s32 FileOpen(const char *name, s32 mode) {
         return -1;
     }
     FileHandles[descriptor] = (FileHandle){
-        FILE_KIND_HOST, host, FileIsDevice(name, "bu") && (mode & FASYNC)};
+        FILE_KIND_HOST, host, FileIsDevice(name, "bu") && (mode & FILE_MODE_ASYNC)};
     return descriptor;
 }
 

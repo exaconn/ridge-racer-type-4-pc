@@ -25,8 +25,18 @@ extern int SwCardEvTimeout;
 extern int SwCardEvNew;
 extern unsigned char CardPortPollStatus[];
 extern char StrCardDirPatternFmt[];
-extern char CardDirEntries[];
-extern char *nextfile();
+/* BIOS directory entry (struct DIRENTRY): firstfile/nextfile fill one per
+ * card file. `next` is a pointer, so the host entry is wider than the PS1's
+ * 0x28 bytes; the table is indexed by entry, never by a PS1 byte stride. */
+typedef struct CardDirEntry {
+    char name[20];
+    s32 attr;
+    s32 size;
+    struct CardDirEntry *next;
+    char system[8];
+} CardDirEntry;
+extern CardDirEntry CardDirEntries[15];
+extern void *nextfile(void *directory);
 extern char CardFilePathFmt[];
 extern int CardFileHandle;
 
@@ -130,27 +140,26 @@ void ClearSwCardEvents(void) {
 
 int CountCardFiles(int a, int b) {
     char sp[32];
-    char *s0;
+    CardDirEntry *s0;
     int n = 0;
     PsyqSprintf((s8 *)sp, (const s8 *)StrCardDirPatternFmt, a, b);
     s0 = CardDirEntries;
     if (firstfile(sp, s0) == s0) {
-        do { n++; s0 += 0x28; } while (nextfile(s0) == s0);
-        n = n;
+        /* A card holds at most 15 files. */
+        do { n++; s0++; } while (n < 15 && nextfile(s0) == s0);
     }
     return n;
 }
 
 int CardFreeBlocks(int a0) {
     int a2 = 0, a1 = 0;
-    char *v1;
-    char *p = CardDirEntries;
+    CardDirEntry *v1;
     int v;
     if (a0 > 0) {
-        v1 = p;
+        v1 = CardDirEntries;
         do {
-            a1 += ((int *)v1)[6];
-            v1 += 0x28;
+            a1 += v1->size;
+            v1++;
         } while (++a2 < a0);
     }
     v = a1;
@@ -161,10 +170,10 @@ int CardFreeBlocks(int a0) {
 
 int CardHasFile(int a0, unsigned char *a1) {
     int t1 = 0, t2 = 0;
-    char *t0;
+    CardDirEntry *t0;
     int a3, v1;
     unsigned char a2;
-    char *b = CardDirEntries;
+    CardDirEntry *b = CardDirEntries;
     if (a0 > 0) {
         t0 = b;
         do {
@@ -173,7 +182,7 @@ int CardHasFile(int a0, unsigned char *a1) {
             do {
                 a2 = a1[v1];
                 if (a2 == 0) goto l64;
-                if (a2 != (unsigned char)t0[v1]) goto l74;
+                if (a2 != ((const unsigned char *)t0)[v1]) goto l74; /* name, then attr */
                 v1++;
             } while (v1 < 0x15);
 l64:
@@ -187,7 +196,7 @@ l74:
             a3++;
             goto l64;
 next_entry:
-            t0 += 0x28;
+            t0++;
         } while (t1 < a0);
     }
     return t2;
@@ -447,7 +456,7 @@ s32 CardPortLoaded[RR_CARD_PORT_COUNT];
 s32 CardPortState[RR_CARD_PORT_COUNT];
 s32 CardPortTimer[RR_CARD_PORT_COUNT];
 s32 CardPortLastResult[RR_CARD_PORT_COUNT];
-char CardDirEntries[600];
+CardDirEntry CardDirEntries[15];
 u8 CardRawSectorWorkBuf[RR_CARD_RAW_SCRATCH_BYTES];
 int HwCardEvIoe;
 int HwCardEvError;

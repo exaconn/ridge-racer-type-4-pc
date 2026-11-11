@@ -2,7 +2,8 @@
  * cards are PsyZ bu directories, which are plain memory cards: a card in a
  * direct slot rejects the PocketStation command (McxErrInvalid), an empty
  * slot (Psyz_CardSlotState) or any other channel has no card
- * (McxErrNoCard). The command completes at once. */
+ * (McxErrNoCard). The card driver transfers the command on the port's next
+ * vblank and it is answered at the vblank after (Psyz_CardRawBegin). */
 #include <string.h>
 #include <libmcx.h>
 #include <psyz/system.h>
@@ -26,14 +27,19 @@ s32 _cardCmd5ABegin(s32 request, u8 *buffer) {
                  Psyz_CardSlotState(request >> 4) != PSYZ_CARD_NONE)
                     ? McxErrInvalid
                     : McxErrNoCard;
+    if (!Psyz_CardRawBegin(request)) {
+        return 0;
+    }
     PdaPending = 1;
     return 1;
 }
 
 int MemCardSync(int mode, int *command, int *result) {
-    (void)mode; /* nothing is ever in progress, so polling and waiting agree */
     if (!PdaPending) {
         return McxSyncNone;
+    }
+    if (Psyz_CardRawSync(mode == 0) == 0) {
+        return McxSyncRun;
     }
     PdaPending = 0;
     if (command) {

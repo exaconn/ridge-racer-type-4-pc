@@ -35,7 +35,8 @@
  *                      RR4_AUTODRIVE_LOG=file it writes one line
  *                      "ModeFrame mask" per VSync it drives, which
  *                      tools/port/duckstation.py replays on the reference
- *                      (same ModeFrame -> same buttons) for comparison.
+ *                      (same ModeFrame -> same buttons) for comparison;
+ *                      RR4_AUTODRIVE_REPLAY=file drives from such a log.
  *   RR4_AUDIO_CAPTURE=file  write the mixed audio output (44100 Hz 16-bit
  *                      stereo) as a WAV file, finished when exiting. With
  *                      PSYZ_AUDIO_CLOCK=video the samples follow the VSync
@@ -269,6 +270,28 @@ static unsigned short autodrive_mask(void) {
 
     if (!autodrive || RaceState < 2 || RaceState > 3)
         return 0;
+    /* RR4_AUTODRIVE_REPLAY=file: drive from a RR4_AUTODRIVE_LOG instead. */
+    {
+        static unsigned short *replay;
+        static int replay_state = -1;
+        if (replay_state < 0) {
+            const char *path = getenv("RR4_AUTODRIVE_REPLAY");
+            FILE *in = path ? fopen(path, "r") : NULL;
+            int frame;
+            unsigned m;
+            replay_state = 0;
+            if (in) {
+                replay = calloc(65536, sizeof(*replay));
+                replay_state = 1;
+                while (fscanf(in, "%d %u", &frame, &m) == 2)
+                    if (frame >= 0 && frame < 65536)
+                        replay[frame] = (unsigned short)m;
+                fclose(in);
+            }
+        }
+        if (replay_state > 0)
+            return ModeFrame >= 0 && ModeFrame < 65536 ? replay[ModeFrame] : 0;
+    }
     lateral = *(const short *)(PlayerCars + 0x172);
     track = *(const short *)(PlayerCars + 0x1EC);
     heading = (short)*(const int *)(PlayerCars + 0x54);

@@ -19,8 +19,11 @@ extern TimeRecord16 RaceRecords[2][8][5];
 extern short GpSaveSlotCursor;
 extern TimeRecord16 LapRecords[2][8][5];
 extern CourseChoice4 LinkCarChoiceTable[2][2][9];
-extern char VsPlayerNames[2][12];
-extern CourseChoice4 VsCarChoiceTable[2][2][9];
+/* VS mode's player names and car choices are the versus overlay's objects
+ * (PS1 0x80118420 and 0x80118458): a car set loaded from the card in the VS
+ * preview goes straight into them. */
+extern char ovl661_player_names[24];
+extern CourseChoice4 ovl661_car_choices[2][2][9];
 extern int GarageExtraDefaultTimes[];
 extern char StrFmtPercentS[];
 extern GpuRectangle SavedEmblemClutRect;
@@ -91,8 +94,8 @@ int ApplySaveData(int mode) {
         if (gameSave->fields.checksum1AA4 == checksum) {
             for (i = 0; i < 9; i++) {
                 if (GameModeType == 2 || GameModeType == 3) {
-                    VsCarChoiceTable[ActivePlayerIndex & 1][1][i] = gameSave->fields.courseChoices33C[i];
-                    CopyStringClearTail(VsPlayerNames[ActivePlayerIndex & 1], gameSave->fields.progress280.prefix.progress.prefix00.fields.name);
+                    ovl661_car_choices[ActivePlayerIndex & 1][1][i] = gameSave->fields.courseChoices33C[i];
+                    CopyStringClearTail(ovl661_player_names + (ActivePlayerIndex & 1) * 12, gameSave->fields.progress280.prefix.progress.prefix00.fields.name);
                 } else if (GameModeType == 4) {
                     LinkCarChoiceTable[ActivePlayerIndex & 1][1][i] = gameSave->fields.courseChoices33C[i];
                     CopyStringClearTail(LinkPlayerNames[ActivePlayerIndex], gameSave->fields.progress280.prefix.progress.prefix00.fields.name);
@@ -198,5 +201,3 @@ EmblemTim840 *GarageSavedDecalTimA, *GarageSavedDecalTimB;
 EmblemTim840 *GarageSavedDecalTimA;
 GpuRectangle SavedEmblemClutRect;
 GpuRectangle SavedEmblemPixelRect;
-char VsPlayerNames[2][12];
-CourseChoice4 VsCarChoiceTable[2][2][9];

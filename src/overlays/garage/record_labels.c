@@ -10,7 +10,9 @@
 extern u8 ovl662_extra_record_col_dx[4];
 extern u8 ovl662_extra_record_row_dy[4];
 extern u8 ovl662_extra_record_label_glyphs[3];
-extern s32 ovl662_extra_default_times[3];
+/* The decal slots' edit times. The PS1 resident card code (scan, save,
+ * load) and this panel share the one object at 0x801272F0. */
+extern s32 GarageExtraDefaultTimes[3];
 extern s16 GpSaveSlotCursor;
 void FormatDecimalDigits(char *output, s32 value, s32 digitsMinusOne);
 
@@ -291,7 +293,7 @@ void *ovl662_draw_extra_record_row(GpuDmaTag *ord, void *cur, s32 row)
         FormatDecimalDigits(text, i + 1, 0);
         text[1] = 0;
         cur = AddTextSprites(ord, cur, x, y + ovl662_extra_record_row_dy[i + 1], text, 0x7FF8, 0, 0);
-        time[1] = ovl662_extra_default_times[i];
+        time[1] = GarageExtraDefaultTimes[i];
         if (time[1] != -1) {
             x += ovl662_extra_record_col_dx[1];
             cur = AddSpritePrim(ord, cur, x, y + ovl662_extra_record_row_dy[i + 1], &UiFontGlyphs[42], 0x7FF8, 0);
@@ -349,14 +351,12 @@ u8 ovl662_extra_record_col_dx[4] = {8, 0x1C, 0x38, 0x30};
 u8 ovl662_extra_record_row_dy[4] = {8, 0x30, 0x48, 0x60};
 u8 ovl662_extra_record_label_glyphs[3] = {0x5D, 0x2A, 0x2B};
 u8 ovl662_record_time_str_buf[6] = "00:00";
-s32 ovl662_extra_default_times[3];
 
 /* Writable state of this unit; ovl662_reset_module restores it. */
 static const OverlayStateRegion ovl662_record_labels_regions[] = {
     RR_OVERLAY_STATE(ovl662_car_number_glyphs),
     RR_OVERLAY_STATE(ovl662_char_grid_cmd_glyphs),
     RR_OVERLAY_STATE(ovl662_emblem_index_glyphs),
-    RR_OVERLAY_STATE(ovl662_extra_default_times),
     RR_OVERLAY_STATE(ovl662_extra_record_col_dx),
     RR_OVERLAY_STATE(ovl662_extra_record_label_glyphs),
     RR_OVERLAY_STATE(ovl662_extra_record_row_dy),

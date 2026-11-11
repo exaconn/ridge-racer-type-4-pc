@@ -22,11 +22,28 @@
  *                      passes through, or an idle connected digital pad when
  *                      none is present. Any script keeps pad 1 connected;
  *                      pad 2 only when some step names it.
+ *                      Instead of an absolute vsync a step can be anchored
+ *                      to a mode: button@mG/I:d presses d VSyncs after each
+ *                      entry into ModeGroup G / ModeIndex I (while still in
+ *                      it), and a %p suffix repeats the step every p VSyncs,
+ *                      e.g. "circle@m1/12:60+4%154" (dialogue) or
+ *                      "start@m1/22:120" (skip a replay).
  *   RR4_WATCH=list     with RR4_TRACE, also print globals by name: a comma
  *                      list of name[:size] (size 1, 2 or 4 bytes, default 4,
  *                      signed), e.g. "TitleSceneStage:2,FadeCountdown:2".
  *                      name+offset reads a member at a byte offset (decimal
  *                      or 0x hex) into the object, e.g. "SoundState+9904".
+ *   RR4_POKE=list      test hook to fast-forward game state: a comma list of
+ *                      name[+offset][:size]=value@vsync (store) or
+ *                      name[+offset][:size]+=value@vsync (add), applied once
+ *                      at that VSync (between game frames). Names and
+ *                      offsets are host symbols/layouts as in RR4_WATCH,
+ *                      e.g. "PlayerCars+388+=170330@3400" adds a lap's worth
+ *                      of distance to the first player car; the value may
+ *                      also name a 32-bit global read when applied
+ *                      ("PlayerCars+388+=TrackLength@..."). The vsync may
+ *                      be a mode anchor mG/I:d as in RR4_PAD_SCRIPT (applied
+ *                      once per entry into that mode).
  *   RR4_AUTODRIVE=1    test driver for whole races: while a race runs
  *                      (RaceState 2..3) pad 1 holds accelerate (cross) and
  *                      steers left/right towards the course centre line
@@ -121,11 +138,43 @@ static void print_watches(void) {
     }
 }
 
+/* Mode anchors for RR4_PAD_SCRIPT / RR4_POKE: "mG/I:d" counts VSyncs from
+ * the latest entry into mode G/I; a plain number is an absolute VSync. */
+static int anchor_mode = -1;
+static long anchor_entry;
+
+static void update_anchor(long vsync) {
+    int mode = (ModeGroup << 8) | (ModeIndex & 0xFF);
+    if (mode != anchor_mode) {
+        anchor_mode = mode;
+        anchor_entry = vsync;
+    }
+}
+
+static long parse_anchor(const char *text, char **end, int *mode) {
+    *mode = -1;
+    if (*text == 'm') {
+        long group = strtol(text + 1, end, 10);
+        long index = **end == '/' ? strtol(*end + 1, end, 10) : 0;
+        *mode = (int)((group << 8) | (index & 0xFF));
+        return **end == ':' ? strtol(*end + 1, end, 10) : 0;
+    }
+    return strtol(text, end, 10);
+}
+
+/* VSyncs on the anchor's clock, or -1 while outside the anchored mode. */
+static long anchor_time(int mode, long vsync) {
+    if (mode < 0)
+        return vsync;
+    return mode == anchor_mode ? vsync - anchor_entry : -1;
+}
+
 #define POKE_MAX 32
 static struct {
     void *addr;
-    int size, add;
+    int size, add, mode;
     long value, vsync;
+    const int *value_from; /* value read from this global when applied */
 } pokes[POKE_MAX];
 static int poke_count;
 
@@ -148,8 +197,22 @@ static void parse_poke(const char *list) {
             continue;
         }
         *at = 0;
-        pokes[poke_count].vsync = strtol(at + 1, NULL, 10);
-        pokes[poke_count].value = strtol(eq + 1, NULL, 0);
+        {
+            char *rest;
+            pokes[poke_count].vsync = parse_anchor(at + 1, &rest, &pokes[poke_count].mode);
+        }
+        {
+            char *num_end;
+            pokes[poke_count].value = strtol(eq + 1, &num_end, 0);
+            pokes[poke_count].value_from = NULL;
+            if (num_end == eq + 1 || *num_end) {
+                pokes[poke_count].value_from = dlsym(RTLD_DEFAULT, eq + 1);
+                if (!pokes[poke_count].value_from) {
+                    fprintf(stderr, "RR4_POKE: no symbol %s\n", eq + 1);
+                    continue;
+                }
+            }
+        }
         pokes[poke_count].add = eq > item && eq[-1] == '+';
         eq[pokes[poke_count].add ? -1 : 0] = 0;
         pokes[poke_count].size = 4;
@@ -175,8 +238,8 @@ static void parse_poke(const char *list) {
 
 static void apply_pokes(long vsync) {
     for (int i = 0; i < poke_count; i++) {
-        long v = pokes[i].value;
-        if (pokes[i].vsync != vsync)
+        long v = pokes[i].value_from ? *pokes[i].value_from : pokes[i].value;
+        if (anchor_time(pokes[i].mode, vsync) != pokes[i].vsync)
             continue;
         switch (pokes[i].size) {
         case 1:
@@ -200,8 +263,8 @@ static PsyzVSyncCb chained_vsync;
  * ~((PadPorts[].data02 << 8) | data03). */
 typedef struct {
     unsigned short mask;
-    int port;
-    long first, count;
+    int port, mode;
+    long first, count, period;
 } PadScriptStep;
 static PadScriptStep pad_script[128];
 static int pad_script_len;
@@ -242,8 +305,9 @@ static void parse_pad_script(const char *script) {
             script += 2;
         }
         step.mask = pad_button_mask(script, (size_t)(at - script));
-        step.first = strtol(at + 1, &end, 10);
+        step.first = parse_anchor(at + 1, &end, &step.mode);
         step.count = *end == '+' ? strtol(end + 1, &end, 10) : 4;
+        step.period = *end == '%' ? strtol(end + 1, &end, 10) : 0;
         if (step.mask) {
             pad_script[pad_script_len++] = step;
             pad_script_ports[step.port] = 1;
@@ -315,8 +379,12 @@ static unsigned short autodrive_mask(void) {
 static void apply_pad_port(int port, long vsync) {
     unsigned short mask = port == 0 ? autodrive_mask() : 0;
     for (int i = 0; i < pad_script_len; i++) {
-        if (pad_script[i].port == port && vsync >= pad_script[i].first &&
-            vsync < pad_script[i].first + pad_script[i].count)
+        long t = anchor_time(pad_script[i].mode, vsync) - pad_script[i].first;
+        if (pad_script[i].port != port || t < 0)
+            continue;
+        if (pad_script[i].period > 0)
+            t %= pad_script[i].period;
+        if (t < pad_script[i].count)
             mask |= pad_script[i].mask;
     }
     /* Any script keeps pad 1 connected; pad 2 only when a step names it. */
@@ -450,6 +518,7 @@ static void capture_at_vsync(long vsync) {
 static void host_vsync(void) {
     frame_count++;
     capture_at_vsync(frame_count);
+    update_anchor(frame_count);
     apply_pad_script(frame_count);
     apply_pokes(frame_count);
     if (trace_every > 0 && frame_count % trace_every == 0)

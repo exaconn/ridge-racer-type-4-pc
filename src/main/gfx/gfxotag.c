@@ -1,4 +1,5 @@
 #include "game/system/pad.h"
+#include "rr/audio_state_types.h"
 #include "rr/save_slots.h"
 #include "rr/menu_selection.h"
 #include "rr/rro_model.h"
@@ -385,10 +386,10 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
         DrawSubOtFlag = 1;
         if (v == 1) {
             if (g->opening88.mode94 == v) {
-                if (RaceBgmListIndex == 0) {
+                if (SoundState.track28A4 == 0) {
                     CdAudioSelectTrack(0, (PsyqRand() % 14) + 0xB);
                 } else {
-                    CdAudioSelectTrack(0, BgmNumberToCdTrack[RaceBgmListIndex - 1]);
+                    CdAudioSelectTrack(0, BgmNumberToCdTrack[SoundState.track28A4 - 1]);
                 }
             }
             RaceContext.opening88.done9C = 2;

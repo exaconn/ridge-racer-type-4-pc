@@ -1,4 +1,5 @@
 #include "game/camera/viewcam.h"
+#include "rr/audio_state_types.h"
 #include "types.h"
 #include "scratchpad.h"
 #include "rr_asm.h"
@@ -213,7 +214,7 @@ void RestartMotionSequence(void) {
     RaceContext.presentation250.scriptIndex68 = 0;
     RaceContext.presentation250.scriptTimer6A = 0;
     RaceContext.presentation250.flags60 = 0;
-    RaceContext.presentation250.script64 = MotionSequenceTable[MotionSequenceIndex];
+    RaceContext.presentation250.script64 = MotionSequenceTable[SoundState.seqTrack2868];
     RaceContext.presentation250.scriptOperation6C = RaceContext.presentation250.script64[RaceContext.presentation250.scriptIndex68].operation;
     RaceContext.presentation250.scriptArgument70 = RaceContext.presentation250.script64[RaceContext.presentation250.scriptIndex68].argument;
     switch (RaceContext.presentation250.scriptOperation6C) {
@@ -250,4 +251,3 @@ MotionKey32 MotionTrackTable[12] = {{.from = {.x = 512, .y = 640, .z = 256}, .fr
 CameraScriptEntry8 HudCircularGaugeVerts[35] = {{.operation = 2, .duration = 16}, {.duration = 8}, {.operation = 3, .duration = 5}, {.operation = 1, .duration = 3}, {.operation = 2, .argument = 1, .duration = 16}, {.argument = 1, .duration = 8}, {.operation = 3, .argument = 1, .duration = 8}, {.operation = 2, .argument = 2, .duration = 16}, {.argument = 2, .duration = 8}, {.operation = 3, .argument = 3, .duration = 5}, {.operation = 1, .argument = 1, .duration = 3}, {.argument = 3, .duration = 8}, {.operation = 3, .argument = 10, .duration = 4}, {.operation = 3, .argument = 11, .duration = 4}, {.duration = 8}, {.operation = 3, .argument = 4, .duration = 5}, {.operation = 3, .argument = 5, .duration = 3}, {.operation = 2, .duration = 16}, {.duration = 8}, {.operation = 3, .argument = 6, .duration = 5}, {.operation = 1, .duration = 3}, {.operation = 2, .argument = 1, .duration = 16}, {.argument = 1, .duration = 8}, {.operation = 3, .argument = 1, .duration = 8}, {.operation = 2, .argument = 2, .duration = 16}, {.argument = 2, .duration = 8}, {.operation = 3, .argument = 7, .duration = 5}, {.operation = 1, .argument = 1, .duration = 3}, {.operation = 1, .argument = 2, .duration = 8}, {.operation = 3, .argument = 11, .duration = 4}, {.operation = 3, .argument = 10, .duration = 4}, {.duration = 8}, {.operation = 3, .argument = 8, .duration = 5}, {.operation = 3, .argument = 9, .duration = 3}, {.operation = -1, .argument = -1}};
 CameraScriptEntry8 *MotionSequenceTable[2] = {(CameraScriptEntry8 *)&HudCircularGaugeVerts[0], (CameraScriptEntry8 *)D_800A1F78};
 u16 HudFinalLapBannerParts[16] = {0x7E0, 0x1F8, 0x3EFC, 0x61FE, 0x67FE, 0xEBFF, 0xEDFF, 0xEEFF, 0xEFFF, 0xEFFF, 0xEFFF, 0x6FFE, 0x6FFE, 0x2FFC, 0xFF8, 0x7E0};
-int MotionSequenceIndex;

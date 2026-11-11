@@ -1,13 +1,21 @@
 #ifndef RR_AUDIO_STATE_TYPES_H
 #define RR_AUDIO_STATE_TYPES_H
 #include "rr/layout.h"
+#include "rr/audio_state_types.h"
 #include "rr/sound_sequence_types.h"
 #include "rr/sequence_channel.h"
 /* Full resident audio owner: func8004EC28 clears0xA8D0 bytes from this base.
  * Four620-byte slots start38. CD status/control occupies265C..26F8.
  * The TOC address is28C8+bank*2048+entry*8; sixteen256-entry banks endA8C8.
- * CdAudioRequestState is the request26B4 alias, not a separate allocation.
- * SoundPaused is the muted04 alias; pause/resume share the same field. */
+ * Fields the original also reached through their own symbols (one owner,
+ * no separate allocations): muted04 SoundPaused, active18B8
+ * SoundState.active18B8, unk18E8 SoundState.unk18E8, status265C
+ * CdAudioStatusReportBuf, step2678 CdAudioFadeState, timer26A4
+ * CdCloseStateStep, request26B4 CdAudioRequestState, secondaryMotionClock
+ * (26D0) SecondaryMotionClock, seqHandle2864 SoundState.seqHandle2864, seqTrack2868
+ * SoundState.seqTrack2868, primaryMotionClock (286C) PrimaryMotionClock,
+ * seqVol2888 SoundState.seqVol2888, revDepthL2898 SoundState.revDepthL2898,
+ * track28A4 SoundState.track28A4, count28A8 SoundState.count28A8. */
 typedef struct { s32 position,other04; } AudioTocEntry8;
 typedef struct { s32 keys[9], values[9]; } AudioCurve48;
 typedef struct { u16 coarse, fine; } AudioPitch4;
@@ -41,6 +49,15 @@ typedef union {
     struct { s16 ids[8]; u32 counter; } race;
 } AudioBanks20;
 typedef struct { u32 position, sectors; } AudioStreamEntry;
+/* Music beat clock read by the camera scripts: the CD stream clock at 26D0
+ * and the sequence clock at 286C are both viewed through this layout. */
+typedef struct {
+    s16 active;
+    u8 reserved02[14];
+    u32 tempo;
+} MotionClock20;
+RR_ASSERT_SIZE(MotionClock20,0x14);
+RR_ASSERT_OFFSET(MotionClock20,tempo,0x10);
 RR_ASSERT_SIZE(AudioStreamEntry,8);
 RR_ASSERT_OFFSET(AudioStreamEntry,sectors,4);
 typedef struct {
@@ -146,15 +163,27 @@ typedef struct {
     u16 currentVol26C4;
     s16 fadeLength26C6,fadeTick26C8;
     u16 fadeTarget26CA,fadeStart26CC,volume26CE;
-    s16 tick26D0,half26D2,quarter26D4,reserved26D6;
-    s32 tick26D8,previous26DC,reserved26E0,reserved26E4,offset26E8,reserved26EC,base26F0,rate26F4;
+    union {
+        struct {
+            s16 tick26D0,half26D2,quarter26D4,reserved26D6;
+            s32 tick26D8,previous26DC,reserved26E0;
+        };
+        MotionClock20 secondaryMotionClock;
+    };
+    s32 reserved26E4,offset26E8,reserved26EC,base26F0,rate26F4;
     SequenceChannel sequences[2];
     u8 *seqAddr2858[2];
     s16 seqInit2860,seqInit2862;
     s32 seqHandle2864,seqTrack2868;
-    s16 seqTick286C,seqHalf286E,seqQuarter2870,seqReserved2872;
-    u32 seqBeat2874,seqPrevBeat2878;
-    s32 seqTempo287C,seqMark2880,seqReserved2884;
+    union {
+        struct {
+            s16 seqTick286C,seqHalf286E,seqQuarter2870,seqReserved2872;
+            u32 seqBeat2874,seqPrevBeat2878;
+            s32 seqTempo287C;
+        };
+        MotionClock20 primaryMotionClock;
+    };
+    s32 seqMark2880,seqReserved2884;
     u16 seqVol2888;
     s16 seqFadeLen288A,seqFadeTick288C,seqFadeTarget288E,seqFadeStart2890,seqFadeReserved2892;
     s32 revType2894,revDepthL2898,revDepthR289C,revMask28A0;

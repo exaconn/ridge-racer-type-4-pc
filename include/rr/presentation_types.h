@@ -3,6 +3,7 @@
 
 #include "rr/camera_types.h"
 #include "rr/model_table.h"
+#include "rr/audio_state_types.h"
 
 typedef struct {s16 glyph; u16 timing;} ScrollKey4;
 typedef struct {s16 glyph; u16 offset;} ScrollChannel4;
@@ -57,14 +58,6 @@ typedef struct {
     MotionTrack44 track;
 } PresentationController;
 
-typedef struct {
-    s16 active;
-    u8 reserved02[14];
-    u32 tempo;
-} MotionClock20;
-
-RR_ASSERT_SIZE(MotionClock20,0x14);
-RR_ASSERT_OFFSET(MotionClock20,tempo,0x10);
 RR_ASSERT_SIZE(PanelTrack50,0x50);
 RR_ASSERT_OFFSET(PanelTrack50,image44,0x44);
 #if defined(mips)

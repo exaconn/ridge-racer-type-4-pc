@@ -6,8 +6,6 @@
 #include "game/sound/cdstart.h"
 extern AudioState SoundState;
 extern char XaRepeatMsg[];
-/* Physical alias: request26B4. */
-extern s32 CdAudioRequestState;
 s32 DebugPrintStub(const char*,...);
 void CdAudioMute(void);
 void CdAudioSetVolume(u16);

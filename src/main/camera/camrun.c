@@ -18,8 +18,6 @@
 #include "rr/rro_model.h"
 #include "game/camera/viewcam.h"
 
-extern MotionClock20 SecondaryMotionClock;
-extern MotionClock20 PrimaryMotionClock;
 extern void SetGeomOffset(s32, s32);
 extern void SetGeomScreen(s32);
 
@@ -34,9 +32,9 @@ void StepCameraScript(void) {
         RaceContext.presentation250.scale4C = 1;
     }
     if (RaceContext.presentation250.alternateClock5C == 0) {
-        clock = &PrimaryMotionClock;
+        clock = &SoundState.primaryMotionClock;
     } else {
-        clock = &SecondaryMotionClock;
+        clock = &SoundState.secondaryMotionClock;
     }
     if (clock->active != 0) {
         if (++RaceContext.presentation250.scriptTimer6A >= RaceContext.presentation250.script64[RaceContext.presentation250.scriptIndex68].duration) {
@@ -170,5 +168,3 @@ void InitCameraMotion(int selection) {
 /* Initial values of the globals this module owns. */
 CameraKey16 HudTachMeterSegments[4][3] = {{{0}, {.x = -409600, .y = 204800}, {.x = -819200, .y = 409600}}, {{0}, {.x = 409600, .y = 204800, .z = 204800}, {.x = 819200, .y = 409600, .z = 409600}}, {{0}, {.x = 204800, .y = 409600}, {.x = 409600, .y = 819200}}, {{0}, {.x = -204800, .z = 204800}, {.x = -409600, .z = 409600}}};
 CameraKey16 HudGaugeArcVertices[6][2] = {{{0}, {.x = -204800, .y = 102400}}, {{0}, {.x = 204800, .y = 102400, .z = 102400}}, {{0}, {.x = 102400, .y = 204800}}, {{0}, {.x = -102400, .z = 102400}}, {0}, {{.x = -1280}, {.x = 1280}}};
-MotionClock20 SecondaryMotionClock;
-MotionClock20 PrimaryMotionClock;

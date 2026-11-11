@@ -376,7 +376,7 @@ void AttractDemoRaceUpdate(void) {
         RaceContext.attract4BC.trackDelay18 = RaceContext.attract4BC.trackDelay18 - 1;
         if (RaceContext.attract4BC.trackDelay18 == 0)
         {
-          CdAudioSelectTrack(0, BgmNumberToCdTrack[RaceBgmListIndex - 1]);
+          CdAudioSelectTrack(0, BgmNumberToCdTrack[SoundState.track28A4 - 1]);
           if (RaceContext.attract4BC.repeat1C == 0)
           {
             CdAudioBeginPlay(0);

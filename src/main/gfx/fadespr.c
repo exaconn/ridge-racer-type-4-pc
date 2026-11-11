@@ -71,7 +71,7 @@ void InitDemoFadeContext(int a0) {
         }
     }
     ResetSeqFadeState();
-    MotionSequenceIndex = -1;
+    SoundState.seqTrack2868 = -1;
 }
 
 void UpdateFadeTint(int a0) {

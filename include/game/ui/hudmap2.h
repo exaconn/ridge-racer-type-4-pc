@@ -2,12 +2,12 @@
 #define RR_GAME_UI_HUDMAP2_H
 
 #include "types.h"
+#include "rr/audio_state_types.h"
 
 extern s32 BgmNumberToCdTrack[];
 extern s16 *OpeningAttemptGlyphLists[];
 extern s16 *OpeningModeGlyphLists[];
 extern int CourseBgmChoiceTable2[];
-extern int RaceBgmListIndex;
 extern s32 OpeningFadeTimer;
 extern s32 OpeningBannerMode;
 extern s32 OpeningAttemptIndex;

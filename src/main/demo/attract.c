@@ -1,4 +1,5 @@
 #include "game/system/pad.h"
+#include "rr/audio_state_types.h"
 #include "game/gfx/scene1.h"
 #include "rr/menu_selection.h"
 #include "types.h"
@@ -129,11 +130,11 @@ v = s0 + PsyqRand() % 2;
     SubmodeState = 0;
     if (a0 == 0) {
         StartDemoFadeIn(-1);
-        RaceBgmListIndex = CourseBgmChoiceTable2[CourseIndex] + 1;
+        SoundState.track28A4 = CourseBgmChoiceTable2[CourseIndex] + 1;
     } else {
         InitDemoFadeContext(0);
         SelectDemoFadePreset(2);
-        RaceBgmListIndex = 1;
+        SoundState.track28A4 = 1;
     }
     InitSceneOverlayState();
     d0 = &RaceContext.attract4BC;

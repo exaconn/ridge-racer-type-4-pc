@@ -11,7 +11,6 @@
 
 extern char VabOpenHeadErrorStr[];
 extern char VabTransBodyErrorStr[];
-extern s32 ActiveVabTransferSlot;
 
 void LoadVab(const VabData *data, s32 mode, s32 bankIndex) {
     s32 opened;
@@ -47,7 +46,7 @@ void ReverbReset(void) {
 }
 
 void SetReverbDepthBoth(s32 arg0) {
-    ActiveVabTransferSlot = arg0;
+    SoundState.revDepthL2898 = arg0;
     SsUtSetReverbDepth((s16) arg0, (s16) arg0);
 }
 
@@ -174,4 +173,3 @@ void SoundQueueClear(void) {
 /* Initial values of the globals this module owns. */
 char VabOpenHeadErrorStr[24] = {83, 115, 86, 97, 98, 79, 112, 101, 110, 72, 101, 97, 100, 32, 69, 114, 114, 111, 114, 33, 10};
 char VabTransBodyErrorStr[52] = {83, 115, 86, 97, 98, 84, 114, 97, 110, 115, 66, 111, 100, 121, 32, 69, 114, 114, 111, 114, 10};
-s32 ActiveVabTransferSlot;

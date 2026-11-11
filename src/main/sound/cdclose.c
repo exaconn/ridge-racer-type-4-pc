@@ -2,12 +2,11 @@
 #include "rr/audio_cd_controller.h"
 #include "game/sound/cdclose.h"
 
-extern s32 CdCloseStateStep;
 
 void CdAudioPauseStep(void)
 {
     int r;
-    switch (CdAudioFadeState) {
+    switch (SoundState.step2678) {
     case 0:
         SoundState.state269C = 2;
         CdAudioSetVolume(0);
@@ -24,7 +23,7 @@ void CdAudioPauseStep(void)
     inc:
             SoundState.step2678 = SoundState.step2678 + 1;
         } else if (r == 5) {
-            CdAudioFadeState = 1;
+            SoundState.step2678 = 1;
         }
         break;
     case 4:
@@ -47,7 +46,7 @@ void CdAudioResumeStep(void) {
         if (SoundState.phase2674 == 0) {
             if (SoundState.playActive26BC == 1) CdAudioBeginPlay(SoundState.flag26A0);
             else SoundState.action2670 = -1;
-            CdCloseStateStep = 0;
+            SoundState.timer26A4 = 0;
         }
         break;
     }
@@ -69,7 +68,3 @@ void CdAudioLoopStep(void) {
         break;
     }
 }
-
-/* Initial values of the globals this module owns. */
-unsigned int CdAudioFadeState;
-s32 CdCloseStateStep;

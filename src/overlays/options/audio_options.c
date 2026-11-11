@@ -1,4 +1,5 @@
 #include "rr/overlay_module.h"
+#include "rr/audio_state_types.h"
 #include "rr/overlay_menu_init.h"
 #include "game/system/pad.h"
 #include "rr/overlay665_audio_options.h"
@@ -63,7 +64,7 @@ void ovl665_update_audio_options(void) {
             UiRows[4].cells[0] = musicState;
             StepMenuValue(1, -1, (char *)&Options.bgmVolume30, 0x11, 0);
             ovl665_saved_bgm_volume = Options.bgmVolume30;
-            SeqSetVolume(OptionsPreviewBgmVolume);
+            SeqSetVolume(SoundState.seqVol2888);
             if (MenuReturnSubmodeIndex != 0) {
                 PlaySfx(1);
                 UiRows[4].cells[0] = 1U;
@@ -163,4 +164,3 @@ static const OverlayStateRegion ovl665_audio_options_regions[] = {
 const OverlayStateTable ovl665_audio_options_state = {ovl665_audio_options_regions, sizeof(ovl665_audio_options_regions) / sizeof(ovl665_audio_options_regions[0])};
 
 /* Initial values of the globals this module owns. */
-s16 OptionsPreviewBgmVolume;

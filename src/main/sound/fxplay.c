@@ -13,7 +13,6 @@
 
 typedef struct { s32 a, b, c; } ReplayCamTargetDist;
 extern ReplayCamTargetDist ReplayCamTargetDistTable[];
-extern s16 ActiveSfxSeqHandle;
 #include "psyq/libspu/smalloc2.h"
 
 void SeqStartTrack(int a0);
@@ -42,13 +41,12 @@ void SeqMuteVolume(void) {
 }
 
 void SeqMusicPause(void) {
-    SsSeqPause(ActiveSfxSeqHandle);
+    SsSeqPause(SoundState.seqHandle2864);
 }
 
 void SeqMusicResume(void) {
-    SsSeqReplay(ActiveSfxSeqHandle);
+    SsSeqReplay(SoundState.seqHandle2864);
 }
 
 /* Initial values of the globals this module owns. */
 ReplayCamTargetDist ReplayCamTargetDistTable[2] = {{.a = 842, .b = 17800}, {.a = 1271, .b = 11800}};
-s16 ActiveSfxSeqHandle;

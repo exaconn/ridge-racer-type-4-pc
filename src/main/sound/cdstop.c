@@ -6,7 +6,7 @@
 void CdAudioStopStep(void)
 {
     int r;
-    switch (CdAudioFadeState) {
+    switch (SoundState.step2678) {
     case 0:
         SoundState.state269C = 4;
         SoundState.playActive26BC = 0;
@@ -24,7 +24,7 @@ void CdAudioStopStep(void)
     inc:
             SoundState.step2678 = SoundState.step2678 + 1;
         } else if (r == 5) {
-            CdAudioFadeState = 1;
+            SoundState.step2678 = 1;
         }
         break;
     case 4:

@@ -1,8 +1,8 @@
 #include "types.h"
+#include "rr/audio_state_types.h"
 #include "rr/audio_loop.h"
 #include "game/sound/sndloop2.h"
 
-extern s32 EngineSoundUpdateEnabled;
 
 void SoundLoopUpdate(void) {
     s16 left, right;
@@ -42,12 +42,11 @@ void SoundLoopUpdate(void) {
 }
 
 void EnableEngineSoundUpdates(void) {
-    EngineSoundUpdateEnabled = 1;
+    SoundState.active18B8 = 1;
 }
 
 void DisableEngineSoundUpdates(void) {
-    EngineSoundUpdateEnabled = 0;
+    SoundState.active18B8 = 0;
 }
 
 /* Initial values of the globals this module owns. */
-s32 EngineSoundUpdateEnabled;

@@ -17,7 +17,9 @@
  *                      the listed ranges the real input passes through.
  *   RR4_WATCH=list     with RR4_TRACE, also print globals by name: a comma
  *                      list of name[:size] (size 1, 2 or 4 bytes, default 4,
- *                      signed), e.g. "TitleSceneStage:2,FadeCountdown:2". */
+ *                      signed), e.g. "TitleSceneStage:2,FadeCountdown:2".
+ *                      name+offset reads a member at a byte offset (decimal
+ *                      or 0x hex) into the object, e.g. "SoundState+9904". */
 
 #include <psyz.h>
 #include <psyz/cd.h>
@@ -65,7 +67,17 @@ static void parse_watch(const char *list) {
             watches[watch_count].size = atoi(colon + 1);
         }
         snprintf(watches[watch_count].name, sizeof(watches[0].name), "%s", item);
-        watches[watch_count].addr = dlsym(RTLD_DEFAULT, item);
+        {
+            char *plus = strchr(item, '+');
+            long offset = 0;
+            if (plus) {
+                *plus = 0;
+                offset = strtol(plus + 1, NULL, 0);
+            }
+            watches[watch_count].addr = dlsym(RTLD_DEFAULT, item);
+            if (watches[watch_count].addr)
+                watches[watch_count].addr = (const char *)watches[watch_count].addr + offset;
+        }
         if (!watches[watch_count].addr)
             fprintf(stderr, "RR4_WATCH: no symbol %s\n", item);
         else

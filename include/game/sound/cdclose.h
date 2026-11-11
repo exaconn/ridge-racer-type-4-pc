@@ -3,7 +3,6 @@
 
 #include "types.h"
 
-extern unsigned int CdAudioFadeState;
 void CdAudioResumeStep(void);
 void CdAudioLoopStep(void);
 void CdAudioPauseStep(void);

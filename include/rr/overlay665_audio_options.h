@@ -1,9 +1,9 @@
 #ifndef RR_OVERLAY665_AUDIO_OPTIONS_H
 #define RR_OVERLAY665_AUDIO_OPTIONS_H
 #include "rr/overlay665_menu.h"
+#include "rr/audio_state_types.h"
 #include "rr/runtime_settings.h"
 extern s32 ovl665_saved_bgm_volume,ovl665_saved_sfx_volume;
-extern s16 OptionsPreviewBgmVolume;
 void SeqSetVolume(s16);
 void SetCdMixMode(s32);
 void ovl665_init_audio_options(void);

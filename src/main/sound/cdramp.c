@@ -1,6 +1,5 @@
 #include "rr/audio_cd_controller.h"
 
-extern u8 CdAudioStatusReportBuf[];
 
 void CdAudioFadeStep(void)
 {
@@ -35,7 +34,7 @@ void CdAudioPlayStep(void)
 {
     int r;
     AudioState *p;
-    switch (CdAudioFadeState) {
+    switch (SoundState.step2678) {
     case 0:
         if (CdSync(1, 0) == 0) break;
         if (SoundState.state269C != -1) break;
@@ -58,12 +57,12 @@ void CdAudioPlayStep(void)
             SoundState.step2678 = SoundState.step2678 + 1;
             CdAudioSetVolumeRaw(SoundState.targetVol26C0.halves.value);
         } else if (r == 5) {
-            CdAudioFadeState = 1;
+            SoundState.step2678 = 1;
         }
         break;
     case 3:
-        CdControl(1, 0, CdAudioStatusReportBuf);
-        p = (AudioState *)(CdAudioStatusReportBuf - 0x265C);
+        CdControl(1, 0, SoundState.status265C);
+        p = &SoundState;
         if (p->status265C[0] & 0x20) {
             p->step2678 = p->step2678 + 1;
             break;
@@ -86,6 +85,3 @@ void CdAudioPlayStep(void)
         break;
     }
 }
-
-/* Initial values of the globals this module owns. */
-u8 CdAudioStatusReportBuf[28];

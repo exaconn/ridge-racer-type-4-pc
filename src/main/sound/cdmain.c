@@ -119,9 +119,9 @@ block_27:
     temp_a0 = var_v0->request26B4;
     if (temp_a0 != 0 && var_v0->action2670 == -1) {
         switch (temp_a0) {
-        case 1:CdAudioRequestPause();CdAudioRequestState=0;break;
-        case 2:CdAudioMute();CdAudioRequestState=0;break;
-        default:CdAudioRequestState=0;break;
+        case 1:CdAudioRequestPause();SoundState.request26B4=0;break;
+        case 2:CdAudioMute();SoundState.request26B4=0;break;
+        default:SoundState.request26B4=0;break;
         }
     }
     if (SoundState.state269C == 1) {
@@ -257,4 +257,3 @@ void SeqFadeVolume(int a0, int a1) {
 /* Initial values of the globals this module owns. */
 char XaRepeatMsg[64] = {88, 97, 82, 101, 112, 101, 97, 116, 10};
 AudioState SoundState;
-s32 CdAudioRequestState;

@@ -64,7 +64,6 @@ typedef struct { u16 x, y; } CarAccelCurveThreshold;
 extern CarAccelCurveThreshold CarAccelCurveThresholds[];
 extern s32 CarTopSpeedGearRatios[];
 extern short SelectedTeamIndex;
-extern int HudMinimapFadeAlpha;
 extern s16 HudTachRedlineAngles[];
 extern s16 HudTachSweepLimitAngles[];
 extern s16 *HudRankOrdinalUvs[];
@@ -292,18 +291,18 @@ void SelectCourseBgmTrack(void) {
         a0 = 1;
     }
     if (SaveProgress.prefix.unlocks50.extraModeUnlocked50 != 0 && GameModeType != 1) {
-        HudMinimapFadeAlpha = 0x10;
+        SoundState.count28A8 = 0x10;
     } else {
-        HudMinimapFadeAlpha = 0xF;
+        SoundState.count28A8 = 0xF;
     }
     if (a0 == 0) {
         a1 = CourseIndex + 3;
         CdAudioSelectTrack(0, a1);
-    } else if (RaceBgmListIndex == 0) {
+    } else if (SoundState.track28A4 == 0) {
         a1 = PsyqRand() % 14 + 0xB;
         CdAudioSelectTrack(0, a1);
     } else {
-        a1 = BgmNumberToCdTrack[RaceBgmListIndex - 1];
+        a1 = BgmNumberToCdTrack[SoundState.track28A4 - 1];
         CdAudioSelectTrack(0, a1);
     }
 }
@@ -343,20 +342,20 @@ void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
     SoundReverbOffAll();
 
     if (GameModeType != 1) {
-        RaceBgmListIndex = 0;
+        SoundState.track28A4 = 0;
     } else {
         switch (SelectedTeamIndex) {
         case 0:
-            RaceBgmListIndex = HudGearDigitSprites[CourseIndex] + 1;
+            SoundState.track28A4 = HudGearDigitSprites[CourseIndex] + 1;
             break;
         case 1:
-            RaceBgmListIndex = HudSmallDigitSprites[CourseIndex] + 1;
+            SoundState.track28A4 = HudSmallDigitSprites[CourseIndex] + 1;
             break;
         case 2:
-            RaceBgmListIndex = CourseBgmChoiceTable2[CourseIndex] + 1;
+            SoundState.track28A4 = CourseBgmChoiceTable2[CourseIndex] + 1;
             break;
         case 3:
-            RaceBgmListIndex = CourseBgmChoiceTable3[CourseIndex] + 1;
+            SoundState.track28A4 = CourseBgmChoiceTable3[CourseIndex] + 1;
             break;
         }
     }
@@ -375,9 +374,9 @@ void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
     case 1:
     case 5:
         if (SaveProgress.prefix.unlocks50.extraModeUnlocked50 != 0 && GameModeType != 1) {
-            HudMinimapFadeAlpha = 0x10;
+            SoundState.count28A8 = 0x10;
         } else {
-            HudMinimapFadeAlpha = 0xF;
+            SoundState.count28A8 = 0xF;
         }
         break;
     case 4:
@@ -388,7 +387,7 @@ void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
         break;
     }
 
-    CdPlaybackTrackIndex = RaceBgmListIndex + 0xB;
+    CdPlaybackTrackIndex = SoundState.track28A4 + 0xB;
 
     for (i = 0; i < 8; i++) {
         CenterGlyphListX(OpeningDateGlyphLists[i], CarHandlingResponseTable);
@@ -618,5 +617,3 @@ int CourseBgmChoiceTable2[8] = {0, 3, 2, 10, 1, 12, 9, 13};
 s32 HudSmallDigitSprites[8] = {0, 8, 6, 2, 1, 11, 9, 13};
 s32 CourseBgmChoiceTable3[8] = {0, 3, 1, 10, 7, 12, 9, 13};
 s32 HudGearDigitSprites[8] = {0, 3, 10, 7, 1, 11, 9, 13};
-int RaceBgmListIndex;
-int HudMinimapFadeAlpha;

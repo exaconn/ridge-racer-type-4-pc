@@ -24,7 +24,6 @@ typedef struct {
     s32 fl;
 } SoundGteScratch;
 
-extern int SoundEventQueueLimit;
 extern s32 TrackLength;
 extern RaceVehicle PlayerCars[];
 
@@ -53,7 +52,7 @@ void SoundListenerInit(int arg0_in, int arg1_in) {
         SoundState.rec18EC[3].carIndex04 = t;
         break;
     }
-    SoundEventQueueLimit = 4;
+    SoundState.unk18E8 = 4;
 }
 
 void SoundFindNearestCars(s32 arg0) {
@@ -246,5 +245,4 @@ void UpdateCarSpatialAudio(int arg0) {
 }
 
 /* Initial values of the globals this module owns. */
-int SoundEventQueueLimit;
 RaceVehicle ComCars[11];

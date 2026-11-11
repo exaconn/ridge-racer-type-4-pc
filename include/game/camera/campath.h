@@ -2,8 +2,8 @@
 #define RR_GAME_CAMERA_CAMPATH_H
 
 #include "rr/presentation_types.h"
+#include "rr/audio_state_types.h"
 
-extern int MotionSequenceIndex;
 extern MotionKey32 MotionTrackTable[];
 extern CameraScriptEntry8 HudCircularGaugeVerts[];
 extern CameraScriptEntry8 *MotionSequenceTable[];

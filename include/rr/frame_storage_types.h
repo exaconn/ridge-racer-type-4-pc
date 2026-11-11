@@ -1,5 +1,6 @@
 #ifndef RR_FRAME_STORAGE_TYPES_H
 #define RR_FRAME_STORAGE_TYPES_H
+#include <stddef.h>
 #include "rr/frame_environment_types.h"
 /* Two RAM arenas, each holding the drawing environments, ordering tables and
  * packet storage for one bank. Offsets used by the outer loop:
@@ -31,4 +32,8 @@ RR_ASSERT_OFFSET(FrameBuffer, ordering70, 0x70);
 RR_ASSERT_OFFSET(FrameBuffer, secondaryOrderingB70, 0xB70);
 RR_ASSERT_OFFSET(FrameBuffer, packets1670, 0x1670);
 RR_ASSERT_SIZE(FrameStorage, 0x22778);
+/* Both views must name the same ordering table on every host. */
+_Static_assert(offsetof(FrameStorage, ordering.ordering70) ==
+                   offsetof(FrameStorage, buffer.ordering70),
+               "FrameStorage ordering views disagree");
 #endif

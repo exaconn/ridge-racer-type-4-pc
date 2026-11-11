@@ -10,11 +10,11 @@ typedef struct {
 typedef struct {
     GpuDmaTag tags[704];
 } FrameOrderingTable;
-/* Prefix shared by screen transitions and frame storage. The first rectangle
- * is also exposed by the screen-tile interface; ordering storage follows70. */
+/* Prefix shared by screen transitions and frame storage: the ordering
+ * storage follows the environments (PS1 offset 0x70; the host environments
+ * are larger, so the view repeats them instead of a fixed-size gap). */
 typedef struct {
-    GpuRectangle rectangle;
-    u8 pad08[0x68];
+    FrameEnvironment environment00;
     FrameOrderingTable ordering70;
 } FrameOrderingPrefix;
 RR_ASSERT_SIZE(FrameOrderingTable,0xB00);

@@ -35,7 +35,9 @@
 
 /* Shared resident storage: one type per symbol in these overlays. */
 #include "rr/cd_directory_buffer.h"
-extern UiUvRect RecordsHeaderSpriteUvs[5];
+/* The tail of the UI font glyph table (UiFontGlyphs[33..]). */
+extern UiUvRect UiFontGlyphs[];
+#define RecordsHeaderSpriteUvs (UiFontGlyphs + 33)
 extern s32 MenuStepDirection;
 extern CourseChoice4 CourseChoiceTable[2][9];
 extern u32 ScreenFrame;

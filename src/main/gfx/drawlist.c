@@ -59,7 +59,8 @@ extern short MenuScriptId;
 extern short ModeGroup;
 extern int DialogueSceneMode;
 extern short SubmodeState;
-extern short DrawListDefaultVerts;
+/* Music positions (G->s46) at which the intro scene advances a page. */
+extern short DrawListDefaultVerts[];
 #include "rr/cd_directory_buffer.h"
 extern const Vec3s8 TitleModelZeroAngles;
 extern const VectorWords16 TitleModelPosLayer0A;
@@ -209,7 +210,7 @@ case 0x4:
     G->s48 = 0x80;
     G->s9C = 0x1000;
     G->s4A = 0;
-    G->p40 = &DrawListDefaultVerts;
+    G->p40 = DrawListDefaultVerts;
     G->s46 = 0;
     G->s44 = 0;
 case 0x5:
@@ -1053,7 +1054,7 @@ void EmitSpriteGrid(u32 intensity, SpriteGridClock *state) {
 
 /* Initial values of the globals this module owns. */
 const Vec3s8 TitleModelZeroAngles;
-short DrawListDefaultVerts = 602;
+short DrawListDefaultVerts[18] = {602, 785, 969, 1152, 1335, 1608, 1975, 2350, 2556, 2881, 3177, 3563, 3725, 3887, 4050, 4275, 4558, 0};
 const VectorWords16 TitleModelPosLayer0A = {.vector = {.x = -896}};
 const VectorWords16 TitleModelPosLayer0B = {.vector = {.x = -224}};
 const VectorWords16 TitleModelPosLayer1 = {.vector = {.x = 672}};

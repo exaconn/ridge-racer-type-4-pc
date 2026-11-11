@@ -115,7 +115,11 @@ call1:
             s->b9 = s->b9 + 1;
             s->sE = 1;
             s->st = 1;
-            if (s->b9 == (signed char)s->b8) {
+            /* The original stores through the global Dialogue even when only
+             * another text state is live (the GP intro uses
+             * CardDialogueStatePtr and Dialogue is still null); on the PS1
+             * that write lands harmlessly at address 7. */
+            if (s->b9 == (signed char)s->b8 && Dialogue != 0) {
                 Dialogue->b7 = 0;
             }
             break;

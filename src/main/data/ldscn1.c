@@ -22,6 +22,7 @@
 #include "game/data/cdfile1.h"
 #include "rr/audio_loop.h"
 #include "rr/menu_text_state.h"
+#include "rr/replay_types.h"
 #include "game/course/trkintp2.h"
 #include "game/gfx/clut.h"
 #include "game/sound/fxplay.h"
@@ -710,6 +711,10 @@ int DialogueSceneMode;
 void *MenuArenaBase;
 u8 *MenuSharedScratchPtr;
 unsigned char LoadState;
-u8 SharedWorkArena[20840];
+/* PS1: 0x5168 bytes. The host layouts placed in it are larger: the dialogue
+ * state LoadMenuCarModelsStep puts at +0x4E20 and the replay storage. */
+#define SHARED_WORK_ARENA_MAX(a, b) ((a) > (b) ? (a) : (b))
+u8 SharedWorkArena[SHARED_WORK_ARENA_MAX(
+    SHARED_WORK_ARENA_MAX(0x5168, 0x4E20 + sizeof(MenuTextState)), sizeof(ReplayStorage))];
 char SceneOffsetLookupBuf[7592];
 char MenuSoundVabBuffer[8192];

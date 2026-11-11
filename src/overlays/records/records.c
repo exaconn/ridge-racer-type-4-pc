@@ -114,4 +114,3 @@ void *ovl663_draw_record_labels(GpuDmaTag *arg0, void *arg1, s32 arg2) {
 }
 
 /* Initial values of the globals this module owns. */
-UiUvRect RecordsHeaderSpriteUvs[5] = {{.v = 0x60, .w = 0xC, .h = 0x10}, {.u = 0x10, .v = 0x60, .w = 0xE, .h = 0x10}, {.u = 0x20, .v = 0x60, .w = 0xC, .h = 0x10}, {.u = 0x30, .v = 0x60, .w = 0xC, .h = 0x10}, {.u = 0x40, .v = 0x60, .w = 0xC, .h = 0x10}};

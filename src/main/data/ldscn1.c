@@ -516,7 +516,7 @@ int LoadDialogueStep(void) {
         }
         break;
     case 5:
-        s2 = MenuSelectedChoice.team * 9 + 0x1C;
+        s2 = SelectionState.fields.copies[0].bytes[0] * 9 + 0x1C;
         a0 = LoadIndex;
         s0 = DialogueAssetTable[Dialogue->b4 * 8 + a0];
         if (s0 != -1) {
@@ -704,7 +704,6 @@ u8 *LoadDestCursor;
 signed char *DialogueAssetTable;
 void *LoadCursor;
 void *MenuBaseLoadCursor;
-MenuChoiceIds4 MenuSelectedChoice;
 char *TrackNodesEnd;
 void *PresetEmblemTimPtr;
 int DialogueSceneMode;

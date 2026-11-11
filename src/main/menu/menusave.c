@@ -50,7 +50,7 @@ void UpdateSaveProgress(void) {
         if (SelectionRows.bytes[2] == 0x27 && slot < 4) {
             do {
                 if (slot == 3) {
-                    glyph = PackChoiceGlyph(&MenuSelectedChoice);
+                    glyph = PackChoiceGlyph(SelectionState.fields.copies[0].bytes);
                 } else {
                     glyph = PackChoiceGlyph(SelectionState.fields.copies[1 + (slot)].bytes);
                 }

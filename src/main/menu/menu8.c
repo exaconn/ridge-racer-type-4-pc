@@ -77,7 +77,7 @@ void SelectDialogueScript(void) {
         SelectionState.fields.mode1A = 1;
         break;
     case 2:
-        Dialogue->b4 = MenuSelectedChoice.maker + 0x18;
+        Dialogue->b4 = SelectionState.fields.copies[0].bytes[1] + 0x18;
         PendingModeId = 0x10F;
         break;
     case 4:

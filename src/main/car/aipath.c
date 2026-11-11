@@ -95,7 +95,6 @@ void UpdateCarTrackNode(RaceVehicle *p)
   TrackSample3C *new_var;
   int n;
   TrackSample3C *base;
-  int bk;
   t = FindTrackNodeUnbounded(p->position20.words, p->trackNodeF0);
   if (t < 0)
   {
@@ -176,7 +175,7 @@ void UpdateCarTrackNode(RaceVehicle *p)
 
         break;
       }
-      if (t == bk)
+      if (t == back)
       {
         for (k = 1; s >= k; k++)
         {

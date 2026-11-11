@@ -20,7 +20,7 @@ void DecayCarOffset(RaceVehicle *vehicle) {
                 car->posScaled00[2] = (s32)((u32)car->posScaled00[2] - (u32)offsetY);
                 scaledX = offsetX * 7;
                 car->shakeX198 = scaledX >> 3;
-                car->shakeY19A = (offsetX * 7) >> 3;
+                car->shakeY19A = (offsetY * 7) >> 3;
             }
         }
     }

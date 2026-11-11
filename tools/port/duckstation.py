@@ -7,6 +7,10 @@ and read PS1 RAM (mode(): ModeGroup/ModeIndex/SubmodeState).
     from duckstation import DuckStation
     d = DuckStation(); d.advance(400); d.press('Start'); print(d.mode())
 
+Pad 2 (VS battle): DuckStation(pad2=True) connects a digital pad in port 2
+(REGTEST_PAD2=1); drive it with press(name, port=2) / buttons(port=2, ...).
+poke(addr, bytes) writes PS1 RAM through the GDB 'M' packet.
+
 Environment: RR4_DUCKSTATION (regtest binary), RR4_DISC (CUE path).
 """
 import socket, subprocess, time, os, struct, sys
@@ -16,8 +20,10 @@ CUE = os.environ.get('RR4_DISC') or os.path.expanduser('~/Projects/ridge-racer-t
 
 
 class DuckStation:
-    def __init__(self, ai=47011, gdb=47012, log=None):
+    def __init__(self, ai=47011, gdb=47012, log=None, pad2=False):
         env = dict(os.environ, SDL_AUDIODRIVER='dummy')
+        if pad2:
+            env['REGTEST_PAD2'] = '1'
         self.p = subprocess.Popen([DS, '-ai-port', str(ai), '-gdb', str(gdb), '-start-paused', '-frames', '10000000',
                                    '--', CUE], stdout=log or subprocess.DEVNULL,
                                   stderr=subprocess.STDOUT, env=env, cwd=os.path.dirname(DS))
@@ -49,16 +55,17 @@ class DuckStation:
                 return r
             time.sleep(0.01)
 
-    def buttons(self, **kw):
-        return self.cmd('buttons ' + ' '.join(f'{k}={v}' for k, v in kw.items()))
+    def buttons(self, port=1, **kw):
+        verb = 'buttons2' if port == 2 else 'buttons'
+        return self.cmd(verb + ' ' + ' '.join(f'{k}={v}' for k, v in kw.items()))
 
-    def release(self):
-        return self.cmd('release')
+    def release(self, port=1):
+        return self.cmd('release2' if port == 2 else 'release')
 
-    def press(self, name, frames=4):
-        self.buttons(**{name: 1})
+    def press(self, name, frames=4, port=1):
+        self.buttons(port=port, **{name: 1})
         self.advance(frames)
-        self.release()
+        self.release(port)
 
     def screenshot(self, path):
         self.ai.sendall(b'screenshot\n')
@@ -111,6 +118,11 @@ class DuckStation:
             addr += k
             n -= k
         return out
+
+    def poke(self, addr, data):
+        r = self._gsend(f'M{addr:x},{len(data):x}:{bytes(data).hex()}')
+        if r != 'OK':
+            raise RuntimeError('gdb reply %r' % r[:80])
 
     def u16(self, a):
         return struct.unpack('<H', self.mem(a, 2))[0]

@@ -6,16 +6,22 @@
  *   RR4_FRAME_LIMIT=n  exit after n VSyncs
  *   RR4_CAPTURE=file   write the displayed frame as a PPM when exiting
  *   RR4_VRAM=file      write the whole VRAM as a PPM when exiting
+ *   RR4_CAPTURE_AT=l   also write the displayed frame at each VSync of the
+ *                      comma list l, as <RR4_CAPTURE or "capture">.<vsync>.ppm
  *   RR4_TRACE=n        print the mode state every n VSyncs
- *   RR4_PAD_SCRIPT=s   test input: hold pad 1 buttons over VSync ranges.
- *                      s is a comma list of button@vsync[+frames] (default 4
- *                      frames), e.g. "start@400,cross@900+6,up@1200".
+ *   RR4_PAD_SCRIPT=s   test input: hold pad buttons over VSync ranges.
+ *                      s is a comma list of [2:]button@vsync[+frames]
+ *                      (default 4 frames), e.g. "start@400,cross@900+6,
+ *                      2:cross@900+6,up@1200". A "2:" prefix presses the
+ *                      button on pad 2, otherwise pad 1.
  *                      Buttons: select l3 r3 start up right down left l2 r2
  *                      l1 r1 triangle circle cross square. The pressed
- *                      buttons replace pad 1's receive buffer (PadPorts[0])
- *                      right after PsyZ refreshes it at each VSync; outside
- *                      the listed ranges the real input passes through, or
- *                      an idle connected digital pad when none is present.
+ *                      buttons replace the pad's receive buffer
+ *                      (PadPorts[port]) right after PsyZ refreshes it at
+ *                      each VSync; outside the listed ranges the real input
+ *                      passes through, or an idle connected digital pad when
+ *                      none is present. Any script keeps pad 1 connected;
+ *                      pad 2 only when some step names it.
  *   RR4_WATCH=list     with RR4_TRACE, also print globals by name: a comma
  *                      list of name[:size] (size 1, 2 or 4 bytes, default 4,
  *                      signed), e.g. "TitleSceneStage:2,FadeCountdown:2".
@@ -108,10 +114,12 @@ static PsyzVSyncCb chained_vsync;
  * ~((PadPorts[].data02 << 8) | data03). */
 typedef struct {
     unsigned short mask;
+    int port;
     long first, count;
 } PadScriptStep;
-static PadScriptStep pad_script[64];
+static PadScriptStep pad_script[128];
 static int pad_script_len;
+static int pad_script_ports[2];
 
 static unsigned short pad_button_mask(const char *name, size_t len) {
     static const struct {
@@ -140,11 +148,20 @@ static void parse_pad_script(const char *script) {
 
         if (!at || (next && next < at))
             break;
+        step.port = 0;
+        if (script[0] == '2' && script[1] == ':') {
+            step.port = 1;
+            script += 2;
+        } else if (script[0] == '1' && script[1] == ':') {
+            script += 2;
+        }
         step.mask = pad_button_mask(script, (size_t)(at - script));
         step.first = strtol(at + 1, &end, 10);
         step.count = *end == '+' ? strtol(end + 1, &end, 10) : 4;
-        if (step.mask)
+        if (step.mask) {
             pad_script[pad_script_len++] = step;
+            pad_script_ports[step.port] = 1;
+        }
         else
             fprintf(stderr, "RR4_PAD_SCRIPT: unknown button in \"%.*s\"\n",
                     (int)(at - script), script);
@@ -152,29 +169,37 @@ static void parse_pad_script(const char *script) {
     }
 }
 
-static void apply_pad_script(long vsync) {
+static void apply_pad_port(int port, long vsync) {
     unsigned short mask = 0;
     for (int i = 0; i < pad_script_len; i++) {
-        if (vsync >= pad_script[i].first && vsync < pad_script[i].first + pad_script[i].count)
+        if (pad_script[i].port == port && vsync >= pad_script[i].first &&
+            vsync < pad_script[i].first + pad_script[i].count)
             mask |= pad_script[i].mask;
     }
-    if (!mask && (!pad_script_len || PadPorts[0].status00 == 0))
+    /* Any script keeps pad 1 connected; pad 2 only when a step names it. */
+    int scripted = port == 0 ? pad_script_len > 0 : pad_script_ports[1];
+    if (!mask && (!scripted || PadPorts[port].status00 == 0))
         return;
-    /* A scripted run always has a digital pad in port 1: between presses
-     * an idle pad stays connected, as on the console, instead of the
-     * host's disconnected port (the game re-detects the controller type
-     * after every reconnect and ignores input meanwhile). The frame also
-     * goes to PsyZ so that libpad (PadGetState) sees the same pad until
-     * the next VSync. */
+    /* A scripted run always has a digital pad in each scripted port:
+     * between presses an idle pad stays connected, as on the console,
+     * instead of the host's disconnected port (the game re-detects the
+     * controller type after every reconnect and ignores input meanwhile).
+     * The frame also goes to PsyZ so that libpad (PadGetState) sees the
+     * same pad until the next VSync. */
     {
         char frame[4];
         frame[0] = 0;
         frame[1] = 0x41; /* digital pad */
         frame[2] = (char)~(mask >> 8);
         frame[3] = (char)~mask;
-        Psyz_PadsSet(0, frame, sizeof(frame));
-        memcpy(&PadPorts[0], frame, sizeof(frame));
+        Psyz_PadsSet(port, frame, sizeof(frame));
+        memcpy(&PadPorts[port], frame, sizeof(frame));
     }
+}
+
+static void apply_pad_script(long vsync) {
+    apply_pad_port(0, vsync);
+    apply_pad_port(1, vsync);
 }
 
 static void write_ppm(const char *path, unsigned char *rgb, int w, int h) {
@@ -205,9 +230,25 @@ static void host_exit(void) {
     exit(0);
 }
 
+static long capture_at[64];
+static int capture_at_len;
+
+static void capture_at_vsync(long vsync) {
+    for (int i = 0; i < capture_at_len; i++) {
+        if (capture_at[i] == vsync) {
+            const char *base = getenv("RR4_CAPTURE");
+            char path[512];
+            int w, h;
+            snprintf(path, sizeof(path), "%s.%ld.ppm", base && *base ? base : "capture", vsync);
+            write_ppm(path, Psyz_VideoAllocRenderedFrame(&w, &h), w, h);
+        }
+    }
+}
+
 /* The original loop never returns; the host ends it at a VSync. */
 static void host_vsync(void) {
     frame_count++;
+    capture_at_vsync(frame_count);
     apply_pad_script(frame_count);
     if (trace_every > 0 && frame_count % trace_every == 0)
     {
@@ -254,6 +295,11 @@ int main(int argc, char **argv) {
         trace_every = trace ? strtol(trace, NULL, 10) : 0;
         parse_watch(getenv("RR4_WATCH"));
         parse_pad_script(getenv("RR4_PAD_SCRIPT"));
+        for (const char *l = getenv("RR4_CAPTURE_AT"); l && *l && capture_at_len < 64;) {
+            char *end;
+            capture_at[capture_at_len++] = strtol(l, &end, 10);
+            l = *end == ',' ? end + 1 : NULL;
+        }
     }
     chained_vsync = Psyz_SetVSyncCb(host_vsync);
     MainLoop();

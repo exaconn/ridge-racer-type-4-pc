@@ -442,4 +442,17 @@ u8 CarPartTransformIndices[8] = {0, 1, 2, 2, 3, 4, 3, 4};
 u8 CarPartMatrixIndices[8] = {0, 1, 2, 3, 4, 4, 5, 5};
 LodDist6 CarModelLodDistances[5] = {{.d0 = 672, .d2 = 3200, .d4 = 8704}, {.d0 = -1, .d2 = 2560, .d4 = 4096}, {.d0 = 4096, .d2 = 8192, .d4 = 8704}, {.d0 = 320, .d2 = 3200, .d4 = 8704}, {.d0 = 160, .d2 = 2560, .d4 = 8704}};
 s16 ForceTailLightTrails;
-CarBounds *CarBoundsTable[4];
+/* A slot reads its bounds before the first car model is loaded into it
+ * (e.g. the VS preview resets both cars on entry); the PS1 table holds 0
+ * there and the read lands in kernel RAM at address 0, whose first twelve
+ * bytes are constant after boot. Unloaded slots point at those bytes so
+ * the reset computes the same values; the loader replaces the pointer. */
+static CarBounds CarBoundsUnloaded = {
+    .halfWidth = 0x0003, .wheelOffsetY = 0x0000, .halfLength = 0x0C80,
+    .bodyHeight = 0x275A, .unk08 = 0x0008, .wheelRotationAxis = 0x40,
+    .reserved0B = 0x03,
+};
+CarBounds *CarBoundsTable[4] = {
+    &CarBoundsUnloaded, &CarBoundsUnloaded,
+    &CarBoundsUnloaded, &CarBoundsUnloaded,
+};

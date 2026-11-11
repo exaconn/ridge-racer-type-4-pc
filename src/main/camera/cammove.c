@@ -15,7 +15,7 @@
 void UpdateCameraMotion(MotionClock20 *input) {
     MotionClock20 *arg0=input;
     SceneRaceContext *root=&RaceContext;
-    PresentationController *object=root->controller3D8;
+    PresentationController *object=&root->presentation250;
     s32 temp_lo;
     s32 temp_lo_2;
     s32 temp_v0_4;
@@ -70,7 +70,7 @@ copy_start:
                 temp_a3->delta30[2]=third;
             }
             {
-                PresentationController *settings=root->controller3D8;
+                PresentationController *settings=&root->presentation250;
                 value=settings->scale4C;temp_v1_3= arg0->tempo;
                 value=W_MUL(value,2);RR_MD_MULT_S(temp_v1_3,value);RR_MD_LO(temp_v1_3);
                 value=0x51EB851FU;RR_MD_MULT_U(temp_v1_3,value);
@@ -253,9 +253,9 @@ void DrawPresentationMotionModel(void)
     Vec3i scale;
     s32 value;
 
-    SetupObjectLightMatrices((char *)&RaceContext.controller3D8->motion74.modelPosition54,
-        (char *)&RaceContext.controller3D8->lighting20, &modelMatrix, &cameraMatrix);
-    value = RaceContext.controller3D8->motion74.modelScale6C;
+    SetupObjectLightMatrices((char *)&RaceContext.presentation250.motion74.modelPosition54,
+        (char *)&RaceContext.presentation250.lighting20, &modelMatrix, &cameraMatrix);
+    value = RaceContext.presentation250.motion74.modelScale6C;
     scale.z = value;
     scale.y = value;
     scale.x = value;
@@ -263,7 +263,7 @@ void DrawPresentationMotionModel(void)
     SelectModelBank(7);
     SetGteObjectTransform(
         (ObjectTransform38 *)(SCRATCHPAD + 0x7C),
-        (s16 *)&RaceContext.controller3D8->motion74.modelPosition54,
+        (s16 *)&RaceContext.presentation250.motion74.modelPosition54,
         modelMatrix.w);
     ((CamMoveScratch *)SCRATCHPAD)->w78 = 0;
     SubmitModelTwoTri((PreviewRenderScratch *)SCRATCHPAD, ModelBankFormat < 1, 0, 0x100);

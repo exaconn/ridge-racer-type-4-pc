@@ -8,14 +8,14 @@
 
 
 void InitMotionPanel(s32 arg0) {
-    PanelTrack50 *panel = &RaceContext.controller3D8->panel;
+    PanelTrack50 *panel = &RaceContext.presentation250.panel;
     PsyqBzero(panel, sizeof(*panel));
     panel->mode = arg0;
 }
 
 void UpdateMotionPanel(MotionClock20 *clock) {
     s32 images[2][3] = {{1, 2, 4}, {5, 6, 4}};
-    PresentationController *controller = RaceContext.controller3D8;
+    PresentationController *controller = &RaceContext.presentation250;
     PanelTrack50 *panel = &controller->panel;
     int mode = panel->mode;
     u32 duration;
@@ -30,7 +30,7 @@ void UpdateMotionPanel(MotionClock20 *clock) {
             if (clock->active == 0) return;
             duration = clock->tempo / 50 * 2;
             duration = duration / 3;
-            panel->duration4A = duration - ((u16)RaceContext.controller3D8->scale4C + 1);
+            panel->duration4A = duration - ((u16)RaceContext.presentation250.scale4C + 1);
             image = images[panel->mode][0];
             panel->elapsed48 = 0;
             panel->state = panel->state + 1;
@@ -57,7 +57,7 @@ void UpdateMotionPanel(MotionClock20 *clock) {
         case 4:
             panel->elapsed48 = panel->elapsed48 + 1;
             if ((short)panel->elapsed48 < panel->duration4A) return;
-            panel->duration4A = (clock->tempo / 100) - ((u16)RaceContext.controller3D8->scale4C + 1);
+            panel->duration4A = (clock->tempo / 100) - ((u16)RaceContext.presentation250.scale4C + 1);
             panel->image44 = 5;
             panel->elapsed48 = 0;
             panel->state = panel->state + 1;
@@ -95,7 +95,7 @@ void UpdateMotionPanel(MotionClock20 *clock) {
 void DrawMotionControllerPanel(void) {
     s32 temp_a0;
 
-    temp_a0 = RaceContext.controller3D8->panel.image44;
+    temp_a0 = RaceContext.presentation250.panel.image44;
     if (temp_a0 > 0) {
         EmitTexturedPanel(temp_a0 - 1);
     }

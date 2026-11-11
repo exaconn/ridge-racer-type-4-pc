@@ -3,7 +3,7 @@
 
 void UpdateScrollTrack(MotionClock20 *clock)
 {
-    ScrollTrack40 *s = &RaceContext.controller3D8->scroll;
+    ScrollTrack40 *s = &RaceContext.presentation250.scroll;
     s32 i;
     s32 speed;
     s32 ch;
@@ -11,12 +11,12 @@ void UpdateScrollTrack(MotionClock20 *clock)
     if (s->disabled != 0) {
         return;
     }
-    switch (RaceContext.controller3D8->scroll.state) {
+    switch (RaceContext.presentation250.scroll.state) {
     case 0:
         if (clock->active == 0) {
             return;
         }
-        RaceContext.controller3D8->scroll.state = 2;
+        RaceContext.presentation250.scroll.state = 2;
     case 1:
         if (clock->active != 0) {
             s->hold = s->hold - 1U;
@@ -35,7 +35,7 @@ void UpdateScrollTrack(MotionClock20 *clock)
         s->wait = 0;
         s->state++;
     case 2:
-        speed = (clock->tempo * ((u32)RaceContext.controller3D8->scale4C << 1)) / 100;
+        speed = (clock->tempo * ((u32)RaceContext.presentation250.scale4C << 1)) / 100;
         ch = (s->channel[0].glyph != 0);
         if (speed > 0) {
             s->step = -(0x1900 / speed);
@@ -45,7 +45,7 @@ void UpdateScrollTrack(MotionClock20 *clock)
         s->channel[ch].glyph = s->keys[s->index].glyph;
         s->channel[ch].offset = 0;
         s->hold = (s16)s->keys[s->index].timing >> 8;
-        s->wait = (((clock->tempo * RaceContext.controller3D8->scale4C) / 100) * (u8)s->keys[s->index].timing) / 12;
+        s->wait = (((clock->tempo * RaceContext.presentation250.scale4C) / 100) * (u8)s->keys[s->index].timing) / 12;
         if (s->keys[++s->index].glyph < 0) {
             s->index = 0;
         }

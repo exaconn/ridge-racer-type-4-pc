@@ -58,7 +58,7 @@ void DrawRing(s32 *position, s32 radius)
   transform.rotation10.z = 0;
   transform.rotation10.y = 0;
   transform.rotation10.x = 0;
-  SetupObjectLightMatrices(&transform, &RaceContext.controller3D8->lighting20, &rotation, &camera);
+  SetupObjectLightMatrices(&transform, &RaceContext.presentation250.lighting20, &rotation, &camera);
   scale[2] = 1024;
   scale[1] = 1024;
   scale[0] = 1024;
@@ -107,7 +107,7 @@ void DrawRing(s32 *position, s32 radius)
 }
 
 void InitScrollTrack(int selection) {
-    ScrollTrack40 *scroll = &RaceContext.controller3D8->scroll;
+    ScrollTrack40 *scroll = &RaceContext.presentation250.scroll;
     PsyqBzero(scroll, sizeof(*scroll));
     scroll->disabled = 0;
     scroll->keys = HudLinearGaugeVerts[selection];

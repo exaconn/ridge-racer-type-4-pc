@@ -32,7 +32,7 @@ void DrawPresentationTrackModel(void) {
     PresentationController *controller;
     u16 *row;
     s32 i, j, x, y, v;
-    controller = RaceContext.controller3D8;
+    controller = &RaceContext.presentation250;
     work.position.x = 0;
     work.position.y = 0;
     work.position.z = 0;
@@ -40,7 +40,7 @@ void DrawPresentationTrackModel(void) {
     work.rotation.y = (u16)controller->track.position.y;
     work.rotation.z = (u16)controller->track.position.z;
     SetupObjectLightMatrices((const SceneCameraPose18 *)&work.position, &controller->lighting20, &work.lightMatrix, &work.viewMatrix);
-    v = RaceContext.controller3D8->track.scale;
+    v = RaceContext.presentation250.track.scale;
     work.scale.z = v;
     work.scale.y = v;
     work.scale.x = v;
@@ -76,7 +76,7 @@ void DrawPresentationTrackModel(void) {
 }
 
 void InitMotionTrack(int selection) {
-    MotionTrack44 *track = &RaceContext.controller3D8->track;
+    MotionTrack44 *track = &RaceContext.presentation250.track;
     PsyqBzero(track, sizeof(*track));
     track->disabled = 0;
     track->key = &MotionTrackTable[selection];
@@ -96,7 +96,7 @@ void UpdateMotionTrack(MotionClock20 *clock) {
     MotionTrack44 *track;
     PresentationController *controller;
 
-    controller = RaceContext.controller3D8;
+    controller = &RaceContext.presentation250;
     track = &controller->track;
     if (track->disabled == 0) {
         switch (controller->track.state) {
@@ -166,83 +166,82 @@ void UpdateMotionTrack(MotionClock20 *clock) {
 }
 
 void InitMotionController(void) {
-    RaceContext.controller3D8 = &RaceContext.presentation250;
-    PsyqBzero(RaceContext.controller3D8, sizeof(PresentationController));
-    RaceContext.controller3D8->position.z = -0x1388;
-    RaceContext.controller3D8->viewDistance48 = 0x1B8;
-    RaceContext.controller3D8->lighting20.matrix.fields.vectors[0].x = 0x1C1;
-    RaceContext.controller3D8->lighting20.matrix.fields.vectors[0].y = -0xDF8;
-    RaceContext.controller3D8->lighting20.matrix.fields.vectors[0].z = -0x79A;
-    RaceContext.controller3D8->lighting20.matrix.fields.colors[0].red = 0xC0;
-    RaceContext.controller3D8->lighting20.matrix.fields.colors[0].green = 0xC0;
-    RaceContext.controller3D8->lighting20.matrix.fields.colors[0].blue = 0xC0;
-    RaceContext.controller3D8->lighting20.matrix.fields.vectors[1].x = -0x64;
-    RaceContext.controller3D8->lighting20.matrix.fields.vectors[1].y = 0;
-    RaceContext.controller3D8->lighting20.matrix.fields.vectors[1].z = 0x64;
-    RaceContext.controller3D8->lighting20.matrix.fields.colors[1].red = 0xC0;
-    RaceContext.controller3D8->lighting20.matrix.fields.colors[1].green = 0xC0;
-    RaceContext.controller3D8->lighting20.matrix.fields.colors[1].blue = 0xC0;
-    RaceContext.controller3D8->lighting20.matrix.fields.vectors[2].x = -0xA4D;
-    RaceContext.controller3D8->lighting20.matrix.fields.vectors[2].y = -0x642;
-    RaceContext.controller3D8->lighting20.matrix.fields.vectors[2].z = 0xA86;
-    RaceContext.controller3D8->lighting20.matrix.fields.colors[2].red = 0x20;
-    RaceContext.controller3D8->lighting20.matrix.fields.colors[2].green = 0x20;
-    RaceContext.controller3D8->lighting20.matrix.fields.colors[2].blue = 0x20;
-    RaceContext.controller3D8->lighting20.ambient[0] = 0;
-    RaceContext.controller3D8->lighting20.ambient[1] = 0;
-    RaceContext.controller3D8->lighting20.ambient[2] = 0;
-    RaceContext.controller3D8->script64 = HudCircularGaugeVerts;
-    RaceContext.controller3D8->scriptOperation6C = RaceContext.controller3D8->script64[RaceContext.controller3D8->scriptIndex68].operation;
-    RaceContext.controller3D8->scriptArgument70 = RaceContext.controller3D8->script64[RaceContext.controller3D8->scriptIndex68].argument;
-    switch (RaceContext.controller3D8->scriptOperation6C) {
+    PsyqBzero(&RaceContext.presentation250, sizeof(PresentationController));
+    RaceContext.presentation250.position.z = -0x1388;
+    RaceContext.presentation250.viewDistance48 = 0x1B8;
+    RaceContext.presentation250.lighting20.matrix.fields.vectors[0].x = 0x1C1;
+    RaceContext.presentation250.lighting20.matrix.fields.vectors[0].y = -0xDF8;
+    RaceContext.presentation250.lighting20.matrix.fields.vectors[0].z = -0x79A;
+    RaceContext.presentation250.lighting20.matrix.fields.colors[0].red = 0xC0;
+    RaceContext.presentation250.lighting20.matrix.fields.colors[0].green = 0xC0;
+    RaceContext.presentation250.lighting20.matrix.fields.colors[0].blue = 0xC0;
+    RaceContext.presentation250.lighting20.matrix.fields.vectors[1].x = -0x64;
+    RaceContext.presentation250.lighting20.matrix.fields.vectors[1].y = 0;
+    RaceContext.presentation250.lighting20.matrix.fields.vectors[1].z = 0x64;
+    RaceContext.presentation250.lighting20.matrix.fields.colors[1].red = 0xC0;
+    RaceContext.presentation250.lighting20.matrix.fields.colors[1].green = 0xC0;
+    RaceContext.presentation250.lighting20.matrix.fields.colors[1].blue = 0xC0;
+    RaceContext.presentation250.lighting20.matrix.fields.vectors[2].x = -0xA4D;
+    RaceContext.presentation250.lighting20.matrix.fields.vectors[2].y = -0x642;
+    RaceContext.presentation250.lighting20.matrix.fields.vectors[2].z = 0xA86;
+    RaceContext.presentation250.lighting20.matrix.fields.colors[2].red = 0x20;
+    RaceContext.presentation250.lighting20.matrix.fields.colors[2].green = 0x20;
+    RaceContext.presentation250.lighting20.matrix.fields.colors[2].blue = 0x20;
+    RaceContext.presentation250.lighting20.ambient[0] = 0;
+    RaceContext.presentation250.lighting20.ambient[1] = 0;
+    RaceContext.presentation250.lighting20.ambient[2] = 0;
+    RaceContext.presentation250.script64 = HudCircularGaugeVerts;
+    RaceContext.presentation250.scriptOperation6C = RaceContext.presentation250.script64[RaceContext.presentation250.scriptIndex68].operation;
+    RaceContext.presentation250.scriptArgument70 = RaceContext.presentation250.script64[RaceContext.presentation250.scriptIndex68].argument;
+    switch (RaceContext.presentation250.scriptOperation6C) {
     case 0:
-        InitCameraMotion(RaceContext.controller3D8->scriptArgument70);
+        InitCameraMotion(RaceContext.presentation250.scriptArgument70);
         break;
     case 1:
-        InitMotionPanel(RaceContext.controller3D8->scriptArgument70);
+        InitMotionPanel(RaceContext.presentation250.scriptArgument70);
         break;
     case 2:
-        InitScrollTrack(RaceContext.controller3D8->scriptArgument70);
+        InitScrollTrack(RaceContext.presentation250.scriptArgument70);
         break;
     case 3:
-        InitMotionTrack(RaceContext.controller3D8->scriptArgument70);
+        InitMotionTrack(RaceContext.presentation250.scriptArgument70);
         break;
     }
 }
 
 void RestartMotionSequence(void) {
-    RaceContext.controller3D8->scriptIndex68 = 0;
-    RaceContext.controller3D8->scriptTimer6A = 0;
-    RaceContext.controller3D8->flags60 = 0;
-    RaceContext.controller3D8->script64 = MotionSequenceTable[MotionSequenceIndex];
-    RaceContext.controller3D8->scriptOperation6C = RaceContext.controller3D8->script64[RaceContext.controller3D8->scriptIndex68].operation;
-    RaceContext.controller3D8->scriptArgument70 = RaceContext.controller3D8->script64[RaceContext.controller3D8->scriptIndex68].argument;
-    switch (RaceContext.controller3D8->scriptOperation6C) {
+    RaceContext.presentation250.scriptIndex68 = 0;
+    RaceContext.presentation250.scriptTimer6A = 0;
+    RaceContext.presentation250.flags60 = 0;
+    RaceContext.presentation250.script64 = MotionSequenceTable[MotionSequenceIndex];
+    RaceContext.presentation250.scriptOperation6C = RaceContext.presentation250.script64[RaceContext.presentation250.scriptIndex68].operation;
+    RaceContext.presentation250.scriptArgument70 = RaceContext.presentation250.script64[RaceContext.presentation250.scriptIndex68].argument;
+    switch (RaceContext.presentation250.scriptOperation6C) {
     case 0:
-        InitCameraMotion(RaceContext.controller3D8->scriptArgument70);
+        InitCameraMotion(RaceContext.presentation250.scriptArgument70);
         break;
     case 1:
-        InitMotionPanel(RaceContext.controller3D8->scriptArgument70);
+        InitMotionPanel(RaceContext.presentation250.scriptArgument70);
         break;
     case 2:
-        InitScrollTrack(RaceContext.controller3D8->scriptArgument70);
+        InitScrollTrack(RaceContext.presentation250.scriptArgument70);
         break;
     case 3:
-        InitMotionTrack(RaceContext.controller3D8->scriptArgument70);
+        InitMotionTrack(RaceContext.presentation250.scriptArgument70);
         break;
     }
 }
 
 void SetPresentationDrawEnabled(s32 arg0) {
-    RaceContext.controller3D8->drawEnabled54 = arg0;
+    RaceContext.presentation250.drawEnabled54 = arg0;
 }
 
 void SetPresentationFullViewport(s32 arg0) {
-    RaceContext.controller3D8->fullViewport50 = arg0;
+    RaceContext.presentation250.fullViewport50 = arg0;
 }
 
 void SetPresentationStencilEnabled(s32 arg0) {
-    RaceContext.controller3D8->stencilEnabled58 = arg0;
+    RaceContext.presentation250.stencilEnabled58 = arg0;
 }
 
 /* Initial values of the globals this module owns. */

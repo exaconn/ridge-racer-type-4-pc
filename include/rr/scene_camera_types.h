@@ -144,10 +144,12 @@ typedef struct SceneRaceContext {
     struct RaceStandingsTable *standings; /* PS1 RaceStandings (+0xE8) */
     SceneCameraState160 cameraEC;
     SceneCameraState160 *camera24C;       /* PS1 ActiveSparkEmitterCar */
-    /* Presentation owner; controller3D8 (PS1 MotionController) normally
-     * selects presentation250. */
+    /* Presentation controller. The PS1 kept a pointer to it at +0x3D8
+     * (MotionController), set by InitMotionController; it never selected
+     * anything else, and stores made before that init went through a null
+     * pointer into low RAM. The host addresses the member directly. */
     PresentationController presentation250;
-    PresentationController *controller3D8;
+    u32 controllerSlot3D8;
     s32 overlayToggle3DC;         /* PS1 TitleSceneOverlayEnabled */
     /* PS1 FadeSpriteRaceContext; scale3E8 = FadeSpriteIntensityScale,
      * f3EC = FadeSpritePhaseAngle, f428 = DemoFadeSkipEnabled. */
@@ -220,7 +222,7 @@ RR_ASSERT_OFFSET(SceneRaceContext, cameraEC, 0xEC);
 RR_ASSERT_SIZE(SceneRaceContext, 0x57C);
 RR_ASSERT_OFFSET(SceneRaceContext, camera24C, 0x24C);
 RR_ASSERT_OFFSET(SceneRaceContext, presentation250, 0x250);
-RR_ASSERT_OFFSET(SceneRaceContext, controller3D8, 0x3D8);
+RR_ASSERT_OFFSET(SceneRaceContext, controllerSlot3D8, 0x3D8);
 RR_ASSERT_OFFSET(SceneRaceContext, overlayToggle3DC, 0x3DC);
 RR_ASSERT_OFFSET(SceneRaceContext, fade3E0, 0x3E0);
 RR_ASSERT_OFFSET(SceneRaceContext, work444, 0x444);

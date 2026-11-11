@@ -73,7 +73,18 @@
  *   PSYZ_CD_TIMING=instant  drop the CD drive's mechanical timing (seeks,
  *                      pauses, 150 sectors/s) for instant loading; the
  *                      default is the PS1's timing. PSYZ_CD_TRACE=1 prints
- *                      each drive command with its emulated time. */
+ *                      each drive command with its emulated time.
+ *   RR4_INTERNAL_RES=n render at n times the PlayStation resolution (1..8)
+ *                      for this run, over the preferences; with
+ *                      PSYZ_HEADLESS=gpu the captured frames grow with it.
+ *   RR4_SETTINGS_SCRIPT=s  drive the Escape menu in a headless run: s is a
+ *                      comma list of key@present (see settings_overlay.h).
+ *
+ * Interactive runs (no PSYZ_HEADLESS) read the preferences file
+ * (src/port/preferences.c) and apply it, and Escape opens the settings menu
+ * (src/port/settings_overlay.c). Without a CUE argument or RR4_DISC they
+ * start the saved image or ask for one with a file dialog. Headless runs
+ * never read or write preferences and never show a dialog. */
 
 #include <psyz.h>
 #include <psyz/audio.h>
@@ -86,6 +97,8 @@
 #include <string.h>
 #include <dlfcn.h>
 #include "game/system/pad.h"
+#include "preferences.h"
+#include "settings_overlay.h"
 
 void MainLoop(void);
 void Psyz_Srand(unsigned int seed);
@@ -588,8 +601,19 @@ static const char *disc_path(int argc, char **argv) {
     return NULL;
 }
 
+static int file_exists(const char *path) {
+    FILE *f = path && *path ? fopen(path, "rb") : NULL;
+    if (f)
+        fclose(f);
+    return f != NULL;
+}
+
 int main(int argc, char **argv) {
     const char *cue = disc_path(argc, argv);
+    const char *headless = getenv("PSYZ_HEADLESS");
+    int interactive = !(headless && *headless);
+    static Rr4Prefs prefs;
+    static char mounted[RR4_PREFS_PATH_MAX];
 
     /* Headless runs are not paced (PsyZ limitless mode), so wall time has no
      * relation to the emulated fields. The root counters (the libsnd
@@ -600,6 +624,19 @@ int main(int argc, char **argv) {
     if (getenv("PSYZ_HEADLESS") && *getenv("PSYZ_HEADLESS") &&
         !getenv("PSYZ_AUDIO_CLOCK"))
         setenv("PSYZ_AUDIO_CLOCK", "video", 1);
+    /* Preferences and the image dialog are for players only. */
+    Rr4PrefsCaptureDefaults();
+    prefs = *Rr4PrefsDefaults();
+    if (interactive) {
+        if (!Rr4PrefsLoad(&prefs))
+            fprintf(stderr, "ridge-racer-type-4-pc: no preferences location, settings are not saved\n");
+        if (!cue && file_exists(prefs.disc))
+            cue = prefs.disc;
+        if (!cue && SettingsChooseDisc(prefs.disc, sizeof(prefs.disc))) {
+            cue = prefs.disc;
+            Rr4PrefsSave(&prefs);
+        }
+    }
     if (!cue) {
         fprintf(stderr,
                 "usage: %s <Ridge Racer Type 4 (Europe).cue>\n"
@@ -610,6 +647,16 @@ int main(int argc, char **argv) {
     if (Psyz_CdSetDiskPath(cue) != 0) {
         fprintf(stderr, "ridge-racer-type-4-pc: cannot open disc image %s\n", cue);
         return 1;
+    }
+    snprintf(mounted, sizeof(mounted), "%s", cue);
+    if (interactive)
+        Rr4PrefsApply(&prefs, 0);
+    if (interactive || (getenv("RR4_SETTINGS_SCRIPT") && *getenv("RR4_SETTINGS_SCRIPT")))
+        SettingsOverlayInstall(&prefs, mounted);
+    if (getenv("RR4_INTERNAL_RES") && *getenv("RR4_INTERNAL_RES")) {
+        unsigned scale = (unsigned)strtoul(getenv("RR4_INTERNAL_RES"), NULL, 10);
+        if (Psyz_VideoSetInternalResolution(scale) == 0 && interactive)
+            prefs.scale = scale;
     }
     {
         const char *limit = getenv("RR4_FRAME_LIMIT");

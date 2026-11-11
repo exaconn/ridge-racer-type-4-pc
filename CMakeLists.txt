@@ -62,6 +62,24 @@ if(RR4_BUILD_GAME)
     target_link_libraries(rr4_game PUBLIC psyz)
 endif()
 
+# Host services of the desktop build: preferences and the Escape settings
+# menu (model, CPU raster, SDL_GPU overlay glue), shared with the tests.
+add_library(rr4_host STATIC
+    src/port/preferences.c
+    src/port/settings_model.c
+    src/port/settings_raster.c
+    src/port/settings_overlay.c
+)
+target_include_directories(rr4_host
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/port
+    SYSTEM PRIVATE
+        ${PSYZ_DIR}/psyz/include
+        ${PSYZ_DIR}/external/SDL/src/render/gpu/shaders
+)
+target_compile_definitions(rr4_host PRIVATE __psyz)
+target_link_libraries(rr4_host PUBLIC psyz)
+
 add_executable(ridge-racer-type-4-pc
     src/port/main.c
 )
@@ -72,10 +90,20 @@ target_include_directories(ridge-racer-type-4-pc
         ${PSYZ_DIR}/psyz/include
 )
 target_compile_definitions(ridge-racer-type-4-pc PRIVATE __psyz)
-target_link_libraries(ridge-racer-type-4-pc PRIVATE psyz)
+target_link_libraries(ridge-racer-type-4-pc PRIVATE rr4_host psyz)
 if(RR4_BUILD_GAME)
     # src/port/main.c does not enter MainLoop yet, so the archive is built and
     # linked but contributes no objects until the host entry calls the game.
     target_link_libraries(ridge-racer-type-4-pc PRIVATE rr4_game)
 endif()
 psyz_title(ridge-racer-type-4-pc "Ridge Racer Type 4")
+
+if(BUILD_TESTING)
+    # Settings menu and preferences, exercised headlessly.
+    add_executable(rr4_settings_test tests/port/settings_test.c)
+    target_include_directories(rr4_settings_test SYSTEM PRIVATE ${PSYZ_DIR}/psyz/include)
+    target_compile_definitions(rr4_settings_test PRIVATE __psyz)
+    target_link_libraries(rr4_settings_test PRIVATE rr4_host psyz)
+    add_test(NAME settings COMMAND rr4_settings_test ${CMAKE_CURRENT_BINARY_DIR}/settings-test)
+    set_tests_properties(settings PROPERTIES ENVIRONMENT "PSYZ_HEADLESS=1;SDL_AUDIODRIVER=dummy")
+endif()

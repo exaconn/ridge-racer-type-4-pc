@@ -22,8 +22,36 @@ Start the game with the CUE file:
 ./build/ridge-racer-type-4-pc "Ridge Racer Type 4 (Europe).cue"
 ```
 
-or set `RR4_DISC` to its path. Memory cards are kept as `bu00`/`bu10`
-directories in the working directory.
+or set `RR4_DISC` to its path. Without either, the game starts the image you
+chose last time, or asks for the CUE file with a file dialog. Memory cards
+are kept as `bu00`/`bu10` directories in the working directory.
+
+Default keys: arrows steer and move through menus, `X` is Cross, `Z` Square,
+`D` Circle, `S` Triangle, `Q`/`R` L1/R1, `W`/`E` L2/R2, `Enter` Start and
+`Backspace` Select. A connected gamepad works as pad 1 alongside the keyboard.
+`F4` toggles fullscreen.
+
+**Escape** (or the gamepad's Guide button) pauses the game and opens the
+settings menu; Escape again resumes. Game time stops and audio is paused
+while it is open. Tabs (`Tab`/`PgUp`/`PgDn`, gamepad shoulders):
+
+- **Graphics** — internal resolution (1x to 8x), windowed or fullscreen,
+  VSync, aspect ratio, dithering, antialiasing, and experimental texture
+  filtering, geometry correction and frame interpolation (off by default).
+- **Controls** — every keyboard and gamepad binding with its default; `Enter`
+  rebinds (a binding already in use is swapped), `Backspace` restores the
+  default.
+- **Audio** — master volume and mute. Music and effect levels are in the
+  game's own Options.
+- **Disc** — the image in the drive and the image to start with next time.
+
+Each tab also has *Restore page defaults*, *Resume game* and *Quit game*.
+Changes apply at once and are saved to `ridge-racer-type-4.toml`: in
+`RR4_CONFIG_HOME` when that is set, else next to the executable when a
+`ridge-racer-type-4.toml` already exists there (portable), else in the user
+configuration directory (`~/.config/ridge-racer-type-4` on Linux,
+`~/Library/Application Support/Ridge Racer Type 4` on macOS,
+`%APPDATA%\Ridge Racer Type 4` on Windows).
 
 ## Build
 
@@ -50,7 +78,11 @@ PSYZ_HEADLESS=1 SDL_AUDIODRIVER=dummy RR4_FRAME_LIMIT=600 \
 
 `RR4_FRAME_LIMIT` stops after that many VSyncs, `RR4_CAPTURE` / `RR4_VRAM`
 write the displayed frame / VRAM as PPM on exit and `RR4_TRACE=n` prints the
-game's mode state every `n` VSyncs.
+game's mode state every `n` VSyncs. Headless runs never read or write
+preferences and never show a dialog; `RR4_INTERNAL_RES=n` sets the
+resolution for one run (`PSYZ_HEADLESS=gpu` keeps the real GPU renderer, so
+captures are `n` times larger) and `RR4_SETTINGS_SCRIPT` drives the Escape
+menu (see `src/port/settings_overlay.h`).
 
 ## Layout
 
@@ -60,7 +92,8 @@ game's mode state every `n` VSyncs.
 - `src/overlays/` — the mode modules (`grand_prix`, `time_attack`, `versus`,
   `garage`, `records`, `options`, `extra_trial`, `serial_link`,
   `movie_playback`), linked statically with explicit dispatch.
-- `src/port/` — host entry point.
+- `src/port/` — host entry point, preferences and the Escape settings menu
+  (`tests/port/` checks the menu headlessly).
 - `include/` — game types, data formats and subsystem interfaces.
 - `third_party/psyz/` — PsyZ and its SDL3 dependency.
 - `docs/` — architecture, code organization, conventions, port plan and

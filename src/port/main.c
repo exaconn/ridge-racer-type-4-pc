@@ -14,7 +14,8 @@
  *                      l1 r1 triangle circle cross square. The pressed
  *                      buttons replace pad 1's receive buffer (PadPorts[0])
  *                      right after PsyZ refreshes it at each VSync; outside
- *                      the listed ranges the real input passes through.
+ *                      the listed ranges the real input passes through, or
+ *                      an idle connected digital pad when none is present.
  *   RR4_WATCH=list     with RR4_TRACE, also print globals by name: a comma
  *                      list of name[:size] (size 1, 2 or 4 bytes, default 4,
  *                      signed), e.g. "TitleSceneStage:2,FadeCountdown:2".
@@ -23,6 +24,7 @@
 
 #include <psyz.h>
 #include <psyz/cd.h>
+#include <psyz/input.h>
 #include <psyz/system.h>
 #include <psyz/video.h>
 #include <stdio.h>
@@ -156,12 +158,23 @@ static void apply_pad_script(long vsync) {
         if (vsync >= pad_script[i].first && vsync < pad_script[i].first + pad_script[i].count)
             mask |= pad_script[i].mask;
     }
-    if (!mask)
+    if (!mask && (!pad_script_len || PadPorts[0].status00 == 0))
         return;
-    PadPorts[0].status00 = 0;
-    PadPorts[0].type01 = 0x41; /* digital pad */
-    PadPorts[0].data02 = (unsigned char)~(mask >> 8);
-    PadPorts[0].data03 = (unsigned char)~mask;
+    /* A scripted run always has a digital pad in port 1: between presses
+     * an idle pad stays connected, as on the console, instead of the
+     * host's disconnected port (the game re-detects the controller type
+     * after every reconnect and ignores input meanwhile). The frame also
+     * goes to PsyZ so that libpad (PadGetState) sees the same pad until
+     * the next VSync. */
+    {
+        char frame[4];
+        frame[0] = 0;
+        frame[1] = 0x41; /* digital pad */
+        frame[2] = (char)~(mask >> 8);
+        frame[3] = (char)~mask;
+        Psyz_PadsSet(0, frame, sizeof(frame));
+        memcpy(&PadPorts[0], frame, sizeof(frame));
+    }
 }
 
 static void write_ppm(const char *path, unsigned char *rgb, int w, int h) {

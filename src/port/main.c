@@ -115,6 +115,77 @@ static void print_watches(void) {
     }
 }
 
+#define POKE_MAX 32
+static struct {
+    void *addr;
+    int size, add;
+    long value, vsync;
+} pokes[POKE_MAX];
+static int poke_count;
+
+static void parse_poke(const char *list) {
+    while (list && *list && poke_count < POKE_MAX) {
+        const char *end = strchr(list, ',');
+        size_t len = end ? (size_t)(end - list) : strlen(list);
+        char item[96], *eq, *at, *colon, *plus;
+        long offset = 0;
+
+        if (len >= sizeof(item))
+            len = sizeof(item) - 1;
+        memcpy(item, list, len);
+        item[len] = 0;
+        list = end ? end + 1 : NULL;
+        eq = strchr(item, '=');
+        at = strrchr(item, '@');
+        if (!eq || !at || at < eq) {
+            fprintf(stderr, "RR4_POKE: bad item %s\n", item);
+            continue;
+        }
+        *at = 0;
+        pokes[poke_count].vsync = strtol(at + 1, NULL, 10);
+        pokes[poke_count].value = strtol(eq + 1, NULL, 0);
+        pokes[poke_count].add = eq > item && eq[-1] == '+';
+        eq[pokes[poke_count].add ? -1 : 0] = 0;
+        pokes[poke_count].size = 4;
+        colon = strchr(item, ':');
+        if (colon) {
+            *colon = 0;
+            pokes[poke_count].size = atoi(colon + 1);
+        }
+        plus = strchr(item, '+');
+        if (plus) {
+            *plus = 0;
+            offset = strtol(plus + 1, NULL, 0);
+        }
+        pokes[poke_count].addr = dlsym(RTLD_DEFAULT, item);
+        if (!pokes[poke_count].addr) {
+            fprintf(stderr, "RR4_POKE: no symbol %s\n", item);
+            continue;
+        }
+        pokes[poke_count].addr = (char *)pokes[poke_count].addr + offset;
+        poke_count++;
+    }
+}
+
+static void apply_pokes(long vsync) {
+    for (int i = 0; i < poke_count; i++) {
+        long v = pokes[i].value;
+        if (pokes[i].vsync != vsync)
+            continue;
+        switch (pokes[i].size) {
+        case 1:
+            *(signed char *)pokes[i].addr = (signed char)(pokes[i].add ? *(signed char *)pokes[i].addr + v : v);
+            break;
+        case 2:
+            *(short *)pokes[i].addr = (short)(pokes[i].add ? *(short *)pokes[i].addr + v : v);
+            break;
+        default:
+            *(int *)pokes[i].addr = (int)(pokes[i].add ? *(int *)pokes[i].addr + v : v);
+            break;
+        }
+    }
+}
+
 static long frame_limit;
 static long frame_count;
 static PsyzVSyncCb chained_vsync;
@@ -294,6 +365,7 @@ static void host_vsync(void) {
     frame_count++;
     capture_at_vsync(frame_count);
     apply_pad_script(frame_count);
+    apply_pokes(frame_count);
     if (trace_every > 0 && frame_count % trace_every == 0)
     {
         fprintf(stderr, "vsync %ld frame %u mode %u/%d sub %u", frame_count,
@@ -339,6 +411,7 @@ int main(int argc, char **argv) {
         trace_every = trace ? strtol(trace, NULL, 10) : 0;
         parse_watch(getenv("RR4_WATCH"));
         parse_pad_script(getenv("RR4_PAD_SCRIPT"));
+        parse_poke(getenv("RR4_POKE"));
         autodrive = getenv("RR4_AUTODRIVE") && atoi(getenv("RR4_AUTODRIVE"));
         if (autodrive && getenv("RR4_AUTODRIVE_LOG"))
             autodrive_log = fopen(getenv("RR4_AUTODRIVE_LOG"), "w");

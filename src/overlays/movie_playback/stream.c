@@ -209,6 +209,18 @@ void ovl668_on_mdec_slice_ready(void) {
     LoadImage(&sp10, ((StrPlaybackState *)RaceContext.streamStateB8)->buffers18[prev2C]);
 }
 
+/* The PS1 decodes a frame's VLC in software while the MDEC works on the
+ * previous one: about 1.32 ms plus 2.55 us per MDEC word it writes
+ * (DuckStation, 320x176 frames of 1,400..9,100 words). The frame's ring
+ * slots are freed after it, and the MDEC callbacks run meanwhile. */
+#define VLC_FRAME_NS 1320000u
+#define VLC_WORD_NS 2550u
+void Psyz_SpendTime(unsigned ns);
+
+static void ovl668_spend_vlc_time(const StrCommandHeader *commands) {
+    Psyz_SpendTime(VLC_FRAME_NS + VLC_WORD_NS * ovl668_mdec_buf_size(commands));
+}
+
 s32 ovl668_decode_next_frame(StrDisplayConfig *config) {
     u8 *data;
     s32 remaining = 2000;
@@ -226,6 +238,7 @@ s32 ovl668_decode_next_frame(StrDisplayConfig *config) {
     index = &config->word00;
     *index = *index < 1U;
     ovl668_mdec_decode_vlc(data, ((StrPlaybackState *)RaceContext.streamStateB8)->commands10[*index]);
+    ovl668_spend_vlc_time(((StrPlaybackState *)RaceContext.streamStateB8)->commands10[*index]);
     return StFreeRing(data);
 }
 
@@ -259,11 +272,17 @@ u8 *ovl668_acquire_stream_frame(StrDisplayConfig *config) {
  return data;
 }
 
+/* PS1 time of one iteration of the wait below (two uncached loads and a
+ * store): the MDEC callbacks, timed on the emulated clock, set ready0C
+ * while it spins. */
+#define WAIT_FRAME_ITERATION_NS 470
+
 void ovl668_wait_frame_ready(StrDisplayConfig *config,s32 mode)
 {
     u32 ready=config->ready0C;
     volatile u32 counter=0x800000;
     if(ready==0) do {
+        Psyz_SpendTime(WAIT_FRAME_ITERATION_NS);
         if (--counter==0) {
             config->ready0C=1;
             config->alternate04=!config->alternate04;

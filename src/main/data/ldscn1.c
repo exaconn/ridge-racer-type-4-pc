@@ -102,13 +102,8 @@ int LoadModeMenuAssetsStep(void) {
             LoadIndex = 0;
         }
     case 1:
-        /* Linked mode overlay: reset it instead of reading its image. */
-        if (OverlayModuleBind(GetR4FileIndex(1, LoadIndex + 0xB))) {
-            LoadState = 3;
-            r = 1;
-            MenuArenaBase = LoadCursor;
-            break;
-        }
+        /* The mode overlay is linked, but its image is still read: the load
+         * takes its disc time and arena space. Loading resets the module. */
         if (CdFileReadStart(GetR4FileIndex(1, LoadIndex + 0xB), LoadCursor)) {
             LoadState = 2;
         }
@@ -117,6 +112,8 @@ int LoadModeMenuAssetsStep(void) {
         v = CdFileBytesLoaded();
         if (v) {
             LoadCursor += v;
+            OverlayModuleBind(GetR4FileIndex(1, LoadIndex + 0xB));
+            LoadState = 3;
     case 3:
             r = 1;
             MenuArenaBase = LoadCursor;
@@ -135,13 +132,8 @@ int LoadOpeningMovieTimStep(void) {
         LoadCursor = CdDirectoryBuffer;
         LoadIndex = MainMenuChoice;
     case 1:
-        /* Linked mode overlay: reset it instead of reading its image. */
-        if (OverlayModuleBind(GetR4FileIndex(1, LoadIndex + 1))) {
-            LoadState = 3;
-            r = 1;
-            MenuArenaBase = LoadCursor;
-            break;
-        }
+        /* The overlay is linked, but its image is still read (disc time,
+         * arena space); loading resets the module. */
         if (CdFileReadStart(GetR4FileIndex(1, LoadIndex + 1), LoadCursor)) {
             LoadState = 2;
         }
@@ -150,6 +142,7 @@ int LoadOpeningMovieTimStep(void) {
         v = CdFileBytesLoaded();
         if (v) {
             u8 *t;
+            OverlayModuleBind(GetR4FileIndex(1, LoadIndex + 1));
             LoadState = 3;
             t = LoadCursor + v;
             LoadCursor = t;
@@ -666,13 +659,8 @@ int LoadSplashAssetsStep(void) {
         }
         break;
     case 4:
-        /* Linked movie_playback overlay: reset it instead of reading entry 668. */
-        if (OverlayModuleBind(GetR4FileIndex(1, 10))) {
-            LoadState = 6;
-            MenuArenaBase = LoadCursor;
-            r = 1;
-            break;
-        }
+        /* movie_playback is linked, but entry 668 is still read (disc time,
+         * arena space); loading resets the module. */
         if (CdFileReadStart(GetR4FileIndex(1, 10), LoadCursor) != 0) {
             LoadState = 5;
         }
@@ -680,6 +668,7 @@ int LoadSplashAssetsStep(void) {
     case 5:
         t = CdFileBytesLoaded();
         if (t != 0) {
+            OverlayModuleBind(GetR4FileIndex(1, 10));
             LoadCursor += t;
             LoadState = 6;
             MenuArenaBase = LoadCursor;

@@ -63,7 +63,11 @@
  *                      count instead of the wall clock.
  *   PSYZ_HEADLESS runs default to PSYZ_AUDIO_CLOCK=video: unpaced fields
  *                      would otherwise race the wall-clock sequencer tick
- *                      (PSYZ_AUDIO_CLOCK=wall keeps the host clock). */
+ *                      (PSYZ_AUDIO_CLOCK=wall keeps the host clock).
+ *   PSYZ_CD_TIMING=instant  drop the CD drive's mechanical timing (seeks,
+ *                      pauses, 150 sectors/s) for instant loading; the
+ *                      default is the PS1's timing. PSYZ_CD_TRACE=1 prints
+ *                      each drive command with its emulated time. */
 
 #include <psyz.h>
 #include <psyz/audio.h>

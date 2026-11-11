@@ -56,7 +56,9 @@
  *                      "ModeFrame mask" per VSync it drives, which
  *                      tools/port/duckstation.py replays on the reference
  *                      (same ModeFrame -> same buttons) for comparison;
- *                      RR4_AUTODRIVE_REPLAY=file drives from such a log.
+ *                      RR4_AUTODRIVE_REPLAY=file drives from such a log;
+ *                      RR4_AUTODRIVE_HOLD=n only accelerates before
+ *                      ModeFrame n (a fixed input up to the replay snapshot).
  *   RR4_AUDIO_CAPTURE=file  write the mixed audio output (44100 Hz 16-bit
  *                      stereo) as a WAV file, finished when exiting. With
  *                      PSYZ_AUDIO_CLOCK=video the samples follow the VSync
@@ -383,6 +385,8 @@ static unsigned short autodrive_mask(void) {
         mask |= 0x2000; /* right */
     else if (error < -24)
         mask |= 0x8000; /* left */
+    if (getenv("RR4_AUTODRIVE_HOLD") && ModeFrame < atoi(getenv("RR4_AUTODRIVE_HOLD")))
+        mask = 0x0040; /* straight on until that ModeFrame */
     if (autodrive_log)
         fprintf(autodrive_log, "%d %u\n", ModeFrame, mask);
     return mask;

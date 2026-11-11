@@ -1,9 +1,11 @@
 /* BIOS file services (A(00h)..A(04h): open, lseek, read, write, close) under
- * the game's names. Memory card files ("buXY:") are PsyZ host files. Host
- * I/O completes inside the call, so an FASYNC card transfer delivers its
- * SwCARD end-of-I/O event before returning, as the BIOS does once the last
- * sector is done. The "sio:" link cable device has no peer on the host: it
- * opens, but nothing is ever sent or received. */
+ * the game's names. Memory card files ("buXY:") are PsyZ host files whose
+ * transfers take their PS1 time on the emulated clock (Psyz_CardFile*): the
+ * host I/O completes inside the call, but an FASYNC card transfer raises its
+ * SwCARD end-of-I/O event only when the BIOS would have finished the last
+ * sector, and a synchronous one or a file creation returns after that time.
+ * The "sio:" link cable device has no peer on the host: it opens, but
+ * nothing is ever sent or received. */
 #include <kernel.h>
 #include <romio.h>
 #include <psyz/system.h>
@@ -15,7 +17,7 @@ enum { FILE_HANDLE_COUNT = 16 };
 /* BIOS open mode bit for asynchronous transfers (romio.h FASYNC). The host
  * <fcntl.h>, reached through the PsyZ headers, redefines FASYNC as O_ASYNC
  * (0x40 on macOS, 0x2000 on Linux), so the BIOS value is spelled out. */
-enum { FILE_MODE_ASYNC = 0x8000 };
+enum { FILE_MODE_ASYNC = 0x8000, FILE_MODE_CREATE = 0x200 };
 
 typedef enum {
     FILE_KIND_FREE,
@@ -26,6 +28,7 @@ typedef enum {
 typedef struct {
     FileKind kind;
     int host;
+    int card;
     int async;
 } FileHandle;
 
@@ -52,8 +55,8 @@ static s32 FileTransferDone(FileHandle *file, long count) {
     if (count <= 0) {
         return -1; /* end of file or host error: no data was transferred */
     }
-    if (file->async) {
-        DeliverEvent(SwCARD, EvSpIOE);
+    if (file->card) {
+        Psyz_CardFileTransfer(count, file->async);
     }
     return (s32)count;
 }
@@ -69,15 +72,18 @@ s32 FileOpen(const char *name, s32 mode) {
         return -1;
     }
     if (FileIsDevice(name, "sio:")) {
-        FileHandles[descriptor] = (FileHandle){FILE_KIND_LINK, -1, 0};
+        FileHandles[descriptor] = (FileHandle){FILE_KIND_LINK, -1, 0, 0};
         return descriptor;
     }
     int host = psyz_open(name, mode);
     if (host < 0) {
         return -1;
     }
-    FileHandles[descriptor] = (FileHandle){
-        FILE_KIND_HOST, host, FileIsDevice(name, "bu") && (mode & FILE_MODE_ASYNC)};
+    FileHandles[descriptor] = (FileHandle){FILE_KIND_HOST, host, FileIsDevice(name, "bu"),
+                                           (mode & FILE_MODE_ASYNC) != 0};
+    if (FileHandles[descriptor].card && (mode & FILE_MODE_CREATE)) {
+        Psyz_CardFileCreate();
+    }
     return descriptor;
 }
 

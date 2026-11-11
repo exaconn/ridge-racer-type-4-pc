@@ -1,4 +1,5 @@
 #include "game/gfx/poly1.h"
+#include "rr/player_cars.h"
 #include "game/math/rotmat.h"
 #include "rr/timing.h"
 #include "game/camera/viewini.h"
@@ -123,7 +124,7 @@ int SetupRearViewMirror(void) {
             &rotation,
             &CameraPitchRollMatrix,
             &CameraPitchRollMatrix);
-        BuildRotMatrixX(&rotation, SunLightPitchAngle * 2);
+        BuildRotMatrixX(&rotation, PlayerCars[0].renderAngleX1AC * 2); /* SunLightPitchAngle 0x800AC0A4 */
         MulMatrix2(&rotation, &CameraViewMatrix);
         MulMatrix2(&rotation, &CameraPitchRollMatrix);
         CameraViewMatrix.halves[0] = -CameraViewMatrix.halves[0];
@@ -490,7 +491,6 @@ struct PreviewBytes8 EmblemPreviewClutRect1 = {.c = {0, 3, 0xFE, 0, 0x10, 0, 1}}
 struct PreviewBytes8 EmblemPreviewImageRect0 = {.c = {0, 3, 0, 0, 0x1E, 0, 0x20}};
 struct PreviewBytes8 EmblemPreviewStripRect = {.c = {0, 3, 0x20, 0, 2, 0, 0x10}};
 struct PreviewBytes8 EmblemPreviewImageRect1 = {.c = {0x20, 3, 0, 0, 0x1F, 0, 0x18}};
-short SunLightPitchAngle;
 u8 **ActivePolyStripPtr;
 s16 RearViewMirrorEnabled;
 MatrixWords32 ColorMatrix;

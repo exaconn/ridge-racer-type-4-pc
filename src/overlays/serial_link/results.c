@@ -11,8 +11,8 @@ extern s16 MenuCursor;
 extern s16 MenuItemCount;
 extern s32 ovl667_result_labels[22];
 extern s32 TotalRaceTime;
-extern s16 LinkFinishCarOrder[8];
-extern s16 LinkPlayerWinCounts[8];
+extern s16 LinkFinishCarOrder[4];
+extern s16 LinkPlayerWinCounts[4];
 extern s16 LinkState;
 extern void SetMenuFrameOptions(s32, s32, s32);
 
@@ -214,6 +214,8 @@ static const OverlayStateRegion ovl667_results_regions[] = {
 const OverlayStateTable ovl667_results_state = {ovl667_results_regions, sizeof(ovl667_results_regions) / sizeof(ovl667_results_regions[0])};
 
 /* Initial values of the globals this module owns. */
-s16 LinkFinishCarOrder[8];
-s16 LinkPlayerWinCounts[8];
+s16 LinkFinishCarOrder[4];
+s16 LinkPlayerWinCounts[4];
+/* 0x8010C088: four link player names; the name exchange sends rows 2..3
+ * (the PS1 map's LinkPlayerPacketBuf, 0x8010C0A0) and receives rows 0..1. */
 char LinkPlayerNames[4][12];

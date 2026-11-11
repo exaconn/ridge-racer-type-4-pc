@@ -989,13 +989,20 @@ void RenderSkyToRect(const void *translation, const void *rotation, const GpuRec
 }
 
 /* Initial values of the globals this module owns. */
-short D_8009E16C[20] = {0, 0, 226, 0, 230, 4096, 317, 4096, 321, 0, 470, 0, 474, 4096, 480, 4096, 484, 0, 4096};
-short D_8009E194[20] = {0, 0, 209, 0, 213, 4096, 242, 4096, 246, 0, 501, 0, 505, 4096, 512, 4096, 516, 0, 4096};
-short D_8009E1BC[12] = {0, 0, 232, 0, 236, 4096, 273, 4096, 277, 0, 4096};
+/* Sky keyframe lists (time, weight pairs) of courses 0, 1 and 6, one owner
+ * from 0x8009E168: DrawTrackScenery reads the pair before a list's first
+ * entry (a1[-1], a1[-2]) when the current time equals it. For the first
+ * list that is the zero pad word ending SpotlightConeRingOuter. */
+short CourseSkyKeyframes[2 + 20 + 20 + 12] = {
+    0, 0,
+    0, 0, 226, 0, 230, 4096, 317, 4096, 321, 0, 470, 0, 474, 4096, 480, 4096, 484, 0, 4096, 0, /* D_8009E16C */
+    0, 0, 209, 0, 213, 4096, 242, 4096, 246, 0, 501, 0, 505, 4096, 512, 4096, 516, 0, 4096, 0, /* D_8009E194 */
+    0, 0, 232, 0, 236, 4096, 273, 4096, 277, 0, 4096, 0, /* D_8009E1BC */
+};
 short D_8009E1F8[6] = {228, 3, 508, 2, 4096, 3};
 short D_8009E204[6] = {94, 2, 436, 3, 4096, 2};
 short D_8009E210[10] = {90, 2, 233, 3, 400, 2, 456, 3, 4096, 2};
 char UnknownSkyModeFmt[52] = {117, 110, 107, 110, 111, 119, 110, 32, 109, 111, 100, 101, 32, 37, 120, 10};
-short *CourseSkyKeyframePtrs[9] = {(short *)D_8009E16C, (short *)D_8009E194, 0, 0, 0, 0, (short *)D_8009E1BC};
+short *CourseSkyKeyframePtrs[9] = {&CourseSkyKeyframes[2], &CourseSkyKeyframes[22], 0, 0, 0, 0, &CourseSkyKeyframes[42]};
 short *CourseSceneryRangePtrs[9] = {0, (short *)D_8009E1F8, (short *)D_8009E204, (short *)D_8009E210};
 char SkyDefaultRotMatrix[32] = {0, 12, 0, -12, 0, -12, 103, -10, 103, -10, 103, -10, 0, 0, 0, 0, 0, -16};

@@ -8,7 +8,7 @@
 #include "rr/string_tail_copy.h"
 #include "rr/menu_glyph.h"
 #include "rr/diagnostics.h"
-extern CourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[4][9];
 extern s16 ovl662_selected_car_slot,ovl662_selected_car_number,ovl662_selected_emblem_id;
 extern char ovl662_saved_player_name[12];
 extern const char ovl662_str_init_car_choice[];

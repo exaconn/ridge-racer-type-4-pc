@@ -1,4 +1,5 @@
 #include "types.h"
+#include "rr/player_cars.h"
 #include "rr/save_slots.h"
 #include "rr/vehicle_table.h"
 #include "rr/menu_selection.h"
@@ -51,7 +52,7 @@ void UpdateHudRankDisplay(int a0, int a1) {
     if (GameModeType == 1) {
         s0 = 0x40;
         s1 = 0;
-        if (HudDisplayedLapIndex <= HudLapTargetThresholds[SelectionState.fields.phase17 / 2]) {
+        if (PlayerCars[0].half1EE <= /* HudDisplayedLapIndex 0x800AC0E6 */ HudLapTargetThresholds[SelectionState.fields.phase17 / 2]) {
             s1 = 1;
             v = rsin((ScreenFrame & 0x3F) << 6);
             if (v < 0) v += 0x3F;

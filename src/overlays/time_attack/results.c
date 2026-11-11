@@ -1,4 +1,5 @@
 #include "rr/overlay_module.h"
+#include "rr/player_cars.h"
 #include "game/system/pad.h"
 #include "rr/overlay660.h"
 #include "rr/frame_storage_types.h"
@@ -12,7 +13,7 @@ void ovl660_init_results(void)
     ModeFrame = 0;
     if (TotalRaceTime != -1) {
         ovl660_rank_standings();
-        ovl660_race_record_rank = ovl660_insert_record(0, LapTimes[(s16)HudMapZoomMode]);
+        ovl660_race_record_rank = ovl660_insert_record(0, LapTimes[(s16)PlayerCars[0].control.dynamics94.steering.finish20]);
         ovl660_lap_record_rank = ovl660_insert_record(1, TotalRaceTime);
     } else {
         ovl660_race_record_rank = 6;
@@ -324,7 +325,7 @@ void ovl660_rank_standings(void)
             }
         }
     }
-    HudMapZoomMode = indices[0];
+    PlayerCars[0].control.dynamics94.steering.finish20 = indices[0]; /* HudMapZoomMode 0x800AC1A0 */
 }
 
 /* Initial values of the overlay globals this module owns. */
@@ -350,7 +351,6 @@ static const OverlayStateRegion ovl660_results_regions[] = {
 const OverlayStateTable ovl660_results_state = {ovl660_results_regions, sizeof(ovl660_results_regions) / sizeof(ovl660_results_regions[0])};
 
 /* Initial values of the globals this module owns. */
-u16 HudMapZoomMode;
 s16 ReverseCourse;
 TimeRecord16 RaceRecords[2][8][5];
 TimeRecord16 LapRecords[2][8][5];

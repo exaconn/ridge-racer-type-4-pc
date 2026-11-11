@@ -5,12 +5,6 @@
 #include "game/car/carspec2.h"
 #include "game/car/carspec1.h"
 #include "rr/audio_loop.h"
-typedef struct {
-    short x, y;
-} CurvePt;
-
-extern CurvePt RubberBandCurve[];
-extern short BonusCarUnlockMask;
 extern int ReplayState;
 extern int RaceState;
 
@@ -84,7 +78,7 @@ int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
             s1 += 0x800;
         }
         if (GameModeType == 1 || GameModeType == 6) {
-            if (RaceContext.standings->entries18[0].unk00 == 0 && RaceContext.standings->entries18[1].unk00 == (s16)a0->flags1E4 && s2->playerDistance[a1] > BonusCarUnlockMask) {
+            if (RaceContext.standings->entries18[0].unk00 == 0 && RaceContext.standings->entries18[1].unk00 == (s16)a0->flags1E4 && s2->playerDistance[a1] > RubberBandCurve[2].x) {
                 s1 = 0xC00;
             }
         }
@@ -130,5 +124,4 @@ int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
 }
 
 /* Initial values of the globals this module owns. */
-CurvePt RubberBandCurve[1] = {{.x = -3000}};
-short BonusCarUnlockMask = 2000;
+CurvePt RubberBandCurve[7] = {{-3000, 0}, {-1000, 800}, {2000, 1024}, {4000, 800}, {6000, 0}, {8000, 1024}, {10000, 0}};

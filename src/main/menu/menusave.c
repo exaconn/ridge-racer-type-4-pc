@@ -10,7 +10,7 @@
 #include "game/menu/mnchoice.h"
 
 
-extern CourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[4][9];
 
 void UpdateSaveProgress(void) {
     u8 sp10[4];

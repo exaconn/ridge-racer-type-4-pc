@@ -1,0 +1,26 @@
+# Reviewed sweep_layout.py findings that are not layout bugs, plus the facts
+# the sweep needs to judge host-enlarged and unnamed objects. Every entry
+# carries the reason it was accepted; stale entries are reported.
+
+# Host-enlarged objects: their PS1 size bounds the extent check.
+SIZE DrawBuffers 0x44EF0  # two 0x22778-byte banks on PS1 (0x800ADAF0..0x800F29E0); the host packet arena is larger for 16-byte tags
+SPAN SharedWorkArena  # host-sized for MenuTextState at +0x4E20 and ReplayStorage; the PS1 two-player replay (0x60E8) already ran into SceneOffsetLookupBuf, which is reloaded before each dialogue scene (ldscn1.c)
+
+# Unnamed original objects the port defines under a descriptive name.
+SYM SaveSlotPresetLabel 0x8009FDB8  # "PRESET   " buffer rewritten by the selection list (mnlist.c)
+SYM CdTrackTables 0x800A0904  # per-track CD volume + timing tables (cdplay.c), PS1 StageUnlockMovieIds/CdTrackTitleStrings/RaceOverlayFilePath
+SYM CourseSkyKeyframes 0x8009E168  # sky keyframe lists D_8009E16C/D_8009E194/D_8009E1BC with the preceding zero pad word they read (sky.c)
+
+# Followed by original data no code reads.
+TRUNC SinTable  # followed by libgte's sqrt/rcossin tables (D_800A70D0..), which PsyZ libgte provides
+TRUNC MenuStageEntryModeIds  # followed by SubmitModel's face-kind dispatch tables (jtbl_800A2158), replaced by RroFaceKinds in submodel.c
+TRUNC StartCamHeightKeyframes  # followed by the two-triangle SubmitModel dispatch table (jtbl_800A0FDC), replaced by RroFaceKinds in submodel.c
+TRUNC OverlayTextSpriteUv  # second rodata word 0x7F38 is the CLUT literal the function passes directly
+TRUNC UnitScaleVector  # trailing rodata words are hudmap2.c tpage/CLUT constants the code uses as literals
+TRUNC XaRepeatMsg  # followed by unreferenced rodata (D_800111CC ")" and 0x7F38)
+TRUNC StrActuatorNoErrorFmt  # followed by unreferenced rodata words (D_80011064, D_8001109C, D_800110BC)
+TRUNC SizeLdFmt  # followed by a compiler jump table (jtbl_80010910)
+TRUNC CardSavePromptId  # 0x800A41F0..0x800A4257 is an unlabelled table no main or overlay code references
+TRUNC MenuJitterSpritePresetB  # followed by unreferenced strings "C-0".."C-3" (0x8009F410)
+TRUNC CardSlotHeaderTitles  # followed by 8 bytes of PsyQ libmath data before _err_math_mode
+SPAN SpotlightConeRingOuter  # CourseSkyKeyframes starts with a copy of its last (zero, never written) pad word, which DrawTrackScenery reads before the first keyframe list

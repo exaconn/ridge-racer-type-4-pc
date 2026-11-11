@@ -1,4 +1,5 @@
 #include "game/race/racegrid.h"
+#include "rr/frame_loop.h"
 #include "game/data/resinit.h"
 #include "game/math/rotmat.h"
 #include "psyq/libgte/gtemat4.h"
@@ -67,10 +68,6 @@ extern int SceneFogWorkVector[];
 extern MatrixWords32 *ScaleMatrix(MatrixWords32 *matrix, V4 *scale);
 extern V4 MenuCarDefaultScale;
 extern int RotTransPers(const short *vector, int *screen, int *interpolation, int *flags);
-/* Showcase sub-ordering tables: [object][0x15F entries], one array per draw
- * buffer. The HUD also targets them (ui/window2.c). */
-extern GpuDmaTag ViewportRenderEnvLeft[2][0x15F];
-extern GpuDmaTag ViewportRenderEnvRight[2][0x15F];
 
 void UpdateRaceCamera(int arg0, void *arg1);
 void InitTrackStartPos(void);
@@ -274,7 +271,7 @@ void BuildObjectLightAndRotMatrices(const void *object, MatrixWords32 *a1) {
 }
 
 int RotTransPersOrigin(void) {
-    short a[3];
+    short a[4]; /* SVECTOR: RotTransPers loads the pad halfword with vz */
     int b, c, d;
     a[0] = 0;
     a[1] = 0;
@@ -288,8 +285,12 @@ SceneRaceContext RaceContext;
 void InitRaceContextBuffers(void) {
     int i;
     for (i = 0; i < 2; i++) {
-        RaceContext.subOrdering50[i][0] = ViewportRenderEnvLeft[i];
-        RaceContext.subOrdering50[i][1] = ViewportRenderEnvRight[i];
+        /* Showcase sub-ordering tables, [object][bank]: the PS1 map's
+         * ViewportRenderEnvLeft (0x800AE660) and ViewportRenderEnvRight
+         * (0x800D0DD8) are each bank's secondary ordering table, split into
+         * two 0x15F-entry halves, so the split-screen views share them. */
+        RaceContext.subOrdering50[i][0] = &DrawBuffers[0].buffer.secondaryOrderingB70.tags[i * 0x15F];
+        RaceContext.subOrdering50[i][1] = &DrawBuffers[1].buffer.secondaryOrderingB70.tags[i * 0x15F];
     }
 }
 
@@ -352,5 +353,3 @@ u8 *EmitSpotlightConePolys(s32 a0) {
 /* Initial values of the globals this module owns. */
 V4 MenuCarDefaultScale = {.x = 409, .y = 409, .z = 409};
 int SceneFogWorkVector[10];
-GpuDmaTag ViewportRenderEnvLeft[2][0x15F];
-GpuDmaTag ViewportRenderEnvRight[2][0x15F];

@@ -15,7 +15,6 @@
 #define RR_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)SCRATCHPAD)
 #endif
 
-extern s16 GaragePackedChoiceGlyph;
 extern s16 MenuItemCount;
 extern u32 ScreenFrame;
 extern s16 ovl662_selected_car_number, ovl662_selected_emblem_id;
@@ -94,7 +93,7 @@ void ovl662_reset_team_car_preview(void)
 {
     ResetScreenCounters();
     LoadCursor=MenuArenas.first;
-    UnpackChoiceGlyph((s8 *)&SelectionRows.selection,GaragePackedChoiceGlyph);
+    UnpackChoiceGlyph((s8 *)&SelectionRows.selection,CourseChoiceTable[1][0].glyph);
     ImageRows->f1=6;
 }
 
@@ -383,6 +382,4 @@ static const OverlayStateRegion ovl662_team_car_select_regions[] = {
 const OverlayStateTable ovl662_team_car_select_state = {ovl662_team_car_select_regions, sizeof(ovl662_team_car_select_regions) / sizeof(ovl662_team_car_select_regions[0])};
 
 /* Initial values of the globals this module owns. */
-CourseChoice4 CourseChoiceTable[2][9];
-s16 GaragePackedChoiceGlyph;
 MenuGridPoint PlayerCourseChoices[4];

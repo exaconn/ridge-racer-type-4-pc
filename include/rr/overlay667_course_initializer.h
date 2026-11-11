@@ -10,7 +10,7 @@
 extern s16 LinkPlayerWinCounts[4],LinkCarChoiceIndex[2],LinkCarChoiceGroup[2];
 #include "game/data/selection.h"
 extern CourseChoice4 LinkCarChoiceTable[2][2][9];
-extern CourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[4][9];
 extern char LinkPlayerNames[4][12];
 extern char *ovl667_default_player_names[4];
 extern s32 ActivePlayerIndex,LinkAvailableCourseCount;

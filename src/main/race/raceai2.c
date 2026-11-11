@@ -38,7 +38,7 @@ extern short ModeGroup;
 extern unsigned short SubmodeState;
 extern short LinkState;
 extern s16 MenuScriptId;
-extern char LinkPlayerPacketBuf[];
+extern char LinkPlayerNames[4][12];
 extern short ActiveSceneId;
 extern short MenuTransitionOverlayMode;
 extern char StrLinkError[];
@@ -192,7 +192,7 @@ void LinkExchangeModeUpdate(void) {
         return;
     case 1:
         if (LinkExchange(LinkEntryState[1], LinkEntryState[0], 2, 1) == -1) { LinkState = 3; return; }
-        if (LinkExchange(LinkPlayerPacketBuf, LinkPlayerPacketBuf - 0x18, 0x18, 1) == -1) { LinkState = 3; return; }
+        if (LinkExchange(LinkPlayerNames[2], LinkPlayerNames[0], 2 * sizeof(LinkPlayerNames[0]), 1) == -1) { LinkState = 3; return; }
         if (LinkExchange(SelectionRows.records + 2, SelectionRows.records, 2 * sizeof(MenuChoice4), 1) == -1) { LinkState = 3; return; }
         if (LinkExchange(&PlayerCourseChoices[2], &PlayerCourseChoices[0], 2 * sizeof(MenuGridPoint), 1) == -1) { LinkState = 3; return; }
         if (LinkExchange(&CourseIndex, &CourseIndex, sizeof(CourseIndex), 0) == -1) { LinkState = 3; return; }
@@ -518,5 +518,4 @@ short FadeCountdown;
 int VSyncThreshold;
 RankEntry8 *RankTable[8];
 unsigned short SubmodeState;
-char LinkPlayerPacketBuf[24];
 int LinkCommTimeoutTimer;

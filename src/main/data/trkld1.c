@@ -395,6 +395,9 @@ VabLoadConfig CourseVabLoadConfigs[7] = {
     {.file_index = 0x15, .open_mode = 0x16000, .bank_slot = 4},
     {.file_index = 0, .open_mode = 0x8000, .bank_slot = 7},
 };
+/* 0x800A027C: unreferenced 32-bit copy of CourseSkyboxTypeTable between the
+ * load tables; only the font lookup window (trktext.c) can read it. */
+s32 D_800A027C[8] = {1, 4, 4, 7, 1, 7, 7, 7};
 int CourseAssetGroupIds[8] = {0, 6, 2, 17, 1, 24, 10, 31};
 int CourseAssetBaseFileIndex;
 char *RaceLoadCursor;

@@ -37,10 +37,9 @@
 #include "rr/cd_directory_buffer.h"
 #include "rr/ui_bar.h"
 extern s32 MenuStepDirection;
-extern CourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[4][9];
 extern u32 ScreenFrame;
 #include "rr/player_cars.h"
-extern u16 HudMapZoomMode;
 extern s32 RaceTimeRemaining;
 extern s16 FadeCountdown;
 extern s16 MenuItemCount;

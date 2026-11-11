@@ -1,4 +1,5 @@
 #include "types.h"
+#include "game/car/carspec2.h"
 #include "rr/player_cars.h"
 #include "game/car/grid.h"
 #include "game/car/carbound.h"
@@ -12,7 +13,6 @@
 #include "rr/cd_poll.h"
 #include "rr/scene_camera_state.h"
 
-extern u16 CarDraftSlipstreamFactor;
 
 
 void InitComCars(s32 count) {
@@ -105,12 +105,10 @@ void InitComCars(s32 count) {
             sub->divisor11C = tmp >> 10;
             sub->boostTimer44 = sub->divisor11C < 0 ? -sub->divisor11C : sub->divisor11C;
         }
-        CarDraftSlipstreamFactor = RaceContext.draftSpec544->factor26;
+        RubberBandCurve[1].y = RaceContext.draftSpec544->factor26; /* 0x8009FE76 */
     } else {
-        CarDraftSlipstreamFactor = 0x320;
+        RubberBandCurve[1].y = 0x320;
     }
     DebugPrintStub("InitComCar OK!\n", i);
 }
 
-/* Initial values of the globals this module owns. */
-u16 CarDraftSlipstreamFactor = 0x320;

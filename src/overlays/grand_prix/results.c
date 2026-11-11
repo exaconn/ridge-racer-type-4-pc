@@ -1,4 +1,5 @@
 #include "game/system/pad.h"
+#include "rr/player_cars.h"
 #include "rr/save_slots.h"
 #include "rr/overlay659.h"
 #include "rr/frame_storage_types.h"
@@ -244,6 +245,6 @@ void ovl659_rank_standings(void) {
         if (vehicle->control.dynamics94.steering.count22 > 0)
             LapTimes[vehicle->control.dynamics94.steering.count22 - 1] = rank;
     } else {
-        HudMapZoomMode = indices[0];
+        PlayerCars[0].control.dynamics94.steering.finish20 = indices[0]; /* HudMapZoomMode 0x800AC1A0 */
     }
 }

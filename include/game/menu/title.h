@@ -3,7 +3,6 @@
 
 #include "types.h"
 
-extern int TitleDemoTrackNode;
 extern int AttractCarTeams[];
 void AttractDemoRaceUpdate(void);
 

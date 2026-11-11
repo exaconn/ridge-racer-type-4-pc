@@ -1,4 +1,5 @@
 #include "game/system/pad.h"
+#include "rr/player_cars.h"
 #include "rr/save_slots.h"
 #include "types.h"
 #include "rr/load_cursor.h"
@@ -9,7 +10,6 @@
 #include "game/menu/title.h"
 #include "game/gfx/sky.h"
 
-extern int MenuSavedTrackNode;
 extern int ViewUsesCarTrackNode;
 
 void DrawTrackSceneryForPlayer(int a0);
@@ -99,9 +99,9 @@ void DrawTrackSceneryForPlayer(int a0) {
     int v;
     if (ViewUsesCarTrackNode == 1) {
         if (a0 < 2) {
-            v = TitleDemoTrackNode;
+            v = PlayerCars[0].trackNodeF0; /* TitleDemoTrackNode 0x800ABFE8 */
         } else {
-            v = MenuSavedTrackNode;
+            v = PlayerCars[1].trackNodeF0; /* MenuSavedTrackNode 0x800AC308 */
         }
     } else {
         int *p = (int *)SCRATCHPAD;
@@ -131,5 +131,3 @@ s32 CountChoiceGlyphs(const CourseChoice4 *a0) {
 }
 
 /* Initial values of the globals this module owns. */
-int TitleDemoTrackNode;
-int MenuSavedTrackNode;

@@ -28,8 +28,7 @@
 
 
 extern signed char CourseInfoRowOrder[];
-extern UiUvRect CourseInfoLabelUvs[];
-extern UiUvRect CourseInfoDirectionUvs[];
+extern UiUvRect CourseInfoLabelUvs[9];
 extern short GameModeType;
 extern short CourseLengthMetersTable[];
 extern short ComDifficultyLevel;
@@ -64,7 +63,7 @@ void DrawCourseInfoPanel(int arg0, int arg1) {
 
     s4 = arg0 >= 8;
     arg0 &= 7;
-    p = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], p, 0x3A, 0x104, &CourseInfoDirectionUvs[s4], s4 + 0x75E4, 0);
+    p = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], p, 0x3A, 0x104, &CourseInfoLabelUvs[6 + s4], s4 + 0x75E4, 0);
     p = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], p, 0x59);
     RR_GPU_SCRATCH->cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], p, 0x10, 0xE0, 2, 0x88, 0x4C, 0x4C, 0x4C);
 
@@ -243,8 +242,9 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
 }
 
 /* Initial values of the globals this module owns. */
-UiUvRect CourseInfoLabelUvs[6] = {{.v = 0x68, .w = 0x18, .h = 0x10}, {.u = 0x18, .v = 0x68, .w = 0x20, .h = 0x10}, {.u = 0x3C, .v = 0x68, .w = 0x30, .h = 0x10}, {.u = 0x6C, .v = 0x68, .w = 0x38, .h = 0x10}, {.u = 0xA4, .v = 0x68, .w = 0x24, .h = 0x10}, {.u = 0xC8, .v = 0x68, .w = 0x18, .h = 0x10}};
-UiUvRect CourseInfoDirectionUvs[3] = {{.v = 0xD8, .w = 0x10, .h = 0x20}, {.u = 0x10, .v = 0xD8, .w = 0x10, .h = 0x20}, {.u = 0x64, .v = 0x58, .w = 8, .h = 0x10}};
+/* 0x8009F654: nine UV rects. Rows 6..8 are the PS1 map's
+ * CourseInfoDirectionUvs (0x8009F66C); the label loop draws row 8 too. */
+UiUvRect CourseInfoLabelUvs[9] = {{.v = 0x68, .w = 0x18, .h = 0x10}, {.u = 0x18, .v = 0x68, .w = 0x20, .h = 0x10}, {.u = 0x3C, .v = 0x68, .w = 0x30, .h = 0x10}, {.u = 0x6C, .v = 0x68, .w = 0x38, .h = 0x10}, {.u = 0xA4, .v = 0x68, .w = 0x24, .h = 0x10}, {.u = 0xC8, .v = 0x68, .w = 0x18, .h = 0x10}, {.v = 0xD8, .w = 0x10, .h = 0x20}, {.u = 0x10, .v = 0xD8, .w = 0x10, .h = 0x20}, {.u = 0x64, .v = 0x58, .w = 8, .h = 0x10}};
 short CourseLengthMetersTable[8] = {5220, 6686, 5665, 5564, 3012, 5868, 6456, 3958};
 signed char CourseInfoRowOrder[12] = {0, 1, 2, 3, 0, 1, 4, 5, 0, 1, -1, -1};
 int TrackPreviewTick;

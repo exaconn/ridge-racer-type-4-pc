@@ -1,4 +1,5 @@
 #include "rr/projection_state.h"
+#include "rr/player_cars.h"
 #include "rr/menu_selection.h"
 #include "game/system/pad.h"
 #include "types.h"
@@ -107,15 +108,17 @@ void UpdateTrackObjects(void) {
                         if (GameModeType != 1) {
                             TrackObjectStates[i].f8 = 0xB;
                         } else if (CourseIndex == 7) {
-                            if (RaceFinishBannerTimer != 0) {
-                                TrackObjectStates[i].f8 = RaceFinishBannerTimer + 0xA;
+                            /* RaceFinishBannerTimer (0x800AC1AA) and HudDisplayedLapIndex
+                             * (0x800AC0E6) are fields of PlayerCars[0]. */
+                            if (PlayerCars[0].control.dynamics94.steering.count22 != 0) {
+                                TrackObjectStates[i].f8 = PlayerCars[0].control.dynamics94.steering.count22 + 0xA;
                             } else {
                                 TrackObjectStates[i].f8 = 0xB;
                             }
-                        } else if (RaceFinishBannerTimer <= 0 || (CourseIndex == 6 && RaceFinishBannerTimer < 2)) {
+                        } else if (PlayerCars[0].control.dynamics94.steering.count22 <= 0 || (CourseIndex == 6 && PlayerCars[0].control.dynamics94.steering.count22 < 2)) {
                             TrackObjectStates[i].f8 = 0xB;
                         } else {
-                            switch (HudDisplayedLapIndex + 1) {
+                            switch (PlayerCars[0].half1EE + 1) {
                             case 1:
                                 TrackObjectStates[i].f8 = 0xC;
                                 break;
@@ -362,8 +365,6 @@ next_iter:
 /* Initial values of the globals this module owns. */
 int MenuSoundEffectMap;
 TrackSample3C *TrackNodes;
-short HudDisplayedLapIndex;
-s16 RaceFinishBannerTimer;
 int ObjSimBlimpTrackNode;
 int ObjSimJetTrackNode;
 int ObjSimCopterTrackNode;

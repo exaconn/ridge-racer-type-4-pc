@@ -17,6 +17,9 @@
 #include "rr/course_choice_types.h"
 #include "rr/course_choices.h"
 #include "game/sound/sndctrl.h"
+#include "rr/relative_file.h"
+#include "rr/track_sample_types.h"
+extern u32 FrameCounter, ScreenFrame;
 
 typedef struct {
     char name[10];
@@ -27,7 +30,7 @@ extern int DefaultCourseTimes[2][8];
 extern DefaultRecordEntry0C DefaultRecordEntries[5];
 extern TimeRecord16 RaceRecords[2][8][5];
 extern TimeRecord16 LapRecords[2][8][5];
-extern CourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[4][9];
 extern unsigned short DefaultCourseChoiceGlyphs[];
 #include "rr/cd_directory_buffer.h"
 extern char StrTitle0Log[];
@@ -78,7 +81,19 @@ void InitCourseChoices(void)
 {
     int i, j;
     PsyqBzero(CourseChoiceTable, 0x90);
-    PsyqBzero((char *)CourseChoiceTable + 0x24, 0x90);
+    /* The PS1 then clears 0x90 bytes from +0x24 (0x800ABE2C..0x800ABEBB):
+     * the rest of the table and the nine words the linker placed after it,
+     * which therefore start from zero once the frame environment is set up. */
+    PsyqBzero((char *)CourseChoiceTable + 0x24, sizeof(CourseChoiceTable) - 0x24);
+    BackColorR = 0;               /* 0x800ABE98 */
+    RelFileOffsetPtr7 = NULL;
+    TrackCollisionGridPtr = NULL;
+    TrackNodes = NULL;
+    RelFileSection05 = NULL;
+    FrameCounter = 0;             /* 0x800ABEAC */
+    ScreenFrame = 0;
+    TrackSectionBoundsPtr = NULL;
+    RelFileOffsetPtr12 = NULL;    /* 0x800ABEB8 */
     for (i = 0; i < 4; i++) {
         for (j = 0; j < 9; j++) {
             if (j == 8) {
@@ -152,3 +167,6 @@ DefaultRecordEntry0C DefaultRecordEntries[5] = {{.name = {69, 78, 75, 73, 32, 32
 unsigned short DefaultCourseChoiceGlyphs[8] = {0x27, 0x4F, 0x77, 0x9F, 0xC7, 0xEF, 0x117, 0x13F};
 u8 CourseLapCounts[2][8] = {{3, 3, 3, 3, 3, 3, 3, 6}, {2, 3, 3, 3, 2, 3, 3, 6}};
 EmblemTimImage840 SaveDataWork;
+/* 0x800ABE08: four groups of nine choices (InitCourseChoices fills all
+ * four). Garage's GaragePackedChoiceGlyph (0x800ABE2C) is [1][0].glyph. */
+CourseChoice4 CourseChoiceTable[4][9];

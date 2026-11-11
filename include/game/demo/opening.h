@@ -3,7 +3,13 @@
 
 #include "types.h"
 
-extern char CdTrackTitleStrings[];
+typedef struct {
+    s32 volumes[38];
+    s32 timing[64][3];
+} CdTrackTableSet;
+extern CdTrackTableSet CdTrackTables;
+/* PS1 CdTrackTitleStrings (0x800A095C) + track * 32, within CdTrackTables. */
+#define CD_TRACK_TITLE(track) ((char *)&CdTrackTables + 22 * 4 + ((track) << 5))
 extern s16 *OpeningDateGlyphLists[];
 extern s16 *OpeningTimeGlyphLists[];
 extern s16 *OpeningStageGlyphLists[];

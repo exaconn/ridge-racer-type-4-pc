@@ -1,4 +1,5 @@
 #include "rr/projection_state.h"
+#include "rr/player_cars.h"
 #include "rr/camera_matrices.h"
 #include "psyq/libgte/gtemat4.h"
 #include "psyq/libgte/gtemat.h"
@@ -96,7 +97,7 @@ void BuildCameraMatrices(void) {
         &rotation,
         (const MatrixWords32 *)(SCRATCH_ROT_MATRIX),
         &RearViewMirrorMatrix);
-    BuildRotMatrixX(&rotation, SunLightPitchAngle * 2);
+    BuildRotMatrixX(&rotation, PlayerCars[0].renderAngleX1AC * 2); /* SunLightPitchAngle 0x800AC0A4 */
     MulMatrix2(&rotation, &RearViewMirrorMatrix);
     RearViewMirrorMatrix.halves[0] = -RearViewMirrorMatrix.halves[0];
     RearViewMirrorMatrix.halves[1] = -RearViewMirrorMatrix.halves[1];

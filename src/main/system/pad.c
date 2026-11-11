@@ -16,7 +16,7 @@ extern s32 PadMotorActuatorCmd[2];
 extern s16 TwistRangeLimits[4];
 extern s16 PadRangeLimits[6];
 extern s32 WheelDeadzoneTable[8];
-extern s32 PadDeadzoneTable[8];
+extern s32 PadDeadzoneTable[4];
 extern s16 PadDigitalSteerSpeed;
 int abs(int);
 extern char StrControllerNoErrorFmt[];
@@ -358,7 +358,7 @@ char StrControllerNoErrorFmt[28] = {67, 111, 110, 116, 114, 111, 108, 108, 101, 
 char StrActuatorNoErrorFmt[52] = {65, 99, 116, 117, 97, 116, 111, 114, 32, 110, 111, 32, 101, 114, 114, 111, 114, 33, 32, 45, 32, 37, 100, 10};
 s16 TwistRangeLimits[4] = {25, 38, 75, 113};
 s16 PadRangeLimits[6] = {21, 32, 64, 96, 128};
-s32 PadDeadzoneTable[8] = {0, 6, 10, 14, -14080769, 673644543, -53972, 1006578687};
+s32 PadDeadzoneTable[4] = {0, 6, 10, 14};
 s32 PadPortConnectionFlags[2];
 s16 PadDigitalSteerSpeed;
 s32 PadMotorActuatorCmd[2];

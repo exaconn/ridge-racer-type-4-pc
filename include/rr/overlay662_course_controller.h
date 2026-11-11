@@ -15,7 +15,7 @@
 #include "rr/menu_arena_types.h"
 #include "rr/preview_rgb.h"
 #include "rr/frame_storage_types.h"
-extern CourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[4][9];
 #include "game/data/selection.h"
 #include "rr/menu_arena_state.h"
 #include "rr/image_rows.h"

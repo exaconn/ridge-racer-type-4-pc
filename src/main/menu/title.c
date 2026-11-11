@@ -247,7 +247,7 @@ void AttractDemoRaceUpdate(void) {
   else
   {
     ViewUsesCarTrackNode = 1;
-    TitleDemoTrackNode = ComCars[0].trackNodeF0;
+    PlayerCars[0].trackNodeF0 = ComCars[0].trackNodeF0; /* TitleDemoTrackNode */
     InitDemoComCars(ComCars, RaceContext.attract4BC.camera30);
   }
   if (RaceContext.attract4BC.cameraTimer08 >= 0x178)
@@ -404,7 +404,7 @@ void AttractDemoRaceUpdate(void) {
         old = 0xC8;
         DrawFontStringRight(0x131, old, RepeatLabel, 0xFF, 0);
       }
-      DrawFontStringRight(0xFA, 0xD4, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5), 0xFF, 0);
+      DrawFontStringRight(0xFA, 0xD4, CD_TRACK_TITLE(BgmNumberToCdTrack[SoundState.track28A4 - 1]), 0xFF, 0);
       AddBrightnessSprite(HudLapSlashSprite, 0xFC, 0xD4, 0xFF);
       AddBrightnessSprite(HudViewModeIconUvs, 0x105, 0xD4, 0xFF);
       PsyqSprintf((s8 *)sp18, (const s8 *)StrFmtTwoDigitsTitle, SoundState.track28A4);

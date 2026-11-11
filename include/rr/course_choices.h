@@ -7,7 +7,7 @@
 #include "rr/menu_arena_types.h"
 #include "rr/selection.h"
 #include "rr/course_choice_types.h"
-extern CourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[4][9];
 #include "rr/menu_arena_state.h"
 #include "rr/image_rows.h"
 void ResetScreenCounters(void);

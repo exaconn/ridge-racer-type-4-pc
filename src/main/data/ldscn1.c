@@ -710,9 +710,16 @@ int DialogueSceneMode;
 void *MenuArenaBase;
 unsigned char LoadState;
 /* PS1: 0x5168 bytes. The host layouts placed in it are larger: the dialogue
- * state LoadMenuCarModelsStep puts at +0x4E20 and the replay storage. */
+ * state LoadMenuCarModelsStep puts at +0x4E20 and the replay storage. (The
+ * PS1 two-player replay storage, 0x60E8 bytes, already ran on into
+ * SceneOffsetLookupBuf; that buffer is reloaded before every dialogue
+ * scene, so keeping the two apart changes nothing observable.) */
 #define SHARED_WORK_ARENA_MAX(a, b) ((a) > (b) ? (a) : (b))
 u8 SharedWorkArena[SHARED_WORK_ARENA_MAX(
     SHARED_WORK_ARENA_MAX(0x5168, 0x4E20 + sizeof(MenuTextState)), sizeof(ReplayStorage))];
-char SceneOffsetLookupBuf[7592];
+/* 0x80104DB0: LoadMenuCarModelsStep reads four sectors (0x2000 bytes) of
+ * dialogue tables here. The PS1 map's next labels, DuelRaceVehicles
+ * (+0x1DA8) and GrandPrixRaceVehicles, are only ComCars - 2 / - 1 pointer
+ * bases (see InitCarTable); the extent runs to LinkPlayerCount (+0x23C8). */
+char SceneOffsetLookupBuf[0x2000];
 char MenuSoundVabBuffer[8192];

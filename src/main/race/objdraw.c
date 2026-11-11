@@ -1,4 +1,5 @@
 #include "psyq/libgte/rotmat.h"
+#include "rr/player_cars.h"
 #include "rr/menu_selection.h"
 #include "rr/rro_model.h"
 #include "rr/memory.h"
@@ -160,7 +161,7 @@ void DrawTrackObjects(s32 arg0) {
             continue;
 
         case 5:
-            if (ReplayState == 2 && GameModeType == 1 && RaceFinishBannerTimer < 6) {
+            if (ReplayState == 2 && GameModeType == 1 && PlayerCars[0].control.dynamics94.steering.count22 < 6 /* RaceFinishBannerTimer */) {
                 continue;
             }
             if (TrackObjectStates[i].f8 != 0) {

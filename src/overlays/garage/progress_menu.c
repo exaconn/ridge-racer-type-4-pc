@@ -12,13 +12,13 @@
 #include "game/system/pad.h"
 #include "rr/overlay662_progress_controller.h"
 #include "rr/frame_storage_types.h"
+#include "rr/emblem_images.h"
 
-extern CourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[4][9];
 void SeqStartTrack(s32 mode);
 extern const char ovl662_str_init_garage_scene[];
 void SetModelTexturePage(s32 mode);
 extern s16 MenuCursor;
-extern EmblemTimImage840 GarageDefaultCarTimBuf;
 void StepMenuValue(s32 mode, s32 width, char *selection, s32 limit, s32 flags);
 void SeqFadeVolume(s32, s32);
 void SeqMuteVolume(void);
@@ -158,8 +158,10 @@ void ovl662_update_progress_menu(void)
         AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.tags,
                       (64 - FadeCountdown) * 4, 69);
         if (FadeCountdown <= 0) {
-            InitTimTemplate(&GarageDefaultCarTimBuf);
-            UploadCarClut(&GarageDefaultCarTimBuf, 0, 0);
+            /* GarageDefaultCarTimBuf (0x800F4368) is the second custom
+             * emblem image: this resets player 2's emblem buffer too. */
+            InitTimTemplate(&CustomEmblemBuffers.images[1]);
+            UploadCarClut(&CustomEmblemBuffers.images[1], 0, 0);
             ModeGroup = 3;
             ModeIndex = 1;
             SubmodeState = 0;
@@ -206,5 +208,3 @@ void ovl662_reset_module(void) {
     OverlayStateRestore(&ovl662_state_image);
 }
 
-/* Initial values of the globals this module owns. */
-EmblemTimImage840 GarageDefaultCarTimBuf;

@@ -6,7 +6,6 @@
  * entries, ending at the first negative value. Race setup resets all ten. */
 extern s32 LapTimes[10];
 extern s32 TotalRaceTime;
-extern u16 HudMapZoomMode;
 /* Publish the first minimum entry's original index; an empty list yields0. */
 void ovl660_rank_standings(void);
 #endif

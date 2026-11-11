@@ -10,7 +10,7 @@
 #include "rr/load_cursor.h"
 
 extern s16 LinkPlayerWinCounts[4];
-extern CourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[4][9];
 extern CourseChoice4 LinkCarChoiceTable[2][2][9];
 extern s16 LinkMenuSyncPhase;
 extern s16 LinkCarChoiceCounts[2][2];

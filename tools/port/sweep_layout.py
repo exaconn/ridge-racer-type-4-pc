@@ -145,22 +145,33 @@ def load_symbols(decomp):
         d = json.load(open(p))
         if 'globals' not in d:
             continue
-        space = 'ovl%s' % d.get('entry')
+        # Overlays share one load window: each is its own address space.
+        space = 'ovl%s' % (d.get('entry') or d.get('index') or os.path.basename(p))
         for n, a in d['globals'].items():
             syms[n] = (space, a)
     return syms
 
 
-def load_data(decomp):
-    sys.path.insert(0, os.path.dirname(__file__))
+def load_data(decomp, labels=None):
+    """Byte map of the main executable's data; fills `labels` with the
+    `dlabel` names of the data files (unnamed D_ and jump-table labels the
+    symbol map does not list)."""
     data = {}
     for p in glob.glob(os.path.join(decomp, 'asm/PAL/main/data/*.s')):
-        cur = None
+        pending = []
         for line in open(p):
+            d = re.match(r'\s*dlabel\s+(\w+)', line)
+            if d:
+                pending.append(d.group(1))
+                continue
             m = re.search(r'/\*\s*[0-9A-F]+\s+([0-9A-F]{8})(?:\s+[0-9A-F]+)?\s*\*/\s*\.(word|short|byte|asciz)\s+(.*)$', line)
             if not m:
                 continue
             a = int(m.group(1), 16)
+            if labels is not None:
+                for n in pending:
+                    labels.setdefault(n, a)
+            pending = []
             kind, arg = m.group(2), m.group(3).split('/*')[0].strip()
             if kind == 'asciz':
                 txt = bytes(arg[1:-1], 'utf-8').decode('unicode_escape').encode('latin-1') + b'\0'
@@ -177,10 +188,44 @@ def load_data(decomp):
     return data
 
 
+OVERLAY_WINDOW = 0x80114878
+ALLOWLIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sweep_layout_allow.txt')
+
+
+def load_allowlist():
+    """Reviewed decisions, one per line, each with a `# reason`:
+      TRUNC|SPAN NAME     the finding is not a bug
+      SIZE NAME 0xN       PS1 size of a host-enlarged object (bounds its extent)
+      SYM NAME 0xADDR     main-executable address of an unnamed original object
+                          the port defines under NAME"""
+    allow, sizes, extra = {}, {}, {}
+    if os.path.exists(ALLOWLIST):
+        for n, line in enumerate(open(ALLOWLIST), 1):
+            body, _, reason = line.partition('#')
+            parts = body.split()
+            if not parts:
+                continue
+            if not reason.strip():
+                sys.exit(f'{ALLOWLIST}:{n}: entry needs a reason')
+            if parts[0] in ('TRUNC', 'SPAN') and len(parts) == 2:
+                allow[(parts[0], parts[1])] = reason.strip()
+            elif parts[0] == 'SIZE' and len(parts) == 3:
+                sizes[parts[1]] = int(parts[2], 0)
+            elif parts[0] == 'SYM' and len(parts) == 3:
+                extra[parts[1]] = int(parts[2], 0)
+            else:
+                sys.exit(f'{ALLOWLIST}:{n}: cannot parse {line.strip()!r}')
+    return allow, sizes, extra
+
+
 def main():
     decomp = sys.argv[1]
     syms = load_symbols(decomp)
-    data = load_data(decomp)
+    allow, sizes, extra = load_allowlist()
+    for n, a in extra.items():
+        syms.setdefault(n, ('main', a))
+    labels = {}
+    data = load_data(decomp, labels)
     files = sorted(glob.glob(ROOT + '/src/**/*.c', recursive=True))
     with Pool(10) as p:
         res = p.map(visit, files)
@@ -191,6 +236,17 @@ def main():
             if d['static']:
                 continue
             defined.setdefault(d['name'], d)
+    # Data-file labels the port uses by name are original object boundaries;
+    # unused ones are still unowned data (they must not end a neighbour).
+    for n, a in labels.items():
+        if n in referenced or n in defined:
+            syms.setdefault(n, ('main', a))
+    # Port objects named after an unlabelled original address (D_8XXXXXXX in
+    # the main executable) also bound the extents of their neighbours.
+    for n in defined:
+        m = re.fullmatch(r'D_(8[0-9A-F]{7})', n)
+        if m and n not in syms and int(m.group(1), 16) < OVERLAY_WINDOW:
+            syms[n] = ('main', int(m.group(1), 16))
     by_space = {}
     for n, (sp, a) in syms.items():
         by_space.setdefault(sp, []).append((a, n))
@@ -203,7 +259,7 @@ def main():
         sp, a = syms[name]
         lst = by_space[sp]
         addrs = [x[0] for x in lst]
-        size = d['size']
+        size = sizes.get(name, d['size'])
         i = bisect.bisect_right(addrs, a)
         nxt = addrs[i] if i < len(addrs) else None
         # interior symbols
@@ -227,6 +283,17 @@ def main():
             if nz and any(x in data for x in range(a + size, nxt)):
                 findings.append(dict(kind='TRUNC', name=name, file=d['file'], size=size, gap=nxt - a - size, nonzero=nz,
                                      next=[n for ad, n in lst if ad == nxt][0]))
+    used = set()
+    kept = []
+    for f in findings:
+        key = ('SPAN' if f['kind'] != 'TRUNC' else 'TRUNC', f['name'])
+        if key in allow:
+            used.add(key)
+        else:
+            kept.append(f)
+    for key in sorted(set(allow) - used):
+        print(f"STALE    allowlist entry {key[0]} {key[1]} no longer matches a finding")
+    findings = kept
     order = {'ALIAS': 0, 'OVERLAP': 1, 'TRUNC': 2, 'INTERIOR': 3}
     findings.sort(key=lambda f: (order[f['kind']], f['file'], f['name']))
     owners = {}
@@ -245,7 +312,7 @@ def main():
     counts = {}
     for f in findings:
         counts[f['kind']] = counts.get(f['kind'], 0) + 1
-    print('summary', counts)
+    print('summary', counts, 'allowlisted', len(used))
     if '--json' in sys.argv:
         json.dump(findings, open(sys.argv[sys.argv.index('--json') + 1], 'w'), indent=1)
 

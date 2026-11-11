@@ -1,4 +1,5 @@
 #include "rr/sprite_emit.h"
+#include "rr/player_cars.h"
 #include "rr/menu_selection.h"
 #include "rr/gpu_line.h"
 #include "rr/gpu_scratch_types.h"
@@ -15,7 +16,6 @@
 extern char StrTotalTimeLabel[];
 extern char LapTimeLabel[];
 extern char StrPressStart[];
-extern short HudMapZoomMode;
 extern int TotalRaceTime;
 extern int LapTimes[];
 extern UiUvRect HudSignalLightUv;
@@ -39,7 +39,7 @@ void DrawRaceTimesScreen(void) {
     int sel;
     RR_GPU_SCRATCH->cursor = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x100);
     i = 0;
-    sel = HudMapZoomMode;
+    sel = PlayerCars[0].control.dynamics94.steering.finish20; /* HudMapZoomMode 0x800AC1A0 */
     if (NumLaps > 0) {
         y = 0x86;
         q = LapTimes;
@@ -64,7 +64,7 @@ void DrawRaceTimesScreen(void) {
         i -= 1;
         b -= 1;
     } while (i >= 0);
-    FormatDecimalDigits(sp18, HudDisplayedLapIndex + 1, 1);
+    FormatDecimalDigits(sp18, PlayerCars[0].half1EE + 1, 1); /* HudDisplayedLapIndex */
     DrawFontStringCentered(0x78, 0x3C, sp18, 0x80, 0);
     DrawFontStringCentered(0x78, 0xC8, StrPressStart, 0x80, 0);
     AddSetTexpagePrim(0);

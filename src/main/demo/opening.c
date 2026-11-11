@@ -147,7 +147,7 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
         if (SoundState.track28A4 <= 0) {
             DrawFontString(0x78, 0xC8, (const u8 *)(StrRandomPlay), sp18[5], 0);
         } else {
-            DrawFontString(0x78, 0xC8, (const u8 *)(CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5)), sp18[5], 0);
+            DrawFontString(0x78, 0xC8, (const u8 *)(CD_TRACK_TITLE(BgmNumberToCdTrack[SoundState.track28A4 - 1])), sp18[5], 0);
         }
         AddSetTexpagePrim(0);
         return s4;
@@ -247,12 +247,12 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
             DrawFontString(0x5A, 0xC8, (const u8 *)(sp30), sp18[5], 0);
             AddBrightnessSprite(HudLapSlashSprite, 0x6C, 0xC8, sp18[5]);
             if (SoundState.track28A4 > 0) {
-                DrawFontString(0x78, 0xC8, (const u8 *)(CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5)), sp18[5], 0);
+                DrawFontString(0x78, 0xC8, (const u8 *)(CD_TRACK_TITLE(BgmNumberToCdTrack[SoundState.track28A4 - 1])), sp18[5], 0);
             } else {
                 DrawFontString(0x78, 0xC8, (const u8 *)(StrRandomPlay), sp18[5], 0);
             }
         } else {
-            s0_3 = 0x88 - DrawFontStringCenteredOffset(0x14, 0xC8, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5), sp18[5], 0) / 2;
+            s0_3 = 0x88 - DrawFontStringCenteredOffset(0x14, 0xC8, CD_TRACK_TITLE(BgmNumberToCdTrack[SoundState.track28A4 - 1]), sp18[5], 0) / 2;
             AddBrightnessSprite(HudViewModeIconUvs, s0_3, 0xC8, sp18[5]);
             PsyqSprintf((s8 *)sp30, (const s8 *)StrFmtTwoDigitsOpening, SoundState.track28A4);
             DrawFontString(s0_3 + 0xE, 0xC8, (const u8 *)(sp30), sp18[5], 0);
@@ -338,7 +338,6 @@ const char StrOpeningBacktick[4] = {96};
 const char StrOpeningApostrophe[4] = {39};
 const char StrFmtTwoDigitsOpening[8] = {37, 48, 50, 100};
 const char StrRandomPlay[12] = {82, 65, 78, 68, 79, 77, 32, 80, 76, 65, 89};
-char CdTrackTitleStrings[64] = {127, 0, 0, 0, 127, 0, 0, 0, 127, 0, 0, 0, 127, 0, 0, 0, 127, 0, 0, 0, 127, 0, 0, 0, 127, 0, 0, 0, 127, 0, 0, 0, 127, 0, 0, 0, 127, 0, 0, 0, 127, 0, 0, 0, 127, 0, 0, 0, 127, 0, 0, 0, 127, 0, 0, 0, 127, 0, 0, 0, 127};
 s32 BgmNumberToCdTrack[15] = {23, 14, 11, 20, 18, 12, 22, 16, 21, 19, 17, 13, 15, 24, 25};
 char CourseNames[192] = {72, 69, 76, 84, 69, 82, 32, 83, 75, 69, 76, 84, 69, 82, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 79, 85, 84, 32, 79, 70, 32, 66, 76, 85, 69, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 69, 68, 71, 69, 32, 79, 70, 32, 84, 72, 69, 32, 69, 65, 82, 84, 72, 0, 0, 0, 0, 0, 0, 0, 66, 82, 73, 71, 72, 84, 69, 83, 84, 32, 78, 73, 84, 69, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 87, 79, 78, 68, 69, 82, 72, 73, 76, 76, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 72, 69, 65, 86, 69, 78, 32, 65, 78, 68, 32, 72, 69, 76, 76, 0, 0, 0, 0, 0, 0, 0, 0, 0, 80, 72, 65, 78, 84, 79, 77, 73, 76, 69, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 83, 72, 79, 79, 84, 73, 78, 71, 32, 72, 79, 79, 80, 83};
 s16 *OpeningDateGlyphLists[8] = {(short *)D_800A11F8, (short *)D_800A1220, (short *)D_800A1248, (short *)D_800A1270, (short *)D_800A1298, (short *)D_800A12C0, (short *)D_800A12E8, (short *)D_800A1310};

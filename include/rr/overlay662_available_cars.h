@@ -10,7 +10,7 @@
 /* Four-byte available-car slots retain their unused upper halfword. Twenty
  * slots occupy27348..27398;the following storage is the image-fade phase. */
 typedef struct {s16 value;u16 reserved;} GarageAvailableCar;
-extern CourseChoice4 CourseChoiceTable[2][9];
+extern CourseChoice4 CourseChoiceTable[4][9];
 extern s16 ovl662_menu_substate,ovl662_available_car_count,ovl662_selected_car_slot;
 extern s16 MenuCursor,MenuItemCount,ModeIndex;
 extern u16 ModeGroup,SubmodeState;

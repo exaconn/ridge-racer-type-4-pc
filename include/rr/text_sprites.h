@@ -4,9 +4,9 @@
 
 #include "rr/icon_sprites.h"
 
-/* ROM byte view starts 32 bytes before the renderer's biased ASCII base.
- * The extra suffix keeps base+character inside its owner for every u8. */
-extern u8 FontAtlasRowTable[288], FontGlyphWidths[256];
+/* Glyph widths (0x800A01DC, 60 entries); the renderer reaches glyph values
+ * past the table through FontDataWindow in trktext.c. */
+extern u8 FontGlyphWidths[60];
 
 /* Text must terminate and each emitted glyph needs an aligned 20-byte sprite
  * packet in the scratch cursor's arena. The biased field cursor also requires

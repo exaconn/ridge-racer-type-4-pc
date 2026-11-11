@@ -9,12 +9,14 @@ void *EmitBadgePatternSprites(void *cursor, s32 style, s32 index) {
     BadgeRow1C *p;
     UiUvRect *uv;
     do {
-        q = &BadgeStripPatterns[i + style * 8];
-        xshift = q[4];
-        glyph = q[0];
+        /* The PS1 also loads q[0]/q[4] on the fifth pass (style 18 reads
+         * MenuIconRowStartX); the values are only used for i < 4. */
         p = &BadgeRows[index + i];
         result = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0],result,p->x08,p->y0A+p->extent0E-2,248,2,8,8,8);
         if(i<4) {
+            q = &BadgeStripPatterns[i + style * 8];
+            xshift = q[4];
+            glyph = q[0];
             uv = &BadgeGlyphUvTable[glyph];
             p = &BadgeRows[index + i];
             result = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.tags[0],result,p->x08+xshift,p->y06-2,uv->w,uv->h,uv->u,uv->v,74,0x2E28,1,128);

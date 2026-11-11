@@ -11,6 +11,8 @@
 #include "rr/bios_devices.h"
 #include "rr/controller_hud.h"
 #include "rr/vehicle_drive.h"
+#include "rr/vab_data.h"
+#include "game/data/trkld1.h"
 
 typedef struct {
     u32 otIndex00;
@@ -34,7 +36,69 @@ typedef struct {
     u8 r, g, b;
 } ColorRGB8;
 
-extern unsigned char FontGlyphMap[];
+extern unsigned char FontGlyphMap[96];
+extern unsigned short PadDefaultButtonPresets[8][8];
+extern s32 PadDeadzoneTable[4];
+extern int CourseAssetGroupIds[8];
+extern int CourseAssetBaseFileIndex;
+extern unsigned short SavedCourseIndex;
+extern s32 D_800A027C[8];
+extern short D_800A02C4[2], D_800A02C8[2], D_800A02CC[2], D_800A02D0[2], D_800A02D4[4];
+
+/* The PS1 renderer reads glyphs as FontAtlasRowTable[c] (0x800A015C, i.e.
+ * FontGlyphMap - 0x20) and widths as FontGlyphWidths[glyph] with no range
+ * check, so control characters, bytes >= 0x80 and unmapped glyph values
+ * read whatever the linker placed around the font tables. Those neighbours
+ * belong to other modules here; this window maps every reachable PS1 offset
+ * (from 0x800A015C) back onto its owner so such reads see the same bytes,
+ * including the live race-loader state words. */
+typedef struct {
+    u16 offset;
+    u16 size;
+    const void *data;
+} FontDataSpan;
+
+static const FontDataSpan FontDataWindow[] = {
+    {0x000, 0x10, PadDefaultButtonPresets[7]}, /* 0x800A015C */
+    {0x010, 0x10, PadDeadzoneTable},           /* 0x800A016C */
+    {0x020, 0x60, FontGlyphMap},               /* 0x800A017C */
+    {0x080, 0x3C, FontGlyphWidths},            /* 0x800A01DC */
+    {0x0BC, 4, &RaceSoundTrackLoadState},      /* 0x800A0218 */
+    {0x0C0, 4, &RaceLoadStepIndex},
+    {0x0C4, 4, &RaceLoadState},
+    {0x0C8, 4, &RaceLoadSubState},
+    {0x0CC, 0x54, CourseVabLoadConfigs},       /* 0x800A0228 */
+    {0x120, 0x20, D_800A027C},
+    {0x140, 0x20, CourseAssetGroupIds},        /* 0x800A029C */
+    {0x160, 4, &CourseAssetBaseFileIndex},
+    {0x164, 2, &SavedCourseIndex},             /* 0x800A02C0, then 2 pad */
+    {0x168, 4, D_800A02C4},
+    {0x16C, 4, D_800A02C8},
+    {0x170, 4, D_800A02CC},
+    {0x174, 4, D_800A02D0},
+    {0x178, 8, D_800A02D4},                    /* ends 0x800A02DC */
+};
+
+static u8 FontDataByte(u32 offset) {
+    u32 i;
+    for (i = 0; i < sizeof(FontDataWindow) / sizeof(FontDataWindow[0]); i++) {
+        const FontDataSpan *span = &FontDataWindow[i];
+        if (offset >= span->offset && offset < (u32)span->offset + span->size) {
+            return ((const u8 *)span->data)[offset - span->offset];
+        }
+    }
+    return 0;
+}
+
+/* FontAtlasRowTable[c] / FontGlyphMap[c - 0x20] for any byte c. */
+static u8 FontGlyphForChar(u8 c) {
+    return c >= 0x20 && c < 0x80 ? FontGlyphMap[c - 0x20] : FontDataByte(c);
+}
+
+/* FontGlyphWidths[glyph] for any glyph byte. */
+static u8 FontGlyphWidth(u8 glyph) {
+    return glyph < 0x3C ? FontGlyphWidths[glyph] : FontDataByte(0x80 + glyph);
+}
 
 s32 GetTrackNodeHeading(s32 node, s32 lane);
 void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank);
@@ -93,10 +157,10 @@ void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
     GpuDmaTag *ordering = &CurrentDrawBuf->buffer.ordering70.tags[bank];
 
     while (*text != 0) {
-        s32 glyph = FontAtlasRowTable[*text];
+        s32 glyph = FontGlyphForChar(*text);
         text++;
         if (glyph != 255) {
-            s32 width = FontGlyphWidths[glyph];
+            s32 width = FontGlyphWidth(glyph);
             if (color == 255) {
                 packet->code = 0x65;
             } else {
@@ -127,10 +191,10 @@ int DrawFontStringCentered(int a0, int a1, unsigned char *s, int a3, int a4) {
     unsigned char *s0 = s;
     if (*s0 != 0) {
         do {
-            unsigned char c = FontGlyphMap[*s - 0x20];
+            unsigned char c = FontGlyphForChar(*s);
             s++;
             if (c != 0xFF) {
-                sum += FontGlyphWidths[c];
+                sum += FontGlyphWidth(c);
             } else {
                 sum += 4;
             }
@@ -145,10 +209,10 @@ int DrawFontStringCenteredOffset(int a0, int a1, unsigned char *s, int a3, int a
     unsigned char *s0 = s;
     if (*s0 != 0) {
         do {
-            unsigned char c = FontGlyphMap[*s - 0x20];
+            unsigned char c = FontGlyphForChar(*s);
             s++;
             if (c != 0xFF) {
-                sum += FontGlyphWidths[c];
+                sum += FontGlyphWidth(c);
             } else {
                 sum += 4;
             }
@@ -163,10 +227,10 @@ void DrawFontStringRight(int a0, int a1, unsigned char *s, int a3, int a4) {
     unsigned char *s0 = s;
     if (*s0 != 0) {
         do {
-            unsigned char c = FontGlyphMap[*s - 0x20];
+            unsigned char c = FontGlyphForChar(*s);
             s++;
             if (c != 0xFF) {
-                sum += FontGlyphWidths[c];
+                sum += FontGlyphWidth(c);
             } else {
                 sum += 4;
             }
@@ -310,6 +374,5 @@ void AddSlantedGradientRect(unsigned short *a0, int a1, unsigned char *a2, unsig
 }
 
 /* Initial values of the globals this module owns. */
-u8 FontAtlasRowTable[288] = {0, 0x80, 0, 0x20, 0x40, 0, 0x80, 0, 0xA, 0, 5, 0, 0x10, 0, 0x20, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0xA, 0, 0, 0, 0xE, 0, 0, 0, 0xFF, 0x24, 0x29, 0xFF, 0xFF, 0xFF, 0x26, 0x28, 0x2C, 0x2D, 0xFF, 0xFF, 0xFF, 0x2B, 0xFF, 0x3B, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xFF, 0xFF, 0x2C, 0xFF, 0x2D, 0x25, 0x27, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x29, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 7, 6, 8, 8, 8, 8, 8, 8, 7, 8, 9, 8, 8, 8, 7, 7, 8, 8, 5, 8, 9, 7, 0xA, 8, 8, 8, 9, 8, 8, 8, 8, 8, 0xB, 8, 9, 8, 5, 7, 0xA, 0xA, 4, 4, 5, 6, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x11, 0, 0, 0, 0x10, 0x10, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0x80, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 3, 0, 0, 0, 0x13, 0, 0, 0, 0, 0x80, 0, 0, 1, 0, 0, 0, 0x14, 0, 0, 0, 0, 0x60, 1, 0, 4, 0, 0, 0, 0x15, 0, 0, 0, 0, 0x60, 1, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0x80, 0, 0, 7};
 unsigned char FontGlyphMap[96] = {0xFF, 0x24, 0x29, 0xFF, 0xFF, 0xFF, 0x26, 0x28, 0x2C, 0x2D, 0xFF, 0xFF, 0xFF, 0x2B, 0xFF, 0x3B, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xFF, 0xFF, 0x2C, 0xFF, 0x2D, 0x25, 0x27, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x29, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-u8 FontGlyphWidths[256] = {7, 6, 8, 8, 8, 8, 8, 8, 7, 8, 9, 8, 8, 8, 7, 7, 8, 8, 5, 8, 9, 7, 0xA, 8, 8, 8, 9, 8, 8, 8, 8, 8, 0xB, 8, 9, 8, 5, 7, 0xA, 0xA, 4, 4, 5, 6, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x11, 0, 0, 0, 0x10, 0x10, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0x80, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 3, 0, 0, 0, 0x13, 0, 0, 0, 0, 0x80, 0, 0, 1, 0, 0, 0, 0x14, 0, 0, 0, 0, 0x60, 1, 0, 4, 0, 0, 0, 0x15, 0, 0, 0, 0, 0x60, 1, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0x80, 0, 0, 7, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 7, 0, 0, 0, 1, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 2, 0, 0, 0, 0x11, 0, 0, 0, 1, 0, 0, 0, 0x18, 0, 0, 0, 0xA, 0, 0, 0, 0x1F, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0xFF, 0xFF, 2, 0, 0xFF, 0xFF, 3, 0, 0xFF, 0xFF, 4, 0, 0xFF, 0xFF, 5, 0, 6, 0, 0xFF, 0xFF};
+u8 FontGlyphWidths[60] = {7, 6, 8, 8, 8, 8, 8, 8, 7, 8, 9, 8, 8, 8, 7, 7, 8, 8, 5, 8, 9, 7, 0xA, 8, 8, 8, 9, 8, 8, 8, 8, 8, 0xB, 8, 9, 8, 5, 7, 0xA, 0xA, 4, 4, 5, 6, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6};

@@ -136,6 +136,14 @@ class DuckStation:
     def mode(self):
         return (self.u16(0x800F4C6A), self.s16(0x800F3A26), self.u16(0x800F4D8A))
 
+    def audiodump(self, path=None):
+        """Append the mixed SPU output (raw 44100 Hz s16 stereo) to path from
+        now on; without a path, close the dump. Set DUCKSTATION_SPU_REG_TRACE=1
+        (or DUCKSTATION_SPU_KEY_TRACE=1) in the environment before creating
+        the instance, with log= a file, to log SPU register writes; compare
+        with the port's PSYZ_SPU_REG_TRACE / RR4_AUDIO_CAPTURE."""
+        return self.cmd('audiodump ' + path if path else 'audiodump')
+
     def close(self):
         try:
             self.cmd('quit')

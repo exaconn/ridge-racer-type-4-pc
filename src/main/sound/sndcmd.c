@@ -1,6 +1,5 @@
 #include "rr/scene_camera_state.h"
 #include "game/gfx/scene1.h"
-/* RODATA 0x80011108 0x10 */
 #include "types.h"
 #include "rr/audio_loop.h"
 #include "game/sound/sndbgm3.h"
@@ -41,20 +40,20 @@ void SoundQueueUpdate(void)
                 }
             }
             if (s0 == 0) {
-                v1 = SoundState.sequence19D0.rightVolume * Options.audio.volume31;
+                v1 = SoundState.sequence19D0.rightVolume * Options.volume31;
                 s1 = *(u16 *)&SoundState.sequence19D0.leftVolume;
                 if (v1 < 0) {
                     v1 += 0xF;
                 }
                 t1 = v1 >> 4;
-                v0 = ((short) s1) * Options.audio.volume31;
+                v0 = ((short) s1) * Options.volume31;
                 s0 = t1;
                 if (v0 < 0) {
                     v0 += 0xF;
                 }
                 t0 = v0 >> 4;
                 s1 = t0;
-                if (Options.audio.mono32 != 0) {
+                if (Options.mono32 != 0) {
                     v0 = (((short) t0) + ((short) t1)) / 2;
                     s0 = v0;
                     s1 = v0;
@@ -122,5 +121,5 @@ void StopAllSoundAndReset(void) {
     SoundState.active0C = 1;
     SoundState.muted04 = 0;
     SoundReset(SoundState.split10, 0);
-    CameraCutFlag = 0;
+    RaceContext.cameraNodeChanged1C = 0;
 }

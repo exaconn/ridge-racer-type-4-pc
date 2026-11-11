@@ -1,3 +1,7 @@
+#include "rr/runtime_settings.h"
+#include "rr/vehicle_table.h"
+#include "rr/menu_selection.h"
+#include "rr/projection_state.h"
 #include "game/menu/menu13.h"
 #include "psyq/libgte/gtemat5.h"
 #include "rr/frame_storage_types.h"
@@ -22,33 +26,15 @@
 #include "game/data/cdfile2.h"
 #include "rr/trig.h"
 
-typedef struct {
-    int reserved00[10];
-    short reserved28;
-    signed char f2A;
-    char reserved2B;
-} IntroOptionCursor;
-
-typedef struct {
-    int reserved00[42];
-    int fA8;
-} IntroContextCursor;
 
 extern signed char CourseInfoRowOrder[];
-extern int CourseInfoLabelUvs[];
-extern int CourseInfoDirectionUvs[];
+extern UiUvRect CourseInfoLabelUvs[];
+extern UiUvRect CourseInfoDirectionUvs[];
 extern short GameModeType;
-extern short CourseIndex;
-extern int NumLaps;
 extern short CourseLengthMetersTable[];
-extern int CourseBestLapRecords[];
-extern int CourseBestLap[][8];
-extern short NumCars;
 extern short ComDifficultyLevel;
-extern TrackSample3C *TrackNodes;
 extern int TrackNodeCount;
 extern short ReverseCourse;
-extern char Options[];
 extern short RaceLapSplitFlags[];
 
 void DrawCourseInfoPanel(int arg0, int arg1);
@@ -59,10 +45,10 @@ void DrawCourseInfoPanel(int arg0, int arg1) {
     char sp28[8];
     int i;
     int s4;
-    int p;
+    void *p;
     char *b;
 
-    p = *(int *)SCRATCHPAD;
+    p = RR_GPU_SCRATCH->cursor;
     for (i = 0; i < 4; i++) {
         int v = CourseInfoRowOrder[i + (arg1 << 2)];
         int y;
@@ -70,20 +56,20 @@ void DrawCourseInfoPanel(int arg0, int arg1) {
             break;
         }
         y = 0x128 + i * 0x10;
-        p = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], p, 0x16, y, &CourseInfoLabelUvs[v], 0x7FA4, 1);
+        p = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], p, 0x16, y, &CourseInfoLabelUvs[v], 0x7FA4, 1);
         if (i == 1) {
-            p = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], p, 0x4A, y, &CourseInfoLabelUvs[8], 0x7FA4, 1);
+            p = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], p, 0x4A, y, &CourseInfoLabelUvs[8], 0x7FA4, 1);
         }
     }
 
     s4 = arg0 >= 8;
     arg0 &= 7;
-    p = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], p, 0x3A, 0x104, &CourseInfoDirectionUvs[s4], s4 + 0x75E4, 0);
-    p = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], p, 0x59);
-    *(int *)SCRATCHPAD = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], p, 0x10, 0xE0, 2, 0x88, 0x4C, 0x4C, 0x4C);
+    p = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], p, 0x3A, 0x104, &CourseInfoDirectionUvs[s4], s4 + 0x75E4, 0);
+    p = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], p, 0x59);
+    RR_GPU_SCRATCH->cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], p, 0x10, 0xE0, 2, 0x88, 0x4C, 0x4C, 0x4C);
 
     if (GameModeType < 2) {
-        NumLaps = CourseLapCounts[0][CourseIndex + (GameModeType == 1 ? 8 : 0)];
+        NumLaps = CourseLapCounts[GameModeType == 1 ? 1 : 0][CourseIndex];
     }
 
     i = 7;
@@ -100,7 +86,7 @@ void DrawCourseInfoPanel(int arg0, int arg1) {
         } else {
             FormatDecimalDigits(sp28, CourseLengthMetersTable[arg0], 3);
         }
-        DrawDigitString16(&CurrentDrawBuf->buffer.ordering70.words[0], 0x2E + i * 8, 0x128 + i * 0x10, sp28);
+        DrawDigitString16(&CurrentDrawBuf->buffer.ordering70.tags[0], 0x2E + i * 8, 0x128 + i * 0x10, sp28);
     }
 
     if (arg1 == 0) {
@@ -119,7 +105,7 @@ void DrawCourseInfoPanel(int arg0, int arg1) {
                     val = CourseBestTotal[s4][CourseIndex];
                 }
             }
-            DrawDigitString16(&CurrentDrawBuf->buffer.ordering70.words[0], 0x44 + i * 8, 0x148 + i * 0x10, FormatMillisecondsTime(val));
+            DrawDigitString16(&CurrentDrawBuf->buffer.ordering70.tags[0], 0x44 + i * 8, 0x148 + i * 0x10, FormatMillisecondsTime(val));
         }
     } else if (arg1 == 1) {
         i = 7;
@@ -136,18 +122,17 @@ void DrawCourseInfoPanel(int arg0, int arg1) {
             } else {
                 FormatDecimalDigits(sp28, ComDifficultyLevel + 1, 0);
             }
-            DrawDigitString16(&CurrentDrawBuf->buffer.ordering70.words[0], 0x3A - i * 0xC, 0x148 + i * 0x10, sp28);
+            DrawDigitString16(&CurrentDrawBuf->buffer.ordering70.tags[0], 0x3A - i * 0xC, 0x148 + i * 0x10, sp28);
         }
     }
 
-    *(void **)SCRATCHPAD = EmitSpinningWheelIcon(&CurrentDrawBuf->buffer.ordering70.words[0], *(void **)SCRATCHPAD, 0x16, 0xE4, arg0);
+    RR_GPU_SCRATCH->cursor = EmitSpinningWheelIcon(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, 0x16, 0xE4, arg0);
 }
 
 void DrawCourseMapPreview(int unusedSelection,int unusedMode) {
     struct { int x, y, z; } v;
     int i, r;
     TrackSample3C *t;
-    int b;
     if (ReverseCourse != 0) {
         i = (TrackPreviewTick >> 2) % TrackNodeCount;
     } else {
@@ -156,12 +141,11 @@ void DrawCourseMapPreview(int unusedSelection,int unusedMode) {
         r++;
         i = n - r;
     }
-    b = TrackNodes;
-    t = (TrackSample3C *)(i * 0x3C + b);
+    t = &TrackNodes[i];
     v.x = t->road.x;
     v.z = t->road.z;
     TrackPreviewTick += 1;
-    DrawMapBitmapIso(&CurrentDrawBuf->buffer.ordering70.words[0], TrackNodesEnd, &v);
+    DrawMapBitmapIso(&CurrentDrawBuf->buffer.ordering70.tags[0], (u8 *)TrackNodesEnd, &v.x);
 }
 
 void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
@@ -169,15 +153,12 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
   int sp10[3];
   MatrixWords32 m20;
   MatrixWords32 m40;
-  int *g = (int *) SCRATCHPAD;
+  ProjectionView32 *g = &((ProjectionScratchPrefix *)SCRATCHPAD)->pose08;
   int s0;
   int v0;
   int v1;
   int i;
   int k;
-  IntroOptionCursor **new_var;
-  IntroOptionCursor *p;
-  IntroContextCursor *q;
   short *s5;
   if (a1 >= 0x4B)
   {
@@ -191,19 +172,13 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
     RaceLapSplitFlags[1] = -0x100;
     if ((a1 == 1) && (a0 == PlayerCars))
     {
-      i = 0;
+      /* Save each wheel's rumble setting and force mode 2 for the intro. */
       k = 2;
-      p = (IntroOptionCursor *)Options;
-      q = (IntroContextCursor *)&RaceContext;
-      do
+      for (i = 0; i < 2; i++)
       {
-        q->fA8 = p->f2A;
-        (*(new_var = &p))->f2A = k;
-        p = (IntroOptionCursor *)((char *)p + 4);
-        q = (IntroContextCursor *)((char *)q + 4);
-        i++;
+        RaceContext.introSavedRumbleA8[i] = Options.wheel[i].rumble02;
+        Options.wheel[i].rumble02 = k;
       }
-      while (i < 2);
     }
   }
   else
@@ -230,29 +205,29 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
   BuildRotMatrixZ(&m40, a0->rot58);
   MulMatrix2(&m20, &m40);
   ApplyMatrix(&m40, (const Vec3s8 *)(RaceLapSplitFlags), (Vec3i *)(sp10));
-  g[2] = a0->worldPosition10.words[0] + sp10[0];
-  g[3] = a0->worldPosition10.words[1] + sp10[1];
-  g[4] = a0->worldPosition10.words[2] + sp10[2];
+  g->position00.words[0] = a0->worldPosition10.words[0] + sp10[0];
+  g->position00.words[1] = a0->worldPosition10.words[1] + sp10[1];
+  g->position00.words[2] = a0->worldPosition10.words[2] + sp10[2];
   v1 = rsin(i = a0->rot54) * 0x60;
   if (v1 < 0)
   {
     v1 += 0xFFF;
   }
-  sp10[0] = (a0->worldPosition10.words[0] + (v1 >> 12)) - g[2];
-  sp10[1] = a0->worldPosition10.words[1] - g[3];
+  sp10[0] = (a0->worldPosition10.words[0] + (v1 >> 12)) - g->position00.words[0];
+  sp10[1] = a0->worldPosition10.words[1] - g->position00.words[1];
   v1 = rcos(a0->rot54) * 0x60;
   if (v1 < 0)
   {
     v1 += 0xFFF;
   }
   v1 >>= 12;
-  sp10[2] = (a0->worldPosition10.words[2] + v1) - g[4];
+  sp10[2] = (a0->worldPosition10.words[2] + v1) - g->position00.words[2];
   v0 = Atan2Table(sp10[0], sp10[2]);
-  g[7] = 0x400 - v0;
+  g->angles10.words[1] = 0x400 - v0;
   v0 = CordicSqrt((sp10[0] * sp10[0]) + (sp10[2] * sp10[2]));
   v0 = Atan2Table(sp10[1], v0 >> 6);
-  g[6] = 0x400 - v0;
-  g[8] = 0;
+  g->angles10.words[0] = 0x400 - v0;
+  g->angles10.words[2] = 0;
   if (a1 < 0x49)
   {
     return;
@@ -260,16 +235,17 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
   a0->flags1E4 |= 0x100;
   if ((a1 == 0x49) && (a0 == PlayerCars))
   {
-    i = 0;
-    q = (IntroContextCursor *)&RaceContext;
-    p = (IntroOptionCursor *)Options;
-    do
+    for (i = 0; i < 2; i++)
     {
-      *(unsigned char *)&p->f2A = *(unsigned char *)&q->fA8;
-      q = (IntroContextCursor *)((char *)q + 4);
-      i++;
-      p = (IntroOptionCursor *)((char *)p + 4);
+      Options.wheel[i].rumble02 = (s8)RaceContext.introSavedRumbleA8[i];
     }
-    while (i < 2);
   }
 }
+
+/* Initial values of the globals this module owns. */
+UiUvRect CourseInfoLabelUvs[6] = {{.v = 0x68, .w = 0x18, .h = 0x10}, {.u = 0x18, .v = 0x68, .w = 0x20, .h = 0x10}, {.u = 0x3C, .v = 0x68, .w = 0x30, .h = 0x10}, {.u = 0x6C, .v = 0x68, .w = 0x38, .h = 0x10}, {.u = 0xA4, .v = 0x68, .w = 0x24, .h = 0x10}, {.u = 0xC8, .v = 0x68, .w = 0x18, .h = 0x10}};
+UiUvRect CourseInfoDirectionUvs[3] = {{.v = 0xD8, .w = 0x10, .h = 0x20}, {.u = 0x10, .v = 0xD8, .w = 0x10, .h = 0x20}, {.u = 0x64, .v = 0x58, .w = 8, .h = 0x10}};
+short CourseLengthMetersTable[8] = {5220, 6686, 5665, 5564, 3012, 5868, 6456, 3958};
+signed char CourseInfoRowOrder[12] = {0, 1, 2, 3, 0, 1, 4, 5, 0, 1, -1, -1};
+int TrackPreviewTick;
+short RaceLapSplitFlags[4];

@@ -21,19 +21,12 @@ typedef struct {
     V4 vec18;
 } ScratchTrackView;
 
-#include "game/ui/uicnt.h"
-extern int PsyqStrcpy();
-extern int PsyqRand();
-extern char PasswordChars[];
-extern char PasswordBytes[];
-extern void DrawSync();
-
-int ValidateRecordPassword(unsigned char *a0, unsigned char *a1);
-int EncodeRecordPassword();
-int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, int f);
-void LoadTimImage(int *p);
-void LoadTimList(int *p);
-void GetTrackPointAhead(RaceVehicle *vehicle, s32 *output, s32 distance);
+#include <string.h>
+#include "psyq/libc/rand.h"
+#include "psyq/libgpu/gpuenv.h"
+extern unsigned char PasswordChars[];
+extern unsigned char PasswordBytes[];
+int DrawSync(int mode);
 
 int ValidateRecordPassword(unsigned char *a0, unsigned char *a1) {
     unsigned char *p = a1;
@@ -63,7 +56,7 @@ L1:
     tab = PasswordCipherKey;
     do {
         unsigned char *t;
-        r = (unsigned char *)(k + (int)tab);
+        r = tab + k;
         t = q + i;
         k++;
         *t = AddOrSubtractByte(*t, *r, 1);
@@ -84,13 +77,13 @@ L1:
     return 0;
 }
 
-int EncodeRecordPassword(int a0, int a1, int a2, int a3, int a4, int a5) {
+int EncodeRecordPassword(int a0, int a1, int a2, int a3, int a4, char *a5) {
     unsigned s0; int r;
     s0 = a1 << 4;
     a0 &= 0xF;
     s0 |= a0;
     PasswordBytes[0] = s0;
-    r = PsyqRand(a0);
+    r = PsyqRand();
     a2 = a2 * 4 + a3;
     PasswordBytes[1] = (s0 >> 8) + (r & ~0x3F);
     PasswordBytes[2] = a2;
@@ -99,13 +92,13 @@ int EncodeRecordPassword(int a0, int a1, int a2, int a3, int a4, int a5) {
     PasswordBytes[5] = a4 & 0xF;
     EncodePasswordCode(PasswordBytes, PasswordChars);
     PasswordChars[0xD] = 0;
-    PsyqStrcpy(a5, PasswordChars);
+    strcpy(a5, (const char *)PasswordChars);
     return 0;
 }
 
-int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, int f) {
+int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, const char *f) {
     unsigned t;
-    PsyqStrcpy(PasswordChars, f);
+    strcpy((char *)PasswordChars, f);
     if (ValidateRecordPassword(PasswordBytes, PasswordChars) == 0) {
         *a = PasswordBytes[0] & 0xF;
         *b = (PasswordBytes[1] * 16 + (PasswordBytes[0] >> 4)) & 0x3FF;
@@ -118,38 +111,43 @@ int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, int f) {
     return -1;
 }
 
-void LoadTimImage(int *p) {
-    short r[4];
-    unsigned short *h;
+/* TIM: id word, flag word, optional CLUT block (bnum, x/y/w/h, data) when
+ * flag bit 3 is set, then the pixel block in the same layout. */
+void LoadTimImage(const void *tim) {
+    GpuRectangle r;
+    const u32 *p = (const u32 *)tim;
+    const u16 *h;
     p++;
     if (*p++ & 8) {
-        h = (unsigned short *)p;
-        r[0] = h[2];
-        r[1] = h[3];
-        r[2] = h[4];
-        r[3] = h[5];
-        LoadImage(r, h + 6);
+        h = (const u16 *)p;
+        r.rect.x = h[2];
+        r.rect.y = h[3];
+        r.rect.w = h[4];
+        r.rect.h = h[5];
+        LoadImage(&r, h + 6);
         DrawSync(0);
-        p = (int *)((char *)h + (*(unsigned *)h >> 2 << 2));
+        p = (const u32 *)((const u8 *)h + (*(const u32 *)h >> 2 << 2));
     }
-    h = (unsigned short *)p;
-    r[0] = h[2];
-    r[1] = h[3];
-    r[2] = h[4];
-    r[3] = h[5];
-    if (r[2] > 0 && r[3] > 0) {
-        LoadImage(r, h + 6);
+    h = (const u16 *)p;
+    r.rect.x = h[2];
+    r.rect.y = h[3];
+    r.rect.w = h[4];
+    r.rect.h = h[5];
+    if (r.rect.w > 0 && r.rect.h > 0) {
+        LoadImage(&r, h + 6);
         DrawSync(0);
     }
 }
 
-void LoadTimList(int *p) {
-    int n;
+/* TIM list: header word, then (byte size, TIM) records until a size <= 0. */
+void LoadTimList(const void *list) {
+    const s32 *p = (const s32 *)list;
+    s32 n;
     p++;
     while ((n = *p++) > 0) {
-        char *q = (char *)p + ((unsigned)n >> 2 << 2);
+        const u8 *q = (const u8 *)p + ((u32)n >> 2 << 2);
         LoadTimImage(p);
-        p = (int *)q;
+        p = (const s32 *)q;
     }
 }
 
@@ -177,7 +175,7 @@ int FindNearestTrackEntry(RaceVehicle *vehicle) {
     return t2;
 }
 
-void InitDemoComCars(char *a0, int *a1) {
+void InitDemoComCars(RaceVehicle *car, const s32 *a1) {
     struct {
         /* Preserve the existing work capacity; its extra half is unresolved. */
         union { MatrixWords32 matrix; s32 storage[16]; } m;
@@ -186,7 +184,6 @@ void InitDemoComCars(char *a0, int *a1) {
         V4 e, f;
     } s;
     int *g;
-    RaceVehicle *car = (RaceVehicle *)a0;
     BuildRotMatrixY(&s.m.matrix, 0x800 - car->ang82);
     BuildRotMatrixX(&s.n, car->ang80);
     MulMatrix(&s.m.matrix, &s.n);
@@ -238,7 +235,6 @@ void GetTrackPointAhead(RaceVehicle *vehicle, s32 *output, s32 distance) {
     s16 current_y;
     s32 fraction;
     s32 index, length;
-    u8 *page;
     s32 neighbour;
     TrackSample3C *next;
     TrackSample3C *current;
@@ -254,8 +250,7 @@ void GetTrackPointAhead(RaceVehicle *vehicle, s32 *output, s32 distance) {
             neighbour += TrackNodeCount;
         }
     } else {
-        page=(u8*)0x800B0000U;
-        length=((s32*)page)[-0x4134/4];
+        length = TrackNodeCount;
         index = vehicle->trackNodeF0 + ((distance - vehicle->trackFraction170) >> 0xA);
         neighbour = index + 1;
         if (index >= length) {
@@ -275,3 +270,8 @@ void GetTrackPointAhead(RaceVehicle *vehicle, s32 *output, s32 distance) {
     output[1] = ((((next->road.height - current_y) * fraction) / 1024) + current_y);
     output[2] = (((((next->road.z - current->road.z) * fraction) / 1024) + current->road.z) * 4);
 }
+
+/* Initial values of the globals this module owns. */
+unsigned char PasswordCipherKey[12] = {0x53, 0x31, 0x6A, 0x46, 0x6F, 0x59, 0x6A, 0x6B, 0x37, 0x44, 0x51};
+unsigned char PasswordChars[16];
+unsigned char PasswordBytes[8];

@@ -12,7 +12,7 @@
 
 
 
-void *AddDrawAreaPrim(u32 *ordering, void *cursor, s32 x, s32 y, s32 width, s32 height) {
+void *AddDrawAreaPrim(GpuDmaTag *ordering, void *cursor, s32 x, s32 y, s32 width, s32 height) {
     GpuDrawModePacket *packet = cursor;
     GpuRectangleFields rectangle;
     int bank;
@@ -26,17 +26,19 @@ void *AddDrawAreaPrim(u32 *ordering, void *cursor, s32 x, s32 y, s32 width, s32 
     rectangle.w = width;
     rectangle.h = height;
     SetDrawArea(packet, &rectangle);
-    AddPrim(ordering, (u32 *)packet++);
+    RR_GPU_LINK(ordering, packet);
+    packet++;
     return packet;
 }
 
-void *AddDrawModePrim(u32 *ordering, GpuDrawModePacket *packet, u16 page) {
+void *AddDrawModePrim(GpuDmaTag *ordering, GpuDrawModePacket *packet, u16 page) {
     SetDrawMode(packet, 0, 1, page, 0);
-    AddPrim(ordering, (u32 *)packet++);
+    RR_GPU_LINK(ordering, packet);
+    packet++;
     return packet;
 }
 
-void *AddTilePrim(u32 *ordering, void *cursor, s32 x, s32 y, s32 width,
+void *AddTilePrim(GpuDmaTag *ordering, void *cursor, s32 x, s32 y, s32 width,
                   s32 height, s32 red, s32 green, s32 blue) {
     GpuTilePacket *tile = cursor;
     SetTile(tile);
@@ -47,11 +49,11 @@ void *AddTilePrim(u32 *ordering, void *cursor, s32 x, s32 y, s32 width,
     tile->r = red;
     tile->g = green;
     tile->b = blue;
-    AddPrim(ordering, (u32 *)tile);
+    RR_GPU_LINK(ordering, tile);
     return tile + 1;
 }
 
-void *AddTileGrid2x2(u32 *ordering, void *cursor, int x, int y, int width,
+void *AddTileGrid2x2(GpuDmaTag *ordering, void *cursor, int x, int y, int width,
                      int height, int red, int green, int blue) {
     int i = 0;
     int halfWidth = width / 2;

@@ -1,8 +1,6 @@
 #include "rr/work_arena.h"
-/* RODATA 0x800113f0 0x1c */
 #include "types.h"
 #include "rr/bios_devices.h"
-#include "psyq/libcard/cardirq.h"
 #include "psyq/libcard/cardsts.h"
 #include "psyq/libcard/init.h"
 #include "psyq/libc/printf.h"
@@ -31,7 +29,6 @@ extern char CardDirEntries[];
 extern char *nextfile();
 extern char CardFilePathFmt[];
 extern int CardFileHandle;
-extern int FileSeek();
 
 void CardSystemShutdown(void);
 int PollHwCardEvents(int arg);
@@ -40,13 +37,12 @@ int WaitSwCardEvent(void);
 void ClearSwCardEvents(void);
 int CountCardFiles(int a, int b);
 int CardHasFile(int a0, unsigned char *a1);
-void CardFormatSlot(s32 arg0, s32 arg1);
+s32 CardFormatSlot(s32 arg0, s32 arg1);
 
 void CardSystemInit(void) {
-    InitCARD();
+    InitCARD(1);
     StartCARD();
     _bu_init();
-    _cardStartCom();
     EnterCriticalSection();
     HwCardEvIoe = OpenEvent(0xF4000001, 4, 0x2000, 0);
     HwCardEvError = OpenEvent(0xF4000001, 0x8000, 0x2000, 0);
@@ -81,7 +77,6 @@ void CardSystemShutdown(void) {
     CloseEvent(SwCardEvTimeout);
     CloseEvent(SwCardEvNew);
     ExitCriticalSection();
-    _cardStopCom();
     StopCARD();
 }
 
@@ -222,7 +217,7 @@ int CardReadFile(int port, int slot, const char *name, void *buffer, int blocks)
 int CardReadFileAt(int port, int slot, const char *name, void *buffer, int bytes, int offset) {
     char path[32];
     int descriptor;
-    int result;
+    int result = -1;
     int length;
     PsyqSprintf((s8 *)path, (const s8 *)CardFilePathFmt, port, slot, name);
     length = bytes;
@@ -271,7 +266,7 @@ int CardWriteFile(int port, int slot, const char *name, const void *buffer, int 
 int CardWriteFileAt(int port, int slot, const char *name, const void *buffer, int bytes, int offset) {
     char path[32];
     int descriptor;
-    int result;
+    int result = -1;
     int length;
     PsyqSprintf((s8 *)path, (const s8 *)CardFilePathFmt, port, slot, name);
     length = bytes;
@@ -440,6 +435,27 @@ int CardUpdate(int port, int slot) {
     return CardPortLastResult[port];
 }
 
-void CardFormatSlot(s32 arg0, s32 arg1) {
-    _card_format((arg0 * 0x10) + arg1);
+/* Returns the _card_format result (1 on success); callers test it. */
+s32 CardFormatSlot(s32 arg0, s32 arg1) {
+    return _card_format((arg0 * 0x10) + arg1);
 }
+
+/* Initial values of the globals this module owns. */
+char StrCardDirPatternFmt[12] = {98, 117, 37, 49, 100, 37, 49, 100, 58, 42};
+char CardFilePathFmt[384] = {98, 117, 37, 49, 100, 37, 49, 100, 58, 37, 115};
+s32 CardPortLoaded[RR_CARD_PORT_COUNT];
+s32 CardPortState[RR_CARD_PORT_COUNT];
+s32 CardPortTimer[RR_CARD_PORT_COUNT];
+s32 CardPortLastResult[RR_CARD_PORT_COUNT];
+char CardDirEntries[600];
+u8 CardRawSectorWorkBuf[RR_CARD_RAW_SCRATCH_BYTES];
+int HwCardEvIoe;
+int HwCardEvError;
+int HwCardEvTimeout;
+int HwCardEvNew;
+int SwCardEvIoe;
+int SwCardEvError;
+int SwCardEvTimeout;
+int SwCardEvNew;
+int CardFileHandle;
+s32 CardPortResult[RR_CARD_PORT_COUNT];

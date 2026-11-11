@@ -1,5 +1,7 @@
-#include "rr/gpu_address.h"
+#include <string.h>
 #include "rr/frame_storage_types.h"
+#include "rr/gpu.h"
+#include "rr/gpu_scratch_types.h"
 #include "game/camera/viewcam.h"
 #include "types.h"
 #include "scratchpad.h"
@@ -16,10 +18,7 @@
 #include "rr/audio_loop.h"
 #include "psyq/libc/rand.h"
 
-#define WORK ((RroEffectWork *)s2)
-#define SLOT ((CarSlotBufferC8 *)s4)
-#define KEEP_LIVE2(a, b) __asm__ ("" : : "r"(a), "r"(b))
-
+/* Car trail rings: the scalar state word's halves and the vertex buffer. */
 typedef struct {
     s16 unk0;
     u16 unk2;
@@ -38,672 +37,247 @@ extern signed char RacePaused;
 extern RroEffectColorTable RroEffectColorPresets;
 extern int SpotlightConeRingInner[];
 
+/* The car effect workspace (PAL scratchpad+0x7C); see rro_effects.h. */
+static RroEffectWork RroEffectWorkArea;
 
+#define RRO_SCENE ((RroSceneScratchPrefix *)SCRATCHPAD)
+#define RRO_DRAW_MODE 0xE1000220u
+#define RRO_MASK_COMMAND 0xE6000000u
 
+/* Packed index words: the low half is unsigned, the high half signed. */
+static const Vec3s8 *RroLowVertex(const Vec3s8 *base, s32 word) {
+    return base + (u16)word;
+}
 
-int DrawRroModel(const Vector *position, MatrixWords32 *rotation, s32 object, s32 flags);
+static const Vec3s8 *RroHighVertex(const Vec3s8 *base, s32 word) {
+    return base + (s16)(word >> 16);
+}
 
+static void RroStageQuad(RroRenderWork *work, const RroQuadIndices *indices) {
+    const Vec3s8 *vertices = RroScene.workVertices;
+    work->vertices28[0] = *RroLowVertex(vertices, indices->words[0]);
+    work->vertices28[1] = *RroHighVertex(vertices, indices->words[0]);
+    work->vertices28[2] = *RroLowVertex(vertices, indices->words[1]);
+    work->vertices28[3] = *RroHighVertex(vertices, indices->words[1]);
+}
 
+/* Some X and some Y must lie on each side of the screen boundaries. */
+static int RroQuadOnScreen(const RroScreenPosition *p, s32 yLimit) {
+    s32 x0 = p[0].xy.x, x1 = p[1].xy.x, x2 = p[2].xy.x, x3 = p[3].xy.x;
+    s32 y0 = p[0].xy.y, y1 = p[1].xy.y, y2 = p[2].xy.y, y3 = p[3].xy.y;
+    if (!(x0 >= 0 || x1 >= 0 || x2 >= 0 || x3 >= 0)) return 0;
+    if (!(x0 < 0x140 || x1 < 0x140 || x2 < 0x140 || x3 < 0x140)) return 0;
+    if (!(y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0)) return 0;
+    return y0 < yLimit || y1 < yLimit || y2 < yLimit || y3 < yLimit;
+}
 
+/* Projects the staged quad. Returns nonzero when it is in depth range and
+ * front-facing; depth18 then holds the shifted depth and projected50 all four
+ * screen positions. The next quad is staged before visibility is tested. */
+static int RroProjectStagedQuad(RroRenderWork *work, const RroQuadIndices *next, s32 depthShift) {
+    RR_GTE14_LWC2_V012(&work->vertices28[0]);
+    RR_GTE14_RTPT();
+    RR_GTE14_NCLIP();
+    RR_GTE14_SWC2_MAC0(&work->firstArea1C);
+    RR_GTE14_SWC2_SXYZ(&work->projected50[0].word);
+    RR_GTE14_LWC2_V0(&work->vertices28[3]);
+    RR_GTE14_RTPS();
+    RR_GTE14_AVSZ4();
+    RR_GTE14_SWC2_OTZ(&work->depth18);
+    RroStageQuad(work, next);
+    if (work->depth18 <= 0) return 0;
+    work->depth18 >>= depthShift;
+    if (work->depth18 >= 0x1C0) return 0;
+    RR_GTE14_NCLIP();
+    RR_GTE14_SWC2_MAC0(&work->secondArea20);
+    if (!(work->firstArea1C > 0 || work->secondArea20 < 0)) return 0;
+    RR_GTE14_SWC2_SXY2(&work->projected50[3].word);
+    return 1;
+}
 
+const u32 *EmitRroRawTexturedQuads(const u32 *commands, RroRenderWork *work, s32 count) {
+    const RroRawTexturedQuad *quad = (const RroRawTexturedQuad *)commands;
+    GpuPolyFT4 *packet = (GpuPolyFT4 *)RR_GPU_SCRATCH->cursor;
+    s32 depthShift = RRO_SCENE->depthShift60;
 
-void DrawWheelTrailEffects(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6);
-
-const u32 *EmitRroRawTexturedQuads(const u32 *commands, RroRenderWork *inputWork, s32 count) {
-    /* Remaining numeric vertex-address/word lifetime; full width on PAL/LP64. */
-    long valueOrAddress;
-    int secondWord;
-    u8 *wordCursor = (u8 *)commands;
-    RroRenderWork *work = inputWork;
-    int remaining = count;
-    int firstWord;
-    int secondValue;
-    int thirdValue;
-    char *biasCursor;
-    GpuPolyFT4 *packet;
-    long vertices;
-    int fourthIndex;
-    const RroRawTexturedQuad *quad;
-    int depthShift;
-    int textureCommand;
-    int x0, x1, x2, x3, y0, y1, y2, y3;
-
-    quad = (const RroRawTexturedQuad *)wordCursor;
-    textureCommand = 0x2F000000;
-    valueOrAddress = quad->vertices.words[0];
-    secondWord = quad->vertices.words[1];
-    vertices = (long)work->vertices00;
-    thirdValue = valueOrAddress >> 16;
-    fourthIndex = secondWord >> 16;
-    valueOrAddress &= 0xFFFF;
-    valueOrAddress = (valueOrAddress << 3) + vertices;
-    firstWord = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-    secondValue = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-    valueOrAddress = ((s16)thirdValue * RRO_VECTOR_STRIDE) + vertices;
-    thirdValue = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-    valueOrAddress = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-    secondWord &= 0xFFFF;
-    work->vertices28[1].signedWords[1] = valueOrAddress;
-    valueOrAddress = (secondWord << 3) + vertices;
-    work->vertices28[0].signedWords[0] = firstWord;
-    work->vertices28[0].signedWords[1] = secondValue;
-    work->vertices28[1].signedWords[0] = thirdValue;
-    firstWord = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-    secondValue = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-    valueOrAddress = ((s16)fourthIndex * RRO_VECTOR_STRIDE) + vertices;
-    secondWord = remaining;
-    thirdValue = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-    valueOrAddress = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-    work->vertices28[3].signedWords[1] = valueOrAddress;
-    work->vertices28[2].signedWords[0] = firstWord;
-    work->vertices28[2].signedWords[1] = secondValue;
-    work->vertices28[3].signedWords[0] = thirdValue;
-    packet = (GpuPolyFT4 *)((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor;
-    depthShift = ((RroSceneScratchPrefix *)SCRATCHPAD)->depthShift60;
-    remaining--;
-    if (secondWord > 0) {
-        biasCursor = (char *)&((const RroRawTexturedQuad *)wordCursor)->orderingBias15;
-        do {
-            RR_GTE14_LWC2_V012(&work->vertices28[0].signedWords[0]);
-            RR_GTE14_NOP2();
-            RR_GTE14_RTPT();
-
-            valueOrAddress = ((const RroRawTexturedQuad *)(biasCursor - RR_FIELD_OFFSET(RroRawTexturedQuad, orderingBias15)))[1].vertices.words[0];
-            secondWord = ((const RroRawTexturedQuad *)(biasCursor - RR_FIELD_OFFSET(RroRawTexturedQuad, orderingBias15)))[1].vertices.words[1];
-            thirdValue = valueOrAddress >> 16;
-            fourthIndex = secondWord >> 16;
-            valueOrAddress &= 0xFFFF;
-            valueOrAddress = (valueOrAddress << 3) + vertices;
-            firstWord = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-            secondValue = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-            secondWord &= 0xFFFF;
-            work->vertices28[0].signedWords[0] = firstWord;
-            work->vertices28[0].signedWords[1] = secondValue;
-            RR_GTE14_NCLIP();
-
-            valueOrAddress = ((s16)thirdValue * RRO_VECTOR_STRIDE) + vertices;
-            firstWord = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-            secondValue = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-            RR_GTE14_SWC2_MAC0(&work->firstArea1C);
-            RR_GTE14_SWC2_SXYZ(&work->projected50[0].word);
-            RR_GTE14_LWC2_V0(&work->vertices28[3].signedWords[0]);
-            work->vertices28[1].signedWords[0] = firstWord;
-            work->vertices28[1].signedWords[1] = secondValue;
-            RR_GTE14_RTPS();
-
-            valueOrAddress = (secondWord << 3) + vertices;
-            firstWord = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-            secondValue = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-            work->vertices28[2].signedWords[0] = firstWord;
-            work->vertices28[2].signedWords[1] = secondValue;
-            RR_GTE14_AVSZ4();
-
-            valueOrAddress = ((s16)fourthIndex * RRO_VECTOR_STRIDE) + vertices;
-            firstWord = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-            secondValue = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-            RR_GTE14_SWC2_OTZ(&work->depth18);
-            valueOrAddress = work->depth18;
-            work->vertices28[3].signedWords[0] = firstWord;
-            work->vertices28[3].signedWords[1] = secondValue;
-            if (valueOrAddress > 0) {
-                valueOrAddress >>= depthShift;
-                work->depth18 = valueOrAddress;
-                if (valueOrAddress < 0x1C0) {
-                    RR_GTE14_NCLIP();
-                    firstWord = work->projected50[0].word;
-                    secondValue = work->projected50[1].word;
-                    thirdValue = work->projected50[2].word;
-                    valueOrAddress = (long)(&work->secondArea20);
-                    packet->words.xy0 = firstWord;
-                    packet->words.xy1 = secondValue;
-                    packet->words.xy2 = thirdValue;
-                    RR_GTE14_SWC2_MAC0(valueOrAddress);
-                    if (work->firstArea1C > 0 || work->secondArea20 < 0) {
-                        RR_GTE14_SWC2_SXY2(&work->projected50[3].word);
-                        valueOrAddress = work->projected50[3].word;
-                        packet->words.xy3 = valueOrAddress;
-
-                        x0 = work->projected50[0].xy.x;
-                        x1 = work->projected50[1].xy.x;
-                        x2 = work->projected50[2].xy.x;
-                        x3 = work->projected50[3].xy.x;
-                        if ((x0 >= 0 || x1 >= 0 || x2 >= 0 || x3 >= 0) &&
-                            (x0 < 0x140 || x1 < 0x140 || x2 < 0x140 || x3 < 0x140)) {
-                            y0 = work->projected50[0].xy.y;
-                            y1 = work->projected50[1].xy.y;
-                            y2 = work->projected50[2].xy.y;
-                            y3 = work->projected50[3].xy.y;
-                            if ((y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0) &&
-                                (y0 < 0x200 || y1 < 0x200 || y2 < 0x200 || y3 < 0x200)) {
-                                packet->words.color04 = textureCommand;
-                                firstWord = ((const RroRawTexturedQuad *)(biasCursor - RR_FIELD_OFFSET(RroRawTexturedQuad, orderingBias15)))->uv08;
-                                thirdValue = ((const RroRawTexturedQuad *)(biasCursor - RR_FIELD_OFFSET(RroRawTexturedQuad, orderingBias15)))->uv10;
-                                secondValue = ((const RroRawTexturedQuad *)(biasCursor - RR_FIELD_OFFSET(RroRawTexturedQuad, orderingBias15)))->uv0C;
-                                valueOrAddress = thirdValue >> 16;
-                                packet->words.uv0 = firstWord;
-                                packet->words.uv1 = secondValue;
-                                packet->words.uv2 = thirdValue;
-                                packet->words.uv3 = valueOrAddress;
-
-                                secondWord = work->depth18;
-                                wordCursor = (u8 *)work->ordering14;
-                                valueOrAddress = ((const RroRawTexturedQuad *)(biasCursor - RR_FIELD_OFFSET(RroRawTexturedQuad, orderingBias15)))->orderingBias15;
-                                secondWord <<= 2;
-                                wordCursor += secondWord;
-                                valueOrAddress *= 4;
-                                wordCursor += valueOrAddress;
-                                valueOrAddress = *(int *)wordCursor;
-                                packet->words.tag.word = valueOrAddress;
-                                packet->words.tag.bytes.length = 9;
-                                *(u32 *)wordCursor = GpuDmaEncodeAddress(packet);
-                                packet++;
-                                ((GpuDmaTag *)wordCursor)->bytes.length = 0;
-                            }
-                        }
-                    }
-                }
+    RroStageQuad(work, &quad->vertices);
+    while (count-- > 0) {
+        if (RroProjectStagedQuad(work, &quad[1].vertices, depthShift)) {
+            packet->words.xy0 = work->projected50[0].word;
+            packet->words.xy1 = work->projected50[1].word;
+            packet->words.xy2 = work->projected50[2].word;
+            packet->words.xy3 = work->projected50[3].word;
+            if (RroQuadOnScreen(work->projected50, 0x200)) {
+                packet->words.color04 = 0x2F000000;
+                packet->words.uv0 = quad->uv08;
+                packet->words.uv1 = quad->uv0C;
+                packet->words.uv2 = quad->uv10;
+                packet->words.uv3 = quad->uv10 >> 16;
+                RR_GPU_ADD_PRIM(RroScene.workOrdering + work->depth18 + quad->orderingBias15, packet, 9);
+                packet++;
             }
-            biasCursor += sizeof(RroRawTexturedQuad);
-            quad++;
-        } while (remaining-- > 0);
+        }
+        quad++;
     }
-    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packet;
+    RR_GPU_SCRATCH->cursor = (u8 *)packet;
     return (const u32 *)quad;
 }
 
-const u32 *EmitRroLitGouraudQuads(const u32 *commands, RroRenderWork *inputWork, s32 count) {
-    long valueOrAddress;
-    long indexOrAddress;
-    long addressOrDepth = (long)commands;
-    /* Retained context-address/word lifetime; full width on PAL/LP64. */
-    long firstWordOrContext = (long)inputWork;
-    int remaining = count;
-    int secondVertexWord;
-    int indexWord;
-    int secondWord;
-    RroRenderWork *work;
-    int fourthIndex;
-    GpuMaskedG4Packet *packet;
-    long vertices;
-    long normals;
-    const RroLitGouraudQuad *quad;
-    int maskCommand;
-    int depthShift;
-    int x0, x1, x2, x3, y0, y1, y2, y3;
+const u32 *EmitRroLitGouraudQuads(const u32 *commands, RroRenderWork *work, s32 count) {
+    const RroLitGouraudQuad *quad = (const RroLitGouraudQuad *)commands;
+    GpuMaskedG4Packet *packet = (GpuMaskedG4Packet *)RR_GPU_SCRATCH->cursor;
+    s32 depthShift = RRO_SCENE->depthShift60;
 
-    quad = (const RroLitGouraudQuad *)addressOrDepth;
-    work = (RroRenderWork *)firstWordOrContext;
-    maskCommand = 0xE6000000;
-    valueOrAddress = quad->vertices.words[0];
-    indexWord = quad->vertices.words[1];
-    vertices = (long)work->vertices00;
-    indexOrAddress = valueOrAddress >> 16;
-    fourthIndex = indexWord >> 16;
-    valueOrAddress &= 0xFFFF;
-    valueOrAddress = (valueOrAddress << 3) + vertices;
-    firstWordOrContext = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-    secondVertexWord = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-    valueOrAddress = ((s16)indexOrAddress * RRO_VECTOR_STRIDE) + vertices;
-    indexWord &= 0xFFFF;
-    secondWord = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-    valueOrAddress = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-    indexOrAddress = remaining;
-    work->vertices28[1].signedWords[1] = valueOrAddress;
-    valueOrAddress = (indexWord << 3) + vertices;
-    work->vertices28[0].signedWords[0] = firstWordOrContext;
-    work->vertices28[0].signedWords[1] = secondVertexWord;
-    work->vertices28[1].signedWords[0] = secondWord;
-    firstWordOrContext = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-    secondVertexWord = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-    valueOrAddress = ((s16)fourthIndex * RRO_VECTOR_STRIDE) + vertices;
-    secondWord = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-    valueOrAddress = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-    work->vertices28[3].signedWords[1] = valueOrAddress;
-    work->vertices28[2].signedWords[0] = firstWordOrContext;
-    work->vertices28[2].signedWords[1] = secondVertexWord;
-    work->vertices28[3].signedWords[0] = secondWord;
-    packet = (GpuMaskedG4Packet *)((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor;
-    depthShift = ((RroSceneScratchPrefix *)SCRATCHPAD)->depthShift60;
-    remaining--;
-    if (indexOrAddress > 0) {
-        do {
-            RR_GTE14_LWC2_V012(&work->vertices28[0].signedWords[0]);
-            RR_GTE14_NOP2();
-            RR_GTE14_RTPT();
-
-            valueOrAddress = quad[1].vertices.words[0];
-            indexWord = quad[1].vertices.words[1];
-            indexOrAddress = valueOrAddress >> 16;
-            fourthIndex = indexWord >> 16;
-            valueOrAddress &= 0xFFFF;
-            valueOrAddress = (valueOrAddress << 3) + vertices;
-            firstWordOrContext = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-            secondVertexWord = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-            indexWord &= 0xFFFF;
-            work->vertices28[0].signedWords[0] = firstWordOrContext;
-            work->vertices28[0].signedWords[1] = secondVertexWord;
-            RR_GTE14_NCLIP();
-
-            valueOrAddress = ((s16)indexOrAddress * RRO_VECTOR_STRIDE) + vertices;
-            firstWordOrContext = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-            secondVertexWord = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-            RR_GTE14_SWC2_MAC0(&work->firstArea1C);
-            RR_GTE14_SWC2_SXYZ(&work->projected50[0].word);
-            RR_GTE14_LWC2_V0(&work->vertices28[3].signedWords[0]);
-            work->vertices28[1].signedWords[0] = firstWordOrContext;
-            work->vertices28[1].signedWords[1] = secondVertexWord;
-            RR_GTE14_RTPS();
-
-            valueOrAddress = (indexWord << 3) + vertices;
-            firstWordOrContext = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-            secondVertexWord = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-            work->vertices28[2].signedWords[0] = firstWordOrContext;
-            work->vertices28[2].signedWords[1] = secondVertexWord;
-            RR_GTE14_AVSZ4();
-
-            valueOrAddress = ((s16)fourthIndex * RRO_VECTOR_STRIDE) + vertices;
-            firstWordOrContext = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-            secondVertexWord = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-            RR_GTE14_SWC2_OTZ(&work->depth18);
-            valueOrAddress = work->depth18;
-            work->vertices28[3].signedWords[0] = firstWordOrContext;
-            work->vertices28[3].signedWords[1] = secondVertexWord;
-            if (valueOrAddress > 0) {
-                valueOrAddress >>= depthShift;
-                work->depth18 = valueOrAddress;
-                if (valueOrAddress < 0x1C0) {
-                    RR_GTE14_NCLIP();
-                    firstWordOrContext = work->projected50[0].word;
-                    secondVertexWord = work->projected50[1].word;
-                    secondWord = work->projected50[2].word;
-                    packet->xy0C = firstWordOrContext;
-                    packet->xy14 = secondVertexWord;
-                    packet->xy1C = secondWord;
-                    RR_GTE14_SWC2_MAC0(&work->secondArea20);
-                    if (work->firstArea1C > 0 || work->secondArea20 < 0) {
-                        RR_GTE14_SWC2_SXY2(&work->projected50[3].word);
-                        valueOrAddress = work->projected50[3].word;
-                        packet->xy24 = valueOrAddress;
-
-                        x0 = work->projected50[0].xy.x;
-                        x1 = work->projected50[1].xy.x;
-                        x2 = work->projected50[2].xy.x;
-                        x3 = work->projected50[3].xy.x;
-                        if ((x0 >= 0 || x1 >= 0 || x2 >= 0 || x3 >= 0) &&
-                            (x0 < 0x140 || x1 < 0x140 || x2 < 0x140 || x3 < 0x140)) {
-                            y0 = work->projected50[0].xy.y;
-                            y1 = work->projected50[1].xy.y;
-                            y2 = work->projected50[2].xy.y;
-                            y3 = work->projected50[3].xy.y;
-                            if ((y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0) &&
-                                (y0 < 0x200 || y1 < 0x200 || y2 < 0x200 || y3 < 0x200)) {
-                                valueOrAddress = quad->normals.words[0];
-                                indexWord = quad->normals.words[1];
-                                normals = (long)work->normals04;
-                                indexOrAddress = valueOrAddress >> 16;
-                                fourthIndex = indexWord >> 16;
-                                valueOrAddress &= 0xFFFF;
-                                indexWord &= 0xFFFF;
-                                addressOrDepth = valueOrAddress << 3;
-                                addressOrDepth = normals + addressOrDepth;
-                                indexOrAddress = normals + ((s16)indexOrAddress * RRO_VECTOR_STRIDE);
-                                valueOrAddress = normals + (indexWord << 3);
-                                RR_GTE14_LWC2_V0_V1_V2(addressOrDepth, indexOrAddress, valueOrAddress);
-                                RR_GTE14_LWC2_RGB(&quad->color10);
-                                RR_GTE14_NOP2();
-                                RR_GTE14_LIGHT0();
-
-                                valueOrAddress = ((s16)fourthIndex * RRO_VECTOR_STRIDE) + normals;
-                                firstWordOrContext = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-                                secondVertexWord = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-                                work->normal48.signedWords[0] = firstWordOrContext;
-                                work->normal48.signedWords[1] = secondVertexWord;
-                                RR_GTE14_LIGHT1();
-
-                                addressOrDepth = work->depth18;
-                                indexOrAddress = (long)work->ordering14;
-                                valueOrAddress = quad->orderingBias15;
-                                addressOrDepth <<= 2;
-                                indexOrAddress += addressOrDepth;
-                                valueOrAddress *= 4;
-                                indexOrAddress += valueOrAddress;
-                                valueOrAddress = *(int *)indexOrAddress;
-                                packet->tag.word = valueOrAddress;
-                                valueOrAddress = 0xA;
-                                packet->tag.bytes.length = valueOrAddress;
-                                *(u32 *)indexOrAddress = GpuDmaEncodeAddress(packet);
-                                ((char *)indexOrAddress)[3] = 0;
-                                indexOrAddress = MaskBitSetting;
-                                valueOrAddress = maskCommand | 1;
-                                packet->setMask04 = valueOrAddress;
-                                indexOrAddress = maskCommand | indexOrAddress;
-                                packet->restoreMask28 = indexOrAddress;
-                                RR_GTE14_LIGHT2();
-                                RR_GTE14_SWC2_RGB012(&packet->setMask04);
-                                RR_GTE14_LWC2_V0(&work->normal48.signedWords[0]);
-                                RR_GTE14_NOP2();
-                                RR_GTE14_LIGHT0();
-                                RR_GTE14_SWC2_RGB2(&packet->color20);
-                                packet++;
-                            }
-                        }
-                    }
-                }
+    RroStageQuad(work, &quad->vertices);
+    while (count-- > 0) {
+        if (RroProjectStagedQuad(work, &quad[1].vertices, depthShift)) {
+            packet->xy0C = work->projected50[0].word;
+            packet->xy14 = work->projected50[1].word;
+            packet->xy1C = work->projected50[2].word;
+            packet->xy24 = work->projected50[3].word;
+            if (RroQuadOnScreen(work->projected50, 0x200)) {
+                const Vec3s8 *normals = RroScene.workNormals;
+                RR_GTE14_LWC2_V0_V1_V2(RroLowVertex(normals, quad->normals.words[0]),
+                                       RroHighVertex(normals, quad->normals.words[0]),
+                                       RroLowVertex(normals, quad->normals.words[1]));
+                RR_GTE14_LWC2_RGB(&quad->color10);
+                RR_GTE14_LIGHT0();
+                work->normal48 = *RroHighVertex(normals, quad->normals.words[1]);
+                RR_GTE14_LIGHT1();
+                RR_GPU_ADD_PRIM(RroScene.workOrdering + work->depth18 + quad->orderingBias15, packet, 11);
+                packet->setMask04 = RRO_MASK_COMMAND | 1;
+                packet->nop = RR_GPU_MERGED_PRIM_NOP;
+                packet->restoreMask28 = RRO_MASK_COMMAND | MaskBitSetting;
+                RR_GTE14_LIGHT2();
+                RR_GTE_MFC2(packet->color08, 20);
+                RR_GTE_MFC2(packet->color10, 21);
+                RR_GTE_MFC2(packet->color18, 22);
+                RR_GTE14_LWC2_V0(&work->normal48);
+                RR_GTE14_LIGHT0();
+                RR_GTE_MFC2(packet->color20, 22);
+                packet++;
             }
-            quad++;
-        } while (remaining-- > 0);
+        }
+        quad++;
     }
-    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packet;
+    RR_GPU_SCRATCH->cursor = (u8 *)packet;
     return (const u32 *)quad;
 }
 
-const u32 *EmitRroEnvMapQuads(const u32 *commands, RroRenderWork *inputWork, s32 count) {
-    long valueOrAddress;
-    long wordOrAddress;
-    long wordOrHead;
-    long indexOrAddress;
-    int indexWord = count;
-    RroRenderWork *work;
-    int envU;
-    int envV;
-    char *packetCursor;
-    int fourthIndex;
-    long vertices;
-    long normals;
-    int screenWord;
-    int envVShift;
-    int remaining;
-    const RroEnvMapQuad *quad;
-    int maskCommand;
-    int maskedLength;
-    int depthShift;
-    int restoreMask;
-    int x0, x1, x2, x3, y0, y1, y2, y3;
+/* Converts the GTE's IR1/IR2 normal projection into one reflection UV word. */
+static u32 RroEnvMapUV(s32 envVShift) {
+    s32 envU, envV;
+    RR_GTE_MFC2_IR1_IR2(envU, envV);
+    envU = (envU >> 6) + 0xC0;
+    envV = (envV >> envVShift) + 0xC0;
+    return ((u32)envV << 8) | (u32)envU;
+}
 
-    quad = (const RroEnvMapQuad *)commands;
-    work = inputWork;
-    remaining = indexWord;
-    maskCommand = 0xE6000000;
-    valueOrAddress = quad->vertices.words[0];
-    indexWord = quad->vertices.words[1];
-    vertices = (long)work->vertices00;
-    indexOrAddress = valueOrAddress >> 16;
-    fourthIndex = indexWord >> 16;
-    valueOrAddress &= 0xFFFF;
-    valueOrAddress = (valueOrAddress << 3) + vertices;
-    wordOrAddress = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-    wordOrHead = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-    valueOrAddress = ((s16)indexOrAddress * RRO_VECTOR_STRIDE) + vertices;
-    indexWord &= 0xFFFF;
-    indexOrAddress = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-    screenWord = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-    valueOrAddress = (indexWord << 3) + vertices;
-    work->vertices28[0].signedWords[0] = wordOrAddress;
-    work->vertices28[0].signedWords[1] = wordOrHead;
-    work->vertices28[1].signedWords[0] = indexOrAddress;
-    work->vertices28[1].signedWords[1] = screenWord;
-    wordOrAddress = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-    wordOrHead = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-    valueOrAddress = ((s16)fourthIndex * RRO_VECTOR_STRIDE) + vertices;
-    indexOrAddress = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-    screenWord = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-    work->vertices28[2].signedWords[1] = wordOrHead;
-    wordOrHead = (long)SCRATCHPAD;
-    /* These retained packed-XY word views still constrain global-load order. */
-    *(s32 *)((u8 *)work + RR_FIELD_OFFSET(RroRenderWork, vertices28[2].signedWords[0])) = wordOrAddress;
-    *(s32 *)((u8 *)work + RR_FIELD_OFFSET(RroRenderWork, vertices28[3].signedWords[0])) = indexOrAddress;
-    valueOrAddress = MaskBitSetting;
-    wordOrAddress = 0x100;
-    work->vertices28[3].signedWords[1] = screenWord;
-    restoreMask = valueOrAddress | maskCommand;
-    valueOrAddress = (long)CurrentDrawBuf;
-    packetCursor = (char *)((RroSceneScratchPrefix *)wordOrHead)->view.projection.pointers.cursor;
-    valueOrAddress = ((FrameStorage *)valueOrAddress)->buffer.environment00.draw00.clip.h;
-    depthShift = ((RroSceneScratchPrefix *)wordOrHead)->depthShift60;
-    envVShift = 7;
-    if (valueOrAddress == wordOrAddress) {
-        envVShift = 6;
-    }
-    if (remaining-- > 0) {
-        maskedLength = 0xD;
-        do {
-            RR_GTE14_LWC2_V012(&work->vertices28[0].signedWords[0]);
-            RR_GTE14_NOP2();
-            RR_GTE14_RTPT();
+/* The original tested the byte after the head packet's tag (the low byte of
+ * its first payload word) before inserting the mask restore command. */
+static u8 RroHeadPayloadByte(const GpuDmaTag *head) {
+    if (head->address == RR_GPU_END_LINK) return 0;
+    return *(const u8 *)((const GpuDmaTag *)head->address + 1);
+}
 
-            valueOrAddress = quad[1].vertices.words[0];
-            indexWord = quad[1].vertices.words[1];
-            indexOrAddress = valueOrAddress >> 16;
-            fourthIndex = indexWord >> 16;
-            valueOrAddress &= 0xFFFF;
-            valueOrAddress = (valueOrAddress << 3) + vertices;
-            wordOrAddress = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-            wordOrHead = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-            indexWord &= 0xFFFF;
-            work->vertices28[0].signedWords[0] = wordOrAddress;
-            work->vertices28[0].signedWords[1] = wordOrHead;
-            RR_GTE14_NCLIP();
+const u32 *EmitRroEnvMapQuads(const u32 *commands, RroRenderWork *work, s32 count) {
+    const RroEnvMapQuad *quad = (const RroEnvMapQuad *)commands;
+    u8 *cursor = RR_GPU_SCRATCH->cursor;
+    s32 depthShift = RRO_SCENE->depthShift60;
+    u32 restoreMask = MaskBitSetting | RRO_MASK_COMMAND;
+    s32 envVShift = CurrentDrawBuf->buffer.environment00.draw00.clip.h == 0x100 ? 6 : 7;
 
-            valueOrAddress = ((s16)indexOrAddress * RRO_VECTOR_STRIDE) + vertices;
-            wordOrAddress = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-            wordOrHead = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-            RR_GTE14_SWC2_MAC0(&work->firstArea1C);
-            RR_GTE14_SWC2_SXYZ(&work->projected50[0].word);
-            RR_GTE14_LWC2_V0(&work->vertices28[3].signedWords[0]);
-            work->vertices28[1].signedWords[0] = wordOrAddress;
-            work->vertices28[1].signedWords[1] = wordOrHead;
-            RR_GTE14_RTPS();
+    RroStageQuad(work, &quad->vertices);
+    while (count-- > 0) {
+        GpuEnvMapEmission *e = (GpuEnvMapEmission *)cursor;
+        if (RroProjectStagedQuad(work, &quad[1].vertices, depthShift)) {
+            e->primary.body.xy0 = e->reflected.body.xy0 = work->projected50[0].word;
+            e->primary.body.xy1 = e->reflected.body.xy1 = work->projected50[1].word;
+            e->primary.body.xy2 = e->reflected.body.xy2 = work->projected50[2].word;
+            e->primary.body.xy3 = e->reflected.body.xy3 = work->projected50[3].word;
+            if (RroQuadOnScreen(work->projected50, 0x200)) {
+                const Vec3s8 *normals = RroScene.workNormals;
+                GpuDmaTag *head;
+                u32 control;
 
-            valueOrAddress = (indexWord << 3) + vertices;
-            wordOrAddress = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-            wordOrHead = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-            work->vertices28[2].signedWords[0] = wordOrAddress;
-            work->vertices28[2].signedWords[1] = wordOrHead;
-            RR_GTE14_AVSZ4();
+                RR_GTE14_LWC2_V0_V1_V2(RroLowVertex(normals, quad->normals.words[0]),
+                                       RroHighVertex(normals, quad->normals.words[0]),
+                                       RroLowVertex(normals, quad->normals.words[1]));
+                RR_GTE_OP(0x4A4A6412);
+                work->normal48 = *RroHighVertex(normals, quad->normals.words[1]);
+                RR_GTE_SQR12();
+                RR_GTE_SQR12();
+                RR_GTE_OP(0x4B38041C);
+                RR_GTE_OP(0x4A4AE412);
+                e->primary.body.uv0 = (u32)quad->uv10 + work->flags08;
+                e->primary.body.uv1 = quad->uv14;
+                RR_GTE_SQR12();
+                RR_GTE_SQR12();
+                RR_GTE_OP(0x4B38041C);
+                RR_GTE_OP(0x4A4B6412);
+                e->primary.body.uv2 = quad->uv18;
+                e->primary.body.uv3 = quad->uv18 >> 16;
+                RR_GTE_SQR12();
+                RR_GTE_SQR12();
+                RR_GTE_OP(0x4B38041C);
+                RR_GTE_MFC2(e->primary.body.color0.word, 20);
+                RR_GTE_MFC2(e->primary.body.color1.word, 21);
+                RR_GTE_MFC2(e->primary.body.color2.word, 22);
 
-            valueOrAddress = ((s16)fourthIndex * RRO_VECTOR_STRIDE) + vertices;
-            wordOrAddress = ((const Vec3s8 *)valueOrAddress)->signedWords[0];
-            wordOrHead = ((const Vec3s8 *)valueOrAddress)->signedWords[1];
-            RR_GTE14_SWC2_OTZ(&work->depth18);
-            valueOrAddress = work->depth18;
-            work->vertices28[3].signedWords[0] = wordOrAddress;
-            work->vertices28[3].signedWords[1] = wordOrHead;
-            if (valueOrAddress > 0) {
-                valueOrAddress >>= depthShift;
-                work->depth18 = valueOrAddress;
-                if (valueOrAddress < 0x1C0) {
-                    RR_GTE14_NCLIP();
-                    wordOrAddress = work->projected50[0].word;
-                    wordOrHead = work->projected50[1].word;
-                    indexOrAddress = work->projected50[2].word;
-                    ((GpuEnvMapEmission *)packetCursor)->primary00.body08.xy0 = wordOrAddress;
-                    ((GpuEnvMapEmission *)packetCursor)->reflected38.body08.xy0 = wordOrAddress;
-                    ((GpuEnvMapEmission *)packetCursor)->primary00.body08.xy1 = wordOrHead;
-                    ((GpuEnvMapEmission *)packetCursor)->reflected38.body08.xy1 = wordOrHead;
-                    ((GpuEnvMapEmission *)packetCursor)->primary00.body08.xy2 = indexOrAddress;
-                    ((GpuEnvMapEmission *)packetCursor)->reflected38.body08.xy2 = indexOrAddress;
-                    RR_GTE14_SWC2_MAC0(&work->secondArea20);
-                    if (work->firstArea1C > 0 || work->secondArea20 < 0) {
-                        RR_GTE_MFC2_SXY2_NOP(screenWord);
-                        work->projected50[3].word = screenWord;
-                        ((GpuEnvMapEmission *)packetCursor)->primary00.body08.xy3 = screenWord;
-                        ((GpuEnvMapEmission *)packetCursor)->reflected38.body08.xy3 = screenWord;
-
-                        x0 = work->projected50[0].xy.x;
-                        x1 = work->projected50[1].xy.x;
-                        x2 = work->projected50[2].xy.x;
-                        x3 = work->projected50[3].xy.x;
-                        if ((x0 >= 0 || x1 >= 0 || x2 >= 0 || x3 >= 0) &&
-                            (x0 < 0x140 || x1 < 0x140 || x2 < 0x140 || x3 < 0x140)) {
-                            y0 = work->projected50[0].xy.y;
-                            y1 = work->projected50[1].xy.y;
-                            y2 = work->projected50[2].xy.y;
-                            y3 = work->projected50[3].xy.y;
-                            if ((y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0) &&
-                                (y0 < 0x200 || y1 < 0x200 || y2 < 0x200 || y3 < 0x200)) {
-                                wordOrAddress = quad->normals.words[0];
-                                valueOrAddress = quad->normals.words[1];
-                                normals = (long)work->normals04;
-                                wordOrHead = wordOrAddress >> 16;
-                                wordOrAddress &= 0xFFFF;
-                                indexOrAddress = valueOrAddress >> 16;
-                                valueOrAddress &= 0xFFFF;
-                                wordOrAddress <<= 3;
-                                wordOrAddress = normals + wordOrAddress;
-                                wordOrHead = normals + ((s16)wordOrHead * RRO_VECTOR_STRIDE);
-                                valueOrAddress = normals + (valueOrAddress << 3);
-                                RR_GTE14_LWC2_V0_V1_V2(wordOrAddress, wordOrHead, valueOrAddress);
-                                RR_GTE14_NOP2();
-                                RR_GTE_OP(0x4A4A6412);
-
-                                indexOrAddress = ((s16)indexOrAddress * RRO_VECTOR_STRIDE) + normals;
-                                wordOrAddress = ((const Vec3s8 *)indexOrAddress)->signedWords[0];
-                                wordOrHead = ((const Vec3s8 *)indexOrAddress)->signedWords[1];
-                                work->normal48.signedWords[0] = wordOrAddress;
-                                work->normal48.signedWords[1] = wordOrHead;
-                                RR_GTE_SQR12();
-                                RR_GTE_SQR12();
-                                RR_GTE_OP(0x4B38041C);
-
-                                wordOrAddress = quad->uv10;
-                                wordOrHead = quad->uv14;
-                                RR_GTE_OP(0x4A4AE412);
-                                valueOrAddress = work->flags08;
-                                valueOrAddress = (u32)wordOrAddress + valueOrAddress;
-                                ((GpuEnvMapEmission *)packetCursor)->primary00.body08.uv0 = valueOrAddress;
-                                ((GpuEnvMapEmission *)packetCursor)->primary00.body08.uv1 = wordOrHead;
-                                RR_GTE_SQR12();
-                                RR_GTE_SQR12();
-                                RR_GTE_OP(0x4B38041C);
-
-                                wordOrAddress = quad->uv18;
-                                wordOrHead = wordOrAddress >> 16;
-                                RR_GTE_OP(0x4A4B6412);
-                                ((GpuEnvMapEmission *)packetCursor)->primary00.body08.uv2 = wordOrAddress;
-                                ((GpuEnvMapEmission *)packetCursor)->primary00.body08.uv3 = wordOrHead;
-                                RR_GTE_SQR12();
-                                RR_GTE_SQR12();
-                                RR_GTE_OP(0x4B38041C);
-
-                                RR_GTE_SWC2_RGB012_ENV(&((GpuEnvMapEmission *)packetCursor)->primary00.command04.word);
-
-                                valueOrAddress = work->depth18;
-                                wordOrHead = (long)work->ordering14;
-                                wordOrAddress = quad->orderingBias1D;
-                                indexOrAddress = quad->control1E;
-                                valueOrAddress <<= 2;
-                                wordOrHead += valueOrAddress;
-                                wordOrAddress = (s32)((u32)wordOrAddress << 2);
-                                valueOrAddress = indexOrAddress & 3;
-                                wordOrHead += wordOrAddress;
-                                if (valueOrAddress == 0) {
-                                    RR_GTE14_LWC2_V0(&work->normal48.signedWords[0]);
-                                    RR_GTE14_NOP2();
-                                    RR_GTE14_LIGHT0();
-                                    valueOrAddress = indexOrAddress >> 1;
-                                    ((GpuEnvMapEmission *)packetCursor)->primary00.body08.color0.bytes.code = valueOrAddress;
-                                    valueOrAddress = *(int *)wordOrHead;
-                                    ((GpuEnvMapEmission *)packetCursor)->primary00.command04.word = valueOrAddress;
-                                    valueOrAddress = 0xC;
-                                    ((GpuEnvMapEmission *)packetCursor)->primary00.command04.directTag.bytes.length = valueOrAddress;
-                                    *(u32 *)wordOrHead = GpuDmaEncodeAddress(&((GpuEnvMapEmission *)packetCursor)->primary00.command04.word);
-                                    ((char *)wordOrHead)[3] = 0;
-                                    RR_GTE14_SWC2_RGB2(&((GpuEnvMapEmission *)packetCursor)->primary00.body08.color3);
-                                    packetCursor += sizeof(GpuEnvMapBlock);
-                                } else {
-                                    ((GpuEnvMapEmission *)packetCursor)->primary00.command04.word = maskCommand;
-                                    valueOrAddress = quad->control1E;
-                                    valueOrAddress &= 3;
-                                    valueOrAddress = maskCommand | valueOrAddress;
-                                    ((GpuEnvMapEmission *)packetCursor)->reflected38.command04.word = valueOrAddress;
-                                    RR_GTE_SWC2_RGB012_ENV(&((GpuEnvMapEmission *)packetCursor)->reflected38.command04.word);
-                                    valueOrAddress = 0x3E;
-                                    ((GpuEnvMapEmission *)packetCursor)->reflected38.body08.color0.bytes.code = valueOrAddress;
-                                    RR_GTE_OP(0x4A486012);
-                                    valueOrAddress = *(int *)wordOrHead;
-                                    /* Original checks encoded address+4, including any low tag bits;
-                                     * this is the first payload byte, not the opcode at byte7. */
-                                    wordOrAddress = GpuDmaReadPayloadByte(valueOrAddress);
-                                    valueOrAddress = 0xE6;
-                                    if (wordOrAddress != valueOrAddress) {
-                                        ((GpuEnvMapEmission *)packetCursor)->restore70.command = restoreMask;
-                                        valueOrAddress = *(int *)wordOrHead;
-                                        ((GpuEnvMapEmission *)packetCursor)->restore70.tag.word = valueOrAddress;
-                                        valueOrAddress = 1;
-                                        ((GpuEnvMapEmission *)packetCursor)->restore70.tag.bytes.length = valueOrAddress;
-                                        valueOrAddress = GpuDmaEncodeAddress(packetCursor + 0x70);
-                                        *(u32 *)wordOrHead = valueOrAddress;
-                                        ((char *)wordOrHead)[3] = 0;
-                                    }
-                                    valueOrAddress = *(int *)wordOrHead;
-                                    ((GpuEnvMapEmission *)packetCursor)->reflected38.tag00.word = valueOrAddress;
-                                    valueOrAddress = GpuDmaEncodeAddress(packetCursor + 0x38);
-                                    ((GpuEnvMapEmission *)packetCursor)->reflected38.tag00.bytes.length = maskedLength;
-                                    *(u32 *)wordOrHead = valueOrAddress;
-                                    ((char *)wordOrHead)[3] = 0;
-                                    valueOrAddress = *(int *)wordOrHead;
-                                    ((GpuEnvMapEmission *)packetCursor)->primary00.tag00.word = valueOrAddress;
-                                    ((GpuEnvMapEmission *)packetCursor)->primary00.tag00.bytes.length = maskedLength;
-                                    *(u32 *)wordOrHead = GpuDmaEncodeAddress(packetCursor);
-                                    ((char *)wordOrHead)[3] = 0;
-
-                                    RR_GTE_MFC2_IR1_IR2(envU, envV);
-                                    valueOrAddress = envU >> 6;
-                                    envU = valueOrAddress + 0xC0;
-                                    valueOrAddress = envV >> envVShift;
-                                    envV = valueOrAddress + 0xC0;
-                                    valueOrAddress = (u32)envV << 8;
-                                    wordOrAddress = work->envClut0C;
-                                    valueOrAddress |= envU;
-                                    valueOrAddress |= wordOrAddress;
-                                    ((GpuEnvMapEmission *)packetCursor)->reflected38.body08.uv0 = valueOrAddress;
-
-                                    RR_GTE14_LWC2_V0(&work->normal48.signedWords[0]);
-                                    RR_GTE14_NOP2();
-                                    RR_GTE14_LIGHT0();
-                                    RR_GTE14_SWC2_RGB2(&((GpuEnvMapEmission *)packetCursor)->primary00.body08.color3);
-                                    RR_GTE14_SWC2_RGB2(&((GpuEnvMapEmission *)packetCursor)->reflected38.body08.color3);
-                                    RR_GTE_OP(0x4A48E012);
-                                    RR_GTE_MFC2_IR1_IR2(envU, envV);
-                                    RR_GTE_OP(0x4A496012);
-
-                                    valueOrAddress = envU >> 6;
-                                    envU = valueOrAddress + 0xC0;
-                                    valueOrAddress = envV >> envVShift;
-                                    envV = valueOrAddress + 0xC0;
-                                    valueOrAddress = (u32)envV << 8;
-                                    wordOrAddress = work->envTpage10;
-                                    valueOrAddress |= envU;
-                                    valueOrAddress |= wordOrAddress;
-                                    ((GpuEnvMapEmission *)packetCursor)->reflected38.body08.uv1 = valueOrAddress;
-
-                                    RR_GTE_MFC2_IR1_IR2(envU, envV);
-                                    valueOrAddress = envU >> 6;
-                                    envU = valueOrAddress + 0xC0;
-                                    valueOrAddress = envV >> envVShift;
-                                    envV = valueOrAddress + 0xC0;
-                                    RR_GTE_OP(0x4A486012);
-                                    valueOrAddress = ((u32)envV << 8) | envU;
-                                    ((GpuEnvMapEmission *)packetCursor)->reflected38.body08.uv2 = valueOrAddress;
-
-                                    RR_GTE_MFC2_IR1_IR2(envU, envV);
-                                    valueOrAddress = envU >> 6;
-                                    envU = valueOrAddress + 0xC0;
-                                    valueOrAddress = envV >> envVShift;
-                                    envV = valueOrAddress + 0xC0;
-                                    valueOrAddress = ((u32)envV << 8) | envU;
-                                    ((GpuEnvMapEmission *)packetCursor)->reflected38.body08.uv3 = valueOrAddress;
-                                    packetCursor += sizeof(GpuEnvMapEmission);
-                                }
-                            }
-                        }
+                head = RroScene.workOrdering + work->depth18 + quad->orderingBias1D;
+                control = quad->control1E;
+                if ((control & 3) == 0) {
+                    GpuEnvMapDirect *direct = (GpuEnvMapDirect *)cursor;
+                    RR_GTE14_LWC2_V0(&work->normal48);
+                    RR_GTE14_LIGHT0();
+                    e->primary.body.color0.bytes.code = control >> 1;
+                    RR_GTE_MFC2(e->primary.body.color3.word, 22);
+                    /* Compact the staged body behind a bare GT4 header. */
+                    memmove(&direct->body, &e->primary.body, sizeof(direct->body));
+                    RR_GPU_ADD_PRIM(head, direct, 12);
+                    cursor += sizeof(GpuEnvMapDirect);
+                } else {
+                    e->primary.setMask = RRO_MASK_COMMAND;
+                    e->primary.nop = RR_GPU_MERGED_PRIM_NOP;
+                    e->reflected.setMask = RRO_MASK_COMMAND | (control & 3);
+                    e->reflected.nop = RR_GPU_MERGED_PRIM_NOP;
+                    RR_GTE_MFC2(e->reflected.body.color0.word, 20);
+                    RR_GTE_MFC2(e->reflected.body.color1.word, 21);
+                    RR_GTE_MFC2(e->reflected.body.color2.word, 22);
+                    e->reflected.body.color0.bytes.code = 0x3E;
+                    RR_GTE_OP(0x4A486012);
+                    if (RroHeadPayloadByte(head) != 0xE6) {
+                        e->restore.command = restoreMask;
+                        RR_GPU_ADD_PRIM(head, &e->restore, 1);
                     }
+                    RR_GPU_ADD_PRIM(head, &e->reflected, 14);
+                    RR_GPU_ADD_PRIM(head, &e->primary, 14);
+                    e->reflected.body.uv0 = RroEnvMapUV(envVShift) | work->envClut0C;
+
+                    RR_GTE14_LWC2_V0(&work->normal48);
+                    RR_GTE14_LIGHT0();
+                    RR_GTE_MFC2(e->primary.body.color3.word, 22);
+                    RR_GTE_MFC2(e->reflected.body.color3.word, 22);
+                    RR_GTE_OP(0x4A48E012);
+                    {
+                        u32 uv1;
+                        s32 envU, envV;
+                        RR_GTE_MFC2_IR1_IR2(envU, envV);
+                        RR_GTE_OP(0x4A496012);
+                        uv1 = ((u32)((envV >> envVShift) + 0xC0) << 8) | (u32)((envU >> 6) + 0xC0);
+                        e->reflected.body.uv1 = uv1 | work->envTpage10;
+                        RR_GTE_MFC2_IR1_IR2(envU, envV);
+                        RR_GTE_OP(0x4A486012);
+                        e->reflected.body.uv2 = ((u32)((envV >> envVShift) + 0xC0) << 8) | (u32)((envU >> 6) + 0xC0);
+                    }
+                    e->reflected.body.uv3 = RroEnvMapUV(envVShift);
+                    cursor += sizeof(GpuEnvMapEmission);
                 }
             }
-            quad++;
-        } while (remaining-- > 0);
+        }
+        quad++;
     }
-    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packetCursor;
+    RR_GPU_SCRATCH->cursor = cursor;
     return (const u32 *)quad;
 }
 
@@ -714,35 +288,25 @@ void SetModelTexturePage(s32 page) {
 int DrawRroModel(const Vector *position, MatrixWords32 *rotation, s32 object, s32 flags)
 {
     RroRenderWork *work = &((RroModelScratch *)SCRATCHPAD)->work7C.render;
+    RroSceneScratchPrefix *scene = RRO_SCENE;
     const u32 *commands;
-    RroSceneScratchPrefix *scratch;
-    s32 command;
-    u32 clutY, texturePage;
-    s32 count;
-    u32 textureX;
-    unsigned long textureFormat;
-    u32 textureY;
+    s32 command, count;
+    u32 textureX, textureY;
 
     if (ModelTexturePage < 0) {
         return 0;
     }
     SetGteObjectTransform(&((RroModelScratch *)SCRATCHPAD)->work7C.transform,
                           (const s16 *)position, rotation->w);
-    textureFormat = 3;
     work->flags08 = flags;
-    textureX = ModelTexturePage & 0xF;
-    textureX <<= 6;
-    textureY = ModelTexturePage & 0x10;
-    textureY <<= 4;
-    work->envClut0C = (((textureY + 0x7F) << 6) | ((textureX >> 4) | textureFormat)) << 16;
-    clutY = textureY >> 4;
-    texturePage = (textureX >> 6) | 0x20;
-    work->envTpage10 = (clutY | texturePage) << 16;
-    scratch = (RroSceneScratchPrefix *)SCRATCHPAD;
-    work->vertices00 = scratch->vertices54;
-    work->normals04 = scratch->normals58;
-    work->ordering14 = scratch->view.projection.pointers.order + 0x80;
-    commands = scratch->commands50[object].pointer;
+    textureX = (ModelTexturePage & 0xF) << 6;
+    textureY = (ModelTexturePage & 0x10) << 4;
+    work->envClut0C = (((textureY + 0x7F) << 6) | ((textureX >> 4) | 3)) << 16;
+    work->envTpage10 = ((textureY >> 4) | (textureX >> 6) | 0x20) << 16;
+    RroScene.workVertices = RroScene.vertices;
+    RroScene.workNormals = RroScene.normals;
+    RroScene.workOrdering = RR_GPU_SCRATCH->order + 0x80;
+    commands = RroScene.commands[object].pointer;
     while ((command = *commands++) != 0) {
         count = command >> 16;
         command &= 0xFFFF;
@@ -767,415 +331,182 @@ int DrawRroModel(const Vector *position, MatrixWords32 *rotation, s32 object, s3
     return 1;
 }
 
-void DrawSparkLines(RroSpark *sparks, RroEffectWork *inputWork, s32 speed) {
-    struct {
-        u32 *ordering;
-        s32 depthShift;
-        u32 drawMode;
-        s32 spawnGate;
-        union {s32 word; u16 halves[2];} launchZ;
-        Vec3s8 *input;
-    } state;
-    long v0;
-    long v1;
-    s32 a0;
-    s32 a1;
-    s32 a2;
-    long a3;
-    s32 s0;
-    s32 s1;
-    char *motionCursor;
-    s32 life;
-    char *packetCursor;
-    RroEffectWork *work;
-    char *payloadCursor;
-    RroSpark *spark;
-    s32 fp;
+void DrawSparkLines(RroSpark *sparks, RroEffectWork *work, s32 speed) {
+    RroSparkPacket *packet = (RroSparkPacket *)RR_GPU_SCRATCH->cursor;
+    GpuDmaTag *ordering = RR_GPU_SCRATCH->order + 0x6C;
+    s32 depthShift = RRO_SCENE->depthShift60 + 2;
+    s32 spawnGate, launchZ, remaining;
 
-    spark = sparks;
-    work = inputWork;
-    s0 = speed;
-    /* Address temporaries retain native width; their shared scalar/pointer
-     * lifetimes remain reconstruction debt. Only DMA links encode addresses. */
     RR_GTE_SETFC_BYTES3(&work->colors15C.palette.rgb160[5]);
+    RR_GTE_MTC2_RGB(0x42000000);
+    spawnGate = PsyqRand() & 3;
+    launchZ = (s32)(0U - (0U + speed + 0xA0));
+    for (remaining = 0x10; remaining > 0; remaining--, sparks++) {
+        RroSparkMotion *motion = &sparks->motion;
+        s32 life = (s32)(sparks->timer - 0xAAU);
+        s32 x, y, z, velocityX, velocityY, velocityZ, depth;
 
-    a3 = 0x42000000;
-    RR_GTE_MTC2_RGB(a3);
-
-    a3 = 0xE1000220;
-    fp = 0x10;
-    v0 = (long)SCRATCHPAD;
-    state.drawMode = a3;
-    packetCursor = (char *)((RroSceneScratchPrefix *)v0)->view.projection.pointers.cursor;
-    v1 = (long)((RroSceneScratchPrefix *)v0)->view.projection.pointers.order;
-    v0 = ((RroSceneScratchPrefix *)v0)->depthShift60;
-    v1 += 0x1B0;
-    v0 += 2;
-    state.ordering = (u32 *)v1;
-    state.depthShift = v0;
-    v0 = PsyqRand() & 3;
-    s0 = (0U - (0U + s0 + 0xA0));
-    a3 = (long)(&work->verticesE0[0]);
-    motionCursor = (char *)&spark->motion.fields.z;
-    payloadCursor = packetCursor + 4;
-    state.spawnGate = v0;
-    state.launchZ.word = s0;
-    state.input = (Vec3s8 *)a3;
-    do {
-        v0 = spark->timer;
-        life = (v0 - 0xAAU);
         if (life <= 0) {
-            a3 = state.spawnGate;
-            if (a3 != 0) {
-                goto L_next;
+            s32 dx, dy;
+            if (spawnGate != 0) {
+                continue;
             }
-            a3 = 1;
-            state.spawnGate = a3;
+            spawnGate = 1;
             life = 0x1000;
-            v0 = PsyqRand() & 0x1FF;
-            s0 = v0 - 0x100;
-            v0 = PsyqRand() & 0x1FF;
-            s1 = v0 - 0x100;
-            if (s0 == 0) {
-                s0 = 0x100;
-            }
-            if (s1 == 0) {
-                s1 = 0x100;
-            }
-            v0 = s1 + 0x140;
-            ((RroSpark *)(motionCursor - 8))->motion.fields.x = s0;
-            ((RroSpark *)(motionCursor - 8))->motion.fields.y = v0;
-            v0 = (PsyqRand() & 0x7F) - 0xC30;
-            ((RroSpark *)(motionCursor - 8))->motion.fields.z = v0;
-            v0 = s0 / 2;
-            ((RroSpark *)(motionCursor - 8))->motion.fields.velocityX = v0;
-            v0 = s1 / 2;
-            ((RroSpark *)(motionCursor - 8))->motion.fields.velocityY = v0;
-            a3 = state.launchZ.halves[0];
-            ((RroSpark *)(motionCursor - 8))->motion.fields.velocityZ = a3;
+            dx = (PsyqRand() & 0x1FF) - 0x100;
+            dy = (PsyqRand() & 0x1FF) - 0x100;
+            if (dx == 0) dx = 0x100;
+            if (dy == 0) dy = 0x100;
+            motion->fields.x = dx;
+            motion->fields.y = dy + 0x140;
+            motion->fields.z = (PsyqRand() & 0x7F) - 0xC30;
+            motion->fields.velocityX = dx / 2;
+            motion->fields.velocityY = dy / 2;
+            motion->fields.velocityZ = (s16)launchZ;
         }
-        spark->timer = life;
+        sparks->timer = life;
         RR_GTE_MTC2_IR0(life);
-        RR_GTE14_NOP2();
         RR_GTE_OP(0x4A780010);
-        RR_GTE14_SWC2_RGB2(&((RroSparkPacket *)packetCursor)->color08);
+        RR_GTE_MFC2(packet->color08, 22);
 
-        s0 = ((RroSpark *)(motionCursor - 8))->motion.words[0];
-        a2 = ((RroSpark *)(motionCursor - 8))->motion.words[1];
-        a0 = ((RroSpark *)(motionCursor - 8))->motion.words[2];
-        s1 = s0 >> 16;
-        v0 = (s32)(s0 * 0x10000U);
-        s0 = v0 >> 16;
-        a1 = a2 >> 16;
-        v1 = (s32)(a2 * 0x10000U);
-        a2 = v1 >> 16;
-        v0 >>= 20;
-        *(s16 *)(&work->verticesE0[0]) = v0;
-        v0 = s1 >> 4;
-        v1 >>= 20;
-        work->verticesE0[0].fields.z = v1;
-        v1 = a0 >> 16;
-        a0 = (a0 * 0x10000U);
-        work->verticesE0[0].fields.y = v0;
+        x = motion->fields.x;
+        y = motion->fields.y;
+        z = motion->fields.z;
+        velocityX = motion->fields.velocityX;
+        velocityY = motion->fields.velocityY;
+        velocityZ = motion->fields.velocityZ;
+        /* The line runs from the position to one eighth of the velocity ahead. */
+        work->verticesE0[0].fields.x = x >> 4;
+        work->verticesE0[0].fields.y = y >> 4;
+        work->verticesE0[0].fields.z = z >> 4;
+        RR_GTE14_LWC2_V1(&work->verticesE0[0]);
+        work->verticesE0[0].fields.x = (x + (velocityX >> 3)) >> 4;
+        work->verticesE0[0].fields.y = (y + (velocityY >> 3)) >> 4;
+        work->verticesE0[0].fields.z = (z + (velocityZ >> 3)) >> 4;
+        RR_GTE_RTPT_LDV2(&work->verticesE0[0]);
+        motion->fields.x = x + (velocityX >> 4);
+        motion->fields.y = y + (velocityY >> 4);
+        motion->fields.z = z + (velocityZ >> 4);
+        RR_GTE14_SWC2_SZ3(&work->depth70);
 
-        a3 = (long)state.input;
-        RR_GTE14_LWC2_V1(a3);
-
-        v0 = (s0 + (a0 >> 19)) >> 4;
-        *(s16 *)(&work->verticesE0[0]) = v0;
-        v0 = (s1 + (v1 >> 3)) >> 4;
-        work->verticesE0[0].fields.y = v0;
-        v0 = (a2 + (a1 >> 3)) >> 4;
-        work->verticesE0[0].fields.z = v0;
-
-        RR_GTE_RTPT_LDV2(a3);
-
-        a0 = s0 + (a0 >> 20);
-        v1 = s1 + (v1 >> 4);
-        a1 = a2 + (a1 >> 4);
-        v0 = (long)(&work->depth70);
-        ((RroSpark *)(motionCursor - 8))->motion.fields.x = a0;
-        ((RroSpark *)(motionCursor - 8))->motion.fields.y = v1;
-        ((RroSpark *)(motionCursor - 8))->motion.fields.z = a1;
-        RR_GTE14_SWC2_SZ3(v0);
-
-        v0 = work->depth70;
-        if (v0 > 0) {
-            a3 = state.depthShift;
-            v1 = v0 >> a3;
-            if (v1 < 0x1C0) {
-                RR_GTE14_SWC2_SXY1(&((RroSparkPacket *)packetCursor)->firstXY0C);
-                RR_GTE14_SWC2_SXY2(&((RroSparkPacket *)packetCursor)->secondXY10);
-
-                a3 = (long)state.ordering;
-
-                v1 <<= 2;
-                v1 += a3;
-                v0 = *(s32 *)v1;
-                ((RroSparkPacket *)packetCursor)->tag.word = v0;
-                ((RroSparkPacket *)(payloadCursor - 4))->tag.bytes.length = 4;
-                *(u32 *)v1 = GpuDmaEncodeAddress(packetCursor);
-                ((u8 *)v1)[3] = 0;
-
-                a3 = state.drawMode;
-                packetCursor += sizeof(RroSparkPacket);
-                ((RroSparkPacket *)(payloadCursor - 4))->drawMode04 = a3;
-                payloadCursor += sizeof(RroSparkPacket);
+        if (work->depth70 > 0) {
+            depth = work->depth70 >> depthShift;
+            if (depth < 0x1C0) {
+                RR_GTE14_SWC2_SXY1(&packet->firstXY0C);
+                RR_GTE14_SWC2_SXY2(&packet->secondXY10);
+                packet->drawMode04 = RRO_DRAW_MODE;
+                packet->nop = RR_GPU_MERGED_PRIM_NOP;
+                RR_GPU_ADD_PRIM(ordering + depth, packet, 5);
+                packet++;
             }
         }
-L_next:
-        motionCursor += sizeof(RroSpark);
-        fp--;
-        spark++;
-    } while (fp > 0);
-
-    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packetCursor;
+    }
+    RR_GPU_SCRATCH->cursor = (u8 *)packet;
 }
 
-void EmitCarShadowQuads(const RroEffectMesh *mesh, RroEffectWork *inputWork) {
-    RroEffectWork *work = inputWork;
-    char *a0;
-    const RroTexturedQuadPrefix *quad;
-    RroSceneScratchPrefix *scratch;
-    const u32 *commands;
-    const void *firstVertex, *secondVertex, *thirdVertex;
-    s32 v0;
-    long v1;
-    s32 a1;
-    s32 a2;
-    s32 secondArea;
-    unsigned long depthAddress, orderingAddress;
+void EmitCarShadowQuads(const RroEffectMesh *mesh, RroEffectWork *work) {
+    const RroTexturedQuadPrefix *quad = (const RroTexturedQuadPrefix *)(mesh->commands + 1);
+    const Vec3s8 *vertices = mesh->vertices;
+    GpuPolyFT4 *packet;
+    s32 depth;
 
-    commands = mesh->commands;
-    a0 = (char *)mesh->vertices;
-    quad = (const RroTexturedQuadPrefix *)(commands + 1);
-    a1 = ((const RroTexturedQuadPrefix *)(commands + 1))->vertices.indices[0];
-    v1 = quad->vertices.indices[1];
-    v0 = quad->vertices.indices[2];
-    firstVertex = a0 + (a1 << 3);
-    secondVertex = a0 + (v1 << 3);
-    thirdVertex = a0 + (v0 << 3);
-    RR_GTE_RTPT_LDV(firstVertex, secondVertex, thirdVertex);
-    RR_GTE14_NOP2();
+    RR_GTE_RTPT_LDV(&vertices[quad->vertices.indices[0]], &vertices[quad->vertices.indices[1]],
+                    &vertices[quad->vertices.indices[2]]);
     RR_GTE14_NCLIP();
     RR_GTE14_SWC2_SXYZ(&work->projection188.shadow.xy[0]);
     RR_GTE14_SWC2_MAC0(&work->firstArea74);
-
-    v0 = quad->vertices.indices[3];
-    v0 <<= 3;
-    a0 += v0;
-    RR_GTE_RTPS_LDV(a0);
+    RR_GTE_RTPS_LDV(&vertices[quad->vertices.indices[3]]);
     RR_GTE14_AVSZ4();
     RR_GTE14_NCLIP();
     RR_GTE14_SWC2_SXY2(&work->projection188.shadow.xy[3]);
     RR_GTE14_SWC2_MAC0(&work->secondArea78);
     RR_GTE14_SWC2_OTZ(&work->depth70);
 
-    v1 = work->depth70;
-    scratch = (RroSceneScratchPrefix *)SCRATCHPAD;
-    if (v1 <= 0) {
+    if (work->depth70 <= 0) {
         return;
     }
-    v0 = scratch->depthShift60;
-    a1 = v1 >> v0;
-    work->depth70 = a1;
-    if (a1 >= 0x1C0) {
+    depth = work->depth70 >> RRO_SCENE->depthShift60;
+    work->depth70 = depth;
+    if (depth >= 0x1C0) {
+        return;
+    }
+    if ((work->firstArea74 ^ work->windingBC) <= 0 && (work->secondArea78 ^ work->windingBC) >= 0) {
         return;
     }
 
-    v0 = work->firstArea74;
-    v1 = work->windingBC;
-    secondArea = work->secondArea78;
-    v0 ^= v1;
-    secondArea ^= v1;
-    if (v0 <= 0 && secondArea >= 0) return;
-
-    /* This legacy address calculation retains the full native pointer width.
-     * An ordinary pointer spelling still changes instruction selection.
-     * Only the DMA tag write narrows an address to an encoded hardware word. */
-    v0 = a1 << 2;
-    v1 = quad->orderingBias19;
-    a0 = (char *)scratch->view.projection.pointers.order;
-    v1 *= 4;
-    depthAddress = v0 + (unsigned long)a0;
-    v1 = (v1 + depthAddress);
-    a0 = (char *)scratch->view.projection.pointers.cursor;
-    v0 = ((s32 *)v1)[0x200 / 4];
-    ((GpuPolyFT4 *)a0)->words.tag.word = v0;
-    ((GpuPolyFT4 *)a0)->words.tag.bytes.length = 9;
-
-    v1 = quad->orderingBias19;
-    v0 = work->depth70;
-    orderingAddress = (unsigned long)scratch->view.projection.pointers.order;
-    v1 *= 4;
-    v0 <<= 2;
-    depthAddress = v0 + orderingAddress;
-    v1 = (v1 + depthAddress);
-    ((u32 *)v1)[0x200 / 4] = GpuDmaEncodeAddress(a0);
-
-    v1 = quad->orderingBias19;
-    v0 = work->depth70;
-    orderingAddress = (unsigned long)scratch->view.projection.pointers.order;
-    v1 *= 4;
-    v0 <<= 2;
-    depthAddress = v0 + orderingAddress;
-    v1 = (v1 + depthAddress);
-    ((u8 *)v1)[0x203] = 0;
-
-    a1 = work->projection188.shadow.xy[0];
-    a2 = work->projection188.shadow.xy[1];
-    v1 = work->projection188.shadow.xy[2];
-    v0 = work->projection188.shadow.xy[3];
-    ((GpuPolyFT4 *)a0)->words.xy0 = a1;
-    ((GpuPolyFT4 *)a0)->words.xy1 = a2;
-    ((GpuPolyFT4 *)a0)->words.xy2 = v1;
-    ((GpuPolyFT4 *)a0)->words.xy3 = v0;
-
-    v0 = work->colors15C.palette.rgb160[4];
-    ((GpuPolyFT4 *)a0)->words.color04 = v0;
-    ((GpuPolyFT4 *)a0)->fields.code = 0x2E;
-
-    a1 = quad->uv0C;
-    v1 = quad->uv14;
-    a2 = quad->uv10;
-    v0 = v1 >> 16;
-    ((GpuPolyFT4 *)a0)->words.uv0 = a1;
-    ((GpuPolyFT4 *)a0)->words.uv1 = a2;
-    ((GpuPolyFT4 *)a0)->words.uv2 = v1;
-    ((GpuPolyFT4 *)a0)->words.uv3 = v0;
-    a0 += sizeof(GpuPolyFT4);
-    scratch->view.projection.pointers.cursor = (u8 *)a0;
+    packet = (GpuPolyFT4 *)RR_GPU_SCRATCH->cursor;
+    RR_GPU_ADD_PRIM(RR_GPU_SCRATCH->order + 0x80 + depth + quad->orderingBias19, packet, 9);
+    packet->words.xy0 = work->projection188.shadow.xy[0];
+    packet->words.xy1 = work->projection188.shadow.xy[1];
+    packet->words.xy2 = work->projection188.shadow.xy[2];
+    packet->words.xy3 = work->projection188.shadow.xy[3];
+    packet->words.color04 = work->colors15C.palette.rgb160[4];
+    packet->fields.code = 0x2E;
+    packet->words.uv0 = quad->uv0C;
+    packet->words.uv1 = quad->uv10;
+    packet->words.uv2 = quad->uv14;
+    packet->words.uv3 = quad->uv14 >> 16;
+    RR_GPU_SCRATCH->cursor = (u8 *)(packet + 1);
 }
 
-void EmitCarBodyQuads(const RroEffectMesh *inputMesh, RroEffectWork *inputWork) {
-    const RroEffectMesh *mesh = inputMesh;
-    s32 remainingVertices;
-    const Vec3s8 *a2 = (const Vec3s8 *)mesh->vertices;
-    RroEffectWork *work = inputWork;
-    char *t1;
-    const Vec3s8 *staged;
-    const u32 *commands;
-    RroSceneScratchPrefix *scene;
-    const RroBodyQuad *t3;
-    s32 t2;
-    s32 t5;
-    s32 t6;
-    char *t4;
+void EmitCarBodyQuads(const RroEffectMesh *mesh, RroEffectWork *work) {
+    const Vec3s8 *source = mesh->vertices;
+    RroProjectedVertex *output = work->projection188.pipeline;
+    const RroProjectedVertex *projected = work->projection188.mesh.vertices;
+    const u32 *commands = mesh->commands;
+    const RroBodyQuad *quad = (const RroBodyQuad *)(commands + 1);
+    s32 remaining = mesh->vertexCount;
+    s32 count, shift;
+    GpuDmaTag *ordering;
+    RroBodyPacket *packet;
 
-    {
-        s32 w0 = a2[0].signedWords[0], w1 = a2[0].signedWords[1];
-        t1 = (char *)&work->projection188.pipeline;
-        work->verticesE0[0].signedWords[0] = w0;
-        work->verticesE0[0].signedWords[1] = w1;
-        w0 = a2[1].signedWords[0]; w1 = a2[1].signedWords[1];
-        staged = &work->verticesE0[0];
-        work->verticesE0[1].signedWords[0] = w0;
-        work->verticesE0[1].signedWords[1] = w1;
-        w0 = a2[2].signedWords[0]; w1 = a2[2].signedWords[1];
-        work->verticesE0[2].signedWords[0] = w0;
-        work->verticesE0[2].signedWords[1] = w1;
-    }
-
-    remainingVertices = mesh->vertexCount;
-
+    work->verticesE0[0] = source[0];
+    work->verticesE0[1] = source[1];
+    work->verticesE0[2] = source[2];
     do {
-        s32 w0, w1;
-        RR_GTE14_LWC2_V012(staged);
-        a2 += 3;
-        remainingVertices -= 3;
-        t1 += 0x18;
-        RR_GTE14_NOP2();
+        RR_GTE14_LWC2_V012(&work->verticesE0[0]);
         RR_GTE14_RTPT();
+        source += 3;
+        remaining -= 3;
+        output += 3;
+        work->verticesE0[0] = source[0];
+        work->verticesE0[1] = source[1];
+        work->verticesE0[2] = source[2];
+        GTE_STORE_SXY_SZ(output);
+    } while (remaining > 0);
 
-        w0 = a2[0].signedWords[0]; w1 = a2[0].signedWords[1];
-        work->verticesE0[0].signedWords[0] = w0;
-        work->verticesE0[0].signedWords[1] = w1;
-
-        w0 = a2[1].signedWords[0]; w1 = a2[1].signedWords[1];
-        work->verticesE0[1].signedWords[0] = w0;
-        work->verticesE0[1].signedWords[1] = w1;
-
-        w0 = a2[2].signedWords[0]; w1 = a2[2].signedWords[1];
-        work->verticesE0[2].signedWords[0] = w0;
-        work->verticesE0[2].signedWords[1] = w1;
-
-        GTE_STORE_SXY_SZ(t1);
-    } while (remainingVertices > 0);
-
-    t6 = 0xE1000220;
-
-    commands = mesh->commands;
-    scene = (RroSceneScratchPrefix *)SCRATCHPAD;
-    t3 = (const RroBodyQuad *)(commands + 1);
-    t2 = ((const RroBodyCommandHeader *)commands)->fields.count;
-    t5 = scene->depthShift60 + 4;
-    if (work->facing98.z > 0) {
-        t4 = (char *)scene->view.projection.pointers.order + 0x1C4;
-    } else {
-        t4 = (char *)scene->view.projection.pointers.order + 0x1B0;
-    }
-
-    t1 = (char *)SCRATCHPAD;
-    t1 = (char *)((RroSceneScratchPrefix *)t1)->view.projection.pointers.cursor;
-
-    while (t2-- > 0) {
-        long v0;
-        long v1 = t3->vertices[0];
-        s32 thirdIndex;
-        char *a1;
-        s32 t7, t8, t9, depthPart;
-        const u8 *p3;
-
-        v0 = t3->vertices[1];
-        thirdIndex = t3->vertices[2];
-        v1 = (long)((char *)work + (v1 << 3));
-        v0 = (long)((char *)work + (v0 << 3));
-        a1 = (char *)work + thirdIndex * sizeof(RroProjectedVertex);
-        t7 = *(s32 *)((char *)v1 + RR_FIELD_OFFSET(RroEffectWork, projection188.mesh.vertices[0].sxy));
-        t8 = *(s32 *)((char *)v0 + RR_FIELD_OFFSET(RroEffectWork, projection188.mesh.vertices[0].sxy));
-        t9 = *(const s32 *)(a1 + RR_FIELD_OFFSET(RroEffectWork, projection188.mesh.vertices[0].sxy));
-        RR_GTE_NCLIP_SXY3(t7, t8, t9);
-
-        v1 = *(s32 *)((char *)v1 + RR_FIELD_OFFSET(RroEffectWork, projection188.mesh.vertices[0].sz));
-        depthPart = *(s32 *)((char *)v0 + RR_FIELD_OFFSET(RroEffectWork, projection188.mesh.vertices[0].sz));
-        v0 = t3->vertices[3];
-        v1 = ((u32)v1 + depthPart);
-        p3 = (const u8 *)work + v0 * sizeof(RroProjectedVertex);
-        depthPart = *(const s32 *)(a1 + RR_FIELD_OFFSET(RroEffectWork, projection188.mesh.vertices[0].sz));
-        v0 = *(const s32 *)(p3 + RR_FIELD_OFFSET(RroEffectWork, projection188.mesh.vertices[0].sz));
-        v1 = ((u32)v1 + depthPart);
-        v1 = ((u32)v1 + v0);
-        if (v1 > 0) {
-            v1 >>= t5;
-            if (v1 < 0x1C0) {
+    count = ((const RroBodyCommandHeader *)commands)->fields.count;
+    shift = RRO_SCENE->depthShift60 + 4;
+    ordering = RR_GPU_SCRATCH->order + (work->facing98.z > 0 ? 0x71 : 0x6C);
+    packet = (RroBodyPacket *)RR_GPU_SCRATCH->cursor;
+    while (count-- > 0) {
+        s32 depth;
+        RR_GTE_NCLIP_SXY3(projected[quad->vertices[0]].sxy, projected[quad->vertices[1]].sxy,
+                          projected[quad->vertices[2]].sxy);
+        depth = (s32)((u32)projected[quad->vertices[0]].sz + projected[quad->vertices[1]].sz +
+                      projected[quad->vertices[2]].sz + projected[quad->vertices[3]].sz);
+        if (depth > 0) {
+            depth >>= shift;
+            if (depth < 0x1C0) {
                 RR_GTE14_SWC2_MAC0(&work->firstArea74);
-                v0 = work->firstArea74;
-                if (v0 != 0) {
-                    v1 <<= 2;
-                    v1 = (long)(v1 + t4);
-                    ((RroBodyPacket *)t1)->tag.word = *(s32 *)v1;
-                    ((RroBodyPacket *)t1)->tag.bytes.length = 9;
-                    *(u32 *)v1 = GpuDmaEncodeAddress(t1);
-                    ((u8 *)v1)[3] = 0;
-
-                    ((RroBodyPacket *)t1)->vertices[0].color = work->colors15C.palette.rgb160[t3->colors[0]];
-                    ((RroBodyPacket *)t1)->vertices[1].color = work->colors15C.palette.rgb160[t3->colors[1]];
-                    ((RroBodyPacket *)t1)->vertices[2].color = work->colors15C.palette.rgb160[t3->colors[2]];
-                    ((RroBodyPacket *)t1)->vertices[3].color = work->colors15C.palette.rgb160[t3->colors[3]];
-
-                    ((RroBodyPacket *)t1)->vertices[0].xy = work->projection188.mesh.vertices[t3->vertices[0]].sxy;
-                    ((RroBodyPacket *)t1)->vertices[1].xy = work->projection188.mesh.vertices[t3->vertices[1]].sxy;
-                    ((RroBodyPacket *)t1)->vertices[2].xy = work->projection188.mesh.vertices[t3->vertices[2]].sxy;
-                    ((RroBodyPacket *)t1)->vertices[3].xy = work->projection188.mesh.vertices[t3->vertices[3]].sxy;
-                    ((RroBodyPacket *)t1)->drawMode04 = t6;
-                    t1 += sizeof(RroBodyPacket);
+                if (work->firstArea74 != 0) {
+                    int i;
+                    RR_GPU_ADD_PRIM(ordering + depth, packet, 10);
+                    for (i = 0; i < 4; i++) {
+                        packet->vertices[i].color = work->colors15C.palette.rgb160[quad->colors[i]];
+                        packet->vertices[i].xy = projected[quad->vertices[i]].sxy;
+                    }
+                    packet->drawMode04 = RRO_DRAW_MODE;
+                    packet->nop = RR_GPU_MERGED_PRIM_NOP;
+                    packet++;
                 }
             }
         }
-        t3++;
+        quad++;
     }
-    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)t1;
+    RR_GPU_SCRATCH->cursor = (u8 *)packet;
 }
+
 void TransformRroVertices(CarSlotBufferC8 *slot, RroEffectWork *work)
 {
     s32 intensity;
@@ -1227,15 +558,12 @@ void TransformRroVertices(CarSlotBufferC8 *slot, RroEffectWork *work)
 void DrawGlowFan(CarSlotBufferC8 *slot, RroEffectWork *work) {
     int depth;
     int *ring;
-    int *projected;
+    s32 *projected;
     int remaining;
     u32 color;
-    int centerXY;
+    s32 centerXY;
     RroGlowPacket *packet;
-    u32 *head;
-    RroSceneScratchPrefix *scratch;
-    int drawMode;
-    int triangleCommand;
+    GpuDmaTag *head;
 
     RR_GTE_SETTR(work->object00.fields.translation14);
     work->inputC8.fields.x = 0;
@@ -1245,59 +573,51 @@ void DrawGlowFan(CarSlotBufferC8 *slot, RroEffectWork *work) {
     RR_GTE_SWC2_SXY2(work->projection188.fan.xy + 2);
     RR_GTE_TR_FROM_IR();
     RR_GTE_READ_IR3_NOP(depth);
-    if (depth >= 0) {
-        depth >>= ((RroSceneScratchPrefix *)SCRATCHPAD)->depthShift60 + 2;
-        if (depth < 0x1C0) {
-            RR_GTE_SETROT_IDENTITY_CLEAR_Z();
-            ring = SpotlightConeRingInner;
-            projected = work->projection188.fan.xy;
-            remaining = 0x11;
-            do {
-                RR_GTE_RTPT_PACKED_XY(ring);
-                ring += 3;
-                projected += 3;
-                RR_GTE_SWC2_SXYZ(projected);
-                remaining -= 3;
-            } while (remaining > 0);
-            drawMode = 0xE1000220;
-            projected = work->projection188.fan.xy + 3;
-            remaining = 0x10;
-            color = slot->color08;
-            scratch = (RroSceneScratchPrefix *)SCRATCHPAD;
-            triangleCommand = 0x32000000;
-            centerXY = work->projection188.fan.xy[2];
-            packet = (RroGlowPacket *)scratch->view.projection.pointers.cursor;
-            color = (color << 8) | (color | triangleCommand);
-            /* Legacy address ordering: full pointer width, pending an ordinary
-             * pointer spelling that preserves the relocated match. */
-            head = (u32 *)((depth << 2) + (unsigned long)scratch->view.projection.pointers.order + 0x1A4);
-            do {
-                packet->centerXY0C = centerXY;
-                packet->firstXY14 = projected[0];
-                packet->secondXY1C = projected[1];
-                remaining--;
-                packet->centerColor08 = color;
-                packet->secondColor18 = 0;
-                packet->firstColor10 = 0;
-                packet->drawMode04 = drawMode;
-                projected++;
-                packet->tag.word = *head;
-                packet->tag.bytes.length = 7;
-                *head = GpuDmaEncodeAddress(packet);
-                packet++;
-                ((char *)head)[3] = 0;
-            } while (remaining > 0);
-            ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packet;
-        }
+    if (depth < 0) {
+        return;
     }
+    depth >>= RRO_SCENE->depthShift60 + 2;
+    if (depth >= 0x1C0) {
+        return;
+    }
+    RR_GTE_SETROT_IDENTITY_CLEAR_Z();
+    ring = SpotlightConeRingInner;
+    projected = work->projection188.fan.xy;
+    remaining = 0x11;
+    do {
+        RR_GTE_RTPT_PACKED_XY(ring);
+        ring += 3;
+        projected += 3;
+        RR_GTE_SWC2_SXYZ(projected);
+        remaining -= 3;
+    } while (remaining > 0);
+
+    projected = work->projection188.fan.xy + 3;
+    color = slot->color08;
+    color = (color << 8) | (color | 0x32000000);
+    centerXY = work->projection188.fan.xy[2];
+    packet = (RroGlowPacket *)RR_GPU_SCRATCH->cursor;
+    head = RR_GPU_SCRATCH->order + 0x69 + depth;
+    for (remaining = 0x10; remaining > 0; remaining--) {
+        packet->drawMode04 = RRO_DRAW_MODE;
+        packet->nop = RR_GPU_MERGED_PRIM_NOP;
+        packet->centerColor08 = color;
+        packet->centerXY0C = centerXY;
+        packet->firstColor10 = 0;
+        packet->firstXY14 = projected[0];
+        packet->secondColor18 = 0;
+        packet->secondXY1C = projected[1];
+        projected++;
+        RR_GPU_ADD_PRIM(head, packet, 8);
+        packet++;
+    }
+    RR_GPU_SCRATCH->cursor = (u8 *)packet;
 }
 
 const RroTexturedQuadPrefix *EmitProjectedQuadsFT4(const RroTexturedQuadPrefix *quad, s32 count, RroEffectWork *work) {
     const RroProjectedVertex *vertices = &work->projection188.pipeline[3];
-    /* Existing scratch reads preserve their original observation order. */
-    volatile RroSceneScratchPrefix *scene = (RroSceneScratchPrefix *)SCRATCHPAD;
-    s32 shift = scene->depthShift60 + 4;
-    GpuPolyFT4 *packet = (GpuPolyFT4 *)scene->view.projection.pointers.cursor;
+    s32 shift = RRO_SCENE->depthShift60 + 4;
+    GpuPolyFT4 *packet = (GpuPolyFT4 *)RR_GPU_SCRATCH->cursor;
     s32 winding = work->windingBC;
 
     while (count-- > 0) {
@@ -1318,16 +638,12 @@ const RroTexturedQuadPrefix *EmitProjectedQuadsFT4(const RroTexturedQuadPrefix *
         packet->words.xy1 = xy1;
         packet->words.xy2 = xy2;
         packet->words.xy3 = xy3;
-        depth = (u32)vertices[i0].sz + vertices[i1].sz + vertices[i2].sz + vertices[i3].sz;
+        depth = (s32)((u32)vertices[i0].sz + vertices[i1].sz + vertices[i2].sz + vertices[i3].sz);
         RR_GTE14_SWC2_MAC0(&work->firstArea74);
         if ((work->firstArea74 ^ winding) > 0 && depth > 0) {
             depth >>= shift;
             if (depth < 0x1C0) {
-                u32 *head = work->ordering6C + depth + quad->orderingBias19;
-                packet->words.tag.word = *head;
-                packet->words.tag.bytes.length = 9;
-                *head = GpuDmaEncodeAddress(packet);
-                ((GpuDmaTag *)head)->bytes.length = 0;
+                RR_GPU_ADD_PRIM(work->ordering6C + depth + quad->orderingBias19, packet, 9);
                 packet->words.uv0 = quad->uv0C;
                 packet->words.uv1 = quad->uv10;
                 packet->words.uv2 = quad->uv14;
@@ -1338,19 +654,18 @@ const RroTexturedQuadPrefix *EmitProjectedQuadsFT4(const RroTexturedQuadPrefix *
         }
         quad++;
     }
-    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packet;
+    RR_GPU_SCRATCH->cursor = (u8 *)packet;
     return quad;
 }
 
 void EmitProjectedLitTrisGT3(const RroTrailPanelCommand *command, s32 count, RroEffectWork *work) {
-    GpuPolyG4 *packet = (GpuPolyG4 *)((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor;
+    GpuPolyG4 *packet = (GpuPolyG4 *)RR_GPU_SCRATCH->cursor;
     s32 primaryColor = work->colors15C.palette.rgb160[0] | 0x3A000000;
-    s32 shift = ((RroSceneScratchPrefix *)SCRATCHPAD)->depthShift60 + 3;
+    s32 shift = RRO_SCENE->depthShift60 + 3;
     const RroProjectedVertex *base = work->projectedD0;
     const RroProjectedVertex *alternate = work->projectedD4;
     s32 secondaryColor = work->colors15C.palette.rgb160[1];
     s32 winding = work->windingBC;
-    u32 drawMode = 0xE1000220;
 
     while (count-- > 0) {
         s32 sxy0 = base[command->outer[0]].sxy;
@@ -1387,63 +702,34 @@ void EmitProjectedLitTrisGT3(const RroTrailPanelCommand *command, s32 count, Rro
                     y5 = (s16)(alternate[command->outer[2]].sxy >> 16);
                     if ((y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0 || y4 >= 0 || y5 >= 0) &&
                         (y0 < 0x100 || y1 < 0x100 || y2 < 0x100 || y3 < 0x100 || y4 < 0x100 || y5 < 0x100)) {
-                        s32 baseCenter, alternateCenter;
-                        u32 *head;
+                        s32 baseCenter = base[command->center].sxy;
+                        s32 alternateCenter = alternate[command->center].sxy;
+                        GpuDmaTag *head = work->ordering6C + work->depth70 + command->orderingBias09;
+                        GpuCommandPacket *mode;
+                        int i;
 
-                        sxy0 = alternate[command->outer[0]].sxy;
-                        sxy1 = alternate[command->outer[1]].sxy;
-                        sxy2 = alternate[command->outer[2]].sxy;
-                        packet[0].words.xy3 = sxy0;
-                        packet[1].words.xy3 = sxy1;
-                        packet[2].words.xy3 = sxy2;
-                        baseCenter = base[command->center].sxy;
-                        packet[2].words.xy0 = baseCenter;
-                        packet[1].words.xy0 = baseCenter;
-                        packet[0].words.xy0 = baseCenter;
-                        alternateCenter = alternate[command->center].sxy;
-                        packet[2].words.color04 = primaryColor;
-                        packet[1].words.color04 = primaryColor;
-                        packet[0].words.color04 = primaryColor;
-                        packet[2].words.color14 = secondaryColor;
-                        packet[1].words.color14 = secondaryColor;
-                        packet[0].words.color14 = secondaryColor;
-                        packet[2].words.color1C = 0;
-                        packet[1].words.color1C = 0;
-                        packet[0].words.color1C = 0;
-                        packet[2].words.color0C = 0;
-                        packet[1].words.color0C = 0;
-                        packet[0].words.color0C = 0;
-                        packet[2].words.xy2 = alternateCenter;
-                        packet[1].words.xy2 = alternateCenter;
-                        packet[0].words.xy2 = alternateCenter;
-                        head = work->ordering6C + work->depth70 + command->orderingBias09;
-                        packet[0].tag.word = *head;
-                        packet[0].tag.bytes.length = 8;
-                        *head = GpuDmaEncodeAddress(packet);
-                        ((GpuDmaTag *)head)->bytes.length = 0;
-                        packet[1].tag.word = *head;
-                        packet[1].tag.bytes.length = 8;
-                        *head = GpuDmaEncodeAddress(&packet[1]);
-                        ((GpuDmaTag *)head)->bytes.length = 0;
-                        packet[2].tag.word = *head;
-                        packet[2].tag.bytes.length = 8;
-                        *head = GpuDmaEncodeAddress(&packet[2]);
-                        ((GpuDmaTag *)head)->bytes.length = 0;
+                        for (i = 0; i < 3; i++) {
+                            packet[i].words.xy3 = alternate[command->outer[i]].sxy;
+                            packet[i].words.xy0 = baseCenter;
+                            packet[i].words.xy2 = alternateCenter;
+                            packet[i].words.color04 = primaryColor;
+                            packet[i].words.color0C = 0;
+                            packet[i].words.color14 = secondaryColor;
+                            packet[i].words.color1C = 0;
+                            RR_GPU_ADD_PRIM(head, &packet[i], 8);
+                        }
                         /* Three G4 panels are followed by one E1 command. */
-                        packet += 3;
-                        ((GpuCommandPacket *)packet)->command = drawMode;
-                        ((GpuCommandPacket *)packet)->tag.word = *head;
-                        ((GpuCommandPacket *)packet)->tag.bytes.length = 1;
-                        *head = GpuDmaEncodeAddress(packet);
-                        packet = (GpuPolyG4 *)((GpuCommandPacket *)packet + 1);
-                        ((GpuDmaTag *)head)->bytes.length = 0;
+                        mode = (GpuCommandPacket *)(packet + 3);
+                        mode->command = RRO_DRAW_MODE;
+                        RR_GPU_ADD_PRIM(head, mode, 1);
+                        packet = (GpuPolyG4 *)(mode + 1);
                     }
                 }
             }
         }
         command++;
     }
-    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packet;
+    RR_GPU_SCRATCH->cursor = (u8 *)packet;
 }
 
 const RroGlowPointCommand *EmitProjectedLitQuadsGT4(const RroGlowPointCommand *input, s32 count, RroEffectWork *work) {
@@ -1452,9 +738,8 @@ const RroGlowPointCommand *EmitProjectedLitQuadsGT4(const RroGlowPointCommand *i
     s32 offsetY = (s32)(0U - work->facing98.y) / 64;
     RroGlowProjection *projection = work->projection188.glow.points;
     s32 remaining = count;
-    s32 shift = ((RroSceneScratchPrefix *)SCRATCHPAD)->depthShift60 + 2;
+    s32 shift = RRO_SCENE->depthShift60 + 2;
     GpuPolyG3 *packet;
-    u32 drawMode;
 
     while (remaining > 0) {
         s32 rawDepth, depth;
@@ -1463,7 +748,7 @@ const RroGlowPointCommand *EmitProjectedLitQuadsGT4(const RroGlowPointCommand *i
         rawDepth = work->depth70;
         depth = rawDepth >> shift;
         if (rawDepth <= 0 || depth >= 0x1C0) {
-            projection->ordering = 0;
+            projection->ordering = NULL;
         } else {
             RR_GTE_STORE_IR_MEM(&projection->translation);
             RR_GTE14_SWC2_SXY2(&projection->centerXY);
@@ -1475,95 +760,105 @@ const RroGlowPointCommand *EmitProjectedLitQuadsGT4(const RroGlowPointCommand *i
         projection++;
         points++;
     }
-    work->matrix44.glow.rotation48.w[4] = 0x1000;
-    work->matrix44.glow.rotation48.w[2] = 0x1000;
     work->matrix44.glow.rotation48.w[0] = 0x1000;
-    work->matrix44.glow.rotation48.w[3] = 0;
     work->matrix44.glow.rotation48.w[1] = 0;
+    work->matrix44.glow.rotation48.w[2] = 0x1000;
+    work->matrix44.glow.rotation48.w[3] = 0;
+    work->matrix44.glow.rotation48.w[4] = 0x1000;
     RR_GTE_SETROT(work->matrix44.glow.rotation48.w);
 
-    drawMode = 0xE1000220;
-    packet = (GpuPolyG3 *)((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor;
+    packet = (GpuPolyG3 *)RR_GPU_SCRATCH->cursor;
     projection = work->projection188.glow.points;
     while (count > 0) {
-        u32 *head = projection->ordering;
+        GpuDmaTag *head = projection->ordering;
         if (head) {
-            const Vec3s8 *ring;
-            s32 center;
+            const Vec3s8 *ring = SpotlightConeRingOuter;
+            s32 center = projection->centerXY;
             s32 previous;
-            s32 color;
+            s32 color = work->colors15C.palette.rgb160[0];
+            GpuCommandPacket *mode;
+
             RR_GTE_SETTR(&projection->translation);
-            ring = SpotlightConeRingOuter;
-            center = projection->centerXY;
             RR_GTE_RTPS_LDV(ring);
             RR_GTE_MFC2(previous, 14);
-            remaining = 8;
-            color = work->colors15C.palette.rgb160[0];
-            do {
+            for (remaining = 8; remaining > 0; remaining--) {
                 ring++;
                 RR_GTE_RTPS_LDV(ring);
                 packet->xy0 = center;
                 packet->xy1 = previous;
                 packet->color0 = color;
-                packet->color2 = 0;
                 packet->color1 = 0;
-                packet->tag.word = *head;
-                packet->tag.bytes.length = 6;
-                *head = GpuDmaEncodeAddress(packet);
-                ((GpuDmaTag *)head)->bytes.length = 0;
+                packet->color2 = 0;
+                RR_GPU_ADD_PRIM(head, packet, 6);
                 RR_GTE_MFC2_SXY2_NOP(previous);
                 packet->xy2 = previous;
                 packet++;
-                remaining--;
-            } while (remaining > 0);
-            ((GpuCommandPacket *)packet)->command = drawMode;
-            ((GpuCommandPacket *)packet)->tag.word = *head;
-            ((GpuCommandPacket *)packet)->tag.bytes.length = 1;
-            *head = GpuDmaEncodeAddress(packet);
-            packet = (GpuPolyG3 *)((GpuCommandPacket *)packet + 1);
-            ((GpuDmaTag *)head)->bytes.length = 0;
+            }
+            mode = (GpuCommandPacket *)packet;
+            mode->command = RRO_DRAW_MODE;
+            RR_GPU_ADD_PRIM(head, mode, 1);
+            packet = (GpuPolyG3 *)(mode + 1);
         }
         count--;
         projection++;
     }
-    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packet;
+    RR_GPU_SCRATCH->cursor = (u8 *)packet;
     return points;
 }
 
+/* Projects a mesh's vertices in triples into the effect pipeline buffer,
+ * starting at pipeline[3] (the first result follows three reserved pairs). */
+static void RroProjectEffectVertices(RroEffectWork *work, const Vec3s8 *vertices, s32 count,
+                                     RroProjectedVertex *output, s32 storeInterpolation) {
+    while (count > 0) {
+        if (storeInterpolation) {
+            RR_GTE_SWC2_IR0(&work->interpolationDC);
+        }
+        RR_GTE14_LWC2_V012(vertices);
+        RR_GTE14_RTPT();
+        vertices += 3;
+        output += 3;
+        GTE_STORE_SXY_SZ(output);
+        count -= 3;
+    }
+}
+
+/* Command streams start with a header word whose signed high half counts records. */
+#define RRO_COMMAND_COUNT(p) ((s32)(p)[0] >> 16)
+
 void DrawWheelTrailEffects(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6) {
-    char *s2 = (char *)(SCRATCHPAD + 0x7C);
-    char *s4 = (char *)&CarSlotBuffers[arg4 * 2];
+    RroEffectWork *work = &RroEffectWorkArea;
+    const ProjectionScratchPrefix *view = (const ProjectionScratchPrefix *)SCRATCHPAD;
+    CarSlotBufferC8 *slot = &CarSlotBuffers[arg4 * 2];
     s32 s0;
     s32 a0;
     TrailEntry8 *a2;
-    char *vdst;
     const u32 *p;
-    char *vsrc;
     s32 vcnt;
 
-    WORK->flags8C = arg5;
-    if (((s32 *)SCRATCHPAD)[0x64 / 4] != 0) {
-        s4 += sizeof(CarSlotBufferC8);
-        WORK->windingBC = 0x80000000;
+    work->flags8C = arg5;
+    if (RRO_SCENE->renderFlags64 != 0) {
+        slot++;
+        work->windingBC = 0x80000000;
     } else {
-        WORK->windingBC = 0;
+        work->windingBC = 0;
     }
-    WORK->vehicle90 = arg0;
-    WORK->ordering6C = (u32 *)(((s32 *)SCRATCHPAD)[1] + 0x200 + arg6 * 4);
-    WORK->bounds94 = CarBoundsTable[arg4 / 2];
+    work->vehicle90 = arg0;
+    work->ordering6C = RR_GPU_SCRATCH->order + 0x80 + arg6;
+    work->bounds94 = CarBoundsTable[arg4 / 2];
 
-    if (arg1 == 0 || (WORK->flags8C & 1) == 0) {
-        SLOT->mainCount0C = 0;
-        SLOT->secondCount34 = 0;
-        SLOT->historyCount68 = 0;
-        SLOT->phase5C = 0;
+    if (arg1 == 0 || (work->flags8C & 1) == 0) {
+        slot->mainCount0C = 0;
+        slot->secondCount34 = 0;
+        slot->historyCount68 = 0;
+        slot->phase5C = 0;
     }
 
-    if (WORK->bounds94->wheelRotationAxis == 3) {
+    if (work->bounds94->wheelRotationAxis == 3) {
         if (RacePaused == 0) {
-            s0 = SLOT->intensity60;
-            if (WORK->flags8C & 1) {
-                a0 = (WORK->vehicle90->input - 0x358) / 4;
+            s0 = slot->intensity60;
+            if (work->flags8C & 1) {
+                a0 = (work->vehicle90->input - 0x358) / 4;
                 if (s0 < a0) {
                     s0 = a0;
                 } else if (a0 < s0) {
@@ -1573,58 +868,41 @@ void DrawWheelTrailEffects(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 ar
                 s0 -= 4;
             }
             s0 = (s0 < 0 ? 0 : s0) > 0xF0 ? 0xF0 : (s0 < 0 ? 0 : s0);
-            SLOT->intensity60 = s0;
-            if (WORK->flags8C & 1) {
+            slot->intensity60 = s0;
+            if (work->flags8C & 1) {
                 s0 += PsyqRand() & 0xF;
             }
-            SLOT->color08 = s0;
+            slot->color08 = s0;
         }
-        if (SLOT->color08 <= 0) {
+        if (slot->color08 <= 0) {
             return;
         }
     } else {
         s0 = 0x80;
-        if ((WORK->flags8C & 1) == 0) {
+        if ((work->flags8C & 1) == 0) {
             s0 = 0;
             a0 = 0x80;
-            SLOT->mainCount0C = 0;
-            SLOT->secondCount34 = 0;
-            SLOT->historyCount68 = 0;
-            SLOT->phase5C = 0;
+            slot->mainCount0C = 0;
+            slot->secondCount34 = 0;
+            slot->historyCount68 = 0;
+            slot->phase5C = 0;
         } else {
             a0 = 0xF0;
         }
         if (RacePaused == 0) {
             s32 v1;
             s32 d = a0 - s0;
-            if (WORK->flags8C & 2) {
-                v1 = SLOT->intensity60 + d / 4;
-                if (v1 < a0) {
-                    SLOT->intensity60 = v1;
-                } else {
-                    SLOT->intensity60 = a0;
-                }
-                v1 = SLOT->intensity64 + a0 / 4;
-                if (v1 < a0) {
-                    SLOT->intensity64 = v1;
-                } else {
-                    SLOT->intensity64 = a0;
-                }
+            if (work->flags8C & 2) {
+                v1 = slot->intensity60 + d / 4;
+                slot->intensity60 = v1 < a0 ? v1 : a0;
+                v1 = slot->intensity64 + a0 / 4;
+                slot->intensity64 = v1 < a0 ? v1 : a0;
             } else {
-                v1 = SLOT->intensity60 - d / 8;
-                if (v1 > s0) {
-                    SLOT->intensity60 = v1;
-                } else {
-                    SLOT->intensity60 = s0;
-                }
-                v1 = SLOT->intensity64 - a0 / 8;
-                if (v1 > 0) {
-                    SLOT->intensity64 = v1;
-                } else {
-                    SLOT->intensity64 = 0;
-                }
+                v1 = slot->intensity60 - d / 8;
+                slot->intensity60 = v1 > s0 ? v1 : s0;
+                v1 = slot->intensity64 - a0 / 8;
+                slot->intensity64 = v1 > 0 ? v1 : 0;
             }
-            KEEP_LIVE2(a0, d);
         }
     }
 
@@ -1632,436 +910,320 @@ void DrawWheelTrailEffects(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 ar
         return;
     }
 
-    WORK->worldPosition38.x = arg1[0] - 0x8000;
-    WORK->worldPosition38.y = arg1[1];
-    WORK->worldPosition38.z = arg1[2] - 0x8000;
-    {
-        s32 *g = (s32 *)SCRATCHPAD;
-        WORK->inputC8.fields.x = arg1[0] - g[2];
-        WORK->inputC8.fields.y = arg1[1] - g[3];
-        WORK->inputC8.fields.z = arg1[2] - g[4];
-    }
-    RR_GTE_SETROT((void *)SCRATCH_ROT_MATRIX);
-    RR_GTE_MVMVA_ROT_V0_NOCV(s2 + 0xC8);
-    RR_GTE_SWC2_MAC123(s2 + 0x14);
-    GTE_SETROT_AND_SAVE(arg2, s2);
+    work->worldPosition38.x = arg1[0] - 0x8000;
+    work->worldPosition38.y = arg1[1];
+    work->worldPosition38.z = arg1[2] - 0x8000;
+    work->inputC8.fields.x = arg1[0] - view->pose08.position00.vector.x;
+    work->inputC8.fields.y = arg1[1] - view->pose08.position00.vector.y;
+    work->inputC8.fields.z = arg1[2] - view->pose08.position00.vector.z;
+    RR_GTE_SETROT(SCRATCH_ROT_MATRIX);
+    RR_GTE_MVMVA_ROT_V0_NOCV(&work->inputC8);
+    RR_GTE_SWC2_MAC123(work->object00.fields.translation14);
+    GTE_SETROT_AND_SAVE(arg2, &work->object00);
 
-    WORK->inputC8.fields.y = 0;
-    WORK->inputC8.fields.x = 0;
-    WORK->inputC8.fields.z = -0x1000;
+    work->inputC8.fields.y = 0;
+    work->inputC8.fields.x = 0;
+    work->inputC8.fields.z = -0x1000;
 
-    RR_GTE_MVMVA_ROT_V0_NOCV(s2 + 0xC8);
-    RR_GTE_SWC2_MAC123(s2 + 0x98);
+    RR_GTE_MVMVA_ROT_V0_NOCV(&work->inputC8);
+    RR_GTE_SWC2_MAC123(&work->facing98);
 
-    if (WORK->bounds94->wheelRotationAxis == 3 && GameModeType == 0) {
-        DrawGlowFan(SLOT, WORK);
+    if (work->bounds94->wheelRotationAxis == 3 && GameModeType == 0) {
+        DrawGlowFan(slot, work);
         return;
     }
 
-    if (SLOT->overlay70 != 0 && (WORK->flags8C & 3) == 3) {
-        if (SLOT->phase5C == 0) {
-            SLOT->storedPosition74.x = WORK->worldPosition38.x;
-            SLOT->storedPosition74.y = WORK->worldPosition38.y;
-            SLOT->storedPosition74.z = WORK->worldPosition38.z;
-            SLOT->phase5C = 1;
+    if (slot->overlay70 != 0 && (work->flags8C & 3) == 3) {
+        if (slot->phase5C == 0) {
+            slot->storedPosition74.x = work->worldPosition38.x;
+            slot->storedPosition74.y = work->worldPosition38.y;
+            slot->storedPosition74.z = work->worldPosition38.z;
+            slot->phase5C = 1;
         }
-    } else if (SLOT->phase5C == 1) {
-        SLOT->phase5C = 2;
+    } else if (slot->phase5C == 1) {
+        slot->phase5C = 2;
     }
 
-    if (WORK->bounds94->wheelRotationAxis == 2 && (GameModeType == 6 || GameModeType == 0)) {
+    if (work->bounds94->wheelRotationAxis == 2 && (GameModeType == 6 || GameModeType == 0)) {
         if (ActiveViewportIndex != 6) {
-            TransformRroVertices(SLOT, WORK);
+            TransformRroVertices(slot, work);
         }
     }
 
     RR_GTE_SETFC(0, 0, 0);
     GTE_CTC2_28(0);
 
-    if (WORK->flags8C & 1) {
+    if (work->flags8C & 1) {
         s32 v1;
-        RR_GTE_LWC2_RGB((char *)(WORK->bounds94 + 1));
-        v1 = WORK->facing98.z;
+        /* The four bytes after this bounds record hold the trail base colour. */
+        RR_GTE_LWC2_RGB(work->bounds94 + 1);
+        v1 = work->facing98.z;
         if (v1 >= -0xEC8) {
-            char *a0;
-            char *a1;
             if (RacePaused != 0) {
-                WORK->blendC0 = SLOT->color08;
+                work->blendC0 = slot->color08;
             } else {
-                s32 a0_val;
-                s32 v0_val;
-                WORK->temporaryC4 = v1;
+                s32 blend;
+                work->temporaryC4 = v1;
                 if (v1 < 0) {
-                    WORK->temporaryC4 = 0;
+                    work->temporaryC4 = 0;
                 } else if (v1 >= 0x1000) {
-                    WORK->temporaryC4 = 0xFFF;
+                    work->temporaryC4 = 0xFFF;
                 }
-                v0_val = PsyqRand();
-                v1 = (WORK->facing98.z + 0xEC8) / 2;
-                a0_val = v0_val & WORK->temporaryC4;
-                WORK->blendC0 = a0_val;
+                blend = PsyqRand() & work->temporaryC4;
+                v1 = (work->facing98.z + 0xEC8) / 2;
                 if (v1 > 0x200) {
                     v1 = 0x200;
                 }
-                v0_val = (a0_val >> 2) + v1;
-                WORK->blendC0 = v0_val;
-                if (v0_val > 0xE00) {
-                    WORK->blendC0 = 0xE00;
+                blend = (blend >> 2) + v1;
+                if (blend > 0xE00) {
+                    blend = 0xE00;
                 }
-                v0_val = 0x1000 - WORK->blendC0;
-                WORK->blendC0 = v0_val;
-                SLOT->color08 = v0_val;
+                work->blendC0 = 0x1000 - blend;
+                slot->color08 = work->blendC0;
             }
-            RR_GTE_SETTR(s2 + 0x14);
-            WORK->vertices7C = SLOT->model->primary10.vertices;
-            a1 = ((char * volatile *)s2)[0x7C / 4];
-            WORK->vertexCount88 = SLOT->model->primary10.vertexCount;
-            v1 = ((volatile s32 *)s2)[0x88 / 4];
-            WORK->commands84 = SLOT->model->primary10.commands;
-            a0 = s2 + 0x188;
-            while (v1 > 0) {
-                RR_GTE_SWC2_IR0(s2 + 0xDC);
-                RR_GTE14_LWC2_V012(a1);
-                RR_GTE14_NOP2();
-                RR_GTE14_RTPT();
-                a1 += 0x18;
-                a0 += 0x18;
-                GTE_STORE_SXY_SZ(a0);
-                v1 -= 3;
-            }
+            RR_GTE_SETTR(work->object00.fields.translation14);
+            work->vertices7C = slot->model->primary10.vertices;
+            work->vertexCount88 = slot->model->primary10.vertexCount;
+            work->commands84 = slot->model->primary10.commands;
+            RroProjectEffectVertices(work, work->vertices7C, work->vertexCount88,
+                                     work->projection188.pipeline, 1);
             if (RacePaused == 0) {
-                s32 idx = SLOT->mainIndex10;
-                s32 n = SLOT->mainCount0C;
-                s32 off = (idx << 3) + 0x14;
-                TrailEntry4 *a2 = (TrailEntry4 *)(s4 + off);
+                s32 idx = slot->mainIndex10;
+                s32 n = slot->mainCount0C;
+                TrailEntry4 *entry = (TrailEntry4 *)&slot->main14[idx];
                 s32 rem = 4 - idx;
                 RroProjectedVertex *dst;
-                RroProjectedVertex *src;
-                if (n > 0) {
-                    do {
-                        a2->unk0 += a2->unk0 / 2;
-                        if (a2->unk0 > 0x1000) {
-                            a2->unk0 = 0x1000;
-                        }
-                        rem--;
-                        a2++;
-                        if (rem <= 0) {
-                            a2 = (TrailEntry4 *)(s4 + 0x14);
-                            rem = 4;
-                        }
-                        n--;
-                    } while (n > 0);
-                }
-                if (SLOT->mainCount0C < 4) {
-                    SLOT->mainCount0C += 1;
-                }
-                SLOT->mainIndex10 = (SLOT->mainIndex10 + 3) % 4;
-                a2 = (TrailEntry4 *)(s4 + ((SLOT->mainIndex10 << 3) + 0x14));
-                v1 = 0x1000 - WORK->temporaryC4;
-                if (v1 >= 0x200) {
-                    a2->unk0 = v1;
-                } else {
-                    a2->unk0 = 0x200;
-                }
-                a2->unk2 = (u16)WORK->interpolationDC;
-                n = WORK->vertexCount88;
-                dst = a2->verts;
-                src = (RroProjectedVertex *)(s2 + 0x1A0);
+                const RroProjectedVertex *src;
                 while (n > 0) {
-                    s32 x = src->sxy;
-                    s32 y = src->sz;
-                    src++;
+                    entry->unk0 += entry->unk0 / 2;
+                    if (entry->unk0 > 0x1000) {
+                        entry->unk0 = 0x1000;
+                    }
+                    rem--;
+                    entry++;
+                    if (rem <= 0) {
+                        entry = (TrailEntry4 *)&slot->main14[0];
+                        rem = 4;
+                    }
                     n--;
-                    dst->sxy = x;
-                    dst->sz = y;
-                    dst++;
+                }
+                if (slot->mainCount0C < 4) {
+                    slot->mainCount0C += 1;
+                }
+                slot->mainIndex10 = (slot->mainIndex10 + 3) % 4;
+                entry = (TrailEntry4 *)&slot->main14[slot->mainIndex10];
+                v1 = 0x1000 - work->temporaryC4;
+                entry->unk0 = v1 >= 0x200 ? v1 : 0x200;
+                entry->unk2 = (u16)work->interpolationDC;
+                n = work->vertexCount88;
+                dst = entry->verts;
+                src = work->projection188.mesh.vertices;
+                while (n-- > 0) {
+                    *dst++ = *src++;
                 }
             }
-            if (SLOT->mainCount0C >= 2) {
-                s32 *out = (s32 *)(s2 + 0x160);
-                s32 idx = SLOT->mainIndex10;
-                s32 s3 = SLOT->mainCount0C - 1;
-                s32 off = (idx << 3) + 0x14;
-                TrailEntry4 *s0 = (TrailEntry4 *)(s4 + off);
+            if (slot->mainCount0C >= 2) {
+                s32 *out = &work->colors15C.palette.rgb160[0];
+                s32 idx = slot->mainIndex10;
+                s32 s3 = slot->mainCount0C - 1;
+                TrailEntry4 *entry = (TrailEntry4 *)&slot->main14[idx];
                 s32 s1 = 4 - idx;
                 while (s3 > 0) {
-                    s32 unk0 = s0->unk0;
-                    RR_GTE_MTC2_IR0(unk0);
-                    RR_GTE14_NOP2();
+                    RR_GTE_MTC2_IR0(entry->unk0);
                     RR_GTE_OP(0x4A780010);
                     RR_GTE_SWC2_RGB2(out);
                     out++;
                     s1--;
-                    s0++;
+                    entry++;
                     if (s1 <= 0) {
-                        s0 = (TrailEntry4 *)(s4 + 0x14);
+                        entry = (TrailEntry4 *)&slot->main14[0];
                         s1 = 4;
                     }
                     s3--;
                 }
                 *out = 0;
-                WORK->projectedD4 = (RroProjectedVertex *)(s2 + 0x1A0);
-                {
-                s32 i2 = SLOT->mainIndex10;
-                WORK->colorsD8 = (s32 *)(s2 + 0x168);
-                s1 = 4 - i2;
-                off = (i2 << 3) + 0x14;
-                }
-                s3 = SLOT->mainCount0C - 1;
-                s0 = (TrailEntry4 *)(s4 + off);
+                work->projectedD4 = work->projection188.mesh.vertices;
+                work->colorsD8 = &work->colors15C.palette.rgb160[2];
+                idx = slot->mainIndex10;
+                s1 = 4 - idx;
+                s3 = slot->mainCount0C - 1;
+                entry = (TrailEntry4 *)&slot->main14[idx];
                 while (s3 > 0) {
-                    p = WORK->commands84;
-                    WORK->projectedD0 = WORK->projectedD4;
-                    WORK->projectedD4 = s0->verts;
-                    EmitProjectedLitTrisGT3((const RroTrailPanelCommand *)(p + 1), *(volatile s32 *)p >> 16, WORK);
-                    WORK->colors15C.palette.rgb160[0] = WORK->colors15C.palette.rgb160[1];
+                    p = work->commands84;
+                    work->projectedD0 = work->projectedD4;
+                    work->projectedD4 = entry->verts;
+                    EmitProjectedLitTrisGT3((const RroTrailPanelCommand *)(p + 1), RRO_COMMAND_COUNT(p), work);
+                    work->colors15C.palette.rgb160[0] = work->colors15C.palette.rgb160[1];
                     s1--;
-                    WORK->colors15C.palette.rgb160[1] = *WORK->colorsD8++;
-                    s0++;
+                    work->colors15C.palette.rgb160[1] = *work->colorsD8++;
+                    entry++;
                     if (s1 <= 0) {
-                        s0 = (TrailEntry4 *)(s4 + 0x14);
+                        entry = (TrailEntry4 *)&slot->main14[0];
                         s1 = 4;
                     }
                     s3--;
                 }
             }
-            {
-                char *v0 = (char *)SLOT->model->secondary1C.vertices;
-                v1 = SLOT->model->secondary1C.vertexCount;
-                a0 = s2 + 0x188;
-                while (v1 > 0) {
-                    RR_GTE14_LWC2_V012(v0);
-                    RR_GTE14_NOP2();
-                    RR_GTE14_RTPT();
-                    v0 += 0x18;
-                    a0 += 0x18;
-                    GTE_STORE_SXY_SZ(a0);
-                    v1 -= 3;
-                }
-            }
-            WORK->colors15C.palette.rgb160[0] = 0x2E808080;
-            p = SLOT->model->secondary1C.commands;
-            EmitProjectedQuadsFT4((const RroTexturedQuadPrefix *)(p + 1), *(volatile s32 *)p >> 16, WORK);
-            GTE_LWC2_IR0(s2 + 0xC0);
-            RR_GTE14_NOP2();
+            RroProjectEffectVertices(work, slot->model->secondary1C.vertices,
+                                     slot->model->secondary1C.vertexCount,
+                                     work->projection188.pipeline, 0);
+            work->colors15C.palette.rgb160[0] = 0x2E808080;
+            p = slot->model->secondary1C.commands;
+            EmitProjectedQuadsFT4((const RroTexturedQuadPrefix *)(p + 1), RRO_COMMAND_COUNT(p), work);
+            GTE_LWC2_IR0(&work->blendC0);
             RR_GTE_OP(0x4A780010);
-            RR_GTE_SWC2_RGB2(s2 + 0x160);
-            WORK->colors15C.palette.rgb160[1] = 0;
-            WORK->colors15C.palette.rgb160[0] = (WORK->colors15C.palette.rgb160[0] & 0xFFFFFF) | 0x32000000;
-            p = SLOT->model->litQuadCommands0C;
-            EmitProjectedLitQuadsGT4((const RroGlowPointCommand *)(p + 1), *(volatile s32 *)p >> 16, WORK);
+            RR_GTE_SWC2_RGB2(&work->colors15C.palette.rgb160[0]);
+            work->colors15C.palette.rgb160[1] = 0;
+            work->colors15C.palette.rgb160[0] = (work->colors15C.palette.rgb160[0] & 0xFFFFFF) | 0x32000000;
+            p = slot->model->litQuadCommands0C;
+            EmitProjectedLitQuadsGT4((const RroGlowPointCommand *)(p + 1), RRO_COMMAND_COUNT(p), work);
         } else {
-            SLOT->mainCount0C = 0;
+            slot->mainCount0C = 0;
         }
     }
 
-    if (WORK->facing98.z >= 0x7D0) {
-        s32 v1 = SLOT->phase5C;
-        SLOT->secondCount34 = 0;
+    if (work->facing98.z >= 0x7D0) {
+        s32 v1 = slot->phase5C;
+        slot->secondCount34 = 0;
         if (v1 == 0) {
             return;
         }
         if (v1 == 1) {
-            SLOT->phase5C = 2;
+            slot->phase5C = 2;
         }
     } else {
-        s32 v1;
-        char *a0;
-        char *a1;
-        RR_GTE_SETROT(s2);
-        RR_GTE_SETTR(s2 + 0x14);
+        RR_GTE_SETROT(&work->object00);
+        RR_GTE_SETTR(work->object00.fields.translation14);
         GTE_CTC2_27(0x88);
-        WORK->vertices7C = SLOT->model->history34.vertices;
-        a1 = ((char * volatile *)s2)[0x7C / 4];
-        WORK->vertexCount88 = SLOT->model->history34.vertexCount;
-        v1 = ((volatile s32 *)s2)[0x88 / 4];
-        WORK->commands84 = SLOT->model->history34.commands;
-        a0 = s2 + 0x188;
-        while (v1 > 0) {
-            RR_GTE_SWC2_IR0(s2 + 0xDC);
-            RR_GTE14_LWC2_V012(a1);
-            RR_GTE14_NOP2();
-            RR_GTE14_RTPT();
-            a1 += 0x18;
-            a0 += 0x18;
-            GTE_STORE_SXY_SZ(a0);
-            v1 -= 3;
-        }
+        work->vertices7C = slot->model->history34.vertices;
+        work->vertexCount88 = slot->model->history34.vertexCount;
+        work->commands84 = slot->model->history34.commands;
+        RroProjectEffectVertices(work, work->vertices7C, work->vertexCount88,
+                                 work->projection188.pipeline, 1);
         if (RacePaused == 0) {
             s32 idx;
             TrailEntry4 *entry;
             s32 n;
             RroProjectedVertex *dst;
-            RroProjectedVertex *src;
-            if (SLOT->secondCount34 < 4) {
-                SLOT->secondCount34 += 1;
+            const RroProjectedVertex *src;
+            if (slot->secondCount34 < 4) {
+                slot->secondCount34 += 1;
             }
-            idx = (SLOT->secondIndex38 + 3) % 4;
-            SLOT->secondIndex38 = idx;
-            entry = (TrailEntry4 *)(s4 + ((idx << 3) + 0x3C));
-            entry->unk0 = (s16)SLOT->intensity60;
-            n = WORK->vertexCount88;
+            idx = (slot->secondIndex38 + 3) % 4;
+            slot->secondIndex38 = idx;
+            entry = (TrailEntry4 *)&slot->second3C[idx];
+            entry->unk0 = (s16)slot->intensity60;
+            n = work->vertexCount88;
             dst = entry->verts;
-            src = (RroProjectedVertex *)(s2 + 0x1A0);
-            while (n > 0) {
-                s32 x = src->sxy;
-                s32 y = src->sz;
-                src++;
-                n--;
-                dst->sxy = x;
-                dst->sz = y;
-                dst++;
+            src = work->projection188.mesh.vertices;
+            while (n-- > 0) {
+                *dst++ = *src++;
             }
         }
-        if (SLOT->secondCount34 >= 2) {
-            s32 cnt = SLOT->secondCount34;
-            s32 col = SLOT->intensity60;
-            s32 s0;
+        if (slot->secondCount34 >= 2) {
+            s32 col = slot->intensity60;
             s32 *out;
-            s32 s1;
-            GTE_DPCS_COL(col, WORK->interpolationDC);
-            out = (s32 *)(s2 + 0x160);
-            s0 = cnt - 1;
-            while (s0 > 0) {
-                if (col > 0) {
-                    *out = col;
-                } else {
-                    *out = 0;
-                }
+            s32 n, s1;
+            GTE_DPCS_COL(col, work->interpolationDC);
+            out = &work->colors15C.palette.rgb160[0];
+            for (n = slot->secondCount34 - 1; n > 0; n--) {
+                *out++ = col > 0 ? col : 0;
                 col -= col / 4;
-                s0--;
-                out++;
             }
             *out = 0;
-            WORK->projectedD4 = (RroProjectedVertex *)(s2 + 0x1A0);
-            WORK->colorsD8 = (s32 *)(s2 + 0x168);
-            s0 = SLOT->secondCount34 - 1;
-            s1 = SLOT->secondIndex38;
-            while (s0 > 0) {
-                WORK->projectedD0 = WORK->projectedD4;
+            work->projectedD4 = work->projection188.mesh.vertices;
+            work->colorsD8 = &work->colors15C.palette.rgb160[2];
+            n = slot->secondCount34 - 1;
+            s1 = slot->secondIndex38;
+            while (n > 0) {
+                work->projectedD0 = work->projectedD4;
                 s1 = (s1 + 1) % 4;
-                p = WORK->commands84;
-                WORK->projectedD4 = ((TrailEntry4 *)(s4 + (s1 << 3) + 0x3C))->verts;
-                EmitProjectedLitTrisGT3((const RroTrailPanelCommand *)(p + 1), *(volatile s32 *)p >> 16, WORK);
-                if (WORK->colors15C.palette.rgb160[1] <= 0) {
+                p = work->commands84;
+                work->projectedD4 = ((TrailEntry4 *)&slot->second3C[s1])->verts;
+                EmitProjectedLitTrisGT3((const RroTrailPanelCommand *)(p + 1), RRO_COMMAND_COUNT(p), work);
+                if (work->colors15C.palette.rgb160[1] <= 0) {
                     break;
                 }
-                do {
-                    WORK->colors15C.palette.rgb160[0] = WORK->colors15C.palette.rgb160[1];
-                } while (0);
-                {
-                    s32 *q;
-                    q = WORK->colorsD8;
-                    s0--;
-                    col = q;
-                    q = (s32 *)*q;
-                    col += 4;
-                    WORK->colorsD8 = (s32 *)col;
-                    WORK->colors15C.palette.rgb160[1] = q;
-                }
+                work->colors15C.palette.rgb160[0] = work->colors15C.palette.rgb160[1];
+                n--;
+                work->colors15C.palette.rgb160[1] = *work->colorsD8++;
             }
         }
+        RroProjectEffectVertices(work, slot->model->trailing40.vertices,
+                                 slot->model->trailing40.vertexCount,
+                                 work->projection188.pipeline, 0);
         {
-            char *v0 = (char *)SLOT->model->trailing40.vertices;
-            v1 = SLOT->model->trailing40.vertexCount;
-            a0 = s2 + 0x188;
-            while (v1 > 0) {
-                RR_GTE14_LWC2_V012(v0);
-                RR_GTE14_NOP2();
-                RR_GTE14_RTPT();
-                v0 += 0x18;
-                a0 += 0x18;
-                GTE_STORE_SXY_SZ(a0);
-                v1 -= 3;
-            }
+            s32 c = slot->intensity60;
+            work->colors15C.palette.rgb160[0] = 0x2E000000 | (c << 16) | (c << 8) | c;
+            p = slot->model->trailing40.commands;
+            EmitProjectedQuadsFT4((const RroTexturedQuadPrefix *)(p + 1), RRO_COMMAND_COUNT(p), work);
         }
+        RroProjectEffectVertices(work, slot->model->trailing28.vertices,
+                                 slot->model->trailing28.vertexCount,
+                                 work->projection188.pipeline, 0);
         {
-            s32 c = SLOT->intensity60;
-            WORK->colors15C.palette.rgb160[0] = 0x2E000000 | (c << 16) | (c << 8) | c;
-            p = SLOT->model->trailing40.commands;
-            EmitProjectedQuadsFT4((const RroTexturedQuadPrefix *)(p + 1), *(volatile s32 *)p >> 16, WORK);
-        }
-        {
-            char *v0 = (char *)SLOT->model->trailing28.vertices;
-            v1 = SLOT->model->trailing28.vertexCount;
-            a0 = s2 + 0x188;
-            while (v1 > 0) {
-                RR_GTE14_LWC2_V012(v0);
-                RR_GTE14_NOP2();
-                RR_GTE14_RTPT();
-                v0 += 0x18;
-                a0 += 0x18;
-                GTE_STORE_SXY_SZ(a0);
-                v1 -= 3;
-            }
-        }
-        {
-            s32 c = SLOT->intensity64;
-            WORK->colors15C.palette.rgb160[0] = 0x2E000000 | (c << 16) | (c << 8) | c;
-            p = SLOT->model->trailing28.commands;
-            EmitProjectedQuadsFT4((const RroTexturedQuadPrefix *)(p + 1), *(volatile s32 *)p >> 16, WORK);
+            s32 c = slot->intensity64;
+            work->colors15C.palette.rgb160[0] = 0x2E000000 | (c << 16) | (c << 8) | c;
+            p = slot->model->trailing28.commands;
+            EmitProjectedQuadsFT4((const RroTexturedQuadPrefix *)(p + 1), RRO_COMMAND_COUNT(p), work);
         }
     }
 
     GTE_CTC2_27(0x88);
-    if (SLOT->phase5C == 0) {
+    if (slot->phase5C == 0) {
         return;
     }
 
-    WORK->vertices7C = SLOT->model->history34.vertices;
-    WORK->vertexCount88 = SLOT->model->history34.vertexCount;
-    WORK->commands84 = SLOT->model->history34.commands;
-    WORK->trailVerticesA8 = ((TrailEntry8 *)(s4 + (SLOT->historyIndex6C << 3) + 0x84))->verts;
+    work->vertices7C = slot->model->history34.vertices;
+    work->vertexCount88 = slot->model->history34.vertexCount;
+    work->commands84 = slot->model->history34.commands;
+    work->trailVerticesA8 = ((TrailEntry8 *)&slot->history84[slot->historyIndex6C])->verts;
 
-    if (SLOT->phase5C == 1) {
+    if (slot->phase5C == 1) {
+        const Vec3s8 *vsrc = work->vertices7C;
+        Vec3s8 *vdst = work->verticesE0;
         RR_GTE_SETROT(arg3);
-        WORK->jitterTranslationAC.x = WORK->worldPosition38.x - SLOT->storedPosition74.x;
-        WORK->jitterTranslationAC.y = WORK->worldPosition38.y - SLOT->storedPosition74.y;
-        WORK->jitterTranslationAC.z = WORK->worldPosition38.z - SLOT->storedPosition74.z;
-        RR_GTE_SETTR(s2 + 0xAC);
-        vdst = (char *)(WORK->trailVerticesA8 = (Vec3sFields8 *)(s2 + 0xE0));
-        vsrc = (char *)WORK->vertices7C;
-        vcnt = WORK->vertexCount88;
-        while (vcnt > 0) {
+        work->jitterTranslationAC.x = work->worldPosition38.x - slot->storedPosition74.x;
+        work->jitterTranslationAC.y = work->worldPosition38.y - slot->storedPosition74.y;
+        work->jitterTranslationAC.z = work->worldPosition38.z - slot->storedPosition74.z;
+        RR_GTE_SETTR(&work->jitterTranslationAC);
+        work->trailVerticesA8 = &work->verticesE0[0].fields;
+        for (vcnt = work->vertexCount88; vcnt > 0; vcnt--) {
             RR_GTE_MVMVA_ROT_TR_V0(vsrc);
             RR_GTE_STORE_IR_S16(vdst);
-            vsrc += 8;
-            vcnt--;
-            vdst += 8;
+            vsrc++;
+            vdst++;
         }
         if (RacePaused == 0) {
-            SLOT->historyCount68 += 1;
-            if (SLOT->historyCount68 == 8) {
-                SLOT->phase5C = 2;
+            Vec3sFields8 *dst;
+            const Vec3sFields8 *src;
+            slot->historyCount68 += 1;
+            if (slot->historyCount68 == 8) {
+                slot->phase5C = 2;
             }
-            SLOT->historyIndex6C = (SLOT->historyIndex6C + 7) % 8;
-            a2 = (TrailEntry8 *)(s4 + ((SLOT->historyIndex6C << 3) + 0x84));
-            vdst = (char *)a2->verts;
-            a2->unk0 = (s16)SLOT->intensity60;
-            vcnt = WORK->vertexCount88;
-            vsrc = (char *)WORK->trailVerticesA8;
-            while (vcnt > 0) {
-                *(Vec3sFields8 *)vdst = *(Vec3sFields8 *)vsrc;
-                vsrc += 8;
-                vcnt--;
-                vdst += 8;
+            slot->historyIndex6C = (slot->historyIndex6C + 7) % 8;
+            a2 = (TrailEntry8 *)&slot->history84[slot->historyIndex6C];
+            dst = a2->verts;
+            a2->unk0 = (s16)slot->intensity60;
+            src = work->trailVerticesA8;
+            for (vcnt = work->vertexCount88; vcnt > 0; vcnt--) {
+                *dst++ = *src++;
             }
         }
     }
 
     {
-        s32 nleft = SLOT->historyCount68;
-        if (nleft != 0) {
-        s32 dec8;
-        s32 i8;
-        s32 s5;
-        dec8 = (SLOT->phase5C == 2) ? 8 : 4;
-        i8 = SLOT->historyIndex6C;
+        s32 nleft = slot->historyCount68;
+        s32 dec8, i8, s5 = 0;
+        if (nleft == 0) {
+            return;
+        }
+        dec8 = (slot->phase5C == 2) ? 8 : 4;
+        i8 = slot->historyIndex6C;
         while (nleft > 0) {
-            a2 = (TrailEntry8 *)(s4 + ((i8 << 3) + 0x84));
+            a2 = (TrailEntry8 *)&slot->history84[i8];
             i8 = (i8 + 1) % 8;
-            s5 = a2->unk0;
-            s5 -= dec8;
+            s5 = a2->unk0 - dec8;
             if (s5 < 0) {
                 s5 = 0;
             }
@@ -2069,94 +1231,79 @@ void DrawWheelTrailEffects(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 ar
             a2->unk0 = s5;
         }
         if (s5 == 0) {
-            SLOT->historyCount68 -= 1;
+            slot->historyCount68 -= 1;
         }
-        if (SLOT->historyCount68 == 0) {
-            SLOT->phase5C = 0;
+        if (slot->historyCount68 == 0) {
+            slot->phase5C = 0;
             return;
         }
-        if (SLOT->historyCount68 >= 2) {
-            s32 nvert;
-            s32 s0;
-            s32 s1;
-            RR_GTE_SETROT((void *)SCRATCH_ROT_MATRIX);
-            {
-                char *t = s2 + 0x1A0;
-                s32 *g;
-                s32 m;
-                do {
-                    m = -0x8000;
-                } while (0);
-                g = (s32 *)SCRATCHPAD;
-                WORK->projectedD0 = (RroProjectedVertex *)t;
-                WORK->inputC8.fields.x = SLOT->storedPosition74.x + m - g[2];
-                WORK->inputC8.fields.y = SLOT->storedPosition74.y - g[3];
-                WORK->inputC8.fields.z = SLOT->storedPosition74.z + m - g[4];
-            }
-            RR_GTE_MVMVA_ROT_V0_NOCV(s2 + 0xC8);
-            RR_GTE_SWC2_MAC123(s2 + 0x38);
-            RR_GTE_SETTR_AT20(s2 + 0x24);
-            vsrc = (char *)WORK->trailVerticesA8;
-            vdst = (char *)WORK->projectedD0 - 0x18;
-            nvert = WORK->vertexCount88;
-            while (nvert > 0) {
+        if (slot->historyCount68 >= 2) {
+            RroProjectedVertex *pipeline = work->projection188.pipeline;
+            RroProjectedVertex *vdst;
+            const Vec3s8 *vsrc;
+            s32 nvert, s0i, s1;
+
+            RR_GTE_SETROT(SCRATCH_ROT_MATRIX);
+            work->projectedD0 = &pipeline[3];
+            work->inputC8.fields.x = slot->storedPosition74.x - 0x8000 - view->pose08.position00.vector.x;
+            work->inputC8.fields.y = slot->storedPosition74.y - view->pose08.position00.vector.y;
+            work->inputC8.fields.z = slot->storedPosition74.z - 0x8000 - view->pose08.position00.vector.z;
+            RR_GTE_MVMVA_ROT_V0_NOCV(&work->inputC8);
+            RR_GTE_SWC2_MAC123(&work->worldPosition38);
+            RR_GTE_SETTR(&work->worldPosition38);
+            vsrc = (const Vec3s8 *)work->trailVerticesA8;
+            vdst = work->projectedD0 - 3;
+            for (nvert = work->vertexCount88; nvert > 0; nvert -= 3) {
                 RR_GTE14_LWC2_V012(vsrc);
-                RR_GTE14_NOP2();
                 RR_GTE14_RTPT();
-                vsrc += 0x18;
-                vdst += 0x18;
+                vsrc += 3;
+                vdst += 3;
                 GTE_STORE_SXY_SZ(vdst);
-                nvert -= 3;
             }
-            WORK->projectedD4 = (RroProjectedVertex *)(vdst + 0x18);
-            s0 = SLOT->historyIndex6C;
-            WORK->colors15C.palette.rgb160[0] = 0;
-            s1 = SLOT->historyCount68 - 1;
-            while (s1 > 0) {
-                s32 off;
-                void *d0;
-                void *d4;
-                s0 = (s0 + 1) % 8;
-                off = (s0 << 3) + 0x84;
-                a2 = (TrailEntry8 *)(s4 + off);
-                vsrc = (char *)a2->verts;
-                vdst = (char *)WORK->projectedD4 - 0x18;
-                nvert = WORK->vertexCount88;
-                while (nvert > 0) {
-                    RR_GTE_SWC2_IR0(s2 + 0xDC);
+            work->projectedD4 = vdst + 3;
+            s0i = slot->historyIndex6C;
+            work->colors15C.palette.rgb160[0] = 0;
+            for (s1 = slot->historyCount68 - 1; s1 > 0; s1--) {
+                RroProjectedVertex *d0, *d4;
+                s32 next;
+                s0i = (s0i + 1) % 8;
+                a2 = (TrailEntry8 *)&slot->history84[s0i];
+                vsrc = (const Vec3s8 *)a2->verts;
+                vdst = work->projectedD4 - 3;
+                for (nvert = work->vertexCount88; nvert > 0; nvert -= 3) {
+                    RR_GTE_SWC2_IR0(&work->interpolationDC);
                     RR_GTE14_LWC2_V012(vsrc);
-                    RR_GTE14_NOP2();
                     RR_GTE14_RTPT();
-                    vsrc += 0x18;
-                    vdst += 0x18;
+                    vsrc += 3;
+                    vdst += 3;
                     GTE_STORE_SXY_SZ(vdst);
-                    nvert -= 3;
                 }
                 if (s1 == 1) {
-                    WORK->colors15C.palette.rgb160[1] = 0;
+                    work->colors15C.palette.rgb160[1] = 0;
                 } else {
-                    u16 c;
-                    GTE_LWC2_IR0_MEM(s2 + 0xDC);
-                    c = a2->unk0;
-                    GTE_MTC2_RGB_DPCS(c);
-                    RR_GTE_SWC2_RGB2(s2 + 0x164);
+                    GTE_LWC2_IR0_MEM(&work->interpolationDC);
+                    GTE_MTC2_RGB_DPCS((u16)a2->unk0);
+                    RR_GTE_SWC2_RGB2(&work->colors15C.palette.rgb160[1]);
                 }
-                p = WORK->commands84;
-                EmitProjectedLitTrisGT3((const RroTrailPanelCommand *)(p + 1), *(volatile s32 *)p >> 16, WORK);
-                do {
-                    d4 = WORK->projectedD4;
-                    d0 = WORK->projectedD0;
-                } while (0);
-                nvert = WORK->colors15C.palette.rgb160[1];
-                WORK->projectedD0 = d4;
-                WORK->projectedD4 = d0;
-                if (nvert <= 0) {
+                p = work->commands84;
+                EmitProjectedLitTrisGT3((const RroTrailPanelCommand *)(p + 1), RRO_COMMAND_COUNT(p), work);
+                d4 = work->projectedD4;
+                d0 = work->projectedD0;
+                next = work->colors15C.palette.rgb160[1];
+                work->projectedD0 = d4;
+                work->projectedD4 = d0;
+                if (next <= 0) {
                     break;
                 }
-                s1--;
-                WORK->colors15C.palette.rgb160[0] = nvert;
+                work->colors15C.palette.rgb160[0] = next;
             }
-        }
         }
     }
 }
+
+/* Initial values of the globals this module owns. */
+char UnknownRroTypeFmt[24] = {117, 110, 107, 110, 111, 119, 110, 32, 82, 82, 79, 32, 116, 121, 112, 101, 32, 37, 120, 10};
+s32 ModelTexturePage = 10;
+RroEffectColorTable RroEffectColorPresets = {.input = {0x3A184040u, 0x3A182B40u, 0x3A101040u, 0x3A000000u, 0x2E101040u, 0x420080FFu}, .farColor = {{0x6F, 0x73, 0x80, 0x3A}, {0x4F, 0x5B, 0x80, 0x3A}, {0x20, 0x20, 0x40, 0x3A}, {0, 0, 0, 0x3A}, {0x20, 0x20, 0x40, 0x2E}, {0xC0, 0x80, 0xFF, 0x42}}};
+int SpotlightConeRingInner[17] = {-11796480, -10878908, -8322945, -4456282, 180, 4456614, 8323199, 10879044, 11796480, 10944444, 8388481, 4521818, 65356, -4391078, -8257663, -10813508, -11796480};
+Vec3s8 SpotlightConeRingOuter[9] = {{.fields = {.y = -102}}, {.fields = {.x = 90, .y = -72}}, {.fields = {.x = 128}}, {.fields = {.x = 90, .y = 72}}, {.fields = {.y = 102}}, {.fields = {.x = -90, .y = 72}}, {.fields = {.x = -128}}, {.fields = {.x = -90, .y = -72}}, {.fields = {.y = -102}}};

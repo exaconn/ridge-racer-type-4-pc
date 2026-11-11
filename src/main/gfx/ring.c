@@ -1,5 +1,7 @@
 #include "game/camera/viewcam.h"
 #include "scratchpad.h"
+#include "rr/gpu_scratch_types.h"
+#include "rr/gpu.h"
 #include "rr/ring_renderer.h"
 #include "rr/game_motion.h"
 #include "game/gfx/ring.h"
@@ -8,19 +10,19 @@
 #include "rr/menu_text_rows.h"
 #include "game/gfx/scene1.h"
 
-s32 *ScaleMatrix(s32 *matrix, s32 *scale);
-s32 RotTransPers(s32 *point, s32 *screen, s32 *interpolation, s32 *flags);
+/* PsyZ libgte ScaleMatrix(MATRIX *, VECTOR *) and RotTransPers(SVECTOR *,
+ * long *, long *, long *); MatrixWords32/RingVertex8 share their layouts. */
+extern MatrixWords32 *ScaleMatrix(MatrixWords32 *matrix, s32 *scale);
+extern s32 RotTransPers(RingVertex8 *point, s32 *screen, s32 *interpolation, s32 *flags);
 
-void DrawRing(s32 *position, s32 radius);
-
-static __inline__ s32 project_ring_origin(s32 *position, s32 radius,
+static s32 project_ring_origin(s32 *position, s32 radius,
     RingScratch48 *scratch, RingVertex8 *point, s32 *output)
 {
     s32 depth, innerOffset;
   point->x = position[0];
   point->y = position[1];
   point->z = position[2];
-  depth = RotTransPers((s32 *)point, output, output, output) >> 1;
+  depth = RotTransPers(point, output, output, output) >> 1;
   scratch->geometry.vectors[0].x = 0;
   scratch->geometry.vectors[0].y = radius;
   scratch->geometry.vectors[0].z = position[2];
@@ -38,7 +40,7 @@ static __inline__ s32 project_ring_origin(s32 *position, s32 radius,
 void DrawRing(s32 *position, s32 radius)
 {
   s32 scale[3];
-  RingTransform24 transform;
+  SceneCameraPose18 transform;
   MatrixWords32 rotation;
   MatrixWords32 camera;
   RingVertex8 point;
@@ -48,30 +50,28 @@ void DrawRing(s32 *position, s32 radius)
   s32 segment;
   s32 angle;
   s32 depth;
-  s32 orderOffset;
   s32 inner;
-  u32 *head;
-  u32 *gteWords;
-  transform.x = position[0];
-  transform.y = position[1];
-  transform.z = position[2];
-  transform.rz = 0;
-  transform.ry = 0;
-  transform.rx = 0;
-  SetupObjectLightMatrices((char *)&transform, (char *)&RaceContext.controller3D8->lighting20, &rotation, &camera);
+  GpuDmaTag *head;
+  transform.position00.xyz.x = position[0];
+  transform.position00.xyz.y = position[1];
+  transform.position00.xyz.z = position[2];
+  transform.rotation10.z = 0;
+  transform.rotation10.y = 0;
+  transform.rotation10.x = 0;
+  SetupObjectLightMatrices(&transform, &RaceContext.controller3D8->lighting20, &rotation, &camera);
   scale[2] = 1024;
   scale[1] = 1024;
   scale[0] = 1024;
-  ScaleMatrix(rotation.w, scale);
-  SetGteObjectTransform(&scratch->transform, (s16 *)&transform, rotation.w);
+  ScaleMatrix(&rotation, scale);
+  SetGteObjectTransform(&scratch->transform, (const s16 *)&transform.position00, rotation.w);
   scratch->geometry.red = 220;
   scratch->geometry.green = 160;
   scratch->geometry.blue = 0;
   depth = project_ring_origin(position, radius, scratch, &point, &transformed);
   segment = 0;
   inner = radius - 128;
-  orderOffset = depth * 4;
-  packet = *((RingPacket24 **) SCRATCHPAD);
+  head = RR_GPU_SCRATCH->order + depth;
+  packet = (RingPacket24 *)RR_GPU_SCRATCH->cursor;
   do
   {
     angle = segment << 7;
@@ -80,13 +80,10 @@ void DrawRing(s32 *position, s32 radius)
     scratch->geometry.vectors[2].z = position[2];
     scratch->geometry.vectors[3].x = (rsin(angle) * inner) / 4096;
     scratch->geometry.vectors[3].y = (rcos(angle) * inner) / 4096;
-    /* One word cursor serves the GTE input and then its projected output. */
-    gteWords = (u32 *)&scratch->geometry.vectors[2];
     scratch->geometry.vectors[3].z = position[2];
-    RR_GTE_RTPT_LDV(gteWords, &scratch->geometry.vectors[3], &scratch->geometry.vectors[3]);
-    gteWords = (u32 *)&scratch->geometry.screen[2];
-    RING_STORE_SXY_PAIR(gteWords, &scratch->geometry.screen[3]);
-    packet->tag.bits.len = 5;
+    RR_GTE_RTPT_LDV(&scratch->geometry.vectors[2], &scratch->geometry.vectors[3], &scratch->geometry.vectors[3]);
+    RING_STORE_SXY_PAIR(&scratch->geometry.screen[2], &scratch->geometry.screen[3]);
+    packet->tag.length = 5;
     packet->code = 0x28;
     packet->xy[0][0] = scratch->geometry.screen[0].x;
     packet->xy[0][1] = scratch->geometry.screen[0].y;
@@ -100,18 +97,13 @@ void DrawRing(s32 *position, s32 radius)
     packet->red = scratch->geometry.red;
     packet->green = scratch->geometry.green;
     packet->blue = scratch->geometry.blue;
-    packet->tag.raw = (packet->tag.raw & 0xFF000000) |
-        ((RingGpuTag *)(orderOffset +
-            (unsigned long)((RingGpuSlots *)SCRATCHPAD)->order.pointer))->bits.addr;
-    head = (u32 *)(orderOffset +
-        (unsigned long)((RingGpuSlots *)SCRATCHPAD)->order.pointer);
-    ((RingGpuTag *)head)->bits.addr = (unsigned long)packet & 0xFFFFFF;
+    RR_GPU_LINK(head, packet);
     scratch->geometry.screen[0] = scratch->geometry.screen[2];
     scratch->geometry.screen[1] = scratch->geometry.screen[3];
     packet++;
   }
   while (segment < 33);
-  *((RingPacket24 **) SCRATCHPAD) = packet;
+  RR_GPU_SCRATCH->cursor = (u8 *)packet;
 }
 
 void InitScrollTrack(int selection) {
@@ -120,3 +112,10 @@ void InitScrollTrack(int selection) {
     scroll->disabled = 0;
     scroll->keys = HudLinearGaugeVerts[selection];
 }
+
+/* Initial values of the globals this module owns. */
+ScrollKey4 D_800A1C20[11] = {{.glyph = 1, .timing = 0x106}, {.glyph = 2, .timing = 0x300}, {.glyph = 3, .timing = 0x106}, {.glyph = 4, .timing = 0x106}, {.glyph = 5, .timing = 0x200}, {.glyph = 1, .timing = 0x106}, {.glyph = 6, .timing = 0x300}, {.glyph = 7, .timing = 0x106}, {.glyph = 5, .timing = 0x106}, {.glyph = 1, .timing = 0x200}, {.glyph = -1}};
+ScrollKey4 D_800A1C4C[11] = {{.glyph = 1, .timing = 0x106}, {.glyph = 2, .timing = 0x300}, {.glyph = 3, .timing = 0x106}, {.glyph = 4, .timing = 0x106}, {.glyph = 5, .timing = 0x200}, {.glyph = 1, .timing = 0x106}, {.glyph = 6, .timing = 0x300}, {.glyph = 7, .timing = 0x106}, {.glyph = 5, .timing = 0x106}, {.glyph = 1, .timing = 0x200}, {.glyph = -1}};
+ScrollKey4 D_800A1C78[11] = {{.glyph = 1, .timing = 0x106}, {.glyph = 2, .timing = 0x300}, {.glyph = 3, .timing = 0x106}, {.glyph = 4, .timing = 0x106}, {.glyph = 5, .timing = 0x200}, {.glyph = 1, .timing = 0x106}, {.glyph = 6, .timing = 0x300}, {.glyph = 7, .timing = 0x106}, {.glyph = 5, .timing = 0x106}, {.glyph = 1, .timing = 0x200}, {.glyph = -1}};
+ScrollKey4 D_800A1CA4[11] = {{.glyph = 8, .timing = 0x106}, {.glyph = 24, .timing = 0x300}, {.glyph = 9, .timing = 0x106}, {.glyph = 24, .timing = 0x106}, {.glyph = 10, .timing = 0x200}, {.glyph = 24, .timing = 0x106}, {.glyph = 5, .timing = 0x300}, {.glyph = 24, .timing = 0x106}, {.glyph = 11, .timing = 0x106}, {.glyph = 24, .timing = 0x200}, {.glyph = -1}};
+ScrollKey4 *HudLinearGaugeVerts[4] = {(ScrollKey4 *)D_800A1C20, (ScrollKey4 *)D_800A1C4C, (ScrollKey4 *)D_800A1C78, (ScrollKey4 *)D_800A1CA4};

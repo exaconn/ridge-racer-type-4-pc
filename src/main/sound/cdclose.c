@@ -1,4 +1,3 @@
-/* RODATA 0x80011160 0x14 */
 #include "types.h"
 #include "rr/audio_cd_controller.h"
 #include "game/sound/cdclose.h"
@@ -70,3 +69,7 @@ void CdAudioLoopStep(void) {
         break;
     }
 }
+
+/* Initial values of the globals this module owns. */
+unsigned int CdAudioFadeState;
+s32 CdCloseStateStep;

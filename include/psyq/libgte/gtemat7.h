@@ -4,14 +4,12 @@
 #include "types.h"
 #include "rr/matrix_words.h"
 
-void SetRotMatrix(int *a0);
+/* PsyZ libgte (MATRIX * arguments, long colour components). */
+void SetRotMatrix(int *matrix);
 void SetLightMatrix(const MatrixWords32 *matrix);
-/* Five words are transferred; GTE retains the signed low half of the last. */
 void SetColorMatrix(const MatrixWords32 *matrix);
-void SetTransMatrix(int *a0);
-void SetDQA(int a0);
-void SetDQB(int a0);
-void SetBackColor(s32 red, s32 green, s32 blue);
-void SetFarColor(s32 red, s32 green, s32 blue);
+void SetTransMatrix(int *matrix);
+void SetBackColor(long red, long green, long blue);
+void SetFarColor(long red, long green, long blue);
 
 #endif /* RR_PSYQ_LIBGTE_GTEMAT7_H */

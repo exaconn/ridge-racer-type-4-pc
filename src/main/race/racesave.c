@@ -1,7 +1,11 @@
+#include "rr/race_frame_scratch.h"
+#include "game/car/carstat.h"
+#include "rr/runtime_settings.h"
+#include "game/car/carparam.h"
+#include "rr/menu_selection.h"
 #include "rr/replay_types.h"
 #include "rr/frame_storage_types.h"
 #include "rr/vehicle_table.h"
-/* RODATA 0x80010420 0x20 */
 #include "scratchpad.h"
 #include "game/gfx/scene1.h"
 #include "game/sound/sndcmd.h"
@@ -30,62 +34,17 @@
 #include "game/menu/mnchoice.h"
 #include "game/sound/sndslot.h"
 
-typedef struct {
-    short h0;
-    short h2;
-    short h4;
-    short h6;
-    short h8;
-    short hA;
-    short hC;
-    short hE;
-    short h10;
-    short h12;
-    short h14;
-    short h16;
-    short h18;
-    short h1A;
-    short h1C;
-    short h1E;
-    short h20;
-    short h22;
-    short h24;
-    short h26;
-    short h28;
-    short h2A;
-    short h2C;
-    short h2E;
-} S30;
 
-typedef struct {
-    short h0;
-    short s12;
-    short s14;
-    short reserved06[5];
-} S10_sub;
-
-typedef struct {
-    int reserved00[4];
-    S10_sub sub[2];
-} S_AD528;
 
 extern int ReplayState;
 extern int SavedRaceState;
 extern int RaceState;
-extern short NumCars;
 extern short TwistRangeLimits[];
 extern int ReplayFrame;
-extern int LinkRemoteCarInputs[];
-extern int LinkLocalCarInputs[];
 extern short LinkHostFlag;
-extern S_AD528 Options;
-extern unsigned char CarInputs[][4];
-extern S30 PadButtonMap[];
-extern int LinkPendingCarInputs[];
 extern short GameModeType;
 extern short FadeCountdown;
 extern int TrackLength;
-extern int NumLaps;
 extern int MenuReturnSubmodeIndex;
 extern RaceVehicle PlayerCars[2];
 extern short ModeIndex;
@@ -93,9 +52,7 @@ extern short ModeGroup;
 extern short SubmodeState;
 extern int ReplayFocusCarIndex;
 extern int RaceQuitTargetMode;
-extern short PlayerThrottleLoad[];
 extern int ModeFrame;
-extern short PlayerDisplayRpm[];
 
 void ReadCarInput(RaceVehicle *arg0, s32 arg1);
 void ReplayModeEnter();
@@ -129,7 +86,7 @@ void ReadCarInput(RaceVehicle *arg0, s32 arg1) {
     if (RaceState != 0) {
         if (ReplayState == 2) {
             if (ReplayFrame < ReplayLength) {
-                *(ReplayFrame4 *)CarInputs[arg1] = ReplayInputs[arg1][ReplayFrame];
+                CarInputs[arg1].frame = ReplayInputs[arg1][ReplayFrame];
                 if (GameModeType == 4) {
                     if (arg1 == 3) {
                         ReplayFrame += 1;
@@ -145,25 +102,25 @@ void ReadCarInput(RaceVehicle *arg0, s32 arg1) {
                 mode = PlayerControllers[idx].protocol10;
                 if (mode == 0) {
                     t1 = 0;
-                    if (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].h4) {
+                    if (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].standard[2]) {
                         t1 = 0xFF;
                     }
-                    b = (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].h6) != 0;
+                    b = (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].standard[3]) != 0;
                     {
                         int f1, tand;
-                        tand = PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].h0;
+                        tand = PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].standard[0];
                         f1 = tand != 0;
-                        if ((PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].h2) > 0) {
+                        if ((PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].standard[1]) > 0) {
                             f1 |= 2;
                         }
-                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].h8) > 0) {
+                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].standard[4]) > 0) {
                             f1 |= 4;
                         }
-                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].hA) > 0) {
+                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].standard[5]) > 0) {
                             f1 |= 8;
                         }
                         f = f1;
-                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].hE) > 0) {
+                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].standard[7]) > 0) {
                             f |= 0x10;
                         }
                     }
@@ -183,27 +140,27 @@ void ReadCarInput(RaceVehicle *arg0, s32 arg1) {
                     }
                     a1 = control->dynamics94.player.digitalThrottle1C + (b * 140);
                 } else if (mode == 1) {
-                    t5 = (PlayerControllers[idx].steering3C * 0x7F) / TwistRangeLimits[Options.sub[idx].s12];
+                    t5 = (PlayerControllers[idx].steering3C * 0x7F) / TwistRangeLimits[Options.pad[idx].range0A];
                     t1 = 0;
-                    if (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].h14) {
+                    if (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].calibrated[2]) {
                         t1 = 0xFF;
                     }
                     a1 = 0;
-                    if (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].h16) {
+                    if (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].calibrated[3]) {
                         a1 = 0xFF;
                     }
                     {
                         int fm1;
-                        fm1 = ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].h18) != 0) * 4;
-                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].h1A) > 0) {
+                        fm1 = ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].calibrated[4]) != 0) * 4;
+                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].calibrated[5]) > 0) {
                             fm1 |= 8;
                         }
-                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].h1E) > 0) {
+                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].calibrated[7]) > 0) {
                             fm1 |= 0x10;
                         }
                         t3 = fm1 | 0x40;
                     }
-                    switch (Options.sub[idx].s14) {
+                    switch (Options.pad[idx].buttonLayout0C) {
                     case 0:
                     case 5: {
                         int i0;
@@ -236,10 +193,10 @@ void ReadCarInput(RaceVehicle *arg0, s32 arg1) {
                 } else if (mode == 2) {
                     t5 = (PlayerControllers[idx].steering3C * 0x7F) / 128;
                     t1 = 0;
-                    if (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].h24) {
+                    if (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].wheel[2]) {
                         t1 = 0xFF;
                     }
-                    b = (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].h26) != 0;
+                    b = (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].wheel[3]) != 0;
                     control->dynamics94.player.digitalThrottle1C += b * 4;
                     if (b == 0) {
                         control->dynamics94.player.digitalThrottle1C = 0;
@@ -251,20 +208,20 @@ void ReadCarInput(RaceVehicle *arg0, s32 arg1) {
                     {
                         unsigned short u2;                        int tand;                        int fb, fc;
                         u2 = PlayerControllers[idx].input00.fields.buttons;
-                        tand = u2 & PadButtonMap[idx].h20;
+                        tand = u2 & PadButtonMap[idx].wheel[0];
                         f = tand != 0;
-                        if ((u2 & PadButtonMap[idx].h22) > 0) {
+                        if ((u2 & PadButtonMap[idx].wheel[1]) > 0) {
                             f |= 2;
                         }
                         fb = f;
-                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].h28) > 0) {
+                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].wheel[4]) > 0) {
                             fb |= 4;
                         }
                         fc = fb;
-                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].h2A) > 0) {
+                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].wheel[5]) > 0) {
                             fc |= 8;
                         }
-                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].h2E) > 0) {
+                        if ((PlayerControllers[idx].edges08.fields.pressed & PadButtonMap[idx].wheel[7]) > 0) {
                             fc |= 0x10;
                         }
                         t3 = fc | 0x60;
@@ -277,28 +234,28 @@ void ReadCarInput(RaceVehicle *arg0, s32 arg1) {
                 t1 = 0;
                 a1 = 0;
             }
-            CarInputs[arg1][0] = t5;
-            CarInputs[arg1][1] = t1;
-            CarInputs[arg1][2] = a1;
-            CarInputs[arg1][3] = t3;
+            CarInputs[arg1].steer = t5;
+            CarInputs[arg1].throttle = t1;
+            CarInputs[arg1].brake = a1;
+            CarInputs[arg1].buttons = t3;
             if (GameModeType == 4) {
                 if (LinkHostFlag != 0) {
                     if (arg1 >= 2) {
-                        *(int *)CarInputs[arg1] = LinkRemoteCarInputs[t2];
+                        CarInputs[arg1] = LinkRemoteCarInputs.cars[t2];
                     } else {
-                        LinkPendingCarInputs[t2] = *(int *)CarInputs[arg1];
-                        *(int *)CarInputs[arg1] = LinkLocalCarInputs[t2];
+                        LinkPendingCarInputs.cars[t2] = CarInputs[arg1];
+                        CarInputs[arg1] = LinkLocalCarInputs.cars[t2];
                     }
                 } else {
                     if (arg1 < 2) {
-                        *(int *)CarInputs[arg1] = LinkRemoteCarInputs[t2];
+                        CarInputs[arg1] = LinkRemoteCarInputs.cars[t2];
                     } else {
-                        LinkPendingCarInputs[t2] = *(int *)CarInputs[arg1];
-                        *(int *)CarInputs[arg1] = LinkLocalCarInputs[t2];
+                        LinkPendingCarInputs.cars[t2] = CarInputs[arg1];
+                        CarInputs[arg1] = LinkLocalCarInputs.cars[t2];
                     }
                 };                if (ReplayState == 1) {
                     if (ReplayFrame < ReplayLength) {
-                        ReplayInputs[arg1][ReplayFrame] = *(ReplayFrame4 *)CarInputs[arg1];
+                        ReplayInputs[arg1][ReplayFrame] = CarInputs[arg1].frame;
                         if (arg1 == 3) {
                             ReplayFrame += 1;
                         }
@@ -306,7 +263,7 @@ void ReadCarInput(RaceVehicle *arg0, s32 arg1) {
                 }
             } else if (ReplayState == 1) {
                 if (ReplayFrame < ReplayLength) {
-                    ReplayInputs[arg1][ReplayFrame] = *(ReplayFrame4 *)CarInputs[arg1];
+                    ReplayInputs[arg1][ReplayFrame] = CarInputs[arg1].frame;
                     if (arg1 == 1 || GameModeType < 2 || GameModeType == 6) {
                         ReplayFrame += 1;
                     }
@@ -348,7 +305,7 @@ void CheckRaceFinish(RaceVehicle *vehicle) {
 void ReplayModeEnter(void) {
     SoundInitForRace();
     SelectReplayBgmTrack();
-    AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], 0xFF, 0x25);
+    AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], 0xFF, 0x25);
     SetupRaceMemoryArena(0, 2);
     RaceState = SavedRaceState;
     ClearTrackObjectStates(1);
@@ -368,7 +325,7 @@ void ReplayModeUpdate(void) {
     short t;
     ModeFrame += 1;
     if (ReplayFrame < 0x1A) {
-        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x19 - ReplayFrame) * 10, 0x25);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x19 - ReplayFrame) * 10, 0x25);
         if (ReplayFrame == 10) {
             CdAudioBeginPlay(0);
         }
@@ -384,11 +341,11 @@ void ReplayModeUpdate(void) {
         t = (unsigned short)FadeCountdown - 1;
         FadeCountdown = t;
         if (t < 0x19) {
-            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x19 - t) * 10, 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x19 - t) * 10, 0x45);
         }
     }
     if (rsin((ReplayFrame << 7) & 0xF80) > 0) {
-        { int tt = *(int *)SCRATCHPAD; *(int *)SCRATCHPAD = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.words[0], tt, 0x10, 0x10, 0x4C, 0xC, 0x64, 0xC0, 5, 0x7FF8, 0, 0x80); }
+        RR_GPU_SCRATCH->cursor = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, 0x10, 0x10, 0x4C, 0xC, 0x64, 0xC0, 5, 0x7FF8, 0, 0x80);
     }
     for (i = 0; i < NumCars; i++) {
         if ((s16)CarTable[i]->flags1E4 >= 0x10) {
@@ -410,7 +367,7 @@ void ReplayModeUpdate(void) {
     UpdateTrackObjects(0);
     BuildCameraMatrices();
     DrawCars(6);
-    ((int *)SCRATCHPAD)[0x78 / 4] = RaceQuitTargetMode;
+    ((RaceFrameScratch *)SCRATCHPAD)->word78 = RaceQuitTargetMode;
     SetupPlayerView(0);
     DrawTrackObjects(0);
     DrawTrackSceneryForPlayer(0);
@@ -424,3 +381,12 @@ void ReplayModeUpdate(void) {
     PadRumbleStop(0);
     PadRumbleStop(1);
 }
+
+/* Initial values of the globals this module owns. */
+int ReplayFrame;
+int SavedRaceState;
+CarInput4 CarInputs[4];
+s16 PlayerThrottleLoad[2];
+PadButtonMap30 PadButtonMap[2];
+s32 ReplayLength;
+int ReplayFocusCarIndex;

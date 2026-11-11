@@ -1,9 +1,11 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay668_decode.h"
 #include "rr/overlay668_control.h"
 #include "rr/overlay668_dma.h"
 #include "rr/diagnostics.h"
 #include "rr/overlay668_wait.h"
 #include "types.h"
+#include "rr/overlay668_vlc.h"
 
 void ovl668_mdec_reset(s32 mode){if(mode==0)ResetCallback();ovl668_mdec_reset_hw(mode);}
 
@@ -59,21 +61,17 @@ LibInterruptCallback ovl668_mdec_out_callback(LibInterruptCallback callback){ret
 
 extern const char ovl668_mdec_reset_error_fmt[];
 
+/* Mode 0 resets the decoder and reloads the overlay's quantization and
+ * scale commands; mode 1 aborts the current transfer only. */
 void ovl668_mdec_reset_hw(s32 mode) {
     switch (mode) {
     case 0:
-        RR_STR_WRITE32(ovl668_mdec1_ctrl_ptr, 0x80000000);
-        RR_STR_WRITE32(ovl668_dma0_chcr_ptr, 0);
-        RR_STR_WRITE32(ovl668_dma1_chcr_ptr, 0);
-        RR_STR_WRITE32(ovl668_mdec1_ctrl_ptr, 0x60000000);
+        MDEC_reset(1);
         ovl668_mdec_start_in_dma(&ovl668_mdec_quant_cmd, 32);
         ovl668_mdec_start_in_dma(&ovl668_mdec_scale_cmd, 32);
         break;
     case 1:
-        RR_STR_WRITE32(ovl668_mdec1_ctrl_ptr, 0x80000000);
-        RR_STR_WRITE32(ovl668_dma0_chcr_ptr, 0);
-        RR_STR_WRITE32(ovl668_dma1_chcr_ptr, 0);
-        RR_STR_WRITE32(ovl668_mdec1_ctrl_ptr, (RR_STR_READ32(ovl668_dma1_chcr_ptr), 0x60000000));
+        MDEC_reset(1);
         break;
     default:
         DebugPrintStub(ovl668_mdec_reset_error_fmt, mode);
@@ -84,65 +82,244 @@ void ovl668_mdec_reset_hw(s32 mode) {
 void ovl668_mdec_start_in_dma(const void *command,u32 words)
 {
     ovl668_mdec_wait_in_dma();
-    *(u32 *)ovl668_dpcr_ptr |= 0x88;
-    *ovl668_dma0_madr_ptr = (const u8 *)command + 4;
-    *(u32 *)ovl668_dma0_bcr_ptr = ((words >> 5) << 16) | 32;
-    *(u32 *)ovl668_mdec0_cmd_ptr = *(const u32 *)command;
-    *(u32 *)ovl668_dma0_chcr_ptr = 0x01000201;
+    MDEC_in((void *)command, (int)words);
 }
 
 void ovl668_mdec_start_out_dma(void *output,u32 words)
 {
     ovl668_mdec_wait_out_dma();
-    *(u32 *)ovl668_dpcr_ptr |= 0x88;
-    *(u32 *)ovl668_dma1_chcr_ptr = 0;
-    *ovl668_dma1_madr_ptr = output;
-    *(u32 *)ovl668_dma1_bcr_ptr = ((words >> 5) << 16) | 32;
-    *(u32 *)ovl668_dma1_chcr_ptr = 0x01000200;
+    MDEC_out(output, (int)words);
 }
-
-
 
 s32 ovl668_mdec_wait_in_dma(void)
 {
-    volatile s32 counter = 0x100000;
-    while (*(u32 *)ovl668_mdec1_ctrl_ptr & 0x20000000) {
-        if (--counter == -1) {
-            ovl668_mdec_handle_timeout(ovl668_mdec_in_timeout_msg);
-            return -1;
-        }
+    if (MDEC_in_sync() != 0) {
+        ovl668_mdec_handle_timeout(ovl668_mdec_in_timeout_msg);
+        return -1;
     }
     return 0;
 }
-
-
 
 s32 ovl668_mdec_wait_out_dma(void)
 {
-    volatile s32 counter = 0x100000;
-    while (*(u32 *)ovl668_dma1_chcr_ptr & 0x01000000) {
-        if (--counter == -1) {
-            ovl668_mdec_handle_timeout(ovl668_mdec_out_timeout_msg);
-            return -1;
-        }
+    if (MDEC_out_sync() != 0) {
+        ovl668_mdec_handle_timeout(ovl668_mdec_out_timeout_msg);
+        return -1;
     }
     return 0;
 }
 
-extern u32 *ovl668_mdec1_ctrl_ptr;
-u32 ovl668_mdec_read_status(void) { return *ovl668_mdec1_ctrl_ptr; }
+u32 ovl668_mdec_read_status(void) { return (u32)MDEC_status(); }
 
 extern const char ovl668_mdec_timeout_fmt[];
+/* Report the failed transfer and abort the decoder, as the original did. */
 s32 ovl668_mdec_handle_timeout(const char *message) {
-    /* Preserve the full native pointer; PAL uses32-bit pointers. */
-    u32 *port;
-    s32 result;
     DebugPrintStub(ovl668_mdec_timeout_fmt, message);
-    RR_STR_WRITE32(ovl668_mdec1_ctrl_ptr, 0x80000000);
-    RR_STR_WRITE32(ovl668_dma0_chcr_ptr, 0);
-    port = ovl668_dma1_chcr_ptr;
-    RR_STR_WRITE32(port, 0);
-    result = 0;
-    RR_STR_WRITE32(ovl668_mdec1_ctrl_ptr, (RR_STR_READ32(ovl668_dma1_chcr_ptr), 0x60000000));
-    return result;
+    MDEC_reset(1);
+    return 0;
 }
+
+/* ---------------------------------------------------------------- DecDCTvlc
+ * LIBPRESS DecDCTvlc of this image (originally hand-written MIPS at
+ * 0x80116958). v0 is a 32-bit bit window over the little-endian halfword
+ * stream, v1 the bits consumed from its low halfword; MDEC codes are
+ * written as halfwords after the copied header word. */
+Ovl668VlcState ovl668_vlc_state;
+u16 *ovl668_vlc_output_end;
+u32 ovl668_vlc_max_halfwords = 0xFFFFFF;
+
+static u32 ovl668_vlc_read16(const u8 *p) { return (u32)p[0] | (u32)p[1] << 8; }
+static u32 ovl668_vlc_sll(u32 value, u32 count) { return value << (count & 31); }
+static u32 ovl668_vlc_srl(u32 value, u32 count) { return value >> (count & 31); }
+
+/* Consume `count` bits and refill a halfword once 16 have been used. */
+#define RR_VLC_ADVANCE(count) do { \
+        u32 rr_n_ = (count); \
+        window = ovl668_vlc_sll(window, rr_n_); \
+        bits += rr_n_; \
+        if (bits & 0x10) { \
+            bits &= 0xF; \
+            window |= ovl668_vlc_sll(ovl668_vlc_read16(input), bits); \
+            input += 2; \
+        } else { \
+            bits &= 0xF; \
+        } \
+    } while (0)
+
+s32 ovl668_mdec_decode_vlc(const void *bs, void *buf) {
+    const u8 *input;
+    u16 *output;
+    u32 window, bits, qscale, block, code, extra;
+    s32 dcCr, dcCb, dcY, dc;
+    uintptr_t limit;
+
+    if (bs == NULL) {
+        input = ovl668_vlc_state.input;
+        output = ovl668_vlc_state.output;
+        window = ovl668_vlc_state.window;
+        bits = ovl668_vlc_state.bits;
+        qscale = ovl668_vlc_state.qscale;
+        block = ovl668_vlc_state.block;
+        dcCr = ovl668_vlc_state.dcCr;
+        dcCb = ovl668_vlc_state.dcCb;
+        dcY = ovl668_vlc_state.dcY;
+        limit = (uintptr_t)output + (uintptr_t)ovl668_vlc_max_halfwords * 2;
+        goto ac_code;
+    }
+    block = 0;
+    dcCr = dcCb = dcY = 0;
+    output = buf;
+    limit = (uintptr_t)output + (uintptr_t)ovl668_vlc_max_halfwords * 2;
+    input = bs;
+    {
+        /* Header: MDEC command word, quantization scale, version, first bits. */
+        u32 header = ovl668_vlc_read16(input) | ovl668_vlc_read16(input + 2) << 16;
+        qscale = ovl668_vlc_read16(input + 4) << 10;
+        if ((s32)(ovl668_vlc_read16(input + 6) - 3) >= 0) {
+            block = 1; /* version 3: Huffman-coded DC, block counter Cr, Cb, Y0..Y3 */
+        }
+        window = ovl668_vlc_read16(input + 8) << 16 | ovl668_vlc_read16(input + 10);
+        bits = 0;
+        input += 12;
+        output[0] = (u16)header;
+        output[1] = (u16)(header >> 16);
+        ovl668_vlc_output_end = output + (header & 0xFFFF) * 2 + 2;
+        output += 1;
+    }
+block_start:
+    code = window >> 22;
+    output += 1;
+    if (block == 0) {
+        if (code == 0x1FF)
+            goto pad;
+        RR_VLC_ADVANCE(10);
+        *output = (u16)(qscale | code);
+    } else {
+        const Ovl668VlcDcCode *entry;
+        u32 shift, size;
+        s32 diff = 0;
+        if (code == 0x3FF)
+            goto pad;
+        entry = &(block >= 3 ? ovl668_vlc_dc_luma : ovl668_vlc_dc_chroma)[window >> 24];
+        shift = entry->shift;
+        size = entry->size;
+        window = ovl668_vlc_sll(window, shift);
+        if (size != 0) {
+            u32 rest = 32 - size;
+            diff = (s32)ovl668_vlc_srl(window, rest);
+            if ((s32)window >= 0) {
+                diff -= (s32)ovl668_vlc_srl(0xFFFFFFFFu, rest);
+            }
+            window = ovl668_vlc_sll(window, size);
+            bits += size;
+        }
+        bits += shift;
+        if (bits & 0x10) {
+            bits &= 0xF;
+            window |= ovl668_vlc_sll(ovl668_vlc_read16(input), bits);
+            input += 2;
+        } else {
+            bits &= 0xF;
+        }
+        if (block > 2) {
+            dc = (dcY += diff);
+        } else if (block == 2) {
+            dc = (dcCb += diff);
+        } else {
+            dc = (dcCr += diff);
+        }
+        block++;
+        *output = (u16)((((u32)dc << 2) & 0x3FF) | qscale);
+        if (block == 7) {
+            block -= 6;
+        }
+    }
+    if ((intptr_t)((uintptr_t)output - limit) >= 0) {
+        output += 1;
+        goto save;
+    }
+    output += 1;
+ac_code:
+    {
+        const u32 *entry = ovl668_vlc_ac_short[window >> 19];
+        code = entry[0];
+        if (code != 0) {
+            extra = entry[1];
+        } else {
+            RR_VLC_ADVANCE(8);
+            code = ovl668_vlc_ac_long[window >> 23];
+            extra = 0;
+        }
+        RR_VLC_ADVANCE(code & 0xFF);
+        code >>= 16;
+        if (code == 0x7C1F)
+            goto escape;
+        *output = (u16)code;
+        if (code == 0xFE00)
+            goto block_start;
+        output += 1;
+        if (extra == 0)
+            goto ac_code;
+        code = extra & 0xFFFF;
+        if (code == 0x7C1F)
+            goto escape;
+        *output = (u16)code;
+        if (code == 0xFE00)
+            goto block_start;
+        output += 1;
+        code = extra >> 16;
+        if (code == 0)
+            goto ac_code;
+        if (code == 0x7C1F)
+            goto escape;
+        *output = (u16)code;
+        if (code == 0xFE00)
+            goto block_start;
+        output += 1;
+        goto ac_code;
+    }
+escape:
+    /* Escape: the next 16 bits are the run/level code itself. */
+    *output = (u16)(window >> 16);
+    output += 1;
+    window = window << 16 | ovl668_vlc_sll(ovl668_vlc_read16(input), bits);
+    input += 2;
+    goto ac_code;
+pad:
+    while ((intptr_t)((uintptr_t)output - (uintptr_t)ovl668_vlc_output_end) < 0) {
+        *output = 0xFE00;
+        output += 1;
+    }
+    return 0;
+save:
+    ovl668_vlc_state.input = input;
+    ovl668_vlc_state.output = output;
+    ovl668_vlc_state.window = window;
+    ovl668_vlc_state.bits = bits;
+    ovl668_vlc_state.qscale = qscale;
+    ovl668_vlc_state.block = block;
+    ovl668_vlc_state.dcCr = dcCr;
+    ovl668_vlc_state.dcCb = dcCb;
+    ovl668_vlc_state.dcY = dcY;
+    return 1;
+}
+#undef RR_VLC_ADVANCE
+
+/* Initial values of the overlay globals this module owns. */
+const char ovl668_mdec_reset_error_fmt[28] = {77, 68, 69, 67, 95, 114, 101, 115, 116, 58, 98, 97, 100, 32, 111, 112, 116, 105, 111, 110, 40, 37, 100, 41, 10};
+char ovl668_mdec_in_timeout_msg[16] = {77, 68, 69, 67, 95, 105, 110, 95, 115, 121, 110, 99};
+char ovl668_mdec_out_timeout_msg[16] = {77, 68, 69, 67, 95, 111, 117, 116, 95, 115, 121, 110, 99};
+const char ovl668_mdec_timeout_fmt[20] = {37, 115, 32, 116, 105, 109, 101, 111, 117, 116, 58, 10};
+StrQuantizationCommand ovl668_mdec_quant_cmd = {.header = {.word = 0x40000001u}, .luma = {0x13101002u, 0x16161310u, 0x16161616u, 0x1B1A181Au, 0x1A1A1B1Bu, 0x1B1B1A1Au, 0x1D1D1D1Bu, 0x1D222222u, 0x1B1B1D1Du, 0x20201D1Du, 0x26252222u, 0x22232325u, 0x28262623u, 0x30302828u, 0x38382E2Eu, 0x5345453Au}, .chroma = {0x13101002u, 0x16161310u, 0x16161616u, 0x1B1A181Au, 0x1A1A1B1Bu, 0x1B1B1A1Au, 0x1D1D1D1Bu, 0x1D222222u, 0x1B1B1D1Du, 0x20201D1Du, 0x26252222u, 0x22232325u, 0x28262623u, 0x30302828u, 0x38382E2Eu, 0x5345453Au}};
+StrMatrixCommand ovl668_mdec_scale_cmd = {.header = {.word = 0x60000000u}, .matrix = {0x5A825A82u, 0x5A825A82u, 0x5A825A82u, 0x5A825A82u, 0x6A6D7D8Au, 0x18F8471Cu, 0xB8E3E707u, 0x82759592u, 0x30FB7641u, 0x89BECF04u, 0xCF0489BEu, 0x764130FBu, 0xE7076A6Du, 0xB8E38275u, 0x7D8A471Cu, 0x959218F8u, 0xA57D5A82u, 0x5A82A57Du, 0xA57D5A82u, 0x5A82A57Du, 0x8275471Cu, 0x6A6D18F8u, 0xE7079592u, 0xB8E37D8Au, 0x89BE30FBu, 0xCF047641u, 0x7641CF04u, 0x30FB89BEu, 0xB8E318F8u, 0x82756A6Du, 0x95927D8Au, 0xE707471Cu}};
+
+/* Writable state of this unit; ovl668_reset_module restores it. */
+static const OverlayStateRegion ovl668_mdec_regions[] = {
+    RR_OVERLAY_STATE(ovl668_mdec_in_timeout_msg),
+    RR_OVERLAY_STATE(ovl668_mdec_out_timeout_msg),
+    RR_OVERLAY_STATE(ovl668_mdec_quant_cmd),
+    RR_OVERLAY_STATE(ovl668_mdec_scale_cmd),
+    RR_OVERLAY_STATE(ovl668_vlc_state),
+    RR_OVERLAY_STATE(ovl668_vlc_output_end),
+    RR_OVERLAY_STATE(ovl668_vlc_max_halfwords)};
+const OverlayStateTable ovl668_mdec_state = {ovl668_mdec_regions, sizeof(ovl668_mdec_regions) / sizeof(ovl668_mdec_regions[0])};

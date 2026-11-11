@@ -3,7 +3,8 @@
 
 #include "types.h"
 
-void SsUtReverbOff();
-void SsUtReverbOn();
+/* PsyZ libsnd. */
+void SsUtReverbOff(void);
+void SsUtReverbOn(void);
 
 #endif /* RR_PSYQ_LIBSND_UTREV3_H */

@@ -4,38 +4,35 @@
 #include "game/gfx/meshquad.h"
 #include "game/gfx/ring2.h"
 #include "rr/ring_renderer.h"
-#include "rr/overlay665_render.h"
-struct RingTransformPose18 { int x, y, z, pad; short rx, ry, rz; };
-struct RingScaleVec12 { int x, y, z; };
+#include "game/gfx/scene1.h"
+#include "game/gfx/ring.h"
+/* PsyZ libgte ScaleMatrix(MATRIX *, VECTOR *). */
+extern MatrixWords32 *ScaleMatrix(MatrixWords32 *matrix, s32 *scale);
 
 void DrawRingEffects(void) {
     int i;
-    struct {
-        struct RingTransformPose18 a;
-        struct RingScaleVec12 s;
-        int align1C;
-        int m[8];
-        int v[8];
-    } l;
+    SceneCameraPose18 pose;
+    s32 scale[3];
+    MatrixWords32 light, rotation;
     ScrollTrack40 *scroll = &RaceContext.controller3D8->scroll;
     for (i = 0; i < 2; i++) {
         if (scroll->channel[i].glyph > 0) {
-            l.a.y = 0;
-            l.a.x = 0;
-            l.a.z = (s16)scroll->channel[i].offset;
-            l.a.rz = 0;
-            l.a.ry = 0;
-            l.a.rx = 0;
-            SetupObjectLightMatrices(&l.a, &RaceContext.controller3D8->lighting20, l.m, l.v);
-            l.s.z = 0x800;
-            l.s.y = 0x800;
-            l.s.x = 0x800;
-            ScaleMatrix(l.m, &l.s);
+            pose.position00.xyz.y = 0;
+            pose.position00.xyz.x = 0;
+            pose.position00.xyz.z = (s16)scroll->channel[i].offset;
+            pose.rotation10.z = 0;
+            pose.rotation10.y = 0;
+            pose.rotation10.x = 0;
+            SetupObjectLightMatrices(&pose, &RaceContext.controller3D8->lighting20, &light, &rotation);
+            scale[2] = 0x800;
+            scale[1] = 0x800;
+            scale[0] = 0x800;
+            ScaleMatrix(&light, scale);
             if (scroll->channel[i].glyph < 0x18) {
-                SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&l.a, l.m);
-                DrawMeshPrimList(RaceContext.ringModel564, scroll->channel[i].glyph + 1, 0);
+                SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&pose.position00, light.w);
+                DrawMeshPrimList(RaceContext.soundPayload564, scroll->channel[i].glyph + 1, 0);
             } else {
-                DrawRing(&l.a, 0x300);
+                DrawRing(pose.position00.words, 0x300);
             }
         }
     }

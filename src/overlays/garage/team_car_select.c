@@ -1,3 +1,5 @@
+#include "rr/overlay_module.h"
+#include "scratchpad.h"
 #include "game/data/cdfile2.h"
 #include "game/menu/menuwork.h"
 #include "rr/cd_directory_buffer.h"
@@ -10,12 +12,12 @@
 #include "rr/string_tail_copy.h"
 
 #ifndef RR_PROJECTION_SCRATCH
-#define RR_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)0x1F800000U)
+#define RR_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)SCRATCHPAD)
 #endif
 
 extern s16 GaragePackedChoiceGlyph;
 extern s16 MenuItemCount;
-extern s32 ScreenFrame;
+extern u32 ScreenFrame;
 extern s16 ovl662_selected_car_number, ovl662_selected_emblem_id;
 extern char ovl662_saved_player_name[12];
 extern const char ovl662_str_init_car_choice[];
@@ -93,7 +95,7 @@ void ovl662_reset_team_car_preview(void)
     ResetScreenCounters();
     LoadCursor=MenuArenas.first;
     UnpackChoiceGlyph((s8 *)&SelectionRows.selection,GaragePackedChoiceGlyph);
-    ImageRows[1]=6;
+    ImageRows->f1=6;
 }
 
 void ovl662_update_team_car_select(void) {
@@ -136,14 +138,14 @@ void ovl662_update_team_car_select(void) {
     SetupViewport(6);
     temp_v0_2 = LoadCarRangeStep(0, 1);
     if (temp_v0_2 != 1) {
-        if (((s8 *)ImageRows)[1] == 1) {
-            ((s8 *)ImageRows)[1] = 0;
+        if (ImageRows->f1 == 1) {
+            ImageRows->f1 = 0;
         }
         goto block_67;
     }
     SetCarBounds(vehicleBase);
-    if (((s8 *)ImageRows)[1] == 7) {
-        ((s8 *)ImageRows)[1] = temp_v0_2;
+    if (ImageRows->f1 == 7) {
+        ImageRows->f1 = temp_v0_2;
     }
     var_s6 = 1;
     switch ((u16)SubmodeState) {
@@ -156,7 +158,7 @@ void ovl662_update_team_car_select(void) {
             ResetScreenCounters();
             LoadCursor = MenuArenas.first;
             UnpackChoiceGlyph((s8*)&SelectionRows.selection, CourseChoiceTable[1][ovl662_selected_car_slot].glyph);
-            ((s8 *)ImageRows)[1] = 6;
+            ImageRows->f1 = 6;
             temp_v1 = (u8 *)(void *)&CourseChoiceTable + ovl662_selected_car_slot * sizeof(CourseChoice4);
             PlayerCourseChoices[0].first = (s16) (s8) ((CourseChoice4 *)(void *)(temp_v1 + sizeof(CourseChoiceTable[0])))->first;
             PlayerCourseChoices[0].second = (s16) (s8) ((CourseChoice4 *)(void *)(temp_v1 + sizeof(CourseChoiceTable[0])))->second;
@@ -199,7 +201,7 @@ void ovl662_update_team_car_select(void) {
                             SubmodeState = (u16) temp_s1;
                             BadgeRows->state10 = 4;
                             closePhase = 3;
-                            ((s8 *)ImageRows)[1] = closePhase;
+                            ImageRows->f1 = closePhase;
                             do {
                                 temp_v1_2 = (UiRow24 *)(var_s0 * sizeof(UiRow24) + (unsigned long)UiRows);
                                 if (temp_v1_2->byte14 == 2) {
@@ -217,7 +219,7 @@ void ovl662_update_team_car_select(void) {
                         var_s0 = 0;
 
                         BadgeRows->state10 = 4;
-                        ((s8 *)ImageRows)[1] = (s8) temp_s1;
+                        ImageRows->f1 = (s8) temp_s1;
                         do {
                             temp_v1_3 = (UiRow24 *)(var_s0 * sizeof(UiRow24) + (unsigned long)UiRows);
                             if (temp_v1_3->byte14 == 2) {
@@ -236,7 +238,7 @@ void ovl662_update_team_car_select(void) {
 
                             SubmodeState = 4;
                             BadgeRows->state10 = 4;
-                            ((s8 *)ImageRows)[1] = (s8) temp_s1;
+                            ImageRows->f1 = (s8) temp_s1;
                             do {
                                 temp_v1_4 = (UiRow24 *)(var_s0 * sizeof(UiRow24) + (unsigned long)UiRows);
                                 if (temp_v1_4->byte14 == 2) {
@@ -265,7 +267,7 @@ block_40:
                             } while (var_s0 < UiRowCount);
                         }
                         BadgeRows->state10 = 4;
-                        ((s8 *)ImageRows)[1] = 3;
+                        ImageRows->f1 = 3;
                         goto block_54;
                     }
                 } else if (PlayerControllers[0].action2C != 0) {
@@ -281,7 +283,7 @@ block_40:
                                 temp_v1_6->byte14 = 3U;
                             }
                             BadgeRows->state10 = 4;
-                            ((s8 *)ImageRows)[1] = 3;
+                            ImageRows->f1 = 3;
                             var_s0 += 1;
 
                         } while (var_s0 < UiRowCount);
@@ -294,7 +296,7 @@ block_54:
         }
         break;
     case 3:
-        if ((((s8 *)ImageRows)[1] == 5) && (BadgeRows->state10 == 0xB)) {
+        if ((ImageRows->f1 == 5) && (BadgeRows->state10 == 0xB)) {
             ModeGroup = 1;
             ModeIndex = 0x41;
             SubmodeState = 0;
@@ -302,7 +304,7 @@ block_54:
         }
         break;
     case 4:
-        if ((((s8 *)ImageRows)[1] == 5) && (BadgeRows->state10 == 0xB)) {
+        if ((ImageRows->f1 == 5) && (BadgeRows->state10 == 0xB)) {
             ovl662_select_garage_car();
             goto done;
         }
@@ -310,7 +312,7 @@ block_54:
     case 5:
         temp_v1_7 = FadeCountdown - 1;
         FadeCountdown = (u16) temp_v1_7;
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - temp_v1_7) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (0x40 - temp_v1_7) * 4, 0x45);
         if ((s16) FadeCountdown <= 0) {
             ModeGroup = 1;
             ModeIndex = 0x1B;
@@ -320,7 +322,7 @@ block_54:
     case 8:
         temp_v1_8 = FadeCountdown - 1;
         FadeCountdown = (u16) temp_v1_8;
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - temp_v1_8) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (0x40 - temp_v1_8) * 4, 0x45);
         if ((s16) FadeCountdown <= 0) {
             ModeGroup = 1;
             ModeIndex = 0x27;
@@ -331,7 +333,7 @@ block_54:
         break;
     }
 block_67:
-        if ((ovl662_menu_substate == 0) && (((s8 *)ImageRows)[1] == 2)) {
+        if ((ovl662_menu_substate == 0) && (ImageRows->f1 == 2)) {
             ovl662_menu_substate = 1;
             BadgeRows->half02 = 1;
             var_s0 = 0;
@@ -342,17 +344,17 @@ block_67:
             var_s0 += 1;
         } while (var_s0 < 4);
         var_s0 = var_s6;
-        if ((((u8) ((s8 *)ImageRows)[1] - 1) < 2U) && (var_s0 == 1)) {
+        if ((((u8) ImageRows->f1 - 1) < 2U) && (var_s0 == 1)) {
             DrawSelectionIconGrid(0);
             UpdateCarWorldTransform((char *)(void *)PlayerCars);
             var_a2_2 = 0x100;
-            if (((s8 *)ImageRows)[1] == var_s0) {
-                temp_v0_3 = ~((ImageRows[2] * 0xFF) / 30);
+            if (ImageRows->f1 == var_s0) {
+                temp_v0_3 = ~((ImageRows->f2 * 0xFF) / 30);
                 color.channels.r = temp_v0_3;
                 color.channels.g = temp_v0_3;
                 color.channels.b = temp_v0_3;
                 var_a3 = 0x102;
-                var_a2_2 = (ImageRows[2] << 8) / 30;
+                var_a2_2 = (ImageRows->f2 << 8) / 30;
             } else {
                 var_a3 = 1;
                 color.channels.r = 0x80;
@@ -368,3 +370,19 @@ block_67:
 done:
     UpdateScreenFade(0x1008E);
 }
+
+/* Initial values of the overlay globals this module owns. */
+const char ovl662_str_init_car_choice[104] = {106, 111, 98, 95, 103, 97, 114, 97, 103, 101, 95, 99, 97, 114, 95, 105, 110, 102, 111, 48, 10, 0, 0, 0, 0, 0, 0, 0, -28, 85, 17, -128, 12, 93, 17, -128, 12, 93, 17, -128, -108, 91, 17, -128, -4, 91, 17, -128, 68, 92, 17, -128, 12, 93, 17, -128, 12, 93, 17, -128, -92, 92, 17, -128, 0, 0, 0, 0, 92, 98, 17, -128, -116, 98, 17, -128, -120, 99, 17, -128, -40, 99, 17, -128, -48, 100, 17, -128, 0, 102, 17, -128, 0, 102, 17, -128, 0, 102, 17, -128, -128, 101, 17, -128};
+char ovl662_saved_player_name[12];
+s16 ovl662_selected_car_slot;
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_team_car_select_regions[] = {
+    RR_OVERLAY_STATE(ovl662_saved_player_name),
+    RR_OVERLAY_STATE(ovl662_selected_car_slot)};
+const OverlayStateTable ovl662_team_car_select_state = {ovl662_team_car_select_regions, sizeof(ovl662_team_car_select_regions) / sizeof(ovl662_team_car_select_regions[0])};
+
+/* Initial values of the globals this module owns. */
+CourseChoice4 CourseChoiceTable[2][9];
+s16 GaragePackedChoiceGlyph;
+MenuGridPoint PlayerCourseChoices[4];

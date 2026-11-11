@@ -1,11 +1,11 @@
 /* RODATA 0x8001129c 0x30 */
 #include "types.h"
+#include "game/math/shuffle.h"
 #include "rr/presentation.h"
 #include "game/gfx/motion1.h"
 #include "rr/bios_devices.h"
 #include "rr/textured_panel.h"
 
-extern s32 SlotOrder;
 
 void InitMotionPanel(s32 arg0) {
     PanelTrack50 *panel = &RaceContext.controller3D8->panel;
@@ -102,5 +102,5 @@ void DrawMotionControllerPanel(void) {
 }
 
 void ResetSlotOrder(void) {
-    SlotOrder = -1;
+    SlotOrder.pending00 = -1;
 }

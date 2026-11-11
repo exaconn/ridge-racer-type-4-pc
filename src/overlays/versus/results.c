@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/menu_text_rows.h"
 #include "rr/overlay_menu.h"
 #include "rr/frame_storage_types.h"
@@ -16,7 +17,7 @@ extern char ovl661_win_count_prefix[];
 void CopyStringClearTail(char *, char *);
 void CopyStringPadSpaces(char *, char *, s32);
 void FormatDecimalDigits(char *, s32, s32);
-void AddScreenFadeTiles(u32 *, s32, u32);
+#include "rr/screen_tiles.h"
 void InitMenuArenas(void);
 void UpdateScreenFade(s32);
 void DrawResultsStandingsOverlay(s32);
@@ -115,7 +116,7 @@ void ovl661_update_results(void) {
         break;
     case 4:
         FadeCountdown--;
-        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - FadeCountdown) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (64 - FadeCountdown) * 4, 69);
         group = 3;
         if (FadeCountdown <= 0) {
             MenuScriptId = 0;
@@ -127,7 +128,7 @@ void ovl661_update_results(void) {
         break;
     case 5:
         FadeCountdown -= 2;
-        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - FadeCountdown) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (64 - FadeCountdown) * 4, 69);
         group = 3;
         if (FadeCountdown <= 0) {
             group = -1;
@@ -136,7 +137,7 @@ void ovl661_update_results(void) {
         break;
     case 6:
         FadeCountdown--;
-        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - FadeCountdown) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (64 - FadeCountdown) * 4, 69);
         group = -1;
         if (FadeCountdown <= 0) {
             ModeGroup = 1;
@@ -166,3 +167,21 @@ void ovl661_update_results(void) {
         DrawResultsRankIcons();
     }
 }
+
+/* Initial values of the overlay globals this module owns. */
+char ovl661_wins_suffix_label[12] = {87, 79, 78, 32, 33, 33, 33};
+char ovl661_win_count_prefix[44] = {87, 73, 78, 32, 0, 0, 0, 0, -8, 126, 17, -128, -100, -126, 17, -128, -100, -126, 17, -128, -112, -128, 17, -128, 24, -127, 17, -128, -116, -127, 17, -128, -24, -127, 17, -128, -100, -126, 17, -128, 84, -126, 17, -128};
+s32 ovl661_result_labels[22] = {7702, 0, -1, 3, 25, 25, -1, 4633, 4889, -1, 7702, 7702, 17, 7702, 7702, -1, 6, 7, 9, -1, 7702, -1};
+s16 ovl661_player_standings[2];
+s16 ovl661_player_win_counts[2];
+s16 ovl661_finish_ranks[2];
+
+/* Writable state of this unit; ovl661_reset_module restores it. */
+static const OverlayStateRegion ovl661_results_regions[] = {
+    RR_OVERLAY_STATE(ovl661_finish_ranks),
+    RR_OVERLAY_STATE(ovl661_player_standings),
+    RR_OVERLAY_STATE(ovl661_player_win_counts),
+    RR_OVERLAY_STATE(ovl661_result_labels),
+    RR_OVERLAY_STATE(ovl661_win_count_prefix),
+    RR_OVERLAY_STATE(ovl661_wins_suffix_label)};
+const OverlayStateTable ovl661_results_state = {ovl661_results_regions, sizeof(ovl661_results_regions) / sizeof(ovl661_results_regions[0])};

@@ -157,7 +157,7 @@ extern s32 SsSetReservedVoice(u32 count);
 
 typedef void *(*ChannelRecordCallback)(s32 selector);
 extern ChannelRecordCallback PadPortToChannelFn;
-void PadSetMainMode(s32 selector, s32 first, s32 second);
+s32 PadSetMainMode(s32 selector, s32 first, s32 second);
 s32 _padSetMainMode(PadChannel *channel, s32 first, s32 second);
 void _padMainModeUpdate(void *channel);
 s32 _padMainModeComplete(void *channel);

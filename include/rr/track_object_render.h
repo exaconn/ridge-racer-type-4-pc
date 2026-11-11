@@ -49,8 +49,7 @@ typedef struct {
     MatrixWords32 rotation00;
     u32 reserved20;
     Vec3s8 input24;
-    const Vec3s8 *vertices2C;
-    const u32 *commands30;
+    u32 slot2C, slot30; /* RroScene.workVertices / workCommands */
     u8 reserved34[0x20];
     s32 depth54;
 } TrackObjectLitWork;

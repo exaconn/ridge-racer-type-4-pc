@@ -1,6 +1,7 @@
 #ifndef RR_OVERLAY667_COURSE_INITIALIZER_H
 #define RR_OVERLAY667_COURSE_INITIALIZER_H
 #include "rr/layout.h"
+#include "rr/menu_selection.h"
 #include "rr/course_choice_types.h"
 #include "rr/menu_choice_types.h"
 #include "rr/selection.h"
@@ -12,9 +13,8 @@ extern CourseChoice4 LinkCarChoiceTable[2][2][9];
 extern CourseChoice4 CourseChoiceTable[2][9];
 extern char LinkPlayerNames[4][12];
 extern char *ovl667_default_player_names[4];
-extern s8 LinkEntryState[2][2];
-extern s32 NumLaps,ActivePlayerIndex,LinkAvailableCourseCount;
-extern s16 CourseIndex,SelectedCourseChoice,ModeIndex,LinkMenuSyncPhase,LinkClientRoleState;
+extern s32 ActivePlayerIndex,LinkAvailableCourseCount;
+extern s16 ModeIndex,LinkMenuSyncPhase,LinkClientRoleState;
 extern u16 ModeGroup,SubmodeState;
 void SetDispMask(s32);
 void SetupDrawDispEnvs(s32,s32,s16,u32);

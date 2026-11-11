@@ -27,7 +27,7 @@ void StepModeSelectChoice(void) {
     MenuSettings2C *r;
     int t = SelectionRows.bytes[0];
     SelectedTeamIndex = t;
-    ((u8 *)UiRows)[t + 0xC] = 0;
+    UiRows->cells[t] = 0;
     if ((MenuSelectedCarSlot & 0x2000) && SelectedTeamIndex < 3) {
         SelectedTeamIndex = (unsigned short)SelectedTeamIndex + 1;
         MenuStepDirection = 2;
@@ -81,36 +81,28 @@ int AllocMenuGridRecords(void *buffer, int count) {
 void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y) {
     s32 six = 6;
     s32 quotient = six / count;
-    s32 offset;
-    MenuGridPointerPage *page;
     MenuGrid38 *entry;
-    MenuGrid38 *next;
-    MenuGrid38 *last;
-    const GridRow8 *row, *table;
     s32 step_y;
     s32 step_x;
-    s32 layout_offset;
-    /* PAL RAM page owns the full-width record-pointer slot at offset 0x3A28. */
-    page = (MenuGridPointerPage *)0x800F0000U;
-    offset = index * sizeof(MenuGrid38);
-    step_y = y;
-    entry = (MenuGrid38 *)(offset + (unsigned long)page->records3A28);
+    /* MenuGridRecords is reloaded after each record write, as on the PS1. */
+    entry = &MenuGridRecords[index];
     entry->columns2E = quotient * 3;
-    ((MenuGrid38 *)(offset + (unsigned long)page->records3A28))->rows2F = six;
-    entry = (MenuGrid38 *)(offset + (unsigned long)page->records3A28);
-    step_y = (s16)step_y / entry->rows2F;
+    MenuGridRecords[index].rows2F = six;
+    entry = &MenuGridRecords[index];
+    step_y = (s16)y / entry->rows2F;
     step_x = (s16)x / (s32)((u32)count * entry->columns2E);
-    layout_offset = layout * 8;
     entry->count2C = count;
     entry->width04 = 64;
     entry->height06 = 8;
-    table = SelectionAnimStepTable;
     entry->step_y0A = step_y;
-    next = (MenuGrid38 *)(offset + (unsigned long)page->records3A28);
-    row = (const GridRow8 *)((u8 *)table + layout_offset);
     entry->step_x08 = step_x;
-    *(GridRow8 *)&entry->u30 = *row;
-    next->du32 = next->du32 / next->columns2E;
-    last = (MenuGrid38 *)(offset + (unsigned long)page->records3A28);
-    last->dv33 = last->dv33 / last->rows2F;
+    __builtin_memcpy(&entry->u30, &SelectionAnimStepTable[layout], sizeof(GridRow8));
+    entry = &MenuGridRecords[index];
+    entry->du32 = entry->du32 / entry->columns2E;
+    entry = &MenuGridRecords[index];
+    entry->dv33 = entry->dv33 / entry->rows2F;
 }
+
+/* Initial values of the globals this module owns. */
+GridRow8 SelectionAnimStepTable[2] = {{.first = 0x804C00B4u, .second = 0x2E2A000Au}, {.first = 0x804C00B4u, .second = 0x1B240029u}};
+short SelectedTeamIndex;

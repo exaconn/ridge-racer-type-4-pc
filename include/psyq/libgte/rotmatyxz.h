@@ -3,6 +3,6 @@
 #include "rr/geometry.h"
 #include "rr/matrix_words.h"
 
-/* Handwritten SDK routine: returns the output pointer in v0 (PAL+4). */
+/* PsyZ: MATRIX *RotMatrixYXZ(SVECTOR *r, MATRIX *m); returns m. */
 MatrixWords32 *RotMatrixYXZ(const Vec3sFields8 *angles, MatrixWords32 *output);
 #endif

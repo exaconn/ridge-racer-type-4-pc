@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "game/data/cdfile2.h"
 #include "game/system/pad.h"
 #include "rr/cd_directory_buffer.h"
@@ -8,7 +9,7 @@
 #include "rr/renderer_setup.h"
 
 extern s16 MenuItemCount;
-extern s32 ScreenFrame;
+extern u32 ScreenFrame;
 extern s16 ovl662_selected_car_number, ovl662_selected_emblem_id;
 extern s32 ovl662_emblem_edit_from_menu;
 void InitMenuArenas(void);
@@ -78,13 +79,13 @@ void ovl662_update_garage_car_view(void) {
     SetupViewport(6);
     ready = LoadCarRangeStep(0, 1);
     if (ready != 1) {
-        if (((s8 *)ImageRows)[1] == 1) {
-            ((s8 *)ImageRows)[1] = 0;
+        if (ImageRows->f1 == 1) {
+            ImageRows->f1 = 0;
         }
     } else {
         SetCarBounds(vehicle);
-        if (((s8 *)ImageRows)[1] == 7) {
-            ((s8 *)ImageRows)[1] = ready;
+        if (ImageRows->f1 == 7) {
+            ImageRows->f1 = ready;
         }
         active = 1;
         switch ((u16)SubmodeState) {
@@ -100,7 +101,7 @@ void ovl662_update_garage_car_view(void) {
                 PlayerCourseChoices[0].first = ovl662_selected_car_number;
                 ResetScreenCounters();
                 LoadCursor = MenuArenas.first;
-                ((s8 *)ImageRows)[1] = 6;
+                ImageRows->f1 = 6;
             }
             UiRows[MenuCursor].cells[0] = 0;
             StepMenuValue(0, 2, (char*)&MenuCursor, 3, 0);
@@ -134,7 +135,7 @@ void ovl662_update_garage_car_view(void) {
                     } while (i < 4);
                     BadgeRows[0].state10 = 4;
                     BadgeRows[1].state10 = 4;
-                    ((s8 *)ImageRows)[1] = 3;
+                    ImageRows->f1 = 3;
                     FadeCountdown = 0x40;
                 } else if (MenuCursor == 1) {
                     if (ovl662_selected_car_number > 0) {
@@ -151,7 +152,7 @@ void ovl662_update_garage_car_view(void) {
                         } while (i < 4);
                         BadgeRows[0].state10 = 4;
                         BadgeRows[1].state10 = 4;
-                        ((s8 *)ImageRows)[1] = 3;
+                        ImageRows->f1 = 3;
                     } else {
                         PlaySfx(4);
                     }
@@ -161,7 +162,7 @@ void ovl662_update_garage_car_view(void) {
                     i = 0;
                     BadgeRows[0].state10 = 4;
                     BadgeRows[1].state10 = 4;
-                    ((s8 *)ImageRows)[1] = phase;
+                    ImageRows->f1 = phase;
                     do {
                         p = (UiRow24 *)(i * sizeof(UiRow24) + (unsigned long)UiRows);
                         if (p->byte14 == 2) {
@@ -177,7 +178,7 @@ void ovl662_update_garage_car_view(void) {
                 i = 0;
                 BadgeRows[0].state10 = 4;
                 BadgeRows[1].state10 = 4;
-                ((s8 *)ImageRows)[1] = phase;
+                ImageRows->f1 = phase;
                 do {
                     p = (UiRow24 *)(i * sizeof(UiRow24) + (unsigned long)UiRows);
                     if (p->byte14 == 2) {
@@ -193,7 +194,7 @@ close:
         case 3:
             fade = FadeCountdown - 1;
             FadeCountdown = fade;
-            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - fade) * 4, 0x45);
+            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (0x40 - fade) * 4, 0x45);
             if ((s16)FadeCountdown > 0) break;
             CourseChoiceTable[1][ovl662_selected_car_slot].glyph = PackChoiceGlyph(&SelectionRows.selection);
             CourseChoiceTable[1][ovl662_selected_car_slot].first = PlayerCourseChoices[0].first;
@@ -204,7 +205,7 @@ close:
             SubmodeState = 0;
             return;
         case 4:
-            if (UiRows[0].byte14 == 5 && ((s8 *)ImageRows)[1] == 5) {
+            if (UiRows[0].byte14 == 5 && ImageRows->f1 == 5) {
                 ovl662_emblem_edit_from_menu = 0;
                 ModeGroup = 1;
                 ModeIndex = 0x45;
@@ -214,7 +215,7 @@ close:
         case 8:
             fade = FadeCountdown - 1;
             FadeCountdown = fade;
-            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - fade) * 4, 0x45);
+            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (0x40 - fade) * 4, 0x45);
             if ((s16)FadeCountdown > 0) break;
             ovl662_init_team_car_layout();
             ModeGroup = 1;
@@ -223,7 +224,7 @@ close:
             return;
         }
     }
-    if (ovl662_menu_substate == 0 && ((s8 *)ImageRows)[1] == 2) {
+    if (ovl662_menu_substate == 0 && ImageRows->f1 == 2) {
         ovl662_menu_substate = 1;
         BadgeRows[0].half02 = 1;
         BadgeRows[1].half02 = 1;
@@ -235,17 +236,17 @@ close:
         i++;
     } while (i < 3);
     i = active;
-    if ((((u8)((s8 *)ImageRows)[1] - 1) < 2U) && (i == 1)) {
+    if ((((u8)ImageRows->f1 - 1) < 2U) && (i == 1)) {
         DrawSelectionIconGrid(0);
         UpdateCarWorldTransform((char *)(void *)PlayerCars);
         tint = 0x100;
-        if (((s8 *)ImageRows)[1] == i) {
-            shade = ~((ImageRows[2] * 0xFF) / 30);
+        if (ImageRows->f1 == i) {
+            shade = ~((ImageRows->f2 * 0xFF) / 30);
             color.channels.r = shade;
             color.channels.g = shade;
             color.channels.b = shade;
             mode = 0x102;
-            tint = (ImageRows[2] << 8) / 30;
+            tint = (ImageRows->f2 << 8) / 30;
         } else {
             mode = 1;
             color.channels.r = 0x80;
@@ -261,3 +262,11 @@ close:
     }
     UpdateScreenFade(0x10046);
 }
+
+/* Initial values of the overlay globals this module owns. */
+s16 ovl662_selected_car_number;
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_car_view_regions[] = {
+    RR_OVERLAY_STATE(ovl662_selected_car_number)};
+const OverlayStateTable ovl662_car_view_state = {ovl662_car_view_regions, sizeof(ovl662_car_view_regions) / sizeof(ovl662_car_view_regions[0])};

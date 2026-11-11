@@ -3,15 +3,16 @@
 
 #include "rr/layout.h"
 
-/* PAL scratchpad pointer words; native fixtures retain full pointer widths. */
+struct GpuDmaTag;
+/* Packet cursor and current ordering table. On the PS1 these were the first
+ * two scratchpad words; on the host they are the ordinary global GpuScratch,
+ * reached through RR_GPU_SCRATCH. Scratch views keep an 8-byte placeholder
+ * (u8 gpu_slot00[8]) at offset 0 so the remaining PS1 offsets are unchanged. */
 typedef struct {
     u8 *cursor;
-    u32 *order;
+    struct GpuDmaTag *order;
 } GpuScratchPointers;
-
-#if defined(mips)
-RR_ASSERT_SIZE(GpuScratchPointers, 8);
-RR_ASSERT_OFFSET(GpuScratchPointers, order, 4);
-#endif
+extern GpuScratchPointers GpuScratch;
+#define RR_GPU_SCRATCH (&GpuScratch)
 
 #endif

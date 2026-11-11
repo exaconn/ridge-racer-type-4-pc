@@ -6,7 +6,7 @@
 #include "rr/menu_label_render.h"
 
 
-void *AddSpriteWithDrawMode(u32 *ordering, void *cursor,
+void *AddSpriteWithDrawMode(GpuDmaTag *ordering, void *cursor,
     int x, int y, int width, int height, int u, int v,
     unsigned short page, unsigned short clut, s32 transparency, s32 brightness)
 {
@@ -30,6 +30,7 @@ void *AddSpriteWithDrawMode(u32 *ordering, void *cursor,
         SetShadeTex(packet, 1);
     }
     packet->clut = clut;
-    AddPrim(ordering, (u32 *)packet++);
+    RR_GPU_LINK(ordering, packet);
+    packet++;
     return AddDrawModePrim(ordering, (GpuDrawModePacket *)packet, page);
 }

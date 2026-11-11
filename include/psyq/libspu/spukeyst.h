@@ -1,11 +1,10 @@
 #ifndef RR_PSYQ_LIBSPU_SPUKEYST_H
 #define RR_PSYQ_LIBSPU_SPUKEYST_H
 
-#include "types.h"
+#include "psyq/libspu/libspu.h"
 
-/* Query the lowest selected voice among bits0..23; no selection returns -1.
- * Results: 0=key off/ENVX zero, 1=key on/ENVX nonzero,
- * 2=key off/ENVX nonzero, 3=key on/ENVX zero. */
-int SpuGetKeyStatus(s32 voiceMask);
+/* PsyZ: long SpuGetKeyStatus(u_long voice_bit). Results: 0=key off/ENVX
+ * zero, 1=key on/ENVX nonzero, 2=key off/ENVX nonzero, 3=key on/ENVX zero. */
+long SpuGetKeyStatus(PsyqULong voiceMask);
 
 #endif /* RR_PSYQ_LIBSPU_SPUKEYST_H */

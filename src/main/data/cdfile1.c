@@ -1,5 +1,4 @@
 #include "psyq/libc/exit.h"
-/* RODATA 0x80010014 0x14 */
 #include "types.h"
 #include "rr/load_cursor.h"
 #include "scratchpad.h"
@@ -18,7 +17,7 @@
 #include "rr/gpu.h"
 #include "rr/gpu_scratch_types.h"
 
-extern s32 CdPosToInt(void *arg0);
+s32 CdPosToInt(const u8 *location);
 extern const char NowLoadingFmt[];
 extern const char R4BinPath[];
 extern const char StrFileNotFoundFmt[];
@@ -60,6 +59,7 @@ int GetR4FileIndex(int a0, int a1) {
     case 4: return a1 + 0x397;
     case 0: return a1 + 0x3A0;
     }
+    return -1;
 }
 
 void LoadR4Directory(void)
@@ -68,7 +68,6 @@ void LoadR4Directory(void)
     s32 status;
     CdlFILE *found;
     s32 sectors;
-    u8 *message_page;
     u32 count;
     u32 i;
     s32 base, sector, next;
@@ -76,7 +75,6 @@ void LoadR4Directory(void)
     CdFileEntry *entry;
     DebugPrintStub(NowLoadingFmt,R4BinPath,CdDirectoryBuffer);
     found=CdSearchFile(&file,(char *)R4BinPath);
-    message_page=(u8 *)0x80010000U;
     if (!found) {
         DebugPrintStub(StrFileNotFoundFmt,R4BinPath);
         PsyqExit(1);
@@ -84,10 +82,10 @@ void LoadR4Directory(void)
     sectors=2;
     do {
         CdControl(2,file.pos,0);
-        CdRead(sectors,(u8 *)CdDirectoryBuffer,0x80);
+        CdRead(sectors,CdDirectoryBuffer,0x80);
         do { status=CdReadSync(1,0); } while(status>0);
     } while(status);
-    DebugPrintStub((const char *)(message_page+0x68),sectors);
+    DebugPrintStub(StrReadSectorFmt,sectors);
     base=CdPosToInt(file.pos);
     directory=(u32 *)CdDirectoryBuffer;
     i=0;
@@ -128,7 +126,15 @@ void DrawLoadingTriangle(void)
     ActiveLoadingTriPacket->c1 = 0xFF00;
     ActiveLoadingTriPacket->c2 = 0xFF0000;
     ActiveLoadingTriPacket->w4 = 0x300000FF;
-    ActiveLoadingTriPacket->tag.bytes.length = 6;
-    ActiveLoadingTriPacket->tag.bits.address = ((GpuDmaTag *)((GpuScratchPointers *)SCRATCHPAD)->order)->bits.address;
-    ((GpuDmaTag *)((GpuScratchPointers *)SCRATCHPAD)->order)->bits.address = (unsigned long)ActiveLoadingTriPacket;
+    RR_GPU_ADD_PRIM(RR_GPU_SCRATCH->order, ActiveLoadingTriPacket, 6);
 }
+
+/* Initial values of the globals this module owns. */
+const char NowLoadingFmt[32] = {78, 111, 119, 32, 76, 111, 97, 100, 105, 110, 103, 32, 91, 37, 115, 93, 45, 62, 91, 48, 120, 37, 48, 56, 120, 93, 32, 46, 46, 46, 32};
+const char R4BinPath[12] = {92, 82, 52, 46, 66, 73, 78, 59, 49};
+const char StrFileNotFoundFmt[20] = {70, 105, 108, 101, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 58, 32, 37, 115, 10};
+const char StrReadSectorFmt[80] = {114, 101, 97, 100, 58, 37, 100, 115, 101, 99, 116, 111, 114, 10};
+int LoadingTriangleAngle;
+int LoadingTriangleFlip;
+struct LoadingTriG3Packet LoadingIndicatorTriBuf[2];
+struct LoadingTriG3Packet *ActiveLoadingTriPacket;

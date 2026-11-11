@@ -1,4 +1,3 @@
-/* RODATA 0x8001085c 0x18 */
 #include "game/data/cdfile2.h"
 #include "rr/load_cursor.h"
 #include "game/data/ldscn4.h"
@@ -30,8 +29,8 @@ int LoadCoursePreviewStep(int a) {
         break;
     case 4:
         if (CdFileBytesLoaded() != 0) {
+            /* Wire offset table, resolved by RunSkyCommandList. */
             SkyCommandListPtr = LoadCursor;
-            RelocateOffsetTable(LoadCursor);
             LoadState = 5;
     case 5:
             r = 1;
@@ -40,3 +39,6 @@ int LoadCoursePreviewStep(int a) {
     }
     return r;
 }
+
+/* Initial values of the globals this module owns. */
+u8 *SkyCommandListPtr;

@@ -10,11 +10,20 @@
 #define RR_FIELD_OFFSET(type, field) ((unsigned long)&((type *)0)->field)
 #endif
 
-/* Compile-time layout checks supported by the original GCC toolchains. */
+/* Original 32-bit layout checks. They describe the PS1 ABI (4-byte pointers)
+ * and are enforced by 32-bit layout-check builds; with 64-bit host pointers
+ * runtime structures holding pointers legitimately grow, so the host build
+ * does not apply them. Serialized disc/card formats contain no host pointers
+ * and keep the same layout on both. */
+#if __SIZEOF_POINTER__ == 4
 #define RR_ASSERT_SIZE(type, size) \
     typedef char rr_size_##type[(sizeof(type) == (size)) ? 1 : -1]
 #define RR_ASSERT_OFFSET(type, field, offset) \
     typedef char rr_offset_##type##_##field[ \
         (RR_FIELD_OFFSET(type, field) == (offset)) ? 1 : -1]
+#else
+#define RR_ASSERT_SIZE(type, size) struct rr_layout_unchecked
+#define RR_ASSERT_OFFSET(type, field, offset) struct rr_layout_unchecked
+#endif
 
 #endif

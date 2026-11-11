@@ -30,6 +30,11 @@
 extern s16 FadeCountdown;
 extern int MenuReturnSubmodeIndex;
 
+/* Host scratchpad buffer and the GPU packet cursor/ordering pointers that
+ * occupied its first two words on the PS1 (include/scratchpad.h). */
+_Alignas(16) u8 RrScratchpad[RR_SCRATCHPAD_SIZE];
+GpuScratchPointers GpuScratch;
+
 void FrmTaskModeEnter(void);
 void FrmTaskModeUpdate(void);
 
@@ -53,8 +58,7 @@ void FrmTaskModeUpdate(void) {
     FrameTaskFields *revealState;
     FrameTaskState *animationState;
     GpuScratchPointers *scratch;
-    u32 *previousHead;
-    GpuDmaTag *packetTag;
+    GpuCommandPacket *packet;
     int fileIndex;
 
     switch (FrmTaskState) {
@@ -101,7 +105,7 @@ void FrmTaskModeUpdate(void) {
         SetMenuFrameOptions(1, 1, 0);
         if (FadeCountdown > 0) {
             FadeCountdown--;
-            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - FadeCountdown) * 4, 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x40 - FadeCountdown) * 4, 0x45);
             if (FadeCountdown == 0) {
                 ModeGroup = 1;
                 ModeIndex = 3;
@@ -126,18 +130,12 @@ void FrmTaskModeUpdate(void) {
     EmitPresetSprite(ActiveFrameTaskScript->fields.intensity[1], 0x30);
     animationState = ActiveFrameTaskScript;
     EmitSpriteGrid(animationState->fields.intensity[2], &animationState->grid);
-    scratch = (GpuScratchPointers *)SCRATCHPAD;
-    ((GpuCommandPacket *)scratch->cursor)->command = 0xE100022A;
-    previousHead = scratch->order;
-    packetTag = (GpuDmaTag *)scratch->cursor;
-    packetTag->word = *previousHead;
-    ((GpuDmaTag *)scratch->cursor)->bytes.length = 1;
-    {
-        u32 *head = scratch->order;
-        *head = GpuDmaEncodeAddress(scratch->cursor);
-    }
-    ((GpuDmaTag *)scratch->order)->bytes.length = 0;
-    ((GpuScratchPointers *)SCRATCHPAD)->cursor += sizeof(GpuCommandPacket);
+    scratch = RR_GPU_SCRATCH;
+    packet = (GpuCommandPacket *)scratch->cursor;
+    packet->command = 0xE100022A;
+    RR_GPU_ADD_PRIM(scratch->order, packet, 1);
+    scratch->order->length = 0;
+    scratch->cursor += sizeof(GpuCommandPacket);
     UpdateScreenFade(0x1000C);
     ActiveFrameTaskScript->fields.frame++;
 }
@@ -145,14 +143,11 @@ void FrmTaskModeUpdate(void) {
 
 void MainLoop(void) {
     s32 threshold;
-    u8 *bank_page;
     u32 bank;
     FrameStorage *frame;
     MainLoopStartupHook();
     SetVideoMode(1);
     ResetCallback();
-    bank_page=(u8 *)0x800F0000U;
-    SetMem(2);
     SystemInit();
     VSyncThreshold=128;
     SetDispMask(0);
@@ -166,20 +161,20 @@ void MainLoop(void) {
             s32 length=0x2C0;
             FrameStorage *frames;
             GpuScratchPointers *scratch;
-            u32 *ordering;
+            GpuDmaTag *ordering;
             frames=DrawBuffers;
             bank=FrameCounter;
             bank &=1;
             frame=&frames[bank];
-            ordering=frame->buffer.ordering70.words;
+            ordering=frame->buffer.ordering70.tags;
             CurrentDrawBuf=frame;
-            ((s32 *)bank_page)[0x4BF0/4]=bank;
-            scratch=(GpuScratchPointers *)SCRATCHPAD;
+            DrawBufIndex=bank;
+            scratch=RR_GPU_SCRATCH;
             scratch->order=ordering;
             scratch->cursor=frame->buffer.packets1670;
             ClearOTagR(ordering,length);
         }
-        ClearOTagR(CurrentDrawBuf->buffer.secondaryOrderingB70.words,0x2C0);
+        ClearOTagR(CurrentDrawBuf->buffer.secondaryOrderingB70.tags,0x2C0);
         CdFileStep();
         SoundUpdate();
         ModeFuncTable[ModeGroup][ModeIndex]();
@@ -189,9 +184,14 @@ void MainLoop(void) {
         VSync(0);
         PutDispEnv(&CurrentDrawBuf->buffer.environment00.display5C);
         PutDrawEnv(&CurrentDrawBuf->buffer.environment00.draw00);
-        DrawOTag(&CurrentDrawBuf->buffer.ordering70.words[703]);
-        if(DrawSubOtFlag) DrawOTag(&CurrentDrawBuf->buffer.secondaryOrderingB70.words[703]);
+        DrawOTag(&CurrentDrawBuf->buffer.ordering70.tags[703]);
+        if(DrawSubOtFlag) DrawOTag(&CurrentDrawBuf->buffer.secondaryOrderingB70.tags[703]);
         PadUpdate();
         FrameCounter++;
     }
 }
+
+/* Initial values of the globals this module owns. */
+u32 FrameCounter;
+FrameTaskState *ActiveFrameTaskScript;
+s32 FrmTaskState;

@@ -1,4 +1,5 @@
 #include "scratchpad.h"
+#include "rr/menu_selection.h"
 #include "game/race/objrec.h"
 #include "game/car/aipath.h"
 #include "psyq/libgte/gtemath4.h"
@@ -7,15 +8,13 @@
 #include "game/gfx/polytri.h"
 #include "rr/animated_glyph.h"
 #include "rr/audio_loop.h"
-typedef struct {
-    int x;
-} __attribute__((packed)) U4;
-
+#include "rr/gpu.h"
+#include "rr/gpu_scratch_types.h"
+#include "rr/rro_model.h"
+/* GTE staging at scratchpad+0x7C: projected XY words and short vectors. */
 typedef struct {
     s32 unk00[0x78 / 4];
-    U4 sxy0;
-    U4 sxy1;
-    U4 sxy2;
+    s32 sxy0, sxy1, sxy2;
     s32 unk84[(0xB4 - 0x84) / 4];
     unsigned short v0[6];
     unsigned short v1[6];
@@ -23,21 +22,8 @@ typedef struct {
 } Sp7C;
 
 typedef struct {
-    unsigned int tag;
-    int c0;
-    U4 sxy0;
-    int c1;
-    U4 sxy1;
-    int c2;
-    U4 sxy2;
-} PolyG3;
-
-typedef struct {
     s32 unk00[0x78 / 4];
-    U4 sxy0;
-    U4 sxy1;
-    U4 sxy2;
-    U4 sxy3;
+    s32 sxy0, sxy1, sxy2, sxy3;
     s32 unk88[(0xB4 - 0x88) / 4];
     unsigned short v0[6];
     unsigned short v1[6];
@@ -45,16 +31,10 @@ typedef struct {
     unsigned short v3[6];
 } Sp7C_1;
 
+/* POLY_G4 with the host packet tag. */
 typedef struct {
-    unsigned int tag;
-    int c0;
-    U4 sxy0;
-    int c1;
-    U4 sxy1;
-    int c2;
-    U4 sxy2;
-    int c3;
-    U4 sxy3;
+    GpuDmaTag tag;
+    s32 c0, sxy0, c1, sxy1, c2, sxy2, c3, sxy3;
 } PolyG4;
 
 #include "game/car/car.h"
@@ -68,17 +48,16 @@ extern RaceVehicle PlayerCars[];
 extern int ReplayState;
 extern short ReverseCourse;
 extern int TrackLength;
-extern int NumLaps;
 
 void EmitSemiTransG3List(SemiTransTri38 *a0, int a1, int a2) {
     int sp20;
     int sp24;
     int i;
     int otz;
-    unsigned int *ot;
-    unsigned int *ot_base;
-    int *hw = (int *)SCRATCHPAD;
-    PolyG3 *pkt = (PolyG3 *)hw[0];
+    GpuDmaTag *ot;
+    s32 depthShift = ((RroSceneScratchPrefix *)SCRATCHPAD)->depthShift60;
+    GpuPolyG3 *pkt = (GpuPolyG3 *)RR_GPU_SCRATCH->cursor;
+    GpuCommandPacket *mode;
     Sp7C *sp = (Sp7C *)(SCRATCHPAD + 0x7C);
 
     for (i = 0; i < a1; i++, a0++) {
@@ -91,30 +70,26 @@ void EmitSemiTransG3List(SemiTransTri38 *a0, int a1, int a2) {
         sp->v2[0] = (u16)a0->v2.vx;
         sp->v2[1] = (u16)a0->v2.vy;
         sp->v2[2] = (u16)a0->v2.vz;
-        otz = RotAverage3(sp->v0, sp->v1, sp->v2, &sp->sxy0, &sp->sxy1, &sp->sxy2, &sp20, &sp24) >> (hw[0x18] + a2);
+        otz = RotAverage3((int *)sp->v0, (int *)sp->v1, (int *)sp->v2, &sp->sxy0, &sp->sxy1, &sp->sxy2, &sp20, &sp24) >> (depthShift + a2);
         if (otz > 0 && otz < 0x1C0) {
             if (a2 == 2) {
                 otz = 0x1BF;
             }
-            ot_base = (unsigned int *)hw[1];
-            pkt->sxy0 = sp->sxy0;
-            pkt->sxy1 = sp->sxy1;
-            pkt->sxy2 = sp->sxy2;
-            pkt->c0 = *(int *)&a0->c0;
-            pkt->c1 = *(int *)&a0->c1;
-            pkt->c2 = *(int *)&a0->c2;
-            pkt->tag = 0x06000000;
-            ((char *)pkt)[7] = 0x32;
-            ot = ot_base + (otz + 0x80);
-            AddPrim(ot, pkt++);
-            pkt->c0 = 0xE1000220;
-            pkt->tag = *ot;
-            ((char *)pkt)[3] = 1;
-            *ot = ((unsigned int)pkt << 8) >> 8;
-            pkt = (PolyG3 *)((char *)pkt + 8);
+            pkt->xy0 = sp->sxy0;
+            pkt->xy1 = sp->sxy1;
+            pkt->xy2 = sp->sxy2;
+            pkt->color0 = (*(s32 *)&a0->c0 & 0xFFFFFF) | 0x32000000;
+            pkt->color1 = *(s32 *)&a0->c1;
+            pkt->color2 = *(s32 *)&a0->c2;
+            ot = RR_GPU_SCRATCH->order + (otz + 0x80);
+            RR_GPU_ADD_PRIM(ot, pkt, 6);
+            mode = (GpuCommandPacket *)(pkt + 1);
+            mode->command = 0xE1000220;
+            RR_GPU_ADD_PRIM(ot, mode, 1);
+            pkt = (GpuPolyG3 *)(mode + 1);
         }
     }
-    hw[0] = pkt;
+    RR_GPU_SCRATCH->cursor = (u8 *)pkt;
 }
 
 void EmitSemiTransG4List(SemiTransQuad48 *a0, int a1, int a2) {
@@ -122,10 +97,10 @@ void EmitSemiTransG4List(SemiTransQuad48 *a0, int a1, int a2) {
     int sp2C;
     int i;
     int otz;
-    unsigned int *ot;
-    unsigned int *ot_base;
-    int *hw = (int *)SCRATCHPAD;
-    PolyG4 *pkt = (PolyG4 *)hw[0];
+    GpuDmaTag *ot;
+    s32 depthShift = ((RroSceneScratchPrefix *)SCRATCHPAD)->depthShift60;
+    PolyG4 *pkt = (PolyG4 *)RR_GPU_SCRATCH->cursor;
+    GpuCommandPacket *mode;
     Sp7C_1 *sp = (Sp7C_1 *)(SCRATCHPAD + 0x7C);
 
     for (i = 0; i < a1; i++, a0++) {
@@ -141,43 +116,39 @@ void EmitSemiTransG4List(SemiTransQuad48 *a0, int a1, int a2) {
         sp->v3[0] = (u16)a0->v3.vx;
         sp->v3[1] = (u16)a0->v3.vy;
         sp->v3[2] = (u16)a0->v3.vz;
-        otz = RotAverage4(sp->v0, sp->v1, sp->v2, sp->v3, &sp->sxy0, &sp->sxy1, &sp->sxy2, &sp->sxy3, &sp28, &sp2C) >> (hw[0x18] + a2);
+        otz = RotAverage4((int *)sp->v0, (int *)sp->v1, (int *)sp->v2, (int *)sp->v3, &sp->sxy0, &sp->sxy1, &sp->sxy2, &sp->sxy3, &sp28, &sp2C) >> (depthShift + a2);
         if (otz > 0 && otz < 0x1C0) {
             if (a2 == 2) {
                 otz = 0x1BF;
             }
-            ot_base = (unsigned int *)hw[1];
             pkt->sxy0 = sp->sxy0;
             pkt->sxy1 = sp->sxy1;
             pkt->sxy2 = sp->sxy2;
             pkt->sxy3 = sp->sxy3;
-            pkt->c0 = *(int *)&a0->c0;
-            pkt->c1 = *(int *)&a0->c1;
-            pkt->c2 = *(int *)&a0->c2;
-            pkt->c3 = *(int *)&a0->c3;
-            pkt->tag = 0x08000000;
-            ((char *)pkt)[7] = 0x3A;
-            ot = ot_base + (otz + 0x80);
-            AddPrim(ot, pkt++);
-            pkt->c0 = 0xE1000220;
-            pkt->tag = *ot;
-            ((char *)pkt)[3] = 1;
-            *ot = ((unsigned int)pkt << 8) >> 8;
-            pkt = (PolyG4 *)((char *)pkt + 8);
+            pkt->c0 = (*(s32 *)&a0->c0 & 0xFFFFFF) | 0x3A000000;
+            pkt->c1 = *(s32 *)&a0->c1;
+            pkt->c2 = *(s32 *)&a0->c2;
+            pkt->c3 = *(s32 *)&a0->c3;
+            ot = RR_GPU_SCRATCH->order + (otz + 0x80);
+            RR_GPU_ADD_PRIM(ot, pkt, 8);
+            mode = (GpuCommandPacket *)(pkt + 1);
+            mode->command = 0xE1000220;
+            RR_GPU_ADD_PRIM(ot, mode, 1);
+            pkt = (PolyG4 *)(mode + 1);
         }
     }
-    hw[0] = pkt;
+    RR_GPU_SCRATCH->cursor = (u8 *)pkt;
 }
 
 void UpdateTrackObjectActivation(void) {
     int i;
     S_SP7C *sp = (S_SP7C *)(SCRATCHPAD + 0x7C);
-    int *hw = (int *)SCRATCHPAD;
+    const ProjectionScratchPrefix *view = (const ProjectionScratchPrefix *)SCRATCHPAD;
 
 #define b0 (&TrackObjectDefs[i])
 #define b4 (&TrackObjectStates[i])
 
-    sp->f0 = FindTrackNodeAtXZ(hw[2], hw[4]);
+    sp->f0 = FindTrackNodeAtXZ(view->pose08.position00.vector.x, view->pose08.position00.vector.z);
     for (i = 0; i < TrackObjectCount; i++) {
         if (b0->f18 >= 0 && b0->f18 != PlayerCars[0].control.dynamics94.steering.count22) {
             if (b0->f10 > 0) {
@@ -273,3 +244,8 @@ void UpdateTrackObjectActivation(void) {
         }
     }
 }
+
+/* Initial values of the globals this module owns. */
+int ReplayState;
+int TrackLength;
+S_ECB0 *TrackObjectDefs;

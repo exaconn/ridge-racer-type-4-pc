@@ -1,3 +1,4 @@
+#include "game/gfx/light1.h"
 #include "scratchpad.h"
 #include "rr_asm.h"
 #include "rr/menu_overlay_runtime.h"

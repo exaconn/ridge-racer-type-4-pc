@@ -1,4 +1,3 @@
-/* RODATA 0x80011198 0x18 */
 #include "types.h"
 #include "rr/audio_cd_controller.h"
 #include "psyq/libsnd/ssmvol.h"
@@ -202,17 +201,15 @@ block_27:
     }
 }
 
-void CdAudioReadyCallback(u8 a0) {
-    char *b;
-    char *q;
-    s32 *s;
-    if (a0 == 1) {
-        b = (char *)&SoundState;
-        s = (s32 *)(b + 0x8000);
-        q = b + 0x28C8;
-        CdGetSector((u8 *)((s[0x28C8 / 4] << 11) + q), 0x20);
-        s[0x28CC / 4] = s[0x28C8 / 4];
-        s[0x28C8 / 4] = (s[0x28C8 / 4] + 1) & 0xF;
+/* Data-ready: copy the TOC sector header (32 words) into the next of the
+ * sixteen 2 KB TOC banks and publish the bank that was filled. */
+void CdAudioReadyCallback(u8 status, u8 *result) {
+    (void)result;
+    if (status == 1) {
+        s32 bank = SoundState.reservedA8C8;
+        CdGetSector((u8 *)SoundState.toc28C8[bank], 0x20);
+        SoundState.bankA8CC = bank;
+        SoundState.reservedA8C8 = (bank + 1) & 0xF;
     }
 }
 
@@ -227,7 +224,7 @@ void SeqSetVolume(s16 a0) {
     AudioState *p = &SoundState;
     s16 v;
     p->seqVol2888 = a0;
-    v = (a0 * CdMusicMasterVolume) / 16;
+    v = (a0 * Options.bgmVolume30) / 16;
     SsSeqSetVol((s16)p->seqHandle2864, v, v);
 }
 
@@ -256,3 +253,8 @@ void SeqFadeVolume(int a0, int a1) {
         }
     }
 }
+
+/* Initial values of the globals this module owns. */
+char XaRepeatMsg[64] = {88, 97, 82, 101, 112, 101, 97, 116, 10};
+AudioState SoundState;
+s32 CdAudioRequestState;

@@ -5,6 +5,6 @@
 /* The origin is captured before packet writes. DMA links encode low24 address
  * bits; actual memory pointers and the returned array cursor retain full width.
  * Ordering may alias an actual tag.word; all loads/stores retain their order. */
-GpuLineF2Packet *ovl662_emit_vline_prim(u32 *ordering,GpuLineF2Packet *packet,
+GpuLineF2Packet *ovl662_emit_vline_prim(GpuDmaTag *ordering,GpuLineF2Packet *packet,
     u32 x,u32 y0,u32 y1,u32 r,u32 g,u32 b);
 #endif

@@ -1,10 +1,9 @@
 #ifndef RR_OVERLAY662_FRAME_STEP_H
 #define RR_OVERLAY662_FRAME_STEP_H
 #include "rr/overlay662_garage.h"
+#include "rr/emblem_images.h"
 extern u32 EmblemEditFrames;
-extern s32 ScreenFrame;
-extern u32 *GarageActiveDecalTimA;
-extern GarageTimBytes *GarageActiveDecalTimB;
+extern u32 ScreenFrame;
 void ovl662_update_editor_cursor(void);
 void ovl662_dispatch_editor_actions(s32 mode);
 void ovl662_draw_editor_cursor(void);

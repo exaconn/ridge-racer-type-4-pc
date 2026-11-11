@@ -1,6 +1,7 @@
 #include "rr/scene_camera_state.h"
+#include "rr/runtime_settings.h"
+#include "rr/menu_selection.h"
 #include "game/gfx/scene1.h"
-/* RODATA 0x800110c0 0x18 */
 #include "game/data/cdfile2.h"
 #include "rr/load_cursor.h"
 #include "game/gfx/motion1.h"
@@ -17,9 +18,8 @@
 #include "rr/bios_devices.h"
 #include "rr/audio_state_types.h"
 #include "game/course/trkintp2.h"
+#include "rr/overlay_module.h"
 extern short SelectedTeamIndex;
-extern int SelectedStoryBranchId;
-extern short CourseIndex;
 #include "rr/menu_arena_base.h"
 extern void SsSetSerialAttr(signed char a0, signed char a1, signed char a2);
 extern int SsSetSerialVol(signed char a0, int a1, int a2);
@@ -33,6 +33,14 @@ int LoadIntroSceneStep(void) {
     int h;
     switch (RaceLoadStepIndex) {
     case 0:
+        /* Linked movie_playback overlay: reset it instead of reading entry 668. */
+        if (OverlayModuleBind(GetR4FileIndex(1, 10))) {
+            CourseIndex = 8;
+            LoadCursor = RaceLoadCursor;
+            MenuArenaBase = RaceLoadCursor;
+            RaceLoadStepIndex += 2;
+            return 0;
+        }
         v = CdFileReadStart(GetR4FileIndex(1, 10), RaceLoadCursor);
         if (v != 0) {
             RaceLoadStepIndex += 1;
@@ -63,7 +71,7 @@ int LoadIntroSceneStep(void) {
         }
         return v;
     case 4:
-        g = SelectedStoryBranchId << 2;
+        g = Options.storyBranch3C << 2;
         h = SelectedTeamIndex + 0x97;
         v = CdFileReadStart(GetR4FileIndex(2, g + h), LoadCursor);
         if (v != 0) {
@@ -78,6 +86,7 @@ int LoadIntroSceneStep(void) {
         }
         return v;
     }
+    return 0;
 }
 
 void SoundSystemInit(void) {

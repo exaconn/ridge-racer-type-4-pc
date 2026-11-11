@@ -2,7 +2,7 @@
 #include "game/sound/fxramp2.h"
 #include "rr/audio_bank_setup.h"
 
-void SeqMarkCallback(int a0, int a1, s16 a2) {
+void SeqMarkCallback(s16 a0, s16 a1, s16 a2) {
     AudioState *p = &SoundState;
     int v = a2;
     p->seqMark2880 = v;

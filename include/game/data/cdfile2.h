@@ -15,17 +15,21 @@ s32 CdFileStep(void);
 s32 CdFileReadStart(s32 a0, void *a1);
 s32 CdFileReadRange(s32 a0, s32 a1, s32 a2, void *a3);
 s32 CdFileBytesLoaded(void);
-void RelocateOffsetTable(int *a0);
+/* RroModelTable *RelocateOffsetTable(const void *wire): see rr/model_table.h. */
 /* Patch decoded mesh command pointers; native tables retain full pointers. */
 void PatchOffsetTableTexPages(RroModelTable *table, s32 textureSlot);
-void PatchModelBankTexPages(RroModelBank *bank, s32 textureSlot);
+/* bankImage is the serialized RroModelBankWire (unchanged by registration). */
+void PatchModelBankTexPages(const void *bankImage, s32 textureSlot);
 int RequestSceneLoad(int a0);
 int SceneLoadStep(void);
-int RequestCarLoad();
+int RequestCarLoad(int typeId, int teamId, int stageId, int variant, int destSlot);
 s32 CarLoadStep(void);
 int RequestVramImageLoad(void);
 int VramImageLoadStep(void);
-int ComputeCarSurfaceLighting(char *a0_in, int a1_in);
+struct RaceVehicle;
+/* Interpolates the course lane lighting at the vehicle and loads the GTE
+ * light/colour matrices and back colour; returns the low light index. */
+int ComputeCarSurfaceLighting(const struct RaceVehicle *vehicle, int lightIndex);
 s32 CdFileStateCheckShell(void);
 s32 CdFileStateGetTN(void);
 s32 CdFileStateReloadDirectory(void);

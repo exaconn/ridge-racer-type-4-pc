@@ -3,7 +3,6 @@
 
 #include "types.h"
 
-extern s32 CameraCutFlag;
 void SoundQueueUpdate();
 void SoundCloseVabsAndReset(void);
 void SoundInitForRace(void);

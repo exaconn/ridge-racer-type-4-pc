@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay662_init.h"
 #include "rr/overlay662_arena_init.h"
 #include "rr/load_cursor.h"
@@ -119,10 +120,10 @@ void ovl662_init_editor_arenas(void)
         owner->image40[1]=(u32*)(base.ptr+0x1900);
         owner->palette48[1]=(u32*)(base.ptr+0x1094);
         owner->paletteBackup50[1]=(u32*)(base.ptr+0x18D4);
-        GarageSavedDecalTimA=base.ptr;
+        GarageSavedDecalTimA=(EmblemTim840 *)base.ptr;
         owner->buffers24[0]=(u32*)base.ptr;
         owner->tim2C[0]=(GarageTimBytes*)second;
-        GarageSavedDecalTimB=second;
+        GarageSavedDecalTimB=(EmblemTim840 *)second;
         break;
     case 2:
         StoreImage(&ovl662_vram_emblem_image_rect,ovl662_editor_workspace.image38[0]);
@@ -258,6 +259,23 @@ void ovl662_step_editor_frame(void) {
     ovl662_init_editor_draw_env();
     ovl662_update_editor_overlay();
     ovl662_upload_editor_textures();
-    GarageActiveDecalTimA = ovl662_editor_workspace.buffers24[ovl662_editor_workspace.active21];
+    GarageActiveDecalTimA = (EmblemTim840 *)ovl662_editor_workspace.buffers24[ovl662_editor_workspace.active21];
     GarageActiveDecalTimB = ovl662_editor_workspace.tim2C[ovl662_editor_workspace.active21];
 }
+
+/* Initial values of the overlay globals this module owns. */
+const char ovl662_str_enter_editor_clean[16] = {101, 110, 116, 101, 114, 32, 83, 97, 118, 101, 66, 97, 99, 107, 10};
+const char ovl662_str_enter_editor_restore[152] = {101, 110, 116, 101, 114, 32, 76, 111, 97, 100, 66, 97, 99, 107, 10, 0, -32, -75, 17, -128, 40, -74, 17, -128, 116, -74, 17, -128, -12, -74, 17, -128, -88, -73, 17, -128, 0, 0, 0, 0, -60, -61, 17, -128, 124, -60, 17, -128, 52, -59, 17, -128, 116, -59, 17, -128, -76, -59, 17, -128, -20, -28, 17, -128, -12, -28, 17, -128, -4, -28, 17, -128, 4, -27, 17, -128, 12, -27, 17, -128, 0, 0, 0, 0, -92, 8, 18, -128, -100, 8, 18, -128, -100, 8, 18, -128, -92, 8, 18, -128, -80, 8, 18, -128, 0, 0, 0, 0, -52, 13, 18, -128, -24, 13, 18, -128, 8, 14, 18, -128, 56, 14, 18, -128, -104, 14, 18, -128, 0, 0, 0, 0, -24, 73, 18, -128, -8, 73, 18, -128, 8, 74, 18, -128, 24, 74, 18, -128, 40, 74, 18, -128};
+GpuRectangle ovl662_vram_emblem_image_rect = {.rect = {.x = 640, .w = 16, .h = 64}};
+GpuRectangle ovl662_vram_emblem_clut_rect = {.rect = {.x = 640, .y = 64, .w = 16, .h = 1}};
+s32 ovl662_arena_init_stage;
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_editor_lifecycle_regions[] = {
+    RR_OVERLAY_STATE(ovl662_arena_init_stage),
+    RR_OVERLAY_STATE(ovl662_vram_emblem_clut_rect),
+    RR_OVERLAY_STATE(ovl662_vram_emblem_image_rect)};
+const OverlayStateTable ovl662_editor_lifecycle_state = {ovl662_editor_lifecycle_regions, sizeof(ovl662_editor_lifecycle_regions) / sizeof(ovl662_editor_lifecycle_regions[0])};
+
+/* Initial values of the globals this module owns. */
+u32 EmblemEditFrames;

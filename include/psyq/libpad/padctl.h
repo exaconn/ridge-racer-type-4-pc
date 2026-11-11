@@ -3,7 +3,8 @@
 
 #include "types.h"
 
-void PadStartCom();
+/* PsyZ libetc direct-connection pad API. */
+void PadStartCom(void);
 s32 PadGetState(s32 selector);
 s32 PadInfoMode(s32 selector, s32 query, s32 index);
 s32 PadInfoAct(s32 selector, s32 index, s32 query);

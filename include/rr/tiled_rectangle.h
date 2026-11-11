@@ -2,10 +2,14 @@
 #define RR_TILED_RECTANGLE_H
 
 #include "rr/animated_sprite_grid.h"
+#include "rr/gpu.h"
 
-/* Draw-mode command followed by the four SPRITE payload words. */
+/* Draw-mode command followed by the four SPRITE payload words. The PsyZ
+ * merged-primitive NOP after the E1 command marks the payload as packed
+ * 32-bit GP0 words (length 6 on the host; PS1 length 5). */
 typedef struct {
-    u32 tag, mode, color, position, uv, size;
+    GpuDmaTag tag;
+    u32 mode, nop, color, position, uv, size;
 } TiledRectanglePacket;
 
 /* Rectangle fields need halfword alignment; the output cursor and queue heads
@@ -17,13 +21,7 @@ typedef struct {
  * The final command uses scratch.order[703], requiring an accessible 704-word
  * ordering page. Output must have 16+24*tile_count bytes; at most 16641 tiles can
  * be emitted for signed16 input dimensions. Scratch pointers retain full width. */
-void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head);
+void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, GpuDmaTag *head);
 
-RR_ASSERT_SIZE(TiledRectanglePacket, 24);
-RR_ASSERT_OFFSET(TiledRectanglePacket, mode, 4);
-RR_ASSERT_OFFSET(TiledRectanglePacket, color, 8);
-RR_ASSERT_OFFSET(TiledRectanglePacket, position, 12);
-RR_ASSERT_OFFSET(TiledRectanglePacket, uv, 16);
-RR_ASSERT_OFFSET(TiledRectanglePacket, size, 20);
 
 #endif

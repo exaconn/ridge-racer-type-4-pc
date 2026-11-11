@@ -9,7 +9,6 @@
 #include "rr/menu_overlay_runtime.h"
 #include "rr/overlay668_camera.h"
 
-struct TrackHeader4 { char b[4]; };
 
 extern short TrackLengthKilometers;
 extern short TrackLengthSectorCount;
@@ -19,7 +18,6 @@ void FindAxleTrackNode(void)
     CarTrackWork *g = (CarTrackWork *)SCRATCH_CAR_WORK;
     s32 a, n, t, x;
     TrackSample3C *p, *q;
-    s32 junk[2];
     s32 r1;
     s32 r2;
     s32 r3;
@@ -306,15 +304,16 @@ void UpdateWheelBumps(RaceVehicle *vehicle)
     }
 }
 
-void SetTrackNodeData(char *a)
+/* Track node file: header word, 32x32 node grid at +4, node count at +0x804,
+ * TrackSample3C nodes at +0x808. Read in place; nothing is rewritten. */
+void SetTrackNodeData(void *data)
 {
-    struct TrackHeader4 sp;
+    u8 *a = (u8 *)data;
     int i;
     TrackNodeGrid = (short *)(a + 4);
-    sp = *(struct TrackHeader4 *)a;
     TrackNodes = (TrackSample3C *)(a + 0x808);
     TrackLength = 0;
-    TrackNodeCount = ((int *)a)[0x201];
+    TrackNodeCount = ((s32 *)a)[0x201];
     for (i = 0; i < TrackNodeCount; i++) {
         TrackLength += TrackNodes[i].road.segmentLength;
     }
@@ -322,3 +321,8 @@ void SetTrackNodeData(char *a)
     TrackLengthSectorCount = (TrackLength >> 8) + 1;
 }
 
+
+/* Initial values of the globals this module owns. */
+s32 TrackNodeCount;
+short TrackLengthKilometers;
+short TrackLengthSectorCount;

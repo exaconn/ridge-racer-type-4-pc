@@ -14,10 +14,10 @@ typedef union {
     s32 word;
 } CarTrackPoint4;
 
-/* Search, contact and suspension operate on one owner. The first member stays
- * a full native pointer, so callers and callees agree on every later offset. */
+/* Search, contact and suspension operate on one owner. The PS1 vehicle
+ * pointer at +0 lives in CarTrackWorkVehicle (no host pointers in scratch). */
 typedef struct CarTrackWork {
-    RaceVehicle *vehicle00;
+    u32 vehicleSlot00;
     s32 w4;
     s32 wheelIndex08;
     s32 wC;
@@ -91,16 +91,17 @@ typedef struct CarTrackWork {
     s16 wheelHeights250[2][4];
 } CarTrackWork;
 
-/* On PAL the vehicle pointer occupies one word; native owners retain its width. */
+extern RaceVehicle *CarTrackWorkVehicle;
+
 RR_ASSERT_SIZE(CarTrackPoint4,4);
-RR_ASSERT_OFFSET(CarTrackWork,wheelIndex08,4 + sizeof(RaceVehicle *));
-RR_ASSERT_OFFSET(CarTrackWork,queryPoint64,0x60 + sizeof(RaceVehicle *));
-RR_ASSERT_OFFSET(CarTrackWork,nextLeft74,0x70 + sizeof(RaceVehicle *));
-RR_ASSERT_OFFSET(CarTrackWork,w4,sizeof(RaceVehicle *));
-RR_ASSERT_OFFSET(CarTrackWork,translation100,0xFC + sizeof(RaceVehicle *));
-RR_ASSERT_OFFSET(CarTrackWork,positions110,0x10C + sizeof(RaceVehicle *));
-RR_ASSERT_OFFSET(CarTrackWork,wheelState150,0x14C + sizeof(RaceVehicle *));
-RR_ASSERT_OFFSET(CarTrackWork,road180,0x17C + sizeof(RaceVehicle *));
-RR_ASSERT_OFFSET(CarTrackWork,wheelHeights250,0x24C + sizeof(RaceVehicle *));
+RR_ASSERT_OFFSET(CarTrackWork,wheelIndex08,0x8);
+RR_ASSERT_OFFSET(CarTrackWork,queryPoint64,0x64);
+RR_ASSERT_OFFSET(CarTrackWork,nextLeft74,0x74);
+RR_ASSERT_OFFSET(CarTrackWork,w4,0x4);
+RR_ASSERT_OFFSET(CarTrackWork,translation100,0x100);
+RR_ASSERT_OFFSET(CarTrackWork,positions110,0x110);
+RR_ASSERT_OFFSET(CarTrackWork,wheelState150,0x150);
+RR_ASSERT_OFFSET(CarTrackWork,road180,0x180);
+RR_ASSERT_OFFSET(CarTrackWork,wheelHeights250,0x250);
 
 #endif

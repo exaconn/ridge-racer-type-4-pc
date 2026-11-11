@@ -34,22 +34,20 @@
 #include "game/race/objdraw.h"
 #include "rr/driver_control.h"
 #include "game/menu/mnchoice.h"
+#include "rr/gpu.h"
+#include "rr/gpu_scratch_types.h"
+#include <stdlib.h>
 
 
-
-struct PreviewSlotEntry10 {
-    int w;
-    int x;
-    short a, b, c, d;
-};
 
 
 struct PreviewBytes8 { unsigned char c[8]; };
 
-extern int *ActivePolyStripPtr;
+/* Host table of the counted offset table's resolved addresses. */
+extern u8 **ActivePolyStripPtr;
 extern s32 RearViewMirrorVisible;
 extern int RaceState;
-extern int PsyqSrand();
+#include "psyq/libc/rand.h"
 extern short PolyStripTempCoords[];
 extern s32 SquareRoot0(s32 value);
 extern short PolyStripTempCoordY;
@@ -65,22 +63,31 @@ extern struct PreviewBytes8 EmblemPreviewImageRect1;
 void RelocateCountedOffsetTable(int *a0);
 int SetupRearViewMirror(void);
 void RestoreMainViewAfterMirror(void);
-struct PreviewSlotEntry10 *EmitRearViewMirrorFrameTile(struct PreviewSlotEntry10 *a0);
+GpuTilePacket *EmitRearViewMirrorFrameTile(GpuTilePacket *a0);
 void UpdateAndDrawRearViewMirror(int arg0);
 s32 GetSegmentVisibilityTableSize(void);
 s32 GetOctantLookupTableSize(void);
 
+/* The PS1 added the table address to each of the count*8 offset words in
+ * place. 32-bit words cannot hold host pointers, so the resolved addresses
+ * are published in a host table; the loaded image stays unmodified. */
+static s32 ActivePolyStripCapacity;
+
 void RelocateCountedOffsetTable(int *a0) {
-    int *p = a0 + 1;
+    const u32 *p = (const u32 *)(a0 + 1);
     int i = 0;
     int n = *a0 * 8;
-    ActivePolyStripPtr = p;
-    if (n > 0) {
-        do {
-            i++;
-            *p += (int)a0;
-            p++;
-        } while (i < n);
+    if (ActivePolyStripPtr == NULL || n > ActivePolyStripCapacity) {
+        u8 **grown = realloc(ActivePolyStripPtr, (size_t)(n > 0 ? n : 1) * sizeof(u8 *));
+        if (grown == NULL) {
+            abort();
+        }
+        ActivePolyStripPtr = grown;
+        ActivePolyStripCapacity = n > 0 ? n : 0;
+    }
+    while (i < n) {
+        ActivePolyStripPtr[i] = RrWireAddress(a0, p[i]);
+        i++;
     }
 }
 
@@ -135,19 +142,18 @@ void RestoreMainViewAfterMirror(void) {
     scratch->matrix28 = PolyWorldTransformMtx;
 }
 
-struct PreviewSlotEntry10 *EmitRearViewMirrorFrameTile(struct PreviewSlotEntry10 *a0) {
-    
-    int s1 = ((int *)SCRATCHPAD)[1];
-    SetTile(a0);
-    a0->a = 0x60;
-    a0->c = 0x80;
-    ((char *)a0)[4] = 0;
-    ((char *)a0)[5] = 0;
-    ((char *)a0)[6] = 0;
-    a0->d = 0x20;
-    a0->b = RearViewMirrorY - 2;
-    AddPrim(s1, a0++);
-    return a0;
+GpuTilePacket *EmitRearViewMirrorFrameTile(GpuTilePacket *a0) {
+    GpuDmaTag *ordering = RR_GPU_SCRATCH->order;
+    a0->code = 0x60; /* SetTile: three payload words, TILE command */
+    a0->x = 0x60;
+    a0->w = 0x80;
+    a0->r = 0;
+    a0->g = 0;
+    a0->b = 0;
+    a0->h = 0x20;
+    a0->y = RearViewMirrorY - 2;
+    RR_GPU_ADD_PRIM(ordering, a0, 3);
+    return a0 + 1;
 }
 
 
@@ -164,7 +170,7 @@ void UpdateAndDrawRearViewMirror(int arg0) {
             RearViewMirrorY -= 1;
         }
         if (SetupRearViewMirror() != 0) {
-            *(int *)SCRATCHPAD = EmitRearViewMirrorFrameTile(*(int *)SCRATCHPAD);
+            RR_GPU_SCRATCH->cursor = (u8 *)EmitRearViewMirrorFrameTile((GpuTilePacket *)RR_GPU_SCRATCH->cursor);
             SetupViewport(1);
             DrawTrackSceneryForPlayer(0);
             RenderMirrorCourseView(0);
@@ -200,7 +206,7 @@ void InitAnimatedTrackObjects(void *memory)
             packetIndex = 1;
             do {
                 SetLineG2(packet);
-                CatPrim(&(packet - 1)->tag.word, packet);
+                (packet - 1)->tag.address = (uintptr_t)packet; /* CatPrim */
                 packetIndex++;
                 packet++;
             } while (packetIndex < 255);
@@ -302,7 +308,7 @@ void DrawAnimatedTrackObject(AnimatedTrackScratch *scratch, int objectIndex, int
     const AnimatedTrackColorKey *key;
     int colorIndex;
     AnimatedLinePacket *cursor;
-    u32 *ordering;
+    GpuDmaTag *ordering;
     const s32 *cameraPosition = ((ProjectionScratchPrefix *)SCRATCHPAD)->pose08.position00.words;
     AnimatedLinePacket *previousTail;
     int startFrame;
@@ -314,7 +320,7 @@ void DrawAnimatedTrackObject(AnimatedTrackScratch *scratch, int objectIndex, int
     PsyqMemset(&direction, 0, sizeof(direction));
     direction.fields.z = 0x100;
     object = AnimatedTrackObjPool + objectIndex;
-    ordering = scratch->scene.view.projection.pointers.order + 0x900 / sizeof(u32);
+    ordering = RR_GPU_SCRATCH->order + 0x240;
     object->advance30 = advance;
     colorIndex = (object->frame14 - object->startFrame28) & 0xF;
     if (object->initialized10 < object->capacity08) {
@@ -342,7 +348,7 @@ void DrawAnimatedTrackObject(AnimatedTrackScratch *scratch, int objectIndex, int
     } else {
         previousTail = object->tailsF0[DrawBufIndex];
         cursor = object->headsE8[DrawBufIndex];
-        if (previousTail != 0) CatPrim(&previousTail->tag.word, previousTail + 1);
+        if (previousTail != 0) previousTail->tag.address = (uintptr_t)(previousTail + 1); /* CatPrim */
         RR_GTE_SAVE_FC(&farRed, &farGreen, &farBlue);
         if (object->frame14 > object->endFrame2C) {
             SetAnimatedTrackObjectState(objectIndex, 4, 0, -1);
@@ -404,7 +410,9 @@ void DrawAnimatedTrackObject(AnimatedTrackScratch *scratch, int objectIndex, int
         }
         last = object->tailsF0[DrawBufIndex];
         if (last != 0) {
-            AddPrims(ordering, object->headsE8[DrawBufIndex], &last->tag.word);
+            /* AddPrims: splice the head..last chain in front of the entry. */
+            last->tag.address = ordering->address;
+            ordering->address = (uintptr_t)object->headsE8[DrawBufIndex];
         } else if (objectIndex < 2) {
             ColorMatrix.fields.rotation00[0][objectIndex] = PolyStripTempCoords[0];
             ColorMatrix.fields.rotation00[1][objectIndex] = PolyStripTempCoords[1];
@@ -431,13 +439,11 @@ s32 GetSegmentVisibilityTableSize(void) {
 
 void ApplySegmentVisibilityMask(void) {
     int a, b;
-    short *p;
-    int base;
+    const short *p;
     short *g = (short *)SCRATCHPAD;
     a = GetViewTrackSegment(&((ProjectionScratchPrefix *)SCRATCHPAD)->pose08, 0);
     b = YawToOctant(&((ProjectionScratchPrefix *)SCRATCHPAD)->pose08);
-    base = SegmentVisibilityTable;
-    p = (short *)(b * 2 + ((a << 4) + base));
+    p = &SegmentVisibilityTable[a * 8 + b];
     if (*p >= 0) {
         g[0x2E] = *(unsigned short *)p;
     } else {
@@ -445,7 +451,7 @@ void ApplySegmentVisibilityMask(void) {
     }
 }
 
-void SetSegmentVisibilityTable(s32 arg0) {
+void SetSegmentVisibilityTable(short *arg0) {
     SegmentVisibilityTable = arg0;
 }
 
@@ -459,7 +465,7 @@ int LookupOctantVisibility(void) {
     return (OctantLookupTable + a * 8)[YawToOctant(&((ProjectionScratchPrefix *)SCRATCHPAD)->pose08)];
 }
 
-void SetOctantLookupTable(s32 arg0) {
+void SetOctantLookupTable(unsigned char *arg0) {
     OctantLookupTable = arg0;
 }
 
@@ -477,3 +483,29 @@ void InitSplashDispEnv(void) {
     VSyncThreshold = 0x80;
     SplashLogoFrame = 0;
 }
+
+/* Initial values of the globals this module owns. */
+struct PreviewBytes8 EmblemPreviewClutRect0 = {.c = {0, 3, 0xFF, 0, 0x10, 0, 1}};
+struct PreviewBytes8 EmblemPreviewClutRect1 = {.c = {0, 3, 0xFE, 0, 0x10, 0, 1}};
+struct PreviewBytes8 EmblemPreviewImageRect0 = {.c = {0, 3, 0, 0, 0x1E, 0, 0x20}};
+struct PreviewBytes8 EmblemPreviewStripRect = {.c = {0, 3, 0x20, 0, 2, 0, 0x10}};
+struct PreviewBytes8 EmblemPreviewImageRect1 = {.c = {0x20, 3, 0, 0, 0x1F, 0, 0x18}};
+short SunLightPitchAngle;
+u8 **ActivePolyStripPtr;
+s16 RearViewMirrorEnabled;
+MatrixWords32 ColorMatrix;
+s32 RelFileSegmentCount;
+MatrixWords32 HalfTransViewMatrix;
+s32 DrawBufIndex;
+s32 RearViewMirrorY;
+MatrixWords32 CameraViewMatrix;
+MatrixWords32 CameraPitchRollMatrix;
+short PolyStripTempCoords[1];
+MatrixWords32 PolyWorldTransformMtx;
+s32 RearViewMirrorVisible;
+AnimatedTrackParticle (*TrackParticlePoolPtr)[255];
+const AnimatedTrackColorKey *TrackColorKeysPrimary[9];
+const AnimatedTrackColorKey *TrackColorKeysPrimary[9],*TrackColorKeysSecondary[9];
+AnimatedTrackObject *AnimatedTrackObjPool;
+short *SegmentVisibilityTable;
+unsigned char *OctantLookupTable;

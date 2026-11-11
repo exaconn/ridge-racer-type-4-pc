@@ -1,13 +1,13 @@
 #ifndef RR_OVERLAY662_ARENA_INIT_H
 #define RR_OVERLAY662_ARENA_INIT_H
 #include "psyq/libgpu/gpuenv.h"
+#include "rr/emblem_images.h"
 #include "rr/overlay662_init.h"
 #include "rr/overlay662_options.h"
 #include "rr/menu_transition.h"
 #include "rr/menu_setup.h"
 #include "rr/overlay662_sprites.h"
 extern u8 *MenuSharedScratchPtr;
-extern void *GarageSavedDecalTimA,*GarageSavedDecalTimB;
 extern s32 ovl662_arena_init_stage;
 extern GpuRectangle ovl662_vram_emblem_image_rect,ovl662_vram_emblem_clut_rect;
 void ovl662_dispatch_editor_actions(s32);

@@ -1,4 +1,5 @@
 #include "rr/sprite_emit.h"
+#include "rr/menu_selection.h"
 #include "rr/gpu_line.h"
 #include "rr/gpu_scratch_types.h"
 #include "scratchpad.h"
@@ -15,10 +16,9 @@ extern char StrTotalTimeLabel[];
 extern char LapTimeLabel[];
 extern char StrPressStart[];
 extern short HudMapZoomMode;
-extern int NumLaps;
 extern int TotalRaceTime;
 extern int LapTimes[];
-extern char HudSignalLightUv[];
+extern UiUvRect HudSignalLightUv;
 extern int RaceState;
 
 
@@ -28,9 +28,6 @@ static inline u32 ScaleLineDeltaQ8(u32 delta, u32 scale) {
     return product >> 8;
 }
 
-void DrawRaceTimesScreen(void);
-void DrawRaceStartSignalSprite(int a0);
-void AddPartialLine(u32 *a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10);
 
 void DrawRaceTimesScreen(void) {
     char sp18[8];
@@ -40,7 +37,7 @@ void DrawRaceTimesScreen(void) {
     char *b;
     int col, v;
     int sel;
-    *(int *)SCRATCHPAD = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], *(int *)SCRATCHPAD, 0, 0, 0x140, 0x100);
+    RR_GPU_SCRATCH->cursor = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x100);
     i = 0;
     sel = HudMapZoomMode;
     if (NumLaps > 0) {
@@ -75,26 +72,26 @@ void DrawRaceTimesScreen(void) {
 
 void DrawRaceStartSignalSprite(int a0) {
     int a3;
-    char *s0;
+    GpuDmaTag *s0;
     void *p;
     if ((RaceState - 1) < 3U) {
-        p = *(void **)SCRATCHPAD;
+        p = RR_GPU_SCRATCH->cursor;
         if (a0 > 0) {
             a3 = ((a0 - 1) << 7) + 0x38;
             if (a0 == 1) {
-                s0 = &CurrentDrawBuf->buffer.ordering70.words[0];
+                s0 = &CurrentDrawBuf->buffer.ordering70.tags[0];
             } else {
-                s0 = &CurrentDrawBuf->buffer.secondaryOrderingB70.words[0];
+                s0 = &CurrentDrawBuf->buffer.secondaryOrderingB70.tags[0];
             }
         } else {
             a3 = 0x78;
-            s0 = &CurrentDrawBuf->buffer.ordering70.words[0];
+            s0 = &CurrentDrawBuf->buffer.ordering70.tags[0];
         }
-        *(int *)SCRATCHPAD = AddDrawModePrim(s0, AddSpritePrim(s0, p, 0x6A, a3, HudSignalLightUv, 0x7EF8, 0), 0x3E);
+        RR_GPU_SCRATCH->cursor = AddDrawModePrim(s0, AddSpritePrim(s0, p, 0x6A, a3, &HudSignalLightUv, 0x7EF8, 0), 0x3E);
     }
 }
 
-void AddPartialLine(u32 *a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10)
+void AddPartialLine(GpuDmaTag *a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6, s32 a7, s32 a8, s32 a9, s32 a10)
 {
     int d1, d2, x, y;
     void *r;
@@ -102,7 +99,7 @@ void AddPartialLine(u32 *a0, int a1, int a2, int a3, int a4, int a5, int a6, int
         d1 = a3 - (u32)a1;
         d2 = a4 - (u32)a2;
         if (a5 >= 0x100) a5 = 0x100;
-        r = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
+        r = RR_GPU_SCRATCH->cursor;
         x = a1 + ScaleLineDeltaQ8(d1, a5);
         y = a2 + ScaleLineDeltaQ8(d2, a5);
         if (a10 >= 0) {
@@ -110,14 +107,14 @@ void AddPartialLine(u32 *a0, int a1, int a2, int a3, int a4, int a5, int a6, int
             if (a6 != 0) {
                 r = AddLineF2SemiTrans(a0, r, a1, a2 + 1U, x, y + 1U, a7, a8, a9);
             }
-            r = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], r, ((a10 & 3) << 5) | 5);
+            r = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], r, ((a10 & 3) << 5) | 5);
         } else {
             r = GameQueueTileTrans(a0, r, a1, a2, x, y, a7, a8, a9);
             if (a6 != 0) {
                 r = GameQueueTileTrans(a0, r, a1, a2 + 1U, x, y + 1U, a7, a8, a9);
             }
         }
-        ((GpuScratchPointers *)SCRATCHPAD)->cursor = r;
+        RR_GPU_SCRATCH->cursor = r;
     }
 }
 
@@ -126,3 +123,9 @@ int IsCarFacingReverse(RaceVehicle *vehicle) {
     int reverseHeading = 0x800 - TrackNodes[vehicle->trackNodeF0].road.heading;
     return (unsigned)(((vehicle->heading1D4 - reverseHeading) & 0xFFF) - 0x401) < 0x7FF;
 }
+
+/* Initial values of the globals this module owns. */
+char StrTotalTimeLabel[12] = {84, 79, 84, 65, 76, 32, 84, 73, 77, 69};
+char LapTimeLabel[12] = {76, 65, 80, 32, 84, 73, 77, 69};
+char StrPressStart[44] = {80, 82, 69, 83, 83, 32, 83, 84, 65, 82, 84};
+UiUvRect HudSignalLightUv = {.u = 0x54, .v = 0x10, .w = 0x68, .h = 0x10};

@@ -1,4 +1,5 @@
 #include "game/ui/uipart1.h"
+#include "rr/menu_frame_state.h"
 #include "game/sound/cdpos.h"
 #include "game/gfx/drawlist.h"
 /* RODATA 0x800101f4 0xd8 */
@@ -22,7 +23,7 @@
 #include "game/gfx/gfxotag.h"
 #include "game/gfx/model.h"
 #include "game/gfx/polygt4.h"
-#include "rr/badge_row_types.h"
+#include "rr/badge_rows.h"
 #include "rr/menu_text_state.h"
 #include "rr/course_choices.h"
 #include "rr/screen_tiles.h"
@@ -38,31 +39,20 @@
 #define G IntroSceneStatePtr
 #define H BadgeRows
 #define K CardDialogueStatePtr
-#define SPAD ((int *)SCRATCHPAD)
-#define CURSOR (scratch->cursor)
-#define ORDER (order_page->order)
 
+/* Draw-mode command followed by a semi-transparent TILE: E1 command, the
+ * PsyZ merged-packet NOP, color with code 0x62, position and size words. */
+typedef struct {
+    GpuDmaTag tag;
+    u32 drawMode;
+    u32 nop;
+    u32 color;
+    u32 position;
+    u32 size;
+} IntroTintTilePacket;
 
-struct Vec4Words16 { int w[4]; };
-
-struct GpuScratchCursorPair { struct GpuPrimPacket20 *cur; struct GpuOrderTablePair *ot; };
-
-union GpuPacketHeader {
-    struct GpuPrimPacket20 *p;
-    struct {
-        char link[3];
-        unsigned char len;
-    } b;
-};
-
-struct GpuPrimPacket20 { union GpuPacketHeader h; int w[4]; };
-
-struct GpuOrderTablePair { int x; union GpuPacketHeader h; };
-
-extern int SetGeomOffset();
-extern BadgeRow1C *BadgeRows;
+void SetGeomOffset(s32 x, s32 y);
 extern short FadeCountdown;
-extern char ScreenFadeState;
 extern short ModeIndex;
 extern short MenuScriptId;
 extern short ModeGroup;
@@ -74,14 +64,13 @@ extern const Vec3s8 TitleModelZeroAngles;
 extern const VectorWords16 TitleModelPosLayer0A;
 extern const VectorWords16 TitleModelPosLayer0B;
 extern const VectorWords16 TitleModelPosLayer1;
-extern char IntroCameraPosKeyframes[];
 
 void StepIntroScene();
 
 void StepIntroScene(void) {
     int idx;
     int temp_s5;
-    IntroSceneState *g;    register IntroSceneState *g_a0;    IntroSceneState *g_v1;
+    IntroSceneState *g, *g_a0, *g_v1;
     int temp_a0;
     int temp_a0_10;
     int temp_a0_2;
@@ -126,8 +115,7 @@ void StepIntroScene(void) {
     int var_a0_4;
     int var_a0_5;
     int v0;
-    struct Vec4Words16 *dv;
-    char *src;    int *st;
+    const VectorWords16 *src;    int *st;
     int *st_v1;
     int c80;    int *sp1, *sp2, *sp3, *sp4;
     int *tabq;
@@ -146,9 +134,10 @@ void StepIntroScene(void) {
     int var_v0_2;
     int var_v0_3;
     int var_v0_4;
-    char *temp_s0, *temp_s1, *temp_s2;
-    struct GpuPrimPacket20 *temp_t1;
-    struct GpuScratchCursorPair *spd, *spd2;
+    u8 *temp_s0, *temp_s1, *temp_s2;
+    u8 *file;
+    GpuCommandPacket *command;
+    IntroTintTilePacket *temp_t1;
     int col;
     temp_s5 = PollCdAudioStatus();
     if (TitleSceneStage >= 5) {
@@ -162,7 +151,7 @@ void StepIntroScene(void) {
                 ModeIndex = 0x23;
                 SubmodeState = 0;
             }
-            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], FadeCountdown, 0x45);
+            AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.tags, FadeCountdown, 0x45);
             FadeCountdown = (u16) FadeCountdown + 4;
         } else if (Pad0Buttons & 0x800) {
             FadeCountdown = 4;
@@ -173,7 +162,7 @@ void StepIntroScene(void) {
 case 0x0:
     LoadCursor = CdDirectoryBuffer;
     ClearScreenOverlayState();
-    ScreenFadeState = 2;
+    ScreenFadeState.phase = 2;
     InitMenuArenas();
     ResetScreenCounters();
     DialogueSceneMode = 4;
@@ -189,16 +178,19 @@ case 0x2:
     if (temp_v0 == 0) {
         return;
     }
-    temp_s1 = LoadCursor + ((int *)LoadCursor)[1];
-    temp_s2 = LoadCursor + ((int *)LoadCursor)[2];
-    temp_s0 = LoadCursor + ((int *)LoadCursor)[4];
-    LoadTimImage(LoadCursor + ((int *)LoadCursor)[3]);
-    LoadTimImage(temp_s0);
-    RegisterModelBank((RroModelBank *)temp_s1, 4);
+    /* Header words 1..4 are signed 32-bit offsets from the file start. */
+    file = (u8 *)LoadCursor;
+    temp_s1 = file + ((s32 *)file)[1];
+    temp_s2 = file + ((s32 *)file)[2];
+    temp_s0 = file + ((s32 *)file)[4];
+    LoadTimImage((int *)(file + ((s32 *)file)[3]));
+    LoadTimImage((int *)temp_s0);
+    RegisterModelBank(temp_s1, 4);
+    /* The sky command table keeps its 32-bit record offsets; sky.c resolves
+     * them against this base instead of relocating them in place. */
     SkyCommandListPtr = temp_s2;
-    RelocateOffsetTable(temp_s2);
     TitleSceneStage = 3;
-    LoadCursor += temp_v0;
+    LoadCursor = file + temp_v0;
 case 0x3:
     if (LoadMenuCarModelsStep() == 0) {
         return;
@@ -259,11 +251,11 @@ case 0x6:
     if (G->s44 < 0x20) {
         goto block_197;
     }
-    PsyqMemset((SCRATCHPAD + 0x18), 0, 0x10);
-    src = IntroCameraPosKeyframes;
+    PsyqMemset((void *)(SCRATCHPAD + 0x18), 0, 0x10);
+    src = &IntroCameraPosKeyframes[1];
     st = &TitleSceneStage;
     sp2 = (int *)(SCRATCHPAD + 0x8);
-    RR_COPY16_T(sp2, src, 16);
+    RR_COPY16_T(sp2, src, 0);
     g = G;
     *st = 7;
     g->s56 = 0x100;
@@ -770,13 +762,13 @@ case 0x2F:
     c80 = 0x80;
     G->s56 = 0x100;
     G->s5E = 0x1000;
-    G->s76 = 4;;    src = IntroCameraPosKeyframes;
+    G->s76 = 4;;    src = &IntroCameraPosKeyframes[8];
     G->s48 = c80;
     G->s4A = 0;
     G->s72 = 0;
     G->s96 = c80;;    g_a0 = G;;    st_v1 = &TitleSceneStage;
     sp2 = (int *)(SCRATCHPAD + 0x8);
-    RR_COPY16_T(sp2, src, 128);
+    RR_COPY16_T(sp2, src, 0);
     *st_v1 = 0x30;
     g_a0->s44 = 0;
 case 0x30:
@@ -805,10 +797,10 @@ case 0x32:
     sp4 = (int *)SCRATCHPAD;
     sp4[6] = 0x400;
     sp4[7] = 0;
-    sp4[8] = 0;;    src = IntroCameraPosKeyframes;
+    sp4[8] = 0;;    src = &IntroCameraPosKeyframes[9];
     g_v1 = G;;    st = &TitleSceneStage;
     sp2 = (int *)(SCRATCHPAD + 0x8);
-    RR_COPY16_T(sp2, src, 144);
+    RR_COPY16_T(sp2, src, 0);
     *st = 0x33;
     g_v1->s48 = 0;
     g_v1->s74 = 8;
@@ -918,13 +910,10 @@ case 0x27:
     }
     G->s44 = (s16) ((u16) G->s44 + 1);
     G->s46 = (s16) ((u16) G->s46 + 1);
-    spd = (struct GpuScratchCursorPair *)SCRATCHPAD;
-    spd->cur->w[0] = 0xE1000229;
-    spd->cur->h.p = spd->ot->h.p;
-    spd->cur->h.b.len = 1;
-    spd->ot->h.p = spd->cur;
-    spd->ot->h.b.len = 0;
-    spd->cur = (struct GpuPrimPacket20 *)((char *)spd->cur + 8);
+    command = (GpuCommandPacket *)RR_GPU_SCRATCH->cursor;
+    command->command = 0xE1000229;
+    RR_GPU_ADD_PRIM(RR_GPU_SCRATCH->order + 1, command, 1);
+    RR_GPU_SCRATCH->cursor = (u8 *)(command + 1);
     RampValueToLimit(&G->s48, &G->s74, 0x80);
     RampValueToLimit(&G->s4A, &G->s76, 0x80);
     RampValueToLimit(&G->s4C, &G->s78, 0x80);
@@ -948,8 +937,8 @@ case 0x27:
         G->sA0 -= 0x80;
         RR_GTE_MTC2_IR0((unsigned short)G->sA0);
         idx = G->s9E;
-        RR_GTE_LWC2_IR((int *)IntroCameraPosKeyframes + idx * 4);
-        RR_GTE_SETFC_P((int *)IntroCameraPosKeyframes + (idx - 1) * 4);
+        RR_GTE_LWC2_IR(IntroCameraPosKeyframes[idx].words);
+        RR_GTE_SETFC_P(IntroCameraPosKeyframes[idx - 1].words);
         RR_GTE_INTPL();
         RR_GTE_STORE_IR((int *)(SCRATCHPAD + 0x8));
     }
@@ -999,7 +988,7 @@ case 0x27:
     }
     c80 = G->s9A;
     if (c80 != 0) {
-        temp_t1 = spd->cur;
+        temp_t1 = (IntroTintTilePacket *)RR_GPU_SCRATCH->cursor;
         temp_t0 = 0x100 - c80;
         temp_t0 = (temp_t0 < 0 ? 0 : temp_t0) > 0x100 ? 0x100 : (temp_t0 < 0 ? 0 : temp_t0);
         c_800060 = 0x800060;
@@ -1009,18 +998,15 @@ case 0x27:
         mid = (temp_t0 << 8) | 0x62000000;
         c80 |= mid;
         c80 |= temp_t0;
-        temp_t1->w[1] = c80;
-        spd2 = (struct GpuScratchCursorPair *)SCRATCHPAD;
-        temp_t1->w[2] = c_800060;
-        temp_t1->w[3] = c_800080;
-        temp_t1->w[0] = c_e1000240;
-        temp_t1->h.p = spd2->ot->h.p;
-        temp_t1->h.b.len = 4;
-        spd2->ot->h.p = temp_t1;
-        spd2->ot->h.b.len = 0;
+        temp_t1->color = c80;
+        temp_t1->position = c_800060;
+        temp_t1->size = c_800080;
+        temp_t1->drawMode = c_e1000240;
+        temp_t1->nop = RR_GPU_MERGED_PRIM_NOP;
+        RR_GPU_ADD_PRIM(RR_GPU_SCRATCH->order + 1, temp_t1, 5);
         temp_t1++;
-        spd2->cur = temp_t1;
-        DrawMenuGridMesh(0, &spd2->ot->h, 1);
+        RR_GPU_SCRATCH->cursor = (u8 *)temp_t1;
+        DrawMenuGridMesh(0, RR_GPU_SCRATCH->order + 1, 1);
     }
     H->half02 = 1;
     UpdateBadgeRowAnim(0);
@@ -1033,8 +1019,8 @@ void EmitSpriteGrid(u32 intensity, SpriteGridClock *state) {
     u32 color = intensity;
     u32 hi, middle;
     s32 row, x, phase, index;
-    GpuScratchPointers *scratch;
     GpuSpriteCommand *packet;
+    GpuCommandPacket *command;
 
     hi = color << 16;
     middle = color << 8;
@@ -1042,7 +1028,7 @@ void EmitSpriteGrid(u32 intensity, SpriteGridClock *state) {
     hi |= middle;
     color |= hi;
 
-    packet = (GpuSpriteCommand *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
+    packet = (GpuSpriteCommand *)RR_GPU_SCRATCH->cursor;
     state->tick0E++;
     phase = state->tick0E;
     for (row = 0; row < 144; row += 48) {
@@ -1054,19 +1040,23 @@ void EmitSpriteGrid(u32 intensity, SpriteGridClock *state) {
             packet->words.size = 0x180010;
             packet->words.uv = index * 16 + 0x2F29A400U;
             phase += 5;
-            packet->words.tag.word = *((GpuScratchPointers *)SCRATCHPAD)->order;
-            packet->words.tag.bytes.length = 4;
-            *((GpuScratchPointers *)SCRATCHPAD)->order = (u32)(unsigned long)packet;
-            ((u8 *)((GpuScratchPointers *)SCRATCHPAD)->order)[3] = 0;
+            RR_GPU_ADD_PRIM(RR_GPU_SCRATCH->order, packet, 4);
             packet++;
         }
     }
-    scratch = (GpuScratchPointers *)SCRATCHPAD;
-    scratch->cursor = (u8 *)packet;
-    ((u32 *)packet)[1] = 0xE100022A;
-    *(u32 *)scratch->cursor = *scratch->order;
-    scratch->cursor[3] = 1;
-    *scratch->order = (u32)(unsigned long)scratch->cursor;
-    ((u8 *)scratch->order)[3] = 0;
-    scratch->cursor += sizeof(GpuSingleCommandPacket);
+    command = (GpuCommandPacket *)packet;
+    command->command = 0xE100022A;
+    RR_GPU_ADD_PRIM(RR_GPU_SCRATCH->order, command, 1);
+    RR_GPU_SCRATCH->cursor = (u8 *)(command + 1);
 }
+
+/* Initial values of the globals this module owns. */
+const Vec3s8 TitleModelZeroAngles;
+short DrawListDefaultVerts = 602;
+const VectorWords16 TitleModelPosLayer0A = {.vector = {.x = -896}};
+const VectorWords16 TitleModelPosLayer0B = {.vector = {.x = -224}};
+const VectorWords16 TitleModelPosLayer1 = {.vector = {.x = 672}};
+VectorWords16 IntroCameraPosKeyframes[10] = {{.vector = {.x = -960, .y = -900, .z = -750}}, {.vector = {.x = -1184, .y = -24, .z = -1160}}, {.vector = {.x = -512, .y = -24, .z = -1160}}, {.vector = {.x = 512, .y = -24, .z = -1160}}, {.vector = {.z = -2320}}, {.vector = {.x = -896, .y = -38, .z = -1160}}, {.vector = {.x = -224, .y = -38, .z = -1160}}, {.vector = {.x = 672, .y = -38, .z = -1160}}, {.vector = {.z = -654}}};
+MenuTextState *CardDialogueStatePtr;
+IntroSceneState *IntroSceneStatePtr;
+int TitleSceneStage;

@@ -1,5 +1,6 @@
 #ifndef RR_OVERLAY662_NAME_CONTROLLER_H
 #define RR_OVERLAY662_NAME_CONTROLLER_H
+#include "rr/screen_tiles.h"
 #include "game/system/pad.h"
 #include "rr/overlay662_name_state.h"
 #include "rr/menu_transition.h"
@@ -8,9 +9,9 @@
 #include "rr/string_tail_copy.h"
 #include "rr/tables.h"
 extern s16 FadeCountdown,CardMenuOperation;
-extern s32 ScreenFrame;
+extern u32 ScreenFrame;
 extern u8 NameCharset[44];
-void AddScreenFadeTiles(u32 *,s32,u32);
+
 void UpdateBadgeRowAnim(s32);void UpdateScreenFade(s32);
 /* Captures the unsigned scene phase, then advances both wrapping counters.
  * Grid reads require row0..4 and column0..9 before one-step navigation.

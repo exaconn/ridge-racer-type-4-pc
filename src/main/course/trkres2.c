@@ -1,10 +1,10 @@
+#include "rr/relative_file.h"
 #include "types.h"
 #include "rr/steering.h"
 #include "rr/track_resources.h"
 #include "game/course/trkres2.h"
 #include "game/gfx/dispenv.h"
 
-extern RaceSpecEntry30 *CarSpecTable;
 
 void BuildRateCurve(Curve24 *curve, s32 displacement, s32 duration, s32 initialRate);
 s32 EvalRateCurve(const Curve24 *curve, s32 time, s32 *output);
@@ -53,26 +53,38 @@ unsigned long AlignUp4(unsigned long a) {
     return v;
 }
 
-void RelocateTrackLookupTables(TrackEventDirectory *tables)
+/* Host owner of the resolved track-event directory. */
+static TrackEventDirectory TrackEventDirectoryHost;
+
+void RelocateTrackLookupTables(const TrackEventDirectoryWire *wire)
 {
+    TrackEventDirectory *tables = &TrackEventDirectoryHost;
+    tables->pairCount0 = wire->pairCount0;
+    tables->pairCount1 = wire->pairCount1;
+    tables->count0 = wire->count0;
+    tables->count1 = wire->count1;
+    tables->count2 = wire->count2;
+    tables->count3 = wire->count3;
+    tables->pairCount2 = wire->pairCount2;
+    tables->reserved0E = wire->reserved0E;
+    tables->pairs0.entries = (TrackEventPair *)RrWireAddress(wire, wire->pairs0);
+    tables->pairs1.entries = (TrackEventPair *)RrWireAddress(wire, wire->pairs1);
+    tables->table0.entries = (TrackEventEntry *)RrWireAddress(wire, wire->table0);
+    tables->table1.entries = (TrackEventEntry *)RrWireAddress(wire, wire->table1);
+    tables->table2.entries = (TrackEventEntry *)RrWireAddress(wire, wire->table2);
+    tables->table3.entries = (TrackEventEntry *)RrWireAddress(wire, wire->table3);
+    tables->pairs2.entries = (TrackEventPair *)RrWireAddress(wire, wire->pairs2);
     RaceContext.lookupTables = tables;
-    tables->pairs0.entries = (TrackEventPair *)(tables->pairs0.offset + (unsigned long)tables);
-    RaceContext.lookupTables->pairs1.entries = (TrackEventPair *)(RaceContext.lookupTables->pairs1.offset + (unsigned long)tables);
-    RaceContext.lookupTables->table0.entries = (TrackEventEntry *)(RaceContext.lookupTables->table0.offset + (unsigned long)tables);
-    RaceContext.lookupTables->table1.entries = (TrackEventEntry *)(RaceContext.lookupTables->table1.offset + (unsigned long)tables);
-    RaceContext.lookupTables->table2.entries = (TrackEventEntry *)(RaceContext.lookupTables->table2.offset + (unsigned long)tables);
-    RaceContext.lookupTables->table3.entries = (TrackEventEntry *)(RaceContext.lookupTables->table3.offset + (unsigned long)tables);
-    RaceContext.lookupTables->pairs2.entries = (TrackEventPair *)(RaceContext.lookupTables->pairs2.offset + (unsigned long)tables);
 }
 
 void SetTrackLaneOffsets(TrackLaneOffset8 *offsets)
 {
-    TrackLaneOffsets = offsets;
+    RaceContext.laneOffsets54C = offsets;
 }
 
-void SetTrackStartNode(s32 *startNode)
+void SetTrackStartNode(Grid53C *startGrid)
 {
-    TrackStartNode = startNode;
+    RaceContext.startGrid53C = startGrid;
 }
 
 void SetTrackWorkspace(u8 *workspace)
@@ -89,12 +101,12 @@ void SetTrackWorkspace(u8 *workspace)
 
 void LoadTrackResource(TrackResourceFile *file)
 {
-    RelocateTrackLookupTables((TrackEventDirectory *)((u8 *)file + file->lookupOffset04));
+    RelocateTrackLookupTables((const TrackEventDirectoryWire *)((u8 *)file + file->lookupOffset04));
     SetTrackLaneOffsets((TrackLaneOffset8 *)((u8 *)file + file->laneOffset08));
-    SetTrackStartNode((s32 *)((u8 *)file + file->startNodeOffset0C));
+    SetTrackStartNode((Grid53C *)((u8 *)file + file->startNodeOffset0C));
     SetTrackWorkspace((u8 *)file + file->workspaceOffset10);
 }
 
 void SetCarSpecTable(RaceSpecEntry30 *arg0) {
-    CarSpecTable = arg0;
+    RaceContext.carSpecs540 = arg0;
 }

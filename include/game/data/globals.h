@@ -32,6 +32,5 @@ extern int StStartFrame;
 extern s32 CD_debug;
 extern s32 CD_nopen;
 extern short SunLightPitchAngle;
-extern s32 NumPlayers;
 
 #endif

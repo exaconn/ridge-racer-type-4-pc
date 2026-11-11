@@ -25,8 +25,9 @@
 #include "game/sound/cdmain.h"
 #include "game/data/ldscn1.h"
 #include "game/sound/fxplay.h"
+#include "game/menu/savemenu.h"
+#include "rr/badge_rows.h"
 
-extern BadgeRow1C *BadgeRows;
 
 
 typedef struct { s16 a, b; } P2;
@@ -66,7 +67,7 @@ extern s16 MenuSlideStepVectors[][2];
 extern int MenuSaveBannerTimer;
 extern short MenuSubpageCursor;
 extern short MenuSubpageScroll;
-extern unsigned char CardFileCounts;
+extern unsigned char CardFileCounts[];
 extern char CardSaveFileName[];
 extern char CardTargetFileName[];
 extern int MenuConfirmDialogState;
@@ -205,9 +206,9 @@ void InitCardMenuSession(void) {
         }
     }
     if (flag) {
-        StepMenuValue(((unsigned short)MenuActiveControllerIndex & 1) << 2, 2, CardPromptChoices + CardPromptIndex, n, 0);
+        StepMenuValue(((unsigned short)MenuActiveControllerIndex & 1) << 2, 2, (char *)&CardPromptChoices[CardPromptIndex], n, 0);
     } else {
-        StepMenuValue((((unsigned short)MenuActiveControllerIndex & 1) << 2) | 1, 2, CardPromptChoices + CardPromptIndex, n, 0);
+        StepMenuValue((((unsigned short)MenuActiveControllerIndex & 1) << 2) | 1, 2, (char *)&CardPromptChoices[CardPromptIndex], n, 0);
     }
     b3 = PlayerControllers;
     r = b3 + MenuActiveControllerIndex;
@@ -229,12 +230,12 @@ void InitCardMenuSession(void) {
 
 void CloseCardMenuUiRows(void) {
     int i;
-    char *q;
+    UiRow24 *q;
     if (UiRows[0x23].byte14 == 2) {
         for (i = 0; i < 4; i++) {
-            q = (char *)(i * 0x24 + (int)UiRows) + 0x4C8;
-            if (q[0x14] == 2) {
-                q[0x14] = 3;
+            q = &UiRows[0x22 + i];
+            if (q->byte14 == 2) {
+                q->byte14 = 3;
             }
         }
         BadgeRows->state10 = 4;
@@ -252,7 +253,7 @@ void CloseCardMenuUiRows(void) {
     if (FadeCountdown > 0) {
         FadeCountdown = FadeCountdown - 1;
     }
-    AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - FadeCountdown) << 2, 0x45);
+    AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x40 - FadeCountdown) << 2, 0x45);
     if (LoadMenuCarModelsStep() != 1) return;
     if (FadeCountdown > 0) return;
     if (UiRows[0x23].byte14 != 5) return;
@@ -386,17 +387,11 @@ void CheckCardFileExistsTransition(void) {
 void StepCardDataTransfer(void)
 {
   int r;
-  int t0;
   int t1;
-  SavedMenuSettings *t2;
-  short a1;
   unsigned v1;
-  char *a0;
-  int new_var;
-  char *a2;
-  SavedMenuSettings *a3;
-  signed char *e;
-  char sp[0x38];
+  short sum;
+  CardSlotScanWindow100 *window;
+  SavedMenuSettings *slot;
   if (SubmodeState == 0)
   {
     ScanBothCardPortsStep(0);
@@ -405,39 +400,30 @@ void StepCardDataTransfer(void)
     return;
   }
   r = ScanBothCardPortsStep(1);
-  t1 = 0;
   if (r > 0)
   {
-    new_var = 8;
-    do
+    /* The slot records read at arena +0x1F00 (file offset 0x300). */
+    window = &((CardSaveBlock2000 *)SaveBuffer)->scan.window1F00;
+    for (t1 = 0; t1 < 3; t1++)
     {
-      a1 = 0;
-      v1 = 0;
-      a0 = ((char *) (t1 * 0x2C)) + ((int) SaveBuffer);
-      do
+      slot = &window->slots60[t1];
+      sum = 0;
+      for (v1 = 0; v1 < RR_SAVE_SLOT_HALFWORDS; v1++)
       {
-        if (v1 != new_var)
+        if (v1 != RR_SAVE_SLOT_CHECKSUM_HALFWORD)
         {
-          a1 += ((unsigned short *) a0)[0x1F60 / 2];
+          sum += slot->halves[v1];
         }
-        v1++;
-        a0 = a0 + 2;
       }
-      while (v1 < 0x16U);
-      a2 = ((char *) (t1 * 0x2C)) + ((int) SaveBuffer);
-      a3 = (SavedMenuSettings *) (a2 + 0x1F60);
-      if (a1 == a3->signedHalves[RR_SAVE_SLOT_CHECKSUM_HALFWORD])
+      if (sum == slot->signedHalves[RR_SAVE_SLOT_CHECKSUM_HALFWORD])
       {
-        *(t2 = SaveSlotSelections + t1) = *((SavedMenuSettings *) a3);
+        SaveSlotSelections[t1] = *slot;
       }
       else
       {
-        e = ((signed char *) SaveSlotSelections) + (t1 * 0x2C);
-        e[0x17] = -1;
+        SaveSlotSelections[t1].signedBytes[0x17] = -1;
       }
-      t1++;
     }
-    while (t1 < 3);
     MenuStateIndex = 0x18;
     SubmodeState = 0;
   }
@@ -446,8 +432,7 @@ void StepCardDataTransfer(void)
   {
     for (t1 = 2; t1 >= 0; t1--)
     {
-      e = ((signed char *) SaveSlotSelections) + (t1 * 0x2C);
-      e[0x17] = -1;
+      SaveSlotSelections[t1].signedBytes[0x17] = -1;
     }
 
     MenuStateIndex = 0x18;
@@ -478,7 +463,7 @@ int ScanBothCardPortsStep(int a0) {
     case 1:
         PollCardStatus(CardActivePort, 0, 0);
         if (CardPortPollStatus[0] < 0x10U) {
-            if (CardHasFile(CardFileCounts, CardTargetFileName) == 1) {
+            if (CardHasFile(CardFileCounts[0], CardTargetFileName) == 1) {
                 MenuSubpageScroll = 0;
                 MenuSubpageCursor = 2;
             } else {
@@ -573,7 +558,7 @@ int LoadSaveFromCardStep(int a0) {
     case 1:
         PollCardStatus(0, 0, 0);
         if (CardPortPollStatus[0] < 0x10U) {
-            if (CardHasFile(CardFileCounts, CardTargetFileName) == 1) {
+            if (CardHasFile(CardFileCounts[0], CardTargetFileName) == 1) {
                 CardLoadStep(2, 0);
                 MenuConfirmDialogState = 2;
             } else {
@@ -638,7 +623,7 @@ int ReadCardSlotHeaderStep(int a0, int a1) {
     case 1:
         PollCardStatus(0, 0, 0);
         if (CardPortPollStatus[0] < 0x10U) {
-            if (CardHasFile(CardFileCounts, CardTargetFileName) == 1) {
+            if (CardHasFile(CardFileCounts[0], CardTargetFileName) == 1) {
                 CardLoadStep(2, 0);
                 MenuTransitionTimer = 2;
             } else {
@@ -687,11 +672,12 @@ int ReadCardSlotHeaderStep(int a0, int a1) {
 
 void DrawCardMenuStatusText(int a0, int a1, int a2, int a3, int a4, int a5) {
     unsigned char *v1;
+    unsigned char *end;
     int s0 = a1;
     if (a2 != 0) {
         int c14 = 0x14, c16 = 0x16, c4 = 4, c1 = 1;
         v1 = GaragePreviewCamPresets;
-        a3 = v1 + c14;
+        end = v1 + c14;
         do {
             if (a5 == v1[1]) {
                 if (a5 != c14) {
@@ -701,7 +687,7 @@ void DrawCardMenuStatusText(int a0, int a1, int a2, int a3, int a4, int a5) {
                 break;
             }
             v1 += 4;
-        } while ((int)v1 < a3);
+        } while (v1 < end);
         if (a0 == 5) {
             if (CardPdaModeFlag == 1) {
                 a0 = 0x1A;
@@ -710,7 +696,7 @@ void DrawCardMenuStatusText(int a0, int a1, int a2, int a3, int a4, int a5) {
             }
         }
     }
-    if (((short *)BadgeRows)[8] == 3) {
+    if (BadgeRows->state10 == 3) {
         if (a0 == -1) {
             if (CardMenuOperation == 3 || CardMenuOperation == 6 || CardMenuOperation == 7) a0 = 0x19;
         } else if (a0 == -128) {
@@ -728,10 +714,38 @@ void DrawCardMenuStatusText(int a0, int a1, int a2, int a3, int a4, int a5) {
         }
         if (a0 >= 0) {
             CardDialogueStatePtr->b4 = a0;
-            UpdateDialogue(((short *)BadgeRows)[4] + 10, ((short *)BadgeRows)[5] + 0x28, CardDialogueStatePtr);
+            UpdateDialogue(BadgeRows->x08 + 10, BadgeRows->y0A + 0x28, CardDialogueStatePtr);
         }
     }
     UpdateCardSlotUiRows(a4, ((s0 & 2) > 0) & (CardDialogueStatePtr->s12 >= 6));
     DrawCardMenuCommandRows(a4, (s0 & 4) > 0);
     if (s0 & 8) DrawSaveSlotTableHeader(GpSaveSlotCursor);
 }
+
+/* Initial values of the globals this module owns. */
+MenuStateEntry8 MenuStateTable[68] = {{.textId00 = 4, .kind02 = 22, .handlerIdx03 = 7, .defaultChoice07 = 3}, {.textId00 = 1, .kind02 = -1, .promptIdx06 = 1}, {.textId00 = 2, .kind02 = 1, .handlerIdx03 = 1, .flags05 = 3, .promptIdx06 = 2, .defaultChoice07 = 1}, {.kind02 = 1, .handlerIdx03 = 2, .flags05 = 3}, {.textId00 = 2, .kind02 = 13, .handlerIdx03 = 1, .tableIdx04 = 1, .flags05 = 3, .promptIdx06 = 2, .defaultChoice07 = 1}, {.kind02 = 3, .handlerIdx03 = 3}, {.kind02 = 11, .handlerIdx03 = 4}, {.kind02 = 15, .handlerIdx03 = 4}, {.textId00 = 2, .kind02 = 18, .handlerIdx03 = 1, .tableIdx04 = 2, .flags05 = 3, .promptIdx06 = 2, .defaultChoice07 = 1}, {.kind02 = 17, .handlerIdx03 = 5, .flags05 = 3}, {.kind02 = 17, .handlerIdx03 = 5, .tableIdx04 = 1, .flags05 = 3}, {.kind02 = 17, .handlerIdx03 = 6}, {.kind02 = 24, .handlerIdx03 = 4, .flags05 = 3}, {.kind02 = 20, .handlerIdx03 = 4, .flags05 = 3}, {.kind02 = 19, .handlerIdx03 = 4, .flags05 = 3}, {.textId00 = 1, .kind02 = -1, .tableIdx04 = 1, .promptIdx06 = 1}, {.textId00 = 2, .kind02 = 2, .handlerIdx03 = 1, .tableIdx04 = 3, .flags05 = 3, .promptIdx06 = 2, .defaultChoice07 = 1}, {.kind02 = 2, .handlerIdx03 = 2, .tableIdx04 = 1, .flags05 = 3}, {.kind02 = 21, .handlerIdx03 = 4, .flags05 = 3}, {.kind02 = 4, .handlerIdx03 = 3, .tableIdx04 = 1}, {.kind02 = 12, .handlerIdx03 = 4}, {.kind02 = 16, .handlerIdx03 = 4}, {.kind02 = 10, .handlerIdx03 = 4, .flags05 = 3}, {.kind02 = 14, .handlerIdx03 = 0xC}, {.textId00 = 4, .kind02 = 22, .handlerIdx03 = 7, .tableIdx04 = 2, .flags05 = 1}, {.textId00 = 1, .kind02 = -1, .tableIdx04 = 2, .flags05 = 1, .promptIdx06 = 1}, {.textId00 = 2, .kind02 = 1, .handlerIdx03 = 1, .tableIdx04 = 4, .flags05 = 3, .promptIdx06 = 2, .defaultChoice07 = 1}, {.kind02 = 1, .handlerIdx03 = 2, .tableIdx04 = 2, .flags05 = 3}, {.textId00 = 2, .kind02 = 13, .handlerIdx03 = 1, .tableIdx04 = 5, .flags05 = 3, .promptIdx06 = 2, .defaultChoice07 = 1}, {.kind02 = 3, .handlerIdx03 = 3, .tableIdx04 = 2}, {.kind02 = 11, .handlerIdx03 = 4, .flags05 = 1}, {.kind02 = 15, .handlerIdx03 = 4, .flags05 = 1}, {.textId00 = 4, .kind02 = 22, .handlerIdx03 = 7, .tableIdx04 = 3}, {.textId00 = 4, .kind02 = 22, .handlerIdx03 = 7, .tableIdx04 = 4}, {.textId00 = 1, .kind02 = -1, .tableIdx04 = 3, .promptIdx06 = 1}, {.textId00 = 2, .kind02 = 37, .handlerIdx03 = 1, .tableIdx04 = 6, .flags05 = 3, .promptIdx06 = 2, .defaultChoice07 = 1}, {.kind02 = 37, .handlerIdx03 = 2, .tableIdx04 = 3, .flags05 = 3}, {.kind02 = 21, .handlerIdx03 = 4, .flags05 = 3}, {.kind02 = 4, .handlerIdx03 = 3, .tableIdx04 = 3}, {.kind02 = 12, .handlerIdx03 = 4}, {.kind02 = 16, .handlerIdx03 = 4}, {.kind02 = 14, .handlerIdx03 = 9}, {.textId00 = 4, .kind02 = 22, .handlerIdx03 = 7, .tableIdx04 = 5, .flags05 = 1, .defaultChoice07 = 2}, {.textId00 = 4, .kind02 = 22, .handlerIdx03 = 7, .tableIdx04 = 6, .flags05 = 1}, {.textId00 = 1, .kind02 = -1, .tableIdx04 = 4, .flags05 = 3, .promptIdx06 = 1}, {.textId00 = 2, .kind02 = 35, .handlerIdx03 = 1, .tableIdx04 = 7, .flags05 = 3, .promptIdx06 = 2, .defaultChoice07 = 1}, {.kind02 = 35, .handlerIdx03 = 2, .tableIdx04 = 4, .flags05 = 3}, {.textId00 = 2, .kind02 = 13, .handlerIdx03 = 1, .tableIdx04 = 8, .flags05 = 3, .promptIdx06 = 2, .defaultChoice07 = 1}, {.kind02 = 3, .handlerIdx03 = 3, .tableIdx04 = 4}, {.kind02 = 11, .handlerIdx03 = 4, .flags05 = 1}, {.kind02 = 15, .handlerIdx03 = 4, .flags05 = 1}, {.textId00 = 1, .kind02 = -1, .tableIdx04 = 5, .flags05 = 3, .promptIdx06 = 1}, {.textId00 = 2, .kind02 = 36, .handlerIdx03 = 1, .tableIdx04 = 9, .flags05 = 3, .promptIdx06 = 2, .defaultChoice07 = 1}, {.kind02 = 36, .handlerIdx03 = 2, .tableIdx04 = 5, .flags05 = 3}, {.kind02 = 23, .handlerIdx03 = 4, .flags05 = 3}, {.kind02 = 4, .handlerIdx03 = 3, .tableIdx04 = 5}, {.kind02 = 12, .handlerIdx03 = 4, .flags05 = 1}, {.kind02 = 16, .handlerIdx03 = 4, .flags05 = 1}, {.textId00 = 1, .kind02 = -1, .tableIdx04 = 6, .promptIdx06 = 1}, {.kind02 = -128, .handlerIdx03 = 0xB, .tableIdx04 = 1, .flags05 = 3}, {.textId00 = 2, .kind02 = 29, .handlerIdx03 = 1, .tableIdx04 = 0xA, .flags05 = 3, .promptIdx06 = 2, .defaultChoice07 = 1}, {.kind02 = 29, .handlerIdx03 = 2, .tableIdx04 = 6, .flags05 = 3}, {.textId00 = 2, .kind02 = 13, .handlerIdx03 = 1, .tableIdx04 = 0xB, .flags05 = 3, .promptIdx06 = 2, .defaultChoice07 = 1}, {.kind02 = 30, .handlerIdx03 = 3, .tableIdx04 = 6}, {.kind02 = 31, .handlerIdx03 = 4}, {.kind02 = 39, .handlerIdx03 = 4}, {.kind02 = 27, .handlerIdx03 = 4, .flags05 = 3}, {.handlerIdx03 = 8}};
+unsigned char GaragePreviewCamPresets[20] = {5, 0x1E, 0, 0, 7, 0x14, 0, 0, 6, 0x28, 0, 0, 0xE, 0x5A, 0, 0, 6, 0x3C};
+MenuChoice TeamSelectBannerUvs[7] = {{.a = 6, .b = 7, .c = 1, .d = 1}, {.a = 0x14, .b = 0x15, .c = 0xD, .d = 1}, {.a = 0x1E, .b = 0x1F, .c = 1, .d = 1}, {.a = 0x27, .b = 0x28, .c = 0xD, .d = 1}, {.a = 0x31, .b = 0x32, .c = 1, .d = 1}, {.a = 0x38, .b = 0x39, .c = 0xD, .d = 1}, {.a = 0x40, .b = 0x41, .c = 1, .d = 2}};
+s32 MenuCursorBlinkColors[1];
+s16 MenuPanelBorderColors[6] = {10, 0, 11, 0, 2};
+MenuChoice MenuDividerLineColors[1] = {{.a = 0xC, .b = 0xE, .c = 0xD}};
+unsigned char MenuHighlightBarColors[7][4] = {{1, 0x8F, 0x3A, 0x43}, {0xF, 0, 0xFF}, {0x19, 0xC3, 0xFF, 1}, {1, 0xC3, 0xFF, 0xFF}, {0x22, 0xC3, 0xFF, 0xFF}, {0x2C, 0xB3, 0x43, 0xFF}, {0x2C, 0xC3, 0xFF, 0xFF}};
+s16 MenuSlideStepVectors[2][2] = {{16}, {60, 66}};
+short MenuSubpageCursor;
+short MenuSubpageScroll;
+int MenuConfirmDialogState;
+int MenuTransitionTimer;
+s16 MenuStateIndex;
+unsigned short CardMenuReturnModeId;
+u8 CardPortPollStatus[2];
+short ModeIndex;
+unsigned short ModeGroup;
+char CardTargetFileName[24];
+s16 CardActivePort;
+short CardMenuOperation;
+short CardPromptChoices[4];
+s16 CardReplayLoadedFlag;
+short CardPromptIndex;
+short CardPdaModeFlag;
+unsigned char CardPortUnformatted[4];
+int MenuSaveBannerTimer;

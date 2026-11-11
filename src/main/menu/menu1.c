@@ -1,4 +1,5 @@
 #include "game/ui/uipart1.h"
+#include "rr/menu_frame_state.h"
 #include "game/sound/sndvab.h"
 #include "rr/save_slots.h"
 #include "rr/work_arena.h"
@@ -35,7 +36,6 @@ extern short ModeGroup;
 extern unsigned short SubmodeState;
 extern int DrawUiRow();
 extern short CardMenuOperation;
-extern short MenuFrameState;
 #include "rr/menu_arena_base.h"
 
 void GpMenuModeEnter();
@@ -105,7 +105,7 @@ void StepGpMenuSelection(void) {
     s = SubmodeState;
     if (s == 0) {
         UiRows[MenuCursor].cells[0] = 0;
-        StepMenuValue(0, 2, &MenuCursor, 3, 0);
+        StepMenuValue(0, 2, (char *)&MenuCursor, 3, 0);
         UiRows[MenuCursor].cells[0] = 2;
         s = UiRows->byte14;
         if (s == 2) {
@@ -135,7 +135,7 @@ void StepGpMenuSelection(void) {
         SetMenuFrameOptions(0, 1, 1);
         t = FadeCountdown - 1;
         FadeCountdown = t;
-        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - (short)t) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x40 - (short)t) * 4, 0x45);
         if ((short)FadeCountdown <= 0) {
             switch (MenuCursor) {
             case 0:
@@ -166,7 +166,7 @@ void CarStandingsModeEnter(void)
     MenuGrid38 *p;
     AllocMenuGridRecords(SharedWorkArena, 1);
     InitMenuGrid(0, 0, 3, 0xF0, 0xA0);
-    PsyqBzero((SCRATCHPAD + 0x8), 0x20);
+    PsyqBzero((void *)(SCRATCHPAD + 0x8), 0x20);
     p = MenuGridRecords;
     p->rot_z1C = 0x60;
     p->rot_y20 = -0x110;
@@ -184,8 +184,8 @@ void CarStandingsModeEnter(void)
         InitMenuArenas();
         LoadCursor = MenuArenaBase;
     }
-    MenuFrameState = 0;
-    sp[0] = AddTileGrid2x2(&CurrentDrawBuf->buffer.ordering70.words[0], sp[0], 0, 0, 0x140, 0x200, 8, 8, 8);
+    MenuFrameState.s0 = 0;
+    RR_GPU_SCRATCH->cursor = AddTileGrid2x2(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x200, 8, 8, 8);
     ModeGroup = 1;
     ModeIndex = 0x10;
     SubmodeState = 0;

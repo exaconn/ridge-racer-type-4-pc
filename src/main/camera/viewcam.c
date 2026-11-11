@@ -1,4 +1,5 @@
 #include "psyq/libgte/rotmatyxz.h"
+#include "rr/menu_selection.h"
 #include "psyq/libgte/gtemat5.h"
 #include "rr/frame_storage_types.h"
 #include "rr/camera_matrices.h"
@@ -6,6 +7,8 @@
 #include "game/car/car.h"
 #include "types.h"
 #include "scratchpad.h"
+#include "rr/gpu.h"
+#include "rr/gpu_scratch_types.h"
 #include "game/camera/viewini.h"
 #include "game/car/aipath.h"
 #include "game/gfx/poly1.h"
@@ -21,10 +24,9 @@
 #include "psyq/libgpu/gpudisp.h"
 #include "game/camera/viewcam.h"
 #include "rr/animated_glyph.h"
+/* PsyZ libgte ScaleMatrix(MATRIX *, VECTOR *); MatrixWords32 shares MATRIX. */
+extern MatrixWords32 *ScaleMatrix(MatrixWords32 *matrix, s32 *scale);
 
-extern int ScaleMatrix();
-extern char ActiveCameraModeTable[];
-extern short CourseIndex;
 extern void SubmitCourseHorizon(void *scratch, VisibleCourseViews *views, s32 course);
 extern unsigned short CameraTargetTrackNode;
 extern s16 ViewOffsetX[];
@@ -58,7 +60,7 @@ void SetupHorizonViewTransform(int *a0, int *a1) {
         g[0x28] = w[0];
         g[0x29] = w[1];
         g[0x2A] = w[2];
-        ScaleMatrix((SCRATCHPAD + 0x108), x);
+        ScaleMatrix((MatrixWords32 *)(SCRATCHPAD + 0x108), x);
         ResetViewScratchMask(ActiveVisibleViews, a0, a1);
     }
 }
@@ -81,14 +83,14 @@ void SetupViewMatrix(void) {
     HalfTransViewMatrix.w[6] >>= 1;
     HalfTransViewMatrix.w[7] >>= 1;
     ApplyMatrixLV((const MatrixWords32 *)SCRATCH_ROT_MATRIX, &v.xyz, &w.xyz);
-    ((ViewMatrixScratch48 *)SCRATCHPAD)->matrix28.w[5] = w.words[0];
-    ((ViewMatrixScratch48 *)SCRATCHPAD)->matrix28.w[6] = w.words[1];
-    ((ViewMatrixScratch48 *)SCRATCHPAD)->matrix28.w[7] = w.words[2];
+    (*(MatrixWords32 *)SCRATCH_ROT_MATRIX).w[5] = w.words[0];
+    (*(MatrixWords32 *)SCRATCH_ROT_MATRIX).w[6] = w.words[1];
+    (*(MatrixWords32 *)SCRATCH_ROT_MATRIX).w[7] = w.words[2];
     SetTransMatrix((s32 *)SCRATCH_ROT_MATRIX);
     x.words[2] = 0x4000;
     x.words[1] = 0x4000;
     x.words[0] = 0x4000;
-    ScaleMatrix((s32 *)SCRATCH_ROT_MATRIX, x.words);
+    ScaleMatrix((MatrixWords32 *)SCRATCH_ROT_MATRIX, x.words);
     SetRotMatrix((s32 *)SCRATCH_ROT_MATRIX);
 }
 
@@ -104,13 +106,13 @@ void SetupViewLighting(void) {
 
 
 void SetupPlayerView(int player) {
-    char *p = ActiveCameraModeTable;
     BuildViewSegmentObjectList(player);
     ApplySegmentVisibilityMask();
     SetupViewLighting();
-    SetupHorizonViewTransform(p, p - 0x30);
+    /* Lead car's angles (rot50..58) and position words. */
+    SetupHorizonViewTransform(&PlayerCars[0].rot50, PlayerCars[0].position20.words);
     SetupViewMatrix();
-    SubmitCourseHorizon(SCRATCHPAD, ActiveVisibleViews, CourseIndex);
+    SubmitCourseHorizon(RrScratchpad, ActiveVisibleViews, CourseIndex);
 }
 
 void RenderPlayerCourseView(int player) {
@@ -119,7 +121,7 @@ void RenderPlayerCourseView(int player) {
     ApplySegmentVisibilityMask();
     SetupViewLighting();
     SetupViewMatrix();
-    SubmitCourseHorizon(SCRATCHPAD, ActiveVisibleViews, CourseIndex);
+    SubmitCourseHorizon(RrScratchpad, ActiveVisibleViews, CourseIndex);
 }
 
 
@@ -181,7 +183,7 @@ void SetupViewport(s32 viewport) {
     s32 top;
     s32 height;
 
-    packet = scene->view.projection.pointers.cursor;
+    packet = RR_GPU_SCRATCH->cursor;
     ActiveViewportIndex = viewport;
     isMirror = (viewport == 1);
     SetGeomOffset(ViewOffsetX[viewport], ViewOffsetY[viewport]);
@@ -222,14 +224,14 @@ void SetupViewport(s32 viewport) {
         rectangle->y = coordinate;
     }
     if (viewport & 1) {
-        scene->view.projection.pointers.order = &CurrentDrawBuf->buffer.secondaryOrderingB70.words[0];
+        RR_GPU_SCRATCH->order = &CurrentDrawBuf->buffer.secondaryOrderingB70.tags[0];
     } else {
-        scene->view.projection.pointers.order = &CurrentDrawBuf->buffer.ordering70.words[0];
+        RR_GPU_SCRATCH->order = &CurrentDrawBuf->buffer.ordering70.tags[0];
     }
     SetDrawArea(packet, rectangle);
-    AddPrim(scene->view.projection.pointers.order + 703, (u32 *)packet);
-    packet += 0xC;
-    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = packet;
+    AddPrim(&RR_GPU_SCRATCH->order[703], packet);
+    packet += sizeof(GpuDrawModePacket);
+    RR_GPU_SCRATCH->cursor = packet;
 }
 
 int GetViewTrackNode(const s32 *position, s32 player) {
@@ -238,3 +240,22 @@ int GetViewTrackNode(const s32 *position, s32 player) {
     }
     return PlayerCars[player].trackNodeF0;
 }
+
+/* Initial values of the globals this module owns. */
+s16 ViewOffsetX[8] = {160, 160, 160, 160, 80, 240, 160};
+s16 ViewOffsetY[8] = {128, 32, 64, 192, 128, 128, 256};
+s32 ViewScreenH[7] = {290, 320, 290, 290, 290, 290, 290};
+u16 CourseSelectMapCoordsX[8] = {0, 0x62, 0, 0, 0, 0xA0};
+s16 CourseSelectMapCoordsY[8] = {0, 0, 0, 128};
+u16 CourseSelectLabelPosX[8] = {0x140, 0xDE, 0x140, 0x140, 0xA0, 0x140, 0x140};
+s16 CourseSelectLabelPosY[8] = {256, 28, 128, 256, 256, 256, 512};
+GpuRectangleFields CourseSelectPreviewUvs[2][7] = {{{.w = 320, .h = 256}, {.x = 98, .y = 18, .w = 124, .h = 28}, {.w = 320, .h = 128}, {.y = 128, .w = 320, .h = 128}, {.w = 160, .h = 256}, {.x = 160, .w = 160, .h = 256}, {.w = 320, .h = 512}}, {{.y = 256, .w = 320, .h = 256}, {.x = 98, .y = 274, .w = 124, .h = 28}, {.y = 256, .w = 320, .h = 128}, {.y = 384, .w = 320, .h = 128}, {.y = 256, .w = 160, .h = 256}, {.x = 160, .y = 256, .w = 160, .h = 256}, {.w = 320, .h = 512}}};
+int BackColorR;
+s32 ActiveViewportIndex;
+int FarColorB;
+int FarColorG;
+int FarColorR;
+int ViewUsesCarTrackNode;
+int BackColorB;
+int BackColorG;
+unsigned short CameraTargetTrackNode;

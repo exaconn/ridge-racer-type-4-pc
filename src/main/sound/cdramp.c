@@ -1,4 +1,3 @@
-/* RODATA 0x80011148 0x14 */
 #include "rr/audio_cd_controller.h"
 
 extern u8 CdAudioStatusReportBuf[];
@@ -35,7 +34,6 @@ void CdAudioFadeStep(void)
 void CdAudioPlayStep(void)
 {
     int r;
-    int unused[2];
     AudioState *p;
     switch (CdAudioFadeState) {
     case 0:
@@ -88,3 +86,6 @@ void CdAudioPlayStep(void)
         break;
     }
 }
+
+/* Initial values of the globals this module owns. */
+u8 CdAudioStatusReportBuf[28];

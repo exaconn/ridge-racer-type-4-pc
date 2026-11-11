@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay662_tool_action.h"
 #include "game/system/pad.h"
 #include "rr/overlay662_save_dialog.h"
@@ -1195,3 +1196,11 @@ void ovl662_tool_select_color_15(s32 mode) {
         }
     }
 }
+
+/* Initial values of the overlay globals this module owns. */
+GarageSelectionPrefix ovl662_editor_workspace;
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_editor_dialogs_regions[] = {
+    RR_OVERLAY_STATE(ovl662_editor_workspace)};
+const OverlayStateTable ovl662_editor_dialogs_state = {ovl662_editor_dialogs_regions, sizeof(ovl662_editor_dialogs_regions) / sizeof(ovl662_editor_dialogs_regions[0])};

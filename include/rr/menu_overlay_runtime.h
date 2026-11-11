@@ -8,7 +8,7 @@
 
 #include "game/data/cdfile2.h"
 #include "game/car/carwheel.h"
-#include "rr/badge_row_types.h"
+#include "rr/badge_rows.h"
 #include "rr/load_cursor.h"
 #include "rr/course_choice_types.h"
 #include "rr/frame_storage_types.h"
@@ -44,34 +44,26 @@ extern u16 HudMapZoomMode;
 extern s32 RaceTimeRemaining;
 extern s16 FadeCountdown;
 extern s16 MenuItemCount;
-extern s16 SelectedCourseChoice;
 extern s16 MenuCursor;
-extern s32 RaceIntroCameraState;
-extern MenuGridPoint PlayerCourseChoices[4];
-extern s8 ScreenFadeState;
+#include "rr/menu_frame_state.h"
 extern s16 ReverseCourse;
 extern TimeRecord16 RaceRecords[2][8][5];
 extern FrameStorage DrawBuffers[2];
 extern s32 RaceQuitTargetMode;
-extern s32 RankEntries;
-extern u8 *ImageRows;
-extern RaceSetupPair4 PlayerThrottleLoad;
+#include "game/menu/menu8.h"
+#include "rr/image_rows.h"
+#include "game/car/carparam.h"
 extern s32 ModeFrame;
 extern s32 TrackLength;
 extern s8 PauseCursor;
 extern s16 SelectedMakerIndex;
-extern s16 CourseIndex;
-extern SaveProgressRecord7C SaveProgress;
 extern s16 ModeIndex;
-extern s32 NumLaps;
 extern u16 MenuSelectedCarSlot;
 extern s32 MenuReturnSubmodeIndex;
-extern BadgeRow1C *BadgeRows;
 extern u16 MenuScriptId;
 extern s32 TotalRaceTime;
 extern s8 RacePaused;
 extern u16 ModeGroup;
-extern RaceSetupPair4 PlayerDisplayRpm;
 extern s32 LapTimes[10];
 #include "rr/menu_arena_base.h"
 extern s16 GameModeType;
@@ -89,6 +81,8 @@ extern s32 RaceStartWipeY;
 extern s16 LapVoicePending;
 
 #include "rr/race_frame_scratch.h"
+#include "rr/gpu_scratch_types.h"
+#include "scratchpad.h"
 #include "game/data/ldscn5.h"
 #include "game/gfx/sprpkt.h"
 #include "game/menu/menusave.h"
@@ -99,20 +93,19 @@ extern s16 LapVoicePending;
 #include "game/sound/sndctrl.h"
 #include "game/ui/hudctrl.h"
 typedef RaceFrameScratch Ovl659Scratch;
+/* Scratch views over the host scratchpad; the packet cursor and ordering
+ * table live in GpuScratch (RR_GPU_SCRATCH). */
 #ifndef RR_659_SCRATCH
-#define RR_659_SCRATCH ((Ovl659Scratch *)0x1F800000U)
+#define RR_659_SCRATCH ((Ovl659Scratch *)SCRATCHPAD)
 #endif
 #ifndef RR_666_SCRATCH
-#define RR_666_SCRATCH ((GpuScratchPointers *)0x1F800000U)
+#define RR_666_SCRATCH RR_GPU_SCRATCH
 #endif
 #ifndef RR_MENU_PREVIEW_SCRATCH_WORDS
-#define RR_MENU_PREVIEW_SCRATCH_WORDS ((s32 *)0x1F800000U)
+#define RR_MENU_PREVIEW_SCRATCH_WORDS ((s32 *)SCRATCHPAD)
 #endif
 #ifndef RR_PROJECTION_SCRATCH
-#define RR_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)0x1F800000U)
-#endif
-#ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
+#define RR_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)SCRATCHPAD)
 #endif
 
 /* Resident game and GPU services. */
@@ -122,15 +115,15 @@ void SetModelTexturePage(s32);
 void ResetCarSlotBuffers(void);
 void SetupSkyLightMatrices(char *position, u16 *matrix);
 void SetSineLightColors(s32 scale);
-void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head);
+void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, GpuDmaTag *head);
 s32 DebugPrintStub(const char *format, ...);
 void SetupDrawDispEnvs(s32 r, s32 g, s16 b, u32 flags);
-void *AddDrawAreaPrim(u32 *, void *, s32, s32, s32, s32);
-void *AddDrawModePrim(u32 *ordering, GpuDrawModePacket *packet, u16 mode);
-void *AddTilePrim(u32 *, void *, s32, s32, s32, s32, s32, s32, s32);
-void *AddSpritePrim(u32 *ordering, void *cursor, s32 x, s32 y, UiUvRect *region, u16 clut,
+void *AddDrawAreaPrim(GpuDmaTag *, void *, s32, s32, s32, s32);
+void *AddDrawModePrim(GpuDmaTag *ordering, GpuDrawModePacket *packet, u16 mode);
+void *AddTilePrim(GpuDmaTag *, void *, s32, s32, s32, s32, s32, s32, s32);
+void *AddSpritePrim(GpuDmaTag *ordering, void *cursor, s32 x, s32 y, const UiUvRect *region, u16 clut,
                     s32 flags);
-void AddScreenFadeTiles(u32 *, s32, u32);
+void AddScreenFadeTiles(GpuDmaTag *ordering, s32 intensity, u32 mode);
 void SubmitRaceHudPackets(s32);
 void DrawViewportBorderFrames(s32);
 void DrawHudRotatingQuad(s32, s32);
@@ -139,7 +132,7 @@ void DrawHudDigitMod10(s32, s32);
 void UpdateHudRankDisplay(s32, s32);
 void UpdateFinalLapHudSprite(s32);
 void DrawLapCounter(s32, s32);
-void DrawSteeringIndicator(u32 *ordering, s32 layout);
+void DrawSteeringIndicator(GpuDmaTag *ordering, s32 layout);
 void DrawRaceStartSignalSprite(s32);
 void UpdateCarStartLineSteering(RaceVehicle *);
 void SaveCarSnapshots(s32);
@@ -158,7 +151,7 @@ void SetCarBounds(RaceVehicle *);
 void ResetCarState(RaceVehicle *);
 void UpdateCarWorldTransform(RaceVehicle *);
 s32 DecodeCourseIndex(s32 selection);
-void *EmitSpinningWheelIcon(u32 *, void *, s32, s32, s32);
+void *EmitSpinningWheelIcon(GpuDmaTag *, void *, s32, s32, s32);
 void DrawCourseInfoPanel(s32, s32);
 void DrawCourseMapPreview(s32, s32);
 void UpdateRaceIntroCamera(RaceVehicle *, s32);
@@ -192,7 +185,7 @@ void InitGlyphRow();
 s32 UpdateGlyphRow(s32 selected);
 void InitUiRow(s32 index, s32 a, s32 b, s32 c, s32 d, s32 e, s32 f, s32 count, s32 g, s32 h,
                    ...);
-void DrawUiRow(s32);
+int DrawUiRow(s32);
 s32 UpdateImageRow(s32);
 void SetMenuTextRow(s32 row, s32 position, s32 group, s32 mode, s32 label);
 void UpdateMenuTextRow(s32);

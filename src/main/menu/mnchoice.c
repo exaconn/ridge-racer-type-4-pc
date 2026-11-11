@@ -128,3 +128,7 @@ s32 CountChoiceGlyphs(const CourseChoice4 *a0) {
     }
     return i;
 }
+
+/* Initial values of the globals this module owns. */
+int TitleDemoTrackNode;
+int MenuSavedTrackNode;

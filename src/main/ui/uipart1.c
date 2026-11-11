@@ -26,40 +26,11 @@
 
 typedef struct { unsigned char c[4]; } B4;
 
-typedef struct { unsigned char a, b, c, d; } S;
+typedef UiUvRect R4;
 
-typedef struct {
-    unsigned char u, v, w, h;
-} __attribute__((packed)) R4;
-
-typedef struct {
-    unsigned char a, b, c, d;
-} S_ACC68;
-
-typedef struct {
-    short s0;
-    short s2;
-    unsigned char b4;
-    unsigned char b5;
-    unsigned char b6;
-    unsigned char b7;
-    int w8;
-    unsigned char bC;
-    unsigned char bD;
-    short sE;
-    short s10;
-    short s12;
-    short s14;
-    short s16;
-    short s18;
-    short s1A;
-    short s1C;
-    short s1E;
-} S_F4CB0;
 
 typedef struct { u8 c[8]; } B8;
 
-extern S ScreenFadeState;
 extern B4 ScreenFadeColors[];
 extern unsigned short UiTitleMaskVramRect[];
 extern R4 BadgeTitleGlyphUvs[];
@@ -68,13 +39,10 @@ extern signed char BadgeTitleGlyphIndices[][4];
 extern short BadgeTitleColumnX[];
 extern short BadgeTitleBarX[];
 extern R4 BadgeTitleDigitUv;
-extern void *AddSpritePrim();
-extern S_F4CB0 MenuFrameState;
 extern s8 BeamFadeStripHeights[];
 extern char UiBeamFadePalettePair[];
 extern s32 MenuStepDirection;
 extern char RaceTimeDigits[];
-extern int NumLaps;
 extern int LapTimes[];
 extern char TimeTextMMSS[];
 extern unsigned short StepProgressBarWidths[];
@@ -83,63 +51,60 @@ extern int ReplayState;
 
 void ClearScreenOverlayState(void);
 void DrawMenuFrame(int arg0);
-void DrawArrowTrianglePair();
-void DrawMenuStepArrows();
-void StepMenuValue();
-int FramesToMilliseconds(int a, int b);
-void DrawRaceTime();
+void DrawArrowTrianglePair(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5);
 void CopyStringClearTail(char *d, char *s);
-void CopyStringPadSpaces();
-void FormatDecimalDigits();
-void FormatRaceTime(char *a, int b);
+void CopyStringPadSpaces(char *d, unsigned char *s, int n);
 void DrawLapTimeList(int a0);
-char *FormatFrameTimeMMSS();
+char *FormatFrameTimeMMSS(int a);
 void DrawTimeRemaining(int a);
 void DrawTimeRemainingForPlayer(int a, int b);
-char *FormatMillisecondsTime(int t);
+
+/* Packed GPU XY word (X low halfword, Y high). */
+static s32 Vec2sWord(const Vec2s *v) {
+    return (s32)((u32)(u16)v->x | ((u32)(u16)v->y << 16));
+}
 
 void UpdateScreenFade(int a0) {
     B4 sp;
     int a, t, a1;
-    S *st = &ScreenFadeState;
+    ScreenFadeState0C *st = &ScreenFadeState;
     CurrentDrawBuf->buffer.environment00.draw00.background = 0;
     a = (a0 >> 1) & 1;
-    st->c = a;
-    if (a != st->d) ScreenFadeState.a = 0;
-    st->d = a;
-    t = st->b;
-    switch (ScreenFadeState.a) {
+    st->target = a;
+    if (a != st->prevTarget) ScreenFadeState.phase = 0;
+    st->prevTarget = a;
+    t = st->tick;
+    switch (ScreenFadeState.phase) {
     case 0:
         sp = ScreenFadeColors[a ^ 1];
-        st->b = 0;
-        ScreenFadeState.a = 1;
+        st->tick = 0;
+        ScreenFadeState.phase = 1;
         break;
     case 1:
         {
-            B4 *p = &ScreenFadeColors[st->c];
-            B4 *q = &ScreenFadeColors[st->c ^ 1];
+            B4 *p = &ScreenFadeColors[st->target];
+            B4 *q = &ScreenFadeColors[st->target ^ 1];
             a1 = 0x1E - t;
             sp.c[0] = (p->c[0] * t + q->c[0] * a1) / 30;
             sp.c[1] = (p->c[1] * t + q->c[1] * a1) / 30;
             sp.c[2] = (p->c[2] * t + q->c[2] * a1) / 30;
         }
         if (t >= 0x1E) {
-            ScreenFadeState.a = 2;
-            st->b = 0;
+            ScreenFadeState.phase = 2;
+            st->tick = 0;
         } else {
             if (t == 2) {
                 if (MenuFrameState.s0 == 0) SetDispMask(1);
             }
-            ScreenFadeState.b = ScreenFadeState.b + 1;
+            ScreenFadeState.tick = ScreenFadeState.tick + 1;
         }
         break;
     case 2:
-        sp = ScreenFadeColors[st->c];
+        sp = ScreenFadeColors[st->target];
         break;
     }
     {
-        int t = *(int *)SCRATCHPAD;
-        *(int *)SCRATCHPAD = AddTileGrid2x2(&CurrentDrawBuf->buffer.ordering70.words[703], t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
+        RR_GPU_SCRATCH->cursor = AddTileGrid2x2(&CurrentDrawBuf->buffer.ordering70.tags[703], RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
     }
     DrawMenuFrame(a0 >> 2);
     if (MainMenuChoice != 6 && MainMenuChoice != 8) {
@@ -149,8 +114,8 @@ void UpdateScreenFade(int a0) {
 }
 
 void ClearScreenOverlayState(void) {
-    PsyqBzero(&MenuFrameState, 0x20);
-    PsyqBzero(&ScreenFadeState, 0xC);
+    PsyqBzero(&MenuFrameState, sizeof(MenuFrameState));
+    PsyqBzero(&ScreenFadeState, sizeof(ScreenFadeState));
 }
 
 
@@ -181,16 +146,16 @@ void DrawMenuFrame(int arg0) {
     MenuFrameState.b6 = arg0;
     s0 = MenuFrameState.s2;
     s6 = MenuFrameState.b6;
-    sp38 = ScreenFadeState.c;
+    sp38 = ScreenFadeState.target;
 
     switch (MenuFrameState.s0) {
     case 0:
         MenuFrameState.s12 = 0x38;
         MenuFrameState.s1A = 0x1B8;
         MenuFrameState.s16 = MenuFrameState.s1E = 2;
-        if (ScreenFadeState.a == 2) {
+        if (ScreenFadeState.phase == 2) {
             MenuFrameState.s0 = 1;
-            MenuFrameState.b4 = ScreenFadeState.c;
+            MenuFrameState.b4 = ScreenFadeState.target;
         }
         break;
     case 1:
@@ -214,27 +179,27 @@ void DrawMenuFrame(int arg0) {
             MenuFrameState.s2++;
         }
     case 3:
-        if (ScreenFadeState.a == 1) {
+        if (ScreenFadeState.phase == 1) {
             MenuFrameState.s0 = 4;
             MenuFrameState.s2 = 0;
         }
-        if (ScreenFadeState.a != 2) {
+        if (ScreenFadeState.phase != 2) {
             s6 = MenuFrameState.b7;
-            sp38 = ScreenFadeState.c ^ 1;
+            sp38 = ScreenFadeState.target ^ 1;
         }
         break;
     case 4:
         if (s0 >= 20) {
-            if (ScreenFadeState.a == 2) {
+            if (ScreenFadeState.phase == 2) {
                 MenuFrameState.s0 = 5;
                 MenuFrameState.s2 = 0;
-                MenuFrameState.b4 = ScreenFadeState.c;
+                MenuFrameState.b4 = ScreenFadeState.target;
             }
         } else {
             MenuFrameState.s2++;
         }
         s7 = ((20 - s0) * 0x80) / 20;
-        sp38 = ScreenFadeState.c ^ 1;
+        sp38 = ScreenFadeState.target ^ 1;
         s6 = MenuFrameState.b7;
         break;
     case 5:
@@ -250,8 +215,8 @@ void DrawMenuFrame(int arg0) {
 
     pc = UiTitleMaskVramRect;
     sp40 = (((sp38 + 1) & 3) << 5) | 0x1E;
-    a1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200);
-    a1 = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.words[0], a1, 0x10, 0x24, 0x20, 0x10, 0, 0x20, sp40, 0x7F38, 1, (unsigned short)s7);
+    a1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x200);
+    a1 = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, 0x10, 0x24, 0x20, 0x10, 0, 0x20, sp40, 0x7F38, 1, (unsigned short)s7);
     s1 = 0;
     s4 = 0x30;
     s5 = 0x24;
@@ -260,24 +225,25 @@ void DrawMenuFrame(int arg0) {
     c = BadgeTitleGlyphIndices[s6][0];
     while (c != -1) {
         r = &BadgeTitleGlyphUvs[c];
-        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s4, s5, r, 0x7F38, ((unsigned short)s7 << 1) | 1);
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, s4, s5, r, 0x7F38, ((unsigned short)s7 << 1) | 1);
         c = BadgeTitleGlyphIndices[s6][++s1];
         { int t = s4 + 2; s4 = t + r->w; }
     }
 
-    if (MenuFrameState.w8 > 0) {
-        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s4, s5, &BadgeTitleColonUv, 0x7F38, ((unsigned short)s7 << 1) | 1);
-        BadgeTitleDigitUv.u = MenuFrameState.w8 * 8;
+    if (MenuFrameState.titlePlayer08 > 0) {
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, s4, s5, &BadgeTitleColonUv, 0x7F38, ((unsigned short)s7 << 1) | 1);
+        BadgeTitleDigitUv.u = MenuFrameState.titlePlayer08 * 8;
         { int t = s4 + 2; s4 = t + BadgeTitleColonUv.w; }
-        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s4, s5, &BadgeTitleDigitUv, 0x7F38, 1, ((unsigned short)s7 << 1) | 1);
+        /* The original passes an extra trailing argument; the callee reads flags = 1. */
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, s4, s5, &BadgeTitleDigitUv, 0x7F38, 1);
     }
 
     a1 = AddTileSemiTransPrim(
-        &CurrentDrawBuf->buffer.ordering70.words[0], a1, 8, 0x38, 0x130, 2,
+        &CurrentDrawBuf->buffer.ordering70.tags[0], a1, 8, 0x38, 0x130, 2,
         col1 = *pc, col1, col1
     );
-    a1 = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, sp40);
-    a1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, MenuFrameState.s10, MenuFrameState.s12, MenuFrameState.s14, MenuFrameState.s16);
+    a1 = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, sp40);
+    a1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, MenuFrameState.s10, MenuFrameState.s12, MenuFrameState.s14, MenuFrameState.s16);
 
     for (j = 2; j < 7; j++) {
         s4 = BadgeTitleColumnX[j];
@@ -302,7 +268,7 @@ void DrawMenuFrame(int arg0) {
                 sp30.w -= 0x1E;
             }
         }
-        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s4, s5, &sp30, 0x7F38, ((unsigned short)s7 << 1) | 1);
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, s4, s5, &sp30, 0x7F38, ((unsigned short)s7 << 1) | 1);
     }
 
     if (MenuFrameState.sE == 0) {
@@ -310,41 +276,38 @@ void DrawMenuFrame(int arg0) {
     } else {
         s2 = 0x31;
     }
-    if (ScreenFadeState.a == 2) {
+    if (ScreenFadeState.phase == 2) {
         j = sp38 + 0x7DBA;
-        a1 = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, BadgeTitleBarX[7], y, 1, 0xC, 0xF0, 0x7A, 0x14);
-        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, BadgeTitleBarX[7] + 8, s5, &BadgeTitleGlyphUvs[s2], j, 0);
+        a1 = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, BadgeTitleBarX[7], y, 1, 0xC, 0xF0, 0x7A, 0x14);
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, BadgeTitleBarX[7] + 8, s5, &BadgeTitleGlyphUvs[s2], j, 0);
     }
 
     col2 = *pc;
-    a1 = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, sp40);
+    a1 = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, sp40);
     {
-        u8 *p;
-        int w, w2, w3, d;
+        int w;
         for (j = 3; j < 7; j++) {
-            a1 = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, BadgeTitleBarX[j], (j >= 3) ? y : 0x1A8, 1, 0xC, col2, col2, col2);
+            a1 = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, BadgeTitleBarX[j], (j >= 3) ? y : 0x1A8, 1, 0xC, col2, col2, col2);
         }
         w = 0x130;
-        a1 = AddTileSemiTransPrim(
-            (p = CurrentDrawBuf->bytes) + 0x70, a1, 8, 0x1B8,
-            (col3 = *pc, w3), 2,
-            col3, col3, ({; col3; })
-        );
+        col3 = *pc;
+        a1 = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, 8, 0x1B8, w, 2, col3, col3, col3);
         if (MenuFrameState.bD != 1) {
-            a1 = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, 0xEE, 0x1C6, 0x16, 2, col3, col3, col3);
+            a1 = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, 0xEE, 0x1C6, 0x16, 2, col3, col3, col3);
         }
         if (MenuFrameState.bC != 1) {
-            a1 = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, 0xA8, 0x1C6, 0x12, 2, col3, col3, col3);
+            a1 = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, 0xA8, 0x1C6, 0x12, 2, col3, col3, col3);
         }
-        a1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, MenuFrameState.s18, MenuFrameState.s1A, MenuFrameState.s1C, MenuFrameState.s1E);
-        *(void **)SCRATCHPAD = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, sp40);
+        a1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, MenuFrameState.s18, MenuFrameState.s1A, MenuFrameState.s1C, MenuFrameState.s1E);
+        RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, sp40);
     }
 }
 
 void SetMenuFrameOptions(s32 a, s32 b, s32 c) { MenuFrameState.sE = a; MenuFrameState.bC = b; MenuFrameState.bD = c; }
 
 void DrawArrowTrianglePair(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5) {
-    s32 i, j, k, t0, sel, sg, off;
+    s32 i, j, k, sel, sg, off;
+    void *t0;
     s32 s1;    s8 *tb;
     Vec2s *p, *bp;
     char *ub;
@@ -356,7 +319,7 @@ void DrawArrowTrianglePair(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5) {
     i = 0;
     bp = w.v;
     tb = BeamFadeStripHeights;
-    t0 = *(s32 *)SCRATCHPAD;
+    t0 = RR_GPU_SCRATCH->cursor;
     w.u = *(B8 *)UiBeamFadePalettePair;
 L0:
     j = 0;
@@ -366,8 +329,8 @@ L1:
     p = bp;
     off = j << 1;
     do {
-        p->x = (*(s8 *)(off + (s32)tb) - a2) * sg + a0;
-        p->y = ((s8 *)(off + tb))[1] + a1;
+        p->x = (tb[off] - a2) * sg + a0;
+        p->y = tb[off + 1] + a1;
         off += 4;
         k++;
         p++;
@@ -376,18 +339,18 @@ L1:
     sel = 0;
     if (a5 == s1) sel = 0 < j;
     j++;
-    sg = &CurrentDrawBuf->buffer.ordering70.words[0];
     ub = (char *)&w.u;
-    t0 = EmitPolyF3(sg, t0, ((s32 *)w.v)[0], ((s32 *)w.v)[1], ((s32 *)w.v)[2], ub + sel * 4, 0);
+    t0 = EmitPolyF3(&CurrentDrawBuf->buffer.ordering70.tags[0], t0, Vec2sWord(&w.v[0]), Vec2sWord(&w.v[1]), Vec2sWord(&w.v[2]), (const u8 *)ub + sel * 4, 0);
     if (j < 2) goto L1;
     i = s1;
     if (i < 2) goto L0;
-    *(s32 *)SCRATCHPAD = t0;
+    RR_GPU_SCRATCH->cursor = t0;
 }
 
 
 void DrawMenuStepArrows(s32 p0, s32 p1, s32 p2, s32 p3, s32 p4, s32 a5, s32 a6) {
-    s32 i, k, t0, g, sel, sg;
+    s32 i, k, g, sel, sg;
+    void *t0;
     s32 one;    s32 a3; 
     s32 a4;    s32 a0, a1;
     s32 a2; 
@@ -407,7 +370,7 @@ void DrawMenuStepArrows(s32 p0, s32 p1, s32 p2, s32 p3, s32 p4, s32 a5, s32 a6) 
     bp = w.v;
     one = 1;
     a4 = p4;
-    t0 = *(s32 *)SCRATCHPAD;
+    t0 = RR_GPU_SCRATCH->cursor;
     g = MenuStepDirection;
     nv = BeamFadeStripHeights;
     w.u = *(B8 *)UiBeamFadePalettePair;
@@ -433,19 +396,19 @@ L0:
     sel ^= a3;
     if ((a4 != a5 || i != 0) && (a4 != a6 - 1 || i != one)) {
         ub = (char *)&w.u;
-        t0 = EmitPolyF3(&CurrentDrawBuf->buffer.ordering70.words[0], t0, ((s32 *)w.v)[0], ((s32 *)w.v)[1], ((s32 *)w.v)[2], ub + (sel << 2), 0);
+        t0 = EmitPolyF3(&CurrentDrawBuf->buffer.ordering70.tags[0], t0, Vec2sWord(&w.v[0]), Vec2sWord(&w.v[1]), Vec2sWord(&w.v[2]), (const u8 *)ub + (sel << 2), 0);
     }
     i++;
     if (i < 2) goto L0;
-    *(s32 *)SCRATCHPAD = t0;
+    RR_GPU_SCRATCH->cursor = t0;
     if (a3 == 1) {
-        *(s32 *)SCRATCHPAD = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], t0, a0, a1 - 0xC, a3, 0x18, 0xFF, 0xFF, 0xFF);
+        RR_GPU_SCRATCH->cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], t0, a0, a1 - 0xC, a3, 0x18, 0xFF, 0xFF, 0xFF);
     }
 }
 
 
 void StepMenuValue(int a0, int a1, char *a2, int a3, int a4) {
-    int s0;
+    int s0 = 0;
     int a;
     unsigned short b;
     switch (a1) {
@@ -535,7 +498,7 @@ int FramesToMilliseconds(int a, int b)
     return q * 1000 + a;
 }
 
-void DrawRaceTime(int a0, int a1, int b, int a3, int off) {
+void DrawRaceTime(s32 a0, s32 a1, s32 b, s32 a3, s32 off) {
     if (b >= 0) {
         int m = b / 1000;
         int r = m % 60;
@@ -619,28 +582,14 @@ void FormatRaceTime(char *a, int b)
   int r;
   if (b >= 0)
   {
-    if (s)
-    {
-s = b / 1000;
-m = s / 60;
-r = s % 60;
-t = b % 1000;
-      FormatDecimalDigits(a, m, 1);
-      FormatDecimalDigits(a + 3, r, 1);
-      FormatDecimalDigits(a + 6, t, 2);
-      return;
-    }
-    else
-    {
-s = b / 1000;
-m = s / 60;
-r = s % 60;
-t = b % 1000;
-      FormatDecimalDigits(a, m, 1);
-      FormatDecimalDigits(a + 3, r, 1);
-      FormatDecimalDigits(a + 6, t, 2);
-      return;
-    }
+    s = b / 1000;
+    m = s / 60;
+    r = s % 60;
+    t = b % 1000;
+    FormatDecimalDigits(a, m, 1);
+    FormatDecimalDigits(a + 3, r, 1);
+    FormatDecimalDigits(a + 6, t, 2);
+    return;
   }
   a[8] = 0x2D;
   a[7] = 0x2D;
@@ -657,7 +606,7 @@ void DrawLapTimeList(int a0) {
     int n;
     int s7;
     int i;
-    int s3;
+    int s3 = 0x7FF8; /* best-lap CLUT also when there are no laps */
     int v;
     int y;
     SpritePacket *p;
@@ -678,8 +627,8 @@ void DrawLapTimeList(int a0) {
             v = LapTimes[i];
             y = i * 10 + 0x2C;
             DrawRaceTime(0xF0, y, v, s3, 0);
-            p = *(SpritePacket **)SCRATCHPAD;
-            p->len = 4;
+            p = (SpritePacket *)RR_GPU_SCRATCH->cursor;
+            p->tag.length = 4;
             p->code = 0x64;
             p->x = 0xE7;
             p->y = y;
@@ -689,9 +638,9 @@ void DrawLapTimeList(int a0) {
             p->code |= 1;
             p->w = 0xC;
             p->h = 0xC;
-            AddPrim(&CurrentDrawBuf->buffer.ordering70.words[0], p);
+            RR_GPU_LINK(&CurrentDrawBuf->buffer.ordering70.tags[0], p);
             p++;
-            *(SpritePacket **)SCRATCHPAD = p;
+            RR_GPU_SCRATCH->cursor = (u8 *)p;
             i++;
         } while (i < NumLaps);
     }
@@ -718,31 +667,32 @@ char *FormatFrameTimeMMSS(int a) {
 
 void DrawTimeRemaining(int a)
 {
-    char *p = (CurrentDrawBuf->buffer.packets1670 + 0x2107C);
-    int r = FormatFrameTimeMMSS(a);
+    /* HUD sprite 5 carries the time-remaining row's Y. */
+    SpritePacket *p = &CurrentDrawBuf->buffer.hudSprites[5];
+    char *r = FormatFrameTimeMMSS(a);
     int i = a < 0x5DC;
     int t = StepProgressBarWidths[i];
     int s = (NumLaps - 3) * 10 + 0x50;
-    DrawDigitString8(&CurrentDrawBuf->buffer.ordering70.words[0], 0x111, s, r, t);
-    ((short *)p)[5] = s;
+    DrawDigitString8(&CurrentDrawBuf->buffer.ordering70.tags[0], 0x111, s, r, t);
+    p->y = s;
 }
 
 void DrawTimeRemainingForPlayer(int a, int b)
 {
-    char *p = CurrentDrawBuf->buffer.packets1670 + (b * 120 + 0x2107C);
-    char *q;
-    int r;
+    SpritePacket *p = &CurrentDrawBuf->buffer.hudSprites[b * 6 + 5];
+    GpuDmaTag *q;
+    char *r;
     int i;
     int t;
     if (b == 0) {
-        q = &CurrentDrawBuf->buffer.ordering70.words[0];
+        q = &CurrentDrawBuf->buffer.ordering70.tags[0];
     } else {
-        q = &CurrentDrawBuf->buffer.secondaryOrderingB70.words[0];
+        q = &CurrentDrawBuf->buffer.secondaryOrderingB70.tags[0];
     }
     r = FormatFrameTimeMMSS(a);
     i = a < 0x5DC;
     t = StepProgressBarWidths[i];
-    DrawDigitString8(q, 0x111, ((short *)p)[5], r, t);
+    DrawDigitString8(q, 0x111, p->y, r, t);
 }
 
 char *FormatMillisecondsTime(int t)
@@ -828,3 +778,22 @@ void SetVehicleShake(RaceVehicle *vehicle, s32 x, s32 y) {
     vehicle->shakeY19A = y;
     vehicle->shakeTimer19E = 15;
 }
+
+/* Initial values of the globals this module owns. */
+unsigned short UiTitleMaskVramRect[16] = {0xC0};
+char UiBeamFadePalettePair[68] = {8, 8, 8, 0, -1, -1, -1};
+R4 BadgeTitleGlyphUvs[22] = {{.v = 0x70, .w = 0x30, .h = 0xC}, {.u = 0x34, .v = 0x70, .w = 0xBC, .h = 0xC}, {.v = 0x7C, .w = 0x5C, .h = 0x10}, {.u = 0x5C, .v = 0x7C, .w = 0xC, .h = 0x10}, {.u = 0x68, .v = 0x7C, .w = 0xC, .h = 0x10}, {.u = 0x8C, .v = 0x7C, .w = 0x30, .h = 0x10}, {.u = 0xBC, .v = 0x7C, .w = 0x3A, .h = 0x10}, {.u = 0xD0, .v = 0x20, .w = 0x1B, .h = 0x10}, {.u = 0x20, .v = 0x20, .w = 0x2D, .h = 0x10}, {.u = 0x50, .v = 0x20, .w = 0x14, .h = 0x10}, {.u = 0x68, .v = 0x20, .w = 0x17, .h = 0x10}, {.u = 0x80, .v = 0x20, .w = 0x18, .h = 0x10}, {.v = 0x30, .w = 0x24, .h = 0x10}, {.u = 0x98, .v = 0x20, .w = 0xC, .h = 0x10}, {.u = 0xA8, .v = 0x20, .w = 0x11, .h = 0x10}, {.u = 0xBC, .v = 0x20, .w = 0x11, .h = 0x10}, {.u = 0xEC, .v = 0x20, .w = 0xF, .h = 0x10}, {.u = 0x24, .v = 0x30, .w = 0x13, .h = 0x10}, {.u = 0x48, .v = 0x30, .w = 0x11, .h = 0x10}, {.u = 0x24, .v = 0x30, .w = 0x38, .h = 0x10}, {.u = 0x5C, .v = 0x30, .w = 0x20, .h = 0x10}, {.u = 0x7C, .v = 0x30, .w = 0x18, .h = 0x10}};
+R4 BadgeTitleColonUv = {.u = 0x94, .v = 0x30, .w = 0x17, .h = 0x10};
+signed char BadgeTitleGlyphIndices[37][4] = {{9, 11, -1, -1}, {10, 11, -1, -1}, {12, -1, -1, -1}, {44, -1, -1, -1}, {17, -1, -1, -1}, {18, -1, -1, -1}, {19, -1, -1, -1}, {8, -1, -1, -1}, {13, 14, -1, -1}, {7, 11, -1, -1}, {15, 13, -1, -1}, {7, 14, -1, -1}, {13, 11, 21, -1}, {13, 11, 23, -1}, {24, -1, -1, -1}, {26, 24, -1, -1}, {28, 11, -1, -1}, {30, -1, -1, -1}, {29, 11, -1, -1}, {29, 16, -1, -1}, {27, 11, -1, -1}, {34, -1, -1, -1}, {20, -1, -1, -1}, {31, 33, -1, -1}, {32, 33, -1, -1}, {46, -1, -1, -1}, {38, 35, -1, -1}, {36, 22, -1, -1}, {37, -1, -1, -1}, {38, 39, -1, -1}, {38, 39, -1, -1}, {38, 41, -1, -1}, {42, 43, -1, -1}, {47, 48, -1, -1}, {45, 24, -1, -1}, {13, 11, -1, -1}, {27, 11, -1, -1}};
+B4 ScreenFadeColors[2] = {{0}, {.c = {0xFF, 0xBD}}};
+short BadgeTitleColumnX[8] = {20, 82, 20, 128, 200, 138, 208};
+short BadgeTitleBarX[8] = {12, 76, 308, 12, 120, 192, 308, 266};
+R4 BadgeTitleDigitUv = {.w = 8, .h = 0x10};
+s8 BeamFadeStripHeights[12] = {-6, 0, -10, 0, 0, -6, 0, -10, 0, 6, 0, 10};
+char RaceTimeDigits[12] = {63, 48, 61, 48, 48, 62, 48, 48, 48};
+char TimeTextMMSS[8] = {48, 48, 58, 48, 48, 59};
+unsigned short StepProgressBarWidths[2] = {0x7FF8, 0x7EF9};
+char StepProgressBarColors[12] = {48, 48, 59, 48, 48, 60, 48, 48, 48};
+FrameStorage *CurrentDrawBuf;
+ScreenFadeState0C ScreenFadeState;
+MenuFrameState20 MenuFrameState;

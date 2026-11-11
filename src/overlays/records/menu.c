@@ -144,7 +144,7 @@ void ovl663_update_menu(void) {
         if ((s16)FadeCountdown > 0) {
             FadeCountdown = (u16)FadeCountdown - 1;
         }
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - (s16)FadeCountdown) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (0x40 - (s16)FadeCountdown) * 4, 0x45);
         i = 0;
         if ((s16)FadeCountdown <= 0) {
             loaded = LoadCoursePreviewStep(ovl663_available_courses[0]);
@@ -162,7 +162,7 @@ void ovl663_update_menu(void) {
     case 5:
         closingTimer = (u16)FadeCountdown - 1;
         FadeCountdown = (u16)closingTimer;
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - closingTimer) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (0x40 - closingTimer) * 4, 0x45);
         i = 0;
         if ((s16)FadeCountdown <= 0) {
             ovl663_init_selection(ovl663_record_kind);
@@ -174,7 +174,7 @@ void ovl663_update_menu(void) {
     case 8:
         cancelTimer = (u16)FadeCountdown - 1;
         FadeCountdown = (u16)cancelTimer;
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - cancelTimer) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (0x40 - cancelTimer) * 4, 0x45);
         i = 0;
         if ((s16)FadeCountdown <= 0) {
             SeqMuteVolume();

@@ -1,10 +1,9 @@
 #include "rr/race_setup.h"
+#include "game/car/carparam.h"
 
 void SetupRace(void)
 {
-    u8 *vectors;
-    u8 *otherRoot,*byteRoot;
-    s32 courseIndex;
+    s32 lapTable;
     s32 minusOne;
     s32 offset1;
 
@@ -14,7 +13,6 @@ void SetupRace(void)
     s32 *result;
     s32 third;
     s32 vehicleIndex;
-    u8 *participant;
     u32 course;
     s32 vehicleFlags;
     s32 *vector;
@@ -55,16 +53,15 @@ void SetupRace(void)
     SplitDistances[2] = TrackLength;
     third = TrackLength / 3;
     SplitDistances[0] = third;
-    vectors = (u8 *) (&CourseBestLapTimes);
     SplitDistances[1] = (third * 2);
-    vector = (s32 *) (((CourseIndex * 12) + (ReverseCourse * 96)) + vectors);
+    vector = CourseBestLapTimes[ReverseCourse][CourseIndex];
     BestSplitTimes[0] = vector[0];
     BestSplitTimes[1] = vector[1];
     RaceState = SavedRaceState;
     BestSplitTimes[2] = vector[2];
     if (GameModeType == 0)
     {
-        BestLapTime = (&CourseBestLap[CourseIndex])[ReverseCourse * 8];
+        BestLapTime = CourseBestLap[ReverseCourse][CourseIndex];
     }
     else if (GameModeType == 1)
     {
@@ -74,15 +71,12 @@ void SetupRace(void)
 
     if ((GameModeType < 2) || (GameModeType == 6))
     {
-        courseIndex = CourseIndex;
-        byteRoot = CourseLapCounts;
-
+        lapTable = 0;
         if (GameModeType == 1)
         {
-            courseIndex += 8;
+            lapTable = 1;
         }
-        participant = courseIndex + byteRoot;
-        NumLaps = (*participant);
+        NumLaps = CourseLapCounts[lapTable][CourseIndex];
     }
     vehicleIndex = 0;
     minusOne = -1;
@@ -138,13 +132,20 @@ void SetupRace(void)
     }
     VSyncThreshold = 0x180;
     ClearTrackObjectStates(0);
-    PlayerDisplayRpm.first = 0;
-    PlayerDisplayRpm.second = 0;
-    PlayerThrottleLoad.first = 0;
-    PlayerThrottleLoad.second = 0;
+    PlayerDisplayRpm[0] = 0;
+    PlayerDisplayRpm[1] = 0;
+    PlayerThrottleLoad[0] = 0;
+    PlayerThrottleLoad[1] = 0;
     RaceVoiceFlags = 0;
     StopAllSoundAndReset();
     SelectCourseBgmTrack();
     SetModelTexturePage(0xA);
 
 }
+
+/* Initial values of the globals this module owns. */
+s32 ChaseViewEnabled;
+s16 GameModeType;
+s32 TrackEventSfxEnabled;
+s32 RaceSetupReadyFlag;
+s32 SplitDistances[3];

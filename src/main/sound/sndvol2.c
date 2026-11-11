@@ -52,7 +52,7 @@ void UpdatePlayerVoices(void) {
             rightVolume >>= 7;
             if (leftVolume < 0) leftVolume += 0x7F;
             leftVolume >>= 7;
-            if (Options.audio.mono32 != 0) {
+            if (Options.mono32 != 0) {
                 rightVolume = (leftVolume + rightVolume) / 2;
                 leftVolume = rightVolume;
             }
@@ -62,9 +62,9 @@ void UpdatePlayerVoices(void) {
             rightVolume = scaledRight >> 7;
             if (leftVolume < 0) leftVolume += 0x7F;
             leftVolume >>= 7;
-            scaledRight = rightVolume * Options.audio.volume31;
+            scaledRight = rightVolume * Options.volume31;
             if (scaledRight < 0) scaledRight += 0xF;
-            leftVolume = leftVolume * Options.audio.volume31;
+            leftVolume = leftVolume * Options.volume31;
             rightVolume = scaledRight >> 4;
             if (leftVolume < 0) leftVolume += 0xF;
             leftVolume >>= 4;
@@ -77,3 +77,6 @@ void UpdatePlayerVoices(void) {
         }
     }
 }
+
+/* Initial values of the globals this module owns. */
+const AudioPlayerVoiceParameters PlayerVoiceParamTable[RR_PLAYER_VOICE_MODE_COUNT] = {{.gain08 = 110}, {.gain08 = 56}, {.gain08 = 64}};

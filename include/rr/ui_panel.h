@@ -4,7 +4,9 @@
 #include "rr/badge_rows.h"
 #include "rr/sprite_emit.h"
 
-typedef void *(*PanelDraw)(u32 *,void *,s32);
+/* Row decoration callback: ordering head, packet cursor, row index; returns
+ * the advanced cursor. */
+typedef void *(*PanelDraw)(GpuDmaTag *,void *,s32);
 extern PanelDraw UiRowDrawHandlers[];
 
 /* The selected row and signed high-byte callback index must name accessible

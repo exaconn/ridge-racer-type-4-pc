@@ -3,7 +3,8 @@
 
 #include "types.h"
 
-void SsSeqSetVol(s16 bank, s32 left, s32 right);
-void SsSeqGetVol(s32 bank,s32 row,u16 *left,u16 *right);
+/* PsyZ libsnd. */
+void SsSeqSetVol(short access, short left, short right);
+void SsSeqGetVol(short access, short sequence, short *left, short *right);
 
 #endif /* RR_PSYQ_LIBSND_SSVOLSET_H */

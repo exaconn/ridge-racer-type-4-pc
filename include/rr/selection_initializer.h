@@ -9,7 +9,8 @@
 #include "rr/selection_types.h"
 #include "rr/course_choice_types.h"
 #include "rr/projection_state.h"
-extern s32 ModeFrame,ScreenFrame;
+extern s32 ModeFrame;
+extern u32 ScreenFrame;
 extern s16 MenuCursor,MenuItemCount,LinkMenuSyncPhase;
 #include "rr/cd_directory_buffer.h"
 #include "rr/menu_arena_state.h"

@@ -2,6 +2,7 @@
 #include "psyq/libgte/gtemat3.h"
 #include "game/data/bankrec.h"
 #include "rr/race_types.h"
+#include "rr/replay_types.h"
 #include "rr/tables.h"
 #include "scratchpad.h"
 #include "rr_asm.h"
@@ -28,16 +29,12 @@ typedef struct {
 #include "game/system/pad3.h"
 extern RaceVehicle PlayerCars[];
 extern int RaceState;
-extern unsigned char CarInputs[][4];
-extern short PlayerDisplayRpm[];
-extern short PlayerThrottleLoad[];
 
 void UpdatePlayerSteering(RaceVehicle *arg0, int arg1);
 
 void UpdatePlayerSteering(RaceVehicle *arg0, int arg1) {
   RaceVehicleControl *s1;
-  unsigned char *a2;
-  unsigned char (*q)[4];
+  CarInput4 *a2;
   int v6;
   int v7;
   short h;
@@ -70,9 +67,8 @@ void UpdatePlayerSteering(RaceVehicle *arg0, int arg1) {
   else
     if (RaceState < 4)
   {
-    q = CarInputs;
-    a2 = q[arg1];
-    a1 = a2[3];
+    a2 = &CarInputs[arg1];
+    a1 = a2->buttons;
     sw = a1 & 0xE0;
     if (sw == 0x20)
     {
@@ -129,7 +125,7 @@ void UpdatePlayerSteering(RaceVehicle *arg0, int arg1) {
       if (sw == 0x40)
     {
       s2 = (s1->handling1C->steeringGain08 * 0x1800) / 1000;
-      a0 = (s2 * (signed char)a2[0]) / 127;
+      a0 = (s2 * a2->steer) / 127;
       d0 = MirrorRenderFlag;
       s1->steerInput0C = a0;
       if (d0 != 0)
@@ -156,7 +152,7 @@ void UpdatePlayerSteering(RaceVehicle *arg0, int arg1) {
       if (sw == 0x60)
     {
       s2 = (s1->handling1C->steeringGain08 * 0x1800) / 1000;
-      a0 = (s2 * (signed char)a2[0]) / 127;
+      a0 = (s2 * a2->steer) / 127;
       d1 = MirrorRenderFlag;
       s1->steerInput0C = a0;
       if (d1 != 0)
@@ -183,7 +179,7 @@ void UpdatePlayerSteering(RaceVehicle *arg0, int arg1) {
       if (sw == 0x80)
     {
       s2 = (s1->handling1C->steeringGain08 * 0x1400) / 1000;
-      a0 = (s2 * (signed char)a2[0]) / 127;
+      a0 = (s2 * a2->steer) / 127;
       d2 = MirrorRenderFlag;
       s1->steerInput0C = a0;
       if (d2 != 0)
@@ -450,16 +446,15 @@ void UpdateCarEngine(RaceVehicle *a0) {
   int k6;
   int fl;
   short t;
-  int unused[8];
   int ten;
   q = &a0->control;
   r = q->handling1C;
   off = (q->previewSample84.halves.high * 0x3C) + 4;
-  s = (CarGearRecord3C *) (((unsigned long) q->record18) + off);
+  s = (CarGearRecord3C *) ((u8 *) q->record18 + off);
   if (RaceState < 4)
   {
-    q->dynamics94.player.throttle18 = CarInputs[q->playerFlags24][1];
-    q->dynamics94.player.brake1A = CarInputs[q->playerFlags24][2];
+    q->dynamics94.player.throttle18 = CarInputs[q->playerFlags24].throttle;
+    q->dynamics94.player.brake1A = CarInputs[q->playerFlags24].brake;
     if (q->dynamics94.player.throttle18 >= 0xFF)
     {
       q->dynamics94.player.throttle18 = 0x100;
@@ -641,7 +636,7 @@ void UpdateCarEngine(RaceVehicle *a0) {
   if (q->dynamics94.player.motionState10 == 0)
   {
     k4 = q->steerInput0C;
-    if ((CarInputs[q->playerFlags24][3] & 0xE0) != 0x20)
+    if ((CarInputs[q->playerFlags24].buttons & 0xE0) != 0x20)
     {
       k4 = k4 >> 1;
     }
@@ -848,3 +843,7 @@ void IntegrateCarMotion(RaceVehicle *p) {
     p->position20.words[2] = p->worldPosition10.words[2] >> 2;
     RR_GTE_STORE_IR(p->ir60);
 }
+
+/* Initial values of the globals this module owns. */
+s32 MirrorRenderFlag;
+s16 PlayerDisplayRpm[2];

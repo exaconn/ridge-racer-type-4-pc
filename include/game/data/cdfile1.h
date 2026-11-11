@@ -4,7 +4,7 @@
 #include "types.h"
 
 s32 GetCourseFileIndex(s32 arg0);
-int GetCarFileIndex();
+int GetCarFileIndex(int typeId, int teamId, int stageId, int variant);
 int GetR4FileIndex(int category, int index);
 void LoadR4Directory(void);
 void InitCdFileDirectory(void);

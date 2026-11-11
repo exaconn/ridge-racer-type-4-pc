@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay667_status.h"
 #include "rr/overlay667_events.h"
 #include "rr/serial_handles.h"
@@ -126,8 +127,8 @@ s32 ovl667_send_race_packet(void) {
     }
     csum = 0;
     i = 0;
-    ovl667_tx_staging_packet.packet.first04 = LinkPendingCarInputs.choices[0];
-    ovl667_tx_staging_packet.packet.second08 = LinkPendingCarInputs.choices[1];
+    ovl667_tx_staging_packet.packet.first04 = LinkPendingCarInputs.cars[0];
+    ovl667_tx_staging_packet.packet.second08 = LinkPendingCarInputs.cars[1];
     do {
         csum ^= ((u8 *)&ovl667_tx_staging_packet)[i + 4];
         i++;
@@ -210,8 +211,8 @@ void ovl667_receive_peer_inputs(void) {
                 ovl667_active_slot_index = ovl667_rx_slot_index;
             }
         }
-        LinkRemoteCarInputs.choices[0] = ovl667_rx_packet_ring.packets[ovl667_active_slot_index].first04;
-        LinkRemoteCarInputs.choices[1] = ovl667_rx_packet_ring.packets[ovl667_active_slot_index].second08;
+        LinkRemoteCarInputs.cars[0] = ovl667_rx_packet_ring.packets[ovl667_active_slot_index].first04;
+        LinkRemoteCarInputs.cars[1] = ovl667_rx_packet_ring.packets[ovl667_active_slot_index].second08;
         ovl667_remote_pause_bits = ovl667_rx_packet_ring.packets[ovl667_active_slot_index].phase03;
     }
 }
@@ -225,8 +226,8 @@ void ovl667_transmit_local_inputs(void) {
         if (state == 1) {
             if (ovl667_send_race_packet() == state) {
                 ovl667_tx_miss_count = 0;
-                LinkLocalCarInputs.choices[0] = LinkPendingCarInputs.choices[0];
-                LinkLocalCarInputs.choices[1] = LinkPendingCarInputs.choices[1];
+                LinkLocalCarInputs.cars[0] = LinkPendingCarInputs.cars[0];
+                LinkLocalCarInputs.cars[1] = LinkPendingCarInputs.cars[1];
                 ovl667_tx_packet_count = (ovl667_tx_packet_count + 1U);
                 ovl667_tx_slot_index = (ovl667_tx_slot_index + 1) & 7;
                 ovl667_local_pause_bits = ((u8 *)&ovl667_pending_pause_bits)[0];
@@ -236,8 +237,8 @@ void ovl667_transmit_local_inputs(void) {
         } else if (state == 2) {
             if (ovl667_send_race_packet() == 1) {
                 ovl667_tx_miss_count = 0;
-                LinkLocalCarInputs.choices[0] = LinkPendingCarInputs.choices[0];
-                LinkLocalCarInputs.choices[1] = LinkPendingCarInputs.choices[1];
+                LinkLocalCarInputs.cars[0] = LinkPendingCarInputs.cars[0];
+                LinkLocalCarInputs.cars[1] = LinkPendingCarInputs.cars[1];
                 ovl667_tx_packet_count = (ovl667_tx_packet_count + 1U);
                 ovl667_tx_slot_index = (ovl667_tx_slot_index + 1) & 7;
                 ovl667_local_pause_bits = ((u8 *)&ovl667_pending_pause_bits)[0];
@@ -274,3 +275,71 @@ void ovl667_sync_link_display(void)
     VSync(0);
     SetDispMask(1);
 }
+
+/* Initial values of the overlay globals this module owns. */
+const char ovl667_sio_device_name[8] = "sio:";
+s32 ovl667_sync_retry_state;
+s32 ovl667_peer_race_state;
+s32 ovl667_link_shutdown_stage;
+u32 ovl667_sio_read_event;
+u32 ovl667_sio_error_event;
+s32 ovl667_sio_error_count;
+s32 ovl667_sio_status_flag;
+s32 ovl667_read_pending_flag;
+u8 ovl667_checksum_error_flag;
+u8 ovl667_remote_error_code;
+s32 ovl667_rx_idle_flag;
+s32 ovl667_rx_packet_count;
+s32 ovl667_rx_miss_count;
+s32 ovl667_tx_packet_count;
+s32 ovl667_tx_miss_count;
+u8 ovl667_rx_slot_index;
+u8 ovl667_tx_slot_index;
+s32 ovl667_tx_stage;
+Overlay667SerialStorage ovl667_rx_staging_packet;
+Overlay667SerialRing ovl667_rx_packet_ring;
+Overlay667SerialStorage ovl667_tx_staging_packet;
+u8 ovl667_active_slot_index;
+
+/* Writable state of this unit; ovl667_reset_module restores it. */
+static const OverlayStateRegion ovl667_sio_regions[] = {
+    RR_OVERLAY_STATE(ovl667_active_slot_index),
+    RR_OVERLAY_STATE(ovl667_checksum_error_flag),
+    RR_OVERLAY_STATE(ovl667_link_shutdown_stage),
+    RR_OVERLAY_STATE(ovl667_peer_race_state),
+    RR_OVERLAY_STATE(ovl667_read_pending_flag),
+    RR_OVERLAY_STATE(ovl667_remote_error_code),
+    RR_OVERLAY_STATE(ovl667_rx_idle_flag),
+    RR_OVERLAY_STATE(ovl667_rx_miss_count),
+    RR_OVERLAY_STATE(ovl667_rx_packet_count),
+    RR_OVERLAY_STATE(ovl667_rx_packet_ring),
+    RR_OVERLAY_STATE(ovl667_rx_slot_index),
+    RR_OVERLAY_STATE(ovl667_rx_staging_packet),
+    RR_OVERLAY_STATE(ovl667_sio_error_count),
+    RR_OVERLAY_STATE(ovl667_sio_error_event),
+    RR_OVERLAY_STATE(ovl667_sio_read_event),
+    RR_OVERLAY_STATE(ovl667_sio_status_flag),
+    RR_OVERLAY_STATE(ovl667_sync_retry_state),
+    RR_OVERLAY_STATE(ovl667_tx_miss_count),
+    RR_OVERLAY_STATE(ovl667_tx_packet_count),
+    RR_OVERLAY_STATE(ovl667_tx_slot_index),
+    RR_OVERLAY_STATE(ovl667_tx_stage),
+    RR_OVERLAY_STATE(ovl667_tx_staging_packet)};
+const OverlayStateTable ovl667_sio_state = {ovl667_sio_regions, sizeof(ovl667_sio_regions) / sizeof(ovl667_sio_regions[0])};
+
+/* Module reset: the state a fresh load of the serial_link image gave
+ * (initialized data and zeroed BSS); see rr/overlay_module.h. */
+extern const OverlayStateTable ovl667_car_selection_state, ovl667_race_state, ovl667_results_state, ovl667_sio_state;
+static const OverlayStateTable *const ovl667_state_tables[] = {&ovl667_car_selection_state, &ovl667_race_state, &ovl667_results_state, &ovl667_sio_state};
+static OverlayStateImage ovl667_state_image = {ovl667_state_tables, sizeof(ovl667_state_tables) / sizeof(ovl667_state_tables[0]), NULL};
+
+void ovl667_reset_module(void) {
+    OverlayStateRestore(&ovl667_state_image);
+}
+
+/* Initial values of the globals this module owns. */
+LinkCarInputPair LinkRemoteCarInputs;
+LinkCarInputPair LinkLocalCarInputs;
+s32 LinkReadHandle;
+s32 LinkWriteHandle;
+LinkCarInputPair LinkPendingCarInputs;

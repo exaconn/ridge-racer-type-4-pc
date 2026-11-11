@@ -1,75 +1,113 @@
-#include "psyq/libgte/gtemat.h"
+/* libgte matrix helpers the game calls that PsyZ does not implement:
+ * MulMatrix0, MulRotMatrix0, MulMatrix2, ApplyMatrixLV and ApplyMatrixSV.
+ * They run on the PsyZ GTE so the register side effects of the original
+ * routines (rotation matrix, IR/MAC, FLAG) are preserved. */
 #include "rr_asm.h"
+#include "psyq/libgte/gtemat.h"
+#include "psyq/libgte/gtemat2.h"
+#include "psyq/libgte/gtemat3.h"
+#include "psyq/libgte/gtemat4.h"
+#include "psyq/libgte/gtemat5.h"
+
+#define GTE_MVMVA_SF_ROT_V0 0x0486012u  /* MVMVA sf=1 RT*V0, no translation */
+#define GTE_MVMVA_SF_ROT_IR 0x049E012u  /* MVMVA sf=1 RT*IR, no translation */
+#define GTE_MVMVA_ROT_IR 0x041E012u     /* MVMVA sf=0 RT*IR, no translation */
+
+static void LoadRotation(const MatrixWords32 *matrix) {
+    int i;
+    for (i = 0; i < 5; i++) {
+        Psyz_GteCtrlWrite(i, (u32)matrix->w[i]);
+    }
+}
+
+/* output.rotation = RT * right.rotation, column by column. Every input
+ * column is read before the first store, so right and output may alias.
+ * Word 4 receives the raw IR3 of the last column, as the SDK does. */
+static MatrixWords32 *MulRotationColumns(const MatrixWords32 *right, MatrixWords32 *output) {
+    u32 ir[3][3];
+    int column;
+    for (column = 0; column < 3; column++) {
+        u16 x = (u16)right->fields.rotation00[0][column];
+        u16 y = (u16)right->fields.rotation00[1][column];
+        s16 z = right->fields.rotation00[2][column];
+        Psyz_GteDataWrite(0, (u32)x | ((u32)y << 16));
+        Psyz_GteDataWrite(1, (u32)(s32)z);
+        Psyz_GteCommand(GTE_MVMVA_SF_ROT_V0);
+        ir[column][0] = Psyz_GteDataRead(9);
+        ir[column][1] = Psyz_GteDataRead(10);
+        ir[column][2] = Psyz_GteDataRead(11);
+    }
+    output->w[0] = (s32)((ir[0][0] & 0xFFFF) | (ir[1][0] << 16));
+    output->w[1] = (s32)((ir[2][0] & 0xFFFF) | (ir[0][1] << 16));
+    output->w[2] = (s32)((ir[1][1] & 0xFFFF) | (ir[2][1] << 16));
+    output->w[3] = (s32)((ir[0][2] & 0xFFFF) | (ir[1][2] << 16));
+    output->w[4] = (s32)ir[2][2];
+    return output;
+}
 
 MatrixWords32 *MulMatrix0(const MatrixWords32 *basis, const MatrixWords32 *right, MatrixWords32 *output) {
-    u32 t0;
-    u32 t1;
-    u32 t2;
-    u32 t3;
-    u32 t4;
-    u32 t5;
-    u32 t6;
-    u32 t7;
-    u32 t8;
-    MatrixWords32 *result;
-    t0 = basis->w[0];
-    t1 = basis->w[1];
-    t2 = basis->w[2];
-    t3 = basis->w[3];
-    t4 = basis->w[4];
-    RR_GTE_CTC2(t0, 0);
-    RR_GTE_CTC2(t1, 1);
-    RR_GTE_CTC2(t2, 2);
-    RR_GTE_CTC2(t3, 3);
-    RR_GTE_CTC2(t4, 4);
-    t0 = right->halves[0];
-    t1 = right->w[1];
-    t2 = right->w[3];
-    RR_GTE_MASK_HI16(t1);
-    t0 |= t1;
-    RR_GTE_MTC2(t0, 0);
-    RR_GTE_MTC2(t2, 1);
-    RR_GTE_MVMVA_ROT_V0_1NOP();
-    t0 = right->halves[1];
-    t1 = right->w[2];
-    t2 = (s16)right->halves[7];
-    t1 <<= 16;
-    t0 |= t1;
-    RR_GTE_MFC2(t3, 9);
-    RR_GTE_MFC2(t4, 10);
-    RR_GTE_MFC2(t5, 11);
-    RR_GTE_MTC2(t0, 0);
-    RR_GTE_MTC2(t2, 1);
-    RR_GTE_MVMVA_ROT_V0_1NOP();
-    t0 = right->halves[2];
-    t1 = right->w[2];
-    t2 = right->w[4];
-    RR_GTE_MASK_HI16(t1);
-    t0 |= t1;
-    RR_GTE_MFC2(t6, 9);
-    RR_GTE_MFC2(t7, 10);
-    RR_GTE_MFC2(t8, 11);
-    RR_GTE_MTC2(t0, 0);
-    RR_GTE_MTC2(t2, 1);
-    RR_GTE_MVMVA_ROT_V0_1NOP();
-    t3 &= 0xFFFF;
-    t6 <<= 16;
-    t6 |= t3;
-    RR_GTE_SW_AT(t6, output, 0);
-    t5 &= 0xFFFF;
-    t8 <<= 16;
-    t8 |= t5;
-    RR_GTE_SW_AT(t8, output, 3);
-    RR_GTE_MFC2(t0, 9);
-    RR_GTE_MFC2(t1, 10);
-    t0 &= 0xFFFF;
-    t4 <<= 16;
-    t0 |= t4;
-    RR_GTE_SW_AT(t0, output, 1);
-    t7 &= 0xFFFF;
-    t1 <<= 16;
-    t1 |= t7;
-    RR_GTE_SW_AT(t1, output, 2);
-    RR_GTE_SWC2_AT(11, 16, output);
-    return result;
+    LoadRotation(basis);
+    return MulRotationColumns(right, output);
+}
+
+MatrixWords32 *MulRotMatrix0(const MatrixWords32 *right, MatrixWords32 *output) {
+    return MulRotationColumns(right, output);
+}
+
+MatrixWords32 *MulMatrix2(const MatrixWords32 *basis, MatrixWords32 *right) {
+    LoadRotation(basis);
+    return MulRotationColumns(right, right);
+}
+
+/* Full-word vector: each component is split into a signed high part
+ * (|v| >> 15) and low part (|v| & 0x7FFF) carrying the sign of v. */
+Vec3i *ApplyMatrixLV(const MatrixWords32 *matrix, const Vec3i *input, Vec3i *output) {
+    s32 value[3];
+    s32 high[3];
+    s32 low[3];
+    s32 product;
+    int i;
+    LoadRotation(matrix);
+    value[0] = input->x;
+    value[1] = input->y;
+    value[2] = input->z;
+    for (i = 0; i < 3; i++) {
+        u32 magnitude = value[i] < 0 ? 0u - (u32)value[i] : (u32)value[i];
+        high[i] = (s32)(magnitude >> 15);
+        low[i] = (s32)(magnitude & 0x7FFF);
+        if (value[i] < 0) {
+            high[i] = -high[i];
+            low[i] = -low[i];
+        }
+    }
+    for (i = 0; i < 3; i++) {
+        Psyz_GteDataWrite(9 + i, (u32)high[i]);
+    }
+    Psyz_GteCommand(GTE_MVMVA_ROT_IR);
+    for (i = 0; i < 3; i++) {
+        high[i] = (s32)Psyz_GteDataRead(25 + i);
+    }
+    for (i = 0; i < 3; i++) {
+        Psyz_GteDataWrite(9 + i, (u32)low[i]);
+    }
+    Psyz_GteCommand(GTE_MVMVA_SF_ROT_IR);
+    for (i = 0; i < 3; i++) {
+        product = high[i] < 0 ? -(s32)((u32)-high[i] << 3) : (s32)((u32)high[i] << 3);
+        value[i] = (s32)((u32)Psyz_GteDataRead(25 + i) + (u32)product);
+    }
+    output->x = value[0];
+    output->y = value[1];
+    output->z = value[2];
+    return output;
+}
+
+s16 *ApplyMatrixSV(const MatrixWords32 *matrix, const Vec3s8 *input, s16 output[3]) {
+    LoadRotation(matrix);
+    Psyz_GteDataWrite(0, input->words[0]);
+    Psyz_GteDataWrite(1, input->words[1]);
+    Psyz_GteCommand(GTE_MVMVA_SF_ROT_V0);
+    output[0] = (s16)Psyz_GteDataRead(9);
+    output[1] = (s16)Psyz_GteDataRead(10);
+    output[2] = (s16)Psyz_GteDataRead(11);
+    return output;
 }

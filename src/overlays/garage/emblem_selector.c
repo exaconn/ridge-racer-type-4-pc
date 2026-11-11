@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay662_image_fade.h"
 #include "rr/frame_storage_types.h"
 #include "rr/overlay662_palette_initializer.h"
@@ -7,9 +8,6 @@
 #include "rr/overlay662_palette_controller.h"
 
 s32 ovl662_draw_emblem_preview_fade(s32 mode) {
-#ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
-#endif
  GarageFadeGeometry quad;
  s32 amount=ovl662_emblem_preview_fade;
  s32 high,low,uv;
@@ -48,10 +46,10 @@ s32 ovl662_draw_emblem_preview_fade(s32 mode) {
  color=64-rsin((ScreenFrame*64U))/64;
  cursor=RR_GPU_SCRATCH->cursor;
  if(amount>0){
-  cursor=EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.words[0],cursor,quad.x,quad.y,quad.u,quad.v,42,0x1028,0,(u16)amount);
-  cursor=EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.words[0],cursor,quad.x+1,quad.y+1,quad.u+1,quad.v+1,42,0x1028,0,(u16)amount);
-  cursor=AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0],cursor,quad.x[0],quad.y[0],((u32)quad.x[1]-quad.x[0]),((u32)quad.y[2]-quad.y[0]),color,color,color);
- }else cursor=AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0],cursor,quad.x[0],quad.y[0],((u32)quad.x[1]-quad.x[0]),((u32)quad.y[2]-quad.y[0]),0,0,0);
+  cursor=EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.tags[0],cursor,quad.x,quad.y,quad.u,quad.v,42,0x1028,0,(u16)amount);
+  cursor=EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.tags[0],cursor,quad.x+1,quad.y+1,quad.u+1,quad.v+1,42,0x1028,0,(u16)amount);
+  cursor=AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0],cursor,quad.x[0],quad.y[0],((u32)quad.x[1]-quad.x[0]),((u32)quad.y[2]-quad.y[0]),color,color,color);
+ }else cursor=AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0],cursor,quad.x[0],quad.y[0],((u32)quad.x[1]-quad.x[0]),((u32)quad.y[2]-quad.y[0]),0,0,0);
  fresh=ovl662_emblem_preview_fade;
 
  previous=(u16)ovl662_emblem_preview_fade;
@@ -81,7 +79,7 @@ void ovl662_init_emblem_selector(void) {
  InitBadgeRow(0,108,320,112,34,0,0x601);
  badge=BadgeRows;ovl662_emblem_choice_count=25;badge->half02=1;
  for(i=0;i<25;i++) {
-  if(i>=21&&SaveProgress.prefix.reserved50.bytes[i-13]==0)ovl662_emblem_choice_map[i]=25;
+  if(i>=21&&SaveProgress.prefix.unlocks50.bonusUnlocks58[i-21]==0)ovl662_emblem_choice_map[i]=25;
   else ovl662_emblem_choice_map[i]=i;
  }
  ovl662_emblem_preview_fade=0;
@@ -257,3 +255,27 @@ drawMenu:
     }
     UpdateScreenFade(0x1004A);
 }
+
+/* Initial values of the overlay globals this module owns. */
+u8 ovl662_emblem_choice_map[25];
+s16 ovl662_selected_emblem_slot;
+s16 ovl662_menu_substate;
+s16 ovl662_selected_emblem_id;
+s32 ovl662_emblem_edit_from_menu;
+s16 ovl662_emblem_preview_fade;
+s16 ovl662_emblem_choice_count;
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_emblem_selector_regions[] = {
+    RR_OVERLAY_STATE(ovl662_emblem_choice_count),
+    RR_OVERLAY_STATE(ovl662_emblem_choice_map),
+    RR_OVERLAY_STATE(ovl662_emblem_edit_from_menu),
+    RR_OVERLAY_STATE(ovl662_emblem_preview_fade),
+    RR_OVERLAY_STATE(ovl662_menu_substate),
+    RR_OVERLAY_STATE(ovl662_selected_emblem_id),
+    RR_OVERLAY_STATE(ovl662_selected_emblem_slot)};
+const OverlayStateTable ovl662_emblem_selector_state = {ovl662_emblem_selector_regions, sizeof(ovl662_emblem_selector_regions) / sizeof(ovl662_emblem_selector_regions[0])};
+
+/* Initial values of the globals this module owns. */
+s16 MenuItemCount;
+void *CustomEmblemTimPtr;

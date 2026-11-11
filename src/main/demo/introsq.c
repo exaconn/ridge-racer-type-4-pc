@@ -6,8 +6,8 @@
 #include "game/sound/cdplay.h"
 #include "game/gfx/fadeend.h"
 #include "game/demo/intro.h"
+#include "rr/scene_camera_state.h"
 
-extern int RaceContext[];
 extern short ModeIndex;
 extern short ModeGroup;
 extern short SubmodeState;
@@ -16,24 +16,24 @@ void IntroModeUpdate(void);
 
 void IntroModeUpdate(void) {
     int s1 = IntroScriptStep();
-    switch (RaceContext[0x444 / 4]) {
+    switch (RaceContext.work444.intro.step444) {
     case 0:
         SetDispMask(1);
-        RaceContext[0x444 / 4]++;
+        RaceContext.work444.intro.step444++;
     case 1:
         if (LoadIntroSceneStep() != 0) {
-            RaceContext[0x444 / 4]++;
+            RaceContext.work444.intro.step444++;
             StartDemoFadeOutAndCloseVab();
             CdAudioInit();
             CdAudioSelectTrack(0, 0x25);
         }
         break;
     case 2:
-        if (s1 == RaceContext[0x444 / 4]) {
+        if (s1 == RaceContext.work444.intro.step444) {
             SetDispMask(0);
             ModeGroup = s1;
             ModeIndex = 7;
-            RaceContext[0x444 / 4] = 0;
+            RaceContext.work444.intro.step444 = 0;
             SubmodeState = 0;
         }
         break;
@@ -44,9 +44,9 @@ void EmitTexturedPanel(s32 index) {
     PolyFT4Packet *p;
     GpuScratchPointers *scratch;
 
-    scratch=(GpuScratchPointers*)SCRATCHPAD;
+    scratch=RR_GPU_SCRATCH;
     p=(PolyFT4Packet*)scratch->cursor;
-    ((GpuDmaTag *)p)->bytes.length=9;
+    p->tag.length=9;
     p->code=0x2D;
     p->x0=32;
     p->y0=112;
@@ -66,7 +66,6 @@ void EmitTexturedPanel(s32 index) {
     p->v3=(index%2)*128U+127;
     p->tpage=(((s32)((index/2)*64U+320U)&1023)>>6)|16;
     p->clut=0x1BD6;
-    ((GpuDmaTag *)p)->bits.address=((GpuDmaTag *)&scratch->order[1])->bits.address;
-    ((GpuDmaTag *)&scratch->order[1])->bits.address=(unsigned long)p;
+    RR_GPU_LINK(&scratch->order[1], p);
     scratch->cursor=(u8*)(p+1);
 }

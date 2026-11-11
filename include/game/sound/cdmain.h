@@ -3,7 +3,8 @@
 
 #include "types.h"
 
-void CdAudioReadyCallback(u8 a0);
+/* PsyZ CdlCB ready callback (status, result bytes). */
+void CdAudioReadyCallback(u8 status, u8 *result);
 void ResetSeqFadeState(void);
 void CdAudioUpdate(void);
 void SeqSetVolume(s16 a0);

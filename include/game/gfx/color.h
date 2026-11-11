@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern short CdAudioMixChannelMode;
+#include "rr/runtime_settings.h"
 void ApplySoundVolumes(void);
 void EnablePadAnalogMode(int i);
 

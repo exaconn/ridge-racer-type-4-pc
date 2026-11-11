@@ -39,7 +39,7 @@ void StepCardFileSlotSelection(void) {
     case 3:
     case 6:
     case 7:
-        StepMenuValue((MenuActiveControllerIndex & 1) << 2, 2, &GpSaveSlotCursor, 3, 0);
+        StepMenuValue((MenuActiveControllerIndex & 1) << 2, 2, (char *)&GpSaveSlotCursor, 3, 0);
         if (PlayerControllers[MenuActiveControllerIndex].action28 != 0) {
             PlaySfx(1);
             if ((unsigned short)(CardMenuOperation - 6) < 2) {
@@ -75,21 +75,20 @@ void StepCardFileSlotSelection(void) {
 
 void StepCardPortSelection(void) {
     int a, s4, s3;
+    unsigned int idx;
     unsigned char *q;
     unsigned char *r;
     ControllerState5C *r2;
     ControllerState5C *b3;
     unsigned char *b2;
-    unsigned char (*tb)[4];
     int t, c;
-    int ia;
     MenuStateEntry8 *base;
     MenuStateEntry8 *p;
     signed char sb;
 
     base = MenuStateTable;
     p = base + MenuStateIndex;
-    q = (unsigned char *)p->tableIdx04;
+    idx = p->tableIdx04;
     c = p->promptIdx06;
     CardPromptIndex = c;
     if (SubmodeState == 0) {
@@ -99,17 +98,15 @@ void StepCardPortSelection(void) {
         }
         SubmodeState = 1;
     }
-    tb = CardPollTransitionTable;
-    ia = (int)q * 4;
     b2 = CardPortPollStatus;
     r = b2 + CardActivePort;
-    q = (unsigned char *)tb + ia;
+    q = &CardPollTransitionTable[idx * 4];
     a = q[0];
     s4 = q[1];
     s3 = q[2];
     if (*r < 0x10 || a == *r) {
         if (UiRows[0x26].byte14 == 2) {
-            StepMenuValue(((unsigned short)MenuActiveControllerIndex & 1) << 2, 2, CardPromptIndex * 2 + (int)CardPromptChoices, 2, 0);
+            StepMenuValue(((unsigned short)MenuActiveControllerIndex & 1) << 2, 2, (char *)&CardPromptChoices[CardPromptIndex], 2, 0);
             b3 = PlayerControllers;
             r2 = b3 + MenuActiveControllerIndex;
             if (r2->action28 != 0) {
@@ -185,3 +182,15 @@ void UpdateCardMenuRowStates(void) {
 cf0:
     CardSaveStep(a0, 0);
 }
+
+/* Initial values of the globals this module owns. */
+u8 D_800115A4[69] = {66, 69, 83, 67, 69, 83, 80, 48, 49, 55, 48, 54, 82, 82, 52, 77, 65, 82, 75, 51, 0, 0, 0, 0, 66, 69, 83, 67, 69, 83, 80, 48, 49, 55, 48, 54, 82, 82, 52, 77, 65, 82, 75, 50, 0, 0, 0, 0, 66, 69, 83, 67, 69, 83, 80, 48, 49, 55, 48, 54, 82, 82, 52, 77, 65, 82, 75, 49};
+unsigned char TeamSelectLogoPolys[7][4] = {{0x5A, 2}, {0x5A, 0x10}, {0x5A, 0x1A}, {0x5A, 0x23}, {0x5A, 0x2D}, {0x5A, 0x34}, {0x5A, 0x3B}};
+unsigned char CardPollTransitionTable[48] = {0, 3, 0, 0, 0, 5, 0, 0, 0x14, 9, 0, 0, 0, 0x11, 0, 0, 0, 0x1B, 0x18, 0, 0, 0x1D, 0x18, 0, 0, 0x24, 0x21, 0, 0, 0x2E, 0x2A, 0, 0, 0x30, 0x2A, 0, 0, 0x35, 0x2A, 0, 0, 0x3D, 0, 0, 0, 0x3F};
+unsigned char MenuCardStepRows[7][4] = {{4, 5, 1, 1}, {0x13, 0x12, 0xD, 1}, {0x1C, 0x1D, 1, 1}, {0x26, 0x25, 0xD, 1}, {0x2F, 0x30, 1, 1}, {0x37, 0x36, 0xD, 1}, {0x3E, 0x3F, 1, 2}};
+char CardSaveFileName[24] = {66, 69, 83, 67, 69, 83, 80, 48, 49, 55, 48, 54, 82, 82, 52, 95, 71, 65, 77, 69};
+char *CardTargetFileNames[3] = {(char *)&D_800115A4[48], (char *)&D_800115A4[24], (char *)D_800115A4};
+char CardFileNameTemplate[24] = {66, 69, 83, 67, 69, 83, 80, 48, 49, 55, 48, 54, 82, 82, 52, 95, 80, 68, 65};
+short MenuActiveControllerIndex;
+unsigned short SavedMenuStateIndex;
+short CardMainSaveExists;

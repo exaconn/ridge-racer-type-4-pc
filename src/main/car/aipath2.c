@@ -7,12 +7,14 @@
 #include "rr/menu_overlay_runtime.h"
 #include "rr/overlay668_camera.h"
 
+/* Vehicle being constrained; the PS1 kept it in the scratch work area. */
+RaceVehicle *CarTrackWorkVehicle;
+
 void FindTrackNodeScratch(void)
 {
     CarTrackWork *g = (CarTrackWork *)SCRATCH_CAR_WORK;
     s32 a, n, t, x;
     TrackSample3C *p, *q;
-    s32 junk[2];
     s32 r1;
     s32 r2;
     s32 r3;
@@ -61,19 +63,19 @@ void ConstrainCarToTrack(RaceVehicle *arg0) {
     s32 i;
     s16 c, s;
 
-    g->vehicle00 = arg0;
+    CarTrackWorkVehicle = arg0;
     g->positions110[0] = arg0->wheelPositions88[0];
     g->positions110[1] = arg0->wheelPositions88[1];
     g->positions110[2] = arg0->wheelPositions88[2];
     g->positions110[3] = arg0->wheelPositions88[3];
-    g->vehicle00->impactFlags1A0 = 0;
+    CarTrackWorkVehicle->impactFlags1A0 = 0;
     g->w2C = 0;
     g->sC0 = 0;
     g->sBA = 0;
     g->sC8 = 0;
     g->sC6 = 0;
     g->sC4 = 0;
-    idx = g->vehicle00->trackNodeF0;
+    idx = CarTrackWorkVehicle->trackNodeF0;
     next_idx = (idx + 1) % TrackNodeCount;
     s1 = &TrackNodes[idx];
     g->s174 = s1->road.rightAngle;
@@ -95,8 +97,8 @@ void ConstrainCarToTrack(RaceVehicle *arg0) {
         g->w40 = (g->s24 * s1->road.segmentLength) >> 12;
         g->s160 = s1->road.angle + 0x400;
     }
-    g->sF8 = g->vehicle00->position20.vector.x - s1->road.x;
-    g->sFC = g->vehicle00->position20.vector.z - s1->road.z;
+    g->sF8 = CarTrackWorkVehicle->position20.vector.x - s1->road.x;
+    g->sFC = CarTrackWorkVehicle->position20.vector.z - s1->road.z;
     g->sFA = 0;
     g->w20 = rcos(g->s160);
     g->w1C = rsin(g->s160);
@@ -169,10 +171,10 @@ void ConstrainCarToTrack(RaceVehicle *arg0) {
         RR_GTE_SETROT(&g->sB8);
         RR_GTE_MVMVA_ROT_V0_NOCV(&g->sF8);
         RR_GTE_STORE_IR(&g->translation100.vector.x);
-        g->vehicle00->posScaled00[0] -= g->translation100.vector.x << 8;
-        g->vehicle00->posScaled00[2] -= g->translation100.vector.z << 8;
-        g->vehicle00->worldPosition10.words[0] = g->vehicle00->posScaled00[0] >> 6;
-        g->vehicle00->worldPosition10.words[2] = g->vehicle00->posScaled00[2] >> 6;
+        CarTrackWorkVehicle->posScaled00[0] -= g->translation100.vector.x << 8;
+        CarTrackWorkVehicle->posScaled00[2] -= g->translation100.vector.z << 8;
+        CarTrackWorkVehicle->worldPosition10.words[0] = CarTrackWorkVehicle->posScaled00[0] >> 6;
+        CarTrackWorkVehicle->worldPosition10.words[2] = CarTrackWorkVehicle->posScaled00[2] >> 6;
     }
     g->s160 = s2->road.heading - s1->road.heading;
     if (g->s160 > 0x400) {
@@ -180,21 +182,21 @@ void ConstrainCarToTrack(RaceVehicle *arg0) {
     } else if (g->s160 < -0x400) {
         g->s160 = -0x1000 - g->s160;
     }
-    g->vehicle00->trackAngle1EC = s1->road.heading + ((g->s160 * g->w14) >> 10);
-    g->vehicle00->trackFraction170 = (g->w14 << 10) / g->s162;
+    CarTrackWorkVehicle->trackAngle1EC = s1->road.heading + ((g->s160 * g->w14) >> 10);
+    CarTrackWorkVehicle->trackFraction170 = (g->w14 << 10) / g->s162;
     if (g->w18 < 0) {
-        g->vehicle00->lateralOffset172 = (g->w18 << 10) / g->s15C;
+        CarTrackWorkVehicle->lateralOffset172 = (g->w18 << 10) / g->s15C;
     } else {
-        g->vehicle00->lateralOffset172 = (g->w18 << 10) / g->s15A;
+        CarTrackWorkVehicle->lateralOffset172 = (g->w18 << 10) / g->s15A;
     }
-    g->vehicle00->lateralVelF4 = g->w18;
-    g->vehicle00->second = (ReverseCourse != 0) ? g->w14 : (g->s162 - g->w14);
-    g->vehicle00->word190 = g->vehicle00->word18C;
-    g->vehicle00->word18C = (g->vehicle00->first + g->vehicle00->second + TrackLength) % TrackLength;
-    if (g->vehicle00->word18C < 0) {
-        g->vehicle00->word18C += TrackLength;
+    CarTrackWorkVehicle->lateralVelF4 = g->w18;
+    CarTrackWorkVehicle->second = (ReverseCourse != 0) ? g->w14 : (g->s162 - g->w14);
+    CarTrackWorkVehicle->word190 = CarTrackWorkVehicle->word18C;
+    CarTrackWorkVehicle->word18C = (CarTrackWorkVehicle->first + CarTrackWorkVehicle->second + TrackLength) % TrackLength;
+    if (CarTrackWorkVehicle->word18C < 0) {
+        CarTrackWorkVehicle->word18C += TrackLength;
     }
-    g->vehicle00->courseDistance194 = (s1->road.distance + g->w14) >> 4;
-    g->vehicle00->impactFlags1A0 = g->w2C;
+    CarTrackWorkVehicle->courseDistance194 = (s1->road.distance + g->w14) >> 4;
+    CarTrackWorkVehicle->impactFlags1A0 = g->w2C;
 }
 

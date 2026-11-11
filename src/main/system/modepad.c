@@ -1,4 +1,5 @@
 #include "game/ui/uipart1.h"
+#include "rr/runtime_settings.h"
 #include "game/system/pad.h"
 /* RODATA 0x800104f4 0x1c */
 #include "types.h"
@@ -14,14 +15,13 @@
 #include "rr/menu_choice.h"
 #include "game/ui/uitext.h"
 #include "game/demo/intro.h"
+#include "rr/driver_control.h"
 
 extern short MenuCursor;
-extern s32 SelectedStoryBranchId;
 extern int MainMenuSavedCursor;
 extern short MenuScriptId;
 extern int DialogueSceneMode;
 extern short MenuTransitionOverlayMode;
-extern unsigned _sio_control();
 
 int RunIntroScriptStep(void) {
     return IntroScriptStep();
@@ -55,8 +55,8 @@ int ModeSelectMenuStep(void)
         }
     }
     UiRows[MenuCursor].cells[0] = 0;
-    StepMenuValue(0, 2, &MenuCursor, s1, 0);
-    StepMenuValue(3, 4, &SelectedStoryBranchId, 5, 0);
+    StepMenuValue(0, 2, (char *)&MenuCursor, s1, 0);
+    StepMenuValue(3, 4, (char *)&Options.storyBranch3C, 5, 0);
     if (MenuCursor == 2 && MainMenuSavedCursor == -1)
         UiRows[2].cells[0] = 4;
     else
@@ -114,7 +114,7 @@ int ModeSelectMenuStep(void)
         }
     } else {
         if (s1 == ModeSelectBaseCount + 1) {
-            if (((_sio_control(0, 0, 0) >> 7) & 3) == 2) {
+            if ((((u32)_sio_control(0, 0, 0) >> 7) & 3) == 2) {
                 UiRows[MenuCursor].cells[0] = 0;
                 s2 = 1;
                 UiRows[(short)MainMenuChoice].cells[0] = 0;
@@ -133,3 +133,8 @@ int ModeSelectMenuStep(void)
     }
     return s2;
 }
+
+/* Initial values of the globals this module owns. */
+int MainMenuSavedCursor;
+short ModeSelectBaseCount;
+short MainMenuChoice;

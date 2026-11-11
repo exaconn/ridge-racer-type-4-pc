@@ -10,19 +10,14 @@ extern BadgeRow1C *BadgeRows;
 extern s8 BadgeStripPatterns[];
 extern UiUvRect BadgeGlyphUvTable[];
 
-typedef struct {
-    u8 reserved00[0x3AFC];
-    BadgeRow1C *rows3AFC;
-} __attribute__((packed)) BadgeRowPointerPage;
-RR_ASSERT_OFFSET(BadgeRowPointerPage, rows3AFC, 0x3AFC);
 
 /* The helpers thread full packet pointers. Coordinate arguments remain wide
  * until their wire16 stores, including sums of two signed16 row fields. */
-void *AddTilePrim(u32 *, void *, s32, s32, s32, s32, s32, s32, s32);
-void *AddTileGrid2x2(u32 *, void *, s32, s32, s32, s32, s32, s32, s32);
-void *AddSpriteWithDrawMode(u32 *, void *, s32, s32, s32, s32, s32, s32,
+void *AddTilePrim(GpuDmaTag *, void *, s32, s32, s32, s32, s32, s32, s32);
+void *AddTileGrid2x2(GpuDmaTag *, void *, s32, s32, s32, s32, s32, s32, s32);
+void *AddSpriteWithDrawMode(GpuDmaTag *, void *, s32, s32, s32, s32, s32, s32,
                     u16, u16, s32, s32);
-void *AddDrawAreaPrim(u32 *, void *, s32, s32, s32, s32);
+void *AddDrawAreaPrim(GpuDmaTag *, void *, s32, s32, s32, s32);
 
 /* Emits five row underlines/areas and four textured badges. Style selects an
  * eight-byte pattern group, with nine readable bytes; its first four signed

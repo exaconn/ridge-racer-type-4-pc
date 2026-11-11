@@ -1,4 +1,6 @@
 #include "types.h"
+#include "rr/vehicle_table.h"
+#include "rr/menu_selection.h"
 #include "rr/frame_storage_types.h"
 #include "scratchpad.h"
 #include "game/ui/window2.h"
@@ -15,40 +17,26 @@
 #include "game/ui/badge1.h"
 #include "rr/trig.h"
 
-extern short NumCars;
 extern unsigned char HudLapTargetThresholds[];
 extern unsigned char HudRankDigitTileU[];
 extern RaceVehicle PlayerCars[2];
-extern int NumLaps;
-
-void DrawHudDigitMod10(s32 arg0, s32 arg1);
-void UpdateHudRankDisplay();
-void UpdateFinalLapHudSprite(int a0);
 
 void DrawHudDigitMod10(s32 arg0, s32 arg1) {
-    s32 temp_s0;
-    s32 temp_v1;
-    char *temp_a3;
-    char *b;
-    s32 cur, m, r;
-    s32 a = arg0;
-    b = (char *)HudNumberTargets;
-    temp_v1 = arg1 * 0x14;
-    temp_a3 = b + temp_v1;
-    cur = *(s32 *)SCRATCHPAD;
-    temp_s0 = ((s32 *)(DrawBufIndex * 4 + temp_v1 + b))[0];
-    m = a % 10;
-    r = EmitHudGlyph12Alt(temp_s0, cur, ((s16 *)temp_a3)[6], ((s16 *)temp_a3)[7], m, 0x7EFB);
-    *(s32 *)SCRATCHPAD = AddDrawModePrim(temp_s0, r, 5);
+    NumberTarget *target = &HudNumberTargets[arg1];
+    GpuDmaTag *ordering = target->heads[DrawBufIndex];
+    void *cursor;
+    cursor = EmitHudGlyph12Alt(ordering, RR_GPU_SCRATCH->cursor, target->digit.x, target->digit.y, arg0 % 10, 0x7EFB);
+    RR_GPU_SCRATCH->cursor = AddDrawModePrim(ordering, cursor, 5);
 }
 
+/* Player a1's HUD sprites start at hudSprites[a1 * 6]: sprite 2 is the rank
+ * digit and sprite 4 the field-size digit. */
 void UpdateHudRankDisplay(int a0, int a1) {
-    int base, a, s0, s1, v;
-    SpritePacket *s2, *p2;
-    base = CurrentDrawBuf;
-    s2 = (SpritePacket *)(base + 0x226B0);
-    ((SpritePacket *)(a1 * 0x78 + (int)s2))->u = (a0 + 1) * 0x18;
-    p2 = (SpritePacket *)(base + 0x226D8);
+    int a, s0, s1, v;
+    SpritePacket *sprites, *s2;
+    sprites = CurrentDrawBuf->buffer.hudSprites;
+    s2 = &sprites[2];
+    sprites[a1 * 6 + 2].u = (a0 + 1) * 0x18;
     if (GameModeType == 4) {
         a = LinkPlayerCount;
     } else {
@@ -58,7 +46,7 @@ void UpdateHudRankDisplay(int a0, int a1) {
             a = NumCars;
         }
     }
-    ((SpritePacket *)(a1 * 0x78 + (int)p2))->u = HudRankDigitTileU[a - 1];
+    sprites[a1 * 6 + 4].u = HudRankDigitTileU[a - 1];
     if (GameModeType == 1) {
         s0 = 0x40;
         s1 = 0;
@@ -91,10 +79,14 @@ void UpdateFinalLapHudSprite(int a0) {
     } else {
         a1 = a2 * 6 + 1;
     }
-    p = (SpritePacket *)((char *)CurrentDrawBuf + (a1 * 0x14 + 0x22688));
+    p = &CurrentDrawBuf->buffer.hudSprites[a1];
     if (PlayerCars[a2].control.dynamics94.steering.count22 < NumLaps) {
         p->w = 0;
         return;
     }
     p->w = 0x14;
 }
+
+/* Initial values of the globals this module owns. */
+unsigned char HudLapTargetThresholds[4] = {2, 1};
+unsigned char HudRankDigitTileU[8] = {0, 0xC0, 0xD0, 0xE0, 0xF0, 0xF0, 0xF0, 0xF0};

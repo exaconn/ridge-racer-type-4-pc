@@ -28,9 +28,9 @@ void ovl663_update_preview(void);
 void ovl663_init_result_preview(void);
 void ovl663_update_result_preview(void);
 u8 *ovl663_format_time(s32 milliseconds);
-void *ovl663_draw_race_records(u32 *, void *, s32);
-void *ovl663_draw_lap_records(u32 *, void *, s32);
-void *ovl663_draw_record_labels(u32 *, void *, s32);
+void *ovl663_draw_race_records(GpuDmaTag *, void *, s32);
+void *ovl663_draw_lap_records(GpuDmaTag *, void *, s32);
+void *ovl663_draw_record_labels(GpuDmaTag *, void *, s32);
 void ovl663_init_scene(void);
 
 #endif

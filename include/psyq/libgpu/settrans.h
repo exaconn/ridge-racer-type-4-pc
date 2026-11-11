@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void SetSemiTrans(void *arg0, s32 arg1);
+void SetSemiTrans(void *packet, int enabled);
 
 #endif /* RR_PSYQ_LIBGPU_SETTRANS_H */

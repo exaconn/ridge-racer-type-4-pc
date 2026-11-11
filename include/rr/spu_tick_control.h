@@ -16,8 +16,11 @@ typedef struct {
 extern SpuTickCallback VSyncCallbackTable[8];
 void setIntrVSync(s32 slot,SpuTickCallback callback);
 void VSyncCallback(SpuTickCallback callback);
-void EnterCriticalSection(void);
-void ExitCriticalSection(void);
+/* PsyZ kernel.h prefixes these with PS1_ to avoid the Win32 names. */
+void PS1_EnterCriticalSection(void);
+void PS1_ExitCriticalSection(void);
+#define EnterCriticalSection PS1_EnterCriticalSection
+#define ExitCriticalSection PS1_ExitCriticalSection
 s32 ResetRCnt(u32 selector);
 s32 SetRCnt(u32 selector,u16 target,s32 mode);
 void _SsTickCallback(void);

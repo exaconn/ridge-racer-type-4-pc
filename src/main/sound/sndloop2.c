@@ -10,7 +10,7 @@ void SoundLoopUpdate(void) {
 
     left = SoundState.left19F8;
     right = SoundState.right19FA;
-    if (Options.audio.mono32) {
+    if (Options.mono32) {
         left = (left + right) / 2;
         right = left;
     }
@@ -22,8 +22,8 @@ void SoundLoopUpdate(void) {
     }
     right = (right * SoundState.gain18) / 128;
     left = (left * SoundState.gain18) / 128;
-    right = (right * Options.audio.volume31) / 16;
-    left = (left * Options.audio.volume31) / 16;
+    right = (right * Options.volume31) / 16;
+    left = (left * Options.volume31) / 16;
     if (left + right > 0) {
         s32 first = (s32)(SoundState.pitch19FC << 9) >> 16;
         s32 second = SoundState.pitch19FC & 127;
@@ -48,3 +48,6 @@ void EnableEngineSoundUpdates(void) {
 void DisableEngineSoundUpdates(void) {
     EngineSoundUpdateEnabled = 0;
 }
+
+/* Initial values of the globals this module owns. */
+s32 EngineSoundUpdateEnabled;

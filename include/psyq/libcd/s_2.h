@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int CdMix();
-s32 CdGetSector2(u8 *,u32);
+/* PsyZ: int CdMix(CdlATV *vol); CdlATV is four volume bytes. */
+int CdMix(u8 *volume);
 
 #endif /* RR_PSYQ_LIBCD_S_2_H */

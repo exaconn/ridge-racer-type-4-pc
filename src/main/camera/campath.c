@@ -10,7 +10,10 @@
 #include "game/gfx/ring.h"
 #include "game/camera/campath.h"
 #include "rr/bios_devices.h"
-#include "rr/overlay665_render.h"
+#include "game/gfx/scene1.h"
+#include "game/math/rotmat.h"
+/* PsyZ libgte ScaleMatrix(MATRIX *, VECTOR *); MatrixWords32 shares MATRIX. */
+extern MatrixWords32 *ScaleMatrix(MatrixWords32 *matrix, s32 *scale);
 
 typedef struct {
     PreviewVector8 vertex;
@@ -36,12 +39,12 @@ void DrawPresentationTrackModel(void) {
     work.rotation.x = (u16)controller->track.position.x;
     work.rotation.y = (u16)controller->track.position.y;
     work.rotation.z = (u16)controller->track.position.z;
-    SetupObjectLightMatrices(&work.position.x, &controller->lighting20, work.lightMatrix.w, work.viewMatrix.w);
+    SetupObjectLightMatrices((const SceneCameraPose18 *)&work.position, &controller->lighting20, &work.lightMatrix, &work.viewMatrix);
     v = RaceContext.controller3D8->track.scale;
     work.scale.z = v;
     work.scale.y = v;
     work.scale.x = v;
-    ScaleMatrix(work.lightMatrix.w, &work.scale.x);
+    ScaleMatrix(&work.lightMatrix, &work.scale.x);
     SetGteObjectTransform(
         (ObjectTransform38 *)(SCRATCHPAD + 0x7C),
         (const s16 *)&work.position.x,
@@ -241,3 +244,11 @@ void SetPresentationFullViewport(s32 arg0) {
 void SetPresentationStencilEnabled(s32 arg0) {
     RaceContext.controller3D8->stencilEnabled58 = arg0;
 }
+
+/* Initial values of the globals this module owns. */
+CameraScriptEntry8 D_800A1F78[2] = {{.argument = 4, .duration = 800}, {.operation = -1, .argument = -1}};
+MotionKey32 MotionTrackTable[12] = {{.from = {.x = 512, .y = 640, .z = 256}, .fromScale = 10240, .toScale = 4096, .timeCode = 1024}, {.from = {.x = 512, .y = 2048, .z = 256}, .fromScale = 10240, .toScale = 4096, .timeCode = 1798, .continueAfter = 1}, {.from = {.x = 2048, .y = -64, .z = 512}, .fromScale = 6400, .toScale = 4096, .timeCode = 1024}, {.from = {.x = -128, .y = -2048, .z = -4096}, .fromScale = 8192, .toScale = 4096, .timeCode = 1280}, {.fromScale = 4096, .to = {.x = 256, .y = -4096, .z = -512}, .toScale = 8192, .timeCode = 1030}, {.from = {.x = 256, .y = -3072, .z = -512}, .fromScale = 8192, .toScale = 4096, .timeCode = 512}, {.fromScale = 4096, .to = {.x = -128, .y = 4096, .z = -512}, .toScale = 8192, .timeCode = 1280}, {.from = {.x = 4096}, .fromScale = 10240, .to = {.y = 256, .z = 512}, .toScale = 4096, .timeCode = 1280}, {.fromScale = 4096, .to = {.x = 4096, .y = 2048, .z = 1024}, .toScale = 8192, .timeCode = 1030}, {.from = {.x = 4096, .y = 2048, .z = 1024}, .fromScale = 8192, .toScale = 4096, .timeCode = 512}, {.from = {.x = 2048, .y = 4096, .z = 1024}, .fromScale = 8192, .toScale = 4096, .timeCode = 1024}, {.from = {.x = 4096, .y = 1600, .z = 2048}, .fromScale = 8192, .toScale = 4096, .timeCode = 1024}};
+CameraScriptEntry8 HudCircularGaugeVerts[35] = {{.operation = 2, .duration = 16}, {.duration = 8}, {.operation = 3, .duration = 5}, {.operation = 1, .duration = 3}, {.operation = 2, .argument = 1, .duration = 16}, {.argument = 1, .duration = 8}, {.operation = 3, .argument = 1, .duration = 8}, {.operation = 2, .argument = 2, .duration = 16}, {.argument = 2, .duration = 8}, {.operation = 3, .argument = 3, .duration = 5}, {.operation = 1, .argument = 1, .duration = 3}, {.argument = 3, .duration = 8}, {.operation = 3, .argument = 10, .duration = 4}, {.operation = 3, .argument = 11, .duration = 4}, {.duration = 8}, {.operation = 3, .argument = 4, .duration = 5}, {.operation = 3, .argument = 5, .duration = 3}, {.operation = 2, .duration = 16}, {.duration = 8}, {.operation = 3, .argument = 6, .duration = 5}, {.operation = 1, .duration = 3}, {.operation = 2, .argument = 1, .duration = 16}, {.argument = 1, .duration = 8}, {.operation = 3, .argument = 1, .duration = 8}, {.operation = 2, .argument = 2, .duration = 16}, {.argument = 2, .duration = 8}, {.operation = 3, .argument = 7, .duration = 5}, {.operation = 1, .argument = 1, .duration = 3}, {.operation = 1, .argument = 2, .duration = 8}, {.operation = 3, .argument = 11, .duration = 4}, {.operation = 3, .argument = 10, .duration = 4}, {.duration = 8}, {.operation = 3, .argument = 8, .duration = 5}, {.operation = 3, .argument = 9, .duration = 3}, {.operation = -1, .argument = -1}};
+CameraScriptEntry8 *MotionSequenceTable[2] = {(CameraScriptEntry8 *)&HudCircularGaugeVerts[0], (CameraScriptEntry8 *)D_800A1F78};
+u16 HudFinalLapBannerParts[16] = {0x7E0, 0x1F8, 0x3EFC, 0x61FE, 0x67FE, 0xEBFF, 0xEDFF, 0xEEFF, 0xEFFF, 0xEFFF, 0xEFFF, 0x6FFE, 0x6FFE, 0x2FFC, 0xFF8, 0x7E0};
+int MotionSequenceIndex;

@@ -7,7 +7,7 @@
 #include "rr/tables.h"
 void ovl662_init_garage_car_view(void);
 s32 UpdateRect16Row(s32);
-void DrawUiRow(s32);
+int DrawUiRow(s32);
 void UpdateBadgeRowAnim(s32);
 void UpdateScreenFade(s32);
 /* Palette selection0..24 indexes the shared mapping; values0..25 name the

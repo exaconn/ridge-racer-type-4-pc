@@ -1,4 +1,3 @@
-/* RODATA 0x8001140C 0x4c */
 #include "game/data/cardini.h"
 #include "game/data/cardchk.h"
 extern int CardPortCheckStateA[];
@@ -85,3 +84,9 @@ next:
         } while (--i >= 0);
     }
 }
+
+/* Initial values of the globals this module owns. */
+unsigned char CardCheckCounts[12];
+unsigned char CardFileCounts[4];
+int CardPortCheckStateA[2];
+int CardPortCheckStateB[2];

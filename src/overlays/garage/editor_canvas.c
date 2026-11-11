@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay662_garage.h"
 #include "rr/animated_sprite_grid.h"
 #include "rr/overlay662_draw_area.h"
@@ -6,24 +7,19 @@
 #include "rr/frame_storage_types.h"
 #include "rr/trig.h"
 #include "rr/overlay662_options.h"
+#include "rr/overlay662_primitives.h"
 
-/* Local views of the overlay primitive helpers: this unit passes the
- * rectangle coordinates as signed 16-bit values. */
-u8 *ovl662_emit_wire_box(u32 *ordering, u8 *cursor, s16 x, s16 y, s16 w, s16 h,
-    u32 r, u32 g, u32 b);
-u8 *ovl662_emit_textured_quad(u32 *ordering, u8 *cursor, s16 x, s16 y, s16 w, s16 h,
-    s16 u, s16 v, u32 uw, u32 vh, u32 clut, u32 tpage);
 
 /* Zoomed preview panel: clip, optional selection outlines, then the preview
  * image at the current zoom (config1C) and its frame. */
 void ovl662_draw_zoomed_canvas(s32 renderArgument)
 {
 #ifndef RR_GARAGE_SCRATCH
-#define RR_GARAGE_SCRATCH ((GpuScratchPointers *)0x1F800000U)
+#define RR_GARAGE_SCRATCH RR_GPU_SCRATCH
 #endif
     GpuScratchPointers *scratch;
     GarageSelectionPrefix *garage;
-    u32 *order0, *order1, *order;
+    GpuDmaTag *order0, *order1, *order;
     u16 x, y, w, h;
     s16 size, size2;
     s32 clut, tpage;
@@ -32,7 +28,7 @@ void ovl662_draw_zoomed_canvas(s32 renderArgument)
     scratch = RR_GARAGE_SCRATCH;
     order0 = scratch->order + 134;
     order1 = scratch->order + 135;
-    scratch->cursor = ovl662_emit_draw_area(order0, (u32 *)scratch->cursor, 12, 61, 296, 352);
+    scratch->cursor = ovl662_emit_draw_area(order0, scratch->cursor, 12, 61, 296, 352);
     if (ovl662_editor_workspace.reset08[4] > 0 && !(ovl662_editor_cursor_state.words[0] & 6)) {
         if (ovl662_editor_workspace.config1E < 2 || ovl662_editor_workspace.config1E == 3
             || ovl662_editor_workspace.config1F == 1) {
@@ -40,7 +36,7 @@ void ovl662_draw_zoomed_canvas(s32 renderArgument)
             y = ovl662_editor_workspace.reset08[3];
             w = ovl662_editor_workspace.reset08[4];
             h = ovl662_editor_workspace.reset08[5];
-            scratch->cursor = ovl662_emit_wire_box(order0, scratch->cursor,
+            scratch->cursor = (u8 *)ovl662_emit_wire_box(order0, (GpuLineF4Packet *)scratch->cursor,
                 (s16)x * ovl662_editor_workspace.config1C + 82,
                 (s16)y * ovl662_editor_workspace.config1C * 2 + 71,
                 (s16)w * ovl662_editor_workspace.config1C,
@@ -52,7 +48,7 @@ void ovl662_draw_zoomed_canvas(s32 renderArgument)
             y = ovl662_editor_workspace.reset08[7];
             w = ovl662_editor_workspace.reset08[8];
             h = ovl662_editor_workspace.reset08[9];
-            scratch->cursor = ovl662_emit_wire_box(order0, scratch->cursor,
+            scratch->cursor = (u8 *)ovl662_emit_wire_box(order0, (GpuLineF4Packet *)scratch->cursor,
                 (s16)x * ovl662_editor_workspace.config1C + 82,
                 (s16)y * ovl662_editor_workspace.config1C * 2 + 71,
                 (s16)w * ovl662_editor_workspace.config1C,
@@ -81,14 +77,14 @@ void ovl662_draw_zoomed_canvas(s32 renderArgument)
     if (garage->layer23) order = order1;
     clut = 4272;
     tpage = 12;
-    scratch->cursor = ovl662_emit_textured_quad(order, scratch->cursor,
+    scratch->cursor = (u8 *)ovl662_emit_textured_quad(order, (GpuPolyFT4Packet *)scratch->cursor,
         x, y, w, h, u, v, size2, size, clut, tpage);
-    scratch->cursor = ovl662_emit_textured_quad(order0, scratch->cursor,
+    scratch->cursor = (u8 *)ovl662_emit_textured_quad(order0, (GpuPolyFT4Packet *)scratch->cursor,
         x, y, w, h, garage->reset08[0] + 71, garage->reset08[1] + 1, size2, size, clut, tpage);
-    scratch->cursor = ovl662_emit_textured_quad(order1, scratch->cursor,
+    scratch->cursor = (u8 *)ovl662_emit_textured_quad(order1, (GpuPolyFT4Packet *)scratch->cursor,
         x, y, w, h, garage->reset08[0] + 3, garage->reset08[1] + 1, size2, size, 4273, tpage);
-    scratch->cursor = ovl662_emit_draw_area(order1, (u32 *)scratch->cursor, 82, 71, 128, 256);
-    scratch->cursor = ovl662_emit_wire_box(order1, scratch->cursor, 81, 69, 130, 260, 255, 255, 255);
+    scratch->cursor = ovl662_emit_draw_area(order1, scratch->cursor, 82, 71, 128, 256);
+    scratch->cursor = (u8 *)ovl662_emit_wire_box(order1, (GpuLineF4Packet *)scratch->cursor, 81, 69, 130, 260, 255, 255, 255);
 }
 
 void ovl662_upload_editor_textures(void)
@@ -150,7 +146,7 @@ void ovl662_update_editor_overlay(void)
         union {u32 bits;s32 value;} intensity;
         if(ovl662_editor_workspace.fade00!=0)ovl662_editor_workspace.fade00--;
         intensity.bits=(64U-ovl662_editor_workspace.fade00)<<2;
-        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,intensity.value,69);
+        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.tags,intensity.value,69);
     }
     if(ovl662_editor_workspace.flagsD1&1)UpdateBadgeRowAnim(0);
     if(ovl662_editor_workspace.flagsD1&2){DrawUiRow(0);DrawUiRow(1);}
@@ -256,3 +252,37 @@ void ovl662_init_option_groups(s32 mode)
   ovl662_editor_workspace.saved64[4]=0;
  }
 }
+
+/* Initial values of the overlay globals this module owns. */
+GpuRectangle ovl662_vram_scratch_rect = {.rect = {.x = 803, .y = 2, .w = 16, .h = 64}};
+GpuRectangle ovl662_vram_layer0_rect = {.rect = {.x = 786, .y = 2, .w = 16, .h = 64}};
+GpuRectangle ovl662_vram_layer1_rect = {.rect = {.x = 769, .y = 2, .w = 16, .h = 64}};
+GpuRectangle ovl662_vram_palette_rect = {.rect = {.x = 768, .y = 66, .w = 16, .h = 1}};
+GpuRectangle ovl662_vram_composite_rect = {.rect = {.x = 784, .y = 66, .w = 16, .h = 1}};
+s32 ovl662_palette_pulse_phase;
+GarageOptionRecord ovl662_option_group_0[5] = {{.destinations = {0, 0, 0, 19, 15}}, {.destinations = {1, 2, 3, 19, 15}}, {.destinations = {4, 5, 6, 19, 15}}, {.destinations = {7, 7, 8, 19, 15}}, {.destinations = {9, 9, 10, 19, 15}}};
+GarageOptionRecord ovl662_option_group_1[2] = {{.destinations = {11, 12, 20, 16}}, {.destinations = {13, 14, 20, 16}}};
+GarageOptionRecord ovl662_option_group_2[2] = {{.destinations = {21, 22, 23, 24, 25, 26, 27, 28, 17, 18}}, {.destinations = {29, 30, 31, 32, 33, 34, 35, 35, 17, 18}}};
+GarageOptionRecord ovl662_option_group_3[2] = {{.destinations = {0, 1, 4, 7}}, {.destinations = {0, 2, 5, 7}}};
+GarageOptionRecord ovl662_option_group_4[3] = {{.destinations = {7, 9, 11, 13, 21, 29}}, {.destinations = {7, 9, 11, 13, 22, 30}}, {.destinations = {7, 9, 11, 13, 23, 31}}};
+GarageOptionRecord ovl662_option_group_5[5] = {{.destinations = {0, 3, 6, 8, 10, 12, 14, 24, 32}}, {.destinations = {0, 3, 6, 8, 10, 12, 14, 25, 33}}, {.destinations = {0, 3, 6, 8, 10, 12, 14, 26, 34}}, {.destinations = {0, 3, 6, 8, 10, 12, 14, 27, 35}}, {.destinations = {0, 3, 6, 8, 10, 12, 14, 28, 28}}};
+GarageOptionRecord ovl662_option_group_6[1] = {{.destinations = {19, 20, 17}}};
+GarageOptionRecord ovl662_option_group_7[1] = {{.destinations = {15, 16, 18}}};
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_editor_canvas_regions[] = {
+    RR_OVERLAY_STATE(ovl662_option_group_0),
+    RR_OVERLAY_STATE(ovl662_option_group_1),
+    RR_OVERLAY_STATE(ovl662_option_group_2),
+    RR_OVERLAY_STATE(ovl662_option_group_3),
+    RR_OVERLAY_STATE(ovl662_option_group_4),
+    RR_OVERLAY_STATE(ovl662_option_group_5),
+    RR_OVERLAY_STATE(ovl662_option_group_6),
+    RR_OVERLAY_STATE(ovl662_option_group_7),
+    RR_OVERLAY_STATE(ovl662_palette_pulse_phase),
+    RR_OVERLAY_STATE(ovl662_vram_composite_rect),
+    RR_OVERLAY_STATE(ovl662_vram_layer0_rect),
+    RR_OVERLAY_STATE(ovl662_vram_layer1_rect),
+    RR_OVERLAY_STATE(ovl662_vram_palette_rect),
+    RR_OVERLAY_STATE(ovl662_vram_scratch_rect)};
+const OverlayStateTable ovl662_editor_canvas_state = {ovl662_editor_canvas_regions, sizeof(ovl662_editor_canvas_regions) / sizeof(ovl662_editor_canvas_regions[0])};

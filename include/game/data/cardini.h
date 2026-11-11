@@ -33,5 +33,7 @@ int CardWriteFile(int port, int slot, const char *name, const void *buffer, int 
 int CardWriteFileAt(int port, int slot, const char *name, const void *buffer, int bytes, int offset);
 /* Physical port0/1 and a numeric slot, encoded as port*16+slot for the BIOS. */
 int CardUpdate(int port, int slot);
+/* Formats port*16+slot; returns the _card_format result (1 on success). */
+s32 CardFormatSlot(s32 port, s32 slot);
 
 #endif /* RR_GAME_DATA_CARDINI_H */

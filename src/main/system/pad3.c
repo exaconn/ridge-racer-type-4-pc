@@ -95,9 +95,9 @@ void PadUpdateRumble(void) {
         if (t->rumbleLevel49 >= 0x10) {
             t->rumbleLevel49 = 0xF;
         }
-        a0 = (t->rumbleLevel49 * Options.config.w[i].rumble02) / 2;
+        a0 = (t->rumbleLevel49 * Options.wheel[i].rumble02) / 2;
         if (t->rumbleActive50 != 0) {
-            if (t->rumbleDir52 != 0 && __builtin_abs((s16)t->position4C) < PadRangeLimits[Options.config.w[i].range01]) {
+            if (t->rumbleDir52 != 0 && __builtin_abs((s16)t->position4C) < PadRangeLimits[Options.wheel[i].range01]) {
                 if (a0 != 0) {
                     t0 = t1 | (1 << (t->rumbleDir52 + 3));
                 }
@@ -199,3 +199,7 @@ B:
   }
 }
 
+
+/* Initial values of the globals this module owns. */
+u8 PadDualShockActAlignCmd[8] = {0, 1, 0xFF, 0xFF, 0xFF, 0xFF};
+u8 PadActAlignBytes[8] = {0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};

@@ -1,4 +1,5 @@
 #include "rr/save_slots.h"
+#include "rr/save_progress.h"
 /* RODATA 0x80011570 0x18 */
 #include "game/data/cardini.h"
 #include "game/data/savedat.h"
@@ -12,9 +13,6 @@
 #include "rr/cd_directory_buffer.h"
 extern char CardHeaderTitles[][0x40];
 extern char CardTitleStrings[][0x40];
-extern unsigned char CardSaveStepState;
-extern unsigned char CardSaveIsMainData __asm__("CardSaveStepState+1");
-extern short CardSaveRetryCount __asm__("CardSaveStepState+2");
 extern CardHeaderBlock128 CardExtraDataTitleBuf;
 extern CardHeaderBlock128 CardSlotHeaderTitles[3];
 extern short CardTransferMode;
@@ -29,15 +27,15 @@ int CardSaveStep(short initialize, int port) {
     EmblemSaveData1380 *emblemSave;
 
     if (initialize > 0) {
-        CardSaveStepState = 0;
+        CardSaveStepState.step = 0;
     }
-    switch (CardSaveStepState) {
+    switch (CardSaveStepState.step) {
     case 0:
-        CardSaveRetryCount = 0;
-        PsyqBzero(SaveBuffer, 0x1AA8);
-        index = ExtraModeUnlockedFlag != 0;
+        CardSaveStepState.retryCount = 0;
+        PsyqBzero(SaveBuffer, sizeof(GameSaveData1AA8));
+        index = SaveProgress.prefix.unlocks50.extraModeUnlocked50 != 0;
         if (initialize == 1) {
-            CardSaveIsMainData = 1;
+            CardSaveStepState.isMainData = 1;
             if (CardTransferMode < 0x10) {
                 BuildCardHeaderStatic((CardFileHeader280 *)SaveBuffer, CardHeaderTitles[index], 0x250, 0x1FC, 0x254, 0x1D8, &CardExtraDataTitleBuf);
                 BuildSaveData(CardTransferMode);
@@ -48,7 +46,7 @@ int CardSaveStep(short initialize, int port) {
                 *(CardFileImage4000 *)SaveBuffer = *(const CardFileImage4000 *)CdDirectoryBuffer;
             }
         } else if (initialize >= 2) {
-            CardSaveIsMainData = 0;
+            CardSaveStepState.isMainData = 0;
             if (CardTransferMode < 0x10) {
                 BuildCardHeaderStatic((CardFileHeader280 *)SaveBuffer, CardHeaderTitles[index], 0x250, 0x1FC, 0x254, 0x1D8, &CardExtraDataTitleBuf);
                 BuildSaveData(CardTransferMode);
@@ -59,34 +57,34 @@ int CardSaveStep(short initialize, int port) {
                 *(CardFileImage4000 *)SaveBuffer = *(const CardFileImage4000 *)CdDirectoryBuffer;
             }
         }
-        CardSaveStepState = 1;
+        CardSaveStepState.step = 1;
         break;
     case 1:
-        CardSaveStepState = 2;
+        CardSaveStepState.step = 2;
         break;
     case 2:
         for (index = 0x1D; index >= 0; index--) {
         }
         if (CardTransferMode == 0x20) {
-            status = CardWriteFile((short)port, 0, CardTargetFileName, SaveBuffer, 2, CardSaveIsMainData);
+            status = CardWriteFile((short)port, 0, CardTargetFileName, SaveBuffer, 2, CardSaveStepState.isMainData);
         } else {
-            status = CardWriteFile((short)port, 0, CardTargetFileName, SaveBuffer, 1, CardSaveIsMainData);
+            status = CardWriteFile((short)port, 0, CardTargetFileName, SaveBuffer, 1, CardSaveStepState.isMainData);
         }
         if (status == -1) {
-            if (CardSaveRetryCount < 3) {
-                CardSaveRetryCount = (unsigned short)CardSaveRetryCount + 1;
+            if (CardSaveStepState.retryCount < 3) {
+                CardSaveStepState.retryCount = (unsigned short)CardSaveStepState.retryCount + 1;
                 break;
             }
-            CardSaveStepState = 5;
+            CardSaveStepState.step = 5;
         } else {
-            CardSaveStepState = 3;
+            CardSaveStepState.step = 3;
         }
         break;
     case 3:
         index = GetHwCardEvent();
         if (index != 0) {
             if (index == 1) {
-                CardSaveStepState = 4;
+                CardSaveStepState.step = 4;
                 switch (CardMenuOperation) {
                 case 3:
                     SaveSlotSnapshots[GpSaveSlotCursor] = SelectionState;
@@ -101,11 +99,11 @@ int CardSaveStep(short initialize, int port) {
                     break;
                 }
             } else {
-                if (CardSaveRetryCount >= 3) {
-                    CardSaveStepState = 5;
+                if (CardSaveStepState.retryCount >= 3) {
+                    CardSaveStepState.step = 5;
                 } else {
-                    CardSaveStepState = 1;
-                    CardSaveRetryCount = (unsigned short)CardSaveRetryCount + 1;
+                    CardSaveStepState.step = 1;
+                    CardSaveStepState.retryCount = (unsigned short)CardSaveStepState.retryCount + 1;
                 }
             }
         }
@@ -114,5 +112,14 @@ int CardSaveStep(short initialize, int port) {
     case 5:
         break;
     }
-    return CardSaveStepState;
+    return CardSaveStepState.step;
 }
+
+/* Initial values of the globals this module owns. */
+char CardHeaderTitles[2][0x40] = {{-126, 113, -126, 83, -127, 64, -126, 102, -126, -127, -126, -115, -126, -123, -127, 64, -126, 99, -126, -127, -126, -108, -126, -127}, {-126, 113, -126, 83, -127, 64, -126, 102, -126, -127, -126, -115, -126, -123, -127, 64, -126, 99, -126, -127, -126, -108, -126, -127, -127, 105, -126, 115, -126, -110, -126, -103, -127, 64, -126, 111, -126, -127, -126, -125, -127, 124, -126, 108, -126, -127, -126, -114, -127, 64, -126, 98, -126, -127, -126, -110, -127, 73, -127, 106}};
+char CardTitleStrings[3][0x40] = {{-126, 113, -126, 83, -127, 64, -126, 99, -126, -123, -126, -125, -126, -127, -126, -116, -127, 64, -126, 99, -126, -127, -126, -108, -126, -127, -127, 64, -126, 96}, {-126, 113, -126, 83, -127, 64, -126, 99, -126, -123, -126, -125, -126, -127, -126, -116, -127, 64, -126, 99, -126, -127, -126, -108, -126, -127, -127, 64, -126, 97}, {-126, 113, -126, 83, -127, 64, -126, 99, -126, -123, -126, -125, -126, -127, -126, -116, -127, 64, -126, 99, -126, -127, -126, -108, -126, -127, -127, 64, -126, 98}};
+CardSaveStepState4 CardSaveStepState;
+CardHeaderBlock128 CardExtraDataTitleBuf = {.bytes = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFE, 0xF, 0xFE, 0x1F, 0xFE, 0x1F, 0xFF, 0x1F, 0x3E, 0xBC, 0xF, 0x1F, 0x3E, 0xB8, 7, 0x1F, 0x3E, 0xB8, 7, 0x1F, 0xFE, 0xBF, 0xFF, 0x7F, 0xFE, 0xBF, 0xFF, 0x7F, 0xBE, 0x1F, 0, 0x1F, 0x3E, 0x3F, 0, 0x1F, 0x3E, 0x7E, 0, 0x1F, 0, 0, 0, 0, 0, 0, 0, 0, 0x80, 0xBB, 0xEF, 0, 0x80, 0xA8, 0x2A, 0, 0x80, 0xBA, 0x6A, 0, 0x80, 0xAA, 0x2A, 0, 0x80, 0xAB, 0xEA, 0, 0, 0, 0, 0, 0, 0x73, 0x77, 0, 0, 0x55, 0x52, 0, 0, 0x75, 0x72, 0, 0, 0x55, 0x52, 0, 0, 0x53, 0x52}};
+CardHeaderBlock128 CardSlotHeaderTitles[3] = {{.bytes = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFE, 0xF, 0xFE, 0x1F, 0xFE, 0x1F, 0xFF, 0x1F, 0x3E, 0xBC, 0xF, 0x1F, 0x3E, 0xB8, 7, 0x1F, 0x3E, 0xB8, 7, 0x1F, 0xFE, 0xBF, 0xFF, 0x7F, 0xFE, 0xBF, 0xFF, 0x7F, 0xBE, 0x1F, 0, 0x1F, 0x3E, 0x3F, 0, 0x1F, 0x3E, 0x7E, 0, 0x1F, 0, 0, 0, 0, 0, 0, 0, 0, 0x98, 0xBB, 0xB, 0, 0xA8, 0x88, 0xA, 0, 0xA8, 0x89, 0xB, 0, 0xA8, 0x88, 0xA, 0, 0x98, 0xBB, 0x3A, 0, 0, 0, 0, 0, 0x98, 0xBB, 0x83, 0xE, 0xA8, 0x92, 0x42, 0xA, 0xA8, 0x93, 0x23, 0xE, 0xA8, 0x92, 0x12, 0xA, 0x98, 0x92, 0xA, 0xA}}, {.bytes = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFE, 0xF, 0xFE, 0x1F, 0xFE, 0x1F, 0xFF, 0x1F, 0x3E, 0xBC, 0xF, 0x1F, 0x3E, 0xB8, 7, 0x1F, 0x3E, 0xB8, 7, 0x1F, 0xFE, 0xBF, 0xFF, 0x7F, 0xFE, 0xBF, 0xFF, 0x7F, 0xBE, 0x1F, 0, 0x1F, 0x3E, 0x3F, 0, 0x1F, 0x3E, 0x7E, 0, 0x1F, 0, 0, 0, 0, 0, 0, 0, 0, 0x98, 0xBB, 0xB, 0, 0xA8, 0x88, 0xA, 0, 0xA8, 0x89, 0xB, 0, 0xA8, 0x88, 0xA, 0, 0x98, 0xBB, 0x3A, 0, 0, 0, 0, 0, 0x98, 0xBB, 0x83, 6, 0xA8, 0x92, 0x42, 0xA, 0xA8, 0x93, 0x23, 6, 0xA8, 0x92, 0x12, 0xA, 0x98, 0x92, 0xA, 6}}, {.bytes = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFE, 0xF, 0xFE, 0x1F, 0xFE, 0x1F, 0xFF, 0x1F, 0x3E, 0xBC, 0xF, 0x1F, 0x3E, 0xB8, 7, 0x1F, 0x3E, 0xB8, 7, 0x1F, 0xFE, 0xBF, 0xFF, 0x7F, 0xFE, 0xBF, 0xFF, 0x7F, 0xBE, 0x1F, 0, 0x1F, 0x3E, 0x3F, 0, 0x1F, 0x3E, 0x7E, 0, 0x1F, 0, 0, 0, 0, 0, 0, 0, 0, 0x98, 0xBB, 0xB, 0, 0xA8, 0x88, 0xA, 0, 0xA8, 0x89, 0xB, 0, 0xA8, 0x88, 0xA, 0, 0x98, 0xBB, 0x3A, 0, 0, 0, 0, 0, 0x98, 0xBB, 0x83, 0xE, 0xA8, 0x92, 0x42, 2, 0xA8, 0x93, 0x23, 2, 0xA8, 0x92, 0x12, 2, 0x98, 0x92, 0xA, 0xE}}};
+u8 *SaveBuffer;
+short CardTransferMode;

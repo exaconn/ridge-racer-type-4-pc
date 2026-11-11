@@ -1,5 +1,6 @@
+#include "rr/projection_state.h"
+#include "rr/menu_selection.h"
 #include "game/system/pad.h"
-/* RODATA 0x8001134c 0x14 */
 #include "types.h"
 #include "scratchpad.h"
 #include "game/race/objrec.h"
@@ -14,7 +15,6 @@
 
 extern int MenuSoundEffectMap;
 extern int ModeFrame;
-extern short CourseIndex;
 extern int RaceState;
 extern int ObjSimBlimpTrackNode;
 extern int ObjSimJetTrackNode;
@@ -145,9 +145,9 @@ void UpdateTrackObjects(void) {
                         SetAnimatedTrackObjectState(TrackObjectDefs[i].f0, 7, &TrackObjectStates[i].fC, (TrackObjectStates[i].f8 = (PsyqRand() % 6) + 1) - 1);
                         TrackObjectStates[i].f0 = 0;
                     } else if (TrackObjectStates[i].f0 == 0x3C) {
-                        hw = (int *)SCRATCHPAD;
-                        sp[0] = (TrackObjectStates[i].fC - hw[2]) >> 10;
-                        sp[1] = (TrackObjectStates[i].f14 - hw[4]) >> 10;
+                        hw = ((ProjectionScratchPrefix *)SCRATCHPAD)->pose08.position00.words;
+                        sp[0] = (TrackObjectStates[i].fC - hw[0]) >> 10;
+                        sp[1] = (TrackObjectStates[i].f14 - hw[2]) >> 10;
                         sp[2] = CordicSqrt((sp[0] * sp[0] + sp[1] * sp[1]) >> 8) >> 4;
                         TrackObjectStates[i].f4 = sp[2] - 0x46;
                     }
@@ -358,3 +358,17 @@ next_iter:
         ;
     }
 }
+
+/* Initial values of the globals this module owns. */
+int MenuSoundEffectMap;
+TrackSample3C *TrackNodes;
+short HudDisplayedLapIndex;
+s16 RaceFinishBannerTimer;
+int ObjSimBlimpTrackNode;
+int ObjSimJetTrackNode;
+int ObjSimCopterTrackNode;
+int ObjSimTrainTrackNode;
+int ObjSimEventTriggerNode;
+int ObjSimLastActiveFrame[30];
+Node24 *TrackObjectKeyframes;
+S_ECB4 *TrackObjectStates;

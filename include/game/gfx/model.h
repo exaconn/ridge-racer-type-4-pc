@@ -14,11 +14,14 @@ void InitTimTemplate(EmblemTimImage840 *image);
 void RelocateModelTable(RroModelTableWire *table);
 extern RroModelBank *ModelBankTable[];
 extern s32 ModelBankFormat;
-void RegisterModelBank(RroModelBank *bank, s32 slot);
+/* Decode the serialized bank at image (RroModelBankWire) into the host bank
+ * for slot, publish it in ModelBankTable[slot] and return it. */
+RroModelBank *RegisterModelBank(const void *image, s32 slot);
+/* Rewrite the bank image's offsets relative to base (u32 wire words). */
 void UnrelocateModelBank(RroModelBank *bank, const u8 *base);
 void SelectModelBank(s32 slot);
 void SetFogNearFar(s32 a0, s32 a1, s32 a2);
-void SetVramImageSlot(int a0, int a1);
+void SetVramImageSlot(const void *pixels, int slot);
 void LoadVramImageSlot(int a0);
 
 

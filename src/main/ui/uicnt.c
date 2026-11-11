@@ -1,15 +1,14 @@
 #include "types.h"
+#include "rr/runtime_settings.h"
 #include "rr/badge_rows.h"
 #include "game/ui/uicnt.h"
 #include "rr/menu_label_render.h"
 
-extern int SelectedStoryBranchId;
-extern int HudCountdownDigitSprites[];
+extern UiUvRect HudCountdownDigitSprites[];
 
-void DrawBadgeCountdownSprites(int a0, void *a1, int a2);
-s32 ChecksumBytes(u8 *p, int n);
-
-void DrawBadgeCountdownSprites(int a0, void *a1, int a2) {
+/* Badge-row decoration (UiRowDrawHandlers entry): story-branch digit and two
+ * side glyphs; returns the advanced cursor. */
+void *DrawBadgeCountdownSprites(GpuDmaTag *a0, void *a1, s32 a2) {
     char sp[8];
     int s4;
     int s2;
@@ -19,13 +18,13 @@ void DrawBadgeCountdownSprites(int a0, void *a1, int a2) {
 
     s4 = BadgeRows[a2].x04 + 0x10;
     s2 = BadgeRows[a2].y06 + 0x20;
-    rem = SelectedStoryBranchId % 5;
+    rem = Options.storyBranch3C % 5;
     a1 = AddSpritePrim(a0, a1, s4, s2, &HudCountdownDigitSprites[rem], 0x4424, 0);
     for (i = 0; i < 2; i++) {
         off = i * 0x28 - 8;
         a1 = AddSpritePrim(a0, a1, s4 + off, s2, &HudCountdownDigitSprites[i + 5], 0x4424, 0);
     }
-    AddDrawModePrim(a0, a1, 0x39);
+    return AddDrawModePrim(a0, a1, 0x39);
 }
 
 s32 AddOrSubtractByte(s32 arg0, s32 arg1, s32 arg2) {
@@ -71,3 +70,6 @@ s32 ChecksumBytes(u8 *p, int n) {
     }
     return s;
 }
+
+/* Initial values of the globals this module owns. */
+UiUvRect HudCountdownDigitSprites[7] = {{.u = 0x38, .w = 0x1C, .h = 0x10}, {.u = 0x54, .w = 0x1C, .h = 0x10}, {.u = 0x70, .w = 0x20, .h = 0x10}, {.u = 0x90, .w = 0x18, .h = 0x10}, {.u = 0xA8, .w = 0x20, .h = 0x10}, {.u = 0x28, .w = 8, .h = 0x10}, {.u = 0x30, .w = 8, .h = 0x10}};

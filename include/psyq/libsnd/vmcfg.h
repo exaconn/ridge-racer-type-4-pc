@@ -3,6 +3,7 @@
 
 #include "types.h"
 
-void SsVabClose(s16 channel);
+/* PsyZ: void SsVabClose(short vab_id). */
+void SsVabClose(short bank);
 
-#endif
+#endif /* RR_PSYQ_LIBSND_VMCFG_H */

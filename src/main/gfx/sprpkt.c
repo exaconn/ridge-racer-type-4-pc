@@ -1,5 +1,4 @@
 #include "game/sound/sndque.h"
-#include "scratchpad.h"
 #include "rr/frame_storage_types.h"
 #include "rr/gpu_scratch_types.h"
 #include "rr/gpu.h"
@@ -10,11 +9,6 @@
 #include "rr/audio_loop.h"
 #include "rr/race_setup.h"
 #include "game/gfx/sprpkt.h"
-struct OrderingHeadEntry {
-    s32 unk00[28];
-    u32 addr:24;
-    u32 len:8;
-};
 extern s32 RaceState;
 extern s32 SplitTimes[];
 void DrawRaceOverlaySprites(s32 a0)
@@ -45,7 +39,7 @@ void DrawRaceOverlaySprites(s32 a0)
                     c = 0x16;
                 }
                 if (SplitDeltaTimer == 0x3B && s2 < 2 && a0 == 0) SoundQueueEnqueue(c, 0);
-                *(SpritePacket **)SCRATCHPAD = GameQueueSprite((char *)&CurrentDrawBuf->buffer.ordering70.words[0], *(SpritePacket **)SCRATCHPAD, 0x70, 0x60, 0xC, 0xC, s5, 0xA8, 0x7EF8);
+                RR_GPU_SCRATCH->cursor = (u8 *)GameQueueSprite(&CurrentDrawBuf->buffer.ordering70.tags[0], (SpritePacket *)RR_GPU_SCRATCH->cursor, 0x70, 0x60, 0xC, 0xC, s5, 0xA8, 0x7EF8);
                 DrawRaceTime(0x80, 0x60, s1, 0x7EF8, 1);
             } else {
                 s3 = BestSplitTimes[SplitIndex];
@@ -54,8 +48,8 @@ void DrawRaceOverlaySprites(s32 a0)
         }
         DrawRaceTime(0x14, 0x1C, s3, 0x7EF8, 0);
         DrawRaceTime(0x14, 0x26, s4, 0x7EF8, 0);
-        p = *(SpritePacket **)SCRATCHPAD;
-        p->len = 4;
+        p = (SpritePacket *)RR_GPU_SCRATCH->cursor;
+        p->tag.length = 4;
         p->code = 0x64;
         p->x = 0xA;
         p->y = 0x26;
@@ -65,8 +59,11 @@ void DrawRaceOverlaySprites(s32 a0)
         p->v = 0xA8;
         p->clut = 0x7EF8;
         p->code |= 1;
-        p->addr = ((struct OrderingHeadEntry *)CurrentDrawBuf)->addr;
-        ((struct OrderingHeadEntry *)CurrentDrawBuf)->addr = p++;
-        ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)p;
+        RR_GPU_LINK(&CurrentDrawBuf->buffer.ordering70.tags[0], p);
+        p++;
+        RR_GPU_SCRATCH->cursor = (u8 *)p;
     }
 }
+
+/* Initial values of the globals this module owns. */
+s32 SplitDeltaTimer;

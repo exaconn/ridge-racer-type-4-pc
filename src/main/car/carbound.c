@@ -1,7 +1,8 @@
 #include "psyq/libgte/gtemat5.h"
+#include "rr/vehicle_table.h"
 #include "psyq/libgte/gtemat4.h"
 #include "psyq/libgte/gtemat3.h"
-/* RODATA 0x80010488 0x1c */
+#include <stddef.h>
 #include "types.h"
 #include "game/car/bounds.h"
 #include "game/car/carwheel.h"
@@ -17,14 +18,13 @@
 #include "game/data/selection.h"
 #include "game/math/rotmat.h"
 
-extern short NumCars;
 extern short LinkHostFlag;
 
 void SetCarBounds(RaceVehicle *a);
 
 void DrawCars(s32 a0) {
     int z; 
-    int i, s2, y;
+    int i, s2;
     RaceVehicle **p;
     CarViewportBankOffset = 0;
     switch (a0) {
@@ -32,7 +32,9 @@ void DrawCars(s32 a0) {
         z = 0;
         if (!(CarTable[0]->flags1E4 & 0x100)) {
             DrawPlayerCar(CarTable[0], z);
-        } else {;            DrawWheelTrailEffects(CarTable[0], y, y, y, 0, 0, 0);
+        } else {
+            /* Hidden car: advance trail state only (no position, as carwheel.c). */
+            DrawWheelTrailEffects(CarTable[0], NULL, NULL, NULL, 0, 0, 0);
         }
     case 1:
         if (GameModeType != 4) {
@@ -62,7 +64,8 @@ void DrawCars(s32 a0) {
                         z = 0;
                         if (!(p[0]->flags1E4 & 0x100)) {
                             DrawPlayerCar(p[0], z);
-                        } else {;                            DrawWheelTrailEffects(p[0], y, y, y, p[0]->slotIndex1E6 + CarViewportBankOffset, 0, 0);
+                        } else {
+                            DrawWheelTrailEffects(p[0], NULL, NULL, NULL, p[0]->slotIndex1E6 + CarViewportBankOffset, 0, 0);
                         }
                     } else {
                         DrawOpponentCar(p[0], s2);
@@ -130,8 +133,8 @@ void ResetCarState(RaceVehicle *a)
 
 void UpdateCarWorldTransform(RaceVehicle *a0) {
     struct {
-        int m1[8];
-        int m2[8];
+        MatrixWords32 m1;
+        MatrixWords32 m2;
         short v[3];
     } L;
     int t1, t2;
@@ -142,28 +145,28 @@ void UpdateCarWorldTransform(RaceVehicle *a0) {
     a0->ang80 = (unsigned short)a0->rot50;
     a0->ang82 = (unsigned short)a0->rot54;
     a0->ang84 = (unsigned short)a0->rot58;
-    BuildRotMatrixY(L.m1, 0x800 - a0->rot54);
-    BuildRotMatrixX(L.m2, a0->rot50);
-    MulMatrix((MatrixWords32 *)(L.m1), (const MatrixWords32 *)(L.m2));
-    BuildRotMatrixZ(L.m2, a0->rot58);
-    MulMatrix2((const MatrixWords32 *)(L.m1), (MatrixWords32 *)(L.m2));
+    BuildRotMatrixY(&L.m1, 0x800 - a0->rot54);
+    BuildRotMatrixX(&L.m2, a0->rot50);
+    MulMatrix(&L.m1, &L.m2);
+    BuildRotMatrixZ(&L.m2, a0->rot58);
+    MulMatrix2(&L.m1, &L.m2);
     L.v[0] = 0;
     L.v[1] = -(unsigned short)a0->height108;
     L.v[2] = (a0->halfSpan10E * 4) / 3;
-    ApplyMatrix((const MatrixWords32 *)(L.m2), (const Vec3s8 *)(L.v), (Vec3i *)a0->ir40);
-    BuildRotMatrixY(L.m1, 0x800 - a0->ang82);
-    BuildRotMatrixX(L.m2, a0->ang80);
-    MulMatrix((MatrixWords32 *)(L.m1), (const MatrixWords32 *)(L.m2));
-    BuildRotMatrixZ(L.m2, a0->ang84);
-    MulMatrix2((const MatrixWords32 *)(L.m1), (MatrixWords32 *)(L.m2));
+    ApplyMatrix(&L.m2, (const Vec3s8 *)(L.v), (Vec3i *)a0->ir40);
+    BuildRotMatrixY(&L.m1, 0x800 - a0->ang82);
+    BuildRotMatrixX(&L.m2, a0->ang80);
+    MulMatrix(&L.m1, &L.m2);
+    BuildRotMatrixZ(&L.m2, a0->ang84);
+    MulMatrix2(&L.m1, &L.m2);
     L.v[0] = 0;
     L.v[1] = (a0->wheelOffsetE4[2] + a0->wheelOffsetE4[3]) >> 7;
     L.v[2] = 0;
-    ApplyMatrix((const MatrixWords32 *)(L.m2), (const Vec3s8 *)(L.v), (Vec3i *)a0->ir70);
+    ApplyMatrix(&L.m2, (const Vec3s8 *)(L.v), (Vec3i *)a0->ir70);
     L.v[0] = 0;
     L.v[1] = -((a0->wheelSuspensionDC[2] + a0->wheelSuspensionDC[3]) >> 3);
     L.v[2] = 0;
-    ApplyMatrix((const MatrixWords32 *)(L.m2), (const Vec3s8 *)(L.v), (Vec3i *)a0->ir60);
+    ApplyMatrix(&L.m2, (const Vec3s8 *)(L.v), (Vec3i *)a0->ir60);
     a0->ir70[0] = a0->ir70[0] + a0->worldPosition10.words[0];
     a0->ir70[1] = a0->ir70[1] + a0->worldPosition10.words[1];
     a0->ir70[2] = a0->ir70[2] + a0->worldPosition10.words[2];
@@ -223,3 +226,7 @@ void AssignCarModelSlot(RaceVehicle *p) {
     p->control.maxSpeedF8 = 0x100;
     PlaceCarOnGrid(p, ((short)p->flags1E4 - 1) & 7);
 }
+
+/* Initial values of the globals this module owns. */
+int CarViewportBankOffset;
+s16 LinkPlayerCount;

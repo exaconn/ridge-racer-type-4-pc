@@ -39,16 +39,16 @@ s32 CalcSteerLimit(RaceVehicle *vehicle) {
     return value;
 }
 
-int ScanCurveAhead(char *a0, int a1, int *a2, int *a3, int *a4) {
+s32 ScanCurveAhead(RaceVehicle *a0, s32 a1, s32 *a2, s32 *a3, s32 *a4) {
     int v0, v1, s0, s1, s2, s3, s4, s5, r0;
     int r1;
     int t;
-    v0 = ((RaceVehicle *)a0)->input * 0xC;
+    v0 = a0->input * 0xC;
     if (v0 < 0) v0 += 0xF;
     v1 = v0 >> 4;
     if (v1 < 0x200) v1 = 0x200;
-    s0 = ((RaceVehicle *)a0)->trackNodeF0;
-    s1 = -((RaceVehicle *)a0)->heading1D4 + 0x400;
+    s0 = a0->trackNodeF0;
+    s1 = -a0->heading1D4 + 0x400;
     s1 &= 0xFFF;
     s2 = v1;
     if (s1 & 0x800) s1 |= ~0xFFF;

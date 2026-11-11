@@ -1,6 +1,6 @@
 #include "rr/emblem_images.h"
+#include "game/race/ranking.h"
 #include "rr/save_slots.h"
-/* RODATA 0x800114a0 0xc4 */
 #include "game/gfx/color.h"
 #include "psyq/libc/printf.h"
 #include "game/data/savedat.h"
@@ -15,11 +15,7 @@
 #include "rr/overlay667_course_initializer.h"
 #include "rr/string_tail_copy.h"
 
-extern int CourseBestLap[2][8];
 extern TimeRecord16 RaceRecords[2][8][5];
-extern int CourseBestLapTimes[2][8][3];
-extern EmblemTim840 *GarageSavedDecalTimB;
-extern EmblemTim840 *GarageSavedDecalTimA;
 extern short GpSaveSlotCursor;
 extern TimeRecord16 LapRecords[2][8][5];
 extern CourseChoice4 LinkCarChoiceTable[2][2][9];
@@ -194,3 +190,13 @@ void BuildCardHeaderStatic(CardFileHeader280 *header, const char *title,
     header->payload80.single.extra[1] = *extra;
     header->payload80.single.extra[2] = *extra;
 }
+
+/* Initial values of the globals this module owns. */
+char StrFmtPercentS[4] = {37, 115};
+char StrCardMagicCrd0[60] = {67, 82, 68, 48};
+EmblemTim840 *GarageSavedDecalTimA, *GarageSavedDecalTimB;
+EmblemTim840 *GarageSavedDecalTimA;
+GpuRectangle SavedEmblemClutRect;
+GpuRectangle SavedEmblemPixelRect;
+char VsPlayerNames[2][12];
+CourseChoice4 VsCarChoiceTable[2][2][9];

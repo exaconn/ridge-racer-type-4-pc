@@ -143,3 +143,6 @@ int GetCardMenuInitialState(void) {
     }
     return a2;
 }
+
+/* Initial values of the globals this module owns. */
+void (*MenuStepHandlerTable[13])() = {(void (*)())StepCardFileSlotSelection, (void (*)())StepCardPortSelection, (void (*)())UpdateCardMenuRowStates, (void (*)())RunCardSaveOrLoadStep, (void (*)())StepCardConfirmPrompt, (void (*)())WaitCardDialogueComplete, (void (*)())RunCardFormatStep, (void (*)())InitCardMenuSession, (void (*)())CloseCardMenuUiRows, (void (*)())StepCardSlotHeaderScan, (void (*)())CheckCardPollStatusTransition, (void (*)())CheckCardFileExistsTransition, (void (*)())StepCardDataTransfer};

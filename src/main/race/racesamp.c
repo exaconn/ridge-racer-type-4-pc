@@ -1,11 +1,12 @@
 #include "rr/vehicle_table.h"
+#include "rr/player_cars.h"
 #include "rr/frame_storage_types.h"
 #include "game/data/bankrec.h"
-/* RODATA 0x80010700 0x1c */
 #include "types.h"
 #include "game/car/car.h"
 #include "game/car/grid.h"
 #include "scratchpad.h"
+#include "rr/gpu_scratch_types.h"
 #include "rr/track_sample_types.h"
 #include "game/car/carmove1.h"
 #include "game/menu/menu8.h"
@@ -26,6 +27,7 @@
 #include "game/math/rotmat.h"
 #include "game/ui/uibar.h"
 #include "game/ui/uidraw.h"
+#include "rr/scene_camera_state.h"
 
 typedef struct {
     int a, b, c, d;
@@ -40,14 +42,8 @@ extern unsigned char RaceCarStatParam5[];
 extern RaceVehicle PlayerCars[];
 extern RaceVehicle DuelRaceVehicles[];
 extern RaceVehicle GrandPrixRaceVehicles[];
-extern RaceVehicle ComCars[];
-extern short NumCars;
 extern short LinkHostFlag;
 extern short ReverseCourse;
-extern struct {
-    u8 reserved00[0x53C];
-    Grid53C *p53C;
-} RaceContext;
 
 void InitPreviewImageRows(void) {
     SetModelTexturePage(0x19);
@@ -59,9 +55,9 @@ void InitPreviewImageRows(void) {
 
 void DrawSelectionIconGrid(int arg0) {
     int v[9];
-    char buf[4];
+    UiUvRect buf;
     int s0;
-    int a1;
+    void *a1;
     int b;
     unsigned char *t7 = ReplayCameraViewWeights;
     SelectionRow *q = SelectionRows.entries;
@@ -88,17 +84,17 @@ void DrawSelectionIconGrid(int arg0) {
         v[7] = 0x1E;
     }
     s0 = 0;
-    a1 = *(int *)SCRATCHPAD;
-    buf[2] = 0x10;
-    buf[3] = 0x20;
+    a1 = RR_GPU_SCRATCH->cursor;
+    buf.w = 0x10;
+    buf.h = 0x20;
     do {
         int t = v[s0];
-        buf[0] = (t % 16) * 16;
-        buf[1] = (t / 16) << 5;
-        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, (s0 % 3) * 0x14 + 0xF0, (s0 / 3) * 0x28 + 0x58, buf, 0x7FA4, 1);
+        buf.u = (t % 16) * 16;
+        buf.v = (t / 16) << 5;
+        a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, (s0 % 3) * 0x14 + 0xF0, (s0 / 3) * 0x28 + 0x58, &buf, 0x7FA4, 1);
         s0++;
     } while (s0 < 9);
-    *(int *)SCRATCHPAD = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, 0x39);
+    RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, 0x39);
 }
 
 void InitCarTable(int a) {
@@ -180,16 +176,16 @@ void PlaceCarOnGrid(RaceVehicle *p, int arg1) {
 
     ResetVehicleShake(p);
     if (GameModeType == 0 && ReverseCourse == 1) {
-        p->trackNodeF0 = *TrackStartNode;
+        p->trackNodeF0 = RaceContext.startGrid53C->f0;
         t = TrackNodeCount - 5;
         p->position20.vector.x = TrackNodes[(p->trackNodeF0 + t) % TrackNodeCount].road.x;
         p->position20.vector.y = 0;
         p->position20.vector.z = TrackNodes[(p->trackNodeF0 + t) % TrackNodeCount].road.z;
     } else {
-        p->position20.vector.x = RaceContext.p53C->pos[arg1].x;
+        p->position20.vector.x = RaceContext.startGrid53C->pos[arg1].x;
         p->position20.vector.y = 0;
-        p->position20.vector.z = RaceContext.p53C->pos[arg1].z;
-        p->trackNodeF0 = RaceContext.p53C->f0;
+        p->position20.vector.z = RaceContext.startGrid53C->pos[arg1].z;
+        p->trackNodeF0 = RaceContext.startGrid53C->f0;
     }
     p->posScaled00[0] = p->position20.vector.x << 8;
     p->posScaled00[1] = 0;
@@ -257,3 +253,13 @@ void PlaceCarOnGrid(RaceVehicle *p, int arg1) {
     FindWheelTrackNodes(p);
     UpdateWheelBumps(p);
 }
+
+/* Initial values of the globals this module owns. */
+unsigned char ReplayCameraViewWeights[4] = {2, 3, 1};
+unsigned char RaceCarStatParam1[4] = {0xA, 0xB, 9, 8};
+unsigned char RaceCarStatParam3[4] = {7, 4, 5, 6};
+unsigned char RaceCarStatParam4[4] = {0xB, 8, 9, 0xA};
+unsigned char RaceCarStatParam5[4] = {0x13, 0x10, 0x11, 0x12};
+s16 NumCars;
+RaceVehicle DuelRaceVehicles[1];
+RaceVehicle GrandPrixRaceVehicles[1];

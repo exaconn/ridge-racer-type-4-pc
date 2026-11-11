@@ -1,4 +1,5 @@
 #include "game/gfx/scene1.h"
+#include "rr/menu_selection.h"
 #include "types.h"
 #include "game/gfx/fadesel.h"
 #include "game/math/shuffle.h"
@@ -16,11 +17,9 @@
 #include "game/data/selection.h"
 #include "psyq/libc/rand.h"
 #include "game/menu/mnrows.h"
+#include "rr/scene_camera_state.h"
 
-extern int SlotOrder[];
-extern char AttractDemoStateBuffer[];
 extern int MenuTransitionFadeRates[];
-extern short CourseIndex;
 extern unsigned short LoadingBarAnimCounter;
 extern unsigned short MenuStageEntryModeIds[];
 extern short MenuTransitionOverlayMode;
@@ -29,7 +28,6 @@ extern short ModeGroup;
 extern short ModeIndex;
 extern short SubmodeState;
 extern int MaskBitSetting;
-extern char RaceContext[];
 extern short ActiveSceneId;
 void StartAttractDemo(int a0);
 void AttractDemoRaceEnter(void);
@@ -49,21 +47,19 @@ int *w;
     unsigned short m;
     unsigned short *e;
     int n;
-    int *d;
     unsigned short h;
-    char *c;
+    AttractDemoState80 *d0;
     int x6;
     int *pa, *pb;
     int vq;
-    char *c2;
     int x5;
 
-    if (SlotOrder[0] != 0) {
+    if (SlotOrder.pending00 != 0) {
         ShuffleSlotOrder();
-        SlotOrder[0] = 0;
+        SlotOrder.pending00 = 0;
     }
-    PsyqBzero(AttractDemoStateBuffer, 0x80);
-    ((int *)AttractDemoStateBuffer)[3] = a0;
+    PsyqBzero(&RaceContext.attract4BC, sizeof(RaceContext.attract4BC));
+    RaceContext.attract4BC.mode0C = a0;
     i = 3;
     q = sp + 3;
     do {
@@ -115,11 +111,10 @@ v = s0 + PsyqRand() % 2;
         }
     }
     if (CourseIndex < 0) {
-        d = SlotOrder;
-        n = d[9];
-        h = ((unsigned short *)d)[n * 2 + 2];
+        n = SlotOrder.cursor24;
+        h = (unsigned short)SlotOrder.order04[n];
         n = n + 1;
-        d[9] = n;
+        SlotOrder.cursor24 = n;
         CourseIndex = h;
         if (n >= 8)
             ShuffleSlotOrder();
@@ -140,29 +135,29 @@ v = s0 + PsyqRand() % 2;
         RaceBgmListIndex = 1;
     }
     InitSceneOverlayState();
-    c = RaceContext;
+    d0 = &RaceContext.attract4BC;
     MaskBitSetting = 1;
-    ((short *)c)[0x4E0 / 2] = 0xD2;
-    ((short *)c)[0x4E2 / 2] = 0;
-    ((short *)c)[0x4E4 / 2] = 0x8FC;
-    HsvToRgb(c + 0x4E0, c + 0x4E8);
-    SetSceneOverlayColor(0, c[0x4E8], c[0x4E9], c[0x4EA]);
-    ((int *)c)[0x534 / 4] = 0;
+    d0->overlayHsv24[0] = 0xD2;
+    d0->overlayHsv24[1] = 0;
+    d0->overlayHsv24[2] = 0x8FC;
+    HsvToRgb(d0->overlayHsv24, d0->overlayRgb2C);
+    SetSceneOverlayColor(0, d0->overlayRgb2C[0], d0->overlayRgb2C[1], d0->overlayRgb2C[2]);
+    d0->viewMode78 = 0;
     if (a0 == 0) {
-        x5 = ((int *)c)[0x3DC / 4];
+        x5 = RaceContext.overlayToggle3DC;
     } else {
-        ((int *)c)[0x3DC / 4] = 0;
+        RaceContext.overlayToggle3DC = 0;
         x5 = 0;
     }
     SetSceneOverlayEnabled(x5);
-    c2 = RaceContext;
-    ((int *)c2)[0x4F0 / 4] = -0x20;
-    ((int *)c2)[0x4EC / 4] = 0;
-    ((int *)c2)[0x4F4 / 4] = 0;
-    ((int *)c2)[0x4FC / 4] = 0;
-    ((int *)c2)[0x500 / 4] = 0;
-    ((int *)c2)[0x504 / 4] = 0;
-    ((int *)c2)[0x514 / 4] = 0x122;
+    d0 = &RaceContext.attract4BC;
+    d0->camera30[1] = -0x20;
+    d0->camera30[0] = 0;
+    d0->camera30[2] = 0;
+    d0->camera30[4] = 0;
+    d0->camera30[5] = 0;
+    d0->camera30[6] = 0;
+    d0->camera30[10] = 0x122;
     SoundReverbOffAll();
     ClearTrackObjectStates(0);
     ActiveSceneId = 0x209;
@@ -179,3 +174,9 @@ void AttractDemoRaceEnter(void) {
     SelectDemoFadePreset(1);
     DrawSubOtFlag = 0;
 }
+
+/* Initial values of the globals this module owns. */
+int MenuTransitionFadeRates[4] = {1, 3, 2};
+unsigned short LoadingBarAnimCounter = 0xA00F;
+unsigned short MenuStageEntryModeIds[16] = {0x8004, 0, 0x8008, 4, 0x8001, 2, 0x8002, 1, 0x2004, 6, 0x2008, 3, 0x2001, 5, 0x2002, 7};
+int AttractCarTeams[4];

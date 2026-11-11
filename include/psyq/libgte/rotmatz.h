@@ -3,7 +3,7 @@
 
 #include "rr/matrix_words.h"
 
-/* Rotates the existing matrix in place and returns the same owner. */
-MatrixWords32 *RotMatrixZ(s32 angle, MatrixWords32 *matrix);
+/* PsyZ: MATRIX *RotMatrixZ(long r, MATRIX *m). Rotates in place, returns m. */
+MatrixWords32 *RotMatrixZ(long angle, MatrixWords32 *matrix);
 
 #endif

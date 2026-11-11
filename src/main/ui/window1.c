@@ -11,40 +11,20 @@
 #include "rr/animated_glyph.h"
 #include "game/ui/badge1.h"
 
-struct HudSpritePacket20 { unsigned addr:24; unsigned len:8; unsigned char r, g, b, code; short x; unsigned short y; unsigned char u, v; unsigned short clut; short w, h; };
+#include "game/ui/window1.h"
+#include "rr/frame_loop.h"
 
-typedef struct {
-    u16 x00;
-    u16 y02;
-    u16 w04;
-    u16 h06;
-    u8 u08;
-    u8 pad09;
-    u8 v0A;
-    u8 pad0B;
-    u16 clut0C;
-    u16 pad0E;
-    s32 semiTrans10;
-} HudSpriteDef14;
+extern HudSpriteDef14 BadgeRowPresetTableA[];
+extern HudSpriteDef14 BadgeRowPresetTableB[];
+extern HudSpriteDef14 Rect16RowDefaultPresets[];
 
-extern char BadgeRowPresetTableA[];
-extern char BadgeRowPresetTableB[];
-extern char Rect16RowDefaultPresets[];
-extern char MenuCoursePreviewArena[];
-
-void InitHudSpritePacket(struct HudSpritePacket20 *a0, HudSpriteDef14 *a1);
-void SubmitRaceHudPackets();
-void DrawDigitString12();
-void DrawDigitString8();
-void DrawDigitString16();
-
-void InitHudSpritePacket(struct HudSpritePacket20 *a0, HudSpriteDef14 *a1) {
-    ((u8 *)a0)[3] = 4;
+void InitHudSpritePacket(SpritePacket *a0, const HudSpriteDef14 *a1) {
+    a0->tag.length = 4;
     a0->code = 0x64;
-    *(u16 *)&a0->x = a1->x00;
+    a0->x = a1->x00;
     a0->y = a1->y02;
-    *(u16 *)&a0->w = a1->w04;
-    *(u16 *)&a0->h = a1->h06;
+    a0->w = a1->w04;
+    a0->h = a1->h06;
     a0->u = a1->u08;
     a0->v = a1->v0A;
     a0->clut = a1->clut0C;
@@ -58,11 +38,9 @@ void InitHudSpritePacket(struct HudSpritePacket20 *a0, HudSpriteDef14 *a1) {
 
 void InitRaceHudPackets(int a0)
 {
-    int n, i, j, a, b;
-    char *tab;
-    char *base;
-    char *s1;
-    char *s0;
+    int n, i, j;
+    HudSpriteDef14 *tab;
+    SpritePacket *sprites;
     switch (a0) {
     case 0:
     case 5:
@@ -88,62 +66,63 @@ void InitRaceHudPackets(int a0)
     }
     for (i = 0; i < n; i++) {
         for (j = 0; j < 2; j++) {
-            s1 = MenuCoursePreviewArena + j * 0x22778;
-            s0 = s1 + (i * 0x14 + 0x18);
-            InitHudSpritePacket(s0, tab + i * 0x14);
-            if (i != 0) AddPrim(s1 + (i * 0x14 + 4), s0);
+            sprites = DrawBuffers[j].buffer.hudSprites;
+            InitHudSpritePacket(&sprites[i], &tab[i]);
+            /* Chain each sprite after its predecessor. */
+            if (i != 0) RR_GPU_LINK(&sprites[i - 1].tag, &sprites[i]);
         }
     }
 }
 
 void SubmitRaceHudPackets(int a0) {
-    short sp[4];
-    int *s0;
-    int a1, d, t;
-    int *v;
-    int *s1;
+    GpuRectangleFields area;
+    GpuDmaTag *s0;
+    int a1;
+    SpritePacket *sprites;
+    GpuDrawModePacket *s1;
     switch (a0) {
     case 0:
     default:
         a1 = 4;
-        s0 = (int *)(&CurrentDrawBuf->buffer.ordering70.words[0]);
+        s0 = &CurrentDrawBuf->buffer.ordering70.tags[0];
         break;
     case 1:
         a1 = 8;
-        s0 = (int *)(&CurrentDrawBuf->buffer.ordering70.words[0]);
+        s0 = &CurrentDrawBuf->buffer.ordering70.tags[0];
         break;
     case 2:
     case 3:
     case 4:
         if ((LinkPlayerCount == 2 && a0 == 3) || a0 == 4) {
             a1 = 6;
-            s0 = (int *)(&CurrentDrawBuf->buffer.ordering70.words[0]);
+            s0 = &CurrentDrawBuf->buffer.ordering70.tags[0];
         } else {
             a1 = 0xC;
-            s0 = (int *)(&CurrentDrawBuf->buffer.secondaryOrderingB70.words[0]);
+            s0 = &CurrentDrawBuf->buffer.secondaryOrderingB70.tags[0];
         }
         break;
     }
-    d = CurrentDrawBuf;
-    v = (int *)(a1 * 0x14 + d + 0x22674);
-    *v = (*v & 0xFF000000) | (*s0 & 0xFFFFFF);
-    *s0 = (*s0 & 0xFF000000) | ((d + 0x22688) & 0xFFFFFF);
-    s1 = AddDrawModePrim(s0, *(int **)SCRATCHPAD, 5);
-    *(int **)SCRATCHPAD = s1;
+    /* Splice the prebuilt chain hudSprites[0..a1-1] in at the head. */
+    sprites = CurrentDrawBuf->buffer.hudSprites;
+    sprites[a1 - 1].tag.address = s0->address;
+    s0->address = (uintptr_t)&sprites[0];
+    s1 = AddDrawModePrim(s0, (GpuDrawModePacket *)RR_GPU_SCRATCH->cursor, 5);
+    RR_GPU_SCRATCH->cursor = (u8 *)s1;
     if (a0 >= 2) {
-        sp[2] = 0x140;
-        sp[0] = 0;
-        sp[3] = 0x100;
-        t = DrawBufIndex; sp[1] = t << 8;
-        SetDrawArea(s1, sp);
-        *s1 = (*s1 & 0xFF000000) | (*s0 & 0xFFFFFF);
-        *s0 = (*s0 & 0xFF000000) | ((int)s1 & 0xFFFFFF);
-        *(int **)SCRATCHPAD = s1 + 3;
+        area.x = 0;
+        area.y = DrawBufIndex << 8;
+        area.w = 0x140;
+        area.h = 0x100;
+        SetDrawArea(s1, &area);
+        RR_GPU_LINK(s0, s1);
+        RR_GPU_SCRATCH->cursor = (u8 *)(s1 + 1);
     }
 }
 
-void DrawDigitString12(s32 a0, s32 a1, u8 *a2, s32 a3) {
-    SpritePacketSignedClut *p = *(SpritePacketSignedClut **)SCRATCHPAD;
+void DrawDigitString12(s32 a0, s32 a1, const char *text, s32 a3) {
+    SpritePacketSignedClut *p = (SpritePacketSignedClut *)RR_GPU_SCRATCH->cursor;
+    const u8 *a2 = (const u8 *)text;
+    GpuDrawModePacket *mode;
     s32 t;
     s32 kb;
     s16 c;
@@ -152,7 +131,7 @@ void DrawDigitString12(s32 a0, s32 a1, u8 *a2, s32 a3) {
         do {
             s32 ch = *a2;
             a2++;
-            p->len = 4;
+            p->tag.length = 4;
             p->code = 0x64;
             p->x = a0;
             t = ch - 0x30;
@@ -175,19 +154,20 @@ void DrawDigitString12(s32 a0, s32 a1, u8 *a2, s32 a3) {
             p->v = kb;
             p->code |= 1;
             p->clut = a3;
-            p->addr = ((SpritePacketSignedClut *)(&CurrentDrawBuf->buffer.ordering70.words[0]))->addr;
-            ((SpritePacketSignedClut *)(&CurrentDrawBuf->buffer.ordering70.words[0]))->addr = p;
+            RR_GPU_LINK(&CurrentDrawBuf->buffer.ordering70.tags[0], p);
             p++;
         } while (*a2 != 0);
     }
-    SetDrawMode(p, 0, 1, 5, 0);
-    AddPrim(&CurrentDrawBuf->buffer.ordering70.words[0], p);
-    *(SpritePacketSignedClut **)SCRATCHPAD = (SpritePacketSignedClut *)((char *)p + 0xC);
+    mode = (GpuDrawModePacket *)p;
+    SetDrawMode(mode, 0, 1, 5, 0);
+    RR_GPU_LINK(&CurrentDrawBuf->buffer.ordering70.tags[0], mode);
+    RR_GPU_SCRATCH->cursor = (u8 *)(mode + 1);
 }
 
 
-void DrawDigitString8(SpritePacket *a0, s32 a1, s32 a2, u8 *a3, s32 a4) {
-    SpritePacket *p = *(SpritePacket **)SCRATCHPAD;
+void DrawDigitString8(GpuDmaTag *a0, s32 a1, s32 a2, const char *text, s32 a4) {
+    SpritePacket *p = (SpritePacket *)RR_GPU_SCRATCH->cursor;
+    const u8 *a3 = (const u8 *)text;
     s32 c, u;
     s32 kb;
     kb = 0xB4;
@@ -195,7 +175,7 @@ void DrawDigitString8(SpritePacket *a0, s32 a1, s32 a2, u8 *a3, s32 a4) {
         do {
             c = *a3;
             a3++;
-            p->len = 4;
+            p->tag.length = 4;
             p->code = 0x64;
             p->x = a1;
             p->y = a2;
@@ -208,27 +188,27 @@ void DrawDigitString8(SpritePacket *a0, s32 a1, s32 a2, u8 *a3, s32 a4) {
             p->v = kb;
             p->code |= 1;
             p->clut = a4;
-            p->addr = a0->addr;
-            a0->addr = p;
+            RR_GPU_LINK(a0, p);
             p++;
         } while (*a3 != 0);
     }
-    *(s32 *)SCRATCHPAD = AddDrawModePrim(a0, p, 5);
+    RR_GPU_SCRATCH->cursor = AddDrawModePrim(a0, (GpuDrawModePacket *)p, 5);
 }
 
 
-void DrawDigitString16(struct HudSpritePacket20 *a0, int a1, int a2, unsigned char *a3) {
-    struct HudSpritePacket20 *p = *(struct HudSpritePacket20 **)SCRATCHPAD;
+void DrawDigitString16(GpuDmaTag *a0, s32 a1, s32 a2, const char *text) {
+    SpritePacket *p = (SpritePacket *)RR_GPU_SCRATCH->cursor;
+    const u8 *a3 = (const u8 *)text;
     int c, u, kh;
     if (*a3 != 0) {
         kh = 0x10;
         do {
             c = *a3;
             a3++;
-            p->len = 4;
+            p->tag.length = 4;
             p->code = 0x64;
             p->x = (short)a1;
-            p->y = (unsigned short)a2;
+            p->y = (short)a2;
             c -= 0x30;
             u = c * 8;
             if (c < 10) {
@@ -242,11 +222,17 @@ void DrawDigitString16(struct HudSpritePacket20 *a0, int a1, int a2, unsigned ch
             }
             SetShadeTex(p, 1);
             SetSemiTrans(p, 1);
-            { int v58 = 0x58; p->u = u; p->v = v58; p->clut = 0x7FA4; }
-            p->addr = a0->addr;
-            a0->addr = p;
+            p->u = u;
+            p->v = 0x58;
+            p->clut = 0x7FA4;
+            RR_GPU_LINK(a0, p);
             p++;
         } while (*a3 != 0);
     }
-    *(int *)SCRATCHPAD = AddDrawModePrim(a0, p, 0x59);
+    RR_GPU_SCRATCH->cursor = AddDrawModePrim(a0, (GpuDrawModePacket *)p, 0x59);
 }
+
+/* Initial values of the globals this module owns. */
+HudSpriteDef14 BadgeRowPresetTableB[8] = {{.x00 = 0xC, .y02 = 0xE, .w04 = 0x38, .h06 = 0xC, .v0A = 0xCC, .clut0C = 0x7EF8}, {.x00 = 0xE6, .y02 = 0xE, .w04 = 0x54, .h06 = 0xC, .u08 = 0x38, .v0A = 0xCC, .clut0C = 0x7EF8}, {.x00 = 0xC, .y02 = 0x1A, .w04 = 0x18, .h06 = 0x18, .v0A = 0xD8, .clut0C = 0x7EF8}, {.x00 = 0x20, .y02 = 0x1A, .w04 = 8, .h06 = 0x18, .u08 = 0xB8, .v0A = 0xC0, .clut0C = 0x7EF8}, {.x00 = 0x2C, .y02 = 0x20, .w04 = 0x10, .h06 = 0x10, .u08 = 0xC0, .v0A = 0xC8, .clut0C = 0x7EF8}, {.x00 = 0xE8, .y02 = 0x50, .w04 = 0x2C, .h06 = 8, .u08 = 0x40, .v0A = 0xB4, .clut0C = 0x7EF8}, {.x00 = 0xE7, .y02 = 0x1C, .w04 = 0xC, .h06 = 0xC, .u08 = 0x90, .v0A = 0xA8, .clut0C = 0x7EF8}, {.x00 = 0x40, .y02 = 0xE, .w04 = 0x14, .h06 = 0xC, .v0A = 0xB4, .clut0C = 0x7EF8}};
+HudSpriteDef14 BadgeRowPresetTableA[7] = {{.x00 = 6, .y02 = 0xE, .w04 = 0x64, .h06 = 0xC, .v0A = 0xC0, .clut0C = 0x7EF8}, {.x00 = 0xE6, .y02 = 0xE, .w04 = 0x54, .h06 = 0xC, .u08 = 0x38, .v0A = 0xCC, .clut0C = 0x7EF8}, {.x00 = 0xE7, .y02 = 0x1C, .w04 = 0xC, .h06 = 0xC, .u08 = 0x90, .v0A = 0xA8, .clut0C = 0x7EF8}, {.x00 = 0xA, .y02 = 0x1C, .w04 = 0xC, .h06 = 0xC, .u08 = 0x90, .v0A = 0xA8, .clut0C = 0x7EF8}, {.x00 = 0xF4, .y02 = 0x70, .w04 = 0x48, .h06 = 8, .u08 = 0xA0, .v0A = 0x30, .clut0C = 0x4A7}, {.x00 = 8, .y02 = 0x20, .w04 = 8, .h06 = 8, .u08 = 0x50, .v0A = 0x40, .clut0C = 0x4E0}, {.x00 = 0x78, .y02 = 0x50, .w04 = 8, .h06 = 8, .u08 = 0x78, .v0A = 8, .clut0C = 0x4E0}};
+HudSpriteDef14 Rect16RowDefaultPresets[12] = {{.x00 = 0xC, .y02 = 0xE, .w04 = 0x38, .h06 = 0xC, .v0A = 0xCC, .clut0C = 0x7EF8}, {.x00 = 0x40, .y02 = 0xE, .w04 = 0x14, .h06 = 0xC, .v0A = 0xB4, .clut0C = 0x7EF8}, {.x00 = 0xC, .y02 = 0x1A, .w04 = 0x18, .h06 = 0x18, .v0A = 0xD8, .clut0C = 0x7EF8}, {.x00 = 0x20, .y02 = 0x1A, .w04 = 8, .h06 = 0x18, .u08 = 0xB8, .v0A = 0xC0, .clut0C = 0x7EF8}, {.x00 = 0x2C, .y02 = 0x20, .w04 = 0x10, .h06 = 0x10, .u08 = 0xC0, .v0A = 0xC8, .clut0C = 0x7EF8}, {.x00 = 0xE8, .y02 = 0x18, .w04 = 0x2C, .h06 = 8, .u08 = 0x40, .v0A = 0xB4, .clut0C = 0x7EF8}, {.x00 = 0xC, .y02 = 0x8E, .w04 = 0x38, .h06 = 0xC, .v0A = 0xCC, .clut0C = 0x7EF8}, {.x00 = 0x40, .y02 = 0x8E, .w04 = 0x14, .h06 = 0xC, .v0A = 0xB4, .clut0C = 0x7EF8}, {.x00 = 0xC, .y02 = 0x9A, .w04 = 0x18, .h06 = 0x18, .v0A = 0xD8, .clut0C = 0x7EF8}, {.x00 = 0x20, .y02 = 0x9A, .w04 = 8, .h06 = 0x18, .u08 = 0xB8, .v0A = 0xC0, .clut0C = 0x7EF8}, {.x00 = 0x2C, .y02 = 0xA0, .w04 = 0x10, .h06 = 0x10, .u08 = 0xC0, .v0A = 0xC8, .clut0C = 0x7EF8}, {.x00 = 0xE8, .y02 = 0x98, .w04 = 0x2C, .h06 = 8, .u08 = 0x40, .v0A = 0xB4, .clut0C = 0x7EF8}};

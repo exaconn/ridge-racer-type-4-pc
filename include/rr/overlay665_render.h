@@ -10,11 +10,11 @@
 #include "rr/overlay665_render_types.h"
 
 void SetupViewport(s32);
-void SetGeomOffset(s32 x,s32 y);
+void SetGeomOffset(long x,long y);
 void SetupObjectLightMatrices(char *view,char *lighting,
     MatrixWords32 *first,MatrixWords32 *second);
 u32 *ScaleMatrix(u32 *matrix,s32 scale[3]);
-void SetGeomScreen(s32);
+void SetGeomScreen(long);
 void SubmitModelTwoTri(PreviewRenderScratch *scratch,s32 object,s32 blend,s32 depth);
 void ovl665_draw_controller_model(void);
 #endif

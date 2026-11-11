@@ -35,11 +35,11 @@ s32 CD_cw(u8 command, const u8 *parameters, u8 *result, s32 mode);
 #else
 s32 CD_cw(s32 command, const u8 *parameters, u8 *result, s32 mode);
 #endif
-s32 CdControl(s32 command, const u8 *parameters, u8 *result);
+int CdControl(u8 command, const u8 *parameters, u8 *result);
 /* Main dispatch uses mode1 and a null result buffer. Same four-attempt policy. */
-s32 CdControlF(s32 command, const u8 *parameters);
+int CdControlF(u8 command, const u8 *parameters);
 /* Mode0 dispatch followed by completion; only completion result2 succeeds. */
-s32 CdControlB(s32 command, const u8 *parameters, u8 *result);
+int CdControlB(u8 command, const u8 *parameters, u8 *result);
 s32 CD_sync(s32 mode, u8 *status);
 s32 CdSync(s32 mode, u8 *status);
 

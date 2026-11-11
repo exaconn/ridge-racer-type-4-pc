@@ -3,7 +3,6 @@
 
 #include "types.h"
 
-extern int ExtraModeUnlockedFlag;
 extern s32 AttractCycleCounter;
 void TitleModeEnter(void);
 void TitleMenuInit(void);

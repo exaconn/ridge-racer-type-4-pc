@@ -144,11 +144,17 @@ typedef struct {
 
 /* Header fields consumed by the car effect renderer and its buffer allocator.
  * Names describe the observed rendering roles, not recovered source names. */
+/* Host view of a car's decoded mesh table (RroModelTable returned by
+ * RelocateOffsetTable): count, then twelve meshes. The PS1 wire offsets in
+ * the field names refer to the 12-byte entries of the serialized table. */
 typedef struct {
-    u32 reserved00[3];
-    const u32 *litQuadCommands0C;
+    s32 count;
+    union {
+        RroEffectMesh litQuads04;
+        struct {const Vec3s8 *litVertices; u32 litVertexCount; const u32 *litQuadCommands0C;};
+    };
     RroEffectMesh primary10, secondary1C, trailing28, history34, trailing40;
-    u8 reserved4C[12];
+    RroEffectMesh reserved4C;
     RroEffectMesh shadow58;
     RroEffectMesh body64[4];
 } CarModelHeader;

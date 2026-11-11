@@ -1,10 +1,17 @@
+#include "rr/overlay_module.h"
+#include "rr/runtime_settings.h"
+#include "rr/menu_frame_state.h"
+#include "rr/overlay665_strokes.h"
 #include "rr/menu_text_state.h"
 #include "game/car/carstat.h"
 #include "rr/line_emit.h"
 #include "rr/frame_storage_types.h"
+#include "rr/gpu.h"
+#include "rr/gpu_scratch_types.h"
 #include "types.h"
 #include "game/system/pad.h"
 #include "rr/ui.h"
+#include "rr/badge_rows.h"
 
 /* RaceVehicle / course setup controller (one player). */
 
@@ -31,26 +38,11 @@ typedef struct {
     u8 pad9A[6];
 } Ovl665CarState;
 
-typedef struct {
-    struct { s16 car00, colour02; } a[2];
-    struct { s16 h[8]; } b[2];
-    struct { s8 c[4]; } c[2];
-} Ovl665Settings;
-
-typedef struct {
-    u8 byte00, byte01;
-    s16 h02;
-    s16 x04, y06;
-    u8 pad08[8];
-    s16 state10;
-} Ovl665Panel;
 
 
 
-typedef struct {
-    u32 tag;
-    u32 command;
-} Ovl665Packet;
+
+typedef GpuCommandPacket Ovl665Packet;
 
 typedef struct {
     u8 a, pad1, b, pad3;
@@ -62,20 +54,19 @@ typedef struct {
 
 extern Ovl665CarState ovl665_options_state;
 extern s32 ovl665_saved_stereo_mode;
-extern Ovl665Settings Options;
-extern Ovl665Panel *BadgeRows;
 extern s16 FadeCountdown;
 extern s32 ActivePlayerIndex;
-extern s32 MenuAvailableCourseMask;
-extern u8 ScreenFadeState;
 extern Ovl665View14 ovl665_controller_camera_poses[];
 extern Ovl665Colour4 ovl665_controller_colors_type0[][5];
 extern Ovl665Colour4 ovl665_controller_colors_type1[][5];
 extern Ovl665Colour4 ovl665_controller_colors_type2[][5];
-extern void *ovl665_callout_paths_type0[][5];
-extern void *ovl665_callout_paths_type1[][5];
-extern void *ovl665_callout_paths_type2[][5];
-extern void *ovl665_callout_paths_type3[][5];
+/* Callout stroke paths: five strokes for each of the eight selections. The
+ * step lists they address are unnamed original data between the tables. */
+extern StrokeStep4 ovl665_callout_steps_type0[28], ovl665_callout_steps_type1[46], ovl665_callout_steps_type2[52];
+extern const StrokeStep4 *ovl665_callout_paths_type0[8][5];
+extern const StrokeStep4 *ovl665_callout_paths_type1[8][5];
+extern const StrokeStep4 *ovl665_callout_paths_type2[8][5];
+extern const StrokeStep4 *ovl665_callout_paths_type3[8][5];
 extern s32 ovl665_controller_row_counts[];
 extern s32 ovl665_controller_model_scales[];
 extern u8 ovl665_twist_needle_color[];
@@ -85,7 +76,7 @@ extern s16 PadRangeLimits[];
 extern s32 WheelDeadzoneTable[];
 
 extern s32 PadGetState(s32);
-extern void PadSetMainMode(s32, s32, s32);
+extern s32 PadSetMainMode(s32, s32, s32);
 extern s32 LoadTrophyModelStep(void);
 extern s32 ovl665_detect_controller_kind(s32);
 extern void SetPresentationDrawEnabled(s32);
@@ -93,11 +84,10 @@ extern void StepMenuValue(s32, s32, void *, s32, s32);
 /* Sound cue; several call sites pass the freshly computed offset as a
  * second (ignored) argument, so it is declared without a prototype. */
 extern void PlaySfx();
-extern void ovl665_draw_callout_strokes(void *, s32);
 extern void *AddSpritePrim(void *, void *, s32, s32, void *, s32, s32);
 extern void ovl665_draw_controller_model(void);
 extern void DrawUiRow(s32);
-extern void AddScreenFadeTiles(void *, s32, s32);
+#include "rr/screen_tiles.h"
 extern void ovl665_init_menu(void);
 extern void ClearScreenOverlayState();
 extern void InitBadgeRow(s32, s32, s32, s32, s32, s32, s32);
@@ -110,11 +100,7 @@ extern void UpdateScreenFade(s32);
 
 #define ST ovl665_options_state
 
-typedef struct {
-    void *cursor;
-} Ovl665Scratch;
-
-#define SCRATCH ((Ovl665Scratch *)0x1F800000)
+#define SCRATCH RR_GPU_SCRATCH
 
 #define CLOSE_ROWS(n)                                   \
     BadgeRows->state10 = 4;                            \
@@ -134,15 +120,11 @@ typedef struct {
 /* Links a texture-page command packet into the frame ordering list. */
 #define LINK_PACKET()                                                       \
     {                                                                       \
-        FrameStorage *frame;                                                 \
-        packet = SCRATCH->cursor;                                           \
-        ((u8 *)&packet->tag)[3] = 1;                                        \
-        frame = CurrentDrawBuf;                                                 \
+        packet = (Ovl665Packet *)SCRATCH->cursor;                           \
         packet->command = 0xE1000259;                                       \
-        packet->tag = (packet->tag & 0xFF000000) | (frame->buffer.ordering70.words[0] & 0xFFFFFF); \
-        frame->buffer.ordering70.words[0] = (frame->buffer.ordering70.words[0] & 0xFF000000) | ((u32)packet & 0xFFFFFF); \
+        RR_GPU_ADD_PRIM(&CurrentDrawBuf->buffer.ordering70.tags[0], packet, 1); \
         packet++;                                                           \
-        SCRATCH->cursor = packet;                                           \
+        SCRATCH->cursor = (u8 *)packet;                                     \
     }
 
 void ovl665_update_controller_options(s32 player) {
@@ -196,25 +178,25 @@ void ovl665_update_controller_options(s32 player) {
             switch (kind) {
             case 0:
             case 1:
-                index = Options.a[player].car00;
+                index = Options.pulse[player].buttonLayout00;
                 src = ovl665_controller_colors_type0[index];
                 index <<= 12;
                 ST.rotation86 = index;
                 break;
             case 2:
-                index = Options.b[player].h[6];
+                index = Options.pad[player].buttonLayout0C;
                 src = ovl665_controller_colors_type1[index];
                 index <<= 12;
                 ST.rotation86 = index;
                 break;
             case 3:
                 if (PlayerControllers[player].input00.fields.type != 0xE3) {
-                    index = Options.a[player].car00;
+                    index = Options.pulse[player].buttonLayout00;
                     src = ovl665_controller_colors_type0[index];
                     index <<= 12;
                 ST.rotation86 = index;
                 } else {
-                    index = Options.c[player].c[3];
+                    index = Options.wheel[player].buttonLayout03;
                     src = ovl665_controller_colors_type2[index];
                     index <<= 12;
                 ST.rotation86 = index;
@@ -253,24 +235,24 @@ void ovl665_update_controller_options(s32 player) {
             case 1:
                 if (PlayerControllers[player].kind1C != 0) {
                     UiRows[5].cells[0] = 1;
-                    UiRows[Options.a[player].colour02 + 6].cells[0] = 0;
-                    StepMenuValue(player * 4, 2, &Options.a[player].colour02, 2, 0);
-                    UiRows[Options.a[player].colour02 + 6].cells[0] = 2;
+                    UiRows[Options.pulse[player].disabled02 + 6].cells[0] = 0;
+                    StepMenuValue(player * 4, 2, &Options.pulse[player].disabled02, 2, 0);
+                    UiRows[Options.pulse[player].disabled02 + 6].cells[0] = 2;
                 }
             case 0:
-                old = Options.a[player].car00;
-                StepMenuValue(player * 4 | 1, 2, &Options.a[player].car00, 8, 0);
-                if (old != Options.a[player].car00) {
-                    if (Options.a[player].car00 < old) {
+                old = Options.pulse[player].buttonLayout00;
+                StepMenuValue(player * 4 | 1, 2, &Options.pulse[player].buttonLayout00, 8, 0);
+                if (old != Options.pulse[player].buttonLayout00) {
+                    if (Options.pulse[player].buttonLayout00 < old) {
                         ST.angle1C -= 0x1000;
                     } else {
                         ST.angle1C += 0x1000;
                     }
-                    src = ovl665_controller_colors_type0[Options.a[player].car00];
+                    src = ovl665_controller_colors_type0[Options.pulse[player].buttonLayout00];
                     COPY_COLOURS(src);
                     ST.fade24 = 0;
-                    SetPadButtonMapLayout(player, Options.a[player].car00, Options.b[player].h[6],
-                                  Options.c[player].c[3]);
+                    SetPadButtonMapLayout(player, Options.pulse[player].buttonLayout00, Options.pad[player].buttonLayout0C,
+                                  Options.wheel[player].buttonLayout03);
                 }
                 if (PlayerControllers[player].action28 != 0) {
                     PlaySfx(1);
@@ -279,30 +261,30 @@ void ovl665_update_controller_options(s32 player) {
                     ST.step0C = 2;
                     ST.next14 = 0;
                 }
-                ovl665_draw_callout_strokes(ovl665_callout_paths_type0[Options.a[player].car00], ST.fade24);
+                ovl665_draw_callout_strokes(ovl665_callout_paths_type0[Options.pulse[player].buttonLayout00], ST.fade24);
                 cursor = SCRATCH->cursor;
-                if (Options.a[player].car00 > 0) {
-                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 280, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+                if (Options.pulse[player].buttonLayout00 > 0) {
+                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 280, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
                 }
-                if (Options.a[player].car00 < 7) {
-                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 280, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+                if (Options.pulse[player].buttonLayout00 < 7) {
+                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 280, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
                 }
                 SCRATCH->cursor = cursor;
                 break;
             case 2:
-                old = Options.b[player].h[6];
-                StepMenuValue(player * 4 | 1, 2, &Options.b[player].h[6], 8, 0);
-                if (old != Options.b[player].h[6]) {
-                    if (Options.b[player].h[6] < old) {
+                old = Options.pad[player].buttonLayout0C;
+                StepMenuValue(player * 4 | 1, 2, &Options.pad[player].buttonLayout0C, 8, 0);
+                if (old != Options.pad[player].buttonLayout0C) {
+                    if (Options.pad[player].buttonLayout0C < old) {
                         ST.angle1C -= 0x1000;
                     } else {
                         ST.angle1C += 0x1000;
                     }
-                    src = ovl665_controller_colors_type1[Options.b[player].h[6]];
+                    src = ovl665_controller_colors_type1[Options.pad[player].buttonLayout0C];
                     COPY_COLOURS(src);
                     ST.fade24 = 0;
-                    SetPadButtonMapLayout(player, Options.a[player].car00, Options.b[player].h[6],
-                                  Options.c[player].c[3]);
+                    SetPadButtonMapLayout(player, Options.pulse[player].buttonLayout00, Options.pad[player].buttonLayout0C,
+                                  Options.wheel[player].buttonLayout03);
                 }
                 value = PlayerControllers[player].steering20 * 3800 / 256 - 1900;
                 ST.offset8C = value / 2;
@@ -314,13 +296,13 @@ void ovl665_update_controller_options(s32 player) {
                     ST.step0C = 2;
                     ST.next14 = 3;
                 }
-                ovl665_draw_callout_strokes(ovl665_callout_paths_type1[Options.b[player].h[6]], ST.fade24);
+                ovl665_draw_callout_strokes(ovl665_callout_paths_type1[Options.pad[player].buttonLayout0C], ST.fade24);
                 cursor = SCRATCH->cursor;
-                if (Options.b[player].h[6] > 0) {
-                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 280, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+                if (Options.pad[player].buttonLayout0C > 0) {
+                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 280, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
                 }
-                if (Options.b[player].h[6] < 7) {
-                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 280, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+                if (Options.pad[player].buttonLayout0C < 7) {
+                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 280, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
                 }
                 SCRATCH->cursor = cursor;
                 break;
@@ -330,20 +312,20 @@ void ovl665_update_controller_options(s32 player) {
                     ST.course2A = PlayerControllers[player].input00.fields.type;
                 }
                 if (PlayerControllers[player].input00.fields.type != 0xE3) {
-                    old = Options.a[player].car00;
-                    StepMenuValue(player * 4 | 1, 1, &Options.a[player].car00, 8, 0);
-                    if (old != Options.a[player].car00) {
-                        if (Options.a[player].car00 < old) {
+                    old = Options.pulse[player].buttonLayout00;
+                    StepMenuValue(player * 4 | 1, 1, &Options.pulse[player].buttonLayout00, 8, 0);
+                    if (old != Options.pulse[player].buttonLayout00) {
+                        if (Options.pulse[player].buttonLayout00 < old) {
                             ST.angle1C -= 0x1000;
                         } else {
                             ST.angle1C += 0x1000;
                         }
                         changed = 1;
-                        SetPadButtonMapLayout(player, Options.a[player].car00, Options.b[player].h[6],
-                                      Options.c[player].c[3]);
+                        SetPadButtonMapLayout(player, Options.pulse[player].buttonLayout00, Options.pad[player].buttonLayout0C,
+                                      Options.wheel[player].buttonLayout03);
                     }
                     if (changed) {
-                        src = ovl665_controller_colors_type0[Options.a[player].car00];
+                        src = ovl665_controller_colors_type0[Options.pulse[player].buttonLayout00];
                         COPY_COLOURS(src);
                         ST.fade24 = 0;
                     }
@@ -354,30 +336,30 @@ void ovl665_update_controller_options(s32 player) {
                         ST.step0C = 2;
                         ST.next14 = 0;
                     }
-                    ovl665_draw_callout_strokes(ovl665_callout_paths_type2[Options.a[player].car00], ST.fade24);
+                    ovl665_draw_callout_strokes(ovl665_callout_paths_type2[Options.pulse[player].buttonLayout00], ST.fade24);
                     cursor = SCRATCH->cursor;
-                    if (Options.a[player].car00 > 0) {
-                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 280, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+                    if (Options.pulse[player].buttonLayout00 > 0) {
+                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 280, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
                     }
-                    if (Options.a[player].car00 < 7) {
-                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 280, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+                    if (Options.pulse[player].buttonLayout00 < 7) {
+                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 280, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
                     }
                     SCRATCH->cursor = cursor;
                 } else {
-                    old = Options.c[player].c[3];
-                    StepMenuValue(player * 4 | 1, 1, &Options.c[player].c[3], 8, 0);
-                    if (old != Options.c[player].c[3]) {
-                        if (Options.c[player].c[3] < old) {
+                    old = Options.wheel[player].buttonLayout03;
+                    StepMenuValue(player * 4 | 1, 1, &Options.wheel[player].buttonLayout03, 8, 0);
+                    if (old != Options.wheel[player].buttonLayout03) {
+                        if (Options.wheel[player].buttonLayout03 < old) {
                             ST.angle1C -= 0x1000;
                         } else {
                             ST.angle1C += 0x1000;
                         }
                         changed = 1;
-                        SetPadButtonMapLayout(player, Options.a[player].car00, Options.b[player].h[6],
-                                      Options.c[player].c[3]);
+                        SetPadButtonMapLayout(player, Options.pulse[player].buttonLayout00, Options.pad[player].buttonLayout0C,
+                                      Options.wheel[player].buttonLayout03);
                     }
                     if (changed) {
-                        src = ovl665_controller_colors_type2[Options.c[player].c[3]];
+                        src = ovl665_controller_colors_type2[Options.wheel[player].buttonLayout03];
                         COPY_COLOURS(src);
                         ST.fade24 = 0;
                     }
@@ -390,13 +372,13 @@ void ovl665_update_controller_options(s32 player) {
                         ST.step0C = 2;
                         ST.next14 = 4;
                     }
-                    ovl665_draw_callout_strokes(ovl665_callout_paths_type3[Options.c[player].c[3]], ST.fade24);
+                    ovl665_draw_callout_strokes(ovl665_callout_paths_type3[Options.wheel[player].buttonLayout03], ST.fade24);
                     cursor = SCRATCH->cursor;
-                    if (Options.c[player].c[3] > 0) {
-                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 280, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+                    if (Options.wheel[player].buttonLayout03 > 0) {
+                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 280, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
                     }
-                    if (Options.c[player].c[3] < 7) {
-                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 280, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+                    if (Options.wheel[player].buttonLayout03 < 7) {
+                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 280, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
                     }
                     SCRATCH->cursor = cursor;
                 }
@@ -426,7 +408,7 @@ void ovl665_update_controller_options(s32 player) {
     case 2:
         timer = FadeCountdown - 1;
         FadeCountdown = timer;
-        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (64 - timer) * 4, 69);
         if (FadeCountdown <= 0) {
             if (ST.next14 == 0) {
                 ovl665_init_menu();
@@ -448,9 +430,9 @@ void ovl665_update_controller_options(s32 player) {
         switch (ST.detail10) {
         case 0:
             ClearScreenOverlayState();
-            ScreenFadeState = 2;
+            ScreenFadeState.phase = 2;
             InitBadgeRow(0, 12, 304, 296, 88, 0, 0);
-            BadgeRows->h02 = 1;
+            BadgeRows->half02 = 1;
             SetMenuFrameOptions(1, 0, 0);
             ST.view38 = ovl665_controller_camera_poses[4];
             ST.rotation86 = 0;
@@ -464,11 +446,11 @@ void ovl665_update_controller_options(s32 player) {
             ST.offset94 = -value / 2;
             if (PlayerControllers[player].edges08.fields.pressed & 0x800) {
                 PlaySfx(1, value);
-                Options.b[player].h[0] = entry->analog04.bytes[0] - 128;
-                Options.b[player].h[1] = entry->analog04.bytes[1];
-                Options.b[player].h[2] = entry->analog04.bytes[2];
-                Options.b[player].h[3] = entry->analog04.bytes[3];
-                CardDialogueStatePtr->b4 = Options.b[player].h[4] + 10;
+                Options.pad[player].center00 = entry->analog04.bytes[0] - 128;
+                Options.pad[player].offset02 = entry->analog04.bytes[1];
+                Options.pad[player].offset04 = entry->analog04.bytes[2];
+                Options.pad[player].offset06 = entry->analog04.bytes[3];
+                CardDialogueStatePtr->b4 = Options.pad[player].deadzone08 + 10;
                 ST.view38 = ovl665_controller_camera_poses[5];
                 ST.phase20 = 0;
                 ST.detail10++;
@@ -476,12 +458,12 @@ void ovl665_update_controller_options(s32 player) {
             }
             break;
         case 2:
-            old = Options.b[player].h[4];
-            StepMenuValue(player * 4 | 1, 1, &Options.b[player].h[4], 4, 0);
-            if (old != Options.b[player].h[4]) {
-                CardDialogueStatePtr->b4 = Options.b[player].h[4] + 10;
+            old = Options.pad[player].deadzone08;
+            StepMenuValue(player * 4 | 1, 1, &Options.pad[player].deadzone08, 4, 0);
+            if (old != Options.pad[player].deadzone08) {
+                CardDialogueStatePtr->b4 = Options.pad[player].deadzone08 + 10;
             }
-            value = rsin(ST.phase20) * ovl665_controller_row_counts[Options.b[player].h[4]] / 512;
+            value = rsin(ST.phase20) * ovl665_controller_row_counts[Options.pad[player].deadzone08] / 512;
             ST.offset8C = value;
             ST.offset94 = -value;
             phase = ST.phase20;
@@ -491,7 +473,7 @@ void ovl665_update_controller_options(s32 player) {
             }
             if (PlayerControllers[player].edges08.fields.pressed & 0x840) {
                 PlaySfx(1, value);
-                CardDialogueStatePtr->b4 = Options.b[player].h[5] + 14;
+                CardDialogueStatePtr->b4 = Options.pad[player].range0A + 14;
                 ST.view38 = ovl665_controller_camera_poses[5];
                 ST.phase20 = 0;
                 ST.detail10++;
@@ -500,28 +482,28 @@ void ovl665_update_controller_options(s32 player) {
             line.x1 = 172;
             line.y0 = line.y1 = ST.view38.y02;
             AddLineF2Prim((const s16 *)&line, ovl665_twist_needle_color, 0, 0);
-            if (Options.b[player].h[4] > 0) {
-                line.y0 = line.y1 = ST.view38.y02 + ovl665_controller_model_scales[Options.b[player].h[4] - 1];
+            if (Options.pad[player].deadzone08 > 0) {
+                line.y0 = line.y1 = ST.view38.y02 + ovl665_controller_model_scales[Options.pad[player].deadzone08 - 1];
                 AddLineF2Prim((const s16 *)&line, ovl665_twist_needle_color, 0, 0);
-                line.y0 = line.y1 = ST.view38.y02 - ovl665_controller_model_scales[Options.b[player].h[4] - 1];
+                line.y0 = line.y1 = ST.view38.y02 - ovl665_controller_model_scales[Options.pad[player].deadzone08 - 1];
                 AddLineF2Prim((const s16 *)&line, ovl665_twist_needle_color, 0, 0);
             }
             cursor = SCRATCH->cursor;
-            if (Options.b[player].h[4] > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+            if (Options.pad[player].deadzone08 > 0) {
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
             }
-            if (Options.b[player].h[4] < 3) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+            if (Options.pad[player].deadzone08 < 3) {
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
             }
             SCRATCH->cursor = cursor;
             break;
         case 3:
-            old = Options.b[player].h[5];
-            StepMenuValue(player * 4 | 1, 1, &Options.b[player].h[5], 4, 0);
-            if (old != Options.b[player].h[5]) {
-                CardDialogueStatePtr->b4 = Options.b[player].h[5] + 14;
+            old = Options.pad[player].range0A;
+            StepMenuValue(player * 4 | 1, 1, &Options.pad[player].range0A, 4, 0);
+            if (old != Options.pad[player].range0A) {
+                CardDialogueStatePtr->b4 = Options.pad[player].range0A + 14;
             }
-            value = rsin(ST.phase20) * TwistRangeLimits[Options.b[player].h[5]] / 512;
+            value = rsin(ST.phase20) * TwistRangeLimits[Options.pad[player].range0A] / 512;
             ST.offset8C = value;
             ST.offset94 = -value;
             phase = ST.phase20;
@@ -536,11 +518,11 @@ void ovl665_update_controller_options(s32 player) {
                 ST.step0C = 2;
             }
             cursor = SCRATCH->cursor;
-            if (Options.b[player].h[5] > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+            if (Options.pad[player].range0A > 0) {
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
             }
-            if (Options.b[player].h[5] < 3) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+            if (Options.pad[player].range0A < 3) {
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
             }
             SCRATCH->cursor = cursor;
             break;
@@ -558,9 +540,9 @@ void ovl665_update_controller_options(s32 player) {
         switch (ST.detail10) {
         case 0:
             ClearScreenOverlayState();
-            ScreenFadeState = 2;
+            ScreenFadeState.phase = 2;
             InitBadgeRow(0, 12, 304, 296, 88, 0, 0);
-            BadgeRows->h02 = 1;
+            BadgeRows->half02 = 1;
             SetMenuFrameOptions(1, 0, 0);
             ST.view38 = ovl665_controller_camera_poses[6];
             ST.rotation86 = 0;
@@ -574,19 +556,19 @@ void ovl665_update_controller_options(s32 player) {
             if (PlayerControllers[player].edges08.fields.pressed & 0x800) {
                 PlaySfx(1, value);
                 PadSetRumbleFlags(player, 3);
-                CardDialogueStatePtr->b4 = Options.c[player].c[0] + 10;
+                CardDialogueStatePtr->b4 = Options.wheel[player].deadzone00 + 10;
                 ST.phase20 = 0;
                 ST.detail10++;
                 SetMenuFrameOptions(1, 1, 0);
             }
             break;
         case 2:
-            old = Options.c[player].c[0];
-            StepMenuValue(player * 4 | 1, 1, &Options.c[player].c[0], 4, 0);
-            if (old != Options.b[player].h[4]) {
-                CardDialogueStatePtr->b4 = Options.c[player].c[0] + 10;
+            old = Options.wheel[player].deadzone00;
+            StepMenuValue(player * 4 | 1, 1, &Options.wheel[player].deadzone00, 4, 0);
+            if (old != Options.pad[player].deadzone08) {
+                CardDialogueStatePtr->b4 = Options.wheel[player].deadzone00 + 10;
             }
-            value = rsin(ST.phase20) * WheelDeadzoneTable[Options.c[player].c[0]] / 128;
+            value = rsin(ST.phase20) * WheelDeadzoneTable[Options.wheel[player].deadzone00] / 128;
             ST.offset90 = value;
             phase = ST.phase20;
             ST.phase20 = phase + 32;
@@ -595,30 +577,30 @@ void ovl665_update_controller_options(s32 player) {
             }
             if (PlayerControllers[player].action28 != 0) {
                 PlaySfx(1, value);
-                CardDialogueStatePtr->b4 = Options.c[player].c[1] + 18;
+                CardDialogueStatePtr->b4 = Options.wheel[player].range01 + 18;
                 ST.phase20 = 0;
                 ST.detail10++;
             }
-            if (Options.c[player].c[0] > 0) {
-                ovl665_draw_twist_gauge_needle(WheelDeadzoneTable[Options.c[player].c[0]] << 5);
-                ovl665_draw_twist_gauge_needle(-WheelDeadzoneTable[Options.c[player].c[0]] << 5);
+            if (Options.wheel[player].deadzone00 > 0) {
+                ovl665_draw_twist_gauge_needle(WheelDeadzoneTable[Options.wheel[player].deadzone00] << 5);
+                ovl665_draw_twist_gauge_needle(-WheelDeadzoneTable[Options.wheel[player].deadzone00] << 5);
             }
             cursor = SCRATCH->cursor;
-            if (Options.c[player].c[0] > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+            if (Options.wheel[player].deadzone00 > 0) {
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
             }
-            if (Options.c[player].c[0] < 3) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+            if (Options.wheel[player].deadzone00 < 3) {
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
             }
             SCRATCH->cursor = cursor;
             break;
         case 3:
-            old = Options.c[player].c[1];
-            StepMenuValue(player * 4 | 1, 1, &Options.c[player].c[1], 5, 0);
-            if (old != Options.c[player].c[1]) {
-                CardDialogueStatePtr->b4 = Options.c[player].c[1] + 18;
+            old = Options.wheel[player].range01;
+            StepMenuValue(player * 4 | 1, 1, &Options.wheel[player].range01, 5, 0);
+            if (old != Options.wheel[player].range01) {
+                CardDialogueStatePtr->b4 = Options.wheel[player].range01 + 18;
             }
-            value = rsin(ST.phase20) * PadRangeLimits[Options.c[player].c[1]] / 256;
+            value = rsin(ST.phase20) * PadRangeLimits[Options.wheel[player].range01] / 256;
             ST.offset90 = value;
             phase = ST.phase20;
             ST.phase20 = phase + 32;
@@ -627,27 +609,27 @@ void ovl665_update_controller_options(s32 player) {
             }
             if (PlayerControllers[player].action28 != 0) {
                 PlaySfx(1, value);
-                CardDialogueStatePtr->b4 = Options.c[player].c[2] + 23;
+                CardDialogueStatePtr->b4 = Options.wheel[player].rumble02 + 23;
                 ST.phase20 = 0;
                 ST.detail10++;
             }
             cursor = SCRATCH->cursor;
-            if (Options.c[player].c[1] > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+            if (Options.wheel[player].range01 > 0) {
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
             }
-            if (Options.c[player].c[1] < 4) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+            if (Options.wheel[player].range01 < 4) {
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
             }
             SCRATCH->cursor = cursor;
             break;
         case 4:
-            old = Options.c[player].c[2];
-            StepMenuValue(player * 4 | 1, 1, &Options.c[player].c[2], 3, 0);
-            if (old != Options.c[player].c[2]) {
-                CardDialogueStatePtr->b4 = Options.c[player].c[2] + 23;
+            old = Options.wheel[player].rumble02;
+            StepMenuValue(player * 4 | 1, 1, &Options.wheel[player].rumble02, 3, 0);
+            if (old != Options.wheel[player].rumble02) {
+                CardDialogueStatePtr->b4 = Options.wheel[player].rumble02 + 23;
             }
             wave = rsin(ST.phase20) * 21;
-            value = wave * Options.c[player].c[2] / 256;
+            value = wave * Options.wheel[player].rumble02 / 256;
             ST.offset90 = value;
             phase = ST.phase20;
             ST.phase20 = phase + 32;
@@ -661,11 +643,11 @@ void ovl665_update_controller_options(s32 player) {
                 ST.step0C = 2;
             }
             cursor = SCRATCH->cursor;
-            if (Options.c[player].c[2] > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+            if (Options.wheel[player].rumble02 > 0) {
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
             }
-            if (Options.c[player].c[2] < 2) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+            if (Options.wheel[player].rumble02 < 2) {
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
             }
             SCRATCH->cursor = cursor;
             break;
@@ -682,7 +664,7 @@ void ovl665_update_controller_options(s32 player) {
     }
     if (ST.step0C < 3) {
         UpdateBadgeRowAnim(0);
-        MenuAvailableCourseMask = player + 1;
+        MenuFrameState.titlePlayer08 = player + 1;
         arg = 0x10072;
     } else {
         UpdateBadgeRowAnim(0);
@@ -693,3 +675,49 @@ void ovl665_update_controller_options(s32 player) {
     }
     UpdateScreenFade(arg);
 }
+
+/* Initial values of the overlay globals this module owns. */
+u8 ovl665_screen_arrow_uv_rects[4] = {0xE8, 0x58, 8, 0x10};
+u8 ovl665_controller_arrow_uv_rect[4] = {0xF0, 0x58, 8, 0x10};
+Ovl665Colour4 ovl665_controller_colors_type0[8][5] = {{{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}, {{.b = 0x6D}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}, {{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6F}, {.b = 0x6E}}, {{.b = 0x6D}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}, {.b = 0x6F}, {.b = 0x6E}}, {{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}, {{.b = 0x6D}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}, {{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6F}, {.b = 0x6E}}, {{.b = 0x6D}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}, {.b = 0x6F}, {.b = 0x6E}}};
+Ovl665Colour4 ovl665_controller_colors_type1[8][5] = {{{.a = 1, .b = 0x16}, {.a = 1, .b = 0x17}, {.b = 0x6D}, {.b = 0x6E}, {.b = 0x6F}}, {{.a = 1, .b = 0x16}, {.a = 1, .b = 0x17}, {.b = 0x6D}, {.b = 0x6F}, {.b = 0x6E}}, {{.a = 1, .b = 0x17}, {.b = 0x6E}, {.b = 0x6F}, {.a = 1, .b = 0x16}, {.b = 0x6D}}, {{.a = 1, .b = 0x17}, {.b = 0x6E}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6F}}, {{.a = 1, .b = 0x17}, {.b = 0x6E}, {.b = 0x6F}, {.a = 1, .b = 0x16}, {.b = 0x6D}}, {{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}, {{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6F}, {.b = 0x6E}}, {{.a = 1, .b = 0x17}, {.b = 0x6F}, {.a = 1, .b = 0x16}, {.b = 0x6D}, {.b = 0x6E}}};
+Ovl665Colour4 ovl665_controller_colors_type2[8][5] = {{{.b = 0x6E}, {.a = 1, .b = 0x17}, {.b = 0x6F}, {.a = 1, .b = 0x16}, {.b = 0x6D}}, {{.b = 0x6E}, {.b = 0x6D}, {.b = 0x6F}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}}, {{.a = 1, .b = 0x17}, {.b = 0x6E}, {.b = 0x6F}, {.a = 1, .b = 0x16}, {.b = 0x6D}}, {{.b = 0x6E}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}, {.b = 0x6F}, {.b = 0x6D}}, {{.b = 0x6E}, {.b = 0x6F}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.a = 1, .b = 0x17}}, {{.b = 0x6D}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}, {{.b = 0x6D}, {.b = 0x6E}, {.b = 0x6F}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}}, {{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}};
+StrokeStep4 ovl665_callout_steps_type0[28] = {{.direction = 1, .length = 32}, {.direction = 3, .length = 22}, {.direction = -1}, {.direction = 1, .length = 94}, {.direction = 3, .length = 120}, {.direction = -1}, {.direction = 1, .length = 94}, {.direction = 3, .length = 48}, {.direction = -1}, {.direction = 1, .length = 22}, {.direction = 3, .length = 46}, {.direction = -1}, {.direction = 1, .length = 32}, {.direction = 2, .length = 24}, {.direction = -1}, {.length = 48}, {.direction = 3, .length = 68}, {.direction = -1}, {.length = 24}, {.direction = 3, .length = 82}, {.direction = -1}, {.length = 24}, {.direction = 3, .length = 10}, {.direction = -1}, {.length = 12}, {.direction = 3, .length = 26}, {.length = 38}, {.direction = -1}};
+const StrokeStep4 *ovl665_callout_paths_type0[8][5] = {{(const StrokeStep4 *)&ovl665_callout_steps_type0[0], (const StrokeStep4 *)&ovl665_callout_steps_type0[6], (const StrokeStep4 *)&ovl665_callout_steps_type0[12], (const StrokeStep4 *)&ovl665_callout_steps_type0[15], (const StrokeStep4 *)&ovl665_callout_steps_type0[21]}, {(const StrokeStep4 *)&ovl665_callout_steps_type0[3], (const StrokeStep4 *)&ovl665_callout_steps_type0[9], (const StrokeStep4 *)&ovl665_callout_steps_type0[12], (const StrokeStep4 *)&ovl665_callout_steps_type0[15], (const StrokeStep4 *)&ovl665_callout_steps_type0[21]}, {(const StrokeStep4 *)&ovl665_callout_steps_type0[0], (const StrokeStep4 *)&ovl665_callout_steps_type0[6], (const StrokeStep4 *)&ovl665_callout_steps_type0[12], (const StrokeStep4 *)&ovl665_callout_steps_type0[15], (const StrokeStep4 *)&ovl665_callout_steps_type0[21]}, {(const StrokeStep4 *)&ovl665_callout_steps_type0[3], (const StrokeStep4 *)&ovl665_callout_steps_type0[9], (const StrokeStep4 *)&ovl665_callout_steps_type0[12], (const StrokeStep4 *)&ovl665_callout_steps_type0[15], (const StrokeStep4 *)&ovl665_callout_steps_type0[21]}, {(const StrokeStep4 *)&ovl665_callout_steps_type0[0], (const StrokeStep4 *)&ovl665_callout_steps_type0[6], (const StrokeStep4 *)&ovl665_callout_steps_type0[12], (const StrokeStep4 *)&ovl665_callout_steps_type0[18], (const StrokeStep4 *)&ovl665_callout_steps_type0[24]}, {(const StrokeStep4 *)&ovl665_callout_steps_type0[3], (const StrokeStep4 *)&ovl665_callout_steps_type0[9], (const StrokeStep4 *)&ovl665_callout_steps_type0[12], (const StrokeStep4 *)&ovl665_callout_steps_type0[18], (const StrokeStep4 *)&ovl665_callout_steps_type0[24]}, {(const StrokeStep4 *)&ovl665_callout_steps_type0[0], (const StrokeStep4 *)&ovl665_callout_steps_type0[6], (const StrokeStep4 *)&ovl665_callout_steps_type0[12], (const StrokeStep4 *)&ovl665_callout_steps_type0[18], (const StrokeStep4 *)&ovl665_callout_steps_type0[24]}, {(const StrokeStep4 *)&ovl665_callout_steps_type0[3], (const StrokeStep4 *)&ovl665_callout_steps_type0[9], (const StrokeStep4 *)&ovl665_callout_steps_type0[12], (const StrokeStep4 *)&ovl665_callout_steps_type0[18], (const StrokeStep4 *)&ovl665_callout_steps_type0[24]}};
+StrokeStep4 ovl665_callout_steps_type1[46] = {{.direction = 1, .length = 118}, {.direction = 3, .length = 16}, {.direction = -1}, {.direction = 1, .length = 84}, {.direction = 3, .length = 16}, {.direction = -1}, {.direction = 1, .length = 40}, {.direction = 3, .length = 12}, {.direction = -1}, {.direction = 1, .length = 84}, {.direction = 2, .length = 54}, {.direction = -1}, {.direction = 1, .length = 40}, {.direction = 2, .length = 60}, {.direction = -1}, {.direction = 1, .length = 70}, {.direction = 3, .length = 48}, {.direction = -1}, {.direction = 1, .length = 98}, {.direction = 2, .length = 10}, {.direction = -1}, {.direction = 1, .length = 70}, {.direction = 2, .length = 22}, {.direction = -1}, {.direction = 1, .length = 40}, {.direction = 2, .length = 12}, {.direction = -1}, {.length = 68}, {.direction = 3, .length = 68}, {.direction = -1}, {.length = 50}, {.direction = 2, .length = 20}, {.direction = -1}, {.length = 38}, {.direction = 3, .length = 10}, {.direction = -1}, {.length = 66}, {.direction = 2, .length = 2}, {.direction = -1}, {.length = 16}, {.direction = 3, .length = 26}, {.length = 52}, {.direction = -1}, {.length = 98}, {.direction = 3, .length = 12}, {.direction = -1}};
+const StrokeStep4 *ovl665_callout_paths_type1[8][5] = {{(const StrokeStep4 *)&ovl665_callout_steps_type1[0], (const StrokeStep4 *)&ovl665_callout_steps_type1[9], (const StrokeStep4 *)&ovl665_callout_steps_type1[21], (const StrokeStep4 *)&ovl665_callout_steps_type1[27], (const StrokeStep4 *)&ovl665_callout_steps_type1[33]}, {(const StrokeStep4 *)&ovl665_callout_steps_type1[0], (const StrokeStep4 *)&ovl665_callout_steps_type1[9], (const StrokeStep4 *)&ovl665_callout_steps_type1[21], (const StrokeStep4 *)&ovl665_callout_steps_type1[27], (const StrokeStep4 *)&ovl665_callout_steps_type1[33]}, {(const StrokeStep4 *)&ovl665_callout_steps_type1[3], (const StrokeStep4 *)&ovl665_callout_steps_type1[12], (const StrokeStep4 *)&ovl665_callout_steps_type1[24], (const StrokeStep4 *)&ovl665_callout_steps_type1[30], (const StrokeStep4 *)&ovl665_callout_steps_type1[43]}, {(const StrokeStep4 *)&ovl665_callout_steps_type1[3], (const StrokeStep4 *)&ovl665_callout_steps_type1[12], (const StrokeStep4 *)&ovl665_callout_steps_type1[21], (const StrokeStep4 *)&ovl665_callout_steps_type1[30], (const StrokeStep4 *)&ovl665_callout_steps_type1[36]}, {(const StrokeStep4 *)&ovl665_callout_steps_type1[3], (const StrokeStep4 *)&ovl665_callout_steps_type1[15], (const StrokeStep4 *)&ovl665_callout_steps_type1[18], (const StrokeStep4 *)&ovl665_callout_steps_type1[30], (const StrokeStep4 *)&ovl665_callout_steps_type1[36]}, {(const StrokeStep4 *)&ovl665_callout_steps_type1[6], (const StrokeStep4 *)&ovl665_callout_steps_type1[15], (const StrokeStep4 *)&ovl665_callout_steps_type1[24], (const StrokeStep4 *)&ovl665_callout_steps_type1[27], (const StrokeStep4 *)&ovl665_callout_steps_type1[33]}, {(const StrokeStep4 *)&ovl665_callout_steps_type1[6], (const StrokeStep4 *)&ovl665_callout_steps_type1[15], (const StrokeStep4 *)&ovl665_callout_steps_type1[24], (const StrokeStep4 *)&ovl665_callout_steps_type1[27], (const StrokeStep4 *)&ovl665_callout_steps_type1[33]}, {(const StrokeStep4 *)&ovl665_callout_steps_type1[6], (const StrokeStep4 *)&ovl665_callout_steps_type1[15], (const StrokeStep4 *)&ovl665_callout_steps_type1[24], (const StrokeStep4 *)&ovl665_callout_steps_type1[27], (const StrokeStep4 *)&ovl665_callout_steps_type1[39]}};
+StrokeStep4 ovl665_callout_steps_type2[52] = {{.direction = 1, .length = 42}, {.direction = 3, .length = 18}, {.direction = -1}, {.direction = 1, .length = 32}, {.direction = 3, .length = 18}, {.direction = -1}, {.direction = 1, .length = 94}, {.direction = 3, .length = 120}, {.direction = -1}, {.direction = 1, .length = 94}, {.direction = 3, .length = 48}, {.direction = -1}, {.direction = 1, .length = 32}, {.direction = 3, .length = 52}, {.direction = -1}, {.direction = 1, .length = 98}, {.direction = 2, .length = 50}, {.direction = -1}, {.direction = 1, .length = 42}, {.direction = 2, .length = 52}, {.direction = -1}, {.direction = 1, .length = 42}, {.direction = 2, .length = 18}, {.direction = -1}, {.direction = 1, .length = 94}, {.direction = 2, .length = 22}, {.direction = -1}, {.length = 50}, {.direction = 3, .length = 70}, {.direction = -1}, {.length = 26}, {.direction = 3, .length = 84}, {.direction = -1}, {.length = 36}, {.direction = 2, .length = 14}, {.direction = -1}, {.length = 126}, {.direction = 2, .length = 16}, {.direction = -1}, {.length = 26}, {.direction = 3, .length = 12}, {.direction = -1}, {.length = 12}, {.direction = 3, .length = 28}, {.length = 38}, {.direction = -1}, {.length = 74}, {.direction = 3, .length = 12}, {.direction = -1}, {.length = 68}, {.direction = 2, .length = 86}, {.direction = -1}};
+const StrokeStep4 *ovl665_callout_paths_type2[8][5] = {{(const StrokeStep4 *)&ovl665_callout_steps_type2[0], (const StrokeStep4 *)&ovl665_callout_steps_type2[9], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[27], (const StrokeStep4 *)&ovl665_callout_steps_type2[39]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[6], (const StrokeStep4 *)&ovl665_callout_steps_type2[12], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[27], (const StrokeStep4 *)&ovl665_callout_steps_type2[39]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[0], (const StrokeStep4 *)&ovl665_callout_steps_type2[9], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[27], (const StrokeStep4 *)&ovl665_callout_steps_type2[39]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[6], (const StrokeStep4 *)&ovl665_callout_steps_type2[12], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[27], (const StrokeStep4 *)&ovl665_callout_steps_type2[39]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[0], (const StrokeStep4 *)&ovl665_callout_steps_type2[9], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[30], (const StrokeStep4 *)&ovl665_callout_steps_type2[42]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[6], (const StrokeStep4 *)&ovl665_callout_steps_type2[12], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[30], (const StrokeStep4 *)&ovl665_callout_steps_type2[42]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[0], (const StrokeStep4 *)&ovl665_callout_steps_type2[9], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[30], (const StrokeStep4 *)&ovl665_callout_steps_type2[42]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[6], (const StrokeStep4 *)&ovl665_callout_steps_type2[12], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[30], (const StrokeStep4 *)&ovl665_callout_steps_type2[42]}};
+const StrokeStep4 *ovl665_callout_paths_type3[8][5] = {{(const StrokeStep4 *)&ovl665_callout_steps_type2[0], (const StrokeStep4 *)&ovl665_callout_steps_type2[15], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[33], (const StrokeStep4 *)&ovl665_callout_steps_type2[46]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[0], (const StrokeStep4 *)&ovl665_callout_steps_type2[9], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[27], (const StrokeStep4 *)&ovl665_callout_steps_type2[39]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[3], (const StrokeStep4 *)&ovl665_callout_steps_type2[12], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[36], (const StrokeStep4 *)&ovl665_callout_steps_type2[46]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[3], (const StrokeStep4 *)&ovl665_callout_steps_type2[12], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[36], (const StrokeStep4 *)&ovl665_callout_steps_type2[46]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[3], (const StrokeStep4 *)&ovl665_callout_steps_type2[18], (const StrokeStep4 *)&ovl665_callout_steps_type2[24], (const StrokeStep4 *)&ovl665_callout_steps_type2[33], (const StrokeStep4 *)&ovl665_callout_steps_type2[49]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[6], (const StrokeStep4 *)&ovl665_callout_steps_type2[12], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[27], (const StrokeStep4 *)&ovl665_callout_steps_type2[39]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[6], (const StrokeStep4 *)&ovl665_callout_steps_type2[12], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[27], (const StrokeStep4 *)&ovl665_callout_steps_type2[39]}, {(const StrokeStep4 *)&ovl665_callout_steps_type2[0], (const StrokeStep4 *)&ovl665_callout_steps_type2[9], (const StrokeStep4 *)&ovl665_callout_steps_type2[21], (const StrokeStep4 *)&ovl665_callout_steps_type2[27], (const StrokeStep4 *)&ovl665_callout_steps_type2[39]}};
+Ovl665View14 ovl665_controller_camera_poses[7] = {{.x00 = 160, .y02 = 287, .words04 = {1024, 500, -290, 7000}}, {.x00 = 160, .y02 = 287, .words04 = {1024, 500, -290, 7000}}, {.x00 = 160, .y02 = 294, .words04 = {1024, 500, 0, 7000}}, {.x00 = 160, .y02 = 358, .words04 = {1024, 500, -440, 7000}}, {.x00 = 160, .y02 = 190, .words04 = {1024, 500, 0, 7000}}, {.x00 = 160, .y02 = 190, .words04 = {1024, 500, -1024, 7000}}, {.x00 = 160, .y02 = 220, .words04 = {1024, 556, 0, 7000}}};
+s32 ovl665_controller_model_scales[6] = {5, 8, 11, 5, 8, 11};
+u8 ovl665_twist_needle_color[4] = {0x40, 0x80, 0xFF};
+s32 ovl665_controller_row_counts[5] = {0, 6, 10, 14};
+s32 ovl665_saved_stereo_mode;
+Ovl665CarState ovl665_options_state;
+
+/* Writable state of this unit; ovl665_reset_module restores it. */
+static const OverlayStateRegion ovl665_controller_options_regions[] = {
+    RR_OVERLAY_STATE(ovl665_callout_paths_type0),
+    RR_OVERLAY_STATE(ovl665_callout_paths_type1),
+    RR_OVERLAY_STATE(ovl665_callout_paths_type2),
+    RR_OVERLAY_STATE(ovl665_callout_paths_type3),
+    RR_OVERLAY_STATE(ovl665_callout_steps_type0),
+    RR_OVERLAY_STATE(ovl665_callout_steps_type1),
+    RR_OVERLAY_STATE(ovl665_callout_steps_type2),
+    RR_OVERLAY_STATE(ovl665_controller_arrow_uv_rect),
+    RR_OVERLAY_STATE(ovl665_controller_camera_poses),
+    RR_OVERLAY_STATE(ovl665_controller_colors_type0),
+    RR_OVERLAY_STATE(ovl665_controller_colors_type1),
+    RR_OVERLAY_STATE(ovl665_controller_colors_type2),
+    RR_OVERLAY_STATE(ovl665_controller_model_scales),
+    RR_OVERLAY_STATE(ovl665_controller_row_counts),
+    RR_OVERLAY_STATE(ovl665_options_state),
+    RR_OVERLAY_STATE(ovl665_saved_stereo_mode),
+    RR_OVERLAY_STATE(ovl665_screen_arrow_uv_rects),
+    RR_OVERLAY_STATE(ovl665_twist_needle_color)};
+const OverlayStateTable ovl665_controller_options_state = {ovl665_controller_options_regions, sizeof(ovl665_controller_options_regions) / sizeof(ovl665_controller_options_regions[0])};
+
+/* Initial values of the globals this module owns. */
+s32 WheelDeadzoneTable[4] = {0, 4, 6, 8};
+RuntimeSettings Options;

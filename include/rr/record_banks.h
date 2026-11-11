@@ -5,7 +5,6 @@
 #include "rr/work_arena.h"
 
 extern s32 ReplayFrame,ReplayState,SavedRaceState,ReplayLength;
-extern s16 NumCars;
 
 /* Mode2 restores the live signed count of whole vehicles. Sources and
  * destinations must be identical or disjoint and slots must remain accessible.

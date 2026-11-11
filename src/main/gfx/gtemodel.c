@@ -1,8 +1,10 @@
 #include "psyq/libgte/rotmat.h"
+#include "game/gfx/drawlist.h"
 #include "game/gfx/tilerect.h"
 #include "psyq/libgte/rotmatz.h"
 #include "rr/track_object_render.h"
 #include "rr/gpu.h"
+#include "rr/gpu_scratch_types.h"
 #include "scratchpad.h"
 #include "rr/load_cursor.h"
 #include "rr/camera_matrices.h"
@@ -21,125 +23,84 @@
 #include "rr/work_arena.h"
 #include "game/data/screenframe.h"
 
-typedef struct { int a, b, c, d; } V16;
-
 extern int FlashingLightColorTable[];
 extern GpuRectangleFields MenuGridSkyVramRect;
 extern VectorWords16 MenuGridDefaultAngles;
 extern VectorWords16 MenuGridInitialOffset;
-extern VectorWords16 IntroCameraPosKeyframes;
 
 void DrawTrackObjectModel(int a0, int a1);
 
 void DrawTrackObjectLitModel(int placementIndex, int modelIndex)
 {
     TrackObjectLitWork *work = &((TrackObjectLitScratch *)SCRATCHPAD)->work7C;
-    /* This retained temporary holds the full scene address, then the shift.
-     * Separating those lifetimes still changes the generated instructions. */
-    long sceneOrShift;
-    long entryAddress;
-    long entryValue;
-    RroSceneScratchPrefix *sceneRoot;
-    char *placements;
-    int remaining, depthLimit, instanceCount;
+    RroSceneScratchPrefix *scene = (RroSceneScratchPrefix *)SCRATCHPAD;
+    const RroEffectMesh *entries = RroScene.modelEntries;
+    const TrackObjectPlacement *p;
+    int remaining, depthLimit, depthShift;
     u8 *packetCursor;
-    long orderingBase;
-    int *gteTable;
-    int angle, translationXY, translationZ;
-    long ordering;
+    GpuDmaTag *orderingBase;
 
-    entryValue = modelIndex * (sizeof(RroEffectMesh) / sizeof(u32));
-    sceneRoot = (RroSceneScratchPrefix *)SCRATCHPAD;
-    sceneOrShift = (long)sceneRoot;
-    entryValue <<= 2;
-    entryAddress = (long)((RroSceneScratchPrefix *)sceneOrShift)->modelEntries48;
-    angle = ((RroSceneScratchPrefix *)sceneOrShift)->view.projection.pose08.angles10.xyz.z;
-
-    entryAddress -= 4;
-    entryAddress += entryValue;
-    entryValue = (long)((const RroEffectMesh *)(entryAddress + 4))->commands;
-    work->commands30 = (const u32 *)entryValue;
-    entryValue = (long)((const RroEffectMesh *)(entryAddress + 4))->vertices;
+    RroScene.workCommands = entries[modelIndex].commands;
+    RroScene.workVertices = entries[modelIndex].vertices;
     work->rotation00.w[0] = 0x1000;
-    work->rotation00.w[4] = 0x1000;
+    work->rotation00.w[1] = 0;
     work->rotation00.w[2] = 0x1000;
     work->rotation00.w[3] = 0;
-    work->rotation00.w[1] = 0;
-    work->vertices2C = (const Vec3s8 *)entryValue;
-    RotMatrixZ(angle, &work->rotation00);
+    work->rotation00.w[4] = 0x1000;
+    RotMatrixZ(scene->view.projection.pose08.angles10.xyz.z, &work->rotation00);
     RR_GTE_SETROT(&work->rotation00);
-    gteTable = CameraViewMatrix.w;
-    RR_GTE_SETLLM(gteTable);
-    gteTable = GteProjectionScaleTable;
-    RR_GTE_SETBK_P(gteTable);
+    RR_GTE_SETLLM(CameraViewMatrix.w);
+    RR_GTE_SETBK_P(CameraViewMatrix.fields.translation14);
+
+    /* The placement stream: a command/count header word, then the records. */
     {
-        long off0 = placementIndex * sizeof(RroEffectMesh);
-        depthLimit = 0x12A;
-        placements = (char *)((const RroEffectMesh *)((const u8 *)((RroSceneScratchPrefix *)sceneOrShift)->modelEntries48 + off0))->commands;
+        const u8 *placements = (const u8 *)entries[placementIndex].commands;
+        remaining = ((const u16 *)placements)[1];
+        p = (const TrackObjectPlacement *)(placements + 4);
     }
-    remaining = ((unsigned short *)placements)[1];
-    placements += 4;
-    if (((RroSceneScratchPrefix *)sceneOrShift)->renderFlags64) depthLimit = 0x95;
-    instanceCount = remaining;
-    remaining--;
+    depthLimit = scene->renderFlags64 ? 0x95 : 0x12A;
+    packetCursor = RR_GPU_SCRATCH->cursor;
+    orderingBase = RR_GPU_SCRATCH->order + 128;
+    depthShift = scene->depthShift60;
 
-    packetCursor = ((RroSceneScratchPrefix *)sceneOrShift)->view.projection.pointers.cursor;
-    ordering = (long)((RroSceneScratchPrefix *)sceneOrShift)->view.projection.pointers.order;
-
-    translationXY = ((const TrackObjectPlacement *)placements)->xy00;
-    translationZ = ((const TrackObjectPlacement *)placements)->z04;
-    work->input24.signedWords[0] = translationXY;
-    work->input24.fields.z = translationZ;
-
-    sceneOrShift = ((RroSceneScratchPrefix *)sceneOrShift)->depthShift60;
-    orderingBase = ordering + 0x200;
-    if (instanceCount > 0) {
-        const TrackObjectPlacement *p = (const TrackObjectPlacement *)placements;
-        do {
-            int nextXY, nextZ, rawDepth, bucketDepth;
-            RR_GTE14_LWC2_V0(&work->input24);
-            RR_GTE14_NOP2();
-            RR_GTE_OP(0x4A4A2012);
-            nextXY = p[1].xy00;
-            nextZ = p[1].z04;
-            work->input24.signedWords[0] = nextXY;
-            work->input24.fields.z = nextZ;
-            RR_GTE_SWC2_IR3(&work->depth54);
-            rawDepth = work->depth54;
-            bucketDepth = rawDepth >> sceneOrShift;
-            if (rawDepth > 0) {
-                if (bucketDepth < depthLimit) {
-                    RR_GTE_TR_FROM_IR();
-                    packetCursor = EmitModelTrisGT3(
-                        work,
-                        (u32 *)(orderingBase + bucketDepth * 4 + p->orderingBias07 * 4),
-                        packetCursor);
-                }
-            }
-            p++;
-        } while (remaining-- > 0);
+    work->input24.signedWords[0] = p->xy00;
+    work->input24.fields.z = p->z04;
+    while (remaining-- > 0) {
+        int rawDepth, bucketDepth;
+        RR_GTE14_LWC2_V0(&work->input24);
+        RR_GTE_OP(0x4A4A2012);
+        /* The next placement is staged before this one is emitted. */
+        work->input24.signedWords[0] = p[1].xy00;
+        work->input24.fields.z = p[1].z04;
+        RR_GTE_SWC2_IR3(&work->depth54);
+        rawDepth = work->depth54;
+        bucketDepth = rawDepth >> depthShift;
+        if (rawDepth > 0 && bucketDepth < depthLimit) {
+            RR_GTE_TR_FROM_IR();
+            packetCursor = EmitModelTrisGT3(work, orderingBase + bucketDepth + p->orderingBias07,
+                                            packetCursor);
+        }
+        p++;
     }
-    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = packetCursor;
+    RR_GPU_SCRATCH->cursor = packetCursor;
 }
 
 void DrawTrackObjectModel(int modelIndex, int flashing) {
     TrackObjectRenderWork *work = &((TrackObjectScratch *)SCRATCHPAD)->work7C;
     RroSceneScratchPrefix *sceneRoot;
-    const RroModelTable *table;
     GpuPolyFT4 *packetCursor;
     const TrackObjectQuad *quadCursor;
     const Vec3s8 *vertices;
     int remaining;
-    u32 *orderingBase;
+    GpuDmaTag *orderingBase;
     int depthShift;
     int depth;
 
     work->flashing54 = flashing;
     sceneRoot = (RroSceneScratchPrefix *)SCRATCHPAD;
-    table = (const RroModelTable *)((const u8 *)sceneRoot->modelEntries48 - RR_FIELD_OFFSET(RroModelTable, entries));
-    packetCursor = (GpuPolyFT4 *)sceneRoot->view.projection.pointers.cursor;
-    quadCursor = (const TrackObjectQuad *)table->entries[modelIndex].commands;
-    vertices = table->entries[modelIndex].vertices;
+    packetCursor = (GpuPolyFT4 *)RR_GPU_SCRATCH->cursor;
+    quadCursor = (const TrackObjectQuad *)RroScene.modelEntries[modelIndex].commands;
+    vertices = RroScene.modelEntries[modelIndex].vertices;
     remaining = ((const RroBodyCommandHeader *)quadCursor)->fields.count;
     quadCursor = (const TrackObjectQuad *)((const u8 *)quadCursor + sizeof(RroBodyCommandHeader));
     {
@@ -148,7 +109,7 @@ void DrawTrackObjectModel(int modelIndex, int flashing) {
         work->input00.signedWords[0] = xy;
         work->input00.fields.z = z;
     }
-    orderingBase = sceneRoot->view.projection.pointers.order + 128;
+    orderingBase = RR_GPU_SCRATCH->order + 128;
     depthShift = sceneRoot->depthShift60 + 2;
     while (remaining-- > 0) {
         RR_GTE14_LWC2_V0(&work->input00);
@@ -212,11 +173,9 @@ void DrawTrackObjectModel(int modelIndex, int flashing) {
                         int y3 = work->projected58[3].xy.y;
                         if ((y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0) &&
                             (y0 < 0x100 || y1 < 0x100 || y2 < 0x100 || y3 < 0x100)) {
-                            packetCursor->words.tag.word = (orderingBase + work->depth50)[quadCursor->orderingBias19];
-                            packetCursor->words.tag.bytes.length = 9;
-                            (orderingBase + work->depth50)[quadCursor->orderingBias19] = (u32)(unsigned long)packetCursor;
+                            RR_GPU_ADD_PRIM(orderingBase + work->depth50 + quadCursor->orderingBias19,
+                                            packetCursor, 9);
                             packetCursor++;
-                            ((GpuDmaTag *)&(orderingBase + work->depth50)[quadCursor->orderingBias19])->bytes.length = 0;
                         }
                     }
                 }
@@ -224,7 +183,7 @@ void DrawTrackObjectModel(int modelIndex, int flashing) {
         }
         quadCursor++;
     }
-    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packetCursor;
+    RR_GPU_SCRATCH->cursor = (u8 *)packetCursor;
 }
 void InitIntroSceneLights(void) {
     GpuRectangle sp18;
@@ -244,7 +203,7 @@ void InitIntroSceneLights(void) {
     sp18.rect = MenuGridSkyVramRect;
     ClearImage2(&sp18, 0, 0, 0);
     ((ProjectionScratchPrefix *)SCRATCHPAD)->pose08.angles10 = MenuGridDefaultAngles;
-    ((ProjectionScratchPrefix *)SCRATCHPAD)->pose08.position00 = IntroCameraPosKeyframes;
+    ((ProjectionScratchPrefix *)SCRATCHPAD)->pose08.position00 = IntroCameraPosKeyframes[0];
     IntroSceneStatePtr->mat20.w[1] = 0xFAAB;
     IntroSceneStatePtr->mat20.w[2] = 0xFAAB0000;
     IntroSceneStatePtr->mat20.w[0] = 0;
@@ -339,3 +298,9 @@ void BuildScaledCameraMatrices(void)
     scratch->matrix28.halves[4] <<= 1;
     scratch->matrix28.halves[5] <<= 1;
 }
+
+/* Initial values of the globals this module owns. */
+GpuRectangleFields MenuGridSkyVramRect = {.x = 448, .w = 128, .h = 256};
+VectorWords16 MenuGridDefaultAngles = {.vector = {.x = 470, .y = 250}};
+VectorWords16 MenuGridInitialOffset = {.vector = {.z = -16}};
+int FlashingLightColorTable[32] = {746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746553215, 746355836, 745697906, 744711011, 743395151, 741881912, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 741881912, 743395151, 744711011, 745697906, 746355836, 746553215};

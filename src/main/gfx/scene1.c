@@ -20,7 +20,8 @@
 #include "rr/bios_devices.h"
 #include "game/gfx/gfxotag.h"
 #include "rr/frame_storage_types.h"
-#include "rr/gpu_address.h"
+#include "rr/gpu_scratch_types.h"
+#include "rr/gpu.h"
 #include "game/data/globals.h"
 
 
@@ -33,7 +34,8 @@ extern GpuRectangleFields CarCameraPitchOffsets[][4];
 extern int ReplayCamBankWeights[];
 extern int DrawSubOtFlag;
 extern short SelectedMakerIndex;
-extern int ScaleMatrix();
+/* PsyZ libgte ScaleMatrix(MATRIX *, VECTOR *). */
+extern MatrixWords32 *ScaleMatrix(MatrixWords32 *matrix, VectorWords16 *scale);
 
 void EmitSceneOverlaySprites(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4);
 
@@ -62,16 +64,15 @@ void EmitSceneOverlaySprites(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
     s32 i;
     GpuRectangleFields *uv;
     SpritePacket *s2;
+    GpuCommandPacket *page;
     GpuDrawModePacket *s0;
+    GpuDmaTag *ordering;
     s16 y, x;
-    GpuDrawModePacket **p1f80;
-    unsigned long atlasAddress;
-    s32 offset;
 
-    atlasAddress = (unsigned long)CarCameraPitchOffsets;
+    ordering = &CurrentDrawBuf->buffer.ordering70.tags[0];
     for (i = 0; i < 4; i++) {
-        s2 = *(SpritePacket **)SCRATCHPAD;
-        s2->len = 4;
+        s2 = (SpritePacket *)RR_GPU_SCRATCH->cursor;
+        s2->tag.length = 4;
         s2->code = 0x64;
         if (a4 != 0) {
             s2->code |= 2;
@@ -90,39 +91,31 @@ void EmitSceneOverlaySprites(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
         s2->y = CarCameraSpringStiffness[i].y;
         s2->w = CarCameraSpringStiffness[i].w;
         s2->h = CarCameraSpringStiffness[i].h;
-        offset = (i << 3) + (a0 << 5);
-        uv = (GpuRectangleFields *)(offset + atlasAddress);
+        uv = &CarCameraPitchOffsets[a0][i];
         s2->u = uv->x;
         s2->v = uv->y;
-        ((GpuCommandPacket *)s2)->tag.bits.address = CurrentDrawBuf->buffer.ordering70.tags[0].bits.address;
-        CurrentDrawBuf->buffer.ordering70.tags[0].bits.address = GpuDmaEncodeAddress(s2);
-        s2++;
-        s0 = (GpuDrawModePacket *)((GpuCommandPacket *)s2 + 1);
-        ((GpuCommandPacket *)s2)->tag.bits.length = 1;
+        RR_GPU_LINK(ordering, s2);
+        page = (GpuCommandPacket *)(s2 + 1);
+        s0 = (GpuDrawModePacket *)(page + 1);
+        page->tag.length = 1;
         y = uv->h;
         x = uv->w;
-        ((GpuCommandPacket *)s2)->command = 0xE1000200 | (((a3 & 3) << 5) | 0x100 | ((s16)((y & 0x100) >> 4)) | ((x & 0x3FF) >> 6) | ((s16)(y & 0x200) << 2));
-        ((GpuCommandPacket *)s2)->tag.bits.address = CurrentDrawBuf->buffer.ordering70.tags[0].bits.address;
-        CurrentDrawBuf->buffer.ordering70.tags[0].bits.address = GpuDmaEncodeAddress(s2);
-        p1f80 = (GpuDrawModePacket **)SCRATCHPAD;
-        *p1f80 = s0;
+        page->command = 0xE1000200 | (((a3 & 3) << 5) | 0x100 | ((s16)((y & 0x100) >> 4)) | ((x & 0x3FF) >> 6) | ((s16)(y & 0x200) << 2));
+        RR_GPU_LINK(ordering, page);
+        RR_GPU_SCRATCH->cursor = (u8 *)s0;
         SetDrawStp(s0, 0);
-        s0->tag.bits.address = CurrentDrawBuf->buffer.ordering70.tags[0].bits.address;
-        CurrentDrawBuf->buffer.ordering70.tags[0].bits.address = GpuDmaEncodeAddress(s0);
-        *p1f80 = s0 + 1;
+        RR_GPU_LINK(ordering, s0);
+        RR_GPU_SCRATCH->cursor = (u8 *)(s0 + 1);
     }
 }
 
 void QueueDrawStp(void)
 {
-    GpuDrawModePacket *packet = *(GpuDrawModePacket **)SCRATCHPAD;
-    u32 *ordering;
+    GpuDrawModePacket *packet = (GpuDrawModePacket *)RR_GPU_SCRATCH->cursor;
     SetDrawStp(packet, 1);
-    ordering = &CurrentDrawBuf->buffer.ordering70.words[703];
-    packet->tag.word = (packet->tag.word & 0xFF000000U) | (*ordering & 0xFFFFFFU);
-    *ordering = (*ordering & 0xFF000000U) | (GpuDmaEncodeAddress(packet) & 0xFFFFFFU);
+    RR_GPU_LINK(&CurrentDrawBuf->buffer.ordering70.tags[703], packet);
     packet++;
-    *(GpuDrawModePacket **)SCRATCHPAD = packet;
+    RR_GPU_SCRATCH->cursor = (u8 *)packet;
 }
 
 void DrawSceneOverlayIfActive(void) {
@@ -227,7 +220,7 @@ void SetupObjectLightMatrices(const SceneCameraPose18 *pose, const PreviewLighti
     SetLightMatrix(&temporary);
     SetColorMatrix(&color);
     SetBackColor(lighting->ambient[0], lighting->ambient[1], lighting->ambient[2]);
-    ScaleMatrix(basis.w, scale.words);
+    ScaleMatrix(&basis, &scale);
     *light = basis;
 }
 
@@ -258,3 +251,10 @@ void TransformPoint(const MatrixWords32 *rotation, const Vec3i *origin,
         output->z = transformed + translation;
     }
 }
+
+/* Initial values of the globals this module owns. */
+VectorWords16 UnitScaleVector = {.vector = {.x = 4096, .y = 4096, .z = 4096}};
+GpuRectangleFields CarCameraSpringStiffness[4] = {{.w = 256}, {.w = 256, .h = 256}, {.x = 256, .w = 64}, {.x = 256, .w = 64, .h = 256}};
+GpuRectangleFields CarCameraPitchOffsets[2][4] = {{{.y = 256}, {.h = 256}, {.y = 256, .w = 256}, {.w = 256, .h = 256}}, {{0}, {0}, {.w = 256}, {.w = 256}}};
+int ReplayCamBankWeights[4] = {461824, 494864, 133120, 458752};
+short SelectedMakerCarIndex;

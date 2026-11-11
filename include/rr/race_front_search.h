@@ -1,8 +1,8 @@
 #ifndef RR_RACE_FRONT_SEARCH_H
 #define RR_RACE_FRONT_SEARCH_H
 #include "rr/race.h"
+#include "rr/vehicle_table.h"
 
-extern s16 NumCars;
 extern s32 TrackLength;
 
 /* Returns the identifier of the closest positive wrapped gap strictly below

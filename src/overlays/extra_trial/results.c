@@ -90,7 +90,7 @@ void ovl666_update_results(void) {
         SetMenuFrameOptions(0, 1, 0);
         timer = (u16)FadeCountdown - 1;
         FadeCountdown = timer;
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (64 - timer) * 4, 69);
         group = 3;
         if (FadeCountdown <= 0) {
             ovl666_result_kind = 1;
@@ -104,7 +104,7 @@ void ovl666_update_results(void) {
         SetMenuFrameOptions(0, 1, 0);
         timer = (u16)FadeCountdown - 2;
         FadeCountdown = timer;
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (64 - timer) * 4, 69);
         group = 3;
         if (FadeCountdown <= 0) {
             group = -1;
@@ -115,7 +115,7 @@ void ovl666_update_results(void) {
         SetMenuFrameOptions(0, 1, 0);
         timer = (u16)FadeCountdown - 1;
         FadeCountdown = timer;
-        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (64 - timer) * 4, 69);
         group = -1;
         if (FadeCountdown <= 0) {
             ModeGroup = 1;

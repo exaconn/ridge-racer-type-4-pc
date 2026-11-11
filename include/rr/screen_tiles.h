@@ -3,11 +3,6 @@
 #include "rr/frame_storage_types.h"
 #include "rr/gpu.h"
 
-typedef struct {
-    u32 tag;
-    u8 r,g,b,code;
-    s16 x,y,w,h;
-} GpuTilePacket16;
 /* The drawing context starts with this rectangle. */
 
 /* Requires 4-byte-aligned writable cursor storage with room for four tiles and the following draw-mode packet at the
@@ -15,10 +10,6 @@ typedef struct {
  * Each tile captures the current context after packet initialization. Height
  * is read after x, then again after y/width and before RGB writes. The cursor
  * is published before the final helper and replaced with its returned pointer. */
-void AddScreenFadeTiles(u32 *ordering, s32 intensity, u32 mode);
+void AddScreenFadeTiles(GpuDmaTag *ordering, s32 intensity, u32 mode);
 
-RR_ASSERT_SIZE(GpuTilePacket16, 16);
-RR_ASSERT_OFFSET(GpuTilePacket16, b, 6);
-RR_ASSERT_OFFSET(GpuTilePacket16, x, 8);
-RR_ASSERT_OFFSET(GpuTilePacket16, h, 14);
 #endif

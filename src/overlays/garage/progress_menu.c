@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "game/gfx/model.h"
 #include "rr/overlay662_progress_init.h"
 #include "rr/load_cursor.h"
@@ -63,7 +64,7 @@ void ovl662_init_garage_scene(void) {
     ModeIndex = 40;
     SubmodeState = 0;
     DebugPrintStub(ovl662_str_init_garage_scene);
-    if (SaveProgress.prefix.reserved50.words[0] == 1) {
+    if (SaveProgress.prefix.unlocks50.extraModeUnlocked50 == 1) {
         if (CourseChoiceTable[1][7].glyph >= 0) {
             CourseChoiceTable[1][8].glyph = 359;
             CourseChoiceTable[1][8].first = 1;
@@ -144,7 +145,7 @@ void ovl662_update_progress_menu(void)
         break;
     case 3:
         FadeCountdown--;
-        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,
+        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.tags,
                       (64 - FadeCountdown) * 4, 69);
         if (FadeCountdown <= 0) {
             ModeGroup = 1;
@@ -154,7 +155,7 @@ void ovl662_update_progress_menu(void)
         break;
     case 4:
         FadeCountdown--;
-        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,
+        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.tags,
                       (64 - FadeCountdown) * 4, 69);
         if (FadeCountdown <= 0) {
             InitTimTemplate(&GarageDefaultCarTimBuf);
@@ -166,7 +167,7 @@ void ovl662_update_progress_menu(void)
         break;
     case 8:
         FadeCountdown--;
-        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,
+        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.tags,
                       (64 - FadeCountdown) * 4, 69);
         if (FadeCountdown <= 0) {
             ModeGroup = 1;
@@ -181,3 +182,29 @@ void ovl662_update_progress_menu(void)
     }
     UpdateScreenFade(0x10043);
 }
+
+/* Initial values of the overlay globals this module owns. */
+const char ovl662_str_init_garage_scene[12] = {103, 97, 114, 97, 103, 101, 48, 10};
+u16 ovl662_team_unlocked_counts[4];
+u16 ovl662_total_unlocked_cars;
+u16 ovl662_team_maker_car_counts[4][4];
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_progress_menu_regions[] = {
+    RR_OVERLAY_STATE(ovl662_team_maker_car_counts),
+    RR_OVERLAY_STATE(ovl662_team_unlocked_counts),
+    RR_OVERLAY_STATE(ovl662_total_unlocked_cars)};
+const OverlayStateTable ovl662_progress_menu_state = {ovl662_progress_menu_regions, sizeof(ovl662_progress_menu_regions) / sizeof(ovl662_progress_menu_regions[0])};
+
+/* Module reset: the state a fresh load of the garage image gave
+ * (initialized data and zeroed BSS); see rr/overlay_module.h. */
+extern const OverlayStateTable ovl662_available_cars_state, ovl662_car_view_state, ovl662_editor_canvas_state, ovl662_editor_dialogs_state, ovl662_editor_input_state, ovl662_editor_lifecycle_state, ovl662_editor_paint_state, ovl662_editor_panels_state, ovl662_editor_primitives_state, ovl662_editor_sliders_state, ovl662_emblem_selector_state, ovl662_history_screen_state, ovl662_name_entry_state, ovl662_progress_menu_state, ovl662_record_labels_state, ovl662_team_car_select_state;
+static const OverlayStateTable *const ovl662_state_tables[] = {&ovl662_available_cars_state, &ovl662_car_view_state, &ovl662_editor_canvas_state, &ovl662_editor_dialogs_state, &ovl662_editor_input_state, &ovl662_editor_lifecycle_state, &ovl662_editor_paint_state, &ovl662_editor_panels_state, &ovl662_editor_primitives_state, &ovl662_editor_sliders_state, &ovl662_emblem_selector_state, &ovl662_history_screen_state, &ovl662_name_entry_state, &ovl662_progress_menu_state, &ovl662_record_labels_state, &ovl662_team_car_select_state};
+static OverlayStateImage ovl662_state_image = {ovl662_state_tables, sizeof(ovl662_state_tables) / sizeof(ovl662_state_tables[0]), NULL};
+
+void ovl662_reset_module(void) {
+    OverlayStateRestore(&ovl662_state_image);
+}
+
+/* Initial values of the globals this module owns. */
+EmblemTimImage840 GarageDefaultCarTimBuf;

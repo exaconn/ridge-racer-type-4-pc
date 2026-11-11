@@ -1,4 +1,9 @@
+#include "rr/overlay_module.h"
+#include "rr/menu_selection.h"
+#include "rr/menu_frame_state.h"
+#include "game/race/racegrid.h"
 #include "game/system/pad.h"
+#include "scratchpad.h"
 #include "rr/menu_overlay_runtime.h"
 #include "rr/renderer_setup.h"
 #include "rr/frame_storage_types.h"
@@ -11,23 +16,22 @@ extern s16 LinkMenuSyncPhase;
 extern s16 LinkCarChoiceCounts[2][2];
 extern s16 LinkCarChoiceIndex[2];
 extern s16 LinkCarChoiceGroup[2];
-extern s8 LinkEntryState[];
 extern s32 UiRowCount;
-extern s32 MenuAvailableCourseMask[1];
 extern s16 CardMenuOperation;
 extern s16 LinkHostFlag;
 extern u8 ovl667_group_option_counts[4];
 extern s8 ovl667_group_slot_kinds[2][4];
 extern s8 ovl667_group_ui_rows[2][2][4];
 extern char LinkPlayerNames[4][12];
+extern char ovl667_player_name_text[4][12];
 extern char *ovl667_default_player_names[4];
-extern s32 NumLaps, LinkAvailableCourseCount;
-extern s16 SelectedCourseChoice, LinkClientRoleState;
+extern s32 LinkAvailableCourseCount;
+extern s16 LinkClientRoleState;
 s32 CountChoiceGlyphs(const CourseChoice4 *);
 void CopyStringClearTail(char *, char *);
 void ovl667_init_car_selection(s32);
 #ifndef RR_PROJECTION_SCRATCH
-#define RR_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)0x1F800000)
+#define RR_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)SCRATCHPAD)
 #endif
 
 void ovl667_init_car_selection(s32 arg0) {
@@ -161,7 +165,7 @@ void ovl667_init_session_menus(void){
  ModeIndex=60;
  SubmodeState=0;
  LinkMenuSyncPhase=0;
- if(((Pair *)((s8 *)&LinkEntryState+ActivePlayerIndex))->second!=1)LinkClientRoleState=0;else LinkClientRoleState=2;
+ if(LinkEntryState[ActivePlayerIndex/2][1]!=1)LinkClientRoleState=0;else LinkClientRoleState=2;
  SetMenuFrameOptions(0,1,1);
 }
 
@@ -174,7 +178,7 @@ void ovl667_reset_preview_selection(void) {
     );
     PlayerCourseChoices[ActivePlayerIndex].first = LinkCarChoiceTable[ActivePlayerIndex & 1][LinkCarChoiceGroup[ActivePlayerIndex & 1]][LinkCarChoiceIndex[ActivePlayerIndex & 1]].first;
     PlayerCourseChoices[ActivePlayerIndex].second = LinkCarChoiceTable[ActivePlayerIndex & 1][LinkCarChoiceGroup[ActivePlayerIndex & 1]][LinkCarChoiceIndex[ActivePlayerIndex & 1]].second;
-    ImageRows[1] = 6;
+    ImageRows->f1 = 6;
 }
 
 /* Four-player selection: per-pair page, row and course group tables. */
@@ -214,13 +218,13 @@ void ovl667_update_car_selection(void) {
     SetupViewport(6);
     loadResult = LoadCarRangeStep(ActivePlayerIndex, 1);
     if (loadResult != 1) {
-        if ((s8)ImageRows[1] == 1) {
-            ImageRows[1] = 0;
+        if (ImageRows->f1 == 1) {
+            ImageRows->f1 = 0;
         }
     } else {
         SetCarBounds(&PlayerCars[ActivePlayerIndex & 1]);
-        if ((s8)ImageRows[1] == 7) {
-            ImageRows[1] = loadResult;
+        if (ImageRows->f1 == 7) {
+            ImageRows->f1 = loadResult;
         }
         modelReady = 1;
         switch (SubmodeState) {
@@ -243,7 +247,7 @@ void ovl667_update_car_selection(void) {
                               LinkCarChoiceTable[ActivePlayerIndex & 1][LinkCarChoiceGroup[ActivePlayerIndex & 1]][LinkCarChoiceIndex[ActivePlayerIndex & 1]].glyph);
                 PlayerCourseChoices[ActivePlayerIndex].first = LinkCarChoiceTable[ActivePlayerIndex & 1][LinkCarChoiceGroup[ActivePlayerIndex & 1]][LinkCarChoiceIndex[ActivePlayerIndex & 1]].first;
                 PlayerCourseChoices[ActivePlayerIndex].second = LinkCarChoiceTable[ActivePlayerIndex & 1][LinkCarChoiceGroup[ActivePlayerIndex & 1]][LinkCarChoiceIndex[ActivePlayerIndex & 1]].second;
-                ImageRows[1] = 6;
+                ImageRows->f1 = 6;
             }
             row = ovl667_group_ui_rows[ActivePlayerIndex & 1][LinkCarChoiceGroup[ActivePlayerIndex & 1]][MenuCursor];
             UiRows[row].cells[0] = 0;
@@ -294,7 +298,7 @@ void ovl667_update_car_selection(void) {
                             UiRows[i].byte14 = 3;
                         }
                     }
-                    ImageRows[1] = 3;
+                    ImageRows->f1 = 3;
                     FadeCountdown = 0x40;
                     SubmodeState = 10;
                     BadgeRows->state10 = 4;
@@ -309,7 +313,7 @@ void ovl667_update_car_selection(void) {
                         UiRows[i].byte14 = 3;
                     }
                 }
-                ImageRows[1] = 3;
+                ImageRows->f1 = 3;
                 FadeCountdown = 0x40;
                 SubmodeState = 8;
                 BadgeRows->state10 = 4;
@@ -348,14 +352,14 @@ void ovl667_update_car_selection(void) {
                 }
                 modelReady = 0;
                 MenuArenas.first = LoadCursor;
-                if ((ActivePlayerIndex & 1) > 0 || LinkEntryState[(1 - LinkHostFlag) * 2 + 1] != 1) {
+                if ((ActivePlayerIndex & 1) > 0 || LinkEntryState[1 - LinkHostFlag][1] != 1) {
                     SubmodeState = 5;
                     for (i = 0; i < UiRowCount; i++) {
                         if (UiRows[i].byte14 == 2) {
                             UiRows[i].byte14 = 3;
                         }
                     }
-                    ImageRows[1] = 3;
+                    ImageRows->f1 = 3;
                     BadgeRows->state10 = 4;
                     break;
                 }
@@ -373,7 +377,7 @@ void ovl667_update_car_selection(void) {
             SetMenuFrameOptions(0, 1, 1);
             row = ovl667_group_ui_rows[ActivePlayerIndex & 1][1][3] + 1;
             closing = UiRows[row].byte14;
-            if (closing == 5 && (s8)ImageRows[1] == closing) {
+            if (closing == 5 && ImageRows->f1 == closing) {
                 ResetScreenCounters();
                 ovl667_init_course_menu();
                 ModeGroup = 1;
@@ -394,7 +398,7 @@ void ovl667_update_car_selection(void) {
             SetModelTexturePage(-1);
             SetMenuFrameOptions(0, 1, 1);
             FadeCountdown = (u16)FadeCountdown - 1;
-            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - FadeCountdown) * 4, 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (0x40 - FadeCountdown) * 4, 0x45);
             if (FadeCountdown <= 0) {
                 SeqMuteVolume();
                 ModeGroup = 1;
@@ -406,7 +410,7 @@ void ovl667_update_car_selection(void) {
             SetModelTexturePage(-1);
             SetMenuFrameOptions(0, 1, 1);
             FadeCountdown = (u16)FadeCountdown - 1;
-            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - FadeCountdown) * 4, 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (0x40 - FadeCountdown) * 4, 0x45);
             if (FadeCountdown <= 0) {
                 CardMenuOperation = 2;
                 ModeGroup = 1;
@@ -416,7 +420,7 @@ void ovl667_update_car_selection(void) {
             break;
         }
     }
-    if (LinkMenuSyncPhase == 0 && (s8)ImageRows[1] == 2) {
+    if (LinkMenuSyncPhase == 0 && ImageRows->f1 == 2) {
         LinkMenuSyncPhase = 1;
         BadgeRows->half02 = 1;
     }
@@ -447,19 +451,19 @@ void ovl667_update_car_selection(void) {
         DrawUiRow(row + 1);
         DrawUiRow(row + 2);
     }
-    if (((u8)ImageRows[1] - 1) < 2U) {
+    if (((u8)ImageRows->f1 - 1) < 2U) {
         drawModel = modelReady;
         if (drawModel == 1) {
             DrawSelectionIconGrid(ActivePlayerIndex);
             UpdateCarWorldTransform(&PlayerCars[ActivePlayerIndex & 1]);
             scale = 0x100;
-            if ((s8)ImageRows[1] == drawModel) {
-                brightness = ~((ImageRows[2] * 0xFF) / 30);
+            if (ImageRows->f1 == drawModel) {
+                brightness = ~((ImageRows->f2 * 0xFF) / 30);
                 color.channels.r = brightness;
                 color.channels.g = brightness;
                 color.channels.b = brightness;
                 drawFlags = 0x102;
-                scale = (ImageRows[2] << 8) / 30;
+                scale = (ImageRows->f2 << 8) / 30;
             } else {
                 drawFlags = 1;
                 color.channels.r = 0x80;
@@ -471,6 +475,31 @@ void ovl667_update_car_selection(void) {
     }
     UpdateBadgeRowAnim(0);
     UpdateImageRow(0);
-    MenuAvailableCourseMask[0] = ActivePlayerIndex + 1;
+    MenuFrameState.titlePlayer08 = ActivePlayerIndex + 1;
     UpdateScreenFade(LinkCarChoiceGroup[ActivePlayerIndex & 1] != 0 ? 0x10036 : 0x10032);
 }
+
+/* Initial values of the overlay globals this module owns. */
+char ovl667_player_name_text[4][12] = {{80, 76, 65, 89, 69, 82, 32, 52}, {80, 76, 65, 89, 69, 82, 32, 51}, {80, 76, 65, 89, 69, 82, 32, 50}, {80, 76, 65, 89, 69, 82, 32, 49}};
+char *ovl667_default_player_names[4] = {(char *)&ovl667_player_name_text[3][0], (char *)&ovl667_player_name_text[2][0], (char *)&ovl667_player_name_text[1][0], (char *)&ovl667_player_name_text[0][0]};
+u8 ovl667_group_option_counts[4] = {3, 4};
+s8 ovl667_group_slot_kinds[2][4] = {{0, 1, 2, -1}, {0, 2, 3, 1}};
+s8 ovl667_group_ui_rows[2][2][4] = {{{0, 1, 2, -1}, {3, 4, 5, 6}}, {{9, 10, 11, -1}, {12, 13, 14, 15}}};
+
+/* Writable state of this unit; ovl667_reset_module restores it. */
+static const OverlayStateRegion ovl667_car_selection_regions[] = {
+    RR_OVERLAY_STATE(ovl667_default_player_names),
+    RR_OVERLAY_STATE(ovl667_group_option_counts),
+    RR_OVERLAY_STATE(ovl667_group_slot_kinds),
+    RR_OVERLAY_STATE(ovl667_group_ui_rows),
+    RR_OVERLAY_STATE(ovl667_player_name_text)};
+const OverlayStateTable ovl667_car_selection_state = {ovl667_car_selection_regions, sizeof(ovl667_car_selection_regions) / sizeof(ovl667_car_selection_regions[0])};
+
+/* Initial values of the globals this module owns. */
+MenuArenas8 MenuArenas;
+CourseChoice4 LinkCarChoiceTable[2][2][9];
+s16 LinkMenuSyncPhase;
+s16 LinkCarChoiceCounts[2][2];
+s16 LinkCarChoiceIndex[2];
+s16 LinkClientRoleState;
+s16 LinkCarChoiceGroup[2];

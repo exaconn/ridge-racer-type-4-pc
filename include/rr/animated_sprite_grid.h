@@ -4,7 +4,7 @@
 
 #include "rr/gpu_scratch_types.h"
 typedef struct {u8 pad00[14];u16 tick0E;} SpriteGridClock;
-typedef struct {u32 tag,command;} GpuSingleCommandPacket;
+typedef struct {GpuDmaTag tag;u32 command;} GpuSingleCommandPacket;
 
 /* Requires aligned pointer slots, a 4-byte-aligned cursor with space for 15
  * sprite packets and one 8-byte command, and accessible heads after each order

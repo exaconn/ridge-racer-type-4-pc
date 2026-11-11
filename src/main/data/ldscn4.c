@@ -1,4 +1,3 @@
-/* RODATA 0x8001083c 0x1c */
 #include "game/data/cdfile2.h"
 #include "rr/load_cursor.h"
 #include "game/data/trkld6.h"
@@ -11,6 +10,7 @@
 #include "psyq/libc/rand.h"
 #include "rr/cd_directory_buffer.h"
 #include "rr/menu_arena_base.h"
+#include "rr/overlay_module.h"
 extern unsigned char LoadState;
 
 int LoadAttractTimStep(void) {
@@ -33,6 +33,13 @@ int LoadAttractTimStep(void) {
         }
         break;
     case 3:
+        /* Linked movie_playback overlay: reset it instead of reading entry 668. */
+        if (OverlayModuleBind(GetR4FileIndex(1, 10))) {
+            LoadState = 5;
+            MenuArenaBase = LoadCursor;
+            RaceLoadReset();
+            break;
+        }
         if (CdFileReadStart(GetR4FileIndex(1, 10), LoadCursor) != 0) {
             LoadState = 4;
         }

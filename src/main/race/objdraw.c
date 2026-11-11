@@ -1,4 +1,5 @@
 #include "psyq/libgte/rotmat.h"
+#include "rr/menu_selection.h"
 #include "rr/rro_model.h"
 #include "rr/memory.h"
 #include "psyq/libgpu/gpudisp.h"
@@ -11,7 +12,6 @@
 #include "psyq/libgte/gtemat4.h"
 #include "psyq/libgte/gtemat.h"
 #include "rr/matrix_workspace.h"
-/* RODATA 0x80011364 0x74 */
 #include "types.h"
 #include "scratchpad.h"
 #include "rr_asm.h"
@@ -51,10 +51,8 @@ extern s32 OpeningSunbeamPolys[];
 extern s32 OpeningCreditTextTable[];
 extern SVec CourseLightColors[];
 extern CVec OpeningSkipHoldTimer[];
-extern TrackSample3C *TrackNodes;
 extern s32 ReplayState;
 extern s32 ModeFrame;
-extern s16 CourseIndex;
 extern s8 RacePaused;
 extern s32 RaceState;
 extern s32 TrackObjCullDistance;
@@ -172,9 +170,9 @@ void DrawTrackObjects(s32 arg0) {
                     }
                 }
                 DrawAnimatedTrackObject((AnimatedTrackScratch *)(scene), TrackObjectDefs[i].f0, RacePaused == 0);
-                SetDrawMode((scene->view.projection.pointers.cursor), 0, 1, 0x2A, 0);
-                AddPrim((scene->view.projection.pointers.order) + 0x900 / sizeof(u32), (u32 *)(scene->view.projection.pointers.cursor));
-                (scene->view.projection.pointers.cursor) += 0xC;
+                SetDrawMode(RR_GPU_SCRATCH->cursor, 0, 1, 0x2A, 0);
+                AddPrim(&RR_GPU_SCRATCH->order[0x900 / 4], RR_GPU_SCRATCH->cursor);
+                RR_GPU_SCRATCH->cursor += sizeof(GpuDrawModePacket);
             }
             continue;
 
@@ -544,7 +542,7 @@ void DrawTrackObjects(s32 arg0) {
             sp120.vx = -(scene->view.projection.pose08.position00.xyz.x) >> 3;
             sp120.vy = -(scene->view.projection.pose08.position00.xyz.y) >> 3;
             sp120.vz = -(scene->view.projection.pose08.position00.xyz.z) >> 3;
-            ApplyMatrix(&scene->view.matrix28, (const Vec3s8 *)(&sp120), (Vec3i *)(&sp1C8));
+            ApplyMatrix((MatrixWords32 *)SCRATCH_ROT_MATRIX, (const Vec3s8 *)(&sp120), (Vec3i *)(&sp1C8));
             sp38.fields.translation14[0] = sp1C8.vx;
             sp38.fields.translation14[1] = sp1C8.vy;
             sp38.fields.translation14[2] = sp1C8.vz;
@@ -600,7 +598,7 @@ void DrawTrackObjects(s32 arg0) {
             sp120.vx = -(scene->view.projection.pose08.position00.xyz.x) >> 3;
             sp120.vy = -(scene->view.projection.pose08.position00.xyz.y) >> 3;
             sp120.vz = -(scene->view.projection.pose08.position00.xyz.z) >> 3;
-            ApplyMatrix(&scene->view.matrix28, (const Vec3s8 *)(&sp120), (Vec3i *)(&sp1C8));
+            ApplyMatrix((MatrixWords32 *)SCRATCH_ROT_MATRIX, (const Vec3s8 *)(&sp120), (Vec3i *)(&sp1C8));
             sp38.fields.translation14[0] = sp1C8.vx;
             sp38.fields.translation14[1] = sp1C8.vy;
             sp38.fields.translation14[2] = sp1C8.vz;
@@ -737,7 +735,7 @@ void DrawTrackObjects(s32 arg0) {
                 sp120.vx = -(scene->view.projection.pose08.position00.xyz.x) >> 3;
                 sp120.vy = -(scene->view.projection.pose08.position00.xyz.y) >> 3;
                 sp120.vz = -(scene->view.projection.pose08.position00.xyz.z) >> 3;
-                ApplyMatrix(&scene->view.matrix28, (const Vec3s8 *)(&sp120), (Vec3i *)(&sp1C8));
+                ApplyMatrix((MatrixWords32 *)SCRATCH_ROT_MATRIX, (const Vec3s8 *)(&sp120), (Vec3i *)(&sp1C8));
                 sp38.fields.translation14[0] = sp1C8.vx;
                 sp38.fields.translation14[1] = sp1C8.vy;
                 sp38.fields.translation14[2] = sp1C8.vz;
@@ -758,7 +756,7 @@ void BuildObjectMatrix(int unused, const s16 *p, MatrixWords32 *out, int flag) {
     BuildRotMatrixZ(q, -p[2]);
     BuildRotMatrixX(&m30, -p[0]);
     if (flag == 2) {
-        m90 = ((ViewMatrixScratch48 *)SCRATCHPAD)->matrix28;
+        m90 = (*(MatrixWords32 *)SCRATCH_ROT_MATRIX);
         BuildRotMatrixY(&m50, -p[1] - 0x800);
         m90.halves[6] = -m90.halves[6];
         m90.halves[7] = -m90.halves[7];
@@ -766,7 +764,7 @@ void BuildObjectMatrix(int unused, const s16 *p, MatrixWords32 *out, int flag) {
         MulMatrix2(&m90, q);
     } else {
         BuildRotMatrixY(&m50, -p[1]);
-        MulMatrix2(&((ViewMatrixScratch48 *)SCRATCHPAD)->matrix28, q);
+        MulMatrix2((MatrixWords32 *)SCRATCH_ROT_MATRIX, q);
     }
     MulMatrix0(&m30, &m50, &m10);
     MulMatrix2(&m70, &m10);
@@ -809,3 +807,20 @@ s32 LoadTrackObjects(void *data, S_ECB4 *states) {
     PsyqBzero(states, bytes);
     return bytes;
 }
+
+/* Initial values of the globals this module owns. */
+s32 OpeningSunbeamPolys[15] = {10, 8, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 12, 12, 4};
+s32 OpeningCreditTextTable[172] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 10, 11, 12, 13, 14, 15, 16, 17, 0, 0, 0, 0, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 0, 0, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 0, 0, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 12, 13, 13, 14, 14, 18, 18, 14, 14, 18, 18, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 15, 13, 13, 16, 16, 18, 18, 16, 16, 18, 18, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 17, 17, 18, 18};
+SVec CourseLightColors[24] = {{.vx = 375, .vy = 369, .vz = 283}, {.vx = 375, .vy = 369, .vz = 283}, {.vx = 162, .vy = 157, .vz = 159}, {.vx = 230, .vy = 187, .vz = 255}, {.vx = 230, .vy = 187, .vz = 255}, {0}, {.vx = 180, .vy = 320, .vz = 300}, {.vx = 180, .vy = 320, .vz = 300}, {0}, {.vx = 384, .vy = 360, .vz = 220}, {.vx = 386, .vy = 338, .vz = 202}, {0}, {.vx = 200, .vy = 110, .vz = 30}, {.vx = 200, .vy = 110, .vz = 30}, {0}, {.vx = 300, .vy = 300, .vz = 192}, {.vx = 300, .vy = 300, .vz = 192}, {0}, {.vx = 255, .vy = 255, .vz = 180}, {.vx = 255, .vy = 255, .vz = 155}, {0}, {.vx = 206, .vy = 510, .vz = 510}, {.vx = 206, .vy = 510, .vz = 510}};
+CVec OpeningSkipHoldTimer[2] = {{.r = 0x3C, .g = 0x28, .b = 0x1E}, {.r = 0x1E, .g = 0x1E, .b = 0x14}};
+s16 CourseIndex;
+s8 RacePaused;
+TrackLighting2C *TrackLightTable;
+s32 TrackObjCullDistance;
+s32 TrackObjVisibleFrame[32];
+Vec16 TrackObjWorldOrigin;
+Node24 *TrackObjSplineNodes;
+S_ECB0 *TrackObjMeshTablePtr;
+S_ECB4 *TrackObjInstanceStates;
+ObjectTrailPoint16 TrackObjectTrailPoints[60];
+int TrackObjectCount;

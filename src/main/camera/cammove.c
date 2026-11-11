@@ -14,7 +14,7 @@
 
 void UpdateCameraMotion(MotionClock20 *input) {
     MotionClock20 *arg0=input;
-    PresentationContextPrefix *root=&RaceContext;
+    SceneRaceContext *root=&RaceContext;
     PresentationController *object=root->controller3D8;
     s32 temp_lo;
     s32 temp_lo_2;

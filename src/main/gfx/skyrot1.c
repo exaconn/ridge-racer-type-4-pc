@@ -12,13 +12,14 @@
 #include "rr/driver_control.h"
 #include "rr/race_setup.h"
 
-struct IntroColorBytes8 { unsigned char c[8]; };
-
 extern char RotatingSkyTransforms[];
-extern struct IntroColorBytes8 RotatingSkyDefaultColor;
-extern int RotMatrixX();
-extern int RotMatrixY();
-extern char RotatingSkyCommandList[];
+/* Off-screen VRAM rectangle the rotating sky renders into. */
+extern GpuRectangleFields RotatingSkyDefaultColor;
+/* libgte (PsyZ): rotate an existing matrix in place, like RotMatrixZ. */
+MatrixWords32 *RotMatrixX(s32 angle, MatrixWords32 *matrix);
+MatrixWords32 *RotMatrixY(s32 angle, MatrixWords32 *matrix);
+/* GTE translation (three words) applied to the rotating sky. */
+extern s32 RotatingSkyCommandList[];
 extern s16 FadeCountdown;
 extern s16 ModeIndex;
 extern s16 ModeGroup;
@@ -54,7 +55,7 @@ int DrawRotatingTitleModel(int objectIndex, int animate)
 
 void DrawRotatingSky(void)
 {
-    struct IntroColorBytes8 sp10;
+    GpuRectangleFields sp10;
     MatrixWords32 sp18;
     int t;
     sp10 = RotatingSkyDefaultColor;
@@ -99,3 +100,8 @@ void IntroSceneModeEnter(void) {
     ModeIndex = 2;
     SubmodeState = 0;
 }
+
+/* Initial values of the globals this module owns. */
+char RotatingSkyTransforms[128] = {16, -4, -1, -1, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, -16, -4, -1, -1, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, -80, -2, -1, -1, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, -112, -1, -1, -1, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 80, 1, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 48, 2, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 16, 3, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, -16, 3, 0, 0, 0, 0, 0, 0, 64};
+GpuRectangleFields RotatingSkyDefaultColor = {.x = 96, .y = 88, .w = 128, .h = 256};
+s32 RotatingSkyCommandList[4] = {0, 0, 2800};

@@ -1,16 +1,14 @@
 #include "rr/track_lighting.h"
+#include "rr/menu_selection.h"
 #include "rr/load_cursor.h"
 #include "rr/matrix_workspace.h"
 #include "rr/race_types.h"
-/* RODATA 0x8001007c 0x3c */
 #include "types.h"
 #include "scratchpad.h"
 #include "rr/renderer_setup.h"
 #include "rr_asm.h"
 
-/* Candidate module: CD read state machine, 80012578..80012A68.
- * Adjacent matching functions share one directory and location definition.
- * This grouping does not establish the original compiler unit boundary. */
+/* CD read state machine and the course/car/VRAM resource loaders. */
 #include "rr/cd.h"
 #include "game/data/bankrec.h"
 #include "game/data/cdfile1.h"
@@ -26,11 +24,43 @@
 #include "rr/bios_devices.h"
 #include "rr/relative_file.h"
 #include "game/course/trkintp2.h"
+#include "rr/cd_read_request.h"
+#include "rr/gpu.h"
+#include "rr/gpu_scratch_types.h"
+#include "rr/matrix_workspace.h"
+#include "psyq/libgpu/gpuenv.h"
+#include <stdlib.h>
 
+/* Course image file: two TIM-list offsets. */
+enum { COURSE_IMAGES_FIRST = 1, COURSE_IMAGES_SECOND = 2 };
+/* Course data file: offset words relative to the file start. */
+enum {
+    COURSE_DATA_RELATIVE_FILE = 1,
+    COURSE_DATA_SKY_TABLE = 2,
+    COURSE_DATA_MODEL_BANK = 3,
+    COURSE_DATA_MODEL_TABLE = 4,
+    COURSE_DATA_TRACK_NODES = 5,
+    COURSE_DATA_LIGHTS = 6,
+    COURSE_DATA_LANE_LIGHTING = 7,
+    COURSE_DATA_TRACK_OBJECTS = 8,
+    COURSE_DATA_SEGMENT_VISIBILITY = 9,
+    COURSE_DATA_OCTANT_LOOKUP = 10,
+    COURSE_DATA_ANIMATED_OBJECTS = 11
+};
+/* Car file: offset words relative to the file start. */
+enum {
+    CAR_FILE_RECORD = 1,
+    CAR_FILE_BOUNDS = 2,
+    CAR_FILE_MODEL_BANK = 3,
+    CAR_FILE_MESH_TABLE = 4,
+    CAR_FILE_TEXTURE = 5
+};
+
+/* DR_MOVE as PsyZ builds it (SetDrawMove, __psyz): host tag + five words. */
 typedef struct {
-    s32 header;
-    s32 p4, p8, pC, p10, p14;
-} Resource;
+    GpuDmaTag tag;
+    uintptr_t code[5];
+} GpuMoveImagePacket;
 
 extern s32 CdFileState;
 extern s32 CdFileSyncCount;
@@ -48,19 +78,18 @@ extern unsigned char CarModelCategoryOffsets[];
 extern unsigned char CarModelFileIndexTable[];
 extern int SceneLoadState;
 extern int CdBatchReadMode;
-extern int CdStreamSectorCursor;
+/* Per-node lane-lighting words (two 3-bit light indices per lane). */
+extern const s16 *CdStreamSectorCursor;
 extern int PendingCarModelFileId;
 extern int PendingCarModelDestBuf;
 extern int PendingCarModelTeamId;
 extern int PendingCarModelTypeId;
 extern int PendingCarModelStageId;
 extern int PendingCarModelVariant;
-void DrawSync(s32);
-extern s32 CarOffsetTables[];
-extern short CourseIndex;
+extern RroModelTable *CarOffsetTables[];
+/* Eight lighting levels per course, selected by the 3-bit lane indices. */
 extern short LoadingTriangleBaseVerts[];
-extern short CdLoadRetryCounters[];
-extern short CdActiveCommandArgs[];
+s32 CdPosToInt(const u8 *location);
 
 s32 CdFileStateCheckShell(void);
 s32 CdFileStateGetTN(void);
@@ -79,7 +108,6 @@ s32 CdFileReadRange(s32 a0, s32 a1, s32 a2, void *a3);
 int ApplyCarWheelTexturePatch(int a0, int a1, int a2, int a3, int a4);
 void AllocCarSlotBuffers(const CarModelHeader *a0, int a1);
 
-int ComputeCarSurfaceLighting(char *a0_in, int a1_in);
 
 s32 CdFileStateCheckShell(void) {
     s32 var_v0;
@@ -142,7 +170,7 @@ s32 CdFileStateWaitShellClose(void) {
 }
 
 s32 CdFileStateSetloc(void) {
-    CdControlF(2, &CdFileLocation);
+    CdControlF(2, CdFileLocation.c);
     CdFileState = 7;
     return 0;
 }
@@ -220,7 +248,7 @@ s32 CdFileReadRange(s32 a0, s32 a1, s32 a2, void *a3) {
     CdFileIndexCurrent = a0;
     CdFileState = 6;
     CdFileSectorOffset = a1;
-    CdIntToPos((CdPosToInt(&CdFileTable[a0]) + (u32)a1), CdFileLocation.c);
+    CdIntToPos((CdPosToInt(CdFileTable[a0].location.c) + (u32)a1), CdFileLocation.c);
     CdFileSectors = a2;
     CdFileBytesRead = 0;
     return 1;
@@ -230,26 +258,76 @@ s32 CdFileBytesLoaded(void) {
     return CdFileBytesRead;
 }
 
-void RelocateOffsetTable(int *a0)
-{
-    int n = *a0;
-    int *p = a0 + 1;
-    int t;
-    if (n-- > 0) {
-        int *q = a0 + 3;
-        do {
-            t = n--;
-            *p += (int)a0;
-            p += 3;
-            *q += (int)a0;
-            q += 3;
-        } while (t > 0);
+/* Host decodings of wire mesh tables, keyed by the wire address and byte
+ * span they were decoded from (see rr/model_table.h). */
+typedef struct {
+    const u8 *wire;
+    size_t wireBytes;
+    RroModelTable *table;
+    size_t capacity;
+} DecodedOffsetTable;
+enum { DECODED_OFFSET_TABLE_SLOTS = 64 };
+static DecodedOffsetTable DecodedOffsetTables[DECODED_OFFSET_TABLE_SLOTS];
+static unsigned DecodedOffsetTableNext;
+
+_Static_assert(offsetof(CarModelHeader, litQuads04) == offsetof(RroModelTable, entries),
+    "car mesh header is a view of the decoded mesh table");
+
+RroModelTable *RelocateOffsetTable(const void *wire) {
+    const RroModelTableWire *source = wire;
+    const u8 *bytes = wire;
+    s32 count = source->count;
+    size_t entries = count > 0 ? (size_t)count : 0;
+    size_t wireBytes = sizeof(s32) + entries * RRO_MODEL_ENTRY_WORDS * sizeof(u32);
+    DecodedOffsetTable *slot = NULL;
+    unsigned i;
+
+    for (i = 0; i < DECODED_OFFSET_TABLE_SLOTS; i++) {
+        DecodedOffsetTable *d = &DecodedOffsetTables[i];
+        if (d->wire == NULL) {
+            continue;
+        }
+        if (d->wire == bytes) {
+            slot = d;
+        } else if (d->wire < bytes + wireBytes && bytes < d->wire + d->wireBytes) {
+            d->wire = NULL; /* its wire bytes were replaced by this table */
+        }
     }
+    if (slot == NULL) {
+        for (i = 0; i < DECODED_OFFSET_TABLE_SLOTS && slot == NULL; i++) {
+            if (DecodedOffsetTables[i].wire == NULL) {
+                slot = &DecodedOffsetTables[i];
+            }
+        }
+        if (slot == NULL) {
+            slot = &DecodedOffsetTables[DecodedOffsetTableNext++ % DECODED_OFFSET_TABLE_SLOTS];
+        }
+    }
+    if (slot->table == NULL || slot->capacity < entries) {
+        RroModelTable *grown = realloc(slot->table, sizeof(RroModelTable) + (entries ? entries : 1) * sizeof(RroEffectMesh));
+        if (grown == NULL) {
+            abort();
+        }
+        slot->table = grown;
+        slot->capacity = entries ? entries : 1;
+    }
+    slot->wire = bytes;
+    slot->wireBytes = wireBytes;
+    slot->table->count = count;
+    for (i = 0; i < entries; i++) {
+        const u32 *words = &source->words[i * RRO_MODEL_ENTRY_WORDS];
+        RroEffectMesh *mesh = &slot->table->entries[i];
+        mesh->vertices = (const Vec3s8 *)RrWireAddress(wire, words[RRO_MODEL_VERTEX_WORD]);
+        mesh->vertexCount = words[1];
+        mesh->commands = (const u32 *)RrWireAddress(wire, words[RRO_MODEL_COMMAND_WORD]);
+    }
+    return slot->table;
 }
 
-void PatchModelBankTexPages(RroModelBank *bank, s32 textureSlot) {
+void PatchModelBankTexPages(const void *bankImage, s32 textureSlot) {
+    const RroModelBankWire *bank = bankImage;
     u32 remainingStreams = bank->streamCount;
-    RroBankCommand *stream = bank->streams;
+    const u32 *stream = bank->streams;
     u32 slot = textureSlot;
     int textureX = ((slot << 6) + 0x180U);
     int pageX = (textureX & 0x3FF) >> 6;
@@ -257,11 +335,9 @@ void PatchModelBankTexPages(RroModelBank *bank, s32 textureSlot) {
     int atlasU = (slot << 6);
     int coordinateMask = ~0xC0;
     int atlasClut = (slot + 0x1028U);
-    int currentRemaining, z;
 
-    /* Keep the outer loop condition above GCC's loop-top duplication threshold. */
-    while (z = 0, ((currentRemaining = remainingStreams--) + z + z + z + z + z + z + z + z + z + z + z + z + z + z + z + z + z + z + z + z) != 0) {
-        char *commands = (char *)stream++->pointer;
+    while (remainingStreams-- != 0) {
+        char *commands = (char *)RrWireAddress(bank, *stream++);
         unsigned int header;
         while (header = *(unsigned int *)commands, commands += 4, header != 0) {
             int recordCount = header >> 16;
@@ -381,52 +457,40 @@ void PatchOffsetTableTexPages(RroModelTable *table, s32 textureSlot) {
     }
 }
 
-int ApplyCarWheelTexturePatch(int a0, int a1, int a2, int a3, int a4)
+/* Copies the selected wheel texture variant over the car's texture slot in
+ * VRAM: a MoveImage packet followed by an E6 mask-reset command. */
+int ApplyCarWheelTexturePatch(int teamId, int typeId, int stageId, int variant, int destSlot)
 {
-    int b1 = a1;
-    int xx;
-    int b16;
-    int t;
-    int c;
-    int a, b, x;
-    char *s0, *p0, *p1;
-    char * volatile *g;
-    short *sp;
+    GpuScratchPointers *gpu = RR_GPU_SCRATCH;
+    GpuRectangle source;
+    GpuMoveImagePacket *move;
+    GpuCommandPacket *mask;
+    int entry, row, category;
 
-    sp = (short *)(SCRATCHPAD + 0x7C);
-    if (a0 == 2 && b1 == 0 && a2 == 0x13)
+    if (teamId == 2 && typeId == 0 && stageId == 0x13)
         return 0x13;
-    t = CarModelFileIndexTable[b1 * 16 + a3];
-    xx = (t & 7) * 0x10 + 0x340; x = xx;
-    if (t < 0) a = t + 7;
-    a >>= 3;
-    c = CarModelCategoryOffsets[a2];
-    b16 = a << 4; b = b16 + (a << 2);
-    if (c >= 4) {
-        if (c >= 7)
-            b += 0x78;
+    entry = CarModelFileIndexTable[typeId * 16 + variant];
+    row = (entry >> 3) * 20;
+    category = CarModelCategoryOffsets[stageId];
+    if (category >= 4) {
+        if (category >= 7)
+            row += 0x78;
         else
-            b += 0x3C;
+            row += 0x3C;
     }
-    g = (char * *)SCRATCHPAD;
-    s0 = g[0];
-    sp[0] = xx;
-    sp[1] = b;
-    ((int *)sp)[1] = 0x140010;
-    SetDrawMove(s0, sp, (a4 << 6) + 0x1B0, 0xD8);
-    *(int *)s0 = *(int *)g[1];
-    s0[3] = 5;
-    *(int *)g[1] = s0;
-    g[1][3] = 0;
-    s0 += 0x18;
-    g[0] = s0;
-    ((int *)s0)[1] = 0xE6000000;
-    p1 = g[1]; p0 = g[0]; *(int *)p0 = *(int *)p1;
-    g[0][3] = 1;
-    *(int *)g[1] = g[0];
-    g[1][3] = 0;
-    g[0] += 8;
-    { int r;; return r; }
+    source.rect.x = (entry & 7) * 0x10 + 0x340;
+    source.rect.y = row;
+    source.rect.w = 0x10;
+    source.rect.h = 0x14;
+    move = (GpuMoveImagePacket *)gpu->cursor;
+    SetDrawMove((void *)move, (void *)&source, (destSlot << 6) + 0x1B0, 0xD8);
+    RR_GPU_ADD_PRIM(gpu->order, move, 5);
+    gpu->cursor += sizeof(*move);
+    mask = (GpuCommandPacket *)gpu->cursor;
+    mask->command = 0xE6000000;
+    RR_GPU_ADD_PRIM(gpu->order, mask, 1);
+    gpu->cursor += sizeof(*mask);
+    return 0;
 }
 
 void AllocCarSlotBuffers(const CarModelHeader *a0, int a1)
@@ -507,18 +571,13 @@ int RequestSceneLoad(int a0) {
 
 int SceneLoadStep(void)
 {
-    int *a1;
-    int s1;
-    int s2,s5,s6,s7,fp;
-    TrackObjectFile *trackObjects;
-    int s4;
-    int sp10, sp14;
-    RroModelTableWire *modelTable;
-    void *a0;
-    void *s0;
+    u8 *file;
+    s32 bytes;
+    RelativeHeader *relativeFile;
+    u8 *trackObjects;
 
-    /* This legacy loader relocates encoded 32-bit PAL address words in the
-     * resource payload. These words are not the native arena pointer root. */
+    /* Each header word is an offset from the file start. The files stay as
+     * loaded; resolved addresses go to the subsystems that own them. */
     switch (SceneLoadState) {
     case 1:
         if (CdFileReadStart(GetCourseFileIndex(CdBatchReadMode), LoadCursor) == 0)
@@ -527,55 +586,40 @@ int SceneLoadStep(void)
     case 2:
         if (CdFileBytesLoaded() == 0)
             return 0;
-        a0 = rr_relative_file_address(LoadCursor, ((Resource *)LoadCursor)->p4);
-        s0 = rr_relative_file_address(LoadCursor, ((Resource *)LoadCursor)->p8);
-        ((Resource *)LoadCursor)->p4 = a0;
-        ((Resource *)LoadCursor)->p8 = s0;
-        LoadTimList(a0);
-        LoadTimList(s0);
+        file = LoadCursor;
+        LoadTimList(RrWireTableAddress(file, COURSE_IMAGES_FIRST));
+        LoadTimList(RrWireTableAddress(file, COURSE_IMAGES_SECOND));
         SceneLoadState = 3;
     case 3:
         if (CdFileReadStart(GetCourseFileIndex(CdBatchReadMode) + 1, LoadCursor) == 0)
             return 0;
         SceneLoadState = 4;
     case 4:
-        s1 = CdFileBytesLoaded();
-        if (s1 == 0)
+        bytes = CdFileBytesLoaded();
+        if (bytes == 0)
             return 0;
-        a1 = (int *)LoadCursor;
-        a1++; sp10 = *a1 + (unsigned long)LoadCursor; *a1 = sp10;
-        a1++; s2 = *a1 + (unsigned long)LoadCursor; *a1 = s2;
-        a1++; sp14 = *a1 + (unsigned long)LoadCursor; *a1 = sp14;
-        a1++; modelTable = (RroModelTableWire *)(*a1 + (unsigned long)LoadCursor); *a1 = modelTable;
-        a1++; fp = *a1 + (unsigned long)LoadCursor; *a1 = fp;
-        a1++; s6 = *a1 + (unsigned long)LoadCursor; *a1 = s6;
-        a1++; s7 = *a1 + (unsigned long)LoadCursor; *a1 = s7;
-        a1++; trackObjects = (TrackObjectFile *)(*a1 + (unsigned long)LoadCursor); *a1 = trackObjects;
-        a1++; s5 = *a1 + (unsigned long)LoadCursor; *a1 = s5;
-        a1++; s4 = *a1 + (unsigned long)LoadCursor; *a1 = s4;
+        file = LoadCursor;
+        relativeFile = (RelativeHeader *)RrWireTableAddress(file, COURSE_DATA_RELATIVE_FILE);
+        trackObjects = RrWireTableAddress(file, COURSE_DATA_TRACK_OBJECTS);
         if (CdBatchReadMode == 7) {
-            /* Publish the PAL wire word, retaining the complete C address. */
-            void *arena;
-            a1++;
-            arena = (void *)((s32)*a1 + (unsigned long)LoadCursor);
-            *a1 = arena;
-            InitAnimatedTrackObjects(arena);
+            InitAnimatedTrackObjects(RrWireTableAddress(file, COURSE_DATA_ANIMATED_OBJECTS));
         }
-        TrackSkyTable = s2;
-        LoadCursor = LoadCursor + s1;
-        RelocateRelativeFile(sp10);
-        RelocateOffsetTable(s2);
-        RegisterModelBank((RroModelBank *)sp14, 4);
-        RelocateModelTable(modelTable);
-        SetTrackNodeData(fp);
-        SetLightTable((TrackLighting2C *)s6);
-        CdStreamSectorCursor = s7;
+        LoadCursor = file + bytes;
+        RelocateRelativeFile(relativeFile);
+        /* The sky table stays a wire table; DrawTrackScenery resolves it. */
+        TrackSkyTable = (s32 *)RrWireTableAddress(file, COURSE_DATA_SKY_TABLE);
+        RegisterModelBank(RrWireTableAddress(file, COURSE_DATA_MODEL_BANK), 4);
+        RelocateModelTable((RroModelTableWire *)RrWireTableAddress(file, COURSE_DATA_MODEL_TABLE));
+        SetTrackNodeData((char *)RrWireTableAddress(file, COURSE_DATA_TRACK_NODES));
+        SetLightTable((TrackLighting2C *)RrWireTableAddress(file, COURSE_DATA_LIGHTS));
+        CdStreamSectorCursor = (const s16 *)RrWireTableAddress(file, COURSE_DATA_LANE_LIGHTING);
         LoadCursor = (u8 *)LoadCursor + LoadTrackObjects(trackObjects, LoadCursor);
-        SetSegmentVisibilityTable(s5);
-        SetOctantLookupTable(s4);
+        SetSegmentVisibilityTable((short *)RrWireTableAddress(file, COURSE_DATA_SEGMENT_VISIBILITY));
+        SetOctantLookupTable(RrWireTableAddress(file, COURSE_DATA_OCTANT_LOOKUP));
         SceneLoadState = 0;
         return 1;
     }
+    return 0;
 }
 
 int RequestCarLoad(int a0, int a1, int a2, int a3, int a4) {
@@ -595,11 +639,11 @@ int RequestCarLoad(int a0, int a1, int a2, int a3, int a4) {
 }
 
 s32 CarLoadStep(void) {
-    s16 rect[4];
-    void *s0;
-    void *s1;
-    void *s2;
-    void *s3;
+    GpuRectangle rect;
+    u8 *file;
+    u8 *bank;
+    u8 *texture;
+    RroModelTable *meshes;
 
     switch (SceneLoadState) {
     case 1:
@@ -611,40 +655,31 @@ s32 CarLoadStep(void) {
         if (CdFileBytesLoaded() == 0) {
             return 0;
         }
-        {
-            s32 x;
-            ((Resource *)LoadCursor)->p4 += (s32)LoadCursor;
-            ((Resource *)LoadCursor)->p8 += (s32)LoadCursor;
-            ((Resource *)LoadCursor)->pC += (s32)LoadCursor;
-            ((Resource *)LoadCursor)->p10 += (s32)LoadCursor;
-            ((Resource *)LoadCursor)->p14 += (s32)LoadCursor;
-            s3 = (void *)((Resource *)LoadCursor)->p8;
-            s0 = (void *)((Resource *)LoadCursor)->pC;
-            s1 = (void *)((Resource *)LoadCursor)->p10;
-            s2 = (void *)((Resource *)LoadCursor)->p14;
-            SetCarRecordPtr((CarRecord *)((Resource *)LoadCursor)->p4, PendingCarModelDestBuf);
-            CarBoundsTable[PendingCarModelDestBuf] = (CarBounds *)s3;
-            RegisterModelBank(s0, PendingCarModelDestBuf);
-            PatchModelBankTexPages(s0, PendingCarModelDestBuf);
-            CarOffsetTables[PendingCarModelDestBuf] = s1;
-            RelocateOffsetTable(s1);
-            PatchOffsetTableTexPages(s1, PendingCarModelDestBuf);
-            rect[2] = 0x40;
-            rect[1] = 0;
-            rect[3] = 0x100;
-            x = (PendingCarModelDestBuf << 6) + 0x180;
-            rect[0] = x;
-        }
-        LoadImage(rect, s2);
+        file = LoadCursor;
+        bank = RrWireTableAddress(file, CAR_FILE_MODEL_BANK);
+        texture = RrWireTableAddress(file, CAR_FILE_TEXTURE);
+        SetCarRecordPtr((CarRecord *)RrWireTableAddress(file, CAR_FILE_RECORD), PendingCarModelDestBuf);
+        CarBoundsTable[PendingCarModelDestBuf] = (CarBounds *)RrWireTableAddress(file, CAR_FILE_BOUNDS);
+        PatchModelBankTexPages(bank, PendingCarModelDestBuf);
+        RegisterModelBank(bank, PendingCarModelDestBuf);
+        meshes = RelocateOffsetTable(RrWireTableAddress(file, CAR_FILE_MESH_TABLE));
+        CarOffsetTables[PendingCarModelDestBuf] = meshes;
+        PatchOffsetTableTexPages(meshes, PendingCarModelDestBuf);
+        rect.rect.x = (PendingCarModelDestBuf << 6) + 0x180;
+        rect.rect.y = 0;
+        rect.rect.w = 0x40;
+        rect.rect.h = 0x100;
+        LoadImage(&rect, texture);
         DrawSync(0);
-        LoadCursor = s2;
-        AllocCarSlotBuffers((CarModelHeader *)CarOffsetTables[PendingCarModelDestBuf], PendingCarModelDestBuf);
+        LoadCursor = texture;
+        AllocCarSlotBuffers((const CarModelHeader *)CarOffsetTables[PendingCarModelDestBuf], PendingCarModelDestBuf);
         if (PendingCarModelVariant != 0) {
             ApplyCarWheelTexturePatch(PendingCarModelTeamId, PendingCarModelTypeId, PendingCarModelStageId, PendingCarModelVariant - 1, PendingCarModelDestBuf);
         }
         SceneLoadState = 0;
         return 1;
     }
+    return 0;
 }
 
 int RequestVramImageLoad(void) {
@@ -653,18 +688,18 @@ int RequestVramImageLoad(void) {
 }
 
 int VramImageLoadStep(void) {
-    short sp[4];
+    GpuRectangle rect;
     switch (SceneLoadState) {
     case 1:
         if (CdFileReadStart(GetR4FileIndex(0, 0), LoadCursor) == 0) return 0;
         SceneLoadState = 2;
     case 2:
         if (CdFileBytesLoaded() == 0) return 0;
-        sp[0] = 0x340;
-        sp[2] = 0x80;
-        sp[1] = 0;
-        sp[3] = 0xB4;
-        LoadImage(sp, LoadCursor);
+        rect.rect.x = 0x340;
+        rect.rect.w = 0x80;
+        rect.rect.y = 0;
+        rect.rect.h = 0xB4;
+        LoadImage(&rect, LoadCursor);
         DrawSync(0);
         SceneLoadState = 0;
         return 1;
@@ -692,177 +727,95 @@ void SetupRenderer(s32 shift) {
     scratch->viewport6C.rect.h=256;
 }
 
-int ComputeCarSurfaceLighting(char *a0_in, int a1_in) {
-    int v0;
-    int v1;
-    int p1;
-    int a0 = a0_in;
-    int a1 = a1_in;
-    int a2;
-    int a3;
-    int t0;
-    int t1;
-    int t2;
-    int t3;
-    int *t7;
-    short *t8;
-
-    t3 = a1;
-    t7 = (int *)(SCRATCHPAD + 0x7C);
-    t7[0] = t3;
-    a3 = ((RaceVehicle *)a0)->lateralOffset172;
-    t2 = ((RaceVehicle *)a0)->trackFraction170;
-    v0 = ((RaceVehicle *)a0)->trackNodeF0;
-    v1 = CdStreamSectorCursor;
-    t1 = a3 << 3;
-    a3 = t1 + 0x2000;
-    t2 <<= 2;
-    v0 = (v0 << 1) + v1;
-    t0 = ((short *)v0)[0];
-    a2 = ((short *)v0)[1];
-    a1 = a3;
-    if (a3 < 0) {
-        a1 = t1 + 0x2FFF;
-    }
-    v1 = a1 >> 12;
-    v0 = (v1 << 1) + v1;
-    a0 = v0 + 3;
-    a1 = a2 >> a0;
-    v1 = a2 >> v0;
-    a2 = v1 & 7;
-    a0 = t0 >> a0;
-    v0 = t0 >> v0;
-    t0 = v0 & 7;
-    a3 &= 0xFFF;
-    a1 &= 7;
-    v0 = 0x800F0000;
-    a0 &= 7;
-    v1 = ((short *)v0)[0x3914 / 2];
-    v0 = LoadingTriangleBaseVerts;
-    a2 <<= 1;
-    a1 <<= 1;
-    a0 <<= 1;
-    v1 = (v1 << 4) + v0;
-    a2 += v1;
-    a1 += v1;
-    v0 = (t0 << 1) + v1;
-    a0 += v1;
-    v1 = *(short *)a2;
-    a1 = *(short *)a1;
-    a2 = *(short *)v0;
-    v0 = *(short *)a0;
-    RR_GTE_INTPL_TRACK_TABLE(v0, v1, a1, a2, a3, t2);
-
-    a0 = t3 & 0xF;
-    v0 = (t3 >> 4) & 0xF;
-    a1 = 0x800F0000;
-    v1 = (((v0 << 1) + v0) << 2) - v0;
-    v1 <<= 2;
-    t7[2] = v0;
-    v0 = (((a0 << 1) + a0) << 2) - a0;
-    a1 = ((int *)a1)[0x4D90 / 4];
-    v0 <<= 2;
-    t7[1] = a0;
-    p1 = a1 + v1;
-    a1 = a1 + v0;
-
-    a2 = ((int *)p1)[4];
-    a3 = ((TrackLighting2C *)p1)->lighting04.matrix.fields.vectors[0].z;
-    a0 = ((int *)a1)[4];
-    t2 = ((TrackLighting2C *)a1)->lighting04.matrix.fields.vectors[0].z;
-    t0 = a2 >> 16;
-    v0 = a2 << 16;
-    a2 = v0 >> 16;
-    t1 = a0 >> 16;
-    v0 = a0 << 16;
-    a0 = v0 >> 16;
-    RR_GTE_SETFC(a2, t0, a3);
-    RR_GTE_MTC2_IR123_INTPL(a0, t1, t2);
-
-    t8 = (s16 *)LightMatrix.halves;
-    a2 = ((int *)p1)[6];
-    a3 = ((TrackLighting2C *)p1)->lighting04.matrix.fields.vectors[1].z;
-    a0 = ((int *)a1)[6];
-    t2 = ((TrackLighting2C *)a1)->lighting04.matrix.fields.vectors[1].z;
-    t0 = a2 >> 16;
-    v0 = a2 << 16;
-    a2 = v0 >> 16;
-    t1 = a0 >> 16;
-    v0 = a0 << 16;
-    a0 = v0 >> 16;
-    RR_GTE_STORE_IR_S16(t8);
-    RR_GTE_SETFC(a2, t0, a3);
-    RR_GTE_MTC2_IR123_INTPL(a0, t1, t2);
-
-    t8 = CdLoadRetryCounters;
-    a2 = ((int *)p1)[8];
-    a3 = ((TrackLighting2C *)p1)->lighting04.matrix.fields.vectors[2].z;
-    a0 = ((int *)a1)[8];
-    t2 = ((TrackLighting2C *)a1)->lighting04.matrix.fields.vectors[2].z;
-    t0 = a2 >> 16;
-    v0 = a2 << 16;
-    a2 = v0 >> 16;
-    t1 = a0 >> 16;
-    v0 = a0 << 16;
-    a0 = v0 >> 16;
-    RR_GTE_STORE_IR_S16(t8);
-    RR_GTE_SETFC(a2, t0, a3);
-    RR_GTE_MTC2_IR123_INTPL(a0, t1, t2);
-
-    t8 = CdActiveCommandArgs;
-    a3 = ((int *)p1)[10];
-    a0 = ((int *)a1)[10];
-    v0 = a3 << 4;
-    a2 = v0 & 0xFF0;
-    v0 = a3 >> 4;
-    t0 = v0 & 0xFF0;
-    v0 = a3 >> 12;
-    a3 = v0 & 0xFF0;
-    RR_GTE_STORE_IR_S16(t8);
-    RR_GTE_SETFC(a2, t0, a3);
-    GTE_MTC2_RGB_DPCS(a0);
-
-    a3 = ((int *)p1)[1];
-    a0 = ((int *)a1)[1];
-    v0 = a3 << 4;
-    a2 = v0 & 0xFF0;
-    v0 = a3 >> 4;
-    t0 = v0 & 0xFF0;
-    v0 = a3 >> 12;
-    a3 = v0 & 0xFF0;
-    RR_GTE_BK_FROM_IR();
-    RR_GTE_SETFC(a2, t0, a3);
-    GTE_MTC2_RGB_DPCS(a0);
-
-    t8 = (short *)(SCRATCHPAD + 0xB4);
-    a3 = ((int *)p1)[2];
-    a0 = ((int *)a1)[2];
-    v0 = a3 << 4;
-    a2 = v0 & 0xFF0;
-    v0 = a3 >> 4;
-    t0 = v0 & 0xFF0;
-    v0 = a3 >> 12;
-    a3 = v0 & 0xFF0;
-    RR_GTE_ST3_COL(t8);
-    RR_GTE_SETFC(a2, t0, a3);
-    GTE_MTC2_RGB_DPCS(a0);
-
-    t8 = (short *)(SCRATCHPAD + 0xB6);
-    a3 = ((int *)p1)[3];
-    a0 = ((int *)a1)[3];
-    v0 = a3 << 4;
-    a2 = v0 & 0xFF0;
-    v0 = a3 >> 4;
-    t0 = v0 & 0xFF0;
-    v0 = a3 >> 12;
-    a3 = v0 & 0xFF0;
-    RR_GTE_ST3_COL(t8);
-    RR_GTE_SETFC(a2, t0, a3);
-    GTE_MTC2_RGB_DPCS(a0);
-
-    t8 = (short *)(SCRATCHPAD + 0xB8);
-    RR_GTE_ST3_COL(t8);
-    t8 = (short *)(SCRATCHPAD + 0xB4);
-    RR_GTE_SETLCM(t8);
-    return t7[1];
+/* GTE INTPL of one light row: FC = far entry, IR = near entry, IR0 = blend. */
+static void InterpolateLightVector(const PreviewVector8 *farVector, const PreviewVector8 *nearVector) {
+    RR_GTE_SETFC(farVector->x, farVector->y, farVector->z);
+    RR_GTE_MTC2_IR123_INTPL(nearVector->x, nearVector->y, nearVector->z);
 }
+
+/* GTE DPCS of one colour: FC = far colour << 4, RGB = near colour word. */
+static void InterpolateLightColor(const PreviewColor4 *farColor, const PreviewColor4 *nearColor) {
+    u32 nearWord;
+    RR_GTE_SETFC(farColor->red << 4, farColor->green << 4, farColor->blue << 4);
+    nearWord = nearColor->red | (nearColor->green << 8) | (nearColor->blue << 16) | ((u32)nearColor->pad03 << 24);
+    GTE_MTC2_RGB_DPCS(nearWord);
+}
+
+int ComputeCarSurfaceLighting(const RaceVehicle *vehicle, int lightIndex) {
+    int *work = (int *)(SCRATCHPAD + 0x7C);
+    const s16 *lane = &CdStreamSectorCursor[vehicle->trackNodeF0];
+    const s16 *levels = &LoadingTriangleBaseVerts[CourseIndex * 8];
+    s32 lateral = vehicle->lateralOffset172 << 3;
+    s32 shifted = lateral + 0x2000;
+    s32 lateralFraction = shifted & 0xFFF;
+    s32 trackFraction = vehicle->trackFraction170 << 2;
+    s32 shift = (shifted / 0x1000) * 3;
+    s32 currentNear = levels[(lane[0] >> shift) & 7];
+    s32 currentFar = levels[(lane[0] >> (shift + 3)) & 7];
+    s32 nextNear = levels[(lane[1] >> shift) & 7];
+    s32 nextFar = levels[(lane[1] >> (shift + 3)) & 7];
+    s32 blend;
+    const PreviewLighting40 *farLight, *nearLight;
+    u16 *lightColor = (u16 *)(SCRATCHPAD + 0xB4);
+
+    work[0] = lightIndex;
+    /* Bilinear lane/track blend into IR0. */
+    blend = nextNear;
+    RR_GTE_INTPL_TRACK_TABLE(currentFar, blend, nextFar, currentNear, lateralFraction, trackFraction);
+
+    work[2] = (lightIndex >> 4) & 0xF;
+    work[1] = lightIndex & 0xF;
+    farLight = &TrackLightTable[work[2]].lighting04;
+    nearLight = &TrackLightTable[work[1]].lighting04;
+
+    /* Light directions into the three LightMatrix rows. */
+    InterpolateLightVector(&farLight->matrix.fields.vectors[0], &nearLight->matrix.fields.vectors[0]);
+    RR_GTE_STORE_IR_S16(&LightMatrix.halves[0]);
+    InterpolateLightVector(&farLight->matrix.fields.vectors[1], &nearLight->matrix.fields.vectors[1]);
+    RR_GTE_STORE_IR_S16(&LightMatrix.halves[3]);
+    InterpolateLightVector(&farLight->matrix.fields.vectors[2], &nearLight->matrix.fields.vectors[2]);
+    RR_GTE_STORE_IR_S16(&LightMatrix.halves[6]);
+
+    /* Ambient into BK, light colours into the scratch light-colour matrix. */
+    InterpolateLightColor((const PreviewColor4 *)farLight->ambient, (const PreviewColor4 *)nearLight->ambient);
+    RR_GTE_BK_FROM_IR();
+    InterpolateLightColor(&farLight->matrix.fields.colors[0], &nearLight->matrix.fields.colors[0]);
+    RR_GTE_ST3_COL(lightColor);
+    InterpolateLightColor(&farLight->matrix.fields.colors[1], &nearLight->matrix.fields.colors[1]);
+    RR_GTE_ST3_COL(lightColor + 1);
+    InterpolateLightColor(&farLight->matrix.fields.colors[2], &nearLight->matrix.fields.colors[2]);
+    RR_GTE_ST3_COL(lightColor + 2);
+    RR_GTE_SETLCM(lightColor);
+    return work[1];
+}
+
+/* Initial values of the globals this module owns. */
+s32 CdFileState;
+s32 CdFileSyncCount;
+int SceneLoadState;
+s32 CdFileIndexCurrent = -1;
+s32 (*CdFileStateHandlers[12])() = {(int (*)())CdFileStateCheckShell, (int (*)())CdFileStateGetTN, (int (*)())CdFileStateReloadDirectory, (int (*)())CdFileStateSetMode, (int (*)())CdFileStateWaitSetMode, (int (*)())CdFileStateWaitShellClose, (int (*)())CdFileStateSetloc, (int (*)())CdFileStateWaitSetloc, (int (*)())CdFileStateStartRead, (int (*)())CdFileStateReadSync, (int (*)())CdFileFinish, (int (*)())CdFileStateRetry};
+unsigned char CarModelCategoryOffsets[20] = {0, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 7, 8, 9};
+unsigned char CarModelFileIndexTable[64] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0, 1, 2, 3, 4, 5, 6, 8, 0xA, 0xB, 0xC, 0x11, 0x12, 0x14, 0x16, 0x17, 0, 2, 3, 4, 6, 7, 8, 0xC, 0xE, 0xF, 0x10, 0x11, 0x12, 0x13, 0x14, 0x17, 0, 2, 3, 4, 5, 7, 8, 0xA, 0xB, 0xC, 0xD, 0xE, 0x11, 0x12, 0x14, 0x15};
+short LoadingTriangleBaseVerts[64] = {0, 0, 2048, 4096, 4096, 4096, 4096, 4096, 0, 0, 2048, 4096, 4096, 4096, 4096, 4096, 0, 0, 4096, 4096, 4096, 4096, 4096, 4096, 0, 0, 2048, 4096, 4096, 4096, 4096, 4096, 0, 0, 2048, 4096, 4096, 4096, 4096, 4096, 0, 0, 2048, 4096, 4096, 4096, 4096, 4096, 0, 0, 2048, 4096, 4096, 4096, 4096, 4096, 0, 0, 4096, 4096, 4096, 4096, 4096, 4096};
+PreviewMatrixWorkspace LightMatrix;
+GpuColorCommand LoadingScreenClearColor;
+GpuColorCommand DefaultScreenClearColor;
+int CdBatchReadMode;
+int PendingCarModelFileId;
+int PendingCarModelDestBuf;
+int PendingCarModelTeamId;
+int PendingCarModelTypeId;
+int PendingCarModelStageId;
+int PendingCarModelVariant;
+s32 CdFileSectorOffset;
+s32 CdFileSectors;
+CdLocation CdFileLocation;
+RroModelTable *CarOffsetTables[4];
+void *CdActiveReadBuffer;
+s32 CdFileBytesRead;
+s32 CdFileSyncResult;
+u8 CdCmdParamScratch;
+CdFileEntry CdFileTable[950];
+const s16 *CdStreamSectorCursor;
+s32 *TrackSkyTable;

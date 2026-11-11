@@ -50,3 +50,9 @@ void UpdateCarShowcaseCamera(int time)
   car->position20.words[2] = (u32)RaceContext.camera24C->offsetB0 + RaceContext.camera24C->offsetC8;
   car->position20.words[1] = (u32)RaceContext.camera24C->offsetAC + RaceContext.camera24C->offsetC4;
 }
+
+/* Initial values of the globals this module owns. */
+PairS16 FinishCamFollowTargets[3] = {{.a = 1024, .b = 30}, {.b = 40}, {.b = -1}};
+PairS16 ShowcaseCamDepthCurve[3] = {{.a = 656, .b = 32}, {.b = 65}, {.b = -1}};
+PairS16 FinishCamSplineWeights[3] = {{.a = -320, .b = 70}, {.a = -12, .b = 90}, {.a = -12, .b = -1}};
+PairS16 IntroCamDollyKeyframes[13] = {{.b = 95}, {.a = -1, .b = 96}, {.a = -4, .b = 97}, {.a = -9, .b = 98}, {.a = -16, .b = 99}, {.a = -25, .b = 100}, {.a = -325, .b = 130}, {.a = -334, .b = 131}, {.a = -341, .b = 132}, {.a = -346, .b = 133}, {.a = -349, .b = 134}, {.a = -350, .b = 135}, {.a = -350, .b = -1}};

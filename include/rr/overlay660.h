@@ -21,7 +21,7 @@ extern s16 ovl660_preview_selection;
 extern s32 ovl660_lap_record_rank;
 extern s16 ovl660_preview_bank;
 
-extern s32 SelectedStoryBranchId;
+#include "rr/runtime_settings.h"
 extern s16 ActiveSceneId;
 extern s32 CourseSelectLockedFlag, ResultNextActionMode;
 extern s16 CardMenuReturnModeId, CardMenuOperation;
@@ -46,9 +46,10 @@ void ovl660_update_preview(void);
 void ovl660_exit_race(void);
 void ovl660_update_race(void);
 
+#include "scratchpad.h"
 typedef RaceFrameScratch Rr660FrameScratch;
 #ifndef RR_660_FRAME_SCRATCH
-#define RR_660_FRAME_SCRATCH ((RaceFrameScratch *)0x1F800000U)
+#define RR_660_FRAME_SCRATCH ((RaceFrameScratch *)SCRATCHPAD)
 #endif
 
 #endif

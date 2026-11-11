@@ -3,8 +3,10 @@
 
 #include "types.h"
 
-int DrawCarStatBars(int x, int a1);
-int DrawStepProgressBar(int a0, int a1);
+struct GpuDmaTag;
+void *DrawCarStatBars(void *cursor, int alpha);
+/* Ordering is unused; tiles link at the current frame's first entry. */
+void *DrawStepProgressBar(struct GpuDmaTag *ordering, void *cursor);
 void DialogueIntroModeUpdate(void);
 void DialogueSceneSetup(void);
 void DialogueModeUpdate(void);

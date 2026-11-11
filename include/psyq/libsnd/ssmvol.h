@@ -3,6 +3,7 @@
 
 #include "types.h"
 
-void SsSeqStop(short a);
+/* PsyZ: void SsSeqStop(short seq_access_num). */
+void SsSeqStop(short access);
 
 #endif /* RR_PSYQ_LIBSND_SSMVOL_H */

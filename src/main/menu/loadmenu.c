@@ -88,7 +88,7 @@ void ExitCardMenuToMode(int arg0) {
 
 
 void CardMenuModeEnter(void) {
-    unsigned long clearAddress;
+    char *clearAddress;
     u16 clockLow;
     s32 selection;
     u16 modeRange;
@@ -121,7 +121,7 @@ void CardMenuModeEnter(void) {
         clearAddress = CardTargetFileName;
         clearAddress += i;
         do {
-            *(char *)clearAddress = 0;
+            *clearAddress = 0;
             i--;
             clearAddress--;
         } while (i >= 0);
@@ -231,3 +231,9 @@ void CardMenuModeUpdate(void) {
     SetMenuFrameOptions(1, 1, 1);
 }
 
+
+/* Initial values of the globals this module owns. */
+short CardSaveDialogChoice;
+short CardSavePromptId;
+s32 LoadMenuStatusPromptId = 65562;
+s32 GarageExtraDefaultTimes[3];

@@ -5,7 +5,6 @@
 
 #include "rr/track_sample_types.h"
 
-extern TrackSample3C *TrackNodes;
 extern s32 TrackNodeCount;
 extern s16 ReverseCourse;
 

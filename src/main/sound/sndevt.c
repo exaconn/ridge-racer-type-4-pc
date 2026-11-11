@@ -1,4 +1,5 @@
 #include "psyq/libgte/rotmat.h"
+#include "rr/player_cars.h"
 #include "psyq/libgte/gteatan.h"
 #include "types.h"
 #include "rr/audio_state_types.h"
@@ -7,6 +8,7 @@
 #include "game/sound/sndown.h"
 #include "game/sound/sndcmd.h"
 #include "rr/bios_devices.h"
+#include "rr/scene_camera_state.h"
 #include "rr/overlay662_distance.h"
 #include "game/sound/sndevt.h"
 #include "rr/trig.h"
@@ -24,12 +26,6 @@ typedef struct {
 
 extern int SoundEventQueueLimit;
 extern s32 TrackLength;
-extern struct {
-    s32 unk00[4];
-    s32 count10;
-} RaceContext;
-extern s32 ActiveSoundEventCount;
-extern RaceVehicle ComCars[];
 extern RaceVehicle PlayerCars[];
 
 int abs(int);
@@ -80,7 +76,7 @@ void SoundFindNearestCars(s32 arg0) {
         min_idx[0] = -1;
         min_dist[1] = TrackLength;
         min_dist[0] = TrackLength;
-        for (i = 0; i < ActiveSoundEventCount; i++) {
+        for (i = 0; i < RaceContext.comCarCount10; i++) {
             car = &ComCars[i];
             dist = (car->first + car->second) - SoundState.unk18E4;
             dist %= TrackLength;
@@ -109,7 +105,7 @@ void SoundFindNearestCars(s32 arg0) {
         min_dist[0] = 0x7FFFFFFF;
         min_idx[1] = -1;
         min_idx[0] = -1;
-        for (i = 0; i < RaceContext.count10; i++) {
+        for (i = 0; i < RaceContext.comCarCount10; i++) {
             d[0] = (ComCars[i].position20.vector.x - SoundState.pos18C4[0]) / 16;
             d[1] = (ComCars[i].position20.vector.y - SoundState.pos18C4[1]) / 16;
             d[2] = (ComCars[i].position20.vector.z - SoundState.pos18C4[2]) / 16;
@@ -224,7 +220,7 @@ void SoundCalcCarParams(s32 idx) {
         alpha = (alpha * alpha) / 737280;
         if (alpha > 0x80) alpha = 0x80;
     }
-    if (CameraCutFlag) alpha = 0;
+    if (RaceContext.cameraNodeChanged1C) alpha = 0;
     B3 = &SoundState;
     t2 = B3->rec18EC[idx].deltaDist10;
     t2 = abs(t2);
@@ -248,3 +244,7 @@ void UpdateCarSpatialAudio(int arg0) {
     s->slots38[0].levels20.halves.gain = b->rec18EC[t].vol16;
     s->slots38[0].spatial2C.word = b->rec18EC[t].depth18;
 }
+
+/* Initial values of the globals this module owns. */
+int SoundEventQueueLimit;
+RaceVehicle ComCars[11];

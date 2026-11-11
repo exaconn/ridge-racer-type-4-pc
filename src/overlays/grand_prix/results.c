@@ -107,7 +107,7 @@ void ovl659_update_results(void) {
     case 4:
         timer = (u16)FadeCountdown - 1;
         FadeCountdown = timer;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (64 - timer) * 4, 69);
         group = 1;
         if (FadeCountdown <= 0) {
             MenuScriptId = 0;

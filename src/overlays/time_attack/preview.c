@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "game/system/pad.h"
 #include "rr/overlay660.h"
 #include "rr/frame_storage_types.h"
@@ -60,13 +61,13 @@ void ovl660_update_preview(void) {
     SetupViewport(6);
     loadResult = LoadCarRangeStep(0, 1);
     if (loadResult != 1) {
-        if (((s8 *)ImageRows)[1] == 1) {
-            ((s8 *)ImageRows)[1] = 0;
+        if (ImageRows->f1 == 1) {
+            ImageRows->f1 = 0;
         }
     } else {
         SetCarBounds(PlayerCars);
-        if (((s8 *)ImageRows)[1] == 7) {
-            ((s8 *)ImageRows)[1] = loadResult;
+        if (ImageRows->f1 == 7) {
+            ImageRows->f1 = loadResult;
         }
         modelReady = 1;
         switch (SubmodeState) {
@@ -88,7 +89,7 @@ void ovl660_update_preview(void) {
                               CourseChoiceTable[ovl660_preview_bank][ovl660_preview_selection].glyph);
                 PlayerCourseChoices[0].first = CourseChoiceTable[ovl660_preview_bank][ovl660_preview_selection].first;
                 PlayerCourseChoices[0].second = CourseChoiceTable[ovl660_preview_bank][ovl660_preview_selection].second;
-                ((s8 *)ImageRows)[1] = 6;
+                ImageRows->f1 = 6;
             }
             UiRows[ovl660_preview_row_map[ovl660_preview_bank][MenuCursor]].cells[0] = 0;
             StepMenuValue(0, 2, (char *)&MenuCursor, MenuItemCount, 0);
@@ -138,7 +139,7 @@ void ovl660_update_preview(void) {
                     rowIndex += 1;
                 } while (rowIndex < 3);
             close_selection:
-                ((s8 *)ImageRows)[1] = 3;
+                ImageRows->f1 = 3;
                 SubmodeState = 5;
                 BadgeRows->state10 = 4;
             }
@@ -146,7 +147,7 @@ void ovl660_update_preview(void) {
         case 3:
             FadeCountdown = (u16)FadeCountdown - 1;
             SetModelTexturePage(-1);
-            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - FadeCountdown) * 4, 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (0x40 - FadeCountdown) * 4, 0x45);
             if (FadeCountdown <= 0) {
                 SeqMuteVolume();
                 MenuScriptId = 0;
@@ -191,7 +192,7 @@ void ovl660_update_preview(void) {
             break;
         case 5:
             closingState = UiRows[ovl660_preview_bank * 3 + 4].byte14;
-            if (closingState == 5 && ((s8 *)ImageRows)[1] == closingState) {
+            if (closingState == 5 && ImageRows->f1 == closingState) {
                 ResetScreenCounters();
                 ovl660_init_menu();
                 ModeGroup = 1;
@@ -202,7 +203,7 @@ void ovl660_update_preview(void) {
             break;
         }
     }
-    if (ovl660_preview_confirmation == 0 && ((s8 *)ImageRows)[1] == 2) {
+    if (ovl660_preview_confirmation == 0 && ImageRows->f1 == 2) {
         rowIndex = 0;
         do {
             if (UiRows[rowIndex].byte14 == 9) {
@@ -238,17 +239,17 @@ void ovl660_update_preview(void) {
         }
     }
     drawModel = modelReady;
-    if ((((u8)((s8 *)ImageRows)[1] - 1) < 2U) && (drawModel == 1)) {
+    if ((((u8)ImageRows->f1 - 1) < 2U) && (drawModel == 1)) {
         DrawSelectionIconGrid(0);
         UpdateCarWorldTransform(PlayerCars);
         scale = 0x100;
-        if (((s8 *)ImageRows)[1] == drawModel) {
-            brightness = ~((ImageRows[2] * 0xFF) / 30);
+        if (ImageRows->f1 == drawModel) {
+            brightness = ~((ImageRows->f2 * 0xFF) / 30);
             color.channels.r = brightness;
             color.channels.g = brightness;
             color.channels.b = brightness;
             drawFlags = 0x102;
-            scale = (ImageRows[2] << 8) / 30;
+            scale = (ImageRows->f2 << 8) / 30;
         } else {
             drawFlags = 1;
             color.channels.r = 0x80;
@@ -265,3 +266,19 @@ void ovl660_update_preview(void) {
 end:
     UpdateScreenFade(ovl660_preview_bank != 0 ? 0x10036 : 0x10032);
 }
+
+/* Initial values of the overlay globals this module owns. */
+u8 ovl660_preview_row_map[2][4] = {{4, 5, 6}, {7, 8, 9}};
+s16 ovl660_available_car_counts[2];
+s16 ovl660_preview_confirmation;
+s16 ovl660_preview_selection;
+s16 ovl660_preview_bank;
+
+/* Writable state of this unit; ovl660_reset_module restores it. */
+static const OverlayStateRegion ovl660_preview_regions[] = {
+    RR_OVERLAY_STATE(ovl660_available_car_counts),
+    RR_OVERLAY_STATE(ovl660_preview_bank),
+    RR_OVERLAY_STATE(ovl660_preview_confirmation),
+    RR_OVERLAY_STATE(ovl660_preview_row_map),
+    RR_OVERLAY_STATE(ovl660_preview_selection)};
+const OverlayStateTable ovl660_preview_state = {ovl660_preview_regions, sizeof(ovl660_preview_regions) / sizeof(ovl660_preview_regions[0])};

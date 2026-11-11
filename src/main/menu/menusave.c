@@ -1,4 +1,5 @@
 #include "rr/save_slots.h"
+#include "rr/menu_choice_types.h"
 #include "types.h"
 #include "rr/save_progress.h"
 #include "rr/menu_choice.h"
@@ -10,7 +11,6 @@
 
 
 extern CourseChoice4 CourseChoiceTable[2][9];
-extern u8 MenuSelectedTeamId[];
 extern u8 SaveSlotChoiceGlyphBytes[][4];
 
 void UpdateSaveProgress(void) {
@@ -51,7 +51,7 @@ void UpdateSaveProgress(void) {
         if (SelectionRows.bytes[2] == 0x27 && slot < 4) {
             do {
                 if (slot == 3) {
-                    glyph = PackChoiceGlyph(MenuSelectedTeamId);
+                    glyph = PackChoiceGlyph(&MenuSelectedChoice);
                 } else {
                     glyph = PackChoiceGlyph(SaveSlotChoiceGlyphBytes[slot]);
                 }
@@ -83,8 +83,8 @@ void UpdateSaveProgress(void) {
     SaveProgress.unlocked60[SelectionState.fields.reserved10[2]] = i;
 
     SaveProgress.prefix.progress.prefix00.fields.configuration0C |= 0x100;
-    old_count = SaveProgress.prefix.reserved50.words[1];
-    SaveProgress.prefix.reserved50.words[1] = old_count | 1;
+    old_count = SaveProgress.prefix.unlocks50.mainMenuUnlocks54;
+    SaveProgress.prefix.unlocks50.mainMenuUnlocks54 = old_count | 1;
     if (old_count != (old_count | 1)) {
         UnlockNoticeMask |= 2;
     }
@@ -94,18 +94,23 @@ void UpdateSaveProgress(void) {
     }
 
     for (i = 0, old_count = 0; i < 4; i++) {
-        old_count |= SaveProgress.prefix.reserved50.bytes[i + 8] << i;
+        old_count |= SaveProgress.prefix.unlocks50.bonusUnlocks58[i] << i;
     }
 
     if (SelectionState.fields.copies[0].bytes[2] == 0x12 && slot == 12) {
-        SaveProgress.prefix.reserved50.bytes[SelectionState.fields.copies[0].bytes[0] + 8] = 1;
+        SaveProgress.prefix.unlocks50.bonusUnlocks58[SelectionState.fields.copies[0].bytes[0]] = 1;
     }
 
     for (i = 0, new_mask = 0; i < 4; i++) {
-        new_mask |= SaveProgress.prefix.reserved50.bytes[i + 8] << i;
+        new_mask |= SaveProgress.prefix.unlocks50.bonusUnlocks58[i] << i;
     }
 
     if (new_mask != old_count) {
         UnlockNoticeMask |= 4;
     }
 }
+
+/* Initial values of the globals this module owns. */
+u8 SaveSlotChoiceGlyphBytes[3][4];
+SaveProgressRecord7C SaveProgress;
+short UnlockNoticeMask;

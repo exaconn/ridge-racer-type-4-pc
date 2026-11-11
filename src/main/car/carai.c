@@ -1,4 +1,5 @@
 #include "game/car/carctrl.h"
+#include "rr/player_cars.h"
 #include "rr/scene_camera_state.h"
 #include "scratchpad.h"
 #include "rr/track_projection.h"
@@ -12,10 +13,12 @@
 #include "game/car/cardrive.h"
 #include "psyq/libc/rand.h"
 
-extern RaceVehicle ComCars[];
 extern int RaceState;
 #include "rr/audio_state_types.h"
 
+/* Standings rows hold vehicle pointers, so the table the PS1 built in the
+ * scratchpad at +0x7C is an ordinary host object. */
+static RaceStandingsTable ComCarStandings;
 
 void UpdateComCars(void) {
     int i;
@@ -23,7 +26,7 @@ void UpdateComCars(void) {
     RaceVehicleControl *s1;
     int r;
 
-    RaceContext.standings = (RaceStandingsTable *)(SCRATCHPAD + 0x7C);
+    RaceContext.standings = &ComCarStandings;
     UpdateRaceStandings();
     switch (RaceState) {
     case 0:

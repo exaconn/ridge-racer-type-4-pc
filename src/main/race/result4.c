@@ -1,9 +1,9 @@
 #include "game/race/result4.h"
+#include "rr/menu_selection.h"
 #include "rr/gpu_scratch_types.h"
 #include "rr/badge_rows.h"
 #include "rr/menu_text_state.h"
 #include "game/ui/uipart1.h"
-/* RODATA 0x800106d0 0x1c */
 #include "types.h"
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
@@ -26,7 +26,6 @@
 #include "game/data/ldscn1.h"
 
 
-extern unsigned short SelectedCourseChoice;
 extern int ModeFrame;
 #include "rr/menu_arena_base.h"
 extern signed char LoadState;
@@ -57,7 +56,7 @@ void DrawResultsStandingsOverlay(int fadeLevel) {
   {
     intensity = (u32)fadeLevel * 2;
   }
-  cursor = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
+  cursor = RR_GPU_SCRATCH->cursor;
   x = 0x50;
   for (row = 0; row < 4; row++)
   {
@@ -106,7 +105,7 @@ void DrawResultsStandingsOverlay(int fadeLevel) {
       label = courseLabelBase + (SelectedCourseChoice & 7);
     }
     labelUv = ResultMenuRowTable + label;
-    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, x, 0x48, labelUv, 0x263A, (intensity + 1) * 2);
+    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, x, 0x48, labelUv, 0x263A, (intensity + 1) * 2);
     advance = x + 2;
     x = advance + labelUv->w;
   }
@@ -129,7 +128,7 @@ void DrawResultsStandingsOverlay(int fadeLevel) {
     do
     {
       nextX = x - 2;
-      cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, x, 0x24, &ResultMenuRowTable[label], clut, (intensity + 1) * 2);
+      cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, x, 0x24, &ResultMenuRowTable[label], clut, (intensity + 1) * 2);
       label = 0x17;
       row++;
       separatorUv = &ResultMenuRowTable[23];
@@ -138,7 +137,7 @@ void DrawResultsStandingsOverlay(int fadeLevel) {
     }
     while (row < count);
   }
-  ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 0x2E);
+  RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 0x2E);
 }
 
 void InitResultsMenuRows(int firstRow) {
@@ -218,3 +217,9 @@ void NewCarModeUpdate(void) {
         }
     }
 }
+
+/* Initial values of the globals this module owns. */
+char NewCar0Msg[12] = {110, 101, 119, 99, 97, 114, 48, 10};
+char StrNewCarLog[36] = {110, 101, 119, 99, 97, 114, 10};
+UiUvRect ResultMenuRowTable[24] = {{.v = 0x48, .w = 0x24, .h = 0x10}, {.u = 0x24, .v = 0x48, .w = 0x2C, .h = 0x10}, {.u = 0x50, .v = 0x48, .w = 0x28, .h = 0x10}, {.u = 0x78, .v = 0x48, .w = 0x30, .h = 0x10}, {.u = 0xA8, .v = 0x48, .w = 0x20, .h = 0x10}, {.v = 0x58, .w = 0x1E, .h = 0x10}, {.u = 0x24, .v = 0x58, .w = 0x20, .h = 0x10}, {.u = 0x48, .v = 0x58, .w = 0x1C, .h = 0x10}, {.u = 0x68, .v = 0x58, .w = 0x1C, .h = 0x10}, {.u = 0x84, .v = 0x58, .w = 0x1C, .h = 0x10}, {.u = 0xA0, .v = 0x58, .w = 0x1C, .h = 0x10}, {.u = 0xBC, .v = 0x58, .w = 0x1C, .h = 0x10}, {.u = 0xD8, .v = 0x58, .w = 0x20, .h = 0x10}, {.v = 0x68, .w = 0x3C, .h = 0x10}, {.u = 0x3C, .v = 0x68, .w = 0x30, .h = 0x10}, {.u = 0x6C, .v = 0x68, .w = 0x48, .h = 0x10}, {.u = 0xB4, .v = 0x68, .w = 0x30, .h = 0x10}, {.v = 0x78, .w = 0x30, .h = 0x10}, {.u = 0x30, .v = 0x78, .w = 0x3C, .h = 0x10}, {.u = 0x6C, .v = 0x78, .w = 0x44, .h = 0x10}, {.u = 0xB0, .v = 0x78, .w = 0x40, .h = 0x10}, {.u = 0xC, .v = 0x88, .w = 0x48, .h = 0x10}, {.u = 0x54, .v = 0x88, .w = 0x58, .h = 0x10}, {.v = 0x88, .w = 0xC, .h = 0x10}};
+u8 ResultMenuTableIndices[16] = {5, 8, 5, 9, 6, 8, 6, 9, 7, 8, 7, 9, 7, 0xA, 7, 0xB};

@@ -1,6 +1,6 @@
 # PC Port Plan
 
-One-way native port of *Ridge Racer Type 4* (`SCES-017.06`): the decompiled
+One-way native port of *Ridge Racer Type 4* (`SCES-017.06`): the original
 game code in `src/main/` and `src/overlays/`, compiled with a host C11 compiler
 and linked against `third_party/psyz`.
 

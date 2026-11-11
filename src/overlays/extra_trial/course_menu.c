@@ -162,7 +162,7 @@ void ovl666_update_menu(void) {
             SetMenuFrameOptions(0, 1, 1);
             timer = (u16)FadeCountdown - 1;
             FadeCountdown = (u16)timer;
-            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - timer) * 4, 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (0x40 - timer) * 4, 0x45);
             if ((s16)FadeCountdown <= 0) {
                 ModeGroup = ready;
                 ModeIndex = 3;
@@ -235,8 +235,11 @@ void ovl666_draw_selection_pulse(s32 x, s32 y) {
         mode = 89;
         wave = -wave;
     }
-    cursor = AddSpritePrim(CurrentDrawBuf->ordering.ordering70.words, cursor, x, y, &ovl666_selection_sprite,
+    cursor = AddSpritePrim(CurrentDrawBuf->ordering.ordering70.tags, cursor, x, y, &ovl666_selection_sprite,
                            0x7FA4, ((wave + 1) * 2) | 1);
-    cursor = AddDrawModePrim(CurrentDrawBuf->ordering.ordering70.words, cursor, mode);
+    cursor = AddDrawModePrim(CurrentDrawBuf->ordering.ordering70.tags, (GpuDrawModePacket *)cursor, mode);
     scratch->cursor = cursor;
 }
+
+/* Initial values of the globals this module owns. */
+s16 SelectedMakerIndex;

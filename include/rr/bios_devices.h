@@ -6,12 +6,12 @@
 /* Raw card-sector BIOS entries: 128 bytes per sector. Status is indexed by
  * slot (port >> 4); bit0 signals a completed transfer, including error statuses. */
 /* Encoded card channel is an integer selector, not an address. */
-s32 _card_info(s32 channel);
-s32 _card_load(s32 channel);
-s32 _card_write(s32 port, s32 sector, const u8 *buffer);
+long _card_info(long channel);
+long _card_load(long channel);
+long _card_write(long port, long sector, const u8 *buffer);
 void _new_card(void);
-s32 _card_read(s32 port, s32 sector, u8 *buffer);
-s32 _card_status(s32 slot);
+long _card_read(long port, long sector, u8 *buffer);
+long _card_status(long slot);
 void PsyqBzero(void *buffer, s32 size);
 /* Adds XOR of bytes 0..126 at byte127, then makes up to eight write/read attempts.
  * Verification compares the readback XOR to the current caller checksum byte. */

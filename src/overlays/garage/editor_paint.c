@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay662_pixel_dispatch.h"
 #include "rr/overlay662_image_stroke.h"
 #include "game/system/pad.h"
@@ -115,6 +116,48 @@ void ovl662_apply_line_stroke(void) {
         ovl662_editor_workspace.reset08[1] + ovl662_editor_workspace.reset08[3],
         ovl662_editor_workspace.config22,
         ovl662_editor_workspace.config1D);
+}
+
+/* FloodFill4bpp (resident, PAL 800717AC): four-way recursive fill of a 64x64
+ * 4bpp image (32 bytes per row; odd x is the high nibble). The original
+ * recursion stops when the stack pointer drops below 0x801F8000, 4 bytes per
+ * level; FLOOD_FILL_DEPTH is that budget from the PAL initial stack 0x801FFFF0
+ * (the caller's own frames reduced it slightly on the PS1). */
+enum { FLOOD_FILL_DEPTH = (0x801FFFF0 - 0x801F8000) / 4 };
+
+typedef struct {
+    s32 previous, replacement, depth;
+} FloodFill4bppState;
+
+static void FloodFill4bppStep(FloodFill4bppState *fill, u8 *pixel, s32 x, s32 y)
+{
+    s32 prev = fill->previous;
+    if (fill->depth <= 0) return;
+    fill->depth--;
+    if (x & 1) {
+        *pixel = (u8)((*pixel & 0xF) | (fill->replacement << 4));
+        if (0 < y && (pixel[-32] >> 4) == prev) FloodFill4bppStep(fill, pixel - 32, x, y - 1);
+        if (y < 63 && (pixel[32] >> 4) == prev) FloodFill4bppStep(fill, pixel + 32, x, y + 1);
+        if (0 < x && (pixel[0] & 0xF) == prev) FloodFill4bppStep(fill, pixel, x - 1, y);
+        if (x < 63 && (pixel[1] & 0xF) == prev) FloodFill4bppStep(fill, pixel + 1, x + 1, y);
+    } else {
+        *pixel = (u8)((*pixel & 0xF0) | fill->replacement);
+        if (0 < y && (pixel[-32] & 0xF) == prev) FloodFill4bppStep(fill, pixel - 32, x, y - 1);
+        if (y < 63 && (pixel[32] & 0xF) == prev) FloodFill4bppStep(fill, pixel + 32, x, y + 1);
+        if (0 < x && (pixel[-1] >> 4) == prev) FloodFill4bppStep(fill, pixel - 1, x - 1, y);
+        if (x < 63 && (pixel[0] >> 4) == prev) FloodFill4bppStep(fill, pixel, x + 1, y);
+    }
+    fill->depth++;
+}
+
+/* operation: x, y, previous and replacement colour in bytes 0..3. */
+void FloodFill4bpp(u8 *pixel, u32 operation)
+{
+    FloodFill4bppState fill;
+    fill.previous = (s32)((operation >> 16) & 0xFF);
+    fill.replacement = (s32)(operation >> 24);
+    fill.depth = FLOOD_FILL_DEPTH;
+    FloodFill4bppStep(&fill, pixel, (s32)(operation & 0xFF), (s32)((operation >> 8) & 0xFF));
 }
 
 void ovl662_apply_flood_fill(void)
@@ -410,7 +453,7 @@ void ovl662_update_canvas_hover(void) {
 /* Bresenham line from (x0, y0) to (x1, y1) with a square brush. */
 void ovl662_rasterize_brush_line(u32 *image, s32 x0, s32 y0, s32 x1, s32 y1, u8 color, u8 size) {
     /* Address of the byte holding 4bpp pixel (x, y); rows are 32 bytes. */
-#define PIXEL_BYTE(x, y) (&((u8 *)((y) * 32 + (s32)image))[(x) / 2])
+#define PIXEL_BYTE(x, y) (&((u8 *)image + (y) * 32)[(x) / 2])
     /* Paint a size x size block of the color nibble at (x, y). Each instance
      * owns its block-local temporaries. */
 #define PLOT_BLOCK(x, y)                                              \
@@ -614,3 +657,25 @@ void ovl662_pack_emblem_tims(void) {
     *p++ = 0x00400010;
     ovl662_composite_emblem_layers(img38, p);
 }
+
+/* Initial values of the overlay globals this module owns. */
+GaragePoint ovl662_pen_stroke_prev_pt;
+GaragePoint ovl662_pen_stroke_curr_pt;
+GaragePoint ovl662_line_stroke_start_pt;
+GaragePoint ovl662_prim_pen_prev_pt;
+GaragePoint ovl662_prim_pen_curr_pt;
+GaragePoint ovl662_move_drag_start_pt;
+GaragePoint ovl662_eraser_stroke_prev_pt;
+GaragePoint ovl662_eraser_stroke_curr_pt;
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_editor_paint_regions[] = {
+    RR_OVERLAY_STATE(ovl662_eraser_stroke_curr_pt),
+    RR_OVERLAY_STATE(ovl662_eraser_stroke_prev_pt),
+    RR_OVERLAY_STATE(ovl662_line_stroke_start_pt),
+    RR_OVERLAY_STATE(ovl662_move_drag_start_pt),
+    RR_OVERLAY_STATE(ovl662_pen_stroke_curr_pt),
+    RR_OVERLAY_STATE(ovl662_pen_stroke_prev_pt),
+    RR_OVERLAY_STATE(ovl662_prim_pen_curr_pt),
+    RR_OVERLAY_STATE(ovl662_prim_pen_prev_pt)};
+const OverlayStateTable ovl662_editor_paint_state = {ovl662_editor_paint_regions, sizeof(ovl662_editor_paint_regions) / sizeof(ovl662_editor_paint_regions[0])};

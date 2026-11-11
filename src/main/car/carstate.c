@@ -1,4 +1,3 @@
-/* RODATA 0x80010468 0x20 */
 #include "rr/race.h"
 #include "game/sound/sndvab.h"
 #include "game/system/pad.h"

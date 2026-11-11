@@ -9,10 +9,9 @@
 #include "rr/menu_overlay_runtime.h"
 #include "game/ui/badge1.h"
 
-#define RR_TEXT_GPU_SCRATCH ((GpuScratchPointers *)SCRATCHPAD)
+#include "rr/animated_glyph.h"
 
-void AddPrim(u32 *ordering, void *packet);
-void SetSprt(void *packet);
+#define RR_TEXT_GPU_SCRATCH RR_GPU_SCRATCH
 
 
 void UpdateMenuTextRow(s32 row) {
@@ -67,11 +66,11 @@ void UpdateMenuTextRow(s32 row) {
                 sprite->g = brightness;
                 sprite->b = brightness;
                 sprite->clut = 0x2678;
-                AddPrim(CurrentDrawBuf->ordering.ordering70.words, sprite);
+                AddPrim(&CurrentDrawBuf->ordering.ordering70.tags[0], sprite);
                 glyph++;
                 x[0] += 0xD;
             }
-            RR_TEXT_GPU_SCRATCH->cursor = AddDrawModePrim(CurrentDrawBuf->ordering.ordering70.words, (GpuDrawModePacket *)cursor, 0x2E);
+            RR_TEXT_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->ordering.ordering70.tags[0], (GpuDrawModePacket *)cursor, 0x2E);
             if (tick >= 0x1E) {
                 MenuTextRows[row].rendering.phase++;
                 MenuTextRows[row].rendering.tick = 0;

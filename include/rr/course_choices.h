@@ -9,7 +9,7 @@
 #include "rr/course_choice_types.h"
 extern CourseChoice4 CourseChoiceTable[2][9];
 #include "rr/menu_arena_state.h"
-extern u8 *ImageRows;
+#include "rr/image_rows.h"
 void ResetScreenCounters(void);
 /* Nine readable entries; glyph-1 terminates. The final glyph0x167 counts
  * as the ninth valid entry. */

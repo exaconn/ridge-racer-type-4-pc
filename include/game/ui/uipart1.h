@@ -2,9 +2,11 @@
 #define RR_GAME_UI_UIPART1_H
 
 #include "types.h"
+#include "rr/menu_frame_state.h"
 
 int FramesToMilliseconds(s32 frames, s32 subframe);
-void DrawRaceTime();
+/* Draws time (ms, negative = blank) as M'SS"mmm 12px digits from text offset. */
+void DrawRaceTime(s32 x, s32 y, s32 time, s32 clut, s32 offset);
 char *FormatMillisecondsTime(int t);
 struct RaceVehicle;
 void ResetVehicleShake(struct RaceVehicle *vehicle);

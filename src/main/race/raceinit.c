@@ -1,6 +1,5 @@
 #include "rr/vehicle_table.h"
 #include "game/car/car.h"
-/* RODATA 0x80010720 0x1c */
 #include "game/car/carsetup.h"
 #include "game/car/carlane.h"
 #include "game/race/racesamp.h"
@@ -10,7 +9,6 @@
 #include "rr/race_setup.h"
 #include "rr/record_banks.h"
 extern RaceVehicle PlayerCars[];
-extern short NumCars;
 extern int TrackLength;
 extern int TotalRaceTime;
 
@@ -52,7 +50,7 @@ void InitRaceCars(int a0)
         s2 = 0;
         if (NumCars > 0) {
             do {
-                s8 participant = ((s8 *)LinkEntryState)[s1];
+                s8 participant = LinkEntryState[s1 / 2][s1 % 2];
                 s0 = &CarTable[s1];
                 if (participant == 1) {
                     InitPlayerCar(*s0, s1, s2);

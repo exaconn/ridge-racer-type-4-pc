@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "game/system/pad.h"
 #include "rr/overlay660.h"
 #include "rr/frame_storage_types.h"
@@ -163,7 +164,7 @@ void ovl660_update_results(void) {
             if (ovl660_result_transition == 1) {
                 ready = PackChoiceGlyph((s8 *)&SelectionRows);
                 MenuTextRows[42].bytes[28] = 34;
-                EncodeRecordPassword(SelectedCourseChoice, ready, TotalRaceTime, ovl660_result_kind, SelectedStoryBranchId,
+                EncodeRecordPassword(SelectedCourseChoice, ready, TotalRaceTime, ovl660_result_kind, Options.storyBranch3C,
                               &MenuTextRows[42].bytes[29]);
                 MenuTextRows[42].bytes[42] = 34;
                 ovl660_result_transition = 2;
@@ -175,7 +176,7 @@ void ovl660_update_results(void) {
     case 4:
         timer = (u16)FadeCountdown - 1;
         FadeCountdown = timer;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (64 - timer) * 4, 69);
         group = 33;
         if (FadeCountdown <= 0) {
             MenuScriptId = 0;
@@ -187,7 +188,7 @@ void ovl660_update_results(void) {
     case 5:
         timer = (u16)FadeCountdown - 2;
         FadeCountdown = timer;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (64 - timer) * 4, 69);
         group = 33;
         if (FadeCountdown <= 0) {
             group = -1;
@@ -197,7 +198,7 @@ void ovl660_update_results(void) {
     case 6:
         timer = (u16)FadeCountdown - 1;
         FadeCountdown = timer;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (64 - timer) * 4, 69);
         group = -1;
         if (FadeCountdown <= 0) {
             ModeGroup = 1;
@@ -325,3 +326,32 @@ void ovl660_rank_standings(void)
     }
     HudMapZoomMode = indices[0];
 }
+
+/* Initial values of the overlay globals this module owns. */
+char ovl660_new_record_label[80] = {78, 69, 87, 33, 33, 0, 0, 0, 0, 0, 0, 0, -108, 87, 17, -128, -108, 89, 17, -128, -16, 90, 17, -128, 68, 92, 17, -128, -124, 93, 17, -128, -20, 93, 17, -128, 72, 94, 17, -128, -4, 94, 17, -128, -76, 94, 17, -128, 116, 102, 17, -128, -116, 109, 17, -128, -116, 109, 17, -128, -12, 106, 17, -128, 116, 107, 17, -128, 4, 109, 17, -128, -60, 108, 17, -128, 44, 102, 17, -128};
+s32 ovl660_result_labels[55] = {7702, 3852, 7702, 0, -1, 269, 525, 781, 20, 1038, 7702, 7702, 3852, 0, 269, 525, 781, 269, 525, 781, 20, 1038, 7702, 3852, 1, 7702, 1296, 1552, 1808, 2064, 2320, 7702, -1, 7702, 3852, 2, 7702, 2576, 2832, 3088, 3344, 3600, 7702, -1, 7702, 17, 7702, -1, 6, 7, 9, -1, 7702, -1, 7702};
+s32 ovl660_race_record_rank;
+s32 ovl660_name_cursor;
+s16 ovl660_result_kind;
+char ovl660_record_name[12];
+s32 ovl660_result_transition;
+s32 ovl660_lap_record_rank;
+
+/* Writable state of this unit; ovl660_reset_module restores it. */
+static const OverlayStateRegion ovl660_results_regions[] = {
+    RR_OVERLAY_STATE(ovl660_lap_record_rank),
+    RR_OVERLAY_STATE(ovl660_name_cursor),
+    RR_OVERLAY_STATE(ovl660_new_record_label),
+    RR_OVERLAY_STATE(ovl660_race_record_rank),
+    RR_OVERLAY_STATE(ovl660_record_name),
+    RR_OVERLAY_STATE(ovl660_result_kind),
+    RR_OVERLAY_STATE(ovl660_result_labels),
+    RR_OVERLAY_STATE(ovl660_result_transition)};
+const OverlayStateTable ovl660_results_state = {ovl660_results_regions, sizeof(ovl660_results_regions) / sizeof(ovl660_results_regions[0])};
+
+/* Initial values of the globals this module owns. */
+u16 HudMapZoomMode;
+s16 ReverseCourse;
+TimeRecord16 RaceRecords[2][8][5];
+s32 ResultNextActionMode;
+TimeRecord16 LapRecords[2][8][5];

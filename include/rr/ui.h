@@ -21,11 +21,6 @@ typedef struct {
 extern s32 UiRowCount;
 extern UiRow24 *UiRows;
 
-typedef struct {
-    u8 reserved00[0x4D80];
-    UiRow24 *rows4D80;
-} UiRowPointerPage;
-RR_ASSERT_OFFSET(UiRowPointerPage, rows4D80, 0x4D80);
 /* Legacy callers may append ignored words after the ten row arguments.
  * The signed upper-bound check accepts negative indices; these require a
  * readable/writable prefix. Positive count clears bytes beginning at cells. */
@@ -46,7 +41,8 @@ RR_ASSERT_OFFSET(UiRow24, byte16, 0x16);
 RR_ASSERT_OFFSET(UiRow24, byte17, 0x17);
 RR_ASSERT_OFFSET(UiRow24, half20, 0x20);
 
-/* 0x20-byte UI particle record (ParticleEntries, initialized by SpawnParticlePair). */
+/* 0x20-byte UI particle record (ParticleSystem.entries2C; PS1 alias
+ * ParticleEntries), initialized by SpawnParticlePair. */
 typedef union {
     s16 s;
     u16 u;
@@ -77,7 +73,6 @@ typedef struct {
 } ParticleSystem32C;
 
 extern ParticleSystem32C ParticleSystem;
-extern UiParticle20 ParticleEntries[];
 
 RR_ASSERT_SIZE(UiParticle20, 0x20);
 RR_ASSERT_OFFSET(UiParticle20, x0C, 0xC);

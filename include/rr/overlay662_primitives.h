@@ -10,21 +10,21 @@
  * The active work index must select an initialized sprite. */
 void ovl662_draw_editor_cursor(void);
 /* Build draw-mode and null texture-window commands and prepend to ordering. */
-GpuDrawModePacket *ovl662_emit_draw_mode(u32 *ordering,
+GpuDrawModePacket *ovl662_emit_draw_mode(GpuDmaTag *ordering,
     GpuDrawModePacket *packet,u32 x,u32 y);
 /* Capture the garage origin, write a three-word TILE, then prepend it to the
  * ordering link. Coordinates, sizes and colors preserve their low16/8 bits.
  * The supplied packet belongs to an array with room for the returned cursor. */
-GpuTilePacket *ovl662_emit_filled_tile(u32 *ordering, GpuTilePacket *packet,
+GpuTilePacket *ovl662_emit_filled_tile(GpuDmaTag *ordering, GpuTilePacket *packet,
     u32 x,u32 y,u32 w,u32 h,u32 r,u32 g,u32 b);
 /* Inputs wrap to the packet field widths. Capture both origin coordinates
  * before writing. Ordering may alias an actual u32 member (tag or terminator) of an output
  * packet, but not a packed pair of coordinates or four color bytes.
  * The packet cursor belongs to an array with room for the returned cursor. */
-GpuPolyFT4Packet *ovl662_emit_textured_quad(u32 *ordering,GpuPolyFT4Packet *packet,
+GpuPolyFT4Packet *ovl662_emit_textured_quad(GpuDmaTag *ordering,GpuPolyFT4Packet *packet,
     u32 x,u32 y,u32 w,u32 h,u32 u,u32 v,u32 uw,u32 vh,u32 clut,u32 tpage);
-GpuTilePacket *ovl662_emit_hline_tile(u32 *ordering,GpuTilePacket *packet,
+GpuTilePacket *ovl662_emit_hline_tile(GpuDmaTag *ordering,GpuTilePacket *packet,
     u32 x0,u32 y,u32 x1,u32 r,u32 g,u32 b);
-GpuLineF4Packet *ovl662_emit_wire_box(u32 *ordering,GpuLineF4Packet *packet,
+GpuLineF4Packet *ovl662_emit_wire_box(GpuDmaTag *ordering,GpuLineF4Packet *packet,
     u32 x,u32 y,u32 w,u32 h,u32 r,u32 g,u32 b);
 #endif

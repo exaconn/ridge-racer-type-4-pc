@@ -1,4 +1,6 @@
 #include "rr/save_slots.h"
+#include "rr/save_progress.h"
+#include "rr/menu_selection.h"
 /* RODATA 0x80010514 0x24 */
 #include "rr/menu_transition.h"
 #include "game/menu/menutran.h"
@@ -11,15 +13,11 @@ typedef struct { int x; } __attribute__((packed)) U4;
 
 extern s16 CardMenuOperation;
 extern int PsyqBzero();
-extern int DecodeCourseIndex();
 extern unsigned char GpStageQualifyRanks[];
 extern short ComDifficultyLevel;
-extern short SelectedCourseChoice;
 extern short SelectedTeamIndex;
 extern short SelectedMakerIndex;
-extern short CourseIndex;
 extern unsigned char MenuTransitionStyleId;
-extern unsigned char NextMenuTransitionStyle;
 
 void SetNextModeByGameType(void);
 
@@ -54,7 +52,7 @@ void UpdateGrandPrixStageProgress(void) {
     }
     a0 = MenuSubmodePendingId;
     if (a0 == -1) {
-        PsyqBzero(RankEntries, 0x40);
+        PsyqBzero(RankEntries, 8 * sizeof(RankEntries[0]));
         j = 0;
         do {
             RankEntries[j].gridRank06 = j;
@@ -75,7 +73,7 @@ void UpdateGrandPrixStageProgress(void) {
             p[0] = a2;
             p[8] = 3;
         } while (v1 < 8);
-        MenuTransitionStyleId = NextMenuTransitionStyle;
+        MenuTransitionStyleId = SaveProgress.unlocked60[1];
     }
     x = (unsigned char)SelectionState.signedBytes[0x17];
     x = (x << 24) >> 25;
@@ -89,7 +87,7 @@ void UpdateGrandPrixStageProgress(void) {
     SelectedTeamIndex = c0;
     SelectedMakerIndex = SelectionRows.bytes[1];
     SelectedMakerCarIndex = SelectionRows.bytes[2];
-    CourseIndex = DecodeCourseIndex(a0, c0, a2);
+    CourseIndex = DecodeCourseIndex(a0);
     ComDifficultyLevel = 0;
     SaveProgress.prefix.progress.prefix00.fields.configuration0C |= 1 << SelectedCourseChoice;
     if (SelectionRows.bytes[2] >= 5) {
@@ -116,3 +114,10 @@ int CountProgressFlags(void) {
     return n;
 }
 
+
+/* Initial values of the globals this module owns. */
+unsigned char GpStageQualifyRanks[4] = {3, 2, 1, 1};
+short ComDifficultyLevel;
+unsigned char MenuTransitionStyleId;
+u16 ActiveSceneId;
+RankEntry8 RankEntries[8];

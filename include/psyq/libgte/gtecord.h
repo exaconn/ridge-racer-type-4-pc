@@ -3,6 +3,7 @@
 
 #include "types.h"
 
-s32 CordicSqrt(s32);
+/* Not in PsyZ; implemented in src/main/psyq/libgte/gtecord.c. */
+s32 CordicSqrt(s32 value);
 
 #endif /* RR_PSYQ_LIBGTE_GTECORD_H */

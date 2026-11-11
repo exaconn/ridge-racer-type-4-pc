@@ -3,12 +3,15 @@
 
 #include "types.h"
 
-u8 CdStatus(void);
-s32 CdMode(void);
+/* PsyZ libcd (__psyz) status/reset/callback entry points. */
+typedef void (*CdlCB)(u8 status, u8 *result);
+
+int CdStatus(void);
+int CdMode(void);
 u8 *CdLastPos(void);
-int CdReset();
-s32 CdSetDebug(s32 value);
-int CdSyncCallback();
-s32 CdReadyCallback(s32 value);
+int CdReset(int mode);
+int CdSetDebug(int level);
+CdlCB CdSyncCallback(CdlCB callback);
+CdlCB CdReadyCallback(CdlCB callback);
 
 #endif /* RR_PSYQ_LIBCD_S_1_H */

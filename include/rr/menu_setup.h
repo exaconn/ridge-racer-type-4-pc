@@ -1,7 +1,8 @@
 #ifndef RR_MENU_SETUP_H
 #define RR_MENU_SETUP_H
 #include "rr/menu_choice.h"
-extern s32 ModeFrame,ScreenFrame;
+extern s32 ModeFrame;
+extern u32 ScreenFrame;
 extern s16 SelectedTeamIndex;
 /* Clear the resident32-byte and12-byte UI work buffers. */
 void ClearScreenOverlayState(void);

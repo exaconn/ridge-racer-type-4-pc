@@ -10,8 +10,9 @@ typedef union {
     u32 word;
 } HudQuadColor;
 typedef struct {s16 x,y;HudQuadColor color;} HudQuadVertex;
-/* Four XY/color pairs follow the first color. The final RGB write is at36,
- * in the next packet's tag storage, so the accessible emission spans40 bytes. */
+/* POLY_G4: first color/code, then four XY/color pairs. The fourth pair's
+ * color is not part of the packet (len 8); the emitter stages it anyway, so
+ * the cursor advances by the packet without that trailing color. */
 typedef struct {
     GpuDmaTag tag;
     u8 r,g,b,code;
@@ -19,18 +20,11 @@ typedef struct {
 } HudQuadEmission;
 typedef struct {s8 x,y;} HudQuadCorner;
 extern HudQuadCorner UiBoxCornerOffsets[4];
-#ifndef RR_HUD_QUAD_SCRATCH
-#define RR_HUD_QUAD_SCRATCH ((GpuScratchPointers *)0x1F800000U)
-#endif
-/* Selected target and bank0..3 are accessible; cursor is4-byte aligned with
- *40 writable bytes. The live ordering head may alias this packet's tag.
- * Position/head/cursor are captured after both trig services. Advances36 bytes;
- * only low24 pointer bits are serialized into the GPU link. */
+/* Emits one rotating Gouraud quad at the selected target's XY into the
+ * current bank's ordering head. */
 void DrawHudRotatingQuad(s32 phase,s32 index);
 RR_ASSERT_SIZE(HudQuadColor,4);
 RR_ASSERT_SIZE(HudQuadVertex,8);
 RR_ASSERT_OFFSET(HudQuadVertex,color,4);
-RR_ASSERT_SIZE(HudQuadEmission,40);
-RR_ASSERT_OFFSET(HudQuadEmission,vertices,8);
 RR_ASSERT_SIZE(HudQuadCorner,2);
 #endif

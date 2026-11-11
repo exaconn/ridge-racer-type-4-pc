@@ -15,7 +15,7 @@ u8 *ovl663_format_time(s32 milliseconds) {
     return ovl663_time_text;
 }
 
-void *ovl663_draw_race_records(u32 *ordering, void *cursor, s32 row) {
+void *ovl663_draw_race_records(GpuDmaTag *ordering, void *cursor, s32 row) {
     s32 i = 0, x, y, clut, rowY;
     s32 group = SelectedCourseChoice >= 8;
     y = BadgeRows[row].y06 + 40;
@@ -55,7 +55,7 @@ void *ovl663_draw_race_records(u32 *ordering, void *cursor, s32 row) {
     return AddDrawModePrim(ordering, cursor, 89);
 }
 
-void *ovl663_draw_lap_records(u32 *ordering, void *cursor, s32 row) {
+void *ovl663_draw_lap_records(GpuDmaTag *ordering, void *cursor, s32 row) {
     s32 i = 0, x, y, clut, rowY;
     s32 group = SelectedCourseChoice >= 8;
     y = BadgeRows[row].y06 + 40;
@@ -95,7 +95,7 @@ void *ovl663_draw_lap_records(u32 *ordering, void *cursor, s32 row) {
     return AddDrawModePrim(ordering, cursor, 89);
 }
 
-void *ovl663_draw_record_labels(u32 *arg0, void *arg1, s32 arg2) {
+void *ovl663_draw_record_labels(GpuDmaTag *arg0, void *arg1, s32 arg2) {
     char buf[8];
     s32 i;
     s32 x;
@@ -112,3 +112,6 @@ void *ovl663_draw_record_labels(u32 *arg0, void *arg1, s32 arg2) {
     arg1 = AddTextSprites(arg0, arg1, x, y, buf, 0x7FF8, 0, 0);
     return AddDrawModePrim(arg0, arg1, 56);
 }
+
+/* Initial values of the globals this module owns. */
+UiUvRect RecordsHeaderSpriteUvs[5] = {{.v = 0x60, .w = 0xC, .h = 0x10}, {.u = 0x10, .v = 0x60, .w = 0xE, .h = 0x10}, {.u = 0x20, .v = 0x60, .w = 0xC, .h = 0x10}, {.u = 0x30, .v = 0x60, .w = 0xC, .h = 0x10}, {.u = 0x40, .v = 0x60, .w = 0xC, .h = 0x10}};

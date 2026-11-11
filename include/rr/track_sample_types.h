@@ -40,9 +40,7 @@ typedef struct {
 } TrackLaneOffset8;
 
 extern TrackSample3C *TrackNodes;
-extern TrackLaneOffset8 *TrackLaneOffsets;
 extern s32 TrackNodeCount;
-extern s32 *TrackStartNode;
 
 RR_ASSERT_SIZE(TrackSurfaceSide2,2);
 RR_ASSERT_SIZE(TrackRoadSample34,0x34);

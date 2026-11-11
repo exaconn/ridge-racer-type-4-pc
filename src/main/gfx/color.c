@@ -19,10 +19,9 @@ void EnablePadAnalogMode(int i) {
 }
 
 void ApplySoundVolumes(void) {
-    short *p = (short *)&SoundState;
-    CdAudioSetVolumeRaw((unsigned short)p[0x26C4 / 2]);
-    SeqSetVolume(p[0x2888 / 2]);
-    SetCdMixMode(CdAudioMixChannelMode);
+    CdAudioSetVolumeRaw(SoundState.currentVol26C4);
+    SeqSetVolume((s16)SoundState.seqVol2888);
+    SetCdMixMode(Options.mono32);
 }
 
 void HsvToRgb(const HsvColor input,RgbColor output) {

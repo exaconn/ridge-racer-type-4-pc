@@ -13,14 +13,13 @@ registration, namespaced symbols (`ovl659_*` .. `ovl668_*`) and clear
 initialization/reset boundaries. They do not need fixed RAM windows, PS1 linker
 scripts or binary repacking.
 
-`src/main/psyq/` contains the decompiled PsyQ library units from `main.exe`.
+`src/main/psyq/` contains only game-coupled PsyQ helpers that PsyZ lacks.
 Standard PS1 SDK APIs (`libgpu`, `libgte`, `libspu`, `libetc`, `libpad`,
 `libcd`, `libpress`) are provided by `third_party/psyz`; keep only portable C
 helpers in `src/main/psyq/` where game-coupled behavior requires them.
 
-Shared workspaces (`SceneRenderScratchPad`, `SharedWorkArena`, `RaceContext`,
-`SoundState`) are accessed through multiple typed layout views. GCC/Clang
-builds of the original modules must preserve that aliasing and signed integer
+Shared workspaces (`SharedWorkArena`, `RaceContext`, `SoundState`) are
+accessed through multiple typed layout views. GCC/Clang builds of the original modules must preserve that aliasing and signed integer
 wrapping (`-fno-strict-aliasing -fwrapv`, configured in the root
 `CMakeLists.txt`).
 

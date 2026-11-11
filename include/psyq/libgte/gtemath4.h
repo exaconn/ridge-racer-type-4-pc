@@ -3,6 +3,7 @@
 
 #include "types.h"
 
-int RotAverage3(int *a0, int *a1, int *a2, int *a3, int *a4, int *a5, int *a6, int *a7);
+/* PsyZ: long RotAverage3(SVECTOR *v0..v2, int *sxy0..sxy2, int *p, int *flag). */
+long RotAverage3(int *v0, int *v1, int *v2, int *sxy0, int *sxy1, int *sxy2, int *p, int *flag);
 
 #endif /* RR_PSYQ_LIBGTE_GTEMATH4_H */

@@ -4,6 +4,34 @@
 
 /* Four encoded input bytes; byte-aligned transfers also support packed streams. */
 typedef struct {u32 word;} __attribute__((packed)) ReplayFrame4;
+
+/* One car's encoded input for the current frame; replays record the same four
+ * bytes as a ReplayFrame4. CarInputs (0x800ADAD8) holds one per player slot.
+ *   +0 steer   signed steering, -127..127
+ *   +1 throttle, +2 brake  analogue pedal levels 0..255
+ *   +3 buttons digital control bits 0-4; bits 5-7 input mode (0x20 analogue) */
+typedef union {
+    struct {
+        s8 steer;
+        u8 throttle;
+        u8 brake;
+        u8 buttons;
+    };
+    ReplayFrame4 frame;
+} CarInput4;
+extern CarInput4 CarInputs[4];
+
+/* Serial-link input exchange for the two cars on each console: pending is the
+ * local pair queued for transmission, local the pair applied after the link
+ * delay, remote the pair received from the peer. Initialisation clears the
+ * pairs as two words. PS1: LinkRemoteCarInputs 0x800ACBE0, LinkLocalCarInputs
+ * 0x800ACBF0, LinkPendingCarInputs 0x800F3AF0, eight bytes each. */
+typedef union {
+    CarInput4 cars[2];
+    u32 words[2];
+} LinkCarInputPair;
+extern LinkCarInputPair LinkRemoteCarInputs, LinkLocalCarInputs,
+    LinkPendingCarInputs;
 typedef struct {
     ReplayFrame4 inputs[3601];
     RaceVehicle snapshots[8];
@@ -24,6 +52,8 @@ typedef union {
 extern ReplayFrame4 *ReplayInputs[4];
 
 RR_ASSERT_SIZE(ReplayFrame4,4);
+RR_ASSERT_SIZE(CarInput4,4);
+RR_ASSERT_SIZE(LinkCarInputPair,8);
 #if defined(mips)
 RR_ASSERT_OFFSET(ReplaySingleStorage,snapshots,0x3844);
 RR_ASSERT_OFFSET(ReplayTwoStorage,snapshots,0x5468);

@@ -93,7 +93,7 @@ void UpdateComCarDrive(RaceVehicle *arg0) {
             arg0->heading1D4 = (u16) (arg0->heading1D4 + temp_s1->steering8C);
         }
     }
-    temp_a1_2 = ScanCurveAhead((char *)arg0, temp_s1->laneTimer38, &sp18, &sp1C, &sp20);
+    temp_a1_2 = ScanCurveAhead(arg0, temp_s1->laneTimer38, &sp18, &sp1C, &sp20);
     temp_s1->dragFlag46 = 0;
     if (temp_s1->shiftDir62 != 0) {
         temp_s1->gear68 = (u16) (temp_s1->gear68 + (u16) temp_s1->shiftDir62);

@@ -1,4 +1,6 @@
 #include "game/sound/sndvab.h"
+#include "rr/save_progress.h"
+#include "rr/menu_selection.h"
 /* RODATA 0x800104c4 0x2c */
 #include "rr/ui.h"
 #include "rr/load_cursor.h"
@@ -32,12 +34,10 @@
 extern char StrMainMenu0Log[];
 extern short FadeCountdown;
 extern int ActivePlayerIndex;
-extern short PlayerCourseChoices[];
 extern int DrawSubOtFlag;
 extern short LinkHostFlag;
 extern short ReverseCourse;
 extern int MaskBitSetting;
-extern unsigned short MainMenuUnlockBitmask;
 extern short ModeIndex;
 extern short MenuScriptId;
 extern short ModeGroup;
@@ -47,7 +47,6 @@ extern u16 SubmodeState;
 extern short LinkState;
 extern int ModeInitResetCount;
 extern char StrInitMainMenu0[];
-extern char LinkEntryState[];
 extern int VSyncThreshold;
 extern short MenuCursor;
 extern short ActiveSceneId;
@@ -59,7 +58,7 @@ void TitleMenuInit(void);
 void TitleMenuUpdate(void);
 
 void TitleModeEnter(void) {
-    short *a0;
+    MenuGridPoint *a0;
     char *a1;
     int a2;
     SetDispMask(0);
@@ -74,12 +73,12 @@ void TitleModeEnter(void) {
     ModeInitResetCount = 0;
     ReverseCourse = 0;
     do {
-        a0[0] = 0;
-        a0[1] = 0;
+        a0->first = 0;
+        a0->second = 0;
         a1[3] = 0;
         a1 += 4;
         a2++;
-        a0 += 2;
+        a0++;
     } while (a2 < 4);
     DialogueSceneMode = 2;
     MenuScriptId = 4;
@@ -93,7 +92,7 @@ void TitleModeEnter(void) {
     _sio_control(1, 1, 0);
     DrawSubOtFlag = 0;
     MaskBitSetting = 0;
-    ModeSelectBaseCount = (MainMenuUnlockBitmask & 1) + 7;
+    ModeSelectBaseCount = (SaveProgress.prefix.unlocks50.mainMenuUnlocks54 & 1) + 7;
     DebugPrintStub(StrMainMenu0Log);
 }
 
@@ -111,10 +110,10 @@ void TitleMenuInit(void)
   VSyncThreshold = 0x80;
   MainMenuChoice = 0;
   MenuCursor = -1;
-  LinkEntryState[3] = 0;
-  LinkEntryState[2] = 0;
-  LinkEntryState[1] = 0;
-  LinkEntryState[0] = 0;
+  LinkEntryState[1][1] = 0;
+  LinkEntryState[1][0] = 0;
+  LinkEntryState[0][1] = 0;
+  LinkEntryState[0][0] = 0;
   ActiveSceneId = 0x104;
   while (i < (ModeSelectBaseCount + 1))
   {
@@ -132,7 +131,7 @@ void TitleMenuInit(void)
 
   if (CountProgressFlags() == 0x140)
   {
-    ExtraModeUnlockedFlag = 1;
+    SaveProgress.prefix.unlocks50.extraModeUnlocked50 = 1;
   }
   CardDialogueStatePtr->b7 = 2;
   InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
@@ -265,3 +264,134 @@ void TitleMenuUpdate(void)
         return;
     }
 }
+
+/* ---------------------------------------------------------------- mode dispatch
+ * MainLoop runs ModeFuncTable[ModeGroup][ModeIndex](); each mode is an
+ * enter/update pair. Entries the PS1 resolved to the overlay window
+ * 0x80114878 name the statically linked overlay function that the loaded
+ * image held at that address (rr/overlay_module.h). Index 0 and Group 1
+ * entries 19/20 are null in the original: 0x80114888/0x801148C4 lie in the
+ * header data of every overlay image and no mode selects them. */
+#include "rr/overlay_module.h"
+
+void IntroSceneModeEnter(void), StepIntroScene(void), TileRectSceneModeEnter(void),
+    TileRectSceneModeUpdate(void), FrmTaskModeEnter(void), FrmTaskModeUpdate(void);
+void SplashModeEnter(void), SplashModeUpdate(void), GpMenuModeEnter(void), GpMenuModeUpdate(void),
+    ModeSelectMenuEnter(void), ModeSelectMenuUpdate(void), NewCarModeEnter(void), NewCarModeUpdate(void),
+    DialogueIntroModeUpdate(void), DialogueModeUpdate(void), GpSaveSlotMenuEnter(void),
+    GpSaveSlotMenuUpdate(void), CarStandingsModeEnter(void), CarStandingsModeUpdate(void),
+    ReplayModeEnter(void), ReplayModeUpdate(void), RaceAbortToMenuUpdate(void),
+    PostRaceScreenModeUpdate(void), LinkWaitModeEnter(void), LinkWaitModeUpdate(void),
+    CarPreviewLoadModeEnter(void), CarPreviewLoadModeUpdate(void), CarPreviewModeUpdate(void),
+    GarageCarPreviewModeUpdate(void), InitMenuScript(void), UpdateMenuScript(void),
+    LinkExchangeModeUpdate(void), YesNoPromptModeEnter(void), YesNoPromptModeUpdate(void),
+    LinkErrorModeUpdate(void), LinkBattleEndModeUpdate(void), CardMenuModeEnter(void),
+    CardMenuModeUpdate(void);
+void IntroInit(void), IntroModeUpdate(void), AttractDemoRaceEnter(void), AttractDemoRaceUpdate(void);
+/* Overlay mode entry points. */
+void ovl659_init_preview(void), ovl659_update_preview(void), ovl659_exit_race(void),
+    ovl659_update_race(void), ovl659_update_results(void);
+void ovl660_init_scene(void), ovl660_update_menu(void), ovl660_update_preview(void),
+    ovl660_exit_race(void), ovl660_update_race(void), ovl660_update_results(void);
+void ovl661_exit_race(void), ovl661_update_race(void), ovl661_init_menu(void),
+    ovl661_update_preview(void), ovl661_update_menu(void), ovl661_update_results(void);
+void ovl662_init_name_entry(void), ovl662_update_name_entry(void), ovl662_init_garage_scene(void),
+    ovl662_update_progress_menu(void), ovl662_init_team_car_choice(void),
+    ovl662_update_team_car_select(void), ovl662_enter_history_screen(void),
+    ovl662_update_history_screen(void), ovl662_update_available_cars(void),
+    ovl662_update_garage_car_view(void), ovl662_enter_emblem_selector(void),
+    ovl662_update_emblem_selector(void), ovl662_init_editor_arenas(void),
+    ovl662_enter_editor_clean(void), ovl662_enter_editor_restore(void),
+    ovl662_draw_editor_transition(void), ovl662_step_editor_frame(void);
+void ovl663_init_scene(void), ovl663_update_menu(void), ovl663_update_selection(void),
+    ovl663_update_preview(void), ovl663_update_result_preview(void);
+void ovl665_init_scene(void), ovl665_update_options(void);
+void ovl666_init_scene(void), ovl666_update_menu(void), ovl666_update_preview(void),
+    ovl666_exit_race(void), ovl666_update_race(void), ovl666_update_results(void);
+void ovl667_exit_race(void), ovl667_update_race(void), ovl667_init_session_menus(void),
+    ovl667_update_car_selection(void), ovl667_update_course_menu(void), ovl667_update_results(void);
+void ovl668_init_stream_playback(void), ovl668_update_stream_mode(void),
+    ovl668_update_epilogue_credits(void);
+
+void (*ModeGroup0FuncTable[])(void) = {
+    NULL, IntroSceneModeEnter, StepIntroScene, TileRectSceneModeEnter, TileRectSceneModeUpdate,
+    FrmTaskModeEnter, FrmTaskModeUpdate,
+};
+
+void (*ModeGroup1FuncTable[])(void) = {
+    /*  0 */ NULL, SplashModeEnter, SplashModeUpdate, TitleModeEnter, TitleMenuUpdate,
+    /*  5 */ GpMenuModeEnter, GpMenuModeUpdate, ModeSelectMenuEnter, ModeSelectMenuUpdate,
+    /*  9 */ NewCarModeEnter, NewCarModeUpdate, DialogueIntroModeUpdate, DialogueModeUpdate,
+    /* 13 */ GpSaveSlotMenuEnter, GpSaveSlotMenuUpdate, CarStandingsModeEnter, CarStandingsModeUpdate,
+    /* 17 */ ovl659_init_preview, ovl659_update_preview, NULL, NULL,
+    /* 21 */ ReplayModeEnter, ReplayModeUpdate, RaceAbortToMenuUpdate, PostRaceScreenModeUpdate,
+    /* 25 */ ovl667_exit_race, ovl667_update_race, ovl662_init_name_entry, ovl662_update_name_entry,
+    /* 29 */ LinkWaitModeEnter, LinkWaitModeUpdate, CarPreviewLoadModeEnter, CarPreviewLoadModeUpdate,
+    /* 33 */ CarPreviewModeUpdate, GarageCarPreviewModeUpdate, InitMenuScript, UpdateMenuScript,
+    /* 37 */ ovl661_exit_race, ovl661_update_race, ovl662_init_garage_scene, ovl662_update_progress_menu,
+    /* 41 */ LinkExchangeModeUpdate, YesNoPromptModeEnter, YesNoPromptModeUpdate, LinkErrorModeUpdate,
+    /* 45 */ LinkBattleEndModeUpdate, ovl659_exit_race, ovl659_update_race, ovl659_update_results,
+    /* 49 */ ovl660_init_scene, ovl660_update_menu, ovl660_update_preview, ovl660_exit_race,
+    /* 53 */ ovl660_update_race, ovl660_update_results, ovl661_init_menu, ovl661_update_preview,
+    /* 57 */ ovl661_update_menu, ovl661_update_results, ovl667_init_session_menus,
+    /* 60 */ ovl667_update_car_selection, ovl667_update_course_menu, ovl667_update_results,
+    /* 63 */ ovl662_init_team_car_choice, ovl662_update_team_car_select, ovl662_enter_history_screen,
+    /* 66 */ ovl662_update_history_screen, ovl662_update_available_cars, ovl662_update_garage_car_view,
+    /* 69 */ ovl662_enter_emblem_selector, ovl662_update_emblem_selector, CardMenuModeEnter,
+    /* 72 */ CardMenuModeUpdate, ovl663_init_scene, ovl663_update_menu, ovl663_update_selection,
+    /* 76 */ ovl663_update_preview, ovl663_update_result_preview, ovl666_init_scene, ovl666_update_menu,
+    /* 80 */ ovl666_update_preview, ovl666_exit_race, ovl666_update_race, ovl666_update_results,
+    /* 84 */ NULL,
+};
+
+void (*ModeGroup2FuncTable[])(void) = {
+    NULL, ovl665_init_scene, ovl665_update_options, ovl668_init_stream_playback,
+    ovl668_update_stream_mode, IntroInit, IntroModeUpdate, ovl668_update_epilogue_credits,
+    AttractDemoRaceEnter, AttractDemoRaceUpdate,
+};
+
+void (*ModeGroup3FuncTable[])(void) = {
+    NULL, ovl662_init_editor_arenas, ovl662_enter_editor_clean, ovl662_enter_editor_restore,
+    ovl662_draw_editor_transition, ovl662_step_editor_frame,
+};
+
+void (*ModeGroup4FuncTable[])(void) = {NULL};
+
+void (**ModeFuncTable[])(void) = {
+    ModeGroup0FuncTable, ModeGroup1FuncTable, ModeGroup2FuncTable, ModeGroup3FuncTable,
+    ModeGroup4FuncTable,
+};
+
+/* Linked overlay registry, keyed by R4.BIN entry (GetR4FileIndex(1, n) is
+ * entry 658 + n). Entries 669..672 are byte-identical copies loaded by the
+ * mode menu; 664 and 673 are asset containers and are still read. */
+static const OverlayModule OverlayModules[] = {
+    {"grand_prix", 659, 670, ovl659_reset_module},
+    {"time_attack", 660, 669, ovl660_reset_module},
+    {"versus", 661, 671, ovl661_reset_module},
+    {"garage", 662, 0, ovl662_reset_module},
+    {"records", 663, 0, ovl663_reset_module},
+    {"options", 665, 0, ovl665_reset_module},
+    {"extra_trial", 666, 0, ovl666_reset_module},
+    {"serial_link", 667, 672, ovl667_reset_module},
+    {"movie_playback", 668, 0, ovl668_reset_module},
+};
+
+s32 OverlayModuleBind(s32 file) {
+    u32 i;
+    for (i = 0; i < sizeof(OverlayModules) / sizeof(OverlayModules[0]); i++) {
+        const OverlayModule *module = &OverlayModules[i];
+        if (file == module->entry || (module->duplicate != 0 && file == module->duplicate)) {
+            module->reset();
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Initial values of the globals this module owns. */
+char StrMainMenu0Log[12] = {109, 97, 105, 110, 95, 109, 101, 110, 117, 48, 10};
+char StrInitMainMenu0[64] = {105, 110, 105, 116, 95, 109, 97, 105, 110, 95, 109, 101, 110, 117, 48, 10};
+u32 ScreenFrame;
+int ModeInitResetCount;
+s32 AttractCycleCounter;

@@ -1,7 +1,7 @@
 #include "game/course/trkseek2.h"
+#include "rr/player_cars.h"
 #include "rr/track_projection.h"
 
-extern RaceVehicle ComCars[];
 
 void UpdateComCarTrackProjections(void)
 {

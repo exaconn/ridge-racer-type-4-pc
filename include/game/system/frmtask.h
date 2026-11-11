@@ -19,5 +19,7 @@ void FrmTaskModeEnter(void);
 void FrmTaskModeUpdate(void);
 void MainLoop(void);
 
+/* SDK startup calls made by MainLoop (PsyZ libetc/libapi). */
+long SetVideoMode(long mode);
 
 #endif /* RR_GAME_SYSTEM_FRMTASK_H */

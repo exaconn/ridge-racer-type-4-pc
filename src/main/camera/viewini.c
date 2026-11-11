@@ -121,3 +121,18 @@ void CourseViewInitNoop(void) {
 void ResetViewScratchMask(void) {
     ((ViewInitScratch *)SCRATCHPAD)->w128 = 0x1F;
 }
+
+/* Initial values of the globals this module owns. */
+MatrixWords32 TitleLogoWaveOffsets = {.w = {69731368, 99288104, 99288555, 101975572, 1556}};
+Vec3sFields8 MenuBgScrollSpeedX = {.x = 682};
+Vec3sFields8 MenuBgScrollSpeedY = {.x = 682, .y = 1365};
+Vec3sFields8 MenuBgTileAnimFrames = {.x = 3900, .y = 3122};
+int CourseFarColorTable[27] = {50, 60, 70, 55, 57, 91, 10, 10, 5, 40, 20, 15, 30, 30, 30, 30, 30, 30, 22, 27, 22, 70, 70, 60};
+int DefaultSegmentVisibilityMask;
+u16 LightSourceIntensities[3];
+CourseViewIndices *TrackCourseViewIndices;
+CourseViewRecord *RelFileViewRecords;
+Vec3sFields8 LightSourceAngles[3];
+AdditionalCourseViews ExtraCourseViewTable;
+VisibleCourseViews PrimaryVisibleViews;
+VisibleCourseViews *ActiveVisibleViews;

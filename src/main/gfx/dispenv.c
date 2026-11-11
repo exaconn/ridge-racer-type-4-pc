@@ -10,10 +10,11 @@
 #include "rr/track_lateral.h"
 #include "game/data/cdfile2.h"
 
-extern SceneRaceContext RaceContextAlias __asm__("RaceContext");
-extern void RotMatrixZYX();
+#include "rr/matrix_words.h"
+#include "rr/geometry.h"
 
-void GetTrackLaneWorldPos(RaceVehicle *a0, int *a1, int *a2);
+/* libgte (PsyZ): rotation matrix from Euler angles applied Z, Y, then X. */
+MatrixWords32 *RotMatrixZYX(const Vec3sFields8 *angles, MatrixWords32 *matrix);
 
 int ComputeCameraNodeDist(RaceVehicle *vehicle, CamNode44 *node)
 {
@@ -42,7 +43,7 @@ int ComputeCameraNodeDist(RaceVehicle *vehicle, CamNode44 *node)
         if (remaining < 0) {
             RaceContext.cameraLimitReached44 = 1;
         } else {
-            context = &RaceContextAlias;
+            context = &RaceContext;
             if ((s32)((u32)context->cameraPreviousDistance40 - distance) < 0) context->cameraLimitReached44 = 1;
         }
     }
@@ -50,13 +51,13 @@ int ComputeCameraNodeDist(RaceVehicle *vehicle, CamNode44 *node)
     return RaceContext.cameraPreviousDistance40 = distance;
 }
 
-void GetTrackLaneWorldPos(RaceVehicle *a0, int *a1, int *a2) {
+void GetTrackLaneWorldPos(RaceVehicle *a0, int *a1, const CamNode44 *node) {
     int d;
     int q2;
     int r;
     int t;
     int j;
-    d = (a0->trackNodeF0 << 10) + a0->trackFraction170 - a2[2];
+    d = (a0->trackNodeF0 << 10) + a0->trackFraction170 - node->z;
     t = d;
     if (d < 0) t = d + 0x3FF;
     r = t >> 10;
@@ -66,42 +67,46 @@ void GetTrackLaneWorldPos(RaceVehicle *a0, int *a1, int *a2) {
     if (d < 0) d += TrackNodeCount;
     j = d + 1;
     if (TrackNodeCount < j) j -= TrackNodeCount;
-    InterpolateLanePointXYZ(&TrackNodes[d], &TrackNodes[j], a2[0], r, a1);
+    InterpolateLanePointXYZ(&TrackNodes[d], &TrackNodes[j], node->x, r, a1);
     a1[0] = a1[0] << 2;
     a1[2] = a1[2] << 2;
-    a1[1] = a1[1] + (a2[1] << 2);
+    a1[1] = a1[1] + (node->y << 2);
 }
 
 void TransformCameraOffset(unsigned short *a, int b, int *c) {
-    int m[8];
-    unsigned short v[3];
-    short r[3];
-    int *s = (int *)SCRATCHPAD;
+    MatrixWords32 m;
+    Vec3sFields8 v;
+    Vec3s8 r;
+    s32 *s = (s32 *)SCRATCHPAD;
     s[6] = -(short)a[0];
     s[7] = (short)a[1];
     s[8] = (short)a[2];
-    v[0] = a[0];
-    v[1] = a[1];
-    v[2] = 0;
-    r[0] = 0;
-    r[1] = 0;
-    r[2] = -b;
-    RotMatrixZYX(v, m);
-    ApplyMatrix((const MatrixWords32 *)(m), (const Vec3s8 *)(r), (Vec3i *)(c));
+    v.x = a[0];
+    v.y = a[1];
+    v.z = 0;
+    v.pad06 = 0;
+    r.fields.x = 0;
+    r.fields.y = 0;
+    r.fields.z = -b;
+    r.fields.pad06 = 0;
+    RotMatrixZYX(&v, &m);
+    ApplyMatrix(&m, &r, (Vec3i *)c);
 }
 
 void RotateNegZByEulerZYX(unsigned short *a, int b, int *c) {
-    int m[8];
-    unsigned short v[3];
-    short r[3];
-    v[0] = a[0];
-    v[1] = a[1];
-    v[2] = 0;
-    r[0] = 0;
-    r[1] = 0;
-    r[2] = -b;
-    RotMatrixZYX(v, m);
-    ApplyMatrix((const MatrixWords32 *)(m), (const Vec3s8 *)(r), (Vec3i *)(c));
+    MatrixWords32 m;
+    Vec3sFields8 v;
+    Vec3s8 r;
+    v.x = a[0];
+    v.y = a[1];
+    v.z = 0;
+    v.pad06 = 0;
+    r.fields.x = 0;
+    r.fields.y = 0;
+    r.fields.z = -b;
+    r.fields.pad06 = 0;
+    RotMatrixZYX(&v, &m);
+    ApplyMatrix(&m, &r, (Vec3i *)c);
 }
 
 short LerpAngleWrap4096(CamNode44 *p, int t) {

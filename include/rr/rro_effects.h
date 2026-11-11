@@ -11,7 +11,7 @@
 typedef struct {
     Vec3i translation;
     s32 centerXY;
-    u32 *ordering;
+    struct GpuDmaTag *ordering;
 } RroGlowProjection;
 
 typedef union {
@@ -30,7 +30,7 @@ typedef union {
  * is stored but not emitted. Trails use XY/depth pairs at the centre's address.
  * The body cursor starts three XY/depth pairs before the first result and
  * advances before each triple store. All cursors stay in their actual arrays.
- * Sixty pairs fit after PAL scratchpad+0x7C+0x1A0. */
+ * Sixty pairs follow the three reserved pairs. */
 typedef union {
     RroProjectedVertex pipeline[63];
     struct {
@@ -63,14 +63,15 @@ typedef struct {
     u8 farColor[6][4];
 } RroEffectColorTable;
 
-/* Effect workspace at PAL scratchpad+0x7C. Pointer cells name the actual
- * selected owners; native layouts keep their complete pointer widths. */
+/* Effect workspace (PAL scratchpad+0x7C). It holds host pointers and outgrows
+ * the 1 KB scratchpad with native widths, so it is the ordinary static owned
+ * by the car effect renderer (gtepoly1.c) instead of a scratch view. */
 typedef struct {
     MatrixWords32 object00;
     u8 reserved20[0x18];
     Vec3i worldPosition38;
     RroEffectMatrixArea matrix44;
-    u32 *ordering6C;
+    struct GpuDmaTag *ordering6C;
     s32 depth70, firstArea74, secondArea78;
     const Vec3s8 *vertices7C;
     u32 reserved80;
@@ -95,15 +96,12 @@ typedef struct {
     RroProjectionWorkspace projection188;
 } RroEffectWork;
 
-typedef struct {
-    RroSceneScratchPrefix scene;
-    RroEffectWork work7C;
-} RroEffectScratch;
-
+/* Mixed packets: E1 draw-mode word, the merged-primitive NOP
+ * (RR_GPU_MERGED_PRIM_NOP, counted in the length) and the primitive. */
 /* One E1 draw-mode word followed by a semi-transparent POLY_G3 triangle. */
 typedef struct {
     GpuDmaTag tag;
-    u32 drawMode04, centerColor08;
+    u32 drawMode04, nop, centerColor08;
     s32 centerXY0C;
     u32 firstColor10;
     s32 firstXY14;
@@ -114,14 +112,14 @@ typedef struct {
 /* One E1 draw-mode word followed by the four color/XY pairs of POLY_G4. */
 typedef struct {
     GpuDmaTag tag;
-    u32 drawMode04;
+    u32 drawMode04, nop;
     struct {s32 color; s32 xy;} vertices[4];
 } RroBodyPacket;
 
 /* One E1 draw-mode word followed by a flat-color LINE_F2. */
 typedef struct {
     GpuDmaTag tag;
-    u32 drawMode04, color08;
+    u32 drawMode04, nop, color08;
     s32 firstXY0C, secondXY10;
 } RroSparkPacket;
 
@@ -132,11 +130,11 @@ const RroTexturedQuadPrefix *EmitProjectedQuadsFT4(const RroTexturedQuadPrefix *
                                                 s32 count, RroEffectWork *work);
 
 /* Legacy name: emits three semi-transparent untextured G4 panels and an E1
- * command, totaling 116 bytes. Count is the signed command-header halfword.
+ * command packet. Count is the signed command-header halfword.
  * Both projected arrays cover every selected outer/center index; the initial
  * shift depthShift60 + 3 is 0..31. Even a clipped face can stage three XY words
- * at the current cursor. Emitted panels and the selected ordering head fit
- * their registered GPU region. */
+ * at the current cursor.
+ */
 void EmitProjectedLitTrisGT3(const RroTrailPanelCommand *commands, s32 count,
                            RroEffectWork *work);
 
@@ -144,10 +142,10 @@ void EmitProjectedLitTrisGT3(const RroTrailPanelCommand *commands, s32 count,
 extern Vec3s8 SpotlightConeRingOuter[9];
 
 /* Legacy name: each visible point emits eight untextured G3 triangles followed
- * by E1, totaling 232 bytes. Count is the signed command-header halfword; a
+ * by an E1 command packet. Count is the signed command-header halfword; a
  * positive count is at most 24 and requires that many complete input records.
  * The captured depthShift60 + 2 is 0..31. Every staged ordering-table cell and
- * emitted packet fits its registered GPU region. Returns the input end. */
+ * emitted packet fits the packet arena. Returns the input end. */
 const RroGlowPointCommand *EmitProjectedLitQuadsGT4(const RroGlowPointCommand *points,
                                                 s32 count, RroEffectWork *work);
 
@@ -185,8 +183,6 @@ RR_ASSERT_OFFSET(RroEffectWork, projectedD0, 0xD0);
 RR_ASSERT_OFFSET(RroEffectWork, colors15C, 0x15C);
 RR_ASSERT_OFFSET(RroEffectWork, projection188, 0x188);
 RR_ASSERT_SIZE(RroEffectWork, 0x380);
-RR_ASSERT_OFFSET(RroEffectScratch, work7C, 0x7C);
-RR_ASSERT_SIZE(RroEffectScratch, 0x3FC);
 #endif
 
 #endif

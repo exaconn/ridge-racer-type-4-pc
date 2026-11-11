@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "game/gfx/sprefct.h"
 #include "rr/overlay662_history_labels.h"
 #include "rr/overlay662_character_grid.h"
@@ -14,7 +15,7 @@ extern s16 GpSaveSlotCursor;
 extern UiUvRect UiFontGlyphs[];
 void FormatDecimalDigits(char *output, s32 value, s32 digitsMinusOne);
 
-void ovl662_draw_stage_history_label(u32 *arg0, void *arg1, s32 arg2) {
+void ovl662_draw_stage_history_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
     char buf[8];
     s32 i;
     s32 x;
@@ -45,7 +46,7 @@ void ovl662_draw_stage_history_label(u32 *arg0, void *arg1, s32 arg2) {
     AddDrawModePrim(arg0, arg1, 56);
 }
 
-void ovl662_draw_team_car_counts_label(u32 *order, void *cursor, s32 row)
+void ovl662_draw_team_car_counts_label(GpuDmaTag *order, void *cursor, s32 row)
 {
     s32 i, x, y;
     s32 flag = 0;
@@ -82,7 +83,7 @@ void ovl662_draw_team_car_counts_label(u32 *order, void *cursor, s32 row)
     AddDrawModePrim(order, cursor, 56);
 }
 
-void ovl662_draw_maker_car_count_label(u32 *arg0, void *arg1, s32 arg2) {
+void ovl662_draw_maker_car_count_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
     s32 i;
     s32 x;
     s32 y;
@@ -115,7 +116,7 @@ void ovl662_draw_maker_car_count_label(u32 *arg0, void *arg1, s32 arg2) {
     AddDrawModePrim(arg0, arg1, 56);
 }
 
-void ovl662_draw_car_number_label(u32 *arg0, void *arg1, s32 arg2) {
+void ovl662_draw_car_number_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
     char buf[8];
     s32 i;
     s32 x;
@@ -137,7 +138,7 @@ void ovl662_draw_car_number_label(u32 *arg0, void *arg1, s32 arg2) {
     AddDrawModePrim(arg0, arg1, 56);
 }
 
-void ovl662_draw_emblem_index_label(u32 *arg0, void *arg1, s32 arg2) {
+void ovl662_draw_emblem_index_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
     s32 x;
     s32 y;
     s32 i = 0;
@@ -158,7 +159,7 @@ void ovl662_draw_emblem_index_label(u32 *arg0, void *arg1, s32 arg2) {
     AddDrawModePrim(arg0, arg1, 56);
 }
 
-void ovl662_draw_character_grid(u32 *order, void *cursor, s32 row)
+void ovl662_draw_character_grid(GpuDmaTag *order, void *cursor, s32 row)
 {
     char text[4];
     s32 i, x, y, dx, dy, clut, color;
@@ -219,7 +220,7 @@ void ovl662_draw_character_grid(u32 *order, void *cursor, s32 row)
     AddDrawModePrim(order, cursor, 56);
 }
 
-void ovl662_draw_name_entry_chars(u32 *arg0, void *arg1, s32 arg2) {
+void ovl662_draw_name_entry_chars(GpuDmaTag *arg0, void *arg1, s32 arg2) {
     char buf[4];
     s32 i;
     s32 offset;
@@ -263,7 +264,7 @@ void ovl662_draw_name_entry_chars(u32 *arg0, void *arg1, s32 arg2) {
     AddDrawModePrim(arg0, arg1, 56);
 }
 
-void *ovl662_draw_extra_record_row(u32 *ord, void *cur, s32 row)
+void *ovl662_draw_extra_record_row(GpuDmaTag *ord, void *cur, s32 row)
 {
     /* Only slot [1] is used; the array keeps the value in the frame at sp+44. */
     s32 time[2];
@@ -337,3 +338,34 @@ u8 *ovl662_format_record_time(s32 value){
  }
  return ovl662_record_time_str_buf;
 }
+
+/* Initial values of the overlay globals this module owns. */
+s8 ovl662_stage_history_glyphs[3] = {64, 25, 123};
+s8 ovl662_team_count_glyphs[7] = {23, 24, -1, 31, 25, 24, -2};
+s8 ovl662_maker_count_glyphs[3] = {23, 24, -1};
+s8 ovl662_car_number_glyphs[3] = {26, 25, 123};
+s8 ovl662_emblem_index_glyphs[4] = {42, 25, 123, -1};
+s8 ovl662_char_grid_cmd_glyphs[3] = {0, 1, 2};
+u8 ovl662_extra_record_col_dx[4] = {8, 0x1C, 0x38, 0x30};
+u8 ovl662_extra_record_row_dy[4] = {8, 0x30, 0x48, 0x60};
+u8 ovl662_extra_record_label_glyphs[3] = {0x5D, 0x2A, 0x2B};
+u8 ovl662_record_time_str_buf[6] = "00:00";
+s32 ovl662_extra_default_times[3];
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_record_labels_regions[] = {
+    RR_OVERLAY_STATE(ovl662_car_number_glyphs),
+    RR_OVERLAY_STATE(ovl662_char_grid_cmd_glyphs),
+    RR_OVERLAY_STATE(ovl662_emblem_index_glyphs),
+    RR_OVERLAY_STATE(ovl662_extra_default_times),
+    RR_OVERLAY_STATE(ovl662_extra_record_col_dx),
+    RR_OVERLAY_STATE(ovl662_extra_record_label_glyphs),
+    RR_OVERLAY_STATE(ovl662_extra_record_row_dy),
+    RR_OVERLAY_STATE(ovl662_maker_count_glyphs),
+    RR_OVERLAY_STATE(ovl662_record_time_str_buf),
+    RR_OVERLAY_STATE(ovl662_stage_history_glyphs),
+    RR_OVERLAY_STATE(ovl662_team_count_glyphs)};
+const OverlayStateTable ovl662_record_labels_state = {ovl662_record_labels_regions, sizeof(ovl662_record_labels_regions) / sizeof(ovl662_record_labels_regions[0])};
+
+/* Initial values of the globals this module owns. */
+UiUvRect UiFontGlyphs[33] = {{.u = 0x78, .v = 0x20, .w = 0x16, .h = 0x10}, {.u = 0x90, .v = 0x20, .w = 0x12, .h = 0x10}, {.u = 0xA4, .v = 0x20, .w = 0xD, .h = 0x10}, {.u = 0xB4, .v = 0x20, .w = 0x12, .h = 0x10}, {.u = 0xC8, .v = 0x20, .w = 0x10, .h = 0x10}, {.u = 0xDC, .v = 0x20, .w = 0xD, .h = 0x10}, {.u = 0xEC, .v = 0x20, .w = 0x13, .h = 0x10}, {.v = 0x30, .w = 0x10, .h = 0x10}, {.u = 0x14, .v = 0x30, .w = 0x10, .h = 0x10}, {.u = 0x28, .v = 0x30, .w = 3, .h = 0x10}, {.u = 0x30, .v = 0x30, .w = 0x26, .h = 0x10}, {.u = 0x58, .v = 0x30, .w = 0x24, .h = 0x10}, {.u = 0x94, .v = 0x30, .w = 0x21, .h = 0x10}, {.u = 0xB8, .v = 0x30, .w = 0x24, .h = 0x10}, {.v = 0x40, .w = 0x2C, .h = 0x10}, {.u = 0x30, .v = 0x40, .w = 0x14, .h = 0x10}, {.u = 0x48, .v = 0x40, .w = 0x12, .h = 0x10}, {.u = 0x5C, .v = 0x40, .w = 0x11, .h = 0x10}, {.u = 0x70, .v = 0x40, .w = 0xF, .h = 0x10}, {.u = 0x80, .v = 0x40, .w = 0x1A, .h = 0x10}, {.u = 0x9C, .v = 0x40, .w = 0x18, .h = 0x10}, {.u = 0xB8, .v = 0x40, .w = 0x2A, .h = 0x10}, {.u = 0xE4, .v = 0x40, .w = 0x19, .h = 0x10}, {.v = 0x50, .w = 0x1C, .h = 0x10}, {.u = 0x20, .v = 0x50, .w = 0x1E, .h = 0x10}, {.u = 0x40, .v = 0x50, .w = 0x1C, .h = 0x10}, {.u = 0x60, .v = 0x50, .w = 0x13, .h = 0x10}, {.u = 0x74, .v = 0x50, .w = 0xF, .h = 0x10}, {.u = 0x84, .v = 0x50, .w = 0x10, .h = 0x10}, {.u = 0x98, .v = 0x50, .w = 0x1A, .h = 0x10}, {.u = 0xB4, .v = 0x50, .w = 0xD, .h = 0x10}, {.u = 0xC4, .v = 0x50, .w = 0x13, .h = 0x10}, {.u = 0xD8, .v = 0x50, .w = 0x1E, .h = 0x10}};

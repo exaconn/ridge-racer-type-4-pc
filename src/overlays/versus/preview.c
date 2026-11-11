@@ -1,3 +1,6 @@
+#include "rr/overlay_module.h"
+#include "rr/vehicle_table.h"
+#include "rr/menu_frame_state.h"
 #include "game/system/pad.h"
 #include "rr/menu_overlay_runtime.h"
 #include "rr/renderer_setup.h"
@@ -13,12 +16,12 @@ extern s16 ovl661_available_car_counts[2][2];       /* course count per player/g
 extern s16 ovl661_selected_cars[2];          /* selected course per player */
 extern s16 ovl661_selected_groups[2];          /* selected group per player */
 extern s16 ovl661_player_win_counts[2];
-extern s16 ComDifficultyLevel, NumCars;
+extern s16 ComDifficultyLevel;
 extern s32 ovl661_available_course_count;
 extern CourseChoice4 ovl661_car_choices[2][2][9];
 extern char ovl661_player_names[24], ovl661_player2_default_name[];
 extern const char ovl661_scene_name[];
-extern s32 UiRowCount, MenuAvailableCourseMask;
+extern s32 UiRowCount;
 extern s16 CardMenuOperation;
 s32 CountChoiceGlyphs(const CourseChoice4 *);
 void CopyStringClearTail(char *destination, char *source);
@@ -26,7 +29,7 @@ void ovl661_init_preview(s32);
 void ovl661_reset_preview_selection(void);
 void ovl661_init_scene(void);
 
-#define MODE (((s8 *)ImageRows)[1])
+#define MODE (ImageRows->f1)
 #define PLAYER (ActivePlayerIndex & 1)
 #define GROUP_ROW(p, g, i) ovl661_group_ui_rows[p][g][i]
 
@@ -150,7 +153,7 @@ void ovl661_reset_preview_selection(void)
     UnpackChoiceGlyph((s8 *)&SelectionRows + ActivePlayerIndex * 4, ovl661_car_choices[ActivePlayerIndex & 1][ovl661_selected_groups[ActivePlayerIndex & 1]][ovl661_selected_cars[ActivePlayerIndex & 1]].glyph);
     PlayerCourseChoices[ActivePlayerIndex].first = ovl661_car_choices[ActivePlayerIndex & 1][ovl661_selected_groups[ActivePlayerIndex & 1]][ovl661_selected_cars[ActivePlayerIndex & 1]].first;
     PlayerCourseChoices[ActivePlayerIndex].second = ovl661_car_choices[ActivePlayerIndex & 1][ovl661_selected_groups[ActivePlayerIndex & 1]][ovl661_selected_cars[ActivePlayerIndex & 1]].second;
-    ImageRows[1] = 6;
+    ImageRows->f1 = 6;
 }
 
 void ovl661_update_preview(void)
@@ -168,7 +171,7 @@ void ovl661_update_preview(void)
     s32 brightness;
     s32 flags;
     s32 sound;
-    s32 groups;
+    s16 *groups;
     s8 last;
     RaceVehicle *vehicle;
     RaceVehicle *vehicles;
@@ -382,7 +385,7 @@ void ovl661_update_preview(void)
             SetMenuFrameOptions(0, 1, 1);
             FadeCountdown--;
             SetModelTexturePage(-1);
-            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - FadeCountdown) * 4, 0x45);
+            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (0x40 - FadeCountdown) * 4, 0x45);
             if (FadeCountdown <= 0) {
                 SeqMuteVolume();
                 ModeGroup = 1;
@@ -394,7 +397,7 @@ void ovl661_update_preview(void)
             SetMenuFrameOptions(0, 1, 1);
             SetModelTexturePage(-1);
             FadeCountdown--;
-            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - FadeCountdown) * 4, 0x45);
+            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (0x40 - FadeCountdown) * 4, 0x45);
             if (FadeCountdown <= 0) {
                 CardMenuOperation = 2;
                 ModeGroup = 1;
@@ -441,12 +444,12 @@ void ovl661_update_preview(void)
             UpdateCarWorldTransform(&PlayerCars[PLAYER]);
             brightness = 0x100;
             if (MODE == i) {
-                last = ~((ImageRows[2] * 0xFF) / 30);
+                last = ~((ImageRows->f2 * 0xFF) / 30);
                 color.channels.r = last;
                 color.channels.g = last;
                 color.channels.b = last;
                 flags = 0x102;
-                brightness = (ImageRows[2] << 8) / 30;
+                brightness = (ImageRows->f2 << 8) / 30;
             } else {
                 flags = 1;
                 color.channels.r = 0x80;
@@ -461,13 +464,41 @@ void ovl661_update_preview(void)
         DrawMenuStepArrows(0xA0, 0x90, 8, 1, ovl661_selected_cars[PLAYER], 0,
                       ovl661_available_car_counts[PLAYER][ovl661_selected_groups[PLAYER]]);
     }
-    MenuAvailableCourseMask = ActivePlayerIndex + 1;
+    MenuFrameState.titlePlayer08 = ActivePlayerIndex + 1;
     sound = 0x10032;
-    /* Integer base address: the original's table read is not disambiguated
-     * from the MenuAvailableCourseMask store above. */
     groups = ovl661_selected_groups;
-    if (*(s16 *)(groups + (ActivePlayerIndex & 1) * 2) != 0) {
+    if (groups[ActivePlayerIndex & 1] != 0) {
         sound = 0x10036;
     }
     UpdateScreenFade(sound);
 }
+
+/* Initial values of the overlay globals this module owns. */
+char ovl661_player2_default_name[12] = {80, 76, 65, 89, 69, 82, 32, 50};
+const char ovl661_scene_name[100] = {106, 111, 98, 95, 118, 115, 95, 99, 97, 114, 95, 105, 110, 102, 111, 48, 10, 0, 0, 0, -92, 98, 17, -128, -108, 111, 17, -128, -108, 111, 17, -128, -76, 105, 17, -128, 20, 106, 17, -128, 0, 109, 17, -128, -96, 109, 17, -128, 52, 98, 17, -128, -116, 110, 17, -128, 20, 110, 17, -128, 8, 111, 17, -128, -68, 116, 17, -128, -128, 123, 17, -128, -128, 123, 17, -128, 92, 120, 17, -128, 84, 121, 17, -128, -20, 121, 17, -128, -128, 123, 17, -128, -128, 123, 17, -128, 56, 123, 17, -128};
+u8 ovl661_group_option_counts[4] = {3, 4};
+s8 ovl661_group_slot_kinds[2][4] = {{0, 1, 2, -1}, {0, 2, 3, 1}};
+s8 ovl661_group_ui_rows[2][2][4] = {{{0, 1, 2, -1}, {3, 4, 5, 6}}, {{9, 10, 11, -1}, {12, 13, 14, 15}}};
+char ovl661_player_names[24];
+s16 ovl661_preview_confirmation;
+s16 ovl661_available_car_counts[2][2];
+s16 ovl661_selected_cars[2];
+s16 ovl661_selected_groups[2];
+CourseChoice4 ovl661_car_choices[2][2][9];
+
+/* Writable state of this unit; ovl661_reset_module restores it. */
+static const OverlayStateRegion ovl661_preview_regions[] = {
+    RR_OVERLAY_STATE(ovl661_available_car_counts),
+    RR_OVERLAY_STATE(ovl661_car_choices),
+    RR_OVERLAY_STATE(ovl661_group_option_counts),
+    RR_OVERLAY_STATE(ovl661_group_slot_kinds),
+    RR_OVERLAY_STATE(ovl661_group_ui_rows),
+    RR_OVERLAY_STATE(ovl661_player_names),
+    RR_OVERLAY_STATE(ovl661_player2_default_name),
+    RR_OVERLAY_STATE(ovl661_preview_confirmation),
+    RR_OVERLAY_STATE(ovl661_selected_cars),
+    RR_OVERLAY_STATE(ovl661_selected_groups)};
+const OverlayStateTable ovl661_preview_state = {ovl661_preview_regions, sizeof(ovl661_preview_regions) / sizeof(ovl661_preview_regions[0])};
+
+/* Initial values of the globals this module owns. */
+s32 ActivePlayerIndex;

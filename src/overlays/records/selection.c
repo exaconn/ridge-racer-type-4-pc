@@ -118,7 +118,7 @@ void ovl663_update_selection(void) {
     case 8:
         fadeTimer = (u16)FadeCountdown - 1;
         FadeCountdown = (u16)fadeTimer;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - fadeTimer) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (0x40 - fadeTimer) * 4, 0x45);
         i = 0;
         if ((s16)FadeCountdown <= 0) {
             ovl663_init_menu();

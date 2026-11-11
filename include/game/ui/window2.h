@@ -1,14 +1,13 @@
 #ifndef RR_GAME_UI_WINDOW2_H
 #define RR_GAME_UI_WINDOW2_H
 
-#include "types.h"
+#include "rr/gpu.h"
 
-void *EmitHudGlyph12Alt(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5);
-void InitHudNumberTargets(int a0);
-void DrawViewportBorderFrames(int a0);
+void *EmitHudGlyph12Alt(GpuDmaTag *ordering, void *cursor, s16 x, s16 y, s32 glyph, s32 clut);
+void InitHudNumberTargets(int layout);
+void DrawViewportBorderFrames(int layout);
 void DrawHudRotatingQuad(s32 phase,s32 index);
-void *EmitHudGlyph12(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-void DrawHudNumber3(int a0, int a1);
-
+void *EmitHudGlyph12(GpuDmaTag *ordering, void *cursor, s32 x, s32 y, s32 glyph, s32 clut);
+void DrawHudNumber3(int value, int index);
 
 #endif /* RR_GAME_UI_WINDOW2_H */

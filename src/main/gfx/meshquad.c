@@ -20,10 +20,24 @@
 #define NCLIP() RR_GTE_NCLIP_MEM()
 #define AVSZ4() RR_GTE_AVSZ4_MEM()
 
-MeshQuadGT4 *DrawMeshQuadGT4(MeshQuadGT4 *p, s32 *s);
-MeshQuadG4 *DrawMeshQuadG4(MeshQuadG4 *p, s32 *s);
-MeshQuadF4 *DrawMeshQuadF4(MeshQuadF4 *p, s32 *s);
-void DrawMeshPrimList(int arg0, int arg1, int arg2);
+/* Per-call projection work. The PS1 kept it at scratchpad 0x7C including the
+ * vertex-pool and ordering-table pointers; on the host those are pointers, so
+ * the work area is an ordinary local passed to the emitters. */
+typedef struct {
+    const u8 *vertices;
+    s32 count;
+    s32 sxy[3];   /* SXY0..SXY2 after RTPT */
+    s32 sxy3;     /* SXY2 after RTPS of the fourth vertex */
+    s32 winding;  /* NCLIP of the first triangle */
+    s32 winding2; /* NCLIP of the second triangle (F4 only) */
+    s32 depth;    /* OTZ, then the depth-shifted bucket */
+    s32 bias;
+    GpuDmaTag *ordering;
+} MeshQuadWork;
+
+static const MeshQuadGT4 *DrawMeshQuadGT4(const MeshQuadGT4 *p, MeshQuadWork *s);
+static const MeshQuadG4 *DrawMeshQuadG4(const MeshQuadG4 *p, MeshQuadWork *s);
+static const MeshQuadF4 *DrawMeshQuadF4(const MeshQuadF4 *p, MeshQuadWork *s);
 
 int StepCarShowcaseScene(int a0)
 {
@@ -58,243 +72,148 @@ int StepCarShowcaseScene(int a0)
   return s1;
 }
 
-MeshQuadGT4 *DrawMeshQuadGT4(MeshQuadGT4 *p, s32 *s) {
-    s32 *g = (s32 *)SCRATCHPAD;
-    PolyGT4WordPacket *out = (PolyGT4WordPacket *)g[0];
-    s32 sh = g[0x18];
-    u8 *verts = (u8 *)s[0];
-    s32 n = s[1];
-    s32 nv;
-    s32 x;
-    s32 y;
-    PolyGT4WordPacket *t1 = out;
-    if (n-- > 0) {
-        s32 c3c = 0x3C;
-        do {
-            u8 *v0 = verts + (p->v0 << 3);
-            u8 *v1 = verts + (p->v1 << 3);
-            u8 *v2 = verts + (p->v2 << 3);
-            RR_GTE_LWC2_V012_3P(v0, v1, v2);
-            t1->len = 0xC;
-            RTPT();
-            ((u8 *)t1)[7] = c3c;
-            {
-                x = p->color08; y = p->color0C;
-                t1->color04 = x;
-                t1->color10 = y;
+/* Face color words already carry their GPU command code (0x3C/0x38/0x28);
+ * the PS1 code byte store preceding them was overwritten by the word store. */
+static GpuDmaTag *MeshQuadOrderEntry(const MeshQuadWork *s, s32 otBias) {
+    return s->ordering + (s->bias + otBias + s->depth + 0x80);
+}
+
+static const MeshQuadGT4 *DrawMeshQuadGT4(const MeshQuadGT4 *p, MeshQuadWork *s) {
+    s32 sh = ((RroSceneScratchPrefix *)SCRATCHPAD)->depthShift60;
+    const u8 *verts = s->vertices;
+    s32 n = s->count;
+    PolyGT4WordPacket *t1 = (PolyGT4WordPacket *)RR_GPU_SCRATCH->cursor;
+    while (n-- > 0) {
+        RR_GTE_LWC2_V012_3P(verts + (p->v0 << 3), verts + (p->v1 << 3), verts + (p->v2 << 3));
+        RTPT();
+        t1->color04 = p->color08;
+        t1->color10 = p->color0C;
+        NCLIP();
+        RR_GTE14_SWC2_MAC0(&s->winding);
+        RR_GTE14_SWC2_SXYZ(s->sxy);
+        if (s->winding > 0) {
+            RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, verts + (p->v3 << 3));
+            RTPS();
+            t1->xy0 = s->sxy[0];
+            t1->xy1 = s->sxy[1];
+            RR_GTE_SWC2_AT(14, 0, &s->sxy3);
+            AVSZ4();
+            RR_GTE14_SWC2_OTZ(&s->depth);
+            s->depth >>= sh;
+            if (s->depth < 0x1C1) {
+                t1->xy2 = s->sxy[2];
+                t1->xy3 = s->sxy3;
+                t1->uvClut0C = p->uvClut18;
+                t1->uvTpage18 = p->uvTpage1C;
+                t1->uv2 = p->uv2;
+                t1->uv3 = p->uv3;
+                t1->color1C = p->color10;
+                t1->color28 = p->color14;
+                RR_GPU_ADD_PRIM(MeshQuadOrderEntry(s, (s8)p->otBias25), t1, 0xC);
+                t1++;
             }
-            NCLIP();
-            RR_GTE14_SWC2_MAC0(s + 6);
-            RR_GTE14_SWC2_SXYZ(s + 2);
-            if (s[6] > 0) {
-                u8 *v3 = verts + (p->v3 << 3);
-                RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, v3);
-                x = s[2]; y = s[3];
-                RTPS();
-                t1->xy0 = x;
-                t1->xy1 = y;
-                RR_GTE_SWC2_AT(14, 0, s + 5);
-                x = s[4]; y = s[5];
-                AVSZ4();
-                RR_GTE14_SWC2_OTZ(s + 8);
-                s[8] = s[8] >> sh;
-                if (s[8] < 0x1C1) {
-                    t1->xy2 = x;
-                    t1->xy3 = y;
-                    {
-                        x = p->uvClut18; y = p->uvTpage1C;
-                        t1->uvClut0C = x;
-                        t1->uvTpage18 = y;
-                    }
-                    {
-                        x = p->uv2; y = p->uv3;
-                        t1->uv2 = x;
-                        t1->uv3 = y;
-                    }
-                    {
-                        x = p->color10; y = p->color14;
-                        t1->color1C = x;
-                        t1->color28 = y;
-                    }
-                    {
-                        s32 *ot = (s32 *)((char *)(s[0x15] * 4 + ((s8)p->otBias25 * 4 + (s[8] * 4 + s[0x16]))) + 0x200);
-                        nv = 0xFFFFFF;
-                        *(s32 *)t1 = (*(s32 *)t1 & 0xFF000000) | (*ot & nv);
-                    }
-                    {
-                        s32 *ot = (s32 *)((char *)(s[0x15] * 4 + ((s8)p->otBias25 * 4 + (s[8] * 4 + s[0x16]))) + 0x200);
-                        *ot = (*ot & 0xFF000000) | ((s32)t1 & 0xFFFFFF);
-                    }
-                    t1++;
-                }
-            }
-            p++;
-        } while (n-- > 0);
+        }
+        p++;
     }
-    *(s32 *)SCRATCHPAD = t1;
+    RR_GPU_SCRATCH->cursor = (u8 *)t1;
     return p;
 }
 
-MeshQuadG4 *DrawMeshQuadG4(MeshQuadG4 *p, s32 *s) {
-    s32 *g = (s32 *)SCRATCHPAD;
-    PolyG4WordPacket *out = (PolyG4WordPacket *)g[0];
-    s32 sh = g[0x18];
-    u8 *verts = (u8 *)s[0];
-    s32 n = s[1];
-    s32 nv;
-    s32 x;
-    s32 y;
-    PolyG4WordPacket *t1 = out;
-    if (n-- > 0) {
-        s32 c3c = 0x38;
-        do {
-            u8 *v0 = verts + (p->v0 << 3);
-            u8 *v1 = verts + (p->v1 << 3);
-            u8 *v2 = verts + (p->v2 << 3);
-            RR_GTE_LWC2_V012_3P(v0, v1, v2);
-            t1->len = 8;
-            RTPT();
-            ((u8 *)t1)[7] = c3c;
-            {
-                x = p->color08; y = p->color0C;
-                t1->color04 = x;
-                t1->color0C = y;
+static const MeshQuadG4 *DrawMeshQuadG4(const MeshQuadG4 *p, MeshQuadWork *s) {
+    s32 sh = ((RroSceneScratchPrefix *)SCRATCHPAD)->depthShift60;
+    const u8 *verts = s->vertices;
+    s32 n = s->count;
+    PolyG4WordPacket *t1 = (PolyG4WordPacket *)RR_GPU_SCRATCH->cursor;
+    while (n-- > 0) {
+        RR_GTE_LWC2_V012_3P(verts + (p->v0 << 3), verts + (p->v1 << 3), verts + (p->v2 << 3));
+        RTPT();
+        t1->color04 = p->color08;
+        t1->color0C = p->color0C;
+        NCLIP();
+        RR_GTE14_SWC2_MAC0(&s->winding);
+        RR_GTE14_SWC2_SXYZ(s->sxy);
+        if (s->winding > 0) {
+            RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, verts + (p->v3 << 3));
+            RTPS();
+            t1->xy0 = s->sxy[0];
+            t1->xy1 = s->sxy[1];
+            RR_GTE_SWC2_AT(14, 0, &s->sxy3);
+            AVSZ4();
+            RR_GTE14_SWC2_OTZ(&s->depth);
+            s->depth >>= sh;
+            if (s->depth < 0x1C1) {
+                t1->xy2 = s->sxy[2];
+                t1->xy3 = s->sxy3;
+                t1->color14 = p->color10;
+                t1->color1C = p->color14;
+                RR_GPU_ADD_PRIM(MeshQuadOrderEntry(s, (s8)p->otBias19), t1, 8);
+                t1++;
             }
-            NCLIP();
-            RR_GTE14_SWC2_MAC0(s + 6);
-            RR_GTE14_SWC2_SXYZ(s + 2);
-            if (s[6] > 0) {
-                u8 *v3 = verts + (p->v3 << 3);
-                RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, v3);
-                x = s[2]; y = s[3];
-                RTPS();
-                t1->xy0 = x;
-                t1->xy1 = y;
-                RR_GTE_SWC2_AT(14, 0, s + 5);
-                x = s[4]; y = s[5];
-                AVSZ4();
-                RR_GTE14_SWC2_OTZ(s + 8);
-                s[8] = s[8] >> sh;
-                if (s[8] < 0x1C1) {
-                    t1->xy2 = x;
-                    t1->xy3 = y;
-                    {
-                        x = p->color10; y = p->color14;
-                        t1->color14 = x;
-                        t1->color1C = y;
-                    }
-                    {
-                        s32 *ot = (s32 *)((char *)(s[0x15] * 4 + ((s8)p->otBias19 * 4 + (s[8] * 4 + s[0x16]))) + 0x200);
-                        nv = 0xFFFFFF;
-                        *(s32 *)t1 = (*(s32 *)t1 & 0xFF000000) | (*ot & nv);
-                    }
-                    {
-                        s32 *ot = (s32 *)((char *)(s[0x15] * 4 + ((s8)p->otBias19 * 4 + (s[8] * 4 + s[0x16]))) + 0x200);
-                        *ot = (*ot & 0xFF000000) | ((s32)t1 & 0xFFFFFF);
-                    }
-                    t1++;
-                }
-            }
-            p++;
-        } while (n-- > 0);
+        }
+        p++;
     }
-    *(s32 *)SCRATCHPAD = t1;
+    RR_GPU_SCRATCH->cursor = (u8 *)t1;
     return p;
 }
 
-MeshQuadF4 *DrawMeshQuadF4(MeshQuadF4 *p, s32 *s) {
-    s32 *g = (s32 *)SCRATCHPAD;
-    PolyF4Packet *out = (PolyF4Packet *)g[0];
-    s32 sh = g[0x18];
-    u8 *verts = (u8 *)s[0];
-    s32 n = s[1];
-    s32 nv;
-    s32 x;
-    s32 y;
-    PolyF4Packet *t1 = out;
-    if (n-- > 0) {
-        s32 c3c = 0x28;
-        do {
-            u8 *v0 = verts + (p->v0 << 3);
-            u8 *v1 = verts + (p->v1 << 3);
-            u8 *v2 = verts + (p->v2 << 3);
-            RR_GTE_LWC2_V012_3P(v0, v1, v2);
-            t1->len = 5;
-            ((u8 *)t1)[7] = c3c;
-            RTPT();
-            {
-                s32 w = p->color08;
-                t1->colorCode04 = w;
+static const MeshQuadF4 *DrawMeshQuadF4(const MeshQuadF4 *p, MeshQuadWork *s) {
+    s32 sh = ((RroSceneScratchPrefix *)SCRATCHPAD)->depthShift60;
+    const u8 *verts = s->vertices;
+    s32 n = s->count;
+    PolyF4Packet *t1 = (PolyF4Packet *)RR_GPU_SCRATCH->cursor;
+    while (n-- > 0) {
+        RR_GTE_LWC2_V012_3P(verts + (p->v0 << 3), verts + (p->v1 << 3), verts + (p->v2 << 3));
+        RTPT();
+        t1->colorCode04 = p->color08;
+        NCLIP();
+        RR_GTE14_SWC2_MAC0(&s->winding);
+        RR_GTE14_SWC2_SXYZ(s->sxy);
+        RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, verts + (p->v3 << 3));
+        RTPS();
+        t1->xy0 = s->sxy[0];
+        t1->xy1 = s->sxy[1];
+        NCLIP();
+        RR_GTE_SWC2_AT(14, 0, &s->sxy3);
+        RR_GTE_SWC2_AT(24, 0, &s->winding2);
+        if (s->winding > 0 || s->winding2 < 0) {
+            AVSZ4();
+            RR_GTE14_SWC2_OTZ(&s->depth);
+            s->depth >>= sh;
+            if (s->depth < 0x1C1) {
+                t1->xy2 = s->sxy[2];
+                t1->xy3 = s->sxy3;
+                RR_GPU_ADD_PRIM(MeshQuadOrderEntry(s, (s8)p->otBias0D), t1, 5);
+                t1++;
             }
-            NCLIP();
-            RR_GTE14_SWC2_MAC0(s + 6);
-            RR_GTE14_SWC2_SXYZ(s + 2);
-            {
-                u8 *v3 = verts + (p->v3 << 3);
-                RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, v3);
-                x = s[2]; y = s[3];
-                RTPS();
-                t1->xy0 = x;
-                t1->xy1 = y;
-                RR_GTE_CMD_2NOP(0x4B400006);
-                RR_GTE_SWC2_AT(14, 0, s + 5);
-                RR_GTE_SWC2_AT(24, 0, s + 7);
-                if (s[6] > 0 || s[7] < 0) {
-                    x = s[4]; y = s[5];
-                    AVSZ4();
-                    RR_GTE14_SWC2_OTZ(s + 8);
-                    s[8] = s[8] >> sh;
-                    if (s[8] < 0x1C1) {
-                        t1->xy2 = x;
-                        t1->xy3 = y;
-                        {
-                            s32 *ot = (s32 *)((char *)(s[0x15] * 4 + ((s8)p->otBias0D * 4 + (s[8] * 4 + s[0x16]))) + 0x200);
-                            nv = 0xFFFFFF;
-                            *(s32 *)t1 = (*(s32 *)t1 & 0xFF000000) | (*ot & nv);
-                        }
-                        {
-                            s32 *ot = (s32 *)((char *)(s[0x15] * 4 + ((s8)p->otBias0D * 4 + (s[8] * 4 + s[0x16]))) + 0x200);
-                            *ot = (*ot & 0xFF000000) | ((s32)t1 & 0xFFFFFF);
-                        }
-                        t1++;
-                    }
-                }
-            }
-            p++;
-        } while (n-- > 0);
+        }
+        p++;
     }
-    *(s32 *)SCRATCHPAD = t1;
+    RR_GPU_SCRATCH->cursor = (u8 *)t1;
     return p;
 }
 
-void DrawMeshPrimList(int arg0, int arg1, int arg2) {
-    int *g = (int *)(SCRATCHPAD + 0x7C);
-    int *a;
-    int v;
-    int t;
-    g[0x54 / 4] = arg2;
-    g[0x58 / 4] = ((int *)SCRATCHPAD)[1];
-    t = arg0 + arg1 * 0xC;
-    g[0] = ((int *)t)[1];
-    a = *(int **)(t + RR_FIELD_OFFSET(RroModelTable, entries[0].commands));
-    v = *a;
-    a++;
-    if (v != 0) {
-        do {
-            g[1] = v >> 16;
-            switch (v & 0xFFFF) {
-            case 0:
-                a = DrawMeshQuadF4(a, g);
-                break;
-            case 12:
-                a = DrawMeshQuadGT4(a, g);
-                break;
-            case 8:
-                a = DrawMeshQuadG4(a, g);
-                break;
-            }
-            v = *a;
-            a++;
-        } while (v != 0);
+/* Draws mesh `index` of a decoded model table. Its command stream holds
+ * (count << 16 | kind) headers, each followed by count face records, and
+ * ends with a zero word. */
+void DrawMeshPrimList(const RroModelTable *table, int index, int bias) {
+    MeshQuadWork work;
+    const u32 *a = table->entries[index].commands;
+    u32 v;
+    work.bias = bias;
+    work.ordering = RR_GPU_SCRATCH->order;
+    work.vertices = (const u8 *)table->entries[index].vertices;
+    while ((v = *a++) != 0) {
+        work.count = (s32)v >> 16;
+        switch (v & 0xFFFF) {
+        case 0:
+            a = (const u32 *)DrawMeshQuadF4((const MeshQuadF4 *)a, &work);
+            break;
+        case 12:
+            a = (const u32 *)DrawMeshQuadGT4((const MeshQuadGT4 *)a, &work);
+            break;
+        case 8:
+            a = (const u32 *)DrawMeshQuadG4((const MeshQuadG4 *)a, &work);
+            break;
+        }
     }
 }

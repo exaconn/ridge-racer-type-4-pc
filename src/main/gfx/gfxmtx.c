@@ -36,36 +36,17 @@ void SetLightColorsScaled(int a0)
 void SetLightColorsFromRow(s32 index)
 {
     MatrixWords32 colors;
-    u16 *s0;
-    int i = 0;
-    unsigned short *a3 = LightMatrix.halves;
-    unsigned char *a1;
-    unsigned short *a2;
-    TrackLighting2C *base = TrackLightTable;
-    a1 = (unsigned char *)(index * sizeof(*base) + (unsigned long)base);
-    a2 = (unsigned short *)a1;
-L:
-    {
-        u16 *v;
-        s0 = colors.halves;
-        v = s0 + i;
-        i++;
-        a3[0] = a2[8];
-        a3[1] = a2[9];
-        a3[2] = a2[10];
-        a2 += 4;
-        v[0] = a1[4] << 4;
-        v[3] = a1[5] << 4;
-        v[6] = a1[6] << 4;
-        a3 += 3;
-        a1 += 4;
+    int i;
+    const PreviewLighting40 *row = &TrackLightTable[index].lighting04;
+    for (i = 0; i < 3; i++) {
+        LightMatrix.matrix.fields.rotation00[i][0] = row->matrix.fields.vectors[i].x;
+        LightMatrix.matrix.fields.rotation00[i][1] = row->matrix.fields.vectors[i].y;
+        LightMatrix.matrix.fields.rotation00[i][2] = row->matrix.fields.vectors[i].z;
+        colors.fields.rotation00[0][i] = row->matrix.fields.colors[i].red << 4;
+        colors.fields.rotation00[1][i] = row->matrix.fields.colors[i].green << 4;
+        colors.fields.rotation00[2][i] = row->matrix.fields.colors[i].blue << 4;
     }
-    if (i < 3) goto L;
-    {
-        TrackLighting2C *current = TrackLightTable;
-        unsigned char *q = (unsigned char *)(index * sizeof(*current) + (unsigned long)current);
-        SetBackColor(q[0x28], q[0x29], q[0x2A]);
-    }
+    SetBackColor(row->ambient[0], row->ambient[1], row->ambient[2]);
     SetColorMatrix(&colors);
 }
 
@@ -118,10 +99,17 @@ int StepMenuCameraTransition(int flags)
 }
 
 int AllocBadgeRows(void *a0) {
-    int n = BadgeRowCount * 28;
+    int n = BadgeRowCount * sizeof(BadgeRow1C);
     BadgeRows = (BadgeRow1C *)a0;
     PsyqBzero(a0, n);
     DebugPrintStub(StrSizeEqLdFmt, n);
     return n;
 }
 
+
+/* Initial values of the globals this module owns. */
+char StrSizeEqLdFmt[100] = {115, 105, 122, 101, 32, 61, 32, 37, 108, 100, 10};
+u8 MenuCarDefaultAmbient[4] = {0x68, 0x70, 0x80};
+PreviewColor4 MenuCarLightColors[3] = {{.red = 0xC8, .green = 0xC8, .blue = 0xC8}, {.red = 0xC8, .green = 0xC8, .blue = 0xC8}, {.red = 0xC8, .green = 0xC8, .blue = 0xC8}};
+LightDirectionBits8 MenuCarLightVectors[3] = {{.x = 0xC0E, .y = 0x21}, {.y = 0x1000}, {.y = 0xF000}};
+int BadgeRowCount;

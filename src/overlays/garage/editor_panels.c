@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay662_primitives.h"
 #include "rr/overlay662_garage_fade.h"
 #include "rr/animated_sprite_grid.h"
@@ -21,15 +22,14 @@ typedef struct {
 
 extern GaragePanelElement ovl662_panel_elem_hline_top, ovl662_panel_elem_hline_bot, ovl662_panel_elem_tile_0,
     ovl662_panel_elem_tile_1, ovl662_panel_elem_tile_2;
+/* Five unnamed original tracks (8012685C..8012688C) and the table addressing them. */
+extern GaragePanelTrack ovl662_panel_fade_track_data[5];
 extern GaragePanelTrack *ovl662_panel_fade_tracks[5];
 
 void ovl662_draw_editor_panel_fades(void)
 {
-#ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
-#endif
     GpuScratchPointers *scratch = RR_GPU_SCRATCH;
-    u32 *ordering = scratch->order + 128;
+    GpuDmaTag *ordering = scratch->order + 128;
     GaragePoint point;
     s32 i;
     s32 t;
@@ -86,23 +86,17 @@ void ovl662_draw_editor_panel_fades(void)
 
 void ovl662_draw_editor_cursor(void)
 {
-#ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
-#endif
     GpuScratchPointers *scratch=RR_GPU_SCRATCH;
-    u32 *ordering=scratch->order+132;
+    GpuDmaTag *ordering=scratch->order+132;
     if (!(ovl662_editor_cursor_state.words[0]&1)) {
         scratch->cursor=ovl662_emit_indexed_sprite(ovl662_editor_cursor_state.words[14],scratch->cursor,
             ovl662_editor_cursor_state.halves[10],ovl662_editor_cursor_state.halves[11]);
-        scratch->cursor=ovl662_emit_draw_area(ordering, (u32 *)scratch->cursor,0,0,320,480);
+        scratch->cursor=ovl662_emit_draw_area(ordering, scratch->cursor,0,0,320,480);
     }
 }
 
 void ovl662_draw_button_highlight(s32 index)
 {
-#ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
-#endif
     GpuScratchPointers *scratch=RR_GPU_SCRATCH;
     GarageButton *button=(GarageButton *)ovl662_button_rect_lookup[index];
     s16 timer=button->timer0E;
@@ -117,11 +111,8 @@ void ovl662_draw_button_highlight(s32 index)
 
 void ovl662_draw_canvas_grid(s32 index)
 {
-#ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
-#endif
     GpuScratchPointers *scratch = RR_GPU_SCRATCH;
-    u32 *ordering = scratch->order + 137;
+    GpuDmaTag *ordering = scratch->order + 137;
     GarageRectangle *rect = ovl662_button_rect_lookup[index];
     s16 u;
     s32 v;
@@ -143,11 +134,11 @@ void ovl662_draw_canvas_grid(s32 index)
         scratch->cursor = (u8 *)ovl662_emit_vline_prim(ordering, (GpuLineF2Packet *)scratch->cursor, 278, 245, 328, 255, 255, 255);
         scratch->cursor = (u8 *)ovl662_emit_vline_prim(ordering, (GpuLineF2Packet *)scratch->cursor, 279, 245, 328, 255, 255, 255);
     }
-    scratch->cursor = ovl662_emit_draw_area(ordering, (u32 *)scratch->cursor, 12, 61, 296, 352);
+    scratch->cursor = ovl662_emit_draw_area(ordering, scratch->cursor, 12, 61, 296, 352);
     scratch->cursor = (u8 *)ovl662_emit_textured_quad(ordering, (GpuPolyFT4Packet *)scratch->cursor,
         (s16)((*rect)[0] - 1), (s16)((*rect)[1] - 2), (s16)((*rect)[2] + 2), (s16)((*rect)[3] + 4),
         u - 2, v - 2, 68, 68, clut, tpage);
-    scratch->cursor = ovl662_emit_draw_area(ordering, (u32 *)scratch->cursor,
+    scratch->cursor = ovl662_emit_draw_area(ordering, scratch->cursor,
         (s16)(*rect)[0], (s16)(*rect)[1], (s16)(*rect)[2], (s16)(*rect)[3]);
     scratch->cursor = (u8 *)ovl662_emit_wire_box(ordering, (GpuLineF4Packet *)scratch->cursor,
         (s16)((*rect)[0] - 2), (s16)((*rect)[1] - 4), (s16)((*rect)[2] + 4), (s16)((*rect)[3] + 8), 255, 255, 255);
@@ -157,9 +148,6 @@ void ovl662_draw_canvas_grid(s32 index)
 
 void ovl662_draw_palette_swatch(s32 index)
 {
-#ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
-#endif
     GpuScratchPointers *scratch=RR_GPU_SCRATCH;
     u32 *pal=ovl662_editor_workspace.palette48[ovl662_editor_workspace.active21];
     s32 slot=index-20;
@@ -175,9 +163,6 @@ void ovl662_draw_palette_swatch(s32 index)
 /* The mode cycle established by1A788/1A414 and1FB2C is0..2. */
 void ovl662_draw_tool_button(s32 index)
 {
-#ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
-#endif
     GpuScratchPointers *scratch = RR_GPU_SCRATCH;
     GarageButton *button = (GarageButton *)ovl662_button_rect_lookup[index];
     s32 sprite0;
@@ -219,9 +204,6 @@ void ovl662_draw_tool_button(s32 index)
 
 void ovl662_draw_rgb_sliders(void)
 {
-#ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
-#endif
     GpuScratchPointers *scratch=RR_GPU_SCRATCH;
     /* unsigned long retains the complete PAL/native address before selecting a color. */
     GaragePaletteEntry *color=(GaragePaletteEntry *)(ovl662_editor_workspace.config22*2 + (unsigned long)ovl662_editor_workspace.palette48[ovl662_editor_workspace.active21]);
@@ -244,9 +226,6 @@ void ovl662_draw_rgb_sliders(void)
  * descriptor is read again after emitting that digit, for the ones position. */
 void ovl662_draw_rgb_digits(s32 channel, s32 value)
 {
-#ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
-#endif
     GpuScratchPointers *scratch = RR_GPU_SCRATCH;
     s16 sliderX;
     s16 sliderY;
@@ -283,3 +262,23 @@ void ovl662_draw_rgb_digits(s32 channel, s32 value)
     idx &= tensSprite;
     scratch->cursor = ovl662_emit_indexed_sprite((value % 10) + 59, scratch->cursor, (s16)(digitX + ovl662_sprite_lookup[idx]->width04), digitY);
 }
+
+/* Initial values of the overlay globals this module owns. */
+GaragePanelElement ovl662_panel_elem_hline_top = {.order = 13, .x = 12, .y = 411, .r = 0xFF, .g = 0xFF, .b = 0xFF};
+GaragePanelElement ovl662_panel_elem_hline_bot = {.order = 14, .x = 232, .y = 411, .r = 0xFF, .g = 0xFF, .b = 0xFF};
+GaragePanelElement ovl662_panel_elem_tile_0 = {.order = 16, .w = 214, .h = 348, .r = 0xF0, .g = 0x7A, .b = 0x14};
+GaragePanelElement ovl662_panel_elem_tile_1 = {.order = 15, .w = 45, .h = 68, .r = 0xF0, .g = 0x7A, .b = 0x14};
+GaragePanelElement ovl662_panel_elem_tile_2 = {.order = 17, .w = 74, .h = 348, .r = 0x4A, .g = 0x4A, .b = 0x4A};
+GaragePanelTrack ovl662_panel_fade_track_data[5] = {{.end = 12, .from = 0x19B000Cu, .to = 0x19B00E3u}, {.end = 12, .from = 0x19B00E8u, .to = 0x19B0133u}, {.start = 16, .end = 28, .from = 0x19D000Du, .to = 0x3F000Du}, {.start = 16, .end = 28, .from = 0x23300E3u, .to = 0xD500E3u}, {.start = 16, .end = 28, .from = 0x19D00E9u, .to = 0x3F00E9u}};
+GaragePanelTrack *ovl662_panel_fade_tracks[5] = {(GaragePanelTrack *)&ovl662_panel_fade_track_data[0], (GaragePanelTrack *)&ovl662_panel_fade_track_data[1], (GaragePanelTrack *)&ovl662_panel_fade_track_data[2], (GaragePanelTrack *)&ovl662_panel_fade_track_data[3], (GaragePanelTrack *)&ovl662_panel_fade_track_data[4]};
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_editor_panels_regions[] = {
+    RR_OVERLAY_STATE(ovl662_panel_elem_hline_bot),
+    RR_OVERLAY_STATE(ovl662_panel_elem_hline_top),
+    RR_OVERLAY_STATE(ovl662_panel_elem_tile_0),
+    RR_OVERLAY_STATE(ovl662_panel_elem_tile_1),
+    RR_OVERLAY_STATE(ovl662_panel_elem_tile_2),
+    RR_OVERLAY_STATE(ovl662_panel_fade_track_data),
+    RR_OVERLAY_STATE(ovl662_panel_fade_tracks)};
+const OverlayStateTable ovl662_editor_panels_state = {ovl662_editor_panels_regions, sizeof(ovl662_editor_panels_regions) / sizeof(ovl662_editor_panels_regions[0])};

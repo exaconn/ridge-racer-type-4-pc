@@ -1,4 +1,6 @@
 #include "rr/projection_state.h"
+#include "rr/player_cars.h"
+#include "scratchpad.h"
 #include "rr/load_cursor.h"
 #include "game/system/pad.h"
 #include "rr/overlay667_course_menu.h"
@@ -11,7 +13,7 @@ extern s32 ActivePlayerIndex;
 void ovl667_select_scene(void) { ActiveSceneId = 315; }
 
 #ifndef RR_GPU_PROJECTION_SCRATCH
-#define RR_GPU_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)0x1F800000)
+#define RR_GPU_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)SCRATCHPAD)
 #endif
 
 void ovl667_init_course_menu(void)
@@ -31,9 +33,9 @@ void ovl667_init_course_menu(void)
     RR_GPU_PROJECTION_SCRATCH->pose08.angles10.xyz.z=0;
     RR_GPU_PROJECTION_SCRATCH->pose08.position00.words[0]=0;
     RR_GPU_PROJECTION_SCRATCH->pose08.position00.words[2]=0;
-    ComCars.words20[0]=0;
-    ComCars.words20[1]=0;
-    ComCars.words20[2]=0;
+    ComCars[0].position20.words[0]=0;
+    ComCars[0].position20.words[1]=0;
+    ComCars[0].position20.words[2]=0;
     ActivePlayerIndex=0;
     LinkMenuSyncPhase=0;
     LoadCursor=MenuArenas.second;
@@ -146,9 +148,9 @@ void ovl667_update_course_menu(void) {
                 if (FadeCountdown > 0) {
                     FadeCountdown = (s16)((u16) FadeCountdown - 1);
                 }
-                AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words, (0x40 - FadeCountdown) * 4, 0x45);
+                AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.tags, (0x40 - FadeCountdown) * 4, 0x45);
                 if (FadeCountdown <= 0) {
-                    LinkPrevCarRanks = -1;
+                    LinkPrevCarRanks[0] = -1;
                     SeqMuteVolume();
                     ModeGroup = 1;
                     ModeIndex = 0x29;
@@ -196,6 +198,12 @@ void ovl667_update_course_menu(void) {
     if (SubmodeState == 4) {
         DrawUiRow(0x17);
     }
-    MenuAvailableCourseMask = 0;
+    MenuFrameState.titlePlayer08 = 0;
     UpdateScreenFade(0x10026);
 }
+
+/* Initial values of the globals this module owns. */
+s16 SelectedCourseChoice;
+s16 LinkRaceAbortFlag;
+s32 LinkAvailableCourseCount;
+s16 LinkPrevCarRanks[4];

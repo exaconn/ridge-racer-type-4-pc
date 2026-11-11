@@ -3,9 +3,12 @@
 
 #include "types.h"
 
+struct GpuDmaTag;
+
 extern void *SavedLoadCursor;
 
-int AddBadgeSpriteStrip();
+/* Emits up to four badge glyph sprites of pattern a at (y, w); returns the cursor. */
+void *AddBadgeSpriteStrip(int a, struct GpuDmaTag *ordering, void *cursor, int y, int w, int alpha);
 void CarStandingsModeUpdate(void);
 
 

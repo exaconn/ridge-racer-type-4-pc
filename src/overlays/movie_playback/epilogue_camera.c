@@ -19,14 +19,14 @@ void ovl668_project_camera_to_track(s32 *unused_position) {
 
     (void)unused_position;
 
-    position[0] = RaceContext.position450[0] >> 2;
-    position[1] = RaceContext.position450[1] >> 2;
-    position[2] = RaceContext.position450[2] >> 2;
-    idx = FindTrackNode(position, RaceContext.node498, (TrackNodeCount + 1U));
-    RaceContext.node498 = idx;
-    offsets[0].value = (RaceContext.position450[0] / 4) - (u16)TrackNodes[idx].road.x;
-    offsets[1].value = (RaceContext.position450[2] / 4) - (u16)TrackNodes[idx].road.z;
-    ProjectToTrackSegment(offsets[0], offsets[1], RaceContext.node498, &RaceContext.fraction49C, &RaceContext.lateral49E, &height);
+    position[0] = RaceContext.work444.epilogue.position450[0] >> 2;
+    position[1] = RaceContext.work444.epilogue.position450[1] >> 2;
+    position[2] = RaceContext.work444.epilogue.position450[2] >> 2;
+    idx = FindTrackNode(position, RaceContext.work444.epilogue.node498, (TrackNodeCount + 1U));
+    RaceContext.work444.epilogue.node498 = idx;
+    offsets[0].value = (RaceContext.work444.epilogue.position450[0] / 4) - (u16)TrackNodes[idx].road.x;
+    offsets[1].value = (RaceContext.work444.epilogue.position450[2] / 4) - (u16)TrackNodes[idx].road.z;
+    ProjectToTrackSegment(offsets[0], offsets[1], RaceContext.work444.epilogue.node498, &RaceContext.work444.epilogue.fraction49C, &RaceContext.work444.epilogue.lateral49E, &height);
 }
 
 void ovl668_step_epilogue_camera_yaw(void) {
@@ -39,8 +39,8 @@ void ovl668_step_epilogue_camera_yaw(void) {
     s32 diff;
     u32 unk4A0;
 
-    var_a3 = RaceContext.fraction49C;
-    idx1 = RaceContext.node498 - ((3072 - var_a3) / 1024);
+    var_a3 = RaceContext.work444.epilogue.fraction49C;
+    idx1 = RaceContext.work444.epilogue.node498 - ((3072 - var_a3) / 1024);
     idx2 = idx1 - 1;
     if (idx1 < 0) {
         idx1 += TrackNodeCount;
@@ -49,22 +49,22 @@ void ovl668_step_epilogue_camera_yaw(void) {
     if (idx2 < 0) {
         idx2 += TrackNodeCount;
     }
-    InterpolateLanePointXYZ(&TrackNodes[idx1], &TrackNodes[idx2], 0, (1024 - var_a3) & 0x3FF, RaceContext.target468);
-    RaceContext.delta478[0] = ((u32)RaceContext.target468[0] - (RaceContext.position450[0] / 4));
-    RaceContext.delta478[1] = ((u32)RaceContext.target468[1] - (RaceContext.position450[1] / 4));
-    RaceContext.delta478[2] = ((u32)RaceContext.target468[2] - (RaceContext.position450[2] / 4));
-    old_unk462 = RaceContext.yaw462;
-    new_unk462 = 1024 - Atan2Table(RaceContext.delta478[0], RaceContext.delta478[2]);
+    InterpolateLanePointXYZ(&TrackNodes[idx1], &TrackNodes[idx2], 0, (1024 - var_a3) & 0x3FF, RaceContext.work444.epilogue.target468);
+    RaceContext.work444.epilogue.delta478[0] = ((u32)RaceContext.work444.epilogue.target468[0] - (RaceContext.work444.epilogue.position450[0] / 4));
+    RaceContext.work444.epilogue.delta478[1] = ((u32)RaceContext.work444.epilogue.target468[1] - (RaceContext.work444.epilogue.position450[1] / 4));
+    RaceContext.work444.epilogue.delta478[2] = ((u32)RaceContext.work444.epilogue.target468[2] - (RaceContext.work444.epilogue.position450[2] / 4));
+    old_unk462 = RaceContext.work444.epilogue.yaw462;
+    new_unk462 = 1024 - Atan2Table(RaceContext.work444.epilogue.delta478[0], RaceContext.work444.epilogue.delta478[2]);
     old_unk462 = (new_unk462 - old_unk462) * 2;
     diff = old_unk462;
     old_unk462 &= 0xFFF;
-    RaceContext.yaw462 = new_unk462;
+    RaceContext.work444.epilogue.yaw462 = new_unk462;
     if (diff & 0x800) {
         old_unk462 |= ~0xFFF;
     }
-    unk4A0 = RaceContext.velocity4A0;
-    RaceContext.velocity4A0 = (unk4A0 + ((s32)((old_unk462 - unk4A0) * 15U) / 16));
-    RaceContext.roll464 = (s32)((u32)RaceContext.velocity4A0 + RaceContext.roll464) / 2;
+    unk4A0 = RaceContext.work444.epilogue.velocity4A0;
+    RaceContext.work444.epilogue.velocity4A0 = (unk4A0 + ((s32)((old_unk462 - unk4A0) * 15U) / 16));
+    RaceContext.work444.epilogue.roll464 = (s32)((u32)RaceContext.work444.epilogue.velocity4A0 + RaceContext.work444.epilogue.roll464) / 2;
 }
 
 void ovl668_step_epilogue_camera_pitch(void) {
@@ -77,26 +77,26 @@ void ovl668_step_epilogue_camera_pitch(void) {
     u32 dx;
     u32 dz;
 
-    idx = RaceContext.node498;
+    idx = RaceContext.work444.epilogue.node498;
     next = idx + 1;
     if (next >= TrackNodeCount) {
         next = 0;
     }
-    InterpolateLanePointXYZ(&TrackNodes[idx], &TrackNodes[next], RaceContext.lateral49E, RaceContext.fraction49C, sp18);
-    next = RaceContext.node498;
+    InterpolateLanePointXYZ(&TrackNodes[idx], &TrackNodes[next], RaceContext.work444.epilogue.lateral49E, RaceContext.work444.epilogue.fraction49C, sp18);
+    next = RaceContext.work444.epilogue.node498;
     idx = next - 1;
-    RaceContext.position450[1] = (sp18[1] - 120U);
+    RaceContext.work444.epilogue.position450[1] = (sp18[1] - 120U);
     if (idx < 0) {
         idx += TrackNodeCount;
     }
-    InterpolateLanePointXYZ(&TrackNodes[idx], &TrackNodes[next], RaceContext.lateral49E, RaceContext.fraction49C, sp28);
+    InterpolateLanePointXYZ(&TrackNodes[idx], &TrackNodes[next], RaceContext.work444.epilogue.lateral49E, RaceContext.work444.epilogue.fraction49C, sp28);
     dx = (((u32)sp28[0] - sp18[0]) << 2);
     sp38[0] = dx;
     dz = (((u32)sp28[2] - sp18[2]) << 2);
     sp38[2] = dz;
     sp38[1] = ((u32)sp28[1] - sp18[1]);
     next = 1024 - Atan2Table(sp38[1], CordicSqrt((dx * dx + dz * dz)) >> 6);
-    RaceContext.pitch460 = next;
+    RaceContext.work444.epilogue.pitch460 = next;
 }
 
 void ovl668_apply_epilogue_camera(void) {
@@ -104,23 +104,23 @@ void ovl668_apply_epilogue_camera(void) {
     PreviewVector8 sp30;
     s32 *scratch = RR_REPLAY_SCRATCH_WORDS;
 
-    scratch[6] = RaceContext.pitch460;
-    scratch[7] = RaceContext.yaw462;
-    scratch[8] = RaceContext.roll464;
-    scratch[2] = RaceContext.position450[0];
-    scratch[3] = RaceContext.position450[1];
-    scratch[4] = RaceContext.position450[2];
+    scratch[6] = RaceContext.work444.epilogue.pitch460;
+    scratch[7] = RaceContext.work444.epilogue.yaw462;
+    scratch[8] = RaceContext.work444.epilogue.roll464;
+    scratch[2] = RaceContext.work444.epilogue.position450[0];
+    scratch[3] = RaceContext.work444.epilogue.position450[1];
+    scratch[4] = RaceContext.work444.epilogue.position450[2];
     sp30.x = scratch[6];
     sp30.y = scratch[7];
     sp30.z = scratch[8];
     RotMatrix(&sp30, &sp10.matrix);
-    ApplyMatrixSV((const MatrixWords32 *)(&sp10.matrix), (const Vec3s8 *)(RaceContext.offset488), (s16 *)(&sp30));
-    PlayerCars[0].position20.words[0] = (RaceContext.position450[0] / 4) + sp30.x;
-    PlayerCars[0].position20.words[1] = (RaceContext.position450[1] / 4) + sp30.y;
-    PlayerCars[0].position20.words[2] = (RaceContext.position450[2] / 4) + sp30.z;
-    PlayerCars[0].rot50 = RaceContext.pitch460 + RaceContext.angle490;
-    PlayerCars[0].rot54 = RaceContext.yaw462;
-    PlayerCars[0].rot58 = RaceContext.roll464;
+    ApplyMatrixSV((const MatrixWords32 *)(&sp10.matrix), (const Vec3s8 *)(RaceContext.work444.epilogue.offset488), (s16 *)(&sp30));
+    PlayerCars[0].position20.words[0] = (RaceContext.work444.epilogue.position450[0] / 4) + sp30.x;
+    PlayerCars[0].position20.words[1] = (RaceContext.work444.epilogue.position450[1] / 4) + sp30.y;
+    PlayerCars[0].position20.words[2] = (RaceContext.work444.epilogue.position450[2] / 4) + sp30.z;
+    PlayerCars[0].rot50 = RaceContext.work444.epilogue.pitch460 + RaceContext.work444.epilogue.angle490;
+    PlayerCars[0].rot54 = RaceContext.work444.epilogue.yaw462;
+    PlayerCars[0].rot58 = RaceContext.work444.epilogue.roll464;
     BuildCameraMatrices();
 }
 
@@ -140,9 +140,9 @@ s32 ovl668_calc_credit_line_fade(s16 arg0) {
     return 256;
 }
 
-/* Textured gouraud quad (GPU command 0x3E, 13-word packet). */
+/* Textured gouraud quad (GPU command 0x3E, 12 payload words). */
 typedef struct {
-    u32 tag;
+    GpuDmaTag tag;
     u8 r0, g0, b0, code;
     s16 x0, y0;
     u8 u0, v0;
@@ -167,11 +167,12 @@ const s32 ovl668_credit_tpages[2] = {0x35, 0x36};
 const s32 ovl668_credit_clut = 0x7F94;
 s32 ovl668_calc_credit_line_fade(s16 arg0);
 
+/* Drawing-environment packet with the PsyZ DR_ENV layout (host tag and
+ * fifteen command cells) that SetDrawEnv fills. */
 typedef struct {
-    StrCreditQuad *cursor;
-} StrCreditScratch;
-
-#define RR_STR_SCRATCH ((StrCreditScratch *)0x1F800000)
+    GpuDmaTag tag;
+    uintptr_t code[15];
+} StrDrawEnvPacket;
 
 /* Draws one 8-pixel band of the scrolling credits texture. */
 void ovl668_draw_credit_band(s32 line, s32 unused) {
@@ -183,7 +184,6 @@ void ovl668_draw_credit_band(s32 line, s32 unused) {
     s32 top;
     s32 bottom;
     StrCreditQuad *p;
-    u32 *ot;
 
     page = line / 31;
     v = (line % 31) * 8;
@@ -193,8 +193,7 @@ void ovl668_draw_credit_band(s32 line, s32 unused) {
         top = ovl668_calc_credit_line_fade(y) * 160 / 256;
         y2 = y + 8;
         bottom = ovl668_calc_credit_line_fade(y2) * 160 / 256;
-        p = RR_STR_SCRATCH->cursor;
-        ((u8 *)p)[3] = 12;
+        p = (StrCreditQuad *)RR_GPU_SCRATCH->cursor;
         p->code = 0x3E;
         p->x0 = 32;
         p->y0 = y;
@@ -226,11 +225,9 @@ void ovl668_draw_credit_band(s32 line, s32 unused) {
         p->b3 = bottom;
         p->clut = ovl668_credit_clut;
         p->tpage = ovl668_credit_tpages[page];
-        ot = &CurrentDrawBuf->buffer.ordering70.words[0];
-        p->tag = (p->tag & 0xFF000000) | (*ot & 0x00FFFFFF);
-        *ot = (*ot & 0xFF000000) | ((u32)p & 0x00FFFFFF);
+        RR_GPU_ADD_PRIM(&CurrentDrawBuf->buffer.ordering70.tags[0], p, 12);
         p++;
-        RR_STR_SCRATCH->cursor = p;
+        RR_GPU_SCRATCH->cursor = (u8 *)p;
     }
 }
 
@@ -239,34 +236,29 @@ extern s32 DrawBufIndex;
 /* Queues the letterbox drawing-environment / fade packets for one pass. */
 void ovl668_emit_letterbox_pass(s32 mode) {
     DrawEnvironment env;
-    u32 *packet;
-    u32 *ot;
+    StrDrawEnvPacket *packet;
+    GpuDmaTag *ot;
     GpuTilePacket *tile;
 
     switch (mode) {
     case 0:
         SetDefDrawEnv(&env, 0, (DrawBufIndex * 256U) | 40, 320, 160);
-        packet = (u32 *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
-        SetDrawEnv(packet, &env);
-        ot = &CurrentDrawBuf->buffer.ordering70.words[703];
-        *packet = (*packet & 0xFF000000) | (*ot & 0x00FFFFFF);
-        *ot = (*ot & 0xFF000000) | (GpuDmaEncodeAddress(packet) & 0x00FFFFFF);
-        packet += 16;
-        ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)packet;
+        packet = (StrDrawEnvPacket *)RR_GPU_SCRATCH->cursor;
+        SetDrawEnv((void *)packet, &env);
+        RR_GPU_LINK(&CurrentDrawBuf->buffer.ordering70.tags[703], packet);
+        packet++;
+        RR_GPU_SCRATCH->cursor = (u8 *)packet;
         break;
     case 1:
         SetDefDrawEnv(&env, 0, DrawBufIndex * 256U, 320, 256);
-        packet = (u32 *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
-        SetDrawEnv(packet, &env);
-        ot = &CurrentDrawBuf->buffer.ordering70.words[0];
-        *packet = (*packet & 0xFF000000) | (*ot & 0x00FFFFFF);
-        *ot = (*ot & 0xFF000000) | (GpuDmaEncodeAddress(packet) & 0x00FFFFFF);
-        packet += 16;
-        ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)packet;
+        packet = (StrDrawEnvPacket *)RR_GPU_SCRATCH->cursor;
+        SetDrawEnv((void *)packet, &env);
+        RR_GPU_LINK(&CurrentDrawBuf->buffer.ordering70.tags[0], packet);
+        packet++;
+        RR_GPU_SCRATCH->cursor = (u8 *)packet;
         break;
     case 2:
-        tile = (GpuTilePacket *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
-        tile->tag.bits.length = 3;
+        tile = (GpuTilePacket *)RR_GPU_SCRATCH->cursor;
         tile->code = 0x62;
         tile->y = 40;
         tile->w = 320;
@@ -275,22 +267,19 @@ void ovl668_emit_letterbox_pass(s32 mode) {
         tile->g = 24;
         tile->b = 12;
         tile->x = 0;
-        ot = &CurrentDrawBuf->buffer.ordering70.words[0];
-        tile->tag.bits.address = ((GpuDmaTag *)ot)->bits.address;
-        *ot = (*ot & 0xFF000000) | (GpuDmaEncodeAddress(tile) & 0x00FFFFFF);
+        ot = &CurrentDrawBuf->buffer.ordering70.tags[0];
+        RR_GPU_ADD_PRIM(ot, tile, 3);
         tile++;
-        ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)tile;
-        ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawModePrim(ot, (GpuDrawModePacket *)tile, 37);
+        RR_GPU_SCRATCH->cursor = (u8 *)tile;
+        RR_GPU_SCRATCH->cursor = AddDrawModePrim(ot, (GpuDrawModePacket *)tile, 37);
         break;
     case 3:
         SetDefDrawEnv(&env, 0, (DrawBufIndex * 256U) | 80, 320, 160);
-        packet = (u32 *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
-        SetDrawEnv(packet, &env);
-        ot = &CurrentDrawBuf->buffer.ordering70.words[0];
-        *packet = (*packet & 0xFF000000) | (*ot & 0x00FFFFFF);
-        *ot = (*ot & 0xFF000000) | (GpuDmaEncodeAddress(packet) & 0x00FFFFFF);
-        packet += 16;
-        ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)packet;
+        packet = (StrDrawEnvPacket *)RR_GPU_SCRATCH->cursor;
+        SetDrawEnv((void *)packet, &env);
+        RR_GPU_LINK(&CurrentDrawBuf->buffer.ordering70.tags[0], packet);
+        packet++;
+        RR_GPU_SCRATCH->cursor = (u8 *)packet;
         break;
     }
 }

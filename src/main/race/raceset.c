@@ -1,4 +1,6 @@
 #include "rr/save_slots.h"
+#include "rr/menu_selection.h"
+#include "game/race/ranking.h"
 #include "game/sound/sndque.h"
 #include "rr/vehicle_table.h"
 #include "rr/race_types.h"
@@ -15,13 +17,8 @@
 
 extern u8 GpStageRivalRankLimits[];
 extern s16 FadeCountdown;
-extern s32 CourseBestLap[2][8];
 extern s16 ReverseCourse;
 extern s32 TrackLength;
-extern s32 CourseBestLapTimes[2][8][3];
-extern s16 CourseIndex;
-extern s32 NumLaps;
-extern s32 CourseBestLapRecords[];
 extern s32 LapFrameCounts[];
 extern s32 TotalRaceTime;
 extern s32 BestLapTime;
@@ -32,7 +29,6 @@ extern s32 SplitTimes[3];
 extern s32 SplitIndex;
 extern s16 LapVoicePending;
 extern s32 SplitDistances[3];
-extern short NumCars;
 extern unsigned short GameTypeSceneIds[];
 
 void UpdateLapTiming(RaceVehicle *arg0);
@@ -208,3 +204,24 @@ void SetupRaceAndSceneId(void) {
     SetupRace();
     ActiveSceneId = GameTypeSceneIds[GameModeType];
 }
+
+/* Initial values of the globals this module owns. */
+u8 GpStageRivalRankLimits[4] = {2, 1};
+unsigned short GameTypeSceneIds[8] = {0x135, 0x12F, 0x126, 0x126, 0x11A, 0x12F, 0x152};
+int CourseBestTotalTimes[8];
+s32 CourseBestLap[2][8];
+s32 CourseBestLapTimes[2][8][3];
+s32 NumLaps;
+s32 CourseBestLapRecords[8];
+s32 LapFrameCounts[10];
+s32 TotalRaceTime;
+s32 BestLapTime;
+s32 LapTimes[10];
+int CourseBestTotal[2][8];
+s32 BestSplitTimes[3];
+s16 LatchedSplitIndex;
+s32 LatchedSplitTime;
+s32 LatchedBestSplitTime;
+s32 SplitTimes[3];
+s32 SplitIndex;
+s16 LapVoicePending;

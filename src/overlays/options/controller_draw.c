@@ -1,4 +1,6 @@
+#include "rr/overlay_module.h"
 #include "game/gfx/model.h"
+#include "scratchpad.h"
 #include "psyq/libgte/gtemat4.h"
 #include "game/camera/viewcam.h"
 #include "rr/overlay665_render.h"
@@ -6,7 +8,7 @@
 #include "rr/overlay665_strokes.h"
 
 #ifndef RR_PREVIEW_RENDER_SCRATCH
-#define RR_PREVIEW_RENDER_SCRATCH ((PreviewRenderScratch *)0x1F800000)
+#define RR_PREVIEW_RENDER_SCRATCH ((PreviewRenderScratch *)SCRATCHPAD)
 #endif
 
 void ovl665_draw_controller_model(void) {
@@ -275,3 +277,13 @@ void ovl665_draw_callout_strokes(const StrokeStep4 *const *paths,s32 factor) {
         }
     }
 }
+
+/* Initial values of the overlay globals this module owns. */
+StrokeColor4 ovl665_callout_stroke_color = {.bytes = {0xFF, 0xFF, 0xFF}};
+u16 ovl665_callout_endpoint_coords[5][2] = {{0x58, 0xC0}, {0xA0, 0xC0}, {0xE8, 0xC0}, {0x7C, 0x168}, {0xC4, 0x168}};
+
+/* Writable state of this unit; ovl665_reset_module restores it. */
+static const OverlayStateRegion ovl665_controller_draw_regions[] = {
+    RR_OVERLAY_STATE(ovl665_callout_endpoint_coords),
+    RR_OVERLAY_STATE(ovl665_callout_stroke_color)};
+const OverlayStateTable ovl665_controller_draw_state = {ovl665_controller_draw_regions, sizeof(ovl665_controller_draw_regions) / sizeof(ovl665_controller_draw_regions[0])};

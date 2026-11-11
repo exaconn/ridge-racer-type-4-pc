@@ -2,7 +2,6 @@
 #define RR_PRESENTATION_H
 
 #include "rr/presentation_types.h"
-
-extern PresentationContextPrefix RaceContext;
+#include "rr/scene_camera_state.h"
 
 #endif

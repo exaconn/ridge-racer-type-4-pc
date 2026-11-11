@@ -157,7 +157,7 @@ void ovl659_update_preview(void) {
             } else if (PlayerControllers[0].action2C != 0) {
                 PlaySfx(2);
                 UiRows[6].byte14 = 3;
-                ((s8 *)ImageRows)[1] = 3;
+                ImageRows->f1 = 3;
                 SubmodeState = 10;
                 BadgeRows->state10 = 4;
             }
@@ -174,7 +174,7 @@ void ovl659_update_preview(void) {
             if (PlayerControllers[0].action28 != 0) {
                 PlaySfx(1);
                 UiRows[SelectionState.fields.copies[0].bytes[3] + 4].cells[0] = 1;
-                ((s8 *)ImageRows)[1] = 3;
+                ImageRows->f1 = 3;
                 UiRows[4].byte14 = 3;
                 UiRows[5].byte14 = 3;
                 UiRows[6].byte14 = 3;
@@ -196,7 +196,7 @@ void ovl659_update_preview(void) {
     case 6:
         timer6 = (u16)FadeCountdown - 1;
         FadeCountdown = timer6;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - timer6) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (0x40 - timer6) * 4, 0x45);
         if (FadeCountdown <= 0) {
             ModeGroup = 1;
             ModeIndex = 3;
@@ -206,7 +206,7 @@ void ovl659_update_preview(void) {
     case 3:
         timer3 = (u16)FadeCountdown - 1;
         FadeCountdown = timer3;
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - timer3) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (0x40 - timer3) * 4, 0x45);
         if (FadeCountdown <= 0) {
             SelectionRows.choice = SelectionState.fields.copies[0];
             MenuScriptId = 0;
@@ -225,7 +225,7 @@ draw_rows:
     goto end;
 draw_vehicle_preview:
     UpdateImageRow(0);
-    if (((s8 *)ImageRows)[1] >= 2) {
+    if (ImageRows->f1 >= 2) {
         BadgeRows->half02 = 1;
         UpdateBadgeRowAnim(0);
         DrawUiRow(6);
@@ -234,19 +234,19 @@ draw_vehicle_preview:
             DrawUiRow(5);
         }
     }
-    if (((u8)((s8 *)ImageRows)[1] - 1) < 2U) {
+    if (((u8)ImageRows->f1 - 1) < 2U) {
         SetupMenuCarCamera(1);
         SetupViewport(6);
         DrawSelectionIconGrid(0);
         UpdateCarWorldTransform(PlayerCars);
-        if (((s8 *)ImageRows)[1] == 1) {
-            s8 c = ~((ImageRows[2] * 0xFF) / 30);
+        if (ImageRows->f1 == 1) {
+            s8 c = ~((ImageRows->f2 * 0xFF) / 30);
             color.channels.r = c;
             color.channels.g = c;
             color.channels.b = c;
             drawFlags = 0x102;
-            scale = (ImageRows[2] << 8) / 30;
-        } else if (((s8 *)ImageRows)[1] == 2) {
+            scale = (ImageRows->f2 << 8) / 30;
+        } else if (ImageRows->f1 == 2) {
             scale = 0x100;
             drawFlags = 1;
             color.channels.r = 0x80;

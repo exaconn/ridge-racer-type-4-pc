@@ -1,4 +1,5 @@
 #include "rr/scene_camera_state.h"
+#include "rr/player_cars.h"
 #include "rr/vehicle_table.h"
 #include "types.h"
 #include "game/car/car.h"
@@ -11,8 +12,6 @@
 
 #define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -SinTable[0x400 - ((x) & 0x3FF)] : -SinTable[(x) & 0x3FF]) : (((x) & 0x400) ? SinTable[0x400 - ((x) & 0x3FF)] : SinTable[(x) & 0x3FF]))
 
-extern RaceVehicle ComCars[];
-extern s16 NumCars;
 extern int abs(int);
 
 
@@ -35,14 +34,14 @@ void UpdateRaceStandings(void) {
         }
     }
 
-    if (NumPlayers > 0) {
+    if (RaceContext.playerCount14 > 0) {
         v = &PlayerCars[0];
         a0 = -v->heading1D4 + 0x400;
         a0 -= TrackNodes[v->trackNodeF0].road.heading;
         t->playerSpeed[0] = -((SIN(a0) * v->input) / 4096);
     }
 
-    if (NumPlayers == 2) {
+    if (RaceContext.playerCount14 == 2) {
         v = &PlayerCars[1];
         a0 = -v->heading1D4 + 0x400;
         a0 -= TrackNodes[v->trackNodeF0].road.heading;

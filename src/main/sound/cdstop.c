@@ -1,4 +1,3 @@
-/* RODATA 0x80011178 0x14 */
 #include "types.h"
 #include "rr/audio_cd_controller.h"
 #include "game/sound/cdstop.h"

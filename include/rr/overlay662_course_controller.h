@@ -1,5 +1,6 @@
 #ifndef RR_OVERLAY662_COURSE_CONTROLLER_H
 #define RR_OVERLAY662_COURSE_CONTROLLER_H
+#include "rr/screen_tiles.h"
 #include "game/system/pad.h"
 #include "rr/race.h"
 #include "game/car/carwheel.h"
@@ -17,7 +18,7 @@
 extern CourseChoice4 CourseChoiceTable[2][9];
 #include "game/data/selection.h"
 #include "rr/menu_arena_state.h"
-extern u8 *ImageRows;
+#include "rr/image_rows.h"
 extern s32 ModeFrame,ActivePlayerIndex;
 extern s16 MenuCursor,ModeIndex;
 extern u16 FadeCountdown,ModeGroup;
@@ -28,10 +29,10 @@ void SetCarBounds(RaceVehicle*);void UpdateCarWorldTransform(char*);
 void SetMenuFrameOptions(s32,s32,s32);void StepMenuValue(s32,s32,char*,s32,s32);
 void UnpackChoiceGlyph(s8*,s32);s32 PackChoiceGlyph(void*);
 void ResetScreenCounters(void);void SetModelTexturePage(s32);void PlaySfx(s32);
-void DrawUiRow(s32);void DrawSelectionIconGrid(s32);
+int DrawUiRow(s32);void DrawSelectionIconGrid(s32);
 void UpdateBadgeRowAnim(s32);s32 UpdateImageRow(s32);
 void DrawMenuStepArrows(s32,s32,s32,s32,s32,s32,s32);void UpdateScreenFade(s32);
-void AddScreenFadeTiles(u32*,s32,u32);void ovl662_select_garage_car(void);
+void ovl662_select_garage_car(void);
 /* UI selection is0..3 and available-car selection0..8. Dynamic close counts
  * require initialized rows. Services may replace full UI, badge, frame, mode
  * and arena roots; the complete mode allocation and32-byte selection owner

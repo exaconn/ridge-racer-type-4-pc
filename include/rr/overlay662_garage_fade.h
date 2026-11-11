@@ -9,29 +9,18 @@ void ovl662_step_panel_fade_timers(void);
  * not a pure two-coordinate arithmetic operation. Only resulting IR1/IR2
  * are written to the destination word. Native tests override the hardware
  * boundary and do not claim to emulate hardware timing or saturation. */
-#ifndef RR_GARAGE_GTE_LERP
-#define RR_GARAGE_GTE_LERP(factor,source,destination) __asm__ volatile( \
-        "lw $8, 0(%1)\n\t" \
-        "lw $9, 4(%1)\n\t" \
-        "sra $10, $8, 16\n\t" \
-        "sll $8, $8, 16\n\t" \
-        "sra $8, $8, 16\n\t" \
-        "mtc2 $8, $9\n\t" \
-        "mtc2 $10, $10\n\t" \
-        "sra $10, $9, 16\n\t" \
-        "sll $9, $9, 16\n\t" \
-        "sra $9, $9, 16\n\t" \
-        "ctc2 $9, $21\n\t" \
-        "ctc2 $10, $22\n\t" \
-        "mtc2 %0, $8\n\t" \
-        "nop\n\t" \
-        ".word 0x4A980011\n\t" \
-        "mfc2 $8, $9\n\t" \
-        "mfc2 $9, $10\n\t" \
-        "sh $8, 0(%2)\n\t" \
-        "sh $9, 2(%2)" \
-        : \
-        : "r"(factor), "r"(source), "r"(destination) \
-        : "$8", "$9", "$10", "memory")
-#endif
+#include "rr_asm.h"
+static inline void ovl662_gte_lerp(s32 factor, const void *source, void *destination) {
+    const s16 *from = source; /* IR1, IR2, far-colour R, far-colour G */
+    s16 *to = destination;
+    Psyz_GteDataWrite(9, (u32)(s32)from[0]);
+    Psyz_GteDataWrite(10, (u32)(s32)from[1]);
+    Psyz_GteCtrlWrite(21, (u32)(s32)from[2]);
+    Psyz_GteCtrlWrite(22, (u32)(s32)from[3]);
+    Psyz_GteDataWrite(8, (u32)factor);
+    Psyz_GteCommand(0x0980011); /* INTPL */
+    to[0] = (s16)Psyz_GteDataRead(9);
+    to[1] = (s16)Psyz_GteDataRead(10);
+}
+#define RR_GARAGE_GTE_LERP(factor, source, destination) ovl662_gte_lerp((s32)(factor), (source), (destination))
 #endif

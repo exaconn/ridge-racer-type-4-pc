@@ -25,15 +25,12 @@ typedef struct {
 
 extern int DefaultCourseTimes[2][8];
 extern DefaultRecordEntry0C DefaultRecordEntries[5];
-extern int CourseBestLap[2][8];
 extern TimeRecord16 RaceRecords[2][8][5];
-extern int CourseBestLapTimes[2][8][3];
-extern int CourseBestLapRecords[8];
 extern TimeRecord16 LapRecords[2][8][5];
 extern CourseChoice4 CourseChoiceTable[2][9];
 extern unsigned short DefaultCourseChoiceGlyphs[];
 #include "rr/cd_directory_buffer.h"
-extern s32 StrTitle0Log;
+extern char StrTitle0Log[];
 extern s32 VSyncThreshold;
 extern s32 ModeFrame;
 extern s16 ModeIndex;
@@ -114,7 +111,7 @@ void MenuSceneNoop(void) {
 void SplashModeEnter(void) {
     int reserved[6];
     SetDispMask(0);
-    DebugPrintStub(&StrTitle0Log);
+    DebugPrintStub(StrTitle0Log);
     LoadCursor = CdDirectoryBuffer;
     InitSplashDispEnv();
     CardMenuOperation = 0;
@@ -137,7 +134,7 @@ void SplashModeUpdate(void) {
     if (temp_v0 == 1) {
         ModeFrame += 1;
         if (SplashLogoUpdate(LoadSaveFromCardStep(1) == 1) == temp_v0) {
-            SetCdMixMode(CdAudioMixChannelMode);
+            SetCdMixMode(Options.mono32);
             SubmodeState = 0;
             ModeGroup = (s16) ((u16) PendingModeId >> 8);
             ModeIndex = PendingModeId & 0xFF;
@@ -147,3 +144,11 @@ void SplashModeUpdate(void) {
 
 
 void DrawSmallFontString(s32 x, s32 y, const char *text, s32 color){ int a[6];; }
+
+/* Initial values of the globals this module owns. */
+char StrTitle0Log[36] = {116, 105, 116, 108, 101, 48, 10};
+int DefaultCourseTimes[2][8] = {{85765, 88765, 86765, 78765, 112765, 88765, 41765, 40765}, {84765, 92765, 90765, 94765, 111765, 102765, 49765, 60765}};
+DefaultRecordEntry0C DefaultRecordEntries[5] = {{.name = {69, 78, 75, 73, 32, 32, 32, 32}, .car = 0x1E0}, {.name = {83, 72, 73, 78, 74, 73, 32, 32}, .car = 0x190}, {.name = {82, 79, 66, 69, 82, 84, 32, 32}, .car = 0x28}, {.name = {83, 79, 80, 72, 73, 69, 32, 32}, .car = 0x118}, {.name = {82, 69, 73, 75, 79, 32, 32, 32}, .car = 0xC7}};
+unsigned short DefaultCourseChoiceGlyphs[8] = {0x27, 0x4F, 0x77, 0x9F, 0xC7, 0xEF, 0x117, 0x13F};
+u8 CourseLapCounts[2][8] = {{3, 3, 3, 3, 3, 3, 3, 6}, {2, 3, 3, 3, 2, 3, 3, 6}};
+EmblemTimImage840 SaveDataWork;

@@ -5,5 +5,7 @@
 
 /* BIOS random-number trampoline. */
 s32 PsyqRand(void);
+/* BIOS srand trampoline. */
+void PsyqSrand(u32 seed);
 
 #endif

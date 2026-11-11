@@ -1,5 +1,6 @@
 #ifndef RR_OVERLAY662_PROGRESS_CONTROLLER_H
 #define RR_OVERLAY662_PROGRESS_CONTROLLER_H
+#include "rr/screen_tiles.h"
 #include "game/system/pad.h"
 #include "rr/overlay662_setup.h"
 #include "rr/menu_transition.h"
@@ -13,8 +14,8 @@ void ovl662_step_selected_team(void);
 void ovl662_step_selected_maker(void);
 void ovl662_init_available_cars(void);
 void ovl662_init_team_car_layout(void);
-void AddScreenFadeTiles(u32 *,s32,u32);
-void DrawUiRow(s32);
+
+int DrawUiRow(s32);
 void UpdateBadgeRowAnim(s32);
 void UpdateScreenFade(s32);
 /* Entry phase must be0,1,2,3,4 or8. PAL table slots5..7 and its default

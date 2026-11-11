@@ -21,19 +21,11 @@ typedef struct {
 extern MenuGrid38 *MenuGridRecords;
 extern GridRow8 SelectionAnimStepTable[];
 
-/* The PAL routine captures this RAM page and reloads its pointer cell after
- * record writes. Model the cell at its byte offset, retaining native width. */
-typedef struct {
-    u8 reserved00[0x3A28];
-    MenuGrid38 *records3A28;
-} MenuGridPointerPage;
-RR_ASSERT_OFFSET(MenuGridPointerPage, records3A28, 0x3A28);
-
 /* Index and layout select accessible records/rows; their byte offsets must fit
  * signed32. Count is nonzero and abs(count)<=6, so all original divisions are
  * defined. X/Y narrow to signed16 before division. Copies all eight layout bytes
  * after publishing the dimensions and steps, then scales bytes 0x32/0x33 in place.
- * Pointer slots retain full native widths; the PAL slot is at 0x800F3A28. */
+ * The record pointer is MenuGridRecords. */
 void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y);
 
 RR_ASSERT_SIZE(GridRow8, 8);

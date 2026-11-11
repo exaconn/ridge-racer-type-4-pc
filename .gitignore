@@ -23,11 +23,5 @@ disc/
 *.cue
 *.bin
 *.chd
-
-# Legacy decompilation artifacts if present locally
-/tools/
-/asm/
-/expected/
-/linkers/
-/configs/
-objdiff.json
+/bu00/
+/bu10/

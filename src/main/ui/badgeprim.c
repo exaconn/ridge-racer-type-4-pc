@@ -5,7 +5,7 @@
 #include "psyq/libgpu/settrans.h"
 #include "rr/animated_glyph.h"
 
-void *AddSpritePrim(u32 *ordering, void *packet, s32 x, s32 y, UiUvRect *region, u16 clut, s32 flags) {
+void *AddSpritePrim(GpuDmaTag *ordering, void *packet, s32 x, s32 y, const UiUvRect *region, u16 clut, s32 flags) {
     s32 brightness = flags >> 1;
     SetSprt(packet);
     if (brightness == 0) {
@@ -27,7 +27,7 @@ void *AddSpritePrim(u32 *ordering, void *packet, s32 x, s32 y, UiUvRect *region,
         sprite->v = region->v;
         sprite->clut = clut;
         packet = sprite + 1;
-        AddPrim(ordering, (u32 *)sprite);
+        RR_GPU_LINK(ordering, sprite);
     }
     return packet;
 }

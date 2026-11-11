@@ -3,6 +3,7 @@
 
 #include "types.h"
 
-void AddPrims(u32 *ordering, const void *first, u32 *last);
+/* PsyZ: void AddPrims(void *ot, void *p0, void *p1). */
+void AddPrims(void *ordering, void *first, void *last);
 
 #endif /* RR_PSYQ_LIBGPU_ADDPRIM3_H */

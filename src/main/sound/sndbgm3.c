@@ -29,7 +29,7 @@ void InitLoopVoices(int a0) {
 
 void SetLoopVoiceVolumes(int a0, int a1, int a2) {
     int i;
-    if (CdAudioMixChannelMode == 0) {
+    if (Options.mono32 == 0) {
         SoundState.loopVoices1994[a0].vol10[0] = a1;
         SoundState.loopVoices1994[a0].vol10[1] = a2;
     } else {
@@ -54,8 +54,8 @@ void UpdateLoopVoices(void) {
         }
         s1 = (s1 * SoundState.gain18) / 128;
         s0 = (s0 * SoundState.gain18) / 128;
-        s1 = (s1 * Options.audio.volume31) / 16;
-        s0 = (s0 * Options.audio.volume31) / 16;
+        s1 = (s1 * Options.volume31) / 16;
+        s0 = (s0 * Options.volume31) / 16;
         if (s0 + s1 > 0) {
             SetVoiceVolumeScaled(SoundState.loopVoices1994[i].voice0C.word, s0, s1);
             if (SoundState.loopVoices1994[i].active04 == 0) {

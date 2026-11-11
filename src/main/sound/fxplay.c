@@ -7,13 +7,14 @@
 #include "game/sound/fxramp2.h"
 #include "psyq/libsnd/sspause.h"
 #include "psyq/libsnd/sspause2.h"
-#include "psyq/libspu/smalloc2.h"
 #include "rr/bios_devices.h"
 #include "rr/overlay665_audio_options.h"
 #include "game/sound/cdmain.h"
 
-extern struct { s32 a, b, c; } ReplayCamTargetDistTable[];
+typedef struct { s32 a, b, c; } ReplayCamTargetDist;
+extern ReplayCamTargetDist ReplayCamTargetDistTable[];
 extern s16 ActiveSfxSeqHandle;
+#include "psyq/libspu/smalloc2.h"
 
 void SeqStartTrack(int a0);
 void SeqMusicPause(void);
@@ -47,3 +48,7 @@ void SeqMusicPause(void) {
 void SeqMusicResume(void) {
     SsSeqReplay(ActiveSfxSeqHandle);
 }
+
+/* Initial values of the globals this module owns. */
+ReplayCamTargetDist ReplayCamTargetDistTable[2] = {{.a = 842, .b = 17800}, {.a = 1271, .b = 11800}};
+s16 ActiveSfxSeqHandle;

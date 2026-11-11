@@ -3,8 +3,9 @@
 
 #include "types.h"
 
-void InitCARD();
-void StartCARD(void);
-void StopCARD(void);
+/* PsyZ libcard. */
+void InitCARD(long pad_enable);
+long StartCARD(void);
+long StopCARD(void);
 
 #endif /* RR_PSYQ_LIBCARD_INIT_H */

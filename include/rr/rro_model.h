@@ -13,12 +13,30 @@ enum {RRO_VECTOR_STRIDE = sizeof(Vec3s8)};
  * its output is consumed before the emission fields replace it. */
 typedef ScreenPosition RroScreenPosition;
 
+/* Host pointer state the PS1 kept in scratch: the selected model bank
+ * (scratch 0x48..0x58), the dispatcher primitive (0x74) and the work-area
+ * pointers of the RRO and lit track-object emitters (0x7C onwards). The
+ * scratch views keep scalar placeholders at those offsets. Defined in
+ * gfx/model.c. */
 typedef struct {
-    const Vec3s8 *vertices00;
-    const Vec3s8 *normals04;
+    const RroEffectMesh *modelEntries;  /* 0x48: entries of the relocated model table */
+    const RroBankCommand *commands;     /* 0x50 */
+    const Vec3s8 *vertices;             /* 0x54 */
+    const Vec3s8 *normals;              /* 0x58 */
+    const u32 *drawPrimitive;           /* 0x74 */
+    const Vec3s8 *workVertices;         /* RroRenderWork 0x00 / TrackObjectLitWork 0x2C */
+    const Vec3s8 *workNormals;          /* RroRenderWork 0x04 */
+    struct GpuDmaTag *workOrdering;     /* RroRenderWork 0x14 */
+    const u32 *workCommands;            /* TrackObjectLitWork 0x30 */
+} RroScenePointers;
+extern RroScenePointers RroScene;
+
+/* Pointer words (slot00/04/14) live in RroScene.work*. */
+typedef struct {
+    u32 slot00, slot04;
     s32 flags08;
     u32 envClut0C, envTpage10;
-    u32 *ordering14;
+    u32 slot14;
     s32 depth18, firstArea1C, secondArea20;
     u32 reserved24;
     Vec3s8 vertices28[4];
@@ -40,23 +58,21 @@ typedef union {
 } RroScratchWork;
 
 /* These cells are raw words while a camera script owns them, and a primitive
- * pointer/counter while the preview dispatcher owns them. The native union
- * retains a complete pointer and its actual alignment. */
+ * slot/counter while the preview dispatcher owns them; the primitive pointer
+ * itself is RroScene.drawPrimitive. */
 typedef union {
     u32 words[2];
-    struct {const u32 *primitive; s32 counter;} draw;
+    struct {u32 primitiveSlot; s32 counter;} draw;
 } RroDrawCommandState;
 
-/* Scratchpad layout while a model bank is selected for RRO rendering.
- * Pointer cells are actual C pointers, including on a native 64-bit host.
- * Other render paths reuse this storage with different contents. */
+/* Scratchpad layout while a model bank is selected for RRO rendering. It is
+ * scalar-only with the PS1 offsets; the bank pointers that occupied
+ * 0x48..0x58 are RroScene. Other render paths reuse this storage. */
 typedef struct {
     ViewMatrixScratch48 view;
-    void *modelEntries48;
+    u32 slot48;
     u32 reserved4C;
-    const RroBankCommand *commands50;
-    const Vec3s8 *vertices54;
-    const Vec3s8 *normals58;
+    u32 slot50, slot54, slot58;
     u32 reserved5C;
     s32 depthShift60, renderFlags64;
     u32 reserved68;
@@ -71,7 +87,8 @@ typedef struct {
 
 /* Handwritten dispatch consumes this prefix and the complete scratch arena
  * following it. The first argument is an actual scene pointer, never a
- * 32-bit integer address. Bank selection must initialize commands50. */
+ * 32-bit integer address. Bank selection (SelectModelBank) initializes
+ * RroScene.commands/vertices/normals. */
 void SubmitModel(RroSceneScratchPrefix *scene, s32 modelIndex,
                  s32 flags, s32 depthBias);
 
@@ -83,29 +100,24 @@ void SubmitModel(RroSceneScratchPrefix *scene, s32 modelIndex,
 const u32 *EmitRroRawTexturedQuads(const u32 *commands, RroRenderWork *work, s32 count);
 const u32 *EmitRroLitGouraudQuads(const u32 *commands, RroRenderWork *work, s32 count);
 /* The stream backs the initial quad even for nonpositive counts and one extra
- * prefetched quad after positive counts. GPU output needs the complete 120-byte
- * envmap lookahead footprint, including when a direct packet advances by 56.
- * Native GPU buffers/previous nodes must be registered with GpuDmaSetRegions. */
+ * prefetched quad after positive counts. Each quad stages a complete
+ * GpuEnvMapEmission at the packet cursor, even when it emits the shorter
+ * direct GpuEnvMapDirect packet. */
 const u32 *EmitRroEnvMapQuads(const u32 *commands, RroRenderWork *work, s32 count);
 
 RR_ASSERT_SIZE(RroScreenPosition, 4);
 RR_ASSERT_SIZE(RroModelSetup, 0x48);
 RR_ASSERT_OFFSET(RroModelSetup, rotation, 8);
 RR_ASSERT_OFFSET(RroModelSetup, light, 0x28);
-#if defined(mips)
-RR_ASSERT_SIZE(RroRenderWork, 0x60);
-RR_ASSERT_OFFSET(RroRenderWork, ordering14, 0x14);
-RR_ASSERT_OFFSET(RroRenderWork, vertices28, 0x28);
-RR_ASSERT_OFFSET(RroRenderWork, normal48, 0x48);
-RR_ASSERT_OFFSET(RroRenderWork, projected50, 0x50);
-RR_ASSERT_SIZE(RroSceneScratchPrefix, 0x7C);
-RR_ASSERT_OFFSET(RroSceneScratchPrefix, commands50, 0x50);
-RR_ASSERT_OFFSET(RroSceneScratchPrefix, vertices54, 0x54);
-RR_ASSERT_OFFSET(RroSceneScratchPrefix, normals58, 0x58);
-RR_ASSERT_OFFSET(RroSceneScratchPrefix, depthShift60, 0x60);
-RR_ASSERT_OFFSET(RroModelScratch, scene, 0);
-RR_ASSERT_OFFSET(RroModelScratch, work7C, 0x7C);
-RR_ASSERT_SIZE(RroModelScratch, 0xDC);
-#endif
+/* Scalar-only scratch views: PS1 offsets hold on every host. */
+_Static_assert(sizeof(RroRenderWork) == 0x60, "RroRenderWork");
+_Static_assert(RR_FIELD_OFFSET(RroRenderWork, vertices28) == 0x28, "vertices28");
+_Static_assert(RR_FIELD_OFFSET(RroRenderWork, projected50) == 0x50, "projected50");
+_Static_assert(sizeof(RroSceneScratchPrefix) == 0x7C, "RroSceneScratchPrefix");
+_Static_assert(RR_FIELD_OFFSET(RroSceneScratchPrefix, depthShift60) == 0x60, "depthShift60");
+_Static_assert(RR_FIELD_OFFSET(RroSceneScratchPrefix, viewport6C) == 0x6C, "viewport6C");
+_Static_assert(RR_FIELD_OFFSET(RroSceneScratchPrefix, draw74) == 0x74, "draw74");
+_Static_assert(RR_FIELD_OFFSET(RroModelScratch, work7C) == 0x7C, "work7C");
+_Static_assert(sizeof(RroModelScratch) == 0xDC, "RroModelScratch");
 
 #endif

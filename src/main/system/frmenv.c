@@ -1,4 +1,6 @@
 #include "game/sound/cdpos.h"
+#include "rr/runtime_settings.h"
+#include "rr/menu_selection.h"
 #include "rr/emblem_images.h"
 #include "rr/save_slots.h"
 #include "game/car/carstat.h"
@@ -52,9 +54,8 @@ extern RaceVehicle PlayerCars[2];
 extern int MirrorRenderFlag;
 extern short LinkHostFlag;
 extern char SaveHeaderPlayerNameBuf[];
-extern int TeamStringPtrTable[];
-extern int RivalTeamNamePtrTable[];
-extern int NumLaps;
+extern char *TeamStringPtrTable[8];
+extern char *RivalTeamNamePtrTable[4];
 extern int DisplayEnvOffsetX;
 extern int DisplayEnvOffsetY;
 extern int DialogueSceneMode;
@@ -68,7 +69,6 @@ void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags);
 void SystemInit(void)
 {
     int i;
-    signed char *r;
     int k;
     int m;
 
@@ -95,7 +95,7 @@ void SystemInit(void)
     DrawSubOtFlag = 0;
     NumLaps = 2;
     MirrorRenderFlag = 0;
-    PsyqBzero(&SaveProgress, 0x7C);
+    PsyqBzero(&SaveProgress, sizeof(SaveProgress));
     PsyqBzero(SelectionRows.bytes, 0x20);
     PsyqBzero(SelectionState.signedBytes, 0x2C);
     SelectionState.signedBytes[0x17] = -1;
@@ -105,8 +105,8 @@ void SystemInit(void)
         RankTable[i] = &RankEntries[i];
         i--;
     } while (i >= 0);
-    PsyqBzero(&PlayerCars[0], 0x320);
-    PsyqBzero(&PlayerCars[1], 0x320);
+    PsyqBzero(&PlayerCars[0], sizeof(PlayerCars[0]));
+    PsyqBzero(&PlayerCars[1], sizeof(PlayerCars[1]));
     UnlockNoticeMask = 0;
     for (i = 0; i < 4; i++) {
         SaveProgress.history6C[i].selection = 5;
@@ -114,11 +114,11 @@ void SystemInit(void)
         SaveProgress.history6C[i].parameter = 0;
     }
     LinkHostFlag = -1;
-    CopyStringClearTail(&SaveProgress, DefaultPlayerName);
-    CopyStringClearTail(SaveHeaderPlayerNameBuf, &SaveProgress);
-    CopyStringClearTail(SaveHeaderPlayerNameBuf + 0xC, &SaveProgress);
-    CopyStringClearTail(SaveHeaderPlayerNameBuf + 0x18, &SaveProgress);
-    CopyStringClearTail(SaveHeaderPlayerNameBuf + 0x24, &SaveProgress);
+    CopyStringClearTail(SaveProgress.prefix.progress.prefix00.fields.name, DefaultPlayerName);
+    CopyStringClearTail(SaveHeaderPlayerNameBuf, SaveProgress.prefix.progress.prefix00.fields.name);
+    CopyStringClearTail(SaveHeaderPlayerNameBuf + 0xC, SaveProgress.prefix.progress.prefix00.fields.name);
+    CopyStringClearTail(SaveHeaderPlayerNameBuf + 0x18, SaveProgress.prefix.progress.prefix00.fields.name);
+    CopyStringClearTail(SaveHeaderPlayerNameBuf + 0x24, SaveProgress.prefix.progress.prefix00.fields.name);
     TeamStringPtrTable[0] = TeamNameDigRacingTeam;
     TeamStringPtrTable[4] = TeamAbbrevDRT;
     TeamStringPtrTable[1] = TeamNameMicroMouseMappy;
@@ -140,11 +140,9 @@ void SystemInit(void)
     DialogueSceneMode = 0;
     GameModeType = 0;
     LoadDestCursor = CdDirectoryBuffer + k;
-    r = (s8 *)&SaveSlotSelections + i * 0x2C;
     do {
-        r[0x17] = m;
+        SaveSlotSelections[i].signedBytes[0x17] = m;
         i--;
-        r -= 0x2C;
     } while (i >= 0);
     InitDefaultTimeRecords();
     InitCourseChoices();
@@ -174,7 +172,6 @@ void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags) {
     FrameStorage *env;
     GpuRectangleFields window;
     s32 i;
-    u16 *settings;
     s32 one;
     u32 loopRgb24;
     u32 background;
@@ -203,7 +200,6 @@ void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags) {
     i=0;
     background=saved_flags&FRAME_CLEAR_BACKGROUND;
     one=1;
-    settings=Options.halves;
     loopRgb24=rgb24;
     window.y=0;
     window.x=0;
@@ -215,8 +211,8 @@ loop:
         env->buffer.environment00.draw00.background=background;
         env->buffer.environment00.draw00.dither=one;
         env->buffer.environment00.draw00.window=window;
-        env->buffer.environment00.display5C.screen.x=settings[0x34/2];
-        env->buffer.environment00.display5C.screen.y=settings[0x38/2];
+        env->buffer.environment00.display5C.screen.x=(u16)Options.screenX34;
+        env->buffer.environment00.display5C.screen.y=(u16)Options.screenY38;
         env->buffer.environment00.display5C.display.h=height;
         env->buffer.environment00.display5C.flags10.bytes.interlace=interlace;
         env->buffer.environment00.display5C.screen.h=256;
@@ -231,3 +227,25 @@ loop:
     InitFrameEnvStub(0);
     InitFrameEnvStub(1);
 }
+
+/* Initial values of the globals this module owns. */
+char StrTotalInitLog[12] = {116, 111, 116, 97, 108, 95, 105, 110, 105, 116, 10};
+char DefaultPlayerName[12] = {78, 65, 77, 67, 79, 33, 33, 33};
+char TeamNameDigRacingTeam[20] = {68, 73, 71, 32, 82, 65, 67, 73, 78, 71, 32, 84, 69, 65, 77};
+char TeamAbbrevDRT[8] = {68, 46, 82, 46, 84};
+char TeamNameMicroMouseMappy[32] = {82, 65, 67, 73, 78, 71, 32, 67, 76, 85, 66, 32, 77, 73, 67, 82, 79, 32, 77, 79, 85, 83, 69, 32, 77, 65, 80, 80, 89};
+char TeamAbbrevMicroMouseMappy[8] = {77, 46, 77, 46, 77};
+char StrPacRacingClub[20] = {80, 65, 67, 32, 82, 65, 67, 73, 78, 71, 32, 67, 76, 85, 66};
+char TeamAbbrevPRC[8] = {80, 46, 82, 46, 67};
+char TeamNameRacingTeamSolvalou[24] = {82, 65, 67, 73, 78, 71, 32, 84, 69, 65, 77, 32, 83, 79, 76, 86, 65, 76, 85};
+char TeamAbbrevRTS[8] = {82, 46, 84, 46, 83};
+char TeamNameAssoluto[12] = {65, 83, 83, 79, 76, 85, 84, 79};
+char TeamNameLizard[8] = {76, 73, 90, 65, 82, 68};
+char StrTerrazi[12] = {84, 69, 82, 82, 65, 90, 73};
+char StrAgeSolo[12] = {65, 71, 69, 32, 83, 79, 76, 79};
+char *TeamStringPtrTable[8];
+char SaveHeaderPlayerNameBuf[48];
+CustomEmblemImages1080 CustomEmblemBuffers;
+char *RivalTeamNamePtrTable[4];
+int DisplayEnvOffsetX;
+int DisplayEnvOffsetY;

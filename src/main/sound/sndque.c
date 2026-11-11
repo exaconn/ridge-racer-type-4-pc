@@ -60,3 +60,36 @@ void *SoundQueueEnqueue(s32 id, s32 restart) {
     return (u8 *)updatedState + programCount * sizeof(updatedState->sequence19D0.programs[0]);
 #endif
 }
+
+/* Initial values of the globals this module owns. */
+#include "rr/text_sprites.h"
+short D_800A02DC[4] = {7, 11, -1};
+short D_800A02E4[4] = {8, 11, -1};
+short D_800A02EC[4] = {9, 11, -1};
+short D_800A02F4[4] = {10, 11, -1};
+short D_800A02FC[2] = {12, -1};
+short D_800A0300[2] = {13, -1};
+short D_800A0304[2] = {14, -1};
+short D_800A0308[2] = {15, -1};
+short D_800A030C[2] = {16, -1};
+short D_800A0310[2] = {17, -1};
+short D_800A0314[4] = {18, 19, -1};
+short D_800A031C[2] = {18, -1};
+short D_800A0320[2] = {21, -1};
+short D_800A0324[2] = {22, -1};
+short D_800A0328[2] = {23, -1};
+short D_800A032C[2] = {24, -1};
+short D_800A0330[2] = {5, -1};
+short D_800A0334[2] = {6, -1};
+short D_800A0338[2] = {5, -1};
+short D_800A033C[4] = {6, 10, -1};
+short D_800A0344[4] = {7, 10, -1};
+short D_800A034C[4] = {8, 10, -1};
+short D_800A0354[4] = {9, 10, -1};
+short D_800A035C[2] = {11, -1};
+short D_800A0360[2] = {12, -1};
+short D_800A0364[2] = {13, -1};
+short D_800A0368[2] = {14, -1};
+short D_800A036C[2] = {15, -1};
+short D_800A0370[2] = {16, -1};
+s16 *SoundSequenceTable[RR_SEQUENCE_TABLE_COUNT][2] = {{(short *)&FontGlyphWidths[232], (short *)&FontGlyphWidths[232]}, {(short *)&FontGlyphWidths[236], (short *)&FontGlyphWidths[236]}, {(short *)&FontGlyphWidths[240], (short *)&FontGlyphWidths[240]}, {(short *)&FontGlyphWidths[244], (short *)&FontGlyphWidths[244]}, {(short *)&FontGlyphWidths[248], (short *)D_800A0338}, {(short *)D_800A02F4, (short *)D_800A0354}, {(short *)D_800A02EC, (short *)D_800A034C}, {(short *)D_800A02E4, (short *)D_800A0344}, {(short *)D_800A02DC, (short *)D_800A033C}, {(short *)D_800A02FC, (short *)D_800A035C}, {(short *)D_800A0300, (short *)(intptr_t)-1}, {(short *)D_800A0304, (short *)(intptr_t)-1}, {(short *)D_800A0308, (short *)(intptr_t)-1}, {(short *)D_800A030C, (short *)(intptr_t)-1}, {(short *)D_800A0310, (short *)(intptr_t)-1}, {(short *)D_800A0314, (short *)D_800A0360}, {(short *)D_800A031C, (short *)(intptr_t)-1}, {(short *)D_800A0320, (short *)(intptr_t)-1}, {(short *)D_800A0324, (short *)D_800A0364}, {(short *)D_800A0328, (short *)D_800A0368}, {(short *)D_800A032C, (short *)(intptr_t)-1}, {(short *)(intptr_t)-1, (short *)D_800A036C}, {(short *)(intptr_t)-1, (short *)D_800A0370}, {(short *)D_800A0330, (short *)D_800A0330}, {(short *)D_800A0334, (short *)(intptr_t)-1}};

@@ -3,6 +3,7 @@
 
 #include "types.h"
 
-void _card_clear(s32 arg0);
+/* libcard (PsyZ): long _card_clear(long chan). */
+long _card_clear(long channel);
 
 #endif /* RR_PSYQ_LIBGPU_GPUCTL_H */

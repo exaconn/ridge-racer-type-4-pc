@@ -1,3 +1,6 @@
+#include "rr/overlay_module.h"
+#include "rr/vehicle_table.h"
+#include "game/race/racegrid.h"
 #include "rr/menu_text_rows.h"
 #include "rr/overlay_menu.h"
 #include "rr/frame_storage_types.h"
@@ -7,10 +10,8 @@ extern s16 MenuCursor;
 extern s16 MenuItemCount;
 extern s32 ovl667_result_labels[22];
 extern s32 TotalRaceTime;
-extern s16 NumCars;
 extern s16 LinkFinishCarOrder[8];
 extern s16 LinkPlayerWinCounts[8];
-extern s16 LinkPrevCarRanks[8];
 extern s16 LinkState;
 extern void SetMenuFrameOptions(s32, s32, s32);
 
@@ -66,7 +67,7 @@ void SetMenuFrameOptions(s32, s32, s32);
 void CopyStringClearTail(char *, char *);
 void CopyStringPadSpaces(char *, char *, s32);
 void FormatDecimalDigits(char *, s32, s32);
-void AddScreenFadeTiles(u32 *, s32, u32);
+#include "rr/screen_tiles.h"
 void ResetScreenCounters(void);
 void InitMenuArenas(void);
 void UpdateScreenFade(s32);
@@ -145,7 +146,7 @@ void ovl667_update_results(void) {
             break;
         }
         FadeCountdown--;
-        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - FadeCountdown) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (64 - FadeCountdown) * 4, 69);
         if (FadeCountdown <= 0) {
             LinkRaceAbortFlag = 1;
             ModeGroup = 1;
@@ -161,7 +162,7 @@ void ovl667_update_results(void) {
             break;
         }
         FadeCountdown -= 2;
-        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - FadeCountdown) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (64 - FadeCountdown) * 4, 69);
         if (FadeCountdown <= 0) {
             group = -1;
             SubmodeState = 8;
@@ -170,7 +171,7 @@ void ovl667_update_results(void) {
     case 6:
         group = -1;
         FadeCountdown--;
-        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - FadeCountdown) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (64 - FadeCountdown) * 4, 69);
         if (FadeCountdown <= 0) {
             ModeGroup = 1;
             ModeIndex = 3;
@@ -202,3 +203,16 @@ void ovl667_update_results(void) {
         DrawResultsRankIcons();
     }
 }
+
+/* Initial values of the overlay globals this module owns. */
+s32 ovl667_result_labels[22] = {7702, 0, -1, 3, 25, 25, -1, 4633, 4889, 5145, 5401, 7702, 17, 7702, 7702, -1, -1, 7, 9, -1, 7702, -1};
+
+/* Writable state of this unit; ovl667_reset_module restores it. */
+static const OverlayStateRegion ovl667_results_regions[] = {
+    RR_OVERLAY_STATE(ovl667_result_labels)};
+const OverlayStateTable ovl667_results_state = {ovl667_results_regions, sizeof(ovl667_results_regions) / sizeof(ovl667_results_regions[0])};
+
+/* Initial values of the globals this module owns. */
+s16 LinkFinishCarOrder[8];
+s16 LinkPlayerWinCounts[8];
+char LinkPlayerNames[4][12];

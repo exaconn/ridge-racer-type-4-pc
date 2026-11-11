@@ -14,7 +14,7 @@ typedef struct {
     StrDisplayConfig display24;
 } StrPlaybackState;
 extern s32 CdMediaChangeCount,VSyncThreshold,ModeFrame;
-extern u8 CdMusicMasterVolume;
+#include "rr/runtime_settings.h"
 void SetDispMask(s32);
 void SsSetSerialAttr(s8,s8,s8);
 void SsSetSerialVol(s8,s32,s32);

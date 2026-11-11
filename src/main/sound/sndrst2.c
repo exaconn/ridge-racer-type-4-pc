@@ -20,7 +20,7 @@ void UpdateMasterSoundVolumes(void)
         if ((short)s1 >= 0x80) s1 = 0x7F;
         if ((short)s0 >= 0x80) s0 = 0x7F;
     }
-    if (Options.audio.mono32 != 0) {
+    if (Options.mono32 != 0) {
         v0 = ((short)s1 + (short)s0) / 2;
         s1 = v0;
         s0 = v0;
@@ -34,10 +34,10 @@ void UpdateMasterSoundVolumes(void)
     a0 = (short)s1 * SoundState.gain18;
     t1 = v1 >> 7;
     if (a0 < 0) a0 += 0x7F;
-    v1 = t1 * Options.audio.volume31;
+    v1 = t1 * Options.volume31;
     t2 = a0 >> 7;
     if (v1 < 0) v1 += 0xF;
-    v0 = t2 * Options.audio.volume31;
+    v0 = t2 * Options.volume31;
     s0 = v1 >> 4;
     if (v0 < 0) v0 += 0xF;
     s1 = v0 >> 4;

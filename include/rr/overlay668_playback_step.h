@@ -6,7 +6,7 @@
 #include "rr/tables.h"
 extern const char ovl668_backloc_debug_fmt[];
 s32 StGetBackloc(const CdLocation *location);
-void DrawSync(s32 mode);
+#include "psyq/libgpu/gpuenv.h"
 /* activeB8 addresses a complete playback owner, and command/display selectors
  * word00/word08 are0..1 at each use. Owners and currentC0 remain live across
  * services, which may replace activeB8 and change thresholds, state or input.

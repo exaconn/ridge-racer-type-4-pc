@@ -1,5 +1,5 @@
-/* RODATA 0x80011088 0x14 */
 #include "rr/track_resources.h"
+#include "rr/menu_selection.h"
 #include "rr/load_cursor.h"
 #include "game/data/cdfile2.h"
 #include "game/data/trkld1.h"
@@ -11,7 +11,6 @@
 
 extern short ComDifficultyLevel;
 extern short SelectedTeamIndex;
-extern short CourseIndex;
 
 int LoadTrackStep(void) {
     int r;

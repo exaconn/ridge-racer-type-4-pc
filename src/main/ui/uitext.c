@@ -1,4 +1,7 @@
 #include "game/gfx/sprefct.h"
+#include "rr/save_progress.h"
+#include "rr/vehicle_table.h"
+#include "rr/menu_selection.h"
 #include "game/gfx/fontdraw.h"
 #include "rr/sprite_emit.h"
 #include "rr/badge_rows.h"
@@ -32,16 +35,12 @@ extern s8 UiScrollStepOffsets[][8];
 extern UiUvRect UiCursorArrowUvs[];
 extern s8 UiTimeTextScratch[];
 extern s16 ComDifficultyLevel;
-extern s16 NumCars;
 extern s16 ReverseCourse;
 extern s16 SelectedMakerIndex;
-extern u8 SaveProgress[];
-extern s32 NumLaps;
 extern s32 TimeAttackBestTotalTimes;
 extern s32 TimeAttackBestLapTimes;
 extern ImagePreset10 PreviewImageRowPresets[];
 
-void DrawImageRow(int a0, int a1, int a2, int a3);
 
 s32 DrawUiRow(s32 arg0) {
     RectS16 sp28;
@@ -60,11 +59,11 @@ s32 DrawUiRow(s32 arg0) {
     s32 s7;
     u16 fp;
     u32 a0_byte;
-    u32 *a0_arg;
+    GpuDmaTag *a0_arg;
     UiUvRect *glyph;
 
     fp = 0;
-    s3_init = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
+    s3_init = RR_GPU_SCRATCH->cursor;
     sp38 = UiRows[arg0].half04;
     s2 = 0;
     sp30 = UiRows[arg0].byte14;
@@ -152,7 +151,7 @@ s32 DrawUiRow(s32 arg0) {
     }
 
     sp28 = UiRows[arg0].rect18;
-    s3 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3_init, 0, 0, 0x140, 0x200);
+    s3 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3_init, 0, 0, 0x140, 0x200);
     s4 += 7;
 
     switch (s6) {
@@ -174,16 +173,17 @@ s32 DrawUiRow(s32 arg0) {
     case 0:
         {
             UiUvRect *base_0 = UiFontGlyphs;
-            s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, &base_0[sp34], fp | 0x7FF8, s2);
+            s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4, s7 + 8, &base_0[sp34], fp | 0x7FF8, s2);
             if (s6 != 0) {
                 for (s1 = 0; s1 < 2; s1++) {
-                    s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4 + 0x1E + s1 * 0x16, s7 + 8, &SaveSlotTrophyUvs[s1], 0x7FF8, 0);
+                    s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4 + 0x1E + s1 * 0x16, s7 + 8, &SaveSlotTrophyUvs[s1], 0x7FF8, 0);
                     if (s1 == 0) {
                         UiTimeTextScratch[0] = s0 / 10;
                     } else {
                         UiTimeTextScratch[0] = (s0 % 10) * 8;
                     }
-                    s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4 + 0x26 + s1 * 6, s7 + 8, UiTimeTextScratch, 0x7FF8, 0);
+                    /* UiTimeTextScratch is a UV record whose U selects the digit. */
+                    s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4 + 0x26 + s1 * 6, s7 + 8, (const UiUvRect *)UiTimeTextScratch, 0x7FF8, 0);
                 }
             }
         }
@@ -198,7 +198,7 @@ s32 DrawUiRow(s32 arg0) {
                 break;
             }
             s5_1 = fp | 0x7FF8;
-            s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, &UiFontGlyphs[s0], s5_1, s2);
+            s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4, s7 + 8, &UiFontGlyphs[s0], s5_1, s2);
             s4 += 2 + UiFontGlyphs[s0].w;
         }
         if (s6 == 4) {
@@ -207,9 +207,9 @@ s32 DrawUiRow(s32 arg0) {
             } else {
                 s0 = 0xC;
             }
-            s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
+            s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
         } else if ((s6 - 8) < 2U) {
-            s3 = AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, (s6 == 8) ? StrDigitOne : StrDigitTwo, fp | 0x7FF8, 0, s2);
+            s3 = AddTextSprites(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4, s7 + 8, (s6 == 8) ? StrDigitOne : StrDigitTwo, fp | 0x7FF8, 0, s2);
         }
         break;
     case 2:
@@ -218,13 +218,13 @@ s32 DrawUiRow(s32 arg0) {
             if (s0 == -1) {
                 break;
             }
-            a0_arg = &CurrentDrawBuf->buffer.ordering70.words[0];
+            a0_arg = &CurrentDrawBuf->buffer.ordering70.tags[0];
             glyph = &UiFontGlyphs[s0];
             s5_2 = fp | 0x7FF8;
             s3 = AddSpritePrim(a0_arg, s3, s4, s7 + 8, glyph, s5_2, 0);
             s4 += 2 + UiFontGlyphs[s0].w;
         }
-        s3 = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, sp38 + 0xA9, s7 + 6, 1, 0x14, 0xFF, 0xFF, 0xFF);
+        s3 = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, sp38 + 0xA9, s7 + 6, 1, 0x14, 0xFF, 0xFF, 0xFF);
         s4 = sp38 + 0xB0;
         for (s1 = 0; s1 < 2; s1++) {
             if (s1 == 0) {
@@ -232,7 +232,7 @@ s32 DrawUiRow(s32 arg0) {
             } else {
                 s0 = UiScrollStepOffsets[sp34][7];
             }
-            s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
+            s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
             s4 += 2 + UiFontGlyphs[s0].w;
         }
         break;
@@ -242,29 +242,29 @@ s32 DrawUiRow(s32 arg0) {
             if (s0 == -1) {
                 break;
             }
-            s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
+            s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
             s4 += 2 + UiFontGlyphs[s0].w;
             if (s1 == 3) {
-                s3 = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, sp38 + 0x7E, s7 + 6, 1, 0x14, 0xFF, 0xFF, 0xFF);
+                s3 = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, sp38 + 0x7E, s7 + 6, 1, 0x14, 0xFF, 0xFF, 0xFF);
                 s4 = sp38 + 0x86;
             }
         }
         break;
     case 10:
     case 11:
-        s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, &SaveSlotStatusUvs[0], 0x7FF8, 0);
-        s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4 + 0x44, s7 + 8, &SaveSlotStatusUvs[1], 0x7FF8, 0);
+        s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4, s7 + 8, &SaveSlotStatusUvs[0], 0x7FF8, 0);
+        s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4 + 0x44, s7 + 8, &SaveSlotStatusUvs[1], 0x7FF8, 0);
         if (s6 == 10) {
             s0 = TimeAttackBestTotalTimes;
         } else {
             s0 = TimeAttackBestLapTimes;
         }
         for (s1 = 0; s1 < s0; s1++) {
-            s3 = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4 + 0x12 + s1 * 3, s7 + 8, 2, 0x10, 0xFF, 0xFF, 0xFF);
+            s3 = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4 + 0x12 + s1 * 3, s7 + 8, 2, 0x10, 0xFF, 0xFF, 0xFF);
         }
         break;
     case 12:
-        if (SaveProgress[SelectedMakerIndex + 0x5C] == 1) {
+        if (SaveProgress.prefix.flags5C[SelectedMakerIndex] == 1) {
             s2 = 8;
         } else {
             s2 = 7;
@@ -273,23 +273,23 @@ s32 DrawUiRow(s32 arg0) {
             s1 = 0;
             do {
                 s0 = UiScrollStepOffsets[sp34][s1];
-                s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
+                s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
                 s4 += 2 + UiFontGlyphs[s0].w;
                 s1++;
             } while (s1 < s2);
         }
         break;
     case 0x7E:
-        s3 = AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, StrPleaseWait, 0x7FF8, 2, 0);
+        s3 = AddTextSprites(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4, s7 + 8, StrPleaseWait, 0x7FF8, 2, 0);
         break;
     case 0x7F:
-        s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, &UiCursorArrowUvs[sp34], fp | 0x4820, s2);
+        s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4, s7 + 8, &UiCursorArrowUvs[sp34], fp | 0x4820, s2);
         break;
     }
 
-    ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, 0x38);
+    RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, 0x38);
     DrawUiBox(sp38, s7, UiRows[arg0].half08, UiRows[arg0].half0A, 0x4A, 0x4A, 0x4A);
-    ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], ((GpuScratchPointers *)SCRATCHPAD)->cursor, sp28.x, sp28.y, sp28.w, sp28.h);
+    RR_GPU_SCRATCH->cursor = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, sp28.x, sp28.y, sp28.w, sp28.h);
     sp38 += UiRows[arg0].rect18.w;
     if ((sp30 - 4) >= 3U) {
         DrawUiWindowRowText(arg0, sp38, s7);
@@ -301,7 +301,7 @@ void DrawUiBox(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6)
 {
     int *px;
     int *py;
-    u32 *t;
+    GpuDmaTag *t;
     int k;
     int j;
     int x[4];
@@ -315,7 +315,7 @@ void DrawUiBox(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6)
     y[2] = y[3] = a1 + (u32)a3 - 2U;
     i = 0;
     do {
-        t = &CurrentDrawBuf->buffer.ordering70.words[0];
+        t = &CurrentDrawBuf->buffer.ordering70.tags[0];
         px = x + i;
         py = y + i;
         j = i + 1;
@@ -329,8 +329,8 @@ void DrawUiBox(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6)
     } while (i < 4);
     x[0] = x[1] - (u32)x[3];
     y[0] = y[3] - (u32)y[1];
-    g = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
-    ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], g, a0, a1, x[0], y[0], a4, a5, a6);
+    g = RR_GPU_SCRATCH->cursor;
+    RR_GPU_SCRATCH->cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], g, a0, a1, x[0], y[0], a4, a5, a6);
 }
 
 int AllocImageRows(void *a) {
@@ -346,7 +346,7 @@ void InitImageRow(int i, int a, int b, int j) {
         ImageRow20 *p;
         ImageRows[i].f1 = a;
         ImageRows[i].f3 = b;
-        p = (ImageRow20 *)(i * sizeof(ImageRow20) + (unsigned long)ImageRows);
+        p = &ImageRows[i];
         q = &PreviewImageRowPresets[j];
         p->geom.s[0] = q->s[0];
         p->geom.s[1] = q->s[1];
@@ -433,7 +433,7 @@ void DrawImageRow(int a0, int a1, int a2, int a3) {
     unsigned short tpage, clut;
     void *cursor;
 
-    cursor = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
+    cursor = RR_GPU_SCRATCH->cursor;
     for (i = 0; i < 18; i++) {
         tx = ImageRows[a0].geom.coords.u + (i % 9) * 24;
         ty = ImageRows[a0].geom.coords.v + (i / 9) * 96;
@@ -451,7 +451,7 @@ void DrawImageRow(int a0, int a1, int a2, int a3) {
                 if (j >= 2) {
                     y[0] += 48;
                 }
-                cursor = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.words[694], cursor, x[0], y[0], 24, 48, u[0], v[0], tpage, clut, a3, a2);
+                cursor = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.tags[694], cursor, x[0], y[0], 24, 48, u[0], v[0], tpage, clut, a3, a2);
             } else if (a1 == 1) {
                 for (k = 0; k < 4; k++) {
                     x[k] = ImageRows[a0].geom.coords.x + (i % 6) * 48 + (k & 1) * 48;
@@ -469,10 +469,27 @@ void DrawImageRow(int a0, int a1, int a2, int a3) {
                 y[1] = -(a2 * 12) / 128 + y[1] + 12;
                 y[2] = (a2 * 12) / 128 + y[2] - 12;
                 y[3] = (a2 * 12) / 128 + y[3] - 12;
-                cursor = EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.words[694], cursor, &x[0], &y[0], &u[0], &v[0], tpage, clut, 0, a2);
-                cursor = EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.words[694], cursor, &x[1], &y[1], &u[1], &v[1], tpage, clut, 0, a2);
+                cursor = EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.tags[694], cursor, &x[0], &y[0], &u[0], &v[0], tpage, clut, 0, a2);
+                cursor = EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.tags[694], cursor, &x[1], &y[1], &u[1], &v[1], tpage, clut, 0, a2);
             }
         }
     }
-    ((GpuScratchPointers *)SCRATCHPAD)->cursor = cursor;
+    RR_GPU_SCRATCH->cursor = cursor;
 }
+
+/* Initial values of the globals this module owns. */
+const char StrDigitOne[4] = {49};
+const char StrDigitTwo[4] = {50};
+const char StrPleaseWait[600] = {80, 76, 69, 65, 83, 69, 32, 87, 65, 73, 84};
+ImagePreset10 PreviewImageRowPresets[2] = {{.s = {0x10, 0x48, 0x280, 0, 0x280, 0xEA}}, {.s = {0x10, 0x48, 0x280, 0x100, 0x280, 0xF4}}};
+UiUvRect SaveSlotStatusUvs[27] = {{.u = 0x54, .v = 0xC0, .w = 0xE, .h = 0x10}, {.u = 0x64, .v = 0xC0, .w = 0x10, .h = 0x10}, {.u = 0x78, .v = 0xC0, .w = 0x19, .h = 0x10}, {.u = 0x94, .v = 0xC0, .w = 0x14, .h = 0x10}, {.u = 0xAC, .v = 0xC0, .w = 0xD, .h = 0x10}, {.u = 0xBC, .v = 0xC0, .w = 0x14, .h = 0x10}, {.u = 0xD4, .v = 0xC0, .w = 0x17, .h = 0x10}, {.u = 0xEC, .v = 0xC0, .w = 0xA, .h = 0x10}, {.v = 0xD0, .w = 0x3D, .h = 0x10}, {.u = 0x48, .v = 0xD0, .w = 0x1A, .h = 0x10}, {.u = 0x64, .v = 0xD0, .w = 0x1A, .h = 0x10}, {.u = 0x80, .v = 0xD0, .w = 0x34, .h = 0x10}, {.u = 0xB8, .v = 0xD0, .w = 0x11, .h = 0x10}, {.u = 0xCC, .v = 0xD0, .w = 0x13, .h = 0x10}, {.u = 0xDC, .v = 0x30, .w = 0x24, .h = 0x10}, {.u = 0xE0, .v = 0xD0, .w = 0xE, .h = 0x10}, {.u = 0xF0, .v = 0xD0, .w = 0xA, .h = 0x10}, {.v = 0xE0, .w = 0x22, .h = 0x10}, {.u = 0x24, .v = 0xE0, .w = 0xA, .h = 0x10}, {.u = 0x30, .v = 0xE0, .w = 0xB, .h = 0x10}, {.u = 0x40, .v = 0xE0, .w = 0x31, .h = 0x10}, {.u = 0x74, .v = 0xE0, .w = 0x15, .h = 0x10}, {.u = 0x8C, .v = 0xE0, .w = 0x30, .h = 0x10}, {.u = 0xC0, .v = 0xE0, .w = 0x3B, .h = 0x10}, {.v = 0xF0, .w = 0x1F, .h = 0x10}, {.u = 0x20, .v = 0xF0, .w = 0x29, .h = 0x10}, {.u = 0x4C, .v = 0xF0, .w = 0x19, .h = 0x10}};
+UiUvRect SaveSlotTrophyUvs[2] = {{.u = 0x64, .v = 0x20, .w = 4, .h = 0x10}, {.u = 0x70, .v = 0x20, .w = 4, .h = 0x10}};
+s8 SaveSlotStageTrophyMap[26][4] = {{19, 20, 45, 80}, {19, 20, 46, 80}, {19, 20, 47, 82}, {19, 20, 48, 80}, {19, 20, 49, 80}, {19, 20, 50, 82}, {19, 20, 51, 80}, {19, 20, 52, 82}, {61, 20, 68, 82}, {61, 20, 65, 79}, {61, 20, 66, 80}, {61, 20, 67, 81}, {64, 28, -1, -1}, {4, 5, -1, -1}, {4, 6, -1, -1}, {42, 27, -1, -1}, {30, 32, -1, -1}, {31, 32, -1, -1}, {120, 121, -1, -1}, {97, 121, -1, -1}, {98, 99, -1, -1}, {98, 114, -1, -1}, {117, 119, -1, -1}, {117, 118, -1, -1}, {64, 28, -1, -1}, {98, 112, -1, -1}};
+s8 UiScrollStepOffsets[12][8] = {{61, 20, 63, 59, 61, 82, -1, 73}, {61, 20, 57, 79, -1, 0, 0, 70}, {61, 20, 58, 59, 60, 80, -1, 71}, {61, 20, 59, 61, 62, 81, -1, 72}, {95, 20, 77, 81, 16, 123, 17, -1}, {95, 20, 78, 82, 16, 123, 17, -1}, {95, 20, 76, 80, 16, 123, 18, -1}, {95, 20, 75, 79, 16, 123, 18, -1}, {7, 20, 77, 8, 9, 77, 10, 11}, {7, 20, 78, 8, 9, 78, 10, 11}, {7, 20, 76, 8, 9, 76, 10, 11}, {7, 20, 75, 8, 9, 75, 10, 11}};
+UiUvRect UiCursorArrowUvs[9] = {{.w = 0x28, .h = 0x10}, {.u = 0x78, .w = 0x30, .h = 0x10}, {.u = 0x28, .w = 0x24, .h = 0x10}, {.u = 0xA8, .w = 0x1C, .h = 0x10}, {.u = 0x4C, .v = 0x10, .w = 0x20, .h = 0x10}, {.u = 0xC4, .w = 0x38, .h = 0x10}, {.v = 0x10, .w = 0x20, .h = 0x10}, {.u = 0x20, .v = 0x10, .w = 0x28, .h = 0x10}, {.u = 0x4C, .w = 0x28, .h = 0x10}};
+s8 UiTimeTextScratch[4] = {0, 0, 8, 16};
+int ImageRowCount;
+ImageRow20 *ImageRows;
+UiRow24 *UiRows;
+s32 TimeAttackBestTotalTimes;
+s32 TimeAttackBestLapTimes;

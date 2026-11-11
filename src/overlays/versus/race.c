@@ -1,3 +1,5 @@
+#include "rr/overlay_module.h"
+#include "game/car/carparam.h"
 #include "game/system/pad.h"
 #include "rr/overlay661_checkpoint.h"
 #include "rr/overlay661_race_controller.h"
@@ -53,7 +55,7 @@ void ovl661_exit_race(void)
     ModeGroup = 1;
     ModeIndex = 38;
     SubmodeState = 0;
-    AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words, 255, 69);
+    AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.tags, 255, 69);
 }
 
 void ovl661_update_race(void) {
@@ -96,9 +98,9 @@ block_7:
     if (RacePaused != 0) {
         UpdatePauseMenu(GameModeType);
         ModeFrame=ModeFrame-1U;
-        DrawPauseMenu(CurrentDrawBuf->buffer.secondaryOrderingB70.words, PauseCursor);
+        DrawPauseMenu(CurrentDrawBuf->buffer.secondaryOrderingB70.tags, PauseCursor);
         if (RaceState < 4) {
-            DrawStartCountdown(CurrentDrawBuf->buffer.secondaryOrderingB70.words, ModeFrame);
+            DrawStartCountdown(CurrentDrawBuf->buffer.secondaryOrderingB70.tags, ModeFrame);
         }
         var_s2 = 0;
         if ((RaceState - 1U) < 3U) {
@@ -106,13 +108,13 @@ block_7:
 
                 temp_s0 = &PlayerCars[var_s2];
                 DrawHudNumber3((temp_s0->input * 0xA0) / 1168, var_s2);
-                DrawHudNumber5(*(s16 *)((u8 *)&PlayerDisplayRpm+var_s2*2), var_s2);
+                DrawHudNumber5(PlayerDisplayRpm[var_s2], var_s2);
                 DrawHudDigitMod10(temp_s0->control.previewSample84.halves.high, var_s2);
                 UpdateHudRankDisplay(temp_s0->half1EE, var_s2);
                 DrawTimeRemainingForPlayer(RaceTimeRemaining, var_s2);
                 DrawLapCounter(var_s2 + 1, temp_s0->control.dynamics94.steering.count22);
                 DrawRaceMinimap(var_s2 + 1);
-                DrawSteeringIndicator(CurrentDrawBuf->buffer.secondaryOrderingB70.words, var_s2 + 1);
+                DrawSteeringIndicator(CurrentDrawBuf->buffer.secondaryOrderingB70.tags, var_s2 + 1);
                 UpdateFinalLapHudSprite(var_s2 + 1);
                 var_s2++;
             } while (var_s2 < 2);
@@ -173,8 +175,8 @@ block_7:
                 var_a2 = 0x45;
             }
             if (FadeCountdown < 0x19) {
-                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.words, (0x19 - FadeCountdown) * 0xA, var_a2);
-                RR_661_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(CurrentDrawBuf->buffer.secondaryOrderingB70.words, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
+                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.tags, (0x19 - FadeCountdown) * 0xA, var_a2);
+                RR_GPU_SCRATCH->cursor = AddDrawAreaPrim(CurrentDrawBuf->buffer.secondaryOrderingB70.tags, RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x100);
             }
             if (FadeCountdown <= 0) {
                 ovl661_finish_ranks[0] = (u16) PlayerCars[0].half1EE;
@@ -191,11 +193,11 @@ block_7:
             }
         } else if (RaceState==0) {
             if (ModeFrame >= 51U) {
-                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.words,(ModeFrame-50U)*10U,37);
+                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.tags,(ModeFrame-50U)*10U,37);
             } else if (ModeFrame < 25U) {
-                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.words,(25U-ModeFrame)*10U,69);
+                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.tags,(25U-ModeFrame)*10U,69);
             }
-            RR_661_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(CurrentDrawBuf->buffer.secondaryOrderingB70.words, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
+            RR_GPU_SCRATCH->cursor = AddDrawAreaPrim(CurrentDrawBuf->buffer.secondaryOrderingB70.tags, RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x100);
         }
     }
     ovl661_update_checkpoint(&PlayerCars[0]);
@@ -210,7 +212,7 @@ block_7:
     }
     StepRaceFrame(GameModeType);
     if (RaceState < 4) {
-        DrawStartCountdown(CurrentDrawBuf->buffer.secondaryOrderingB70.words, ModeFrame);
+        DrawStartCountdown(CurrentDrawBuf->buffer.secondaryOrderingB70.tags, ModeFrame);
         PlayStartCountdownVoice(ModeFrame);
     }
     var_s2 = 0;
@@ -219,13 +221,13 @@ block_7:
 
                 temp_s0_3 = &PlayerCars[var_s2];
             DrawHudNumber3((temp_s0_3->input * 0xA0) / 1168, var_s2);
-            DrawHudNumber5(*(s16 *)((u8 *)&PlayerDisplayRpm+var_s2*2), var_s2);
+            DrawHudNumber5(PlayerDisplayRpm[var_s2], var_s2);
             DrawHudDigitMod10(temp_s0_3->control.previewSample84.halves.high, var_s2);
             UpdateHudRankDisplay(temp_s0_3->half1EE, var_s2);
             DrawTimeRemainingForPlayer(RaceTimeRemaining, var_s2);
             DrawLapCounter(var_s2 + 1, temp_s0_3->control.dynamics94.steering.count22);
             DrawRaceMinimap(var_s2 + 1);
-            DrawSteeringIndicator(CurrentDrawBuf->buffer.secondaryOrderingB70.words, var_s2 + 1);
+            DrawSteeringIndicator(CurrentDrawBuf->buffer.secondaryOrderingB70.tags, var_s2 + 1);
             UpdateFinalLapHudSprite(var_s2 + 1);
             var_s2++;
         } while (var_s2 < 2);
@@ -256,7 +258,7 @@ block_7:
         DrawTrackObjects(0);
         temp_s0_4 = var_s2 + 1;
         DrawTrackSceneryForPlayer(temp_s0_4);
-        SlotSetLevelProgram((&PlayerDisplayRpm.first)[var_s2], (&PlayerThrottleLoad.first)[var_s2], var_s2);
+        SlotSetLevelProgram(PlayerDisplayRpm[var_s2], PlayerThrottleLoad[var_s2], var_s2);
         var_s2 = temp_s0_4;
     } while (var_s2 < 2);
     if (RaceState >= 4) {
@@ -266,3 +268,16 @@ block_7:
         }
     }
 }
+
+/* Initial values of the overlay globals this module owns. */
+Rr661FrameVector16 ovl661_camera_rotations[2];
+Rr661FrameVector16 ovl661_camera_positions[2];
+
+/* Writable state of this unit; ovl661_reset_module restores it. */
+static const OverlayStateRegion ovl661_race_regions[] = {
+    RR_OVERLAY_STATE(ovl661_camera_positions),
+    RR_OVERLAY_STATE(ovl661_camera_rotations)};
+const OverlayStateTable ovl661_race_state = {ovl661_race_regions, sizeof(ovl661_race_regions) / sizeof(ovl661_race_regions[0])};
+
+/* Initial values of the globals this module owns. */
+RaceVehicle PlayerCars[2];

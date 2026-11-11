@@ -11,38 +11,18 @@
 #include "rr/bios_devices.h"
 #include "rr/frame_loop.h"
 #include "psyq/libc/rand.h"
+#include "rr/scene_camera_state.h"
 
-#define ADDPRIM(ot, p) \
-    (p)->addr = ((PolyFT4 *)(ot))->addr; \
-    ((PolyFT4 *)(ot))->addr = (p)
-
-typedef struct {
-    u32 addr:24;
-    u32 len:8;
-    u8 r0, g0, b0, code;
-    s16 x0, y0;
-    u8 u0, v0;
-    u16 clut;
-    s16 x1, y1;
-    u8 u1, v1;
-    u16 tpage;
-    s16 x2, y2;
-    u8 u2, v2;
-    u16 pad1;
-    s16 x3, y3;
-    u8 u3, v3;
-    u16 pad2;
-} PolyFT4;
+typedef GpuPolyFT4Packet PolyFT4;
 
 extern unsigned char CameraModeBaseFovTable[];
-extern FadeRaceContext RaceContext;
 extern GpuColorCommand ViewViewportClipRect;
 
 void InitParticles(void) {
     SetupDrawDispEnvs(0, 0, 0, 3);
     VSyncThreshold = 0x80;
     ParticleSystem.unk00 = 0;
-    PsyqBzero(&ParticleSystem, 0x32C);
+    PsyqBzero(&ParticleSystem, sizeof(ParticleSystem));
     ParticleSystem.brightness18 = 0x100;
 }
 
@@ -63,7 +43,7 @@ void SpawnParticlePair(void)
     int s5, s2;
     v0 = FindFreeParticle();
     if (v0 >= 0) {
-        s0 = &ParticleEntries[v0];
+        s0 = &ParticleSystem.entries2C[v0];
         one = 1;
         s0->active00 = one;
         s0->state04 = 0;
@@ -90,7 +70,7 @@ void SpawnParticlePair(void)
         s0->scale1A = 0x100;
         v0 = FindFreeParticle();
         if (v0 >= 0) {
-            s0 = &ParticleEntries[v0];
+            s0 = &ParticleSystem.entries2C[v0];
             s0->active00 = one;
             s0->state04 = 0;
             s0->timer08 = 0;
@@ -112,7 +92,7 @@ void SpawnParticlePair(void)
 }
 
 void UpdateParticle(int a0) {
-    UiParticle20 *e = &ParticleEntries[a0];
+    UiParticle20 *e = &ParticleSystem.entries2C[a0];
     int st = e->state04;
     int t, d;
     switch (st) {
@@ -167,13 +147,13 @@ void DrawParticle(int a0) {
     c[0] = c[1] = c[2] = c[3] = *(GpuColorCommand *)&e->r10;
     for (i = 0; i < 4; i++) {
         v = (c[i].r * ParticleSystem.brightness18) / 256;
-        v = (v * RaceContext.scale3E8) / 256;
+        v = (v * RaceContext.fade3E0.scale3E8) / 256;
         c[i].r = v;
         v = (c[i].g * ParticleSystem.brightness18) / 256;
-        v = (v * RaceContext.scale3E8) / 256;
+        v = (v * RaceContext.fade3E0.scale3E8) / 256;
         c[i].g = v;
         v = (c[i].b * ParticleSystem.brightness18) / 256;
-        v = (v * RaceContext.scale3E8) / 256;
+        v = (v * RaceContext.fade3E0.scale3E8) / 256;
         c[i].b = v;
     }
     c[1].r /= 2;
@@ -191,9 +171,9 @@ void DrawParticle(int a0) {
         c[i].b = (c[i].b * e->scale1A) / 256;
     }
 
-    p = (PolyFT4 *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
+    p = (PolyFT4 *)RR_GPU_SCRATCH->cursor;
     if (e->velY1E >= 4) {
-        p->len = 9;
+        p->tag.length = 9;
         p->code = 0x2E;
         p->r0 = c[3].r;
         p->g0 = c[3].g;
@@ -216,11 +196,11 @@ void DrawParticle(int a0) {
         p->v3 = 0xA0;
         p->tpage = 0xA5;
         p->clut = 0x7EB8;
-        ADDPRIM(&CurrentDrawBuf->buffer.ordering70.words[70], p);
+        RR_GPU_LINK(&CurrentDrawBuf->buffer.ordering70.tags[70], p);
         p++;
     }
 
-    p->len = 9;
+    p->tag.length = 9;
     p->code = 0x2E;
     p->r0 = c[2].r;
     p->g0 = c[2].g;
@@ -243,11 +223,11 @@ void DrawParticle(int a0) {
     p->v3 = 0xA0;
     p->tpage = 0xA5;
     p->clut = 0x7EB8;
-    ADDPRIM(&CurrentDrawBuf->buffer.ordering70.words[70], p);
+    RR_GPU_LINK(&CurrentDrawBuf->buffer.ordering70.tags[70], p);
     p++;
 
     if (e->velY1E >= 5) {
-        p->len = 9;
+        p->tag.length = 9;
         p->code = 0x2E;
         p->r0 = c[0].r;
         p->g0 = c[0].g;
@@ -270,10 +250,10 @@ void DrawParticle(int a0) {
         p->v3 = 0xA0;
         p->tpage = 0xA5;
         p->clut = 0x7EB8;
-        ADDPRIM(&CurrentDrawBuf->buffer.ordering70.words[70], p);
+        RR_GPU_LINK(&CurrentDrawBuf->buffer.ordering70.tags[70], p);
         p++;
     }
-    ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)p;
+    RR_GPU_SCRATCH->cursor = (u8 *)p;
 
     s3 = 0x18;
     if (e->rot18 < 0x18) {
@@ -287,7 +267,7 @@ void DrawParticle(int a0) {
         rect.y = e->y0E - (s16)(*(u16 *)&e->speed16) / 2 - 0x10;
         rect.w = s3;
         rect.h = 0x10;
-        AddSlantedGradientRect(&rect, 0, &ViewViewportClipRect, &c[2], 0x41);
+        AddSlantedGradientRect((unsigned short *)&rect, 0, (unsigned char *)&ViewViewportClipRect, (unsigned char *)&c[2], 0x41);
 
         rect.x = s1;
         rect.y = e->y0E - (s16)(*(u16 *)&e->speed16) / 2;
@@ -305,7 +285,7 @@ void DrawParticle(int a0) {
         rect.y = e->y0E + (s16)(*(u16 *)&e->speed16) / 2;
         rect.w = s3;
         rect.h = 0x10;
-        AddSlantedGradientRect(&rect, 1, &c[2], &ViewViewportClipRect, 0x41);
+        AddSlantedGradientRect((unsigned short *)&rect, 1, (unsigned char *)&c[2], (unsigned char *)&ViewViewportClipRect, 0x41);
 
         if (sp30 > 0) {
             rect.x = s7;
@@ -334,3 +314,7 @@ void DrawParticle(int a0) {
         }
     }
 }
+
+/* Initial values of the globals this module owns. */
+GpuColorCommand ViewViewportClipRect;
+unsigned char CameraModeBaseFovTable[16] = {0xF0, 0, 0, 0, 0xFF, 0xF0, 0xB4, 0, 0xFF, 0xA0, 0x3C, 0, 0x78, 0xFF, 0xB4};

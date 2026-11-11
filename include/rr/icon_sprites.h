@@ -4,14 +4,8 @@
 #include "rr/frame_storage_types.h"
 #include "rr/animated_sprite_grid.h"
 
-typedef struct {
-    FrameStorage *currentDrawBuf;
-} FrameStorageSlot;
-
 extern u16 OpeningBannerClutTable[];
 
-/* Requires a valid nonnegative CLUT-table index, a four-byte-aligned cursor
- * with 28 writable bytes, and accessible context heads on both captures.
- * Emits a 24x16 sprite at x148,y120/128, then draw-mode command E100023E.
- * Color uses its low byte. Each insertion preserves the head's high byte. */
+/* EmitIconSpriteRow120/128: one 24x16 banner sprite at x148, y120/128 on
+ * ordering entry 0, then draw-mode command E100023E. Color uses its low byte. */
 #endif

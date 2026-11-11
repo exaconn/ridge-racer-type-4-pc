@@ -1,4 +1,5 @@
 #include "game/system/pad.h"
+#include "game/car/carparam.h"
 #include "rr/overlay666.h"
 #include "rr/frame_storage_types.h"
 
@@ -47,7 +48,7 @@ void ovl666_exit_race(void) {
     ModeGroup = 1;
     ModeIndex = 82;
     SubmodeState = 0;
-    AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, 255, 69);
+    AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, 255, 69);
 }
 
 void ovl666_update_race(void) {
@@ -72,19 +73,19 @@ void ovl666_update_race(void) {
     if (RacePaused != 0) {
         UpdatePauseMenu(GameModeType);
         ModeFrame = ModeFrame - 1U;
-        DrawPauseMenu(&CurrentDrawBuf->ordering.ordering70.words[0], PauseCursor);
+        DrawPauseMenu(&CurrentDrawBuf->ordering.ordering70.tags[0], PauseCursor);
         if (RaceState < 4) {
-            DrawStartCountdown(&CurrentDrawBuf->ordering.ordering70.words[0], ModeFrame);
+            DrawStartCountdown(&CurrentDrawBuf->ordering.ordering70.tags[0], ModeFrame);
         }
         if ((RaceState - 1U) < 3U) {
-            DrawHudRotatingQuad(PlayerDisplayRpm.first, 0);
+            DrawHudRotatingQuad(PlayerDisplayRpm[0], 0);
             DrawHudNumber3((PlayerCars[0].input * 160) / 1168, 0);
             DrawHudDigitMod10(PlayerCars[0].control.previewSample84.halves.high, 0);
             UpdateHudRankDisplay(PlayerCars[0].half1EE, 0);
             DrawTimeRemainingForPlayer(RaceTimeRemaining, 0);
             DrawLapCounter(0, PlayerCars[0].control.dynamics94.steering.count22);
             DrawRaceMinimap(0);
-            DrawSteeringIndicator(&CurrentDrawBuf->ordering.ordering70.words[0], 0);
+            DrawSteeringIndicator(&CurrentDrawBuf->ordering.ordering70.tags[0], 0);
             UpdateFinalLapHudSprite(1);
             DrawViewportBorderFrames(0);
             SubmitRaceHudPackets(4);
@@ -132,8 +133,8 @@ void ovl666_update_race(void) {
             a2 = 37;
         }
         if (FadeCountdown < 25) {
-            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (25 - FadeCountdown) * 10, a2);
-            RR_666_SCRATCH->cursor = AddDrawAreaPrim(&CurrentDrawBuf->ordering.ordering70.words[0],
+            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (25 - FadeCountdown) * 10, a2);
+            RR_666_SCRATCH->cursor = AddDrawAreaPrim(&CurrentDrawBuf->ordering.ordering70.tags[0],
                                                    RR_666_SCRATCH->cursor, 0, 0, 320, 256);
         }
         if (FadeCountdown <= 0) {
@@ -149,35 +150,35 @@ void ovl666_update_race(void) {
         }
     } else if (RaceState == 0) {
         if (ModeFrame >= 51U) {
-            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (ModeFrame - 50U) * 10U, 37);
+            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (ModeFrame - 50U) * 10U, 37);
             DrawBuffers[1].environment.draw00.background = 0;
             DrawBuffers[0].environment.draw00.background = 0;
         } else if (ModeFrame < 25U) {
-            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (25U - ModeFrame) * 10U, 69);
+            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (25U - ModeFrame) * 10U, 69);
             DrawBuffers[1].environment.draw00.background = 1;
             DrawBuffers[0].environment.draw00.background = 1;
         }
-        RR_666_SCRATCH->cursor = AddDrawAreaPrim(&CurrentDrawBuf->ordering.ordering70.words[0],
+        RR_666_SCRATCH->cursor = AddDrawAreaPrim(&CurrentDrawBuf->ordering.ordering70.tags[0],
                                                RR_666_SCRATCH->cursor, 0, 0, 320, 256);
     }
 
     ovl666_update_checkpoint((RaceVehicle *)(void *)PlayerCars);
     UpdateRaceRanking();
     if (RaceState < 4) {
-        DrawStartCountdown(&CurrentDrawBuf->ordering.ordering70.words[0], ModeFrame);
+        DrawStartCountdown(&CurrentDrawBuf->ordering.ordering70.tags[0], ModeFrame);
         PlayStartCountdownVoice(ModeFrame);
     }
     CheckFinalLapEvent((char *)PlayerCars);
     StepRaceFrame(GameModeType);
     if ((RaceState - 1U) < 3U) {
-        DrawHudRotatingQuad(PlayerDisplayRpm.first, 0);
+        DrawHudRotatingQuad(PlayerDisplayRpm[0], 0);
         DrawHudNumber3((PlayerCars[0].input * 160) / 1168, 0);
         DrawHudDigitMod10(PlayerCars[0].control.previewSample84.halves.high, 0);
         UpdateHudRankDisplay(PlayerCars[0].half1EE, 0);
         DrawTimeRemainingForPlayer(RaceTimeRemaining, 0);
         DrawLapCounter(0, PlayerCars[0].control.dynamics94.steering.count22);
         DrawRaceMinimap(0);
-        DrawSteeringIndicator(&CurrentDrawBuf->ordering.ordering70.words[0], 0);
+        DrawSteeringIndicator(&CurrentDrawBuf->ordering.ordering70.tags[0], 0);
         UpdateFinalLapHudSprite(1);
         DrawViewportBorderFrames(0);
         SubmitRaceHudPackets(4);
@@ -197,7 +198,7 @@ void ovl666_update_race(void) {
     DrawTrackObjects(0);
     DrawTrackSceneryForPlayer(0);
     UpdateAndDrawRearViewMirror(ScreenFrame);
-    SlotSetLevelProgram(PlayerDisplayRpm.first, PlayerThrottleLoad.first, 0);
+    SlotSetLevelProgram(PlayerDisplayRpm[0], PlayerThrottleLoad[0], 0);
     if (RaceState >= 4) {
         StopRaceRumble();
         if (RaceState == 6) {
@@ -205,3 +206,7 @@ void ovl666_update_race(void) {
         }
     }
 }
+
+/* Initial values of the globals this module owns. */
+s32 ModeFrame;
+s32 RaceState;

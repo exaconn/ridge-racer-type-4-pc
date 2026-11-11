@@ -1,66 +1,106 @@
-/* Host smoke test. PsyZ brings up a window and a BIOS font. The original
- * game modules under src/main/ and src/overlays/ are ported in place and
- * joined to the build as their 64-bit pointer and hardware contracts are
- * completed. */
+/* Host entry point. Mounts the user's PAL CUE/BIN image through PsyZ and
+ * runs the original game loop (MainLoop, src/main/system/frmtask.c).
+ *
+ * Diagnostics for automated runs (use with PSYZ_HEADLESS=1
+ * SDL_AUDIODRIVER=dummy):
+ *   RR4_FRAME_LIMIT=n  exit after n VSyncs
+ *   RR4_CAPTURE=file   write the displayed frame as a PPM when exiting
+ *   RR4_VRAM=file      write the whole VRAM as a PPM when exiting
+ *   RR4_TRACE=n        print the mode state every n VSyncs */
 
 #include <psyz.h>
-#include <libetc.h>
-#include <libgpu.h>
+#include <psyz/cd.h>
+#include <psyz/system.h>
+#include <psyz/video.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#define SCREEN_WIDTH 320
-#define SCREEN_HEIGHT 240
-#define FRAME_LIMIT 8
+void MainLoop(void);
 
-typedef struct Db {
-    DRAWENV draw;
-    DISPENV disp;
-    OT_TYPE ot[1];
-} Db;
+/* Mode state of the original dispatcher, read for RR4_TRACE. */
+extern unsigned short ModeGroup;
+extern short ModeIndex;
+extern unsigned short SubmodeState;
+extern unsigned int FrameCounter;
 
-static Db db[2];
-static Db *cdb;
+static long trace_every;
 
-static void init_graphics(void) {
-    SetDefDrawEnv(&db[0].draw, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    SetDefDrawEnv(&db[1].draw, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    SetDefDispEnv(&db[0].disp, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    SetDefDispEnv(&db[1].disp, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    SetVideoMode(MODE_PAL);
-    ResetGraph(0);
-    PutDrawEnv(&db[0].draw);
-    PutDispEnv(&db[0].disp);
-    ClearOTag(db[0].ot, 1);
-    ClearOTag(db[1].ot, 1);
-    SetDispMask(1);
-    cdb = &db[0];
+static long frame_limit;
+static long frame_count;
+static PsyzVSyncCb chained_vsync;
+
+static void write_ppm(const char *path, unsigned char *rgb, int w, int h) {
+    FILE *f;
+
+    if (!rgb || w <= 0 || h <= 0)
+        return;
+    f = fopen(path, "wb");
+    if (f) {
+        fprintf(f, "P6\n%d %d\n255\n", w, h);
+        fwrite(rgb, 3, (size_t)w * (size_t)h, f);
+        fclose(f);
+    }
+    free(rgb);
 }
 
-static void display(void) {
-    cdb = (cdb == &db[0]) ? &db[1] : &db[0];
-    FntFlush(-1);
-    ClearOTag(cdb->ot, 1);
-    DrawSync(0);
-    VSync(0);
-    ClearImage(&cdb->draw.clip, 16, 16, 24);
-    DrawOTag(&cdb->ot[0]);
+static void host_exit(void) {
+    const char *path;
+    int w, h;
+
+    path = getenv("RR4_CAPTURE");
+    if (path && *path)
+        write_ppm(path, Psyz_VideoAllocRenderedFrame(&w, &h), w, h);
+    path = getenv("RR4_VRAM");
+    if (path && *path)
+        write_ppm(path, Psyz_VideoAllocVramDump(&w, &h), w, h);
+    fprintf(stderr, "ridge-racer-type-4-pc: exit after %ld vsyncs\n", frame_count);
+    exit(0);
+}
+
+/* The original loop never returns; the host ends it at a VSync. */
+static void host_vsync(void) {
+    frame_count++;
+    if (trace_every > 0 && frame_count % trace_every == 0)
+        fprintf(stderr, "vsync %ld frame %u mode %u/%d sub %u\n", frame_count,
+                FrameCounter, ModeGroup, ModeIndex, SubmodeState);
+    if ((frame_limit > 0 && frame_count >= frame_limit) || Psyz_QuitRequested())
+        host_exit();
+    if (chained_vsync)
+        chained_vsync();
+}
+
+static const char *disc_path(int argc, char **argv) {
+    const char *env;
+
+    if (argc > 1)
+        return argv[1];
+    env = getenv("RR4_DISC");
+    if (env && *env)
+        return env;
+    return NULL;
 }
 
 int main(int argc, char **argv) {
-    int frame = 0;
+    const char *cue = disc_path(argc, argv);
 
-    (void)argc;
-    (void)argv;
-    init_graphics();
-    FntLoad(960, 256);
-    SetDumpFnt(FntOpen(8, 16, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 512));
-    printf("ridge-racer-type-4-pc: psyz window up\n");
-    while (frame < FRAME_LIMIT && !Psyz_QuitRequested()) {
-        FntPrint("RIDGE RACER TYPE 4 PC\n");
-        FntPrint("frame %d\n", frame);
-        display();
-        frame++;
+    if (!cue) {
+        fprintf(stderr,
+                "usage: %s <Ridge Racer Type 4 (Europe).cue>\n"
+                "       (or set RR4_DISC to the CUE file)\n",
+                argv[0]);
+        return 2;
     }
-    printf("ridge-racer-type-4-pc: exited after %d frames\n", frame);
-    return frame == 0;
+    if (Psyz_CdSetDiskPath(cue) != 0) {
+        fprintf(stderr, "ridge-racer-type-4-pc: cannot open disc image %s\n", cue);
+        return 1;
+    }
+    {
+        const char *limit = getenv("RR4_FRAME_LIMIT");
+        const char *trace = getenv("RR4_TRACE");
+        frame_limit = limit ? strtol(limit, NULL, 10) : 0;
+        trace_every = trace ? strtol(trace, NULL, 10) : 0;
+    }
+    chained_vsync = Psyz_SetVSyncCb(host_vsync);
+    MainLoop();
+    return 0;
 }

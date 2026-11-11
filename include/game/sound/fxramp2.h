@@ -3,6 +3,7 @@
 
 #include "types.h"
 
-void SeqMarkCallback(int a0, int a1, s16 a2);
+/* libsnd mark callback: access number, sequence number, mark value. */
+void SeqMarkCallback(s16 access, s16 sequence, s16 mark);
 
 #endif /* RR_GAME_SOUND_FXRAMP2_H */

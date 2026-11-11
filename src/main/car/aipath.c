@@ -2,6 +2,7 @@
 #include "scratchpad.h"
 #include "rr_asm.h"
 #include "rr/race.h"
+#include "rr/replay_types.h"
 #include "rr/track_sample_types.h"
 #include "game/car/carsp.h"
 #include "game/car/carmove1.h"
@@ -17,13 +18,6 @@ typedef struct
   short b;
 } T;
 
-typedef struct 
-{
-  u8 b0, b1, b2;
-  unsigned char b;
-} K;
-
-extern K CarInputs[];
 
 s32 FindTrackNodeUnbounded(s32 *pos, s32 startIdx) {
     CarTrackWork *g = (CarTrackWork *)SCRATCH_CAR_WORK;
@@ -31,7 +25,6 @@ s32 FindTrackNodeUnbounded(s32 *pos, s32 startIdx) {
     s32 r;
     s32 u;
     TrackSample3C *p, *q;
-    s32 junk[2];
     s32 r1;
     s32 r2;
     s32 r3;
@@ -244,7 +237,7 @@ void UpdateCarGear(RaceVehicle *a0, int a1)
   t = (T *)q->record18;
   if (q->previewSample84.halves.low != 0)
   {
-    int v = CarInputs[a1].b;
+    int v = CarInputs[a1].buttons;
     if (v & 4)
     {
       if (q->previewSample84.halves.high < t->n)
@@ -328,3 +321,6 @@ int FindTrackNodeAtXZ(int a0, int a1)
     else if (a0 >= 0x400) a0 = 0x3FF;
     return FindTrackNode(sp, TrackNodeGrid[a0], 6);
 }
+
+/* Initial values of the globals this module owns. */
+short *TrackNodeGrid;

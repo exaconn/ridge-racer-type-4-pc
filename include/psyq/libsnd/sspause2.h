@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void SsSeqReplay(short a);
-void Snd_SetPlayMode(s32 a0, s32 a1, s32 a2, s32 a3);
+/* PsyZ declares SsSeqReplay but does not implement it. */
+void SsSeqReplay(short access);
 
 #endif /* RR_PSYQ_LIBSND_SSPAUSE2_H */

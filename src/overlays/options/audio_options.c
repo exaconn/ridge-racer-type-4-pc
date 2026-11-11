@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay_menu_init.h"
 #include "game/system/pad.h"
 #include "rr/overlay665_audio_options.h"
@@ -34,7 +35,7 @@ void ovl665_update_audio_options(void) {
     case 1:
         if (FadeCountdown > 0) {
             FadeCountdown--;
-            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[702], FadeCountdown * 4, 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[702], FadeCountdown * 4, 0x45);
         }
         SetPresentationDrawEnabled(1);
         if (UiRows[0].byte14 == 2 && FadeCountdown == 0) {
@@ -60,8 +61,8 @@ void ovl665_update_audio_options(void) {
         musicState = UiRows[4].byte14;
         if (musicState == 2) {
             UiRows[4].cells[0] = musicState;
-            StepMenuValue(1, -1, (char *)&Options.bytes[0x30], 0x11, 0);
-            ovl665_saved_bgm_volume = Options.bytes[0x30];
+            StepMenuValue(1, -1, (char *)&Options.bgmVolume30, 0x11, 0);
+            ovl665_saved_bgm_volume = Options.bgmVolume30;
             SeqSetVolume(OptionsPreviewBgmVolume);
             if (MenuReturnSubmodeIndex != 0) {
                 PlaySfx(1);
@@ -76,8 +77,8 @@ void ovl665_update_audio_options(void) {
         effectsState = UiRows[5].byte14;
         if (effectsState == 2) {
             UiRows[5].cells[0] = effectsState;
-            StepMenuValue(1, -1, (char *)&Options.bytes[0x31], 0x11, 0);
-            ovl665_saved_sfx_volume = Options.bytes[0x31];
+            StepMenuValue(1, -1, (char *)&Options.volume31, 0x11, 0);
+            ovl665_saved_sfx_volume = Options.volume31;
             if (MenuReturnSubmodeIndex != 0) {
                 PlaySfx(1);
                 UiRows[5].cells[0] = 1U;
@@ -90,15 +91,15 @@ void ovl665_update_audio_options(void) {
     case 5:
         monoState = UiRows[6].byte14;
         if (monoState == 2) {
-            UiRows[Options.audio.mono32 + 6].cells[0] = 0;
-            StepMenuValue(0, 2, (char *)&Options.audio.mono32, 2, 0);
-            UiRows[Options.audio.mono32 + 6].cells[0] = monoState;
+            UiRows[Options.mono32 + 6].cells[0] = 0;
+            StepMenuValue(0, 2, (char *)&Options.mono32, 2, 0);
+            UiRows[Options.mono32 + 6].cells[0] = monoState;
             if (MenuReturnSubmodeIndex != 0) {
                 PlaySfx(1);
-                UiRows[Options.audio.mono32 + 6].cells[0] = 1;
+                UiRows[Options.mono32 + 6].cells[0] = 1;
                 ovl665_options_state.layout0C = 7U;
                 SetMenuFrameOptions(1, 1, 1);
-                SetCdMixMode(Options.audio.mono32);
+                SetCdMixMode(Options.mono32);
             }
         }
         DrawUiRow(6);
@@ -137,7 +138,7 @@ void ovl665_update_audio_options(void) {
     case 9:
         closingTimer = (u16)FadeCountdown - 1;
         FadeCountdown = closingTimer;
-        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - closingTimer) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x40 - closingTimer) * 4, 0x45);
         if (FadeCountdown <= 0) {
             ovl665_init_menu();
             ovl665_options_state.layout0C = 0;
@@ -150,3 +151,16 @@ void ovl665_update_audio_options(void) {
     }
     UpdateScreenFade(0x1006A);
 }
+
+/* Initial values of the overlay globals this module owns. */
+s32 ovl665_saved_bgm_volume;
+s32 ovl665_saved_sfx_volume;
+
+/* Writable state of this unit; ovl665_reset_module restores it. */
+static const OverlayStateRegion ovl665_audio_options_regions[] = {
+    RR_OVERLAY_STATE(ovl665_saved_bgm_volume),
+    RR_OVERLAY_STATE(ovl665_saved_sfx_volume)};
+const OverlayStateTable ovl665_audio_options_state = {ovl665_audio_options_regions, sizeof(ovl665_audio_options_regions) / sizeof(ovl665_audio_options_regions[0])};
+
+/* Initial values of the globals this module owns. */
+s16 OptionsPreviewBgmVolume;

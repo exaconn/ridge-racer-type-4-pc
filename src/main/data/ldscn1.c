@@ -1,10 +1,12 @@
 #include "rr/emblem_images.h"
+#include "rr/runtime_settings.h"
+#include "rr/menu_choice_types.h"
+#include "rr/menu_selection.h"
 #include "rr/save_slots.h"
 #include "rr/menu_state_types.h"
 #include "rr/work_arena.h"
 #include "rr/load_cursor.h"
 #include "game/camera/campath.h"
-/* RODATA 0x800107c4 0x74 */
 #include "game/data/bankrec.h"
 #include "game/data/cdfile2.h"
 #include "game/data/trkld1.h"
@@ -23,21 +25,16 @@
 #include "game/course/trkintp2.h"
 #include "game/gfx/clut.h"
 #include "game/sound/fxplay.h"
+#include "rr/overlay_module.h"
 
-extern short RaceContext[];
 extern unsigned char LoadState;
 #include "rr/cd_directory_buffer.h"
 #include "rr/menu_arena_base.h"
-extern int MenuSharedScratchPtr;
-extern short CourseIndex;
-extern struct { short a; short b; } PlayerCourseChoices[];
-extern char *PresetEmblemTimPtr;
+extern u8 *MenuSharedScratchPtr;
 #include "game/data/selection.h"
+#include "rr/scene_camera_state.h"
 extern int DialogueSceneMode;
-extern int SelectedStoryBranchId;
-extern unsigned char MenuSelectedTeamId;
 extern char SceneOffsetLookupBuf[];
-extern char *TrackNodes;
 extern int TrackNodeCount;
 extern char MenuSoundVabBuffer[];
 
@@ -68,10 +65,10 @@ int LoadDefaultRaceStep(void) {
     case 2:
             i = 0;
             do {
-                RaceContext[i] = i + 1;
+                RaceContext.startGridOrder00[i] = i + 1;
                 i++;
             } while (i < 7);
-            RaceContext[7] = 0;
+            RaceContext.startGridOrder00[7] = 0;
             LoadState = 3;
     case 3:
             r = 1;
@@ -104,6 +101,13 @@ int LoadModeMenuAssetsStep(void) {
             LoadIndex = 0;
         }
     case 1:
+        /* Linked mode overlay: reset it instead of reading its image. */
+        if (OverlayModuleBind(GetR4FileIndex(1, LoadIndex + 0xB))) {
+            LoadState = 3;
+            r = 1;
+            MenuArenaBase = LoadCursor;
+            break;
+        }
         if (CdFileReadStart(GetR4FileIndex(1, LoadIndex + 0xB), LoadCursor)) {
             LoadState = 2;
         }
@@ -130,6 +134,13 @@ int LoadOpeningMovieTimStep(void) {
         LoadCursor = CdDirectoryBuffer;
         LoadIndex = MainMenuChoice;
     case 1:
+        /* Linked mode overlay: reset it instead of reading its image. */
+        if (OverlayModuleBind(GetR4FileIndex(1, LoadIndex + 1))) {
+            LoadState = 3;
+            r = 1;
+            MenuArenaBase = LoadCursor;
+            break;
+        }
         if (CdFileReadStart(GetR4FileIndex(1, LoadIndex + 1), LoadCursor)) {
             LoadState = 2;
         }
@@ -207,7 +218,7 @@ int LoadAllCarsStep(void) {
     case 3:
         s0 = LoadIndex;
         if (s0 < 0) goto l5;
-        if (RequestCarLoad(SelectionRows.entries[s0].variant, SelectionRows.entries[s0].selection, SelectionRows.entries[s0].parameter % 20, PlayerCourseChoices[s0].a, s0) == 1) {
+        if (RequestCarLoad(SelectionRows.entries[s0].variant, SelectionRows.entries[s0].selection, SelectionRows.entries[s0].parameter % 20, PlayerCourseChoices[s0].first, s0) == 1) {
             LoadState = 4;
         }
         break;
@@ -215,7 +226,7 @@ int LoadAllCarsStep(void) {
         s0 = LoadIndex;
         r = CarLoadStep();
         if (r != 1) break;
-        a1 = PlayerCourseChoices[s0].b;
+        a1 = PlayerCourseChoices[s0].second;
         if (a1 >= 2) {
             s2 = PresetEmblemTimPtr;
             a1 -= 2;
@@ -259,7 +270,7 @@ int LoadCarRangeStep(int arg0, int arg1) {
         break;
     case 1:
         arg0 += LoadIndex;
-        if (RequestCarLoad(SelectionRows.entries[arg0].variant, SelectionRows.entries[arg0].selection, SelectionRows.entries[arg0].parameter % 20, PlayerCourseChoices[arg0].a, arg0) == 1) {
+        if (RequestCarLoad(SelectionRows.entries[arg0].variant, SelectionRows.entries[arg0].selection, SelectionRows.entries[arg0].parameter % 20, PlayerCourseChoices[arg0].first, arg0) == 1) {
             LoadState = 2;
         }
         break;
@@ -267,7 +278,7 @@ int LoadCarRangeStep(int arg0, int arg1) {
         r = CarLoadStep();
         if (r != 1) break;
         arg0 += LoadIndex;
-        a1 = PlayerCourseChoices[arg0].b;
+        a1 = PlayerCourseChoices[arg0].second;
         if (a1 >= 2) {
             q3 = PresetEmblemTimPtr;
             a1 -= 2;
@@ -479,7 +490,7 @@ int LoadDialogueStep(void) {
             s2 = 0x41;
             s1 = 4;
         }
-        if (CdFileReadRange(GetR4FileIndex(1, s2), s1 * SelectedStoryBranchId, s1, LoadDestCursor)) {
+        if (CdFileReadRange(GetR4FileIndex(1, s2), s1 * Options.storyBranch3C, s1, LoadDestCursor)) {
             LoadState = 2;
         }
         break;
@@ -504,7 +515,7 @@ int LoadDialogueStep(void) {
         }
         break;
     case 5:
-        s2 = MenuSelectedTeamId * 9 + 0x1C;
+        s2 = MenuSelectedChoice.team * 9 + 0x1C;
         a0 = LoadIndex;
         s0 = DialogueAssetTable[Dialogue->b4 * 8 + a0];
         if (s0 != -1) {
@@ -585,7 +596,7 @@ int LoadMenuCarModelsStep(void) {
             } else {
                 a1 = 0x45;
             }
-            if (CdFileReadRange(GetR4FileIndex(1, a1), SelectedStoryBranchId << 2, 4, SceneOffsetLookupBuf)) {
+            if (CdFileReadRange(GetR4FileIndex(1, a1), Options.storyBranch3C << 2, 4, SceneOffsetLookupBuf)) {
                 LoadState = 4;
             }
         }
@@ -618,7 +629,7 @@ int LoadTrackNodesStep(void) {
         if (CdFileBytesLoaded() != 0) {
             SetTrackNodeData(LoadCursor);
             LoadState = 3;
-            TrackNodesEnd = TrackNodes + TrackNodeCount * 60;
+            TrackNodesEnd = (char *)(TrackNodes + TrackNodeCount);
     case 3:
             r = 1;
         }
@@ -654,6 +665,13 @@ int LoadSplashAssetsStep(void) {
         }
         break;
     case 4:
+        /* Linked movie_playback overlay: reset it instead of reading entry 668. */
+        if (OverlayModuleBind(GetR4FileIndex(1, 10))) {
+            LoadState = 6;
+            MenuArenaBase = LoadCursor;
+            r = 1;
+            break;
+        }
         if (CdFileReadStart(GetR4FileIndex(1, 10), LoadCursor) != 0) {
             LoadState = 5;
         }
@@ -671,3 +689,22 @@ int LoadSplashAssetsStep(void) {
     }
     return r;
 }
+
+/* Initial values of the globals this module owns. */
+#include "rr/menu_overlay_runtime.h"
+u8 *CdDirectoryBuffer = (u8 *)&DrawBuffers[1].buffer.packets1670[16312];
+char LoadIndex;
+u8 *LoadDestCursor;
+signed char *DialogueAssetTable;
+void *LoadCursor;
+void *MenuBaseLoadCursor;
+MenuChoiceIds4 MenuSelectedChoice;
+char *TrackNodesEnd;
+void *PresetEmblemTimPtr;
+int DialogueSceneMode;
+void *MenuArenaBase;
+u8 *MenuSharedScratchPtr;
+unsigned char LoadState;
+u8 SharedWorkArena[20840];
+char SceneOffsetLookupBuf[7592];
+char MenuSoundVabBuffer[8192];

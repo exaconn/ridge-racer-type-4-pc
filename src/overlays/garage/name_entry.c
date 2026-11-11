@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay662_name_init.h"
 #include "game/system/pad.h"
 #include "rr/overlay662_name_controller.h"
@@ -86,7 +87,7 @@ normalizeColumn:
         SetMenuFrameOptions(0, 1, 1);
         fadeStep = (u16)FadeCountdown - 1;
         FadeCountdown = (u16) fadeStep;
-        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - fadeStep) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x40 - fadeStep) * 4, 0x45);
         if ((s16) FadeCountdown <= 0) {
             CardMenuOperation = 5;
             ModeGroup = phase;
@@ -98,3 +99,19 @@ normalizeColumn:
     UpdateBadgeRowAnim(1);
     UpdateScreenFade(0x1008B);
 }
+
+/* Initial values of the overlay globals this module owns. */
+s8 ovl662_name_entry_cursor;
+s8 ovl662_name_grid_col;
+s8 ovl662_name_grid_row;
+u8 ovl662_name_entry_buffer[12];
+s32 ovl662_name_grid_index;
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_name_entry_regions[] = {
+    RR_OVERLAY_STATE(ovl662_name_entry_buffer),
+    RR_OVERLAY_STATE(ovl662_name_entry_cursor),
+    RR_OVERLAY_STATE(ovl662_name_grid_col),
+    RR_OVERLAY_STATE(ovl662_name_grid_index),
+    RR_OVERLAY_STATE(ovl662_name_grid_row)};
+const OverlayStateTable ovl662_name_entry_state = {ovl662_name_entry_regions, sizeof(ovl662_name_entry_regions) / sizeof(ovl662_name_entry_regions[0])};

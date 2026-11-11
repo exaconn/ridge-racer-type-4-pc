@@ -1,11 +1,13 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay665_visual.h"
+#include "scratchpad.h"
 #include "rr/overlay665_menu.h"
 #include "rr/load_cursor.h"
 #include "game/system/pad.h"
 #include "rr/frame_storage_types.h"
 
 #ifndef RR_PROJECTION_SCRATCH
-#define RR_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)0x1F800000)
+#define RR_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)SCRATCHPAD)
 #endif
 void ovl665_init_scene(void)
 {
@@ -49,9 +51,9 @@ void ovl665_init_menu(void) {
     InitUiRow(5,94,296,112,32,0,0,1,1,18);
     InitUiRow(6,94,336,112,32,0,0,1,0,85);
     SetMenuFrameOptions(1,1,1);
-    if(RaceContext.mode18==1) {
+    if(RaceContext.bgmViewerReturn18==1) {
         ovl665_options_state.selection08=5;
-        RaceContext.mode18=0;
+        RaceContext.bgmViewerReturn18=0;
     }
     FadeCountdown=64;
     RaceLoadReset();
@@ -67,7 +69,7 @@ void ovl665_update_menu(void) {
     case 0:
         if(FadeCountdown>0) {
             FadeCountdown--;
-            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[702],FadeCountdown*4,69);
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[702],FadeCountdown*4,69);
         }
         if(UiRows[0].byte14==2 && FadeCountdown==0) {
             UiRows[ovl665_options_state.selection08].cells[0]=0;
@@ -102,7 +104,7 @@ void ovl665_update_menu(void) {
         break;
     case 2:
         FadeCountdown--;
-        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0],(64-FadeCountdown)*4,69);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0],(64-FadeCountdown)*4,69);
         if(FadeCountdown<=0) {
             SetPresentationDrawEnabled(0);
             ovl665_options_state.exit34.word=0;
@@ -124,4 +126,14 @@ void ovl665_update_menu(void) {
     }
     for(i=0;i<8;i++)DrawUiRow(i);
     UpdateScreenFade(0x10066);
+}
+
+/* Module reset: the state a fresh load of the options image gave
+ * (initialized data and zeroed BSS); see rr/overlay_module.h. */
+extern const OverlayStateTable ovl665_audio_options_state, ovl665_controller_draw_state, ovl665_controller_options_state, ovl665_screen_adjust_state;
+static const OverlayStateTable *const ovl665_state_tables[] = {&ovl665_audio_options_state, &ovl665_controller_draw_state, &ovl665_controller_options_state, &ovl665_screen_adjust_state};
+static OverlayStateImage ovl665_state_image = {ovl665_state_tables, sizeof(ovl665_state_tables) / sizeof(ovl665_state_tables[0]), NULL};
+
+void ovl665_reset_module(void) {
+    OverlayStateRestore(&ovl665_state_image);
 }

@@ -12,7 +12,8 @@ typedef struct {
 } RankEntry8;
 RR_ASSERT_SIZE(RankEntry8, 0x8);
 
-extern RankEntry8 RankEntries[];
+/* Race standings scratch (0x800F2A68), one entry per grid slot. */
+extern RankEntry8 RankEntries[8];
 extern RankEntry8 *RankTable[];
 
 void SelectDialogueScript(void);

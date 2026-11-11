@@ -16,7 +16,7 @@ typedef struct {
  * per sprite, signed division of the wrapped intensity product, and jitter.
  * Sprites after index 2 retain the preceding Y coordinate. Helper return values
  * determine the next cursor; the current context and descriptor are re-read. */
-u8 *AddJitterSprites(u32 *ordering,u8 *cursor,SpriteEffectSource *descriptor,
+u8 *AddJitterSprites(GpuDmaTag *ordering,u8 *cursor,SpriteEffectSource *descriptor,
                  s32 semi,s32 strength,s32 count);
 RR_ASSERT_SIZE(SpriteEffectSource,12);
 RR_ASSERT_OFFSET(SpriteEffectSource,uv,8);

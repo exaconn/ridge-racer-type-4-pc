@@ -1,6 +1,5 @@
 #include "rr/scene_camera_state.h"
 #include "rr/race_audio_resources.h"
-/* RODATA 0x80011068 0x20 */
 #include "types.h"
 #include "game/sound/sndvab.h"
 #include "rr/load_cursor.h"
@@ -16,6 +15,7 @@
 #include "game/sound/sndsys.h"
 #include "rr/audio_loop.h"
 #include "game/course/trkintp2.h"
+#include "rr/relative_file.h"
 
 extern int CourseAssetBaseFileIndex;
 extern int CourseAssetGroupIds[];
@@ -65,7 +65,7 @@ int LoadCarSpecStep(int a0, int a1, int a2) {
       t = CdFileBytesLoaded();
       if (t != 0)
       {
-        SetCarSpecTable(RaceLoadCursor);
+        SetCarSpecTable((RaceSpecEntry30 *)RaceLoadCursor);
         v = AlignUp4(t);
         RaceLoadState = 0;
         RaceLoadCursor += v;
@@ -113,9 +113,8 @@ int LoadMenuCarStep(int a0, int a1) {
     case 3:
             t = CdFileBytesLoaded();
             if (t != 0) {
-                RegisterModelBank((RroModelBank *)((char *)RaceLoadCursor + ((const MenuCarModelResourceHeader *)RaceLoadCursor)->modelBankOffset), 8);
-                RelocateOffsetTable((char *)RaceLoadCursor + ((const MenuCarModelResourceHeader *)RaceLoadCursor)->meshTableOffset);
-                RaceContext.model560 = ((char *)RaceLoadCursor + ((const MenuCarModelResourceHeader *)RaceLoadCursor)->meshTableOffset);
+                RegisterModelBank((char *)RaceLoadCursor + ((const MenuCarModelResourceHeader *)RaceLoadCursor)->modelBankOffset, 8);
+                RaceContext.model560 = RelocateOffsetTable(RaceLoadCursor + ((const MenuCarModelResourceHeader *)RaceLoadCursor)->meshTableOffset);
                 RaceContext.camera24C->tracks138 = (SceneCameraTrack24 *)(RaceLoadCursor + ((const MenuCarModelResourceHeader *)RaceLoadCursor)->cameraTracksOffset);
                 v = AlignUp4(t);
                 RaceLoadState = 0;
@@ -146,7 +145,7 @@ int LoadCourseAssetsStep(int a0, int a1) {
     case 3:
         t = CdFileBytesLoaded();
         if (t != 0) {
-            RegisterModelBank((RroModelBank *)(RaceLoadCursor), 8);
+            RegisterModelBank(RaceLoadCursor, 8);
             v = AlignUp4(t);
             RaceLoadCursor += v;
             if (CourseSkyboxTypeTable[a0] < 7) {
@@ -177,7 +176,7 @@ int LoadCourseAssetsStep(int a0, int a1) {
     case 7:
         t = CdFileBytesLoaded();
         if (t != 0) {
-            RegisterModelBank((RroModelBank *)(RaceLoadCursor), 9);
+            RegisterModelBank(RaceLoadCursor, 9);
             v = AlignUp4(t);
             RaceLoadCursor += v;
             RaceLoadState = 0;
@@ -201,9 +200,9 @@ int LoadSlotBankStep(int a0, int a1) {
             RaceLoadSubState += 1;
     case 1:
             if (CdFileBytesLoaded() != 0) {
-                SlotBankSetup.group08 = (const u8 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
-                SlotBankSetup.bank00 = (u8 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
-                SlotBankSetup.data04 = (const u16 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[3]);
+                SlotBankSetup.group08 = (const u8 *)RrWireTableAddress(RaceLoadCursor, 1);
+                SlotBankSetup.bank00 = (u8 *)RrWireTableAddress(RaceLoadCursor, 2);
+                SlotBankSetup.data04 = (const u16 *)RrWireTableAddress(RaceLoadCursor, 3);
                 SlotBankSetup.slot0C = a1;
                 RaceLoadCursor += AlignUp4(((int *)RaceLoadCursor)[3]);
                 RaceLoadSubState += 1;
@@ -230,9 +229,9 @@ int LoadComSlotBankStep(int a0) {
             RaceLoadSubState += 1;
     case 1:
             if (CdFileBytesLoaded() != 0) {
-                SlotBankSetup.group08 = (const u8 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
-                SlotBankSetup.bank00 = (u8 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
-                SlotBankSetup.data04 = (const u16 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[3]);
+                SlotBankSetup.group08 = (const u8 *)RrWireTableAddress(RaceLoadCursor, 1);
+                SlotBankSetup.bank00 = (u8 *)RrWireTableAddress(RaceLoadCursor, 2);
+                SlotBankSetup.data04 = (const u16 *)RrWireTableAddress(RaceLoadCursor, 3);
                 SlotBankSetup.slot0C = 0;
                 RaceLoadCursor += AlignUp4(((int *)RaceLoadCursor)[3]);
                 RaceLoadSubState += 1;
@@ -285,13 +284,13 @@ int LoadSfxVabStep(int a0, int a1) {
     case 1:
             if (CdFileBytesLoaded() != 0) {
                 if (a1 > 0) prefixWords += a1;
-                VabLoadArgs.header = (u8 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[prefixWords + 1]);
-                samples = RaceLoadCursor + ((int *)RaceLoadCursor)[prefixWords + 2];
+                VabLoadArgs.header = RrWireTableAddress(RaceLoadCursor, prefixWords + 1);
+                samples = (char *)RrWireTableAddress(RaceLoadCursor, prefixWords + 2);
                 VabLoadArgs.samples = (const u16 *)samples;
                 sampleBytes = samples - RaceLoadCursor;
                 LoadVab(&VabLoadArgs, config->open_mode, config->bank_slot);
                 if (a1 > 0) {
-                    SoundState.seqAddr2858[TrackSeqTargetSlot] = (char *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
+                    SoundState.seqAddr2858[TrackSeqTargetSlot] = (char *)RrWireTableAddress(RaceLoadCursor, 1);
                 }
                 sampleBytes = AlignUp4(sampleBytes);
                 RaceLoadSubState = 0;
@@ -380,3 +379,15 @@ int LoadRaceSoundStep(void) {
         return 0;
     }
 }
+
+/* Initial values of the globals this module owns. */
+short CourseSkyboxTypeTable[8] = {1, 4, 4, 7, 1, 7, 7, 7};
+int RaceLoadState;
+int RaceLoadSubState;
+VabLoadConfig CourseVabLoadConfigs[1] = {{.file_index = 17, .open_mode = 4112}};
+int CourseAssetGroupIds[8] = {0, 6, 2, 17, 1, 24, 10, 31};
+int CourseAssetBaseFileIndex;
+char *RaceLoadCursor;
+AudioBankSetup SlotBankSetup;
+VabData VabLoadArgs;
+int TrackSeqTargetSlot;

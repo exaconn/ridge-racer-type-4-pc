@@ -1,3 +1,5 @@
+#include "rr/overlay_module.h"
+#include "rr/screen_tiles.h"
 #include "rr/overlay662_available_cars.h"
 #include "rr/load_cursor.h"
 #include "rr/overlay662_car_bars.h"
@@ -6,9 +8,9 @@
 #include "game/car/carwheel.h"
 #include "rr/player_cars.h"
 #include "rr/preview_rgb.h"
+#include "rr/image_rows.h"
 #include "rr/ui.h"
 
-extern u8 *ImageRows;
 extern s16 FadeCountdown;
 extern s16 ovl662_saved_car_choice_idx;
 void ovl662_init_team_car_layout(void);
@@ -20,7 +22,6 @@ void SetMenuFrameOptions(s32, s32, s32);
 void StepMenuValue(s32, s32, char *, s32, s32);
 void PlaySfx(s32);
 void SetModelTexturePage(s32);
-void AddScreenFadeTiles(u32 *, s32, u32);
 void DrawUiRow(s32);
 void DrawSelectionIconGrid(s32);
 void UpdateCarWorldTransform(RaceVehicle *);
@@ -80,12 +81,9 @@ void ovl662_init_available_cars(void){
 
 void ovl662_draw_car_slot_bars(s32 selected)
 {
-#ifndef RR_GPU_SCRATCH
-#define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
-#endif
     UiUvRect strip;
     void *result;
-    u32 *head;
+    GpuDmaTag *head;
     void *initial;
     s32 x = 40, index, r, g, b;
     s32 y = 288;
@@ -96,7 +94,7 @@ void ovl662_draw_car_slot_bars(s32 selected)
     strip.w = 240;
     strip.h = 24;
     strip.u = 0;
-    head = &CurrentDrawBuf->buffer.ordering70.words[0];
+    head = &CurrentDrawBuf->buffer.ordering70.tags[0];
     initial = RR_GPU_SCRATCH->cursor;
     cursor = AddSpritePrim(head, initial, 40, y, &strip, 0x7FA4, 1);
 
@@ -113,7 +111,7 @@ void ovl662_draw_car_slot_bars(s32 selected)
                 g = 189;
                 b = 0;
             }
-            cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor,
+            cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor,
                                   x + 1, y, 10, 22, r, g, b);
         }
         x += 12;
@@ -121,12 +119,12 @@ void ovl662_draw_car_slot_bars(s32 selected)
         status++;
     } while (index < 20);
 
-    result = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 0x39);
+    result = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 0x39);
     RR_GPU_SCRATCH->cursor = result;
     if (ovl662_car_slot_statuses[(SelectionRows.choice.bytes[2] % 20) & 255] == 2) {
-        result = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], result, 142, 256,
+        result = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], result, 142, 256,
                               &ovl662_car_slot_bar_uv, 0x7CBB, 0);
-        RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], result, 0x38);
+        RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], result, 0x38);
     }
 }
 
@@ -155,13 +153,13 @@ void ovl662_update_available_cars(void)
     SetupViewport(6);
     ready = LoadCarRangeStep(0, 1);
     if (ready != 1) {
-        if ((s8)ImageRows[1] == 1) {
-            ImageRows[1] = 0;
+        if (ImageRows->f1 == 1) {
+            ImageRows->f1 = 0;
         }
     } else {
         SetCarBounds(vehicle);
-        if ((s8)ImageRows[1] == 7) {
-            ImageRows[1] = ready;
+        if (ImageRows->f1 == 7) {
+            ImageRows->f1 = ready;
         }
         shown = 1;
         switch (SubmodeState) {
@@ -175,7 +173,7 @@ void ovl662_update_available_cars(void)
                 ResetScreenCounters();
                 LoadCursor = MenuArenas.first;
                 UnpackChoiceGlyph((s8 *)&SelectionRows.choice, ovl662_available_car_slots[ovl662_selected_car_slot].value);
-                ImageRows[1] = 6;
+                ImageRows->f1 = 6;
                 PlayerCourseChoices[0].first = 0;
                 PlayerCourseChoices[0].second = 0;
             }
@@ -208,7 +206,7 @@ void ovl662_update_available_cars(void)
                         SubmodeState = 3;
                         BadgeRows[0].state10 = 4;
                         BadgeRows[1].state10 = 4;
-                        ImageRows[1] = 3;
+                        ImageRows->f1 = 3;
                         for (i = 0; i < 4; i++) {
                             if (UiRows[i].byte14 == 2) {
                                 UiRows[i].byte14 = 3;
@@ -223,7 +221,7 @@ void ovl662_update_available_cars(void)
                     PlaySfx(1);
                     BadgeRows[0].state10 = 4;
                     BadgeRows[1].state10 = 4;
-                    ImageRows[1] = state;
+                    ImageRows->f1 = state;
                     for (i = 0; i < UiRowCount; i++) {
                         if (UiRows[i].byte14 == 2) {
                             UiRows[i].byte14 = 3;
@@ -238,7 +236,7 @@ void ovl662_update_available_cars(void)
                 SetMenuFrameOptions(0, 1, 1);
                 BadgeRows[0].state10 = 4;
                 BadgeRows[1].state10 = 4;
-                ImageRows[1] = state;
+                ImageRows->f1 = state;
                 for (i = 0; i < UiRowCount; i++) {
                     if (UiRows[i].byte14 == 2) {
                         UiRows[i].byte14 = 3;
@@ -251,7 +249,7 @@ void ovl662_update_available_cars(void)
         case 3:
             FadeCountdown--;
             steps = 64;
-            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (steps - FadeCountdown) * 4, 69);
+            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (steps - FadeCountdown) * 4, 69);
             if (FadeCountdown <= 0) {
                 CourseChoiceTable[1][ovl662_saved_car_choice_idx].glyph = ovl662_available_car_slots[ovl662_selected_car_slot].value;
                 CourseChoiceTable[1][ovl662_saved_car_choice_idx].first = 0;
@@ -267,7 +265,7 @@ void ovl662_update_available_cars(void)
         case 8:
             FadeCountdown--;
             steps = 64;
-            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (steps - FadeCountdown) * 4, 69);
+            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (steps - FadeCountdown) * 4, 69);
             if (FadeCountdown <= 0) {
                 ovl662_selected_car_slot = ovl662_saved_car_choice_idx;
                 ovl662_init_team_car_layout();
@@ -279,7 +277,7 @@ void ovl662_update_available_cars(void)
             break;
         }
     }
-    if (ovl662_menu_substate == 0 && (s8)ImageRows[1] == 2) {
+    if (ovl662_menu_substate == 0 && ImageRows->f1 == 2) {
         ovl662_menu_substate = 1;
         BadgeRows[0].half02 = 1;
         BadgeRows[1].half02 = 1;
@@ -291,17 +289,17 @@ void ovl662_update_available_cars(void)
         ovl662_draw_car_slot_bars(SelectionRows.choice.bytes[2]);
     }
     i = shown;
-    if ((u8)(ImageRows[1] - 1) < 2 && i == 1) {
+    if ((u8)(ImageRows->f1 - 1) < 2 && i == 1) {
         DrawSelectionIconGrid(0);
         UpdateCarWorldTransform(PlayerCars);
         fadeLevel = 0x100;
-        if ((s8)ImageRows[1] == i) {
-            shade = ~((ImageRows[2] * 255) / 30);
+        if (ImageRows->f1 == i) {
+            shade = ~((ImageRows->f2 * 255) / 30);
             color.channels.r = shade;
             color.channels.g = shade;
             color.channels.b = shade;
             fadeMode = 0x102;
-            fadeLevel = (ImageRows[2] << 8) / 30;
+            fadeLevel = (ImageRows->f2 << 8) / 30;
         } else {
             fadeMode = 1;
             color.channels.r = 0x80;
@@ -317,3 +315,19 @@ void ovl662_update_available_cars(void)
     }
     UpdateScreenFade(0x1008E);
 }
+
+/* Initial values of the overlay globals this module owns. */
+UiUvRect ovl662_car_slot_bar_uv = {.u = 0x20, .v = 0x20, .w = 0x28, .h = 0x10};
+s16 ovl662_saved_car_choice_idx;
+s16 ovl662_available_car_count;
+s16 ovl662_car_slot_statuses[20];
+GarageAvailableCar ovl662_available_car_slots[20];
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_available_cars_regions[] = {
+    RR_OVERLAY_STATE(ovl662_available_car_count),
+    RR_OVERLAY_STATE(ovl662_available_car_slots),
+    RR_OVERLAY_STATE(ovl662_car_slot_bar_uv),
+    RR_OVERLAY_STATE(ovl662_car_slot_statuses),
+    RR_OVERLAY_STATE(ovl662_saved_car_choice_idx)};
+const OverlayStateTable ovl662_available_cars_state = {ovl662_available_cars_regions, sizeof(ovl662_available_cars_regions) / sizeof(ovl662_available_cars_regions[0])};

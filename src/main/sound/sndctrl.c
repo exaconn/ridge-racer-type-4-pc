@@ -1,4 +1,3 @@
-/* RODATA 0x80011118 0xc */
 #include "types.h"
 #include "rr/audio_state_types.h"
 #include "game/sound/cdstart.h"

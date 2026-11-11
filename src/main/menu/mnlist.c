@@ -1,4 +1,5 @@
 #include "game/ui/uipart1.h"
+#include "rr/menu_frame_state.h"
 #include "rr/save_slots.h"
 #include "game/menu/mnlist.h"
 #include "rr/runtime_settings.h"
@@ -20,8 +21,6 @@
 
 
 extern UiUvRect UiFontGlyphs[];
-extern char SaveSlotGradePrefixBuf[];
-extern char SaveSlotQuestionMarks[];
 extern char SaveSlotDashPlaceholder[];
 extern u8 SaveSlotHeaderStepX[];
 extern u8 SaveSlotHeaderGlyphIds[];
@@ -36,10 +35,9 @@ extern u8 SaveSlotPhaseChars[];
 extern u8 SaveSlotTrophyTileColors[];
 extern short GpSaveSlotCursor;
 extern char FractionText[];
-extern int MenuAvailableCourseMask;
 
 
-void *DrawCarSpecBadgePanel(u32 *arg0, void *arg1, s32 arg2)
+void *DrawCarSpecBadgePanel(GpuDmaTag *arg0, void *arg1, s32 arg2)
 {
   char sp28[8];
   int sp30;
@@ -83,17 +81,21 @@ void *DrawCarSpecBadgePanel(u32 *arg0, void *arg1, s32 arg2)
     }
     else
     {
+      /* On the PS1 the label "PRESET " was stored directly before the grade
+       * and digit bytes; the host builds the same "PRESET D1" text in one
+       * buffer instead of addressing across separate objects. */
+      static char presetLabel[12] = "PRESET  ";
       if (SelectionRows.entries[ActivePlayerIndex].selection == 0)
       {
-        CopyStringClearTail(SaveSlotGradePrefixBuf, "D ");
+        CopyStringClearTail(presetLabel + 7, "D ");
       }
       else
       {
-        CopyStringClearTail(SaveSlotGradePrefixBuf, "G ");
+        CopyStringClearTail(presetLabel + 7, "G ");
       }
-      q = SaveSlotQuestionMarks;
+      q = presetLabel + 8;
       FormatDecimalDigits(q, SelectionRows.entries[ActivePlayerIndex].variant + 1, 0);
-      sp4C = q - 8;
+      sp4C = presetLabel;
     }
   }
   record = CarRecordPtrs[ActivePlayerIndex];
@@ -216,7 +218,7 @@ void *DrawCarSpecBadgePanel(u32 *arg0, void *arg1, s32 arg2)
   return arg1;
 }
 
-void *DrawGpSaveSlotsPanel(u32 *arg0, void *arg1, s32 arg2)
+void *DrawGpSaveSlotsPanel(GpuDmaTag *arg0, void *arg1, s32 arg2)
 {
     int sp28[3];
     char sp38[8];
@@ -305,7 +307,7 @@ char *FormatCountOfTotal(int a, int b, int c) {
 }
 
 
-void *DrawControllerConfigPanel(u32 *ordering, void *cursor, s32 row)
+void *DrawControllerConfigPanel(GpuDmaTag *ordering, void *cursor, s32 row)
 {
   char text[8];
   int character;
@@ -328,7 +330,7 @@ void *DrawControllerConfigPanel(u32 *ordering, void *cursor, s32 row)
     textCursor--;
   }
   while (character >= 0);
-  controller = (MenuAvailableCourseMask - 1U) & 1;
+  controller = (MenuFrameState.titlePlayer08 - 1U) & 1;
   if (controller < 0)
   {
     controller = 0;
@@ -339,15 +341,15 @@ void *DrawControllerConfigPanel(u32 *ordering, void *cursor, s32 row)
     case 0:
 
     default:
-      layout = Options.config.f0[controller].buttonLayout00;
+      layout = Options.pulse[controller].buttonLayout00;
       break;
 
     case 1:
-      layout = Options.config.p[controller].buttonLayout0C;
+      layout = Options.pad[controller].buttonLayout0C;
       break;
 
     case 2:
-      layout = Options.config.w[controller].buttonLayout03;
+      layout = Options.wheel[controller].buttonLayout03;
       break;
 
   }
@@ -359,3 +361,20 @@ void *DrawControllerConfigPanel(u32 *ordering, void *cursor, s32 row)
   result = AddDrawModePrim(ordering, AddTextSprites(ordering, result, x, y, text, 0x7FF8, 0, 0), 0x38);
   return result;
 }
+
+/* Initial values of the globals this module owns. */
+UiUvRect MenuStepArrowUv = {.u = 0x68, .v = 0xF0, .w = 0x2D, .h = 0x10};
+char SaveSlotDashPlaceholder[8] = {80, 65, 67, 45, 77, 65, 78};
+u8 SaveSlotHeaderStepX[12] = {8, 0x18, 0x60, 0xE, 0x5F, 0x18, 8, 0x16, 0x62, 0x40, 0x2D, 0x14};
+u8 SaveSlotHeaderGlyphIds[12] = {0x5F, 0x14, 0x40, 0x14, 0x4A, 0x7B, 0x5E, 0x14, 0xE, 0xF, 0x10, 0x7B};
+u8 SaveSlotDigitGlyphIds[16] = {0x44, 0x52, 0x41, 0x4F, 0x42, 0x50, 0x43, 0x51, 0x4D, 0x51, 0x4E, 0x52, 0x4C, 0x50, 0x4B, 0x4F};
+u8 SaveSlotTrophyStepX[4] = {8, 0x1C, 0x28, 0x30};
+u8 SaveSlotRowOffsetY[4] = {8, 0x30, 0x48, 0x60};
+u8 SaveSlotStageGlyphIds[4] = {0x5D, 0x5E, 0x5F, 0x60};
+u8 SaveSlotDifficultyCharsA[4] = {0x44, 0x41, 0x42, 0x43};
+u8 SaveSlotDifficultyCharsB[4] = {0x4D, 0x4E, 0x4C, 0x4B};
+u8 SaveSlotPhaseChars[4] = {0x21, 0x22, 0x26, 0x27};
+u8 SaveSlotTrophyTileColors[4] = {0x18, 0x18, 0x18, 0x18};
+SavedMenuSettings SaveSlotSelections[RR_SAVE_SLOT_COUNT];
+CarRecord *CarRecordPtrs[4];
+char FractionText[8];

@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay662_scroll_actions.h"
 #include "rr/overlay662_palette_edit.h"
 #include "rr/overlay662_tool_action.h"
@@ -632,3 +633,51 @@ void ovl662_drag_preview_viewport(void) {
         }
     }
 }
+
+/* Initial values of the overlay globals this module owns. */
+u16 ovl662_hscroll_grab_offset;
+s32 ovl662_hscroll_image_thumb;
+s32 ovl662_hscroll_image_travel;
+s32 ovl662_hscroll_track_thumb;
+s32 ovl662_hscroll_track_travel;
+u16 ovl662_vscroll_grab_offset;
+s32 ovl662_vscroll_image_thumb;
+s32 ovl662_vscroll_image_travel;
+s32 ovl662_vscroll_track_thumb;
+s32 ovl662_vscroll_track_travel;
+GaragePreviewGrab ovl662_preview_drag_grab;
+s32 ovl662_preview_drag_thumb;
+s32 ovl662_preview_drag_limit;
+GarageRectangle *ovl662_button_rect_lookup[46];
+GarageWorkingStorage ovl662_editor_cursor_state;
+s32 ovl662_red_bar_dragging;
+u16 ovl662_red_bar_saved_color;
+s32 ovl662_green_bar_dragging;
+u16 ovl662_green_bar_saved_color;
+s32 ovl662_blue_bar_dragging;
+u16 ovl662_blue_bar_saved_color;
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_editor_sliders_regions[] = {
+    RR_OVERLAY_STATE(ovl662_blue_bar_dragging),
+    RR_OVERLAY_STATE(ovl662_blue_bar_saved_color),
+    RR_OVERLAY_STATE(ovl662_button_rect_lookup),
+    RR_OVERLAY_STATE(ovl662_editor_cursor_state),
+    RR_OVERLAY_STATE(ovl662_green_bar_dragging),
+    RR_OVERLAY_STATE(ovl662_green_bar_saved_color),
+    RR_OVERLAY_STATE(ovl662_hscroll_grab_offset),
+    RR_OVERLAY_STATE(ovl662_hscroll_image_thumb),
+    RR_OVERLAY_STATE(ovl662_hscroll_image_travel),
+    RR_OVERLAY_STATE(ovl662_hscroll_track_thumb),
+    RR_OVERLAY_STATE(ovl662_hscroll_track_travel),
+    RR_OVERLAY_STATE(ovl662_preview_drag_grab),
+    RR_OVERLAY_STATE(ovl662_preview_drag_limit),
+    RR_OVERLAY_STATE(ovl662_preview_drag_thumb),
+    RR_OVERLAY_STATE(ovl662_red_bar_dragging),
+    RR_OVERLAY_STATE(ovl662_red_bar_saved_color),
+    RR_OVERLAY_STATE(ovl662_vscroll_grab_offset),
+    RR_OVERLAY_STATE(ovl662_vscroll_image_thumb),
+    RR_OVERLAY_STATE(ovl662_vscroll_image_travel),
+    RR_OVERLAY_STATE(ovl662_vscroll_track_thumb),
+    RR_OVERLAY_STATE(ovl662_vscroll_track_travel)};
+const OverlayStateTable ovl662_editor_sliders_state = {ovl662_editor_sliders_regions, sizeof(ovl662_editor_sliders_regions) / sizeof(ovl662_editor_sliders_regions[0])};

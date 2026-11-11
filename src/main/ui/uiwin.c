@@ -20,9 +20,6 @@
 
 
 
-int UpdateGlyphRow(int arg0);
-void InitUiRow(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32 h,...);
-void DrawUiWindowRowText(s32 arg0, s32 arg1, s32 arg2);
 
 int UpdateGlyphRow(int index) {
     SpriteEffectSource captionSprite;
@@ -79,14 +76,14 @@ int UpdateGlyphRow(int index) {
         }
         break;
     case MENU_GLYPH_FADE_BACKGROUND:
-        cursor = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
+        cursor = RR_GPU_SCRATCH->cursor;
         shade = ((unsigned short)initialTick * 0x7C) / 10;
-        cursor = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.words[1],
+        cursor = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.tags[1],
                                       cursor, GlyphRows[index].x08, GlyphRows[index].y0A,
                                       GlyphRows[index].w0C, GlyphRows[index].h0E,
                                       shade, shade, shade);
-        ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawModePrim(
-            &CurrentDrawBuf->buffer.ordering70.words[1], cursor, 0x45);
+        RR_GPU_SCRATCH->cursor = AddDrawModePrim(
+            &CurrentDrawBuf->buffer.ordering70.tags[1], cursor, 0x45);
         if ((unsigned short)initialTick >= 10) {
             GlyphRows[index].control02 = MENU_GLYPH_PREPARE_IMAGE;
             GlyphRows[index].tick03 = 0;
@@ -96,12 +93,12 @@ int UpdateGlyphRow(int index) {
         UpdateRect16Row(GlyphRows[index].glyph07);
         break;
     case MENU_GLYPH_PREPARE_IMAGE:
-        cursor = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
+        cursor = RR_GPU_SCRATCH->cursor;
         if ((unsigned short)initialTick >= 3) {
-            cursor = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, &captionSprite, 1, 0xFF, 3);
+            cursor = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, &captionSprite, 1, 0xFF, 3);
         }
-        ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddTilePrim(
-            &CurrentDrawBuf->buffer.ordering70.words[1],
+        RR_GPU_SCRATCH->cursor = AddTilePrim(
+            &CurrentDrawBuf->buffer.ordering70.tags[1],
             cursor,
             GlyphRows[index].x08,
             GlyphRows[index].y0A,
@@ -120,10 +117,10 @@ int UpdateGlyphRow(int index) {
         }
         break;
     case MENU_GLYPH_BLEND_IMAGE:
-        cursor = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], ((GpuScratchPointers *)SCRATCHPAD)->cursor, &captionSprite, 1, (0x80 - initialTick) * 2, 2);
-        cursor = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, &imageSprite, 1, initialTick, 1);
-        ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddTilePrim(
-            &CurrentDrawBuf->buffer.ordering70.words[3],
+        cursor = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, &captionSprite, 1, (0x80 - initialTick) * 2, 2);
+        cursor = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, &imageSprite, 1, initialTick, 1);
+        RR_GPU_SCRATCH->cursor = AddTilePrim(
+            &CurrentDrawBuf->buffer.ordering70.tags[3],
             cursor,
             GlyphRows[index].x08,
             GlyphRows[index].y0A,
@@ -140,10 +137,10 @@ int UpdateGlyphRow(int index) {
         break;
     case MENU_GLYPH_DISPLAY_IMAGE:
     default:
-        cursor = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
+        cursor = RR_GPU_SCRATCH->cursor;
         if ((s8)GlyphRows[index].frameIndex00 >= 0) {
             cursor = AddSpriteWithDrawMode(
-                &CurrentDrawBuf->buffer.ordering70.words[0],
+                &CurrentDrawBuf->buffer.ordering70.tags[0],
                 cursor,
                 GlyphRows[index].x08,
                 GlyphRows[index].y0A,
@@ -157,8 +154,8 @@ int UpdateGlyphRow(int index) {
                 0x80
             );
         }
-        ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddTilePrim(
-            &CurrentDrawBuf->buffer.ordering70.words[1],
+        RR_GPU_SCRATCH->cursor = AddTilePrim(
+            &CurrentDrawBuf->buffer.ordering70.tags[1],
             cursor,
             GlyphRows[index].x08,
             GlyphRows[index].y0A,
@@ -180,7 +177,7 @@ int UpdateGlyphRow(int index) {
 }
 
 int AllocUiRows(void *a) {
-    int sz = UiRowCount * 36;
+    int sz = UiRowCount * (int)sizeof(UiRow24);
     UiRows = (UiRow24 *)a;
     PsyqBzero(a, sz);
     DebugPrintStub(SizeLdFmt, sz);
@@ -190,41 +187,24 @@ int AllocUiRows(void *a) {
 
 void InitUiRow(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32 h,...) {
  s32 i;
- u32 offset;
- UiRow24 *tail;
- u8 *page;
+ UiRow24 *row;
+ u8 *cells;
  if(index<UiRowCount) {
-  /* Pointer storage is re-read after byte/halfword stores that can alias it. */
-  page=(u8*)0x800F0000U;
-  /* Preserve PAL offset wrapping while widening the signed offset for host pointers. */
-  offset=index*sizeof(UiRow24);
-  ((UiRow24 *)(offset+(unsigned long)((UiRowPointerPage *)page)->rows4D80))->byte15=g;
-  ((UiRow24 *)(offset+(unsigned long)((UiRowPointerPage *)page)->rows4D80))->byte16=h;
-  ((UiRow24 *)(offset+(unsigned long)((UiRowPointerPage *)page)->rows4D80))->byte01=f;
-  ((UiRow24 *)(offset+(unsigned long)((UiRowPointerPage *)page)->rows4D80))->byte14=e;
-  {
-   UiRow24 *row=(UiRow24 *)(offset+(unsigned long)((UiRowPointerPage *)page)->rows4D80);
-   row->byte02=count;
-   /* Capture this fresh base before the halfword stores, as in the original. */
-   tail=((UiRowPointerPage *)page)->rows4D80;
-
-   row->half04=a;
-   row->half06=b;
-   row->half08=c;
-   row->half0A=d;
-  }
-  ((UiRow24 *)(offset+(unsigned long)tail))->byte17=0;
-  i=0;
-  ((UiRow24 *)(offset+(unsigned long)((UiRowPointerPage *)page)->rows4D80))->half20=0;
-  if(count>0) {
-   u8 *loop_page=page;
-   u32 clear_offset;
-   clear_offset=offset;
-   do {
-    *(u8 *)(clear_offset+(unsigned long)((UiRowPointerPage *)loop_page)->rows4D80+i+RR_FIELD_OFFSET(UiRow24,cells))=0;
-    i++;
-   }while(i<count);
-  }
+  row=&UiRows[index];
+  row->byte15=g;
+  row->byte16=h;
+  row->byte01=f;
+  row->byte14=e;
+  row->byte02=count;
+  row->half04=a;
+  row->half06=b;
+  row->half08=c;
+  row->half0A=d;
+  row->byte17=0;
+  row->half20=0;
+  /* Count may exceed the eight cells; the clear continues into the row. */
+  cells=row->cells;
+  for(i=0;i<count;i++) cells[i]=0;
  }
 }
 
@@ -232,7 +212,7 @@ void DrawUiWindowRowText(s32 arg0, s32 arg1, s32 arg2) {
     s32 pad[8];
     s32 s0;
     s32 s1;
-    s32 s3;
+    void *s3;
     s32 s5;
     s32 s6;
     s32 a0;
@@ -244,10 +224,10 @@ void DrawUiWindowRowText(s32 arg0, s32 arg1, s32 arg2) {
     UiRow24 *p;
 
     if (UiRows[arg0].byte02 == 0) {
-        *(s32 *)SCRATCHPAD = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], *(s32 *)SCRATCHPAD, arg1, arg2, 1, UiRows[arg0].half0A, 0xFF, 0xFF, 0xFF);
+        RR_GPU_SCRATCH->cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, arg1, arg2, 1, UiRows[arg0].half0A, 0xFF, 0xFF, 0xFF);
     } else {
         s1 = 0;
-        s3 = *(s32 *)SCRATCHPAD;
+        s3 = RR_GPU_SCRATCH->cursor;
         s5 = ((UiRows[arg0].byte17 - 0x80) << 4) & 0xFFF;
         if ((b = UiRows[arg0].byte02) != 0) {
             do {
@@ -276,7 +256,7 @@ void DrawUiWindowRowText(s32 arg0, s32 arg1, s32 arg2) {
                 v = rsin(a0);
                 t = s0 + 1;
                 s0 = ((t + v / 0x801) << 3) + 0xD0;
-                s3 = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s6, arg2 + 8, 8, 0x10, s0, 0x10, c, 0x7F3A, 0, 0x80);
+                s3 = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s6, arg2 + 8, 8, 0x10, s0, 0x10, c, 0x7F3A, 0, 0x80);
                 s1++;
             } while (s1 < UiRows[arg0].byte02);
         }
@@ -284,7 +264,10 @@ void DrawUiWindowRowText(s32 arg0, s32 arg1, s32 arg2) {
         p = UiRows;
         d = arg1 - 12;
         b = p[arg0].byte17;
-        *(s32 *)SCRATCHPAD = s3;
+        RR_GPU_SCRATCH->cursor = s3;
         DrawUiBox(arg1, arg2, s6 - d, UiRows[arg0].half0A, 0xCE, 0xCE, 0xCE);
     }
 }
+
+/* Initial values of the globals this module owns. */
+MenuGlyphRow1C *GlyphRows;

@@ -7,7 +7,7 @@ void ovl663_init_preview(void) {
 
     ovl663_selected_record = 0;
     ClearScreenOverlayState();
-    ScreenFadeState = 2;
+    ScreenFadeState.phase = 2;
     ModeFrame = 0;
     SetupRenderer(3);
     scratch = RR_PROJECTION_SCRATCH;
@@ -47,7 +47,7 @@ void ovl663_draw_preview(void) {
     light.y = 80;
     light.w = 120;
     light.h = 280;
-    EmitTiledRect(&light, 128, CurrentDrawBuf->ordering.ordering70.words);
+    EmitTiledRect(&light, 128, CurrentDrawBuf->ordering.ordering70.tags);
     SetSineLightColors(4096);
     SetupSkyLightMatrices((char *)state->position20.words, mat.halves);
 }
@@ -81,7 +81,7 @@ void ovl663_update_preview(void) {
             break;
         case 8:
             FadeCountdown--;
-            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (64 - FadeCountdown) * 4, 69);
+            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (64 - FadeCountdown) * 4, 69);
             if (FadeCountdown <= 0) {
                 ovl663_init_menu();
                 ModeGroup = 1;
@@ -140,11 +140,11 @@ void ovl663_update_result_preview(void) {
             UiRows[3].byte14 = 3;
             SubmodeState = 2;
             BadgeRows->state10 = 4;
-            ImageRows[1] = 3;
+            ImageRows->f1 = 3;
         }
         break;
     case 2:
-        if (BadgeRows->state10 == 11 && ((s8 *)ImageRows)[1] == 5) {
+        if (BadgeRows->state10 == 11 && ImageRows->f1 == 5) {
             ovl663_init_selection(ovl663_record_kind);
             ModeGroup = 1;
             ModeIndex = 75;
@@ -155,18 +155,18 @@ void ovl663_update_result_preview(void) {
     PlayerCars[0].rot54 = ((PlayerCars[0].rot54 + 8U) & 4095U);
     SetupMenuCarCamera(1);
     SetupViewport(6);
-    if (ImageRows[1] - 1U < 2U) {
+    if (ImageRows->f1 - 1U < 2U) {
         SelectionRows32 *selected = &SelectionRows.selection;
         selected->pad02[1] = 2;
         DrawSelectionIconGrid(0);
         selected->pad02[1] = 0;
         UpdateCarWorldTransform(PlayerCars);
-        if (((s8 *)ImageRows)[1] == 1) {
-            s32 level = ~(ImageRows[2] * 255 / 30);
+        if (ImageRows->f1 == 1) {
+            s32 level = ~(ImageRows->f2 * 255 / 30);
             color.channels.r = level;
             color.channels.g = level;
             color.channels.b = level;
-            scale = ImageRows[2] * 256 / 30;
+            scale = ImageRows->f2 * 256 / 30;
         } else {
             color.channels.r = 128;
             color.channels.g = 128;

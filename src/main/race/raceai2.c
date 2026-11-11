@@ -1,11 +1,12 @@
 #include "rr/save_slots.h"
+#include "rr/menu_selection.h"
+#include "rr/menu_frame_state.h"
 #include "game/gfx/fontdraw.h"
 #include "rr/gpu_scratch_types.h"
 #include "game/data/bankrec.h"
 #include "rr/frame_storage_types.h"
 #include "rr/menu_state_types.h"
 #include "game/data/selection.h"
-/* RODATA 0x800106b0 0x1c */
 #include "types.h"
 #include "scratchpad.h"
 #include "rr/player_status.h"
@@ -37,11 +38,6 @@ extern short ModeGroup;
 extern unsigned short SubmodeState;
 extern short LinkState;
 extern s16 MenuScriptId;
-extern char LinkRaceSyncFlags[];
-extern char SelectedCourseChoice[];
-extern char LinkCarSyncStateBuf[];
-extern char CourseIndex[];
-extern char NumLaps[];
 extern char LinkPlayerPacketBuf[];
 extern short ActiveSceneId;
 extern short MenuTransitionOverlayMode;
@@ -58,7 +54,6 @@ extern void ovl660_init_results();
 extern void ovl667_init_results();
 extern void ovl666_init_results();
 extern int LinkCommTimeoutTimer;
-extern char ScreenFadeState;
 extern int TotalRaceTime;
 extern unsigned char GpStageMaxRetryRanks[];
 
@@ -81,17 +76,12 @@ void DrawLinkEntryScreen(s32 mode) {
     u8 text[4];
     s32 remaining,row,statusY,waitY,labelY;
     s8 status;
-    unsigned long address;
 
     if (mode>=0) {
-        /* Integer cursor retains native pointer width. Only the four in-owner
-         * addresses are converted back to pointers; the final decrement is dead. */
         row=3;
-        address=&text[3];
         do {
-            *(u8*)address=0;
+            text[row]=0;
             row--;
-            address--;
         } while (row>=0);
         row=0;
         do {
@@ -184,8 +174,8 @@ void LinkWaitModeUpdate(void) {
             SubmodeState = 0;
         }
         DrawLinkEntryScreen((s16)LinkHostFlag);
-        AddPartialLine(&CurrentDrawBuf->buffer.ordering70.words[0], 8, 0xF0, 0x138, 0xF0, ModeFrame * 8, 1, 8, 8, 8, 0);
-        AddPartialLine(&CurrentDrawBuf->buffer.ordering70.words[0], 8, 0x10C, 0x138, 0x10C, ModeFrame * 8, 1, 8, 8, 8, 0);
+        AddPartialLine(&CurrentDrawBuf->buffer.ordering70.tags[0], 8, 0xF0, 0x138, 0xF0, ModeFrame * 8, 1, 8, 8, 8, 0);
+        AddPartialLine(&CurrentDrawBuf->buffer.ordering70.tags[0], 8, 0x10C, 0x138, 0x10C, ModeFrame * 8, 1, 8, 8, 8, 0);
         SetMenuFrameOptions(1, 1, 1);
         UpdateScreenFade(0x1003E);
     }
@@ -202,13 +192,13 @@ void LinkExchangeModeUpdate(void) {
         LinkState = 1;
         return;
     case 1:
-        if (LinkExchange(LinkRaceSyncFlags, LinkRaceSyncFlags - 2, 2, 1) == -1) { LinkState = 3; return; }
+        if (LinkExchange(LinkEntryState[1], LinkEntryState[0], 2, 1) == -1) { LinkState = 3; return; }
         if (LinkExchange(LinkPlayerPacketBuf, LinkPlayerPacketBuf - 0x18, 0x18, 1) == -1) { LinkState = 3; return; }
         if (LinkExchange(SelectionRows.records + 2, SelectionRows.records, 2 * sizeof(MenuChoice4), 1) == -1) { LinkState = 3; return; }
-        if (LinkExchange(LinkCarSyncStateBuf, LinkCarSyncStateBuf - 8, 8, 1) == -1) { LinkState = 3; return; }
-        if (LinkExchange(CourseIndex, CourseIndex, 2, 0) == -1) { LinkState = 3; return; }
-        if (LinkExchange(SelectedCourseChoice, SelectedCourseChoice, 2, 0) == -1) { LinkState = 3; return; }
-        if (LinkExchange(NumLaps, NumLaps, 4, 0) == -1) { LinkState = 3; return; }
+        if (LinkExchange(&PlayerCourseChoices[2], &PlayerCourseChoices[0], 2 * sizeof(MenuGridPoint), 1) == -1) { LinkState = 3; return; }
+        if (LinkExchange(&CourseIndex, &CourseIndex, sizeof(CourseIndex), 0) == -1) { LinkState = 3; return; }
+        if (LinkExchange(&SelectedCourseChoice, &SelectedCourseChoice, sizeof(SelectedCourseChoice), 0) == -1) { LinkState = 3; return; }
+        if (LinkExchange(&NumLaps, &NumLaps, sizeof(NumLaps), 0) == -1) { LinkState = 3; return; }
         LinkState = 2;
         CloseLinkSerial();
         SetDispMask(1);
@@ -255,9 +245,9 @@ void LinkErrorModeUpdate(void) {
     case 2:
       ModeFrame += 1;
       _sio_control(1, 1, 0);
-      g = (GpuScratchPointers *)SCRATCHPAD;
+      g = RR_GPU_SCRATCH;
       new_var = g->cursor;
-      g->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], new_var, 0x78, 0x100, StrLinkError, 0x7F38, 0, 1), 0x78, 0x114, PressStartStr, 0x7F38, 0, 1), 0, 0, 0x140, 0x200, 0x80, 0, 0), 0x5E);
+      g->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.tags[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.tags[0], new_var, 0x78, 0x100, StrLinkError, 0x7F38, 0, 1), 0x78, 0x114, PressStartStr, 0x7F38, 0, 1), 0, 0, 0x140, 0x200, 0x80, 0, 0), 0x5E);
       if (MenuReturnSubmodeIndex == 0)
     {
       if (ModeFrame < 0xFBU)
@@ -274,8 +264,8 @@ void LinkErrorModeUpdate(void) {
     {
       FadeCountdown = ((unsigned short) FadeCountdown) - 1;
     }
-      AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x20 - FadeCountdown) * 8, 0x45);
-      ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[1], ((GpuScratchPointers *)SCRATCHPAD)->cursor, 0, 0, 0x140, 0x200, (0x20 - FadeCountdown) * 4, 0, 0);
+      AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x20 - FadeCountdown) * 8, 0x45);
+      RR_GPU_SCRATCH->cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[1], RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x200, (0x20 - FadeCountdown) * 4, 0, 0);
       if (FadeCountdown <= 0)
     {
       ModeGroup = 1;
@@ -309,8 +299,8 @@ void LinkBattleEndModeUpdate(void)
 
     case 2:
       ModeFrame++;
-      new_var = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
-      ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], new_var, 0x78, 0x100, StrLinkBattleEnd, 0x7F38, 0, 1), 0x78, 0x114, PressStartText, 0x7F38, 0, 1), 0x3E);
+      new_var = RR_GPU_SCRATCH->cursor;
+      RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.tags[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.tags[0], new_var, 0x78, 0x100, StrLinkBattleEnd, 0x7F38, 0, 1), 0x78, 0x114, PressStartText, 0x7F38, 0, 1), 0x3E);
       if (MenuReturnSubmodeIndex == 0)
     {
       if (ModeFrame < 0xFBU)
@@ -327,7 +317,7 @@ void LinkBattleEndModeUpdate(void)
     {
       FadeCountdown = FadeCountdown - 1;
     }
-      AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x20 - FadeCountdown) * 8, 0x45);
+      AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x20 - FadeCountdown) * 8, 0x45);
       if (FadeCountdown <= 0)
     {
       ModeGroup = 1;
@@ -367,7 +357,7 @@ void RaceAbortToMenuUpdate(void) {
         ModeIndex = 0x23;
         SubmodeState = 0;
     }
-    *(int *)SCRATCHPAD = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], *(int *)SCRATCHPAD, 0, 0, 0x140, 0x100, 8, 8, 8);
+    RR_GPU_SCRATCH->cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x100, 8, 8, 8);
 }
 
 void InitPostRaceScreen(void) {
@@ -375,7 +365,7 @@ void InitPostRaceScreen(void) {
     VSyncThreshold = 0x80;
     ModeFrame = 0;
     LinkCommTimeoutTimer = 0;
-    ScreenFadeState = 2;
+    ScreenFadeState.phase = 2;
     SoundCloseVabsAndReset();
     switch (GameModeType) {
     case 1:
@@ -510,3 +500,25 @@ void SortRankAndEnterResults(void) {
 void FinishRace(void) {
     SortRankAndEnterResults();
 }
+
+/* Initial values of the globals this module owns. */
+u8 StrPlayerLabel[12] = {0x2A, 0x50, 0x4C, 0x41, 0x59, 0x45, 0x52};
+u8 StrNowAcceptingEntries[28] = {0x2A, 0x4E, 0x4F, 0x57, 0x20, 0x41, 0x43, 0x43, 0x45, 0x50, 0x54, 0x49, 0x4E, 0x47, 0x20, 0x45, 0x4E, 0x54, 0x52, 0x49, 0x45, 0x53, 0x2E};
+u8 EntryAcceptedStr[20] = {0x2A, 0x45, 0x4E, 0x54, 0x52, 0x59, 0x20, 0x41, 0x43, 0x43, 0x45, 0x50, 0x54, 0x45, 0x44, 0x2E};
+u8 StrStarPleaseWait[16] = {0x2A, 0x50, 0x4C, 0x45, 0x41, 0x53, 0x45, 0x20, 0x57, 0x41, 0x49, 0x54, 0x2E};
+u8 StrNoPlayer[12] = {0x2A, 0x4E, 0x4F, 0x20, 0x50, 0x4C, 0x41, 0x59, 0x45, 0x52};
+u8 SecondsUntilCloseText[28] = {0x2A, 0x20, 0x20, 0x20, 0x53, 0x45, 0x43, 0x4F, 0x4E, 0x44, 0x53, 0x20, 0x55, 0x4E, 0x54, 0x49, 0x4C, 0x20, 0x43, 0x4C, 0x4F, 0x53, 0x45, 0x2E};
+u8 StrLinkProgressBarGlyph[4] = {0x5B, 0x5D};
+char StrLinkError[12] = {76, 73, 78, 75, 32, 69, 82, 82, 79, 82, 33};
+char PressStartStr[16] = {80, 82, 69, 83, 83, 32, 83, 84, 65, 82, 84, 33};
+char StrLinkBattleEnd[16] = {76, 73, 78, 75, 32, 66, 65, 84, 84, 76, 69, 32, 69, 78, 68};
+char PressStartText[40] = {80, 82, 69, 83, 83, 32, 83, 84, 65, 82, 84};
+unsigned char GpStageMaxRetryRanks[4] = {3, 2, 1, 1};
+s8 LinkEntryState[2][2];
+short FadeCountdown;
+int VSyncThreshold;
+RankEntry8 *RankTable[8];
+int MenuReturnSubmodeIndex;
+unsigned short SubmodeState;
+char LinkPlayerPacketBuf[24];
+int LinkCommTimeoutTimer;

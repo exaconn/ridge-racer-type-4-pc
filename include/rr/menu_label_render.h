@@ -4,6 +4,6 @@
 #include "game/menu/mnlist.h"
 #include "rr/badge_rows.h"
 void FormatDecimalDigits(char *output,s32 value,s32 digitsMinusOne);
-void *AddSpritePrim(u32 *ordering,void *cursor,s32 x,s32 y,const UiUvRect *glyph,u16 clut,s32 color);
-void *AddDrawModePrim(u32 *ordering, GpuDrawModePacket *packet, u16 mode);
+void *AddSpritePrim(GpuDmaTag *ordering,void *cursor,s32 x,s32 y,const UiUvRect *glyph,u16 clut,s32 color);
+void *AddDrawModePrim(GpuDmaTag *ordering, GpuDrawModePacket *packet, u16 mode);
 #endif

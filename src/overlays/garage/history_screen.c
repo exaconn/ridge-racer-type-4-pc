@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay662_setup.h"
 #include "rr/menu_arenas.h"
 #include "rr/load_cursor.h"
@@ -162,7 +163,7 @@ void ovl662_update_history_screen(void)
     case 8:
         FadeCountdown--;
         SetMenuFrameOptions(0, 1, 1);
-        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,
+        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.tags,
                      (64 - FadeCountdown) * 4, 69);
         if (FadeCountdown <= 0) {
             ovl662_init_team_car_layout();
@@ -249,3 +250,15 @@ skip_step:;
         ((MenuUiBank *)ui)->cell_view.cells0C[selected]=2;
     }
 }
+
+/* Initial values of the overlay globals this module owns. */
+s32 ovl662_history_arrow_phase;
+
+/* Writable state of this unit; ovl662_reset_module restores it. */
+static const OverlayStateRegion ovl662_history_screen_regions[] = {
+    RR_OVERLAY_STATE(ovl662_history_arrow_phase)};
+const OverlayStateTable ovl662_history_screen_state = {ovl662_history_screen_regions, sizeof(ovl662_history_screen_regions) / sizeof(ovl662_history_screen_regions[0])};
+
+/* Initial values of the globals this module owns. */
+s32 MenuStepDirection;
+u16 MenuSelectedCarSlot;

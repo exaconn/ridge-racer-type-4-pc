@@ -1,4 +1,3 @@
-/* RODATA 0x800111B0 0x1C */
 /* Track event tables are sorted in descending key order. */
 #include "rr/lookup.h"
 

@@ -1,4 +1,5 @@
 #include "types.h"
+#include "rr/player_cars.h"
 #include "rr/audio_state_types.h"
 #include "rr/race_types.h"
 #include "game/sound/sndevt.h"
@@ -6,7 +7,6 @@
 #include "rr/audio_bank_setup.h"
 #include "game/sound/sndslot.h"
 
-extern RaceVehicle ComCars[];
 
 void SoundUpdateComSlots(void) {
     int i;

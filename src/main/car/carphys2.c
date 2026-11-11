@@ -97,7 +97,6 @@ void StepCarStateNormal(RaceVehicle *c) {
     int v0;
     int v1;
     short x;
-    int unused[4];
 
     d = &c->control;
     t = d->handling1C;
@@ -260,7 +259,6 @@ void StepCarStateSlide(RaceVehicle *c0) {
     int a3;
     int x;
     int s0i;
-    int unused[4];
     int w;
     int z;
 
@@ -391,7 +389,6 @@ void StepCarStateSpinOut(RaceVehicle *a0) {
     RaceVehicleControl *q = &a0->control;
     int t, a1, a2, a3, v;
     int s0, s2;
-    int unused[4];
     t = AngleDiffSigned(a0->rot54, q->dynamics94.player.steeringHeading08);
     v = t / 4;
     a1 = a0->rot54 + v;

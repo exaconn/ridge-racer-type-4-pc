@@ -10,3 +10,6 @@ void ResetCarSlotBuffers(void) {
         CarSlotBuffers[i].historyCount68 = 0;
     }
 }
+
+/* Initial values of the globals this module owns. */
+CarSlotBufferC8 CarSlotBuffers[16];

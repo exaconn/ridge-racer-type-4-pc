@@ -30,32 +30,25 @@ void InitMenuArenas();
 void InitMenuScript();
 
 void UpdateSelectionRank(void) {
- u8 *first_page=(u8 *)0x800B0000U;
- SelectionStatePrefix *first;
+ /* SelectionState viewed through its prefix; history rows follow at 0x20. */
+ SelectionStatePrefix *state=(SelectionStatePrefix *)SelectionState.bytes;
  s32 word;
  s32 phase;
  s32 level;
- u8 *rows_page;
  s32 group;
  s32 i;
  s32 sum;
- first=(SelectionStatePrefix *)(first_page-0x2B28);
- word=first->phase;
+ word=state->phase;
  phase=word;
  if(word>0) {
-  level=first->current.parameter;
+  level=state->current.parameter;
   if(phase<4) {
-   u8 *weights;
-   s8 *choices;
    sum=0;
    i=phase-1;
    if(i<=phase) {
-    weights=CarSpecStatWeights;
-    choices=(s8 *)first;
     do {
-     s32 choice=*(s8 *)(i+(unsigned long)choices);
-     s32 scaled=i*4;
-     sum+=*(u8 *)((choice+scaled)+(unsigned long)weights);
+     s32 choice=state->choices[i];
+     sum+=CarSpecStatWeights[choice+i*4];
      i++;
     }while(i<=phase);
    }
@@ -64,28 +57,18 @@ void UpdateSelectionRank(void) {
   group=word>>1;
   if(group==1) {word=MenuSelectionLockedFlag;group=word+1;}
   {
-   u8 *middle_page=(u8 *)0x800B0000U;
-   SelectionStatePrefix *middle;
-   middle=(SelectionStatePrefix *)(middle_page-0x2B28);
    i=0;
-   if(middle->phase<4) {
-    s8 *thresholds=CarSpecStatThresholds;
-    SelectionStatePrefix *config;
-
+   if(state->phase<4) {
     s32 next;
-    s32 four;
     s32 delta;
     group*=4;
-
     next=group+1;
-    four=4;
-    config=middle;
     do {
      s32 lower;
-     if(i<3)lower=*(s8 *)((i+next)+(unsigned long)thresholds);else lower=-1;
-     if(*(s8 *)((i+group)+(unsigned long)thresholds)>=sum && lower<sum) {
-      delta=four-i;
-      if(config->phase>=2)goto high_level;
+     if(i<3)lower=CarSpecStatThresholds[i+next];else lower=-1;
+     if(CarSpecStatThresholds[i+group]>=sum && lower<sum) {
+      delta=4-i;
+      if(state->phase>=2)goto high_level;
       level+=delta;
       break;
      }
@@ -99,28 +82,22 @@ high_level:
 publish_rank:;
   }
   {
-   SelectionStatePrefix *publish=(SelectionStatePrefix *)0x800B0000U;
    SelectionRow *target;
    u32 index;
-   publish=(SelectionStatePrefix *)((u8 *)publish-0x2B28);
-   index=publish->index;
-   rows_page=(u8 *)0x800F0000U;
-   publish->rank=i;
-   target=&((SelectionRow *)((index*4)+(unsigned long)publish))[8];
-   __builtin_memcpy(target,&publish->current,sizeof(SelectionRow));
-   publish->current.parameter=level;
-   {register SelectionRow *published_row=(SelectionRow *)(rows_page+0x4D98);
-   __builtin_memcpy(published_row,&publish->current,sizeof(SelectionRow));}
+   index=state->index;
+   state->rank=i;
+   target=(SelectionRow *)&SelectionState.bytes[sizeof(SelectionStatePrefix)+index*sizeof(SelectionRow)];
+   __builtin_memcpy(target,&state->current,sizeof(SelectionRow));
+   state->current.parameter=level;
+   __builtin_memcpy(&SelectionRows.entry,&state->current,sizeof(SelectionRow));
 
-   {s32 check=publish->phase;
+   {s32 check=state->phase;
    i=1;
    if(check==6) {SelectTeamCarGroup();i=1;}}
   }
 
-  {SelectionRows32 *rows_base;
-  SelectionRow *row;
-  rows_base=(SelectionRows32 *)(rows_page+0x4D98);
-  row=rows_base->rows;
+  {SelectionRow *row;
+  row=SelectionRows.selection.rows;
   do {
       row->parameter=level;
       i++;
@@ -275,6 +252,37 @@ void UpdateMenuScript(void) {
         }
     }
     if (ModeGroup != 1) {
-        *(void **)SCRATCHPAD = AddTileGrid2x2((u32 *)((u8 *)&CurrentDrawBuf->buffer.ordering70.words[703]), *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200, 0, 0, 0);
+        RR_GPU_SCRATCH->cursor = AddTileGrid2x2(&CurrentDrawBuf->buffer.ordering70.tags[703], RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x200, 0, 0, 0);
     }
 }
+
+/* Initial values of the globals this module owns. */
+#include "rr/frame_storage_types.h"
+extern FrameStorage DrawBuffers[2];
+#include "game/menu/menucalc.h"
+#include "game/menu/mntrow.h"
+#include "game/race/raceai2.h"
+#include "game/data/ldscn1.h"
+#include "game/data/ldscn4.h"
+#include "game/menu/menutran.h"
+#include "game/system/modeinit.h"
+signed char D_8009F8A0[4] = {5, 1, -2};
+signed char D_8009F8A4[8] = {0, 2, 5, 1, -11};
+signed char D_8009F8AC[4] = {7, 4, -3};
+signed char D_8009F8B0[4] = {4, -4};
+signed char D_8009F8B4[4] = {3, 11, -7};
+signed char D_8009F8B8[4] = {3, -7};
+signed char D_8009F8BC[4] = {6, 10, -5};
+signed char D_8009F8C0[4] = {8, 11, 10, -9};
+signed char D_8009F8C4[4] = {-10};
+signed char D_8009F8C8[4] = {2, -6};
+signed char D_8009F8CC[4] = {2, -8};
+char StrCdReadPtrFmt[100] = {99, 100, 95, 114, 101, 97, 100, 95, 112, 116, 114, 32, 61, 32, 48, 120, 37, 108, 120, 10};
+u8 CarSpecStatWeights[16] = {5, 5, 4, 3, 0xA, 0xA, 3, 2, 0xC, 4, 2, 1, 0xF, 0xA, 1, 1};
+s8 CarSpecStatThresholds[20] = {15, 14, 7, 6, 27, 17, 13, 4, 27, 17, 13, 4, 27, 17, 13, 4, 27, 17, 13, 4};
+MenuScriptOperation MenuScriptOps[12] = {(int (*)(void))LoadModeMenuAssetsStep, (int (*)(void))LoadSceneStep, (int (*)(void))LoadAllCarsStep, (int (*)(void))LoadIndexedTimStep, (int (*)(void))LoadDialogueStep, (int (*)(void))LoadDefaultRaceStep, (int (*)(void))LoadAttractTimStep, (int (*)(void))LoadGlyphRowsStep, (int (*)(void))LoadResultsSceneStep, (int (*)(void))LoadMenuSoundStep, (int (*)(void))LoadMenuCarModelsStep, (int (*)(void))LoadCarClutStep};
+MenuSceneEntry MenuSceneEntries[12] = {0, (void (*)(void))MenuSceneNoop, (void (*)(void))SetupRaceAndSceneId, (void (*)(void))InitModeSelectMenu, (void (*)(void))DialogueSceneSetup, (void (*)(void))TitleMenuInit, (void (*)(void))&DrawBuffers[1].buffer.packets1670[16600], (void (*)(void))InitPostRaceScreen, (void (*)(void))InitCarPreviewScene, (void (*)(void))SetNextModeByGameType, (void (*)(void))&DrawBuffers[1].buffer.packets1670[16464], (void (*)(void))SetupRace};
+s8 *MenuScripts[11] = {(signed char *)D_8009F8A0, (signed char *)D_8009F8AC, (signed char *)D_8009F8B0, (signed char *)D_8009F8B8, (signed char *)D_8009F8BC, (signed char *)D_8009F8C8, (signed char *)D_8009F8B4, (signed char *)D_8009F8CC, (signed char *)D_8009F8C0, (signed char *)D_8009F8C4, (signed char *)D_8009F8A4};
+s8 MenuScriptStep;
+u16 MenuScriptId;
+u16 MenuTransitionOverlayMode;

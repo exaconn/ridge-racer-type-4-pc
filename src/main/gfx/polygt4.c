@@ -10,15 +10,13 @@
 #include "rr/menu_grid.h"
 #include "rr/menu_overlay_runtime.h"
 #include "game/math/rotmat.h"
+#include "rr/gpu.h"
+#include "rr/gpu_scratch_types.h"
+#include "rr/projection_state.h"
 
+/* POLY_GT4 with the host packet tag. */
 typedef struct {
-    u32 addr: 24;
-    u32 len: 8;
-} P_TAG;
-
-typedef struct {
-    u32 addr: 24;
-    u32 len: 8;
+    GpuDmaTag tag;
     u8 r0, g0, b0, code;
     s16 x0, y0;
     u8 u0, v0;
@@ -35,25 +33,16 @@ typedef struct {
     s16 x3, y3;
     u8 u3, v3;
     u16 pad3;
-} POLY_GT4;
+} MenuGridPolyGT4;
 
-typedef struct {
-    POLY_GT4 *pkt00;
-    s32 unk04;
-    s32 cam_x08;
-    s32 cam_y0C;
-    s32 cam_z10;
-} Scratch;
-
-
-int DrawMenuGridMesh(s32 arg0, P_TAG *arg1, s32 arg2) {
+void DrawMenuGridMesh(s32 arg0, GpuDmaTag *arg1, s32 arg2) {
     MatrixWords32 sp10;
     MatrixWords32 sp30;
     SVECTOR sp50;
     VECTOR sp58;
     s32 sp68;
     s32 sp6C;
-    Scratch *g = (Scratch *)SCRATCHPAD;
+    const ProjectionScratchPrefix *g = (const ProjectionScratchPrefix *)SCRATCHPAD;
     s32 t;
     s32 div_num;
     s32 count;
@@ -63,16 +52,16 @@ int DrawMenuGridMesh(s32 arg0, P_TAG *arg1, s32 arg2) {
     u8 *shade_buf;
     s32 s6;
     s32 s5, s2, s1;
-    POLY_GT4 *pkt;
+    MenuGridPolyGT4 *pkt;
 
     if (arg2 != 0) {
         MenuGridRecords[arg0].w00++;
     }
     MenuGridRecords[arg0].w00 &= 0xFF;
     t = MenuGridRecords[arg0].w00;
-    sp50.vx = MenuGridRecords[arg0].x0C - g->cam_x08;
-    sp50.vy = 0x200 - g->cam_y0C;
-    sp50.vz = MenuGridRecords[arg0].z14 - g->cam_z10;
+    sp50.vx = MenuGridRecords[arg0].x0C - g->pose08.position00.vector.x;
+    sp50.vy = 0x200 - g->pose08.position00.vector.y;
+    sp50.vz = MenuGridRecords[arg0].z14 - g->pose08.position00.vector.z;
     ApplyMatrix((const MatrixWords32 *)((MatrixWords32 *)SCRATCH_ROT_MATRIX), (const Vec3s8 *)(&sp50), (Vec3i *)(&sp58));
     BuildRotMatrixX(&sp10, MenuGridRecords[arg0].rot_z1C);
     BuildRotMatrixZ(&sp30, MenuGridRecords[arg0].rot_x24);
@@ -83,8 +72,8 @@ int DrawMenuGridMesh(s32 arg0, P_TAG *arg1, s32 arg2) {
     sp10.fields.translation14[0] = sp58.vx;
     sp10.fields.translation14[1] = sp58.vy;
     sp10.fields.translation14[2] = sp58.vz;
-    SetTransMatrix(&sp10);
-    SetRotMatrix(&sp10);
+    SetTransMatrix(sp10.w);
+    SetRotMatrix(sp10.w);
 
     div_num = 0x600;
     count = MenuGridRecords[arg0].count2C;
@@ -112,13 +101,12 @@ int DrawMenuGridMesh(s32 arg0, P_TAG *arg1, s32 arg2) {
         }
     }
 
-    pkt = *(POLY_GT4 **)SCRATCHPAD;
+    pkt = (MenuGridPolyGT4 *)RR_GPU_SCRATCH->cursor;
     for (s5 = 0; s5 < MenuGridRecords[arg0].columns2E * MenuGridRecords[arg0].rows2F * MenuGridRecords[arg0].count2C; s5++) {
         s32 v1;
 
         s1 = s5 / (cols_total - 1);
         s6 = s5 % MenuGridRecords[arg0].columns2E;
-        pkt->len = 0xC;
         pkt->code = 0x3C;
         s2 = s1 + s5;
         v1 = s2 + cols_total;
@@ -145,9 +133,11 @@ int DrawMenuGridMesh(s32 arg0, P_TAG *arg1, s32 arg2) {
         s1 = shade_buf[v1 + 1];
         *(s32 *)&pkt->r3 = (s1 << 16) | (s1 << 8) | s1;
 
-        pkt->addr = arg1->addr;
-        arg1->addr = pkt;
+        RR_GPU_ADD_PRIM(arg1, pkt, 0xC);
         pkt++;
     }
-    *(POLY_GT4 **)SCRATCHPAD = pkt;
+    RR_GPU_SCRATCH->cursor = (u8 *)pkt;
 }
+
+/* Initial values of the globals this module owns. */
+MenuGrid38 *MenuGridRecords;

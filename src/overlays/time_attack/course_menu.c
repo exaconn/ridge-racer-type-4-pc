@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay660.h"
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
@@ -212,7 +213,7 @@ check_back:
             if (MenuReturnSubmodeIndex != 0) {
                 if (UiRows[3].byte14 == 2) {
                     SubmodeState = 5;
-                    ImageRows[1] = 3;
+                    ImageRows->f1 = 3;
                     UiRows[3].byte14 = 3U;
                     UiRows[4].byte14 = 3;
                 }
@@ -237,7 +238,7 @@ check_back:
         case 8:
             cancelTimer = (u16)FadeCountdown - 1;
             FadeCountdown = (u16) cancelTimer;
-            AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words, (0x40 - cancelTimer) * 4, 0x45);
+            AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.tags, (0x40 - cancelTimer) * 4, 0x45);
             if ((s16) FadeCountdown <= 0) {
                 SeqMuteVolume();
                 ModeGroup = 1;
@@ -248,7 +249,7 @@ check_back:
         case 10:
             settingsTimer = (u16)FadeCountdown - 1;
             FadeCountdown = (u16) settingsTimer;
-            AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words, (0x40 - settingsTimer) * 4, 0x45);
+            AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.tags, (0x40 - settingsTimer) * 4, 0x45);
             if ((s16) FadeCountdown <= 0) {
                 CardMenuOperation = 1;
                 CardMenuReturnModeId = 0x132;
@@ -271,3 +272,25 @@ draw_course:
     }
     UpdateScreenFade(0x10026);
 }
+
+/* Initial values of the overlay globals this module owns. */
+const char ovl660_title[68] = {106, 111, 98, 95, 116, 97, 95, 99, 114, 115, 95, 105, 110, 102, 111, 48, 10, 0, 0, 0, 0, 0, 0, 0, -80, 77, 17, -128, 52, 84, 17, -128, -64, 81, 17, -128, 20, 83, 17, -128, 112, 82, 17, -128, -48, 82, 17, -128, 52, 84, 17, -128, 52, 84, 17, -128, 80, 83, 17, -128, 52, 84, 17, -128, -72, 83, 17, -128};
+s32 ovl660_available_course_count;
+
+/* Writable state of this unit; ovl660_reset_module restores it. */
+static const OverlayStateRegion ovl660_course_menu_regions[] = {
+    RR_OVERLAY_STATE(ovl660_available_course_count)};
+const OverlayStateTable ovl660_course_menu_state = {ovl660_course_menu_regions, sizeof(ovl660_course_menu_regions) / sizeof(ovl660_course_menu_regions[0])};
+
+/* Module reset: the state a fresh load of the time_attack image gave
+ * (initialized data and zeroed BSS); see rr/overlay_module.h. */
+extern const OverlayStateTable ovl660_course_menu_state, ovl660_preview_state, ovl660_results_state;
+static const OverlayStateTable *const ovl660_state_tables[] = {&ovl660_course_menu_state, &ovl660_preview_state, &ovl660_results_state};
+static OverlayStateImage ovl660_state_image = {ovl660_state_tables, sizeof(ovl660_state_tables) / sizeof(ovl660_state_tables[0]), NULL};
+
+void ovl660_reset_module(void) {
+    OverlayStateRestore(&ovl660_state_image);
+}
+
+/* Initial values of the globals this module owns. */
+s32 UiRowCount;

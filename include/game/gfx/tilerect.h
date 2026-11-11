@@ -5,7 +5,7 @@
 
 void DrawTrackObjectBillboard(int modelIndex);
 void DrawTrackObjectFlashQuads(int modelIndex);
-u8 *EmitModelTrisGT3(const TrackObjectLitWork *work, u32 *head, u8 *packetCursor);
+u8 *EmitModelTrisGT3(const TrackObjectLitWork *work, GpuDmaTag *head, u8 *packetCursor);
 void TileRectSceneModeEnter(void);
 void TileRectSceneModeUpdate(void);
 

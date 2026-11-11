@@ -1,4 +1,5 @@
 #include "game/system/pad.h"
+#include "game/car/carstat.h"
 #include "types.h"
 #include "rr/frame_storage_types.h"
 #include "scratchpad.h"
@@ -10,8 +11,6 @@
 #include "rr/bios_devices.h"
 #include "rr/controller_hud.h"
 #include "rr/vehicle_drive.h"
-
-typedef struct { short a[8], b[8], c[8]; } U;
 
 typedef struct {
     u32 otIndex00;
@@ -35,7 +34,6 @@ typedef struct {
     u8 r, g, b;
 } ColorRGB8;
 
-extern U PadButtonMap[];
 extern unsigned char FontGlyphMap[];
 
 s32 GetTrackNodeHeading(s32 node, s32 lane);
@@ -54,11 +52,11 @@ int GetMappedPadButtons(int i) {
     case 0x41:
     case 0x73:
     default:
-        return PlayerControllers[i].edges08.fields.pressed & PadButtonMap[i].a[6];
+        return PlayerControllers[i].edges08.fields.pressed & PadButtonMap[i].standard[6];
     case 0x23:
-        return t->edges08.fields.pressed & PadButtonMap[i].b[6];
+        return t->edges08.fields.pressed & PadButtonMap[i].calibrated[6];
     case 0xE3:
-        return t->edges08.fields.pressed & PadButtonMap[i].c[6];
+        return t->edges08.fields.pressed & PadButtonMap[i].wheel[6];
     }
 }
 
@@ -67,18 +65,15 @@ s32 GetTrackNodeHeading(s32 node, s32 lane)
     int delta[6];
     int previous;
     TrackLaneOffset8 *currentOffset, *previousOffset;
-    int previousOffsetBytes, currentOffsetBytes;
     TrackSample3C *previousSample, *currentSample;
     previous = (node - 1) % TrackNodeCount;
     if (previous < 0) previous += TrackNodeCount;
     switch (lane) {
     case 0:
-        currentOffset = TrackLaneOffsets + node;
-        previousOffset = TrackLaneOffsets + previous;
-        previousOffsetBytes = previous * sizeof(TrackSample3C);
-        currentOffsetBytes = node * sizeof(TrackSample3C);
-        previousSample = (TrackSample3C *)(previousOffsetBytes + (unsigned long)TrackNodes);
-        currentSample = (TrackSample3C *)(currentOffsetBytes + (unsigned long)TrackNodes);
+        currentOffset = RaceContext.laneOffsets54C + node;
+        previousOffset = RaceContext.laneOffsets54C + previous;
+        previousSample = TrackNodes + previous;
+        currentSample = TrackNodes + node;
         delta[2] = previousSample->road.x + previousOffset->x - (currentSample->road.x + currentOffset->x);
         delta[3] = previousSample->road.z + previousOffset->z - (currentSample->road.z + currentOffset->z);
         break;
@@ -90,75 +85,41 @@ s32 GetTrackNodeHeading(s32 node, s32 lane)
     return (s16)ratan2(delta[3], delta[2]);
 }
 
+/* One 12x12 sprite per glyph from the font atlas (21 glyphs per row at
+ * v=188); color 255 draws raw texture. Unmapped characters advance 4. */
 void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
-    SpritePacket *packet;
-    u32 current_x;
-    s32 glyph;
-    s32 width;
-    const u8 *width_entry;
-    FrameStorage *context;
-    u32 *head;
+    SpritePacket *packet = (SpritePacket *)RR_GPU_SCRATCH->cursor;
+    u32 current_x = x;
+    GpuDmaTag *ordering = &CurrentDrawBuf->buffer.ordering70.tags[bank];
 
-    u8 *fields;
-    s32 row;
-    s32 v;
-    s32 yy;
-    s32 u;
-    const u8 *map, *widths;
-    s32 missing, command;
-    u32 low, high;
-    const u8 *lookup;
-    packet = (SpritePacket *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
-    current_x = x;
-    yy = y;
-if (*text != 0) {
-        map = FontAtlasRowTable + 32;
-        missing = 255;
-        command = 0x66;
-        widths = FontGlyphWidths;
-        low = 0xFFFFFF;
-        high = 0xFF000000;
-        fields = (u8 *)packet + 14;
-        do {
-            lookup = (const u8 *)((unsigned long)*text + (unsigned long)map);
-            glyph = lookup[-32];
-            text++;
-            if (glyph != missing) {
-                fields[-11] = 4;
-                fields[-7] = 0x64;
-                row = glyph / 21;
-                u = (glyph % 21) * 12;
-                v = row * 12 + 188;
-                if (color == missing) {
-                    fields[-7] = 0x65;
-                } else {
-                    fields[-7] = command;
-                    fields[-10] = color;
-                    fields[-9] = color;
-                    fields[-8] = color;
-                }
-                width_entry = (const u8 *)(glyph + (unsigned long)widths);
-                ((s16 *)fields)[-3] = current_x;
-                ((s16 *)fields)[-2] = yy;
-                width = *width_entry;
-                fields[-2] = u;
-                fields[-1] = v;
-                ((s16 *)fields)[2] = 12;
-                *(s16 *)fields = 0x7F78;
-                context = CurrentDrawBuf;
-                head = (u32 *)((bank * 4) + (unsigned long)context + 0x70);
-                ((s16 *)fields)[1] = width;
-                fields += 20;
-                *(u32 *)packet = (*(u32 *)packet & high) | (*head & low);
-                *head = (*head & high) | ((unsigned long)packet & low);
-                packet++;
-                current_x = (current_x + *width_entry);
+    while (*text != 0) {
+        s32 glyph = FontAtlasRowTable[*text];
+        text++;
+        if (glyph != 255) {
+            s32 width = FontGlyphWidths[glyph];
+            if (color == 255) {
+                packet->code = 0x65;
             } else {
-                current_x = (current_x + 4U);
+                packet->code = 0x66;
+                packet->r = color;
+                packet->g = color;
+                packet->b = color;
             }
-        } while (*text != 0);
+            packet->x = current_x;
+            packet->y = y;
+            packet->u = (glyph % 21) * 12;
+            packet->v = (glyph / 21) * 12 + 188;
+            packet->clut = 0x7F78;
+            packet->w = width;
+            packet->h = 12;
+            RR_GPU_ADD_PRIM(ordering, packet, 4);
+            packet++;
+            current_x += width;
+        } else {
+            current_x += 4U;
+        }
     }
-    ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)packet;
+    RR_GPU_SCRATCH->cursor = (u8 *)packet;
 }
 
 int DrawFontStringCentered(int a0, int a1, unsigned char *s, int a3, int a4) {
@@ -215,15 +176,11 @@ void DrawFontStringRight(int a0, int a1, unsigned char *s, int a3, int a4) {
 }
 
 void AddSetTexpagePrim(int a0) {
-    GpuCommandPacket *p = (GpuCommandPacket *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
-    int *q;
-    p->tag.bytes.length = 1;
+    GpuCommandPacket *p = (GpuCommandPacket *)RR_GPU_SCRATCH->cursor;
     p->command = 0xE100023E;
-    q = (int *)(a0 * 4 + (int)CurrentDrawBuf);
-    p->tag.word = (p->tag.word & 0xFF000000) | (q[0x70/4] & 0xFFFFFF);
-    q[0x70/4] = (q[0x70/4] & 0xFF000000) | ((int)p & 0xFFFFFF);
+    RR_GPU_ADD_PRIM(&CurrentDrawBuf->buffer.ordering70.tags[a0], p, 1);
     p++;
-    ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)p;
+    RR_GPU_SCRATCH->cursor = (u8 *)p;
 }
 
 void *EmitTexturedQuadPrim(TexturedQuadDesc2C *a0)
@@ -231,11 +188,8 @@ void *EmitTexturedQuadPrim(TexturedQuadDesc2C *a0)
     u16 *new_var;
     TexturedQuadDesc2C *new_var2;
     int new_var3;
-    GpuPolyFT4Packet *p = *(GpuPolyFT4Packet **)SCRATCHPAD;
+    GpuPolyFT4Packet *p = (GpuPolyFT4Packet *)RR_GPU_SCRATCH->cursor;
     u16 a1;
-    char *d;
-    int dd;
-    p->tag.bytes.length = 9;
     p->code = 0x2C;
     if (a0->semiTrans08 != 0) {
         p->code |= 2;
@@ -273,12 +227,9 @@ void *EmitTexturedQuadPrim(TexturedQuadDesc2C *a0)
     a1 = a0->tpageY26;
     p->tpage = (((a0->tpageMode0C & 3) << 7) | (((a1 & 0x100) << 16) >> 20) | ((a0->tpageX24 & 0x3FF) >> 6)) | ((a1 & 0x200) * 4);
     p->clut = (a0->clutY2A << 6) | ((a0->clutX28 >> 4) & 0x3F);
-    dd = CurrentDrawBuf;
-    p->tag.word = (p->tag.word & 0xFF000000) | (((u32 *)((a0->otIndex00 * 4) + dd))[0x70 / 4] & 0xFFFFFF);
-    d = (char *)((a0->otIndex00 * 4) + dd);
-    *(u32 *)(d + RR_FIELD_OFFSET(FrameStorage, buffer.ordering70)) = (((u32 *)d)[0x70 / 4] & 0xFF000000) | ((u32)p & 0xFFFFFF);
+    RR_GPU_ADD_PRIM(&CurrentDrawBuf->buffer.ordering70.tags[a0->otIndex00], p, 9);
     p++;
-    *(GpuPolyFT4Packet **)SCRATCHPAD = p;
+    RR_GPU_SCRATCH->cursor = (u8 *)p;
     return p;
 }
 
@@ -291,11 +242,9 @@ void InitTexturedQuadDesc(TexturedQuadDesc2C *p) {
 }
 
 void AddHGradientRectPrim(RectU16 *arg0, ColorRGB8 *arg1, ColorRGB8 *arg2, s32 arg3) {
-    s32 *temp_a3;
     PolyG4Packet *temp_t0;
 
-    temp_t0 = *(PolyG4Packet **)SCRATCHPAD;
-    temp_t0->len = 8;
+    temp_t0 = (PolyG4Packet *)RR_GPU_SCRATCH->cursor;
     temp_t0->code = 0x38;
     temp_t0->x0 = arg0->x;
     temp_t0->y0 = arg0->y;
@@ -317,16 +266,12 @@ void AddHGradientRectPrim(RectU16 *arg0, ColorRGB8 *arg1, ColorRGB8 *arg2, s32 a
     temp_t0->r3 = arg2->r;
     temp_t0->g3 = arg2->g;
     temp_t0->b3 = arg2->b;
-    temp_a3 = (void *)((arg3 * 4) + (s32)CurrentDrawBuf);
-    *(s32 *)temp_t0 = (*(s32 *)temp_t0 & 0xFF000000) | (temp_a3[28] & 0xFFFFFF);
-    *(s32 *)((s8 *)temp_a3 + RR_FIELD_OFFSET(FrameStorage, buffer.ordering70)) = (temp_a3[28] & 0xFF000000) | ((s32)temp_t0 & 0xFFFFFF);
-    *(PolyG4Packet **)SCRATCHPAD = temp_t0 + 1;
+    RR_GPU_ADD_PRIM(&CurrentDrawBuf->buffer.ordering70.tags[arg3], temp_t0, 8);
+    RR_GPU_SCRATCH->cursor = (u8 *)(temp_t0 + 1);
 }
 
 void AddSlantedGradientRect(unsigned short *a0, int a1, unsigned char *a2, unsigned char *a3, int a4) {
-    PolyG4Packet *p = *(PolyG4Packet **)SCRATCHPAD;
-    int *a;
-    p->len = 8;
+    PolyG4Packet *p = (PolyG4Packet *)RR_GPU_SCRATCH->cursor;
     p->code = 0x3A;
     if (a1 == 0) {
         p->x0 = a0[0];
@@ -359,9 +304,12 @@ void AddSlantedGradientRect(unsigned short *a0, int a1, unsigned char *a2, unsig
     p->r3 = a3[0];
     p->g3 = a3[1];
     p->b3 = a3[2];
-    a = (void *)(a4 * 4 + (int)CurrentDrawBuf);
-    *(int *)p = (*(int *)p & 0xFF000000) | (a[0x70 / 4] & 0xFFFFFF);
-    *(int *)((char *)a + RR_FIELD_OFFSET(FrameStorage, buffer.ordering70)) = (a[0x70 / 4] & 0xFF000000) | ((int)p & 0xFFFFFF);
+    RR_GPU_ADD_PRIM(&CurrentDrawBuf->buffer.ordering70.tags[a4], p, 8);
     p++;
-    *(PolyG4Packet **)SCRATCHPAD = p;
+    RR_GPU_SCRATCH->cursor = (u8 *)p;
 }
+
+/* Initial values of the globals this module owns. */
+u8 FontAtlasRowTable[288] = {0, 0x80, 0, 0x20, 0x40, 0, 0x80, 0, 0xA, 0, 5, 0, 0x10, 0, 0x20, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0xA, 0, 0, 0, 0xE, 0, 0, 0, 0xFF, 0x24, 0x29, 0xFF, 0xFF, 0xFF, 0x26, 0x28, 0x2C, 0x2D, 0xFF, 0xFF, 0xFF, 0x2B, 0xFF, 0x3B, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xFF, 0xFF, 0x2C, 0xFF, 0x2D, 0x25, 0x27, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x29, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 7, 6, 8, 8, 8, 8, 8, 8, 7, 8, 9, 8, 8, 8, 7, 7, 8, 8, 5, 8, 9, 7, 0xA, 8, 8, 8, 9, 8, 8, 8, 8, 8, 0xB, 8, 9, 8, 5, 7, 0xA, 0xA, 4, 4, 5, 6, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x11, 0, 0, 0, 0x10, 0x10, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0x80, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 3, 0, 0, 0, 0x13, 0, 0, 0, 0, 0x80, 0, 0, 1, 0, 0, 0, 0x14, 0, 0, 0, 0, 0x60, 1, 0, 4, 0, 0, 0, 0x15, 0, 0, 0, 0, 0x60, 1, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0x80, 0, 0, 7};
+unsigned char FontGlyphMap[96] = {0xFF, 0x24, 0x29, 0xFF, 0xFF, 0xFF, 0x26, 0x28, 0x2C, 0x2D, 0xFF, 0xFF, 0xFF, 0x2B, 0xFF, 0x3B, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xFF, 0xFF, 0x2C, 0xFF, 0x2D, 0x25, 0x27, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x29, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+u8 FontGlyphWidths[256] = {7, 6, 8, 8, 8, 8, 8, 8, 7, 8, 9, 8, 8, 8, 7, 7, 8, 8, 5, 8, 9, 7, 0xA, 8, 8, 8, 9, 8, 8, 8, 8, 8, 0xB, 8, 9, 8, 5, 7, 0xA, 0xA, 4, 4, 5, 6, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x11, 0, 0, 0, 0x10, 0x10, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0x80, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 3, 0, 0, 0, 0x13, 0, 0, 0, 0, 0x80, 0, 0, 1, 0, 0, 0, 0x14, 0, 0, 0, 0, 0x60, 1, 0, 4, 0, 0, 0, 0x15, 0, 0, 0, 0, 0x60, 1, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0x80, 0, 0, 7, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 7, 0, 0, 0, 1, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 2, 0, 0, 0, 0x11, 0, 0, 0, 1, 0, 0, 0, 0x18, 0, 0, 0, 0xA, 0, 0, 0, 0x1F, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0xFF, 0xFF, 2, 0, 0xFF, 0xFF, 3, 0, 0xFF, 0xFF, 4, 0, 0xFF, 0xFF, 5, 0, 6, 0, 0xFF, 0xFF};

@@ -6,10 +6,8 @@ typedef struct {
     DrawEnvironment draw00;
     DisplayEnvironment display5C;
 } FrameEnvironment;
-/* Each GPU ordering word is also a DMA tag: low24 link, high8 length.
- * The word array is the SDK/renderer interface; tags describe field updates. */
-typedef union {
-    u32 words[704];
+/* 704 ordering entries, each a host packet tag (OT_TYPE). */
+typedef struct {
     GpuDmaTag tags[704];
 } FrameOrderingTable;
 /* Prefix shared by screen transitions and frame storage. The first rectangle

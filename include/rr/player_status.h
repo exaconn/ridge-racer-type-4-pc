@@ -1,8 +1,8 @@
 #ifndef RR_PLAYER_STATUS_H
 #define RR_PLAYER_STATUS_H
 #include "rr/layout.h"
+#include "game/race/racegrid.h"
 
-extern s8 LinkEntryState[2][2];
 extern s32 RaceTimeRemaining;
 extern u16 LinkHostFlag;
 extern u8 StrPlayerLabel[12],StrNowAcceptingEntries[28],EntryAcceptedStr[20];

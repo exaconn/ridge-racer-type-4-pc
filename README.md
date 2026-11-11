@@ -1,62 +1,73 @@
-# Ridge Racer Type 4 PC
+# Ridge Racer Type 4
 
-Native PC port of the PAL PlayStation release of *Ridge Racer Type 4*
-(`SCES-017.06`), built from the matching decompilation in
-[ridge-racer-type-4-decomp](https://github.com/khasinski/ridge-racer-type-4-decomp)
-and [PsyZ](https://github.com/khasinski/parasite-eve-psyz) for the PlayStation
-runtime APIs.
+A native PC port of *Ridge Racer Type 4* (PAL, `SCES-017.06`), built from the
+original game code with [our PsyZ fork](https://github.com/khasinski/parasite-eve-psyz).
 
-The code was imported from
-[ridge-racer-type-4-decomp](https://github.com/khasinski/ridge-racer-type-4-decomp)
-through revision `d38852ee`. From this point this repository develops
-independently as a native C project. Byte matching, retail executable
-checksums, original compiler output, fixed code addresses and PS1 binary builds
-are no longer acceptance requirements. Changes are evaluated by behavior,
-portability, readability and native builds.
+## Status
 
-The port is in its initial bootstrap phase. The executable opens a PsyZ window,
-draws a frame counter and exits after eight frames. The original game sources
-under `src/main/` and `src/overlays/` are retained for porting in place and
-join the host CMake build as their remaining 32-bit pointer assumptions,
-relocated asset tables and hardware interfaces are adapted to native C and PsyZ.
+The port is not playable yet. The whole original game (resident code and all
+mode overlays) builds natively for 64-bit hosts on PsyZ, mounts the disc image
+and runs its boot sequence; the opening movie and the front end are being
+brought up. See the [port plan](docs/PC_PORT_PLAN.md) for the milestones.
 
-## Build and run
+## Play
 
-Use a C11 compiler, CMake 3.21 or newer and Git. PsyZ and SDL are source
-submodules; no historical PS1 compiler, Sony SDK, Python packages or extracted
-game executable is needed for this build.
+You need your own **European (PAL) CUE/BIN image** of *Ridge Racer Type 4*.
+Game data is not included. Keep the CUE file next to its BIN file.
+
+Start the game with the CUE file:
 
 ```sh
-git clone https://github.com/khasinski/ridge-racer-type-4-pc.git
+./build/ridge-racer-type-4-pc "Ridge Racer Type 4 (Europe).cue"
+```
+
+or set `RR4_DISC` to its path. Memory cards are kept as `bu00`/`bu10`
+directories in the working directory.
+
+## Build
+
+Requires Git, CMake 3.21 or newer and a C11 compiler.
+
+```sh
+git clone https://github.com/khasinski/ridge-racer-type-4-pc
 cd ridge-racer-type-4-pc
-git submodule update --init third_party/psyz third_party/psyz/external/SDL
-cmake -S . -B build
+git submodule update --init third_party/psyz
+git -C third_party/psyz submodule update --init external/SDL
+cmake -S . -B build -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo
 cmake --build build --parallel
 ./build/ridge-racer-type-4-pc
 ```
 
-`make`, `make run`, `make test` and `make ci` wrap the native CMake build.
+`make`, `make run` and `make test` wrap the same CMake build.
+
+Automated and test runs are silent and windowless:
+
+```sh
+PSYZ_HEADLESS=1 SDL_AUDIODRIVER=dummy RR4_FRAME_LIMIT=600 \
+    RR4_CAPTURE=frame.ppm ./build/ridge-racer-type-4-pc game.cue
+```
+
+`RR4_FRAME_LIMIT` stops after that many VSyncs, `RR4_CAPTURE` / `RR4_VRAM`
+write the displayed frame / VRAM as PPM on exit and `RR4_TRACE=n` prints the
+game's mode state every `n` VSyncs.
 
 ## Layout
 
-- `src/main/` — resident game logic (`camera`, `car`, `course`, `data`, `demo`,
-  `effect`, `gfx`, `math`, `menu`, `race`, `sound`, `system`, `ui`) and
-  `psyq/` helpers to port in place.
-- `src/overlays/` — the nine mode and screen overlays (`grand_prix`,
-  `time_attack`, `versus`, `garage`, `records`, `options`, `extra_trial`,
-  `serial_link`, `movie_playback`) to link statically with explicit dispatch and
-  reset boundaries.
-- `src/port/` — native bootstrap entry point and host integration helpers.
+- `src/main/` — resident game code: system and main loop, graphics and GTE
+  renderers, course, car physics and AI, race flow, camera, effects, HUD/UI,
+  menus, sound, disc and save data.
+- `src/overlays/` — the mode modules (`grand_prix`, `time_attack`, `versus`,
+  `garage`, `records`, `options`, `extra_trial`, `serial_link`,
+  `movie_playback`), linked statically with explicit dispatch.
+- `src/port/` — host entry point.
 - `include/` — game types, data formats and subsystem interfaces.
 - `third_party/psyz/` — PsyZ and its SDL3 dependency.
-- `docs/` — native architecture, code organization, conventions, port plan and
+- `docs/` — architecture, code organization, conventions, port plan and
   format notes.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
-[docs/CODE_ORGANIZATION.md](docs/CODE_ORGANIZATION.md) and
-[docs/PC_PORT_PLAN.md](docs/PC_PORT_PLAN.md) for the development workflow.
+For development details, see [contributing](CONTRIBUTING.md),
+[architecture](docs/ARCHITECTURE.md), [code organization](docs/CODE_ORGANIZATION.md)
+and [conventions](docs/CONVENTIONS.md).
 
-This repository contains source only. Disc images (`CUE`/`BIN`/`CHD`),
-`R4.BIN`, `R4.STR`, memory cards and proprietary SDK files are excluded.
-Running disc-backed game features requires the user's own legal copy of the
-game.
+This repository contains source only. Disc images, `R4.BIN`, `R4.STR`, memory
+cards and proprietary SDK files are not distributed.

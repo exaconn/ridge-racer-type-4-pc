@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void SetShadeTex(void *arg0, s32 arg1);
+void SetShadeTex(void *packet, int enabled);
 
 #endif /* RR_PSYQ_LIBGPU_PRIMATTR_H */

@@ -61,15 +61,15 @@ void ovl666_update_preview(void) {
     if (SubmodeState != 3) {
         loadResult = LoadCarRangeStep(0, 1);
         if (loadResult != 1) {
-            if (((s8 *)ImageRows)[1] == 1) {
-                ((s8 *)ImageRows)[1] = 0;
+            if (ImageRows->f1 == 1) {
+                ImageRows->f1 = 0;
             }
             rowIndex = 0;
             goto draw_selection_rows;
         }
         SetCarBounds(PlayerCars);
-        if (((s8 *)ImageRows)[1] == 7) {
-            ((s8 *)ImageRows)[1] = loadResult;
+        if (ImageRows->f1 == 7) {
+            ImageRows->f1 = loadResult;
         }
     }
     modelReady = 1;
@@ -90,7 +90,7 @@ void ovl666_update_preview(void) {
                 ovl666_available_courses[SelectedMakerIndex][ovl666_selected_course.word].first;
             PlayerCourseChoices[0].second =
                 ovl666_available_courses[SelectedMakerIndex][ovl666_selected_course.word].second;
-            ((s8 *)ImageRows)[1] = 6;
+            ImageRows->f1 = 6;
         }
         UiRows[MenuCursor + 3].cells[0] = 0;
         StepMenuValue(0, 2, (char *)&MenuCursor, 2, 0);
@@ -126,7 +126,7 @@ void ovl666_update_preview(void) {
                     rowIndex += 1;
                 } while (rowIndex < 2);
             close_selection:
-                ((s8 *)ImageRows)[1] = 3;
+                ImageRows->f1 = 3;
                 SubmodeState = 5;
                 BadgeRows->state10 = 4;
             }
@@ -138,7 +138,7 @@ void ovl666_update_preview(void) {
             FadeCountdown = (u16)FadeCountdown - 1;
         }
         SetModelTexturePage(-1);
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - FadeCountdown) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (0x40 - FadeCountdown) * 4, 0x45);
         loadResult = LoadCarRangeStep(1, 1);
         if ((loadResult == 1) && (FadeCountdown <= 0)) {
             GameModeType = 6;
@@ -197,7 +197,7 @@ void ovl666_update_preview(void) {
     case 5:
         SetMenuFrameOptions(0, 1, 1);
         closingState = UiRows[3].byte14;
-        if ((closingState == 5) && (((s8 *)ImageRows)[1] == closingState)) {
+        if ((closingState == 5) && (ImageRows->f1 == closingState)) {
             ResetScreenCounters();
             ovl666_init_menu();
             ModeGroup = 1;
@@ -218,17 +218,17 @@ draw_selection_rows:
         DrawUiRow(6);
     }
     drawModel = modelReady;
-    if ((((u8)((s8 *)ImageRows)[1] - 1) < 2U) && (drawModel == 1)) {
+    if ((((u8)ImageRows->f1 - 1) < 2U) && (drawModel == 1)) {
         DrawSelectionIconGrid(0);
         UpdateCarWorldTransform(PlayerCars);
         scale = 0x100;
-        if (((s8 *)ImageRows)[1] == drawModel) {
-            brightness = ~((ImageRows[2] * 0xFF) / 30);
+        if (ImageRows->f1 == drawModel) {
+            brightness = ~((ImageRows->f2 * 0xFF) / 30);
             color.channels.r = brightness;
             color.channels.g = brightness;
             color.channels.b = brightness;
             drawFlags = 0x102;
-            scale = (ImageRows[2] << 8) / 30;
+            scale = (ImageRows->f2 << 8) / 30;
         } else {
             drawFlags = 1;
             color.channels.r = 0x80;
@@ -247,3 +247,6 @@ draw_selection_rows:
 end:
     UpdateScreenFade(0x10036);
 }
+
+/* Initial values of the globals this module owns. */
+CurrentSelection SelectionRows;

@@ -6,5 +6,7 @@
 /* Live vehicles and whole-vehicle replay snapshots share one pointer type. */
 extern RaceVehicle *CarTable[8];
 extern RaceVehicle *CarSnapshots[8];
+/* Active entries of CarTable (0x800AC59C). */
+extern s16 NumCars;
 
 #endif

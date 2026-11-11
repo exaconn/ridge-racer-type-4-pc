@@ -17,6 +17,10 @@
 #include "game/sound/cdplay.h"
 #include "game/ui/badge1.h"
 #include "game/menu/mnrows.h"
+#include "game/data/ldscn1.h"
+#include "game/car/carbound.h"
+#include "game/gfx/scene1.h"
+#include "rr/badge_rows.h"
 
 extern unsigned int ModeFrame;
 extern unsigned short SubmodeState;
@@ -25,8 +29,6 @@ extern unsigned char MenuCameraPresetIndices[];
 extern int MenuReturnSubmodeIndex;
 extern unsigned short FadeCountdown;
 extern short ModeIndex;
-extern unsigned char BadgeGlyphUvTable[];
-extern signed char BadgeStripPatterns[];
 
 void CarStandingsModeUpdate();
 
@@ -73,8 +75,8 @@ void CarStandingsModeUpdate(void) {
         break;
     case 5:
         FadeCountdown--;
-        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x20 - (short)FadeCountdown) << 3, 0x45);
-        *(void **)SCRATCHPAD = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], *(int *)SCRATCHPAD, 0, 0, 0x140, 0x200);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x20 - (short)FadeCountdown) << 3, 0x45);
+        RR_GPU_SCRATCH->cursor = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x200);
         if ((short)FadeCountdown <= 0) {
             if (MenuActiveDialogId == 6) {
                 InitMenuArenas();
@@ -106,29 +108,33 @@ void CarStandingsModeUpdate(void) {
         sp[1] = 0xBD;
         sp[2] = 0;
     }
-    *(void **)SCRATCHPAD = AddTileGrid2x2(&CurrentDrawBuf->buffer.ordering70.words[703], *(int *)SCRATCHPAD, 0, 0, 0x140, 0x200, sp[0], sp[1], sp[2]);
+    RR_GPU_SCRATCH->cursor = AddTileGrid2x2(&CurrentDrawBuf->buffer.ordering70.tags[703], RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x200, sp[0], sp[1], sp[2]);
 }
 
-int AddBadgeSpriteStrip(int a, int p, int x, int y, int w, int z) {
-    int t0 = x;
+void *AddBadgeSpriteStrip(int a, GpuDmaTag *p, void *x, int y, int w, int z) {
+    void *t0 = x;
     int s1 = y;
     int i = 0;
     do {
         signed char *q = &BadgeStripPatterns[i + a * 8];
         int v = *q;
-        unsigned char *e;
+        const UiUvRect *e;
         int s0, d, c0, c1, c3;
         i++;
         if (v == -1) break;
-        e = BadgeGlyphUvTable + v * 4;
+        e = &BadgeGlyphUvTable[v];
         d = q[4];
-        c0 = e[0];
-        c1 = e[1];
-        s0 = e[2];
-        c3 = e[3];
+        c0 = e->u;
+        c1 = e->v;
+        s0 = e->w;
+        c3 = e->h;
         s1 += d;
         t0 = AddSpriteWithDrawMode(p, t0, s1, w, s0, c3, c0, c1, 0x4A, 0x2E28, 1, z);
         s1 += s0;
     } while (i < 4);
     return t0;
 }
+
+/* Initial values of the globals this module owns. */
+unsigned char MenuCameraPresetIndices[4] = {0x1E, 0x19, 0x14, 0xF};
+void *SavedLoadCursor;

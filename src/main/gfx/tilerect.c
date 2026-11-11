@@ -28,7 +28,7 @@
 #include "game/gfx/light1.h"
 #include "game/course/trkintp2.h"
 
-#define GS ((SPD *)SCRATCHPAD)
+#include "rr/gpu_scratch_types.h"
 
 typedef struct {
     MatrixWords32 matrix00;
@@ -47,21 +47,13 @@ typedef struct {
     short s4A;
 } S_8010BF70;
 
-typedef struct {
-    union {
-        int word;
-        struct { char b0, b1, b2, len; } b;
-    } tag;
-    int code;
-} GpuCmd8;
-
-typedef struct {
-    GpuCmd8 *cur;
-    union {
-        int word;
-        struct { char b0, b1, b2, len; } b;
-    } *ot;
-} SPD;
+/* Queue one GP0 state command at ordering entry index. */
+static void EmitTileRectCommand(s32 index, u32 command) {
+    GpuCommandPacket *packet = (GpuCommandPacket *)RR_GPU_SCRATCH->cursor;
+    packet->command = command;
+    RR_GPU_ADD_PRIM(&RR_GPU_SCRATCH->order[index], packet, 1);
+    RR_GPU_SCRATCH->cursor = (u8 *)(packet + 1);
+}
 
 extern GpuRectangleFields TileRectSkyVramRect;
 extern short FadeCountdown;
@@ -80,105 +72,60 @@ extern S_8010BF70 *TileRectScene;
 extern int TileFadeColorTable[];
 extern int TileRectFlashColors[];
 
-void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head);
 void TileRectSceneModeEnter(void);
 void TileRectSceneModeUpdate(void);
 
-void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head) {
-    s32 value;
-    u32 command;
+void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, GpuDmaTag *head) {
     GpuRectangleFields *rect = rectangle;
-    u32 *ordering = head;
+    GpuDmaTag *ordering = head;
+    GpuScratchPointers *scratch = RR_GPU_SCRATCH;
+    GpuCommandPacket *mask;
+    TiledRectanglePacket *tile;
     s32 height, y, width, x;
     s32 tile_h, tile_w;
-    s32 limit;
-    s32 v;
-    s32 u;
+    s32 v, u;
     s32 shade = intensity;
-    s32 length;
-    u32 packed;
-    u32 top, bits_h, vpart, ypage;
-    u32 drawmode;
-    u32 high, middle;
-    u8 *packet;
-    GpuScratchPointers *scratch;
+    u32 color, top, bits_h, vpart, ypage;
     shade = (shade < 0 ? 0 : shade) > 255 ? 255 : (shade < 0 ? 0 : shade);
-    command = 0xE6000000U;
-    high = shade * 0x10000U;
-    packet = *(u8 **)SCRATCHPAD;
-    ((u32 *)packet)[1] = command;
-    middle = shade * 0x100U;
-    middle |= 0x66000000U;
-    high |= middle;
-    shade = (shade|high);
-    *(u32 *)packet = *ordering;
-    packet[3] = 1;
-    *ordering = (u32)(unsigned long)packet;
-    ((u8 *)ordering)[3] = 0;
+    color = 0x66000000U | (shade * 0x10000U) | (shade * 0x100U) | shade;
+    mask = (GpuCommandPacket *)scratch->cursor;
+    mask->command = 0xE6000000U;
+    RR_GPU_ADD_PRIM(ordering, mask, 1);
+    tile = (TiledRectanglePacket *)(mask + 1);
     height = rect->h;
     y = rect->y;
-    packet+=sizeof(GpuSingleCommandPacket);
-    if (height > 0) {
-        limit = 256;
-        do {
-            v = y&255;
-            value = limit-v;
-            tile_h = value;
-            if (tile_h >= height) tile_h = height;
-            width = rect->w;
-            x = rect->x;
-            value = y-1;
-            if (width > 0) {
-
-                top = value * 0x10000U;
-                bits_h = tile_h * 0x10000U;
-                vpart = v<<8;
-                value = y&256;
-                ypage = (value>>4);
-                do {
-                    u = x&63;
-                    value = limit-u;
-                    tile_w = value;
-                    if (tile_w >= width) tile_w = width;
-                    drawmode = 0xE1000200U;
-
-                    value = x&65535;
-                    v = x&1023;
-                    x+=tile_w;
-                    packed = top|value;
-                    ((u32 *)(packet+4))[2] = packed;
-                    packed = bits_h|tile_w;
-                    ((u32 *)(packet+4))[4] = packed;
-                    packed = vpart|u;
-                    v >>= 6;
-                    v |= 256;
-                    v = ypage|v;
-                    ((u32 *)(packet+4))[1] = shade;
-                    ((u32 *)(packet+4))[3] = packed;
-                    ((u32 *)(packet+4))[0] = v|drawmode;
-                    packed = *ordering;
-                    width-=tile_w;
-                    *(u32 *)packet = packed;
-                    length = 5;
-
-                    packet[3] = length;
-                    *ordering = (u32)(unsigned long)packet;
-                    packet+=sizeof(TiledRectanglePacket);
-                    ((u8 *)ordering)[3] = 0;
-                } while (width > 0);
-            }
-            height-=tile_h;
-            y+=tile_h;
-        } while (height > 0);
+    while (height > 0) {
+        v = y & 255;
+        tile_h = 256 - v;
+        if (tile_h >= height) tile_h = height;
+        width = rect->w;
+        x = rect->x;
+        top = (y - 1) * 0x10000U;
+        bits_h = tile_h * 0x10000U;
+        vpart = v << 8;
+        ypage = (y & 256) >> 4;
+        while (width > 0) {
+            u = x & 63;
+            tile_w = 256 - u;
+            if (tile_w >= width) tile_w = width;
+            tile->mode = 0xE1000200U | ypage | (((x & 1023) >> 6) | 256);
+            tile->nop = RR_GPU_MERGED_PRIM_NOP;
+            tile->color = color;
+            tile->position = top | (x & 65535);
+            tile->uv = vpart | u;
+            tile->size = bits_h | tile_w;
+            x += tile_w;
+            width -= tile_w;
+            RR_GPU_ADD_PRIM(ordering, tile, 6);
+            tile++;
+        }
+        height -= tile_h;
+        y += tile_h;
     }
-    scratch = (GpuScratchPointers *)SCRATCHPAD;
-    ((u32 *)packet)[1] = 0xE6000001U;
-    *(u32 *)packet = scratch->order[703];
-    packet[3] = 1;
-    scratch->order[703] = (u32)(unsigned long)packet;
-    packet += sizeof(GpuSingleCommandPacket);
-    ((u8 *)&scratch->order[703])[3] = 0;
-    scratch->cursor = packet;
+    mask = (GpuCommandPacket *)tile;
+    mask->command = 0xE6000001U;
+    RR_GPU_ADD_PRIM(&scratch->order[703], mask, 1);
+    scratch->cursor = (u8 *)(mask + 1);
 }
 
 void TileRectSceneModeEnter(void) {
@@ -244,7 +191,7 @@ void TileRectSceneModeUpdate(void) {
         if (s1 == 0) {
             return;
         }
-        RelocateOffsetTable(SkyCommandListPtr = LoadCursor);
+        SkyCommandListPtr = (u8 *)LoadCursor; /* sky records stay wire offsets (sky.c) */
         TileRectScene = (S_8010BF70 *)(LoadCursor += s1);
         LoadCursor = (char *)TileRectScene + 0x4C;
         SetupRenderer(3);
@@ -302,19 +249,23 @@ void TileRectSceneModeUpdate(void) {
         }
 
         p = TileRectScene;
-        RR_GTE_TILERECT_INTPL(ir2, p);
+        /* INTPL: IR = IR + IR0 * (FC - IR) with FC = (0, 0xFF), IR1 = 0x720,
+         * IR2 = 0x90. IR1 lands in the scene's word at 0x30. */
+        Psyz_GteDataWrite(8, (u16)p->s4A);
+        Psyz_GteDataWrite(9, 0x720);
+        Psyz_GteCtrlWrite(21, 0);
+        Psyz_GteDataWrite(10, 0x90);
+        Psyz_GteCtrlWrite(22, 0xFF);
+        Psyz_GteCommand(0x0980011);
+        p->unk30 = Psyz_GteDataRead(9);
+        ir2 = Psyz_GteDataRead(10);
         TileRectSkyHorizonY = ir2;
     }
 
     EmitPresetSprite(TileRectScene->s3E, 0x25);
     EmitPresetSprite(TileRectScene->s40, 0x26);
 
-    GS->cur->code = 0xE1000229;
-    GS->cur->tag.word = GS->ot[1].word;
-    GS->cur->tag.b.len = 1;
-    GS->ot[1].word = GS->cur;
-    GS->ot[1].b.len = 0;
-    GS->cur++;
+    EmitTileRectCommand(1, 0xE1000229);
     RampValueTo4096(&TileRectScene->s46, &TileRectScene->s48);
 
     if (TileRectScene->s46 != 0) {
@@ -326,23 +277,17 @@ void TileRectSceneModeUpdate(void) {
         a2 = &sp10;
         RenderSkyToRect(TileRectScene->unk28, TileRectScene, a2, TileRectSkyHorizonY);
     }
-    GS->cur->code = 0xE6000001;
-    GS->cur->tag.word = GS->ot[703].word;
-    GS->cur->tag.b.len = 1;
-    GS->ot[703].word = GS->cur;
-    GS->ot[703].b.len = 0;
-    GS->cur++;
+    EmitTileRectCommand(703, 0xE6000001);
 }
 
 void DrawTrackObjectBillboard(int modelIndex) {
     TrackObjectBillboardWork *work = &((TrackObjectBillboardScratch *)SCRATCHPAD)->work7C;
     RroSceneScratchPrefix *scene;
-    const RroModelTable *table;
     GpuPolyFT4 *packet;
     const TrackObjectQuad *quad;
     const Vec3s8 *vertices;
     int count;
-    u32 *orderingBase;
+    GpuDmaTag *orderingBase;
     int depthShift;
     int depthBucket;
     int word0, word1, word2, word3;
@@ -358,17 +303,16 @@ void DrawTrackObjectBillboard(int modelIndex) {
     RR_GTE_SETBK_P(CameraViewMatrix.fields.translation14);
 
     scene = (RroSceneScratchPrefix *)SCRATCHPAD;
-    table = (const RroModelTable *)((const u8 *)scene->modelEntries48 - RR_FIELD_OFFSET(RroModelTable, entries));
-    packet = (GpuPolyFT4 *)scene->view.projection.pointers.cursor;
-    quad = (const TrackObjectQuad *)table->entries[modelIndex].commands;
-    vertices = table->entries[modelIndex].vertices;
+    packet = (GpuPolyFT4 *)RR_GPU_SCRATCH->cursor;
+    quad = (const TrackObjectQuad *)RroScene.modelEntries[modelIndex].commands;
+    vertices = RroScene.modelEntries[modelIndex].vertices;
     count = ((const RroBodyCommandHeader *)quad)->fields.count;
     quad = (const TrackObjectQuad *)((const u8 *)quad + sizeof(RroBodyCommandHeader));
     word0 = quad->translationXY1C;
     word2 = quad->translationZ1A;
     work->input2C.signedWords[0] = word0;
     work->input2C.fields.z = word2;
-    orderingBase = scene->view.projection.pointers.order + 128;
+    orderingBase = RR_GPU_SCRATCH->order + 128;
     depthShift = scene->depthShift60 + 2;
     while (count-- > 0) {
         RR_GTE_MVMVA_LLM_BK_LDV0(&work->input2C.signedWords[0]);
@@ -424,11 +368,8 @@ void DrawTrackObjectBillboard(int modelIndex) {
                         int y3 = work->projected34[3].xy.y;
                         if ((y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0) &&
                             (y0 < 0x100 || y1 < 0x100 || y2 < 0x100 || y3 < 0x100)) {
-                            packet->words.tag.word = (orderingBase + depthBucket)[quad->orderingBias19];
-                            packet->words.tag.bytes.length = 9;
-                            (orderingBase + depthBucket)[quad->orderingBias19] = (u32)(unsigned long)packet;
+                            RR_GPU_ADD_PRIM(&(orderingBase + depthBucket)[quad->orderingBias19], packet, 9);
                             packet++;
-                            ((GpuDmaTag *)&(orderingBase + depthBucket)[quad->orderingBias19])->bytes.length = 0;
                         }
                     }
                 }
@@ -436,18 +377,17 @@ void DrawTrackObjectBillboard(int modelIndex) {
         }
         quad++;
     }
-    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packet;
+    RR_GPU_SCRATCH->cursor = (u8 *)packet;
 }
 
 void DrawTrackObjectFlashQuads(int modelIndex) {
     TrackObjectFlashWork *work = &((TrackObjectFlashScratch *)SCRATCHPAD)->work7C;
     RroSceneScratchPrefix *scene;
-    const RroModelTable *table;
     const RroTexturedQuadPrefix *quad;
     GpuPolyFT4 *packet;
     const Vec3s8 *vertices;
     int count;
-    u32 *orderingBase;
+    GpuDmaTag *orderingBase;
     int windingMask;
     int depthShift;
     int word0, word1, word2, word3, entryOffset, renderFlags;
@@ -457,12 +397,11 @@ void DrawTrackObjectFlashQuads(int modelIndex) {
 
     entryOffset = modelIndex * sizeof(RroEffectMesh);
     scene = (RroSceneScratchPrefix *)SCRATCHPAD;
-    table = (const RroModelTable *)((const u8 *)scene->modelEntries48 - RR_FIELD_OFFSET(RroModelTable, entries));
-    packet = (GpuPolyFT4 *)scene->view.projection.pointers.cursor;
-    orderingBase = scene->view.projection.pointers.order + 128;
-    quad = (const RroTexturedQuadPrefix *)table->entries[modelIndex].commands;
+    packet = (GpuPolyFT4 *)RR_GPU_SCRATCH->cursor;
+    orderingBase = RR_GPU_SCRATCH->order + 128;
+    quad = (const RroTexturedQuadPrefix *)RroScene.modelEntries[modelIndex].commands;
     depthShift = scene->depthShift60 + 2;
-    vertices = table->entries[modelIndex].vertices;
+    vertices = RroScene.modelEntries[modelIndex].vertices;
     count = ((const RroBodyCommandHeader *)quad)->fields.count;
     quad = (const RroTexturedQuadPrefix *)((const u8 *)quad + sizeof(RroBodyCommandHeader));
     renderFlags = scene->renderFlags64;
@@ -514,11 +453,8 @@ void DrawTrackObjectFlashQuads(int modelIndex) {
                             int y3 = work->projected24[3].xy.y;
                             if ((y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0) &&
                                 (y0 < 0x100 || y1 < 0x100 || y2 < 0x100 || y3 < 0x100)) {
-                                packet->words.tag.word = (orderingBase + work->depth1C)[quad->orderingBias19];
-                                packet->words.tag.bytes.length = 9;
-                                (orderingBase + work->depth1C)[quad->orderingBias19] = (u32)(unsigned long)packet;
+                                RR_GPU_ADD_PRIM(&(orderingBase + work->depth1C)[quad->orderingBias19], packet, 9);
                                 packet++;
-                                ((GpuDmaTag *)&(orderingBase + work->depth1C)[quad->orderingBias19])->bytes.length = 0;
                             }
                         }
                     }
@@ -527,15 +463,16 @@ void DrawTrackObjectFlashQuads(int modelIndex) {
         }
         quad++;
     }
-    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packet;
+    RR_GPU_SCRATCH->cursor = (u8 *)packet;
 }
 
-u8 *EmitModelTrisGT3(const TrackObjectLitWork *work, u32 *head, u8 *packetCursor) {
-    const TrackObjectTriangle *triangle = (const TrackObjectTriangle *)work->commands30;
-    const Vec3s8 *vertices = work->vertices2C;
+u8 *EmitModelTrisGT3(const TrackObjectLitWork *work, GpuDmaTag *head, u8 *packetCursor) {
+    const TrackObjectTriangle *triangle = (const TrackObjectTriangle *)RroScene.workCommands;
+    const Vec3s8 *vertices = RroScene.workVertices;
     int count = ((unsigned short *)triangle)[1];
     int x0, x1, x2, y0, y1, y2;
-    u8 *ret;
+    GpuPolyG3 *packet = (GpuPolyG3 *)packetCursor;
+    GpuCommandPacket *mode;
 
     triangle = (const TrackObjectTriangle *)((const u8 *)triangle + 4);
     do {
@@ -545,41 +482,45 @@ u8 *EmitModelTrisGT3(const TrackObjectLitWork *work, u32 *head, u8 *packetCursor
         x0 &= 0xFFFF;
         RR_GTE_LWC2_V012_3P(&vertices[x0], &vertices[x1], &vertices[x2]);
         RR_GTE_RTPT_NOP2();
-        x0 = triangle->colors08[0];
-        x1 = triangle->colors08[1];
-        x2 = triangle->colors08[2];
-        ((GpuPolyG3 *)packetCursor)->color0 = x0;
-        ((GpuPolyG3 *)packetCursor)->color1 = x1;
-        ((GpuPolyG3 *)packetCursor)->color2 = x2;
-        RR_GTE_STORE_READ_SXY3(packetCursor, x0, x1, x2);
+        packet->color0 = triangle->colors08[0];
+        packet->color1 = triangle->colors08[1];
+        packet->color2 = triangle->colors08[2];
+        x0 = Psyz_GteDataRead(12);
+        x1 = Psyz_GteDataRead(13);
+        x2 = Psyz_GteDataRead(14);
+        packet->xy0 = x0;
+        packet->xy1 = x1;
+        packet->xy2 = x2;
         y0 = x0 >> 16;
         y1 = x1 >> 16;
         y2 = x2 >> 16;
         if ((y0 >= 0 || y1 >= 0 || y2 >= 0) &&
             (y0 < 0x100 || y1 < 0x100 || y2 < 0x100)) {
-            x0 = (x0 * 0x10000U);
-            x1 = (x1 * 0x10000U);
-            x2 = (x2 * 0x10000U);
-            x0 >>= 16;
-            x1 >>= 16;
-            x2 >>= 16;
+            x0 = (s16)x0;
+            x1 = (s16)x1;
+            x2 = (s16)x2;
             if ((x0 >= 0 || x1 >= 0 || x2 >= 0) &&
                 (x0 < 0x140 || x1 < 0x140 || x2 < 0x140)) {
-                ((GpuPolyG3 *)packetCursor)->tag.word = *head;
-                ((GpuDmaTag *)packetCursor)->bytes.length = 6;
-                *head = (u32)(unsigned long)packetCursor;
-                packetCursor += sizeof(GpuPolyG3);
-                ((char *)head)[3] = 0;
+                RR_GPU_ADD_PRIM(head, packet, 6);
+                packet++;
             }
         }
         triangle++;
         count--;
     } while (count > 0);
-    ((GpuCommandPacket *)packetCursor)->command = 0xE1000220;
-    ((GpuPolyG3 *)packetCursor)->tag.word = *head;
-    ((GpuDmaTag *)packetCursor)->bytes.length = 1;
-    ret = packetCursor + sizeof(GpuCommandPacket);
-    *head = (u32)(unsigned long)packetCursor;
-    ((char *)head)[3] = 0;
-    return ret;
+    mode = (GpuCommandPacket *)packet;
+    mode->command = 0xE1000220;
+    RR_GPU_ADD_PRIM(head, mode, 1);
+    return (u8 *)(mode + 1);
 }
+
+/* Initial values of the globals this module owns. */
+GpuRectangleFields TileRectSkyVramRect = {.x = 448, .w = 128, .h = 320};
+Vec3sFields8 TileRectDefaultAngles = {.x = 40, .y = 682};
+GpuRectangleFields TileRectCaptureVramRect = {.x = 176, .y = 72, .w = 128, .h = 320};
+int TileRectSkyHorizonY = 128;
+int TileFadeColorTable[64] = {738197504, 739776536, 741355568, 742868807, 744118874, 745171562, 745961078, 746421629, 746619008, 746421629, 745961078, 745171562, 744118874, 742868807, 741355568, 739776536, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504, 738197504};
+int TileRectFlashColors[64] = {746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746619008, 746553215, 746355836, 745697906, 744711011, 743395151, 741881912, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 740302880, 741881912, 743395151, 744711011, 745697906, 746355836, 746553215};
+unsigned char TileRectBgFileOffset;
+S_8010BF70 *TileRectScene;
+int TileRectUploadPhase;

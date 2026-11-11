@@ -3,6 +3,7 @@
 
 #include "types.h"
 
-s16 SsSeqOpen(u8 *sequence,s32 bank);
+/* PsyZ: short SsSeqOpen(u_long *addr, short vab_id). */
+s16 SsSeqOpen(u8 *sequence, short bank);
 
 #endif /* RR_PSYQ_LIBSND_SSOPENQ_H */

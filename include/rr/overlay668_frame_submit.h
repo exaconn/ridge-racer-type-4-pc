@@ -2,7 +2,7 @@
 #define RR_OVERLAY668_FRAME_SUBMIT_H
 #include "rr/overlay668_frame_acquire.h"
 #include "psyq/libcd/dsstrm3.h"
-void ovl668_mdec_decode_vlc(u8 *data,void *commands);
+#include "rr/overlay668_vlc.h"
 /* Poll at most2000 times. Success toggles the current fullword selector to0/1,
  * captures that selector, reads the fresh stream root and submits the acquired
  * full data pointer with its command buffer. Release status is returned intact;

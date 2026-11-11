@@ -1,12 +1,15 @@
 #ifndef RR_GAME_UI_HUDMAP_H
 #define RR_GAME_UI_HUDMAP_H
 
-#include "types.h"
+#include "rr/gpu.h"
 
 struct RaceVehicle;
 int IsCarFacingReverse(struct RaceVehicle *vehicle);
 
-void AddPartialLine(u32 *a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10);
+/* Draws the first intensity/256 of the line a->b (two lines when doubled);
+ * nonnegative mode selects LINE_F2 plus a draw-mode packet, negative tiles. */
+void AddPartialLine(GpuDmaTag *ordering, s32 x0, s32 y0, s32 x1, s32 y1,
+    s32 intensity, s32 doubled, s32 red, s32 green, s32 blue, s32 mode);
 void DrawRaceTimesScreen(void);
 void DrawRaceStartSignalSprite(int a0);
 

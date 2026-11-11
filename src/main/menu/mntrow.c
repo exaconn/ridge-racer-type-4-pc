@@ -1,5 +1,4 @@
 #include "rr/menu_text_state.h"
-#include "rr/gpu_address.h"
 #include "types.h"
 #include "scratchpad.h"
 #include "rr/gpu.h"
@@ -35,7 +34,7 @@ extern short ActiveSceneId;
 extern short SelectedTeamIndex;
 extern u32 ModeFrame;
 extern short SelectedMakerIndex;
-extern BadgeRow1C *BadgeRows;
+#include "rr/badge_rows.h"
 extern int MenuStepDirection;
 extern int MenuReturnSubmodeIndex;
 
@@ -61,7 +60,7 @@ void DrawMenuTextRow(s32 a0) {
     s32 d34;
     s32 v1;
 
-    s4 = *(SpritePacket **)SCRATCHPAD;
+    s4 = (SpritePacket *)RR_GPU_SCRATCH->cursor;
     fp = MenuTextRows[a0].rendering.x;
     sp1C = MenuTextRows[a0].rendering.text;
     sp10 = MenuTextRows[a0].rendering.y;
@@ -130,7 +129,6 @@ void DrawMenuTextRow(s32 a0) {
                 }
             }
             for (s0 = 0; s0 < (MenuTextRows[a0].state.d34 & 1) + 1; s0++) {
-                s4->len = 4;
                 s4->code = 0x64;
                 s4->x = fp;
                 s4->y = sp10;
@@ -148,44 +146,37 @@ void DrawMenuTextRow(s32 a0) {
                 s4->g = a3;
                 s4->b = a3;
                 s4->code |= 2;
-                s4->addr = CurrentDrawBuf->buffer.ordering70.tags[0].bits.address;
-                CurrentDrawBuf->buffer.ordering70.tags[0].bits.address = GpuDmaEncodeAddress(s4);
+                RR_GPU_ADD_PRIM(&CurrentDrawBuf->buffer.ordering70.tags[0], s4, 4);
                 s4++;
             }
         }
     }
-    *(SpritePacket **)SCRATCHPAD = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], (GpuDrawModePacket *)s4, 0x2E);
+    RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], (GpuDrawModePacket *)s4, 0x2E);
 }
 
 void DrawResultsRankIcons(void)
 {
-    unsigned *a1;
+    SpritePacket *sprite;
     int a3;
-    unsigned char *q;
     FrameStorage *d;
-    unsigned t;
-    a1 = (unsigned *)AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[10], (GpuDrawModePacket *)((GpuScratchPointers *)SCRATCHPAD)->cursor, 5);
-    q = (unsigned char *)a1 + 7;
+    sprite = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[10], (GpuDrawModePacket *)RR_GPU_SCRATCH->cursor, 5);
     a3 = 0;
     do {
-        q[a3 * 20 - 4] = 4;
-        q[a3 * 20] = 0x64;
-        ((short *)(q + a3 * 20 + 1))[4] = 0xC;
-        ((short *)(q + a3 * 20 + 1))[5] = 0x18;
-        q[a3 * 20 + 5] = 0xF4;
-        q[a3 * 20 + 6] = 0x68;
-        ((short *)(q + a3 * 20 + 1))[3] = 0x2678;
-        q[a3 * 20] |= 1;
-        ((short *)(q + a3 * 20 + 1))[0] = (a3 % 22) * 13 + 0x11;
-        ((short *)(q + a3 * 20 + 1))[1] = (a3 / 22) * 0x1C + 0x60;
+        sprite->code = 0x64;
+        sprite->w = 0xC;
+        sprite->h = 0x18;
+        sprite->u = 0xF4;
+        sprite->v = 0x68;
+        sprite->clut = 0x2678;
+        sprite->code |= 1;
+        sprite->x = (a3 % 22) * 13 + 0x11;
+        sprite->y = (a3 / 22) * 0x1C + 0x60;
         d = CurrentDrawBuf;
         a3++;
-        t = GpuDmaEncodeAddress(a1) & 0xFFFFFF;
-        *a1 = (*a1 & 0xFF000000) | (d->buffer.ordering70.tags[10].bits.address & 0xFFFFFF);
-        d->buffer.ordering70.tags[10].bits.address = t;
-        a1 += 5;
+        RR_GPU_ADD_PRIM(&d->buffer.ordering70.tags[10], sprite, 4);
+        sprite++;
     } while (a3 < 0xF2);
-    ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawModePrim(&d->buffer.ordering70.words[10], (GpuDrawModePacket *)a1, 0xE);
+    RR_GPU_SCRATCH->cursor = AddDrawModePrim(&d->buffer.ordering70.tags[10], (GpuDrawModePacket *)sprite, 0xE);
 }
 
 
@@ -277,3 +268,6 @@ void ModeSelectMenuUpdate(void) {
         }
     }
 }
+
+/* Initial values of the globals this module owns. */
+unsigned short MenuTextRowClutTable[2] = {0x2638, 0x2639};

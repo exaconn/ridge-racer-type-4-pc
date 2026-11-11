@@ -14,10 +14,10 @@ void SetAnimatedTrackObjectState(int index, int flags, const s32 *position, int 
 void DrawAnimatedTrackObject(AnimatedTrackScratch *scratch, int index, int advance);
 s32 GetSegmentVisibilityTableSize(void);
 void ApplySegmentVisibilityMask(void);
-void SetSegmentVisibilityTable(s32 arg0);
+void SetSegmentVisibilityTable(short *arg0);
 s32 GetOctantLookupTableSize(void);
 int LookupOctantVisibility(void);
-void SetOctantLookupTable(s32 arg0);
+void SetOctantLookupTable(unsigned char *arg0);
 void InitSplashDispEnv(void);
 void RelocateCountedOffsetTable(int *a0);
 void InitRearViewMirrorState(void);

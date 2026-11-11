@@ -4,7 +4,7 @@
 
 /* POLY_FT4: flat-color textured quadrilateral with four UV coordinate pairs. */
 typedef struct {
-    u32 tag;
+    GpuDmaTag tag;
     u8 r,g,b,code;
     s16 x0,y0;
     u8 u0,v0;
@@ -22,7 +22,7 @@ typedef struct {
 
 /* Emits a raw-texture panel at (32,112)..(288,368). Signed index division
  * selects texture-page/vertical coordinates. Requires a four-byte-aligned destination
- * with 40 writable bytes and an accessible second word in the ordering page. RGB bytes and
+ * with sizeof(PolyFT4Packet) writable bytes; links at ordering entry 1. RGB bytes and
  * the last two UV padding halfwords retain their old contents. */
 void EmitTexturedPanel(s32 index);
 RR_ASSERT_SIZE(PolyFT4Packet, 0x28);

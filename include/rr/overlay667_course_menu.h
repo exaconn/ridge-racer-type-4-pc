@@ -1,6 +1,7 @@
 #ifndef RR_OVERLAY667_COURSE_MENU_H
 #define RR_OVERLAY667_COURSE_MENU_H
 #include "game/system/pad.h"
+#include "rr/menu_frame_state.h"
 #include "rr/overlay_menu.h"
 #include "rr/menu_selection.h"
 #include "rr/frame_environment.h"
@@ -8,9 +9,10 @@
 #include "rr/tables.h"
 #include "rr/driver_control.h"
 #include "game/race/racegrid.h"
-extern s16 FadeCountdown,LinkHostFlag,LinkState,LinkMenuSyncPhase,LinkPrevCarRanks,ModeIndex;
+extern s16 FadeCountdown,LinkHostFlag,LinkState,LinkMenuSyncPhase,ModeIndex;
 extern u16 SubmodeState,ModeGroup;
-extern s32 LinkAvailableCourseCount,NumLaps,MenuAvailableCourseMask,ModeFrame,ScreenFrame;
+extern s32 LinkAvailableCourseCount,ModeFrame;
+extern u32 ScreenFrame;
 s32 ExitOnLinkLost(void);
 s32 UpdateLinkHandshake(s32);
 s32 LoadTrackNodesStep(void);
@@ -21,8 +23,8 @@ void SetMenuFrameOptions(s32,s32,s32);
 void PlaySfx(s32);
 void SeqFadeVolume(s32,s32);
 void SeqMuteVolume(void);
-void DrawUiRow(s32);
-void AddScreenFadeTiles(u32 *,s32,u32);
+int DrawUiRow(s32);
+#include "rr/screen_tiles.h"
 void UpdateScreenFade(s32);
 void ovl667_init_car_selection(s32);
 /* At least25 complete UI rows are accessible. Menu selection is0..2 at

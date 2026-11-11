@@ -1,4 +1,4 @@
-#include "scratchpad.h"
+#include "rr/gpu_scratch_types.h"
 #include "rr/frame_storage_types.h"
 #include "rr/gpu.h"
 #include "rr/animated_glyph.h"
@@ -14,7 +14,7 @@ void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation);
 void DrawBigFontString(s32 a0, s32 a1, u8 *a2) {
     SpritePacket *s3, *s2;
     s32 c, a, v, row, col, u, vv;
-    s3 = *(SpritePacket **)SCRATCHPAD;
+    s3 = (SpritePacket *)RR_GPU_SCRATCH->cursor;
     s2 = s3;
     for (; *a2 != 0; a0 += 10) {
         a = *a2 - 0x20;
@@ -35,16 +35,16 @@ void DrawBigFontString(s32 a0, s32 a1, u8 *a2) {
             s2->u = u;
             s2->v = vv;
             s2->clut = 0x5B20;
-            AddPrim(&CurrentDrawBuf->buffer.ordering70.words[0], (u32 *)s2++);
+            AddPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s2++);
             s3++;
         }
     }
     SetDrawMode(s3, 0, 1, 0x58, 0);
-    AddPrim(&CurrentDrawBuf->buffer.ordering70.words[0], (u32 *)s3);
-    *(char **)SCRATCHPAD = (char *)s3 + 0xC;
+    AddPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3);
+    RR_GPU_SCRATCH->cursor = (u8 *)((GpuDrawModePacket *)s3 + 1);
 }
 
-void *AddTextSprites(u32 *ordering, void *cursor, s32 screenX, s32 screenY,
+void *AddTextSprites(GpuDmaTag *ordering, void *cursor, s32 screenX, s32 screenY,
                              const char *text, s32 clut, s32 spacing, s32 color)
 {
     int tileU;
@@ -82,7 +82,7 @@ void *AddTextSprites(u32 *ordering, void *cursor, s32 screenX, s32 screenY,
                 emitted = packet;
                 packet++;
                 cursor = (SpritePacket *)cursor + 1;
-                AddPrim(ordering, (u32 *)emitted);
+                AddPrim(ordering, emitted);
             }
             if (spacing == 1) {
                 margin = 2;
@@ -109,15 +109,11 @@ void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
     s32 pass;
     s32 baseV;
     s16 tileV;
-#ifdef __mips__
     SpritePacketSignedClut *sprites;
-#else
-    SpritePacketSignedClut *sprites;
-#endif
     u8 *cursor;
     SpritePacketSignedClut *linkPacket;
 
-    cursor = RR_GLYPH_ANIMATION_SCRATCH->cursor;
+    cursor = RR_GPU_SCRATCH->cursor;
     row = glyph/32;
     tileU=(glyph-row*32)*8;
     baseV = row * 0x18;
@@ -125,10 +121,9 @@ void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
     if (glyph >= 0x140) {
         tileV = baseV + 0x10;
     }
-    tileV=RR_GLYPH_PREF(tileV,"$22");
     displacement = 0;
     pass = 0;
-    shadowBrightness = RR_GLYPH_PREF(8,"$23");
+    shadowBrightness = 8;
     sprites = (SpritePacketSignedClut *)cursor;
     /* The original retains a shadow branch, but runs only pass zero. */
     do {
@@ -155,7 +150,7 @@ void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
                     displacement = -curve;
                 }
             } else {
-                s32 brightness=RR_GLYPH_PREF(128,"$2");
+                s32 brightness = 128;
                 sprites->r = brightness;
                 sprites->g = brightness;
                 sprites->b = brightness;
@@ -165,7 +160,7 @@ void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
         if ((s16)displacement > 0) {
             displacement = 0;
         }
-        cursor += 0x14;
+        cursor += sizeof(SpritePacketSignedClut);
         sprites->x = (s16)(displacement + ((u32)x + pass));
         yStep = pass * 2;
         sprites->u = (s8)tileU;
@@ -175,7 +170,7 @@ void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
         sprites->h = 0x18;
         sprites->clut = clut;
         sprites++;
-        AddPrim(&CurrentDrawBuf->buffer.ordering70.words[0], (u32 *)linkPacket);
+        AddPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], linkPacket);
         pass++;
     } while (pass <= 0);
     drawV = (s16) tileV;
@@ -183,8 +178,8 @@ void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
         drawV += 0xFF;
     }
     SetDrawMode(cursor, 0, 1, ((drawV & 0x100) >> 4) | 0x2F, 0);
-    AddPrim(&CurrentDrawBuf->buffer.ordering70.words[0], (u32 *)cursor);
-    RR_GLYPH_ANIMATION_SCRATCH->cursor = cursor + 0xC;
+    AddPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor);
+    RR_GPU_SCRATCH->cursor = cursor + sizeof(GpuDrawModePacket);
 }
 
 void DrawAnimatedText(int arg0, int arg1, MenuTextState *p, int arg3, int arg4) {
@@ -260,3 +255,7 @@ void DrawAnimatedText(int arg0, int arg1, MenuTextState *p, int arg3, int arg4) 
         } while (s0 < s6);
     }
 }
+
+/* Initial values of the globals this module owns. */
+u8 FontAtlasTileCoords[192] = {0, 0, 4, 1, 9, 1, 7, 1, 6, 1, 9, 1, 6, 1, 0xA, 1, 0xC, 1, 0xD, 1, 0xB, 1, 0xD, 1, 0xC, 1, 0xD, 1, 0xE, 1, 0xF, 1, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 0x10, 1, 0x12, 1, 0x13, 1, 0x17, 1, 0x14, 1, 5, 1, 7, 1, 0xA, 0, 0xB, 0, 0xC, 0, 0xD, 0, 0xE, 0, 0xF, 0, 0x10, 0, 0x11, 0, 0x12, 0, 0x13, 0, 0x14, 0, 0x15, 0, 0x16, 0, 0x17, 0, 0x18, 0, 0x19, 0, 0x1A, 0, 0x1B, 0, 0x1C, 0, 0x1D, 0, 0x1E, 0, 0x1F, 0, 0, 1, 1, 1, 2, 1, 3, 1, 0x15, 1, 0x1C, 1, 0x16, 1, 0x1E, 1, 0x1F, 1, 0x1A, 1, 0x10, 1, 0x11, 1, 0x12, 1, 0x1A, 1, 0xE, 0, 0xF, 0, 0x10, 0, 0x1E, 1, 0x1E, 1, 0x13, 0, 0x14, 0, 0x15, 0, 0x16, 0, 0x19, 1, 0x17, 1, 0x19, 0, 0x1A, 0, 0x1B, 1, 0x17, 1, 0x18, 1, 0x1E, 0, 0x1F, 0, 0, 1, 1, 1, 2, 1, 3, 1, 0x1B, 1, 0x1C, 1, 0x1D, 1, 0x1E, 1, 0x1F, 1};
+unsigned char SmallFontGlyphAdvances[64] = {5, 3, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 3, 5, 6, 5, 7, 5, 5, 5, 5, 6, 5, 5, 5, 5, 8, 5, 5, 4, 2, 4, 6, 7, 4, 2, 3, 7, 7, 4, 4, 4, 2, 4, 4, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};

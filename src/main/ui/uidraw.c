@@ -6,7 +6,7 @@
 #include "game/ui/uidraw.h"
 #include "rr/bios_devices.h"
 #include "rr/audio_cd_controller.h"
-#include "rr/badge_row_types.h"
+#include "rr/badge_rows.h"
 #include "rr/menu_state_types.h"
 #include "rr/ui_panel.h"
 #include "rr/trig.h"
@@ -14,7 +14,6 @@
 
 
 
-extern BadgeRow1C *BadgeRows;
 
 
 void UpdateBadgeRowAnim(int index) {
@@ -218,12 +217,10 @@ int UpdateRect16Row(int index) {
         levels = MenuRectLineIntensitySlots;
         edge = MenuRectLineCorners;
     loop:
-        AddPartialLine(&CurrentDrawBuf->buffer.ordering70.words[0],
-                       *(int *)((char *)x + (edge->first << 2)),
-                       *(int *)((char *)y + (edge->first << 2)),
-                       *(int *)((char *)x + (edge->last << 2)),
-                       *(int *)((char *)y + (edge->last << 2)),
-                       intensity[*(u8 *)(line + (unsigned long)levels)],
+        AddPartialLine(&CurrentDrawBuf->buffer.ordering70.tags[0],
+                       x[edge->first], y[edge->first],
+                       x[edge->last], y[edge->last],
+                       intensity[levels[line]],
                        1, 8, 8, 8, -1);
         edge++;
         line++;
@@ -259,3 +256,13 @@ void InitGlyphRow(int index, int control, int glyph, int presetIndex) {
         GlyphRows[index].v15 = preset->v0D;
     }
 }
+
+/* Initial values of the globals this module owns. */
+char SizeLdFmt[56] = {115, 105, 122, 101, 32, 61, 32, 37, 108, 100, 10};
+MenuRectEdgeCorners MenuRectLineCorners[6] = {{.first = 2}, {.first = 1, .last = 3}, {.last = 1}, {.first = 3, .last = 2}, {.first = 1, .last = 2}, {.last = 3}};
+u8 MenuRectLineIntensitySlots[6] = {0, 0, 1, 1, 2, 3};
+MenuGlyphPreset14 AnimatedGlyphPresets[2] = {{.x00 = 120, .y02 = 124, .w04 = 80, .h06 = 160, .page08 = 0xBD, .clut0A = 0x3FE8, .u0C = 0x30, .frameCount0E = 3, .frameDuration0F = 0x3C, .imageSectors10 = 8}, {.x00 = 120, .y02 = 124, .w04 = 80, .h06 = 160, .page08 = 0xBD, .clut0A = 0x3FE8, .u0C = 0x30, .frameCount0E = 1, .frameDuration0F = 0x3C, .imageSectors10 = 8}};
+int Rect16RowCount;
+MenuRectRow10 *Rect16Rows;
+BadgeRow1C *BadgeRows;
+int GlyphRowCount;

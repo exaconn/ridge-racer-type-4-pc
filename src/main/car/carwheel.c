@@ -172,7 +172,7 @@ void DrawPlayerCar(RaceVehicle *arg0, s32 viewMode) {
 
     slot_half = arg0->slotIndex1E6 >> 1;
     SelectModelBank(slot_half);
-    s5_val = ComputeCarSurfaceLighting(arg0, GetCarTrackLightIndex(arg0));
+    s5_val = ComputeCarSurfaceLighting((void *)arg0, GetCarTrackLightIndex(arg0));
     BuildRotMatrixY(&sp80, -arg0->rot54);
     BuildRotMatrixX(&sp40, -arg0->rot50);
     BuildRotMatrixZ(&sp60, -arg0->rot58);
@@ -239,7 +239,7 @@ void DrawPlayerCar(RaceVehicle *arg0, s32 viewMode) {
     if (v0_drag > 0) {
         s5_val |= 2;
     }
-    DrawWheelTrailEffects(arg0, &sp168[1], &spA8[1], &sp80, slot_idx, s5_val, 0);
+    DrawWheelTrailEffects(arg0, &sp168[1].x, &spA8[1], &sp80, slot_idx, s5_val, 0);
     for (i = 0; i < 8; i++) {
         u8 s0_mode = CarPartRenderModes[i];
         if (s0_mode != 1 || DrawRroModel(&sp168[CarPartTransformIndices[i]], &spA8[CarPartMatrixIndices[i]], CarPartModelIndices[i], 0) != s0_mode) {
@@ -298,7 +298,7 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
         if (arg1 == 1) {
             s7_val = -0x5A;
         }
-        s5_val = ComputeCarSurfaceLighting(arg0, GetCarTrackLightIndex(arg0));
+        s5_val = ComputeCarSurfaceLighting((void *)arg0, GetCarTrackLightIndex(arg0));
         s5_val = (s16)(TrackLightTable[s5_val].flags02 | ForceTailLightTrails);
         if (arg0->flags1E4 & 0x10) {
             if (arg0->control.dynamics94.steering.target18.halves.high > 0) {
@@ -367,7 +367,7 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
                 sp168[i + 3].y += sp168[2].y;
                 sp168[i + 3].z += sp168[2].z;
             }
-            DrawWheelTrailEffects(arg0, &sp168[1], &spA8[1], &sp80, slot_idx, s5_val, 0);
+            DrawWheelTrailEffects(arg0, &sp168[1].x, &spA8[1], &sp80, slot_idx, s5_val, 0);
             for (i = 0; i < 8; i++) {
                 u8 s0_mode = CarPartRenderModes[i];
                 if (s0_mode != 1 || DrawRroModel(&sp168[CarPartTransformIndices[i]], &spA8[CarPartMatrixIndices[i]], CarPartModelIndices[i], fp_val) != s0_mode) {
@@ -399,7 +399,7 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
             BuildRotMatrixZ(&sp60, -arg0->ang84);
             MulMatrix(&spA8[1], &sp60);
             MulMatrix2(&sp20, &spA8[1]);
-            DrawWheelTrailEffects(arg0, &sp168[1], &spA8[1], &sp80, slot_idx, s5_val, s7_val);
+            DrawWheelTrailEffects(arg0, &sp168[1].x, &spA8[1], &sp80, slot_idx, s5_val, s7_val);
             SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&sp168[0], spA8[0].w);
             G->col78 = 0;
             a1_val = 1;
@@ -421,7 +421,7 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
             sp168[0].x = arg0->worldPosition10.words[0];
             sp168[0].y = arg0->worldPosition10.words[1];
             sp168[0].z = arg0->worldPosition10.words[2];
-            DrawWheelTrailEffects(arg0, &sp168[0], &spA8[0], &sp80, slot_idx, s5_val, s7_val);
+            DrawWheelTrailEffects(arg0, &sp168[0].x, &spA8[0], &sp80, slot_idx, s5_val, s7_val);
             SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&sp168[0], spA8[0].w);
             G->col78 = fp_val;
             a1_val = 1;
@@ -434,3 +434,12 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
     }
     DrawWheelTrailEffects(arg0, 0, 0, 0, slot_idx, 0, 0);
 }
+
+/* Initial values of the globals this module owns. */
+u8 CarPartModelIndices[8] = {3, 0, 9, 6, 8, 7, 5, 4};
+u8 CarPartRenderModes[8] = {1, 1, 0, 1, 0, 0, 1, 1};
+u8 CarPartTransformIndices[8] = {0, 1, 2, 2, 3, 4, 3, 4};
+u8 CarPartMatrixIndices[8] = {0, 1, 2, 3, 4, 4, 5, 5};
+LodDist6 CarModelLodDistances[5] = {{.d0 = 672, .d2 = 3200, .d4 = 8704}, {.d0 = -1, .d2 = 2560, .d4 = 4096}, {.d0 = 4096, .d2 = 8192, .d4 = 8704}, {.d0 = 320, .d2 = 3200, .d4 = 8704}, {.d0 = 160, .d2 = 2560, .d4 = 8704}};
+s16 ForceTailLightTrails;
+CarBounds *CarBoundsTable[4];

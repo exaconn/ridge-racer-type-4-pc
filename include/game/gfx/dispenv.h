@@ -22,7 +22,8 @@ RR_ASSERT_SIZE(TrackLightPreset8, 8);
 RR_ASSERT_OFFSET(TrackLightPreset8, r, 4);
 struct RaceVehicle;
 int ComputeCameraNodeDist(struct RaceVehicle *vehicle, CamNode44 *node);
-void GetTrackLaneWorldPos();
+/* Lane point at the node lateral offset (x), height (y) and trailing distance (z). */
+void GetTrackLaneWorldPos(struct RaceVehicle *vehicle, int *output, const CamNode44 *node);
 void TransformCameraOffset(unsigned short *a, int b, int *c);
 void RotateNegZByEulerZYX(unsigned short *a, int b, int *c);
 short LerpAngleWrap4096(CamNode44 *p, int t);

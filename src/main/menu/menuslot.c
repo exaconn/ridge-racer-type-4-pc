@@ -26,10 +26,9 @@ extern short ModeIndex;
 extern unsigned short SubmodeState;
 extern int ModeFrame;
 extern int MenuReturnSubmodeIndex;
-extern int MenuSharedScratchPtr;
-extern BadgeRow1C *BadgeRows;
+extern u8 *MenuSharedScratchPtr;
 extern int DialogueSceneMode;
-extern char SaveSlotPanelSpriteUv[];
+extern UiUvRect SaveSlotPanelSpriteUv;
 
 void YesNoPromptModeUpdate(void);
 
@@ -39,7 +38,7 @@ void YesNoPromptModeUpdate(void) {
     switch (SubmodeState) {
     case 0:
         UiRows[MenuCursor].cells[0] = 0;
-        StepMenuValue(0, 2, &MenuCursor, 2, 0);
+        StepMenuValue(0, 2, (char *)&MenuCursor, 2, 0);
         UiRows[MenuCursor].cells[0] = 2;
         if (MenuReturnSubmodeIndex != 0) {
             if (UiRows->byte14 == 2) {
@@ -61,7 +60,7 @@ void YesNoPromptModeUpdate(void) {
         break;
     case 3:
         if (FadeCountdown > 0) FadeCountdown = FadeCountdown - 1;
-        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - FadeCountdown) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x40 - FadeCountdown) * 4, 0x45);
         if (FadeCountdown <= 0) {
             r = LoadMenuCarModelsStep();
             if (r == 1) {
@@ -73,7 +72,7 @@ void YesNoPromptModeUpdate(void) {
         break;
     case 4:
         if (FadeCountdown > 0) FadeCountdown = FadeCountdown - 1;
-        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - FadeCountdown) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x40 - FadeCountdown) * 4, 0x45);
         if (FadeCountdown <= 0) {
             r = LoadTimListStep(1);
             if (r == 1) {
@@ -111,6 +110,9 @@ void DrawDialogueContinueMark(int a0, int a1) {
   {
     v += 0x7F;
   }
-  new_var = *((void **) SCRATCHPAD);
-  *((void **) SCRATCHPAD) = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], new_var, a0, a1, SaveSlotPanelSpriteUv, 0x1B56, ((v >> 7) + 0x80) * 2), 0x25);
+  new_var = RR_GPU_SCRATCH->cursor;
+  RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], new_var, a0, a1, &SaveSlotPanelSpriteUv, 0x1B56, ((v >> 7) + 0x80) * 2), 0x25);
 }
+
+/* Initial values of the globals this module owns. */
+UiUvRect SaveSlotPanelSpriteUv = {.u = 0x2C, .v = 0x48, .w = 8, .h = 0x10};

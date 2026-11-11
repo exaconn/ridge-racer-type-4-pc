@@ -8,7 +8,11 @@
 typedef struct {
     FrameEnvironment environment00;
     FrameOrderingTable ordering70, secondaryOrderingB70;
-    u8 packets1670[0x21108];
+    u8 packets1670[0x60000]; /* PS1: 0x21108; host tags are 16 bytes */
+    /* Persistent pre-linked race HUD sprites. PS1: the last 12 0x14-byte
+     * packets of the arena (frame offset 0x22688, MenuCoursePreviewArena+0x18
+     * for bank 0); built by InitRaceHudPackets, linked by SubmitRaceHudPackets. */
+    SpritePacket hudSprites[12];
 } FrameBuffer;
 
 typedef union {
@@ -16,7 +20,6 @@ typedef union {
     FrameEnvironment environment;
     FrameOrderingPrefix ordering;
     u32 alignment;
-    u8 bytes[0x22778];
 } FrameStorage;
 
 /* Current bank owner. Callers select its environments, ordering words or

@@ -15,7 +15,7 @@ void ovl665_init_controller_options(void) {
     InitUiRow(5,128,80,52,32,0,0,1,0,106);
     InitUiRow(6,200,80,28,32,0,0,1,0,107);
     InitUiRow(7,200,120,28,32,0,0,1,0,108);
-    ScreenFadeState[0]=2;
+    ScreenFadeState.phase=2;
     InitBadgeRow(0,16,96,76,40,0,0xD01);
     ovl665_saved_stereo_mode=0;
     BadgeRows[0].half02=1;

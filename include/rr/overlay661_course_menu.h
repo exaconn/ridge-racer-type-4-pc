@@ -1,6 +1,9 @@
 #ifndef RR_OVERLAY661_COURSE_MENU_H
 #define RR_OVERLAY661_COURSE_MENU_H
 #include "game/system/pad.h"
+#include "rr/vehicle_table.h"
+#include "rr/menu_selection.h"
+#include "rr/menu_frame_state.h"
 #include "rr/ui.h"
 #include "rr/load_cursor.h"
 #include "rr/icon_sprites.h"
@@ -8,17 +11,17 @@
 #include "rr/selection_types.h"
 #include "rr/menu_selection_word.h"
 #include "rr/menu_arena_types.h"
-extern s32 ScreenFrame,ModeFrame,NumLaps,MenuAvailableCourseMask,ovl661_available_course_count;
-extern s16 SelectedCourseChoice,MenuCursor,MenuItemCount,FadeCountdown,CourseIndex,ModeIndex,MenuScriptId,ModeGroup,GameModeType;
+extern s32 ModeFrame,ovl661_available_course_count;
+extern u32 ScreenFrame;
+extern s16 MenuCursor,MenuItemCount,FadeCountdown,ModeIndex,MenuScriptId,ModeGroup,GameModeType;
 extern s16 ovl661_finish_ranks[2];
 extern s16 ComDifficultyLevel;
 extern u16 SubmodeState;
-extern MenuSelectionWord32 NumCars;
 #include "game/data/selection.h"
 #include "rr/menu_arena_state.h"
 extern u8 ovl661_difficulty_parameters[4];
 void SetModelTexturePage(s32);
-void AddScreenFadeTiles(u32*,s32,u32);
+#include "rr/screen_tiles.h"
 void UpdateScreenFade(s32);
 void SetMenuFrameOptions(s32,s32,s32);
 void DrawMenuStepArrows(s32,s32,s32,s32,s32,s32,s32);void StepMenuValue(s32,s32,char*,s32,s32);
@@ -28,7 +31,7 @@ void DrawCourseMapPreview(s32,s32);
 void ResetScreenCounters(void);
 s32 LoadCarRangeStep(s32,s32);
 s32 LoadTrackNodesStep(void);
-void DrawUiRow(s32);
+int DrawUiRow(s32);
 void PlaySfx(s32);
 void SeqFadeVolume(s32,s32);
 void SeqMuteVolume(void);

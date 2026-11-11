@@ -11,19 +11,19 @@
 
 extern s16 SelectedTeamIndex;
 
-s32 UpdateModeSelectBarAnim(void) {
+s32 UpdateModeSelectBarAnim(s32 direction) {
     s32 var_s2;
 
     var_s2 = 0;
-    if (((s16 *)BadgeRows)[8] == 3) {
+    if (BadgeRows->state10 == 3) {
         SkipDialoguePage(Dialogue);
-        UpdateDialogue(((s16 *)BadgeRows)[4] + 0xA, ((s16 *)BadgeRows)[5] + 0x28, Dialogue);
+        UpdateDialogue(BadgeRows->x08 + 0xA, BadgeRows->y0A + 0x28, Dialogue);
     }
     UpdateBadgeRowAnim(0);
     if (Dialogue->b4 >= 0x22) {
-        if (((s16 *)BadgeRows)[8] == 0xB && MenuActiveDialogId == 0) {
-            ((s16 *)BadgeRows)[8] = 0;
-        } else if (((s16 *)BadgeRows)[8] < 4) {
+        if (BadgeRows->state10 == 0xB && MenuActiveDialogId == 0) {
+            BadgeRows->state10 = 0;
+        } else if (BadgeRows->state10 < 4) {
             DrawMenuStepArrows(0xA0, 0xCC, 0x30, 0, SelectedTeamIndex, 0, 4);
             var_s2 = UpdateGlyphRow(SelectionRows.bytes[0]);
         }

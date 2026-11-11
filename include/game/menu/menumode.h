@@ -17,7 +17,7 @@ RR_ASSERT_SIZE(MenuStateEntry8, 0x8);
 
 extern MenuStateEntry8 MenuStateTable[];
 extern unsigned char CardPollTransitionTable[];
-extern int CardTargetFileNames[];
+extern char *CardTargetFileNames[3];
 extern unsigned short SavedMenuStateIndex;
 extern short CardMainSaveExists;
 extern short CardPdaModeFlag;

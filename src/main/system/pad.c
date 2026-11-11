@@ -92,9 +92,9 @@ void PadUpdate(void) {
             states[i]->input00.fields.buttons = ~((ports[i]->data02 << 8) | ports[i]->data03);
             states[i]->released06 = states[i]->previous04 & (states[i]->input00.fields.buttons ^ states[i]->previous04);
             states[i]->steering20 = ports[i]->analog04.bytes[0];
-            states[i]->pressure22 = ports[i]->analog04.bytes[1] - Options.config.p[i].offset02;
-            states[i]->pressure24 = ports[i]->analog04.bytes[2] - Options.config.p[i].offset04;
-            states[i]->pressure26 = ports[i]->analog04.bytes[3] - Options.config.p[i].offset06;
+            states[i]->pressure22 = ports[i]->analog04.bytes[1] - Options.pad[i].offset02;
+            states[i]->pressure24 = ports[i]->analog04.bytes[2] - Options.pad[i].offset04;
+            states[i]->pressure26 = ports[i]->analog04.bytes[3] - Options.pad[i].offset06;
             if (states[i]->pressure22 < 0) {
                 states[i]->pressure22 = 0;
             }
@@ -226,22 +226,22 @@ void PadUpdate(void) {
         }
         switch (ports[i]->type01) {
         case 0x23:
-            val = states[i]->steering20 - (Options.config.p[i].center00 + 0x80);
+            val = states[i]->steering20 - (Options.pad[i].center00 + 0x80);
             if (val > 0) {
-                val -= PadDeadzoneTable[Options.config.p[i].deadzone08];
+                val -= PadDeadzoneTable[Options.pad[i].deadzone08];
                 if (val < 0) {
                     val = 0;
                 }
-                if (val > TwistRangeLimits[Options.config.p[i].range0A]) {
-                    val = TwistRangeLimits[Options.config.p[i].range0A];
+                if (val > TwistRangeLimits[Options.pad[i].range0A]) {
+                    val = TwistRangeLimits[Options.pad[i].range0A];
                 }
             } else {
-                val += PadDeadzoneTable[Options.config.p[i].deadzone08];
+                val += PadDeadzoneTable[Options.pad[i].deadzone08];
                 if (val > 0) {
                     val = 0;
                 }
-                if (val < -TwistRangeLimits[Options.config.p[i].range0A]) {
-                    val = -TwistRangeLimits[Options.config.p[i].range0A];
+                if (val < -TwistRangeLimits[Options.pad[i].range0A]) {
+                    val = -TwistRangeLimits[Options.pad[i].range0A];
                 }
             }
             states[i]->steering3C = val;
@@ -249,23 +249,23 @@ void PadUpdate(void) {
         case 0xE3:
             val = states[i]->steering20;
             if (val > 0) {
-                val -= WheelDeadzoneTable[Options.config.w[i].deadzone00];
+                val -= WheelDeadzoneTable[Options.wheel[i].deadzone00];
                 if (val < 0) {
                     val = 0;
                 }
-                if (val > PadRangeLimits[Options.config.w[i].range01]) {
-                    val = PadRangeLimits[Options.config.w[i].range01];
+                if (val > PadRangeLimits[Options.wheel[i].range01]) {
+                    val = PadRangeLimits[Options.wheel[i].range01];
                 }
             } else {
-                val += WheelDeadzoneTable[Options.config.w[i].deadzone00];
+                val += WheelDeadzoneTable[Options.wheel[i].deadzone00];
                 if (val > 0) {
                     val = 0;
                 }
-                if (val < -PadRangeLimits[Options.config.w[i].range01]) {
-                    val = -PadRangeLimits[Options.config.w[i].range01];
+                if (val < -PadRangeLimits[Options.wheel[i].range01]) {
+                    val = -PadRangeLimits[Options.wheel[i].range01];
                 }
             }
-            states[i]->steering3C = (val << 7) / PadRangeLimits[Options.config.w[i].range01];
+            states[i]->steering3C = (val << 7) / PadRangeLimits[Options.wheel[i].range01];
             break;
         case 0x73:
             val = states[i]->steering20 - 0x80;
@@ -352,3 +352,15 @@ void PadClearPulse(int i) {
     t->onceStep0E = 0;
 }
 
+
+/* Initial values of the globals this module owns. */
+char StrControllerNoErrorFmt[28] = {67, 111, 110, 116, 114, 111, 108, 108, 101, 114, 32, 110, 111, 32, 101, 114, 114, 111, 114, 33, 32, 45, 32, 37, 100, 10};
+char StrActuatorNoErrorFmt[52] = {65, 99, 116, 117, 97, 116, 111, 114, 32, 110, 111, 32, 101, 114, 114, 111, 114, 33, 32, 45, 32, 37, 100, 10};
+s16 TwistRangeLimits[4] = {25, 38, 75, 113};
+s16 PadRangeLimits[6] = {21, 32, 64, 96, 128};
+s32 PadDeadzoneTable[8] = {0, 6, 10, 14, -14080769, 673644543, -53972, 1006578687};
+s32 PadPortConnectionFlags[2];
+s16 PadDigitalSteerSpeed;
+s32 PadMotorActuatorCmd[2];
+s32 PadActuatorInitStage[2];
+PadPulseState18 PadPulseState[2];

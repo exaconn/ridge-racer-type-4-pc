@@ -13,9 +13,11 @@ typedef struct {
     u32 workspaceOffset10;
 } TrackResourceFile;
 
-void RelocateTrackLookupTables(TrackEventDirectory *tables);
+/* Resolves the serialized directory into a host-owned TrackEventDirectory
+ * and publishes it in RaceContext.lookupTables. */
+void RelocateTrackLookupTables(const TrackEventDirectoryWire *tables);
 void SetTrackLaneOffsets(TrackLaneOffset8 *offsets);
-void SetTrackStartNode(s32 *startNode);
+void SetTrackStartNode(Grid53C *startGrid);
 void SetTrackWorkspace(u8 *workspace);
 void LoadTrackResource(TrackResourceFile *file);
 

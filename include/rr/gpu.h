@@ -1,5 +1,6 @@
 #ifndef RR_GPU_H
 #define RR_GPU_H
+#include <stdint.h>
 
 #include "rr/layout.h"
 
@@ -65,12 +66,34 @@ RR_ASSERT_SIZE(GpuMovePayload12, 12);
 RR_ASSERT_OFFSET(GpuMovePayload12, destination, 4);
 RR_ASSERT_OFFSET(GpuMovePayload12, size, 8);
 
-/* GPU sprite packets with a 24-bit link and 8-bit command length.
+/* Host GPU packet tag: the PsyZ P_TAG/OT_TYPE header (libgpu.h, __psyz).
+ * address links the next packet (a host pointer, or RR_GPU_END_LINK), length
+ * counts the payload words that follow the header. Ordering-table entries
+ * are bare tags. PS1 code that packed "len<<24 | addr&0xFFFFFF" into one
+ * word uses these fields; payload offsets start after the 16-byte header. */
+typedef struct GpuDmaTag {
+    uintptr_t address;
+    uintptr_t length;
+} GpuDmaTag;
+#define RR_GPU_END_LINK ((uintptr_t)0xFFFFFF)
+/* PsyZ reads a packet whose first payload word is not a drawing primitive
+ * (code 0x20..0x7F) as u_long words unless one payload word is this GP0 NOP
+ * (PSYZ_MERGED_PRIM_NOP). Packets that place E1..E6 commands before a
+ * primitive carry it right after those commands and count it in length. */
+#define RR_GPU_MERGED_PRIM_NOP 0x005A4D50U
+#define RR_GPU_TAG(p) ((GpuDmaTag *)(p))
+/* Insert packet p (n payload words) at the head of ordering entry ot. */
+#define RR_GPU_ADD_PRIM(ot, p, n) do { GpuDmaTag *rr_ot_ = (GpuDmaTag *)(ot); GpuDmaTag *rr_p_ = (GpuDmaTag *)(p); \
+    rr_p_->length = (n); rr_p_->address = rr_ot_->address; rr_ot_->address = (uintptr_t)rr_p_; } while (0)
+/* Link packet p to follow at the head of ot keeping p's length. */
+#define RR_GPU_LINK(ot, p) do { GpuDmaTag *rr_ot_ = (GpuDmaTag *)(ot); GpuDmaTag *rr_p_ = (GpuDmaTag *)(p); \
+    rr_p_->address = rr_ot_->address; rr_ot_->address = (uintptr_t)rr_p_; } while (0)
+
+/* GPU sprite packets with a packet tag.
  * CLUT signedness differs between original units; preserve both views. */
 
 typedef struct SpritePacket {
-    u32 addr:24;
-    u32 len:8;
+    GpuDmaTag tag;
     u8 r, g, b, code;
     s16 x, y;
     u8 u, v;
@@ -79,8 +102,7 @@ typedef struct SpritePacket {
 } SpritePacket;
 
 typedef struct SpritePacketSignedClut {
-    u32 addr:24;
-    u32 len:8;
+    GpuDmaTag tag;
     u8 r, g, b, code;
     s16 x, y;
     u8 u, v;
@@ -98,13 +120,6 @@ RR_ASSERT_OFFSET(SpritePacketSignedClut, x, 0x8);
 RR_ASSERT_OFFSET(SpritePacketSignedClut, clut, 0xe);
 RR_ASSERT_OFFSET(SpritePacketSignedClut, w, 0x10);
 
-/* Serialized GPU DMA tags retain only the low24 address bits. The tag is
- * an encoded hardware word, never a C pointer used for memory access. */
-typedef union {
-    u32 word;
-    struct {u8 link[3],length;} bytes;
-    struct {u32 address:24,length:8;} bits;
-} GpuDmaTag;
 /* RGB bytes and command byte shared by CPU templates and GTE output words. */
 typedef struct {u8 r,g,b,code;} GpuColorCommand;
 typedef union {u32 word;GpuColorCommand bytes;} GpuColorWord;
@@ -127,25 +142,26 @@ typedef struct {
     GpuColorWord color2; s32 xy2; u32 uv2;
     GpuColorWord color3; s32 xy3; u32 uv3;
 } GpuGT4Body;
-/* A direct packet starts at command04; a masked packet starts at tag00.
- * Both layouts share the complete GT4 body at08. */
+/* Environment-mapped quad output. A masked packet is E6 mask + GT4 (13
+ * words); a direct packet is the bare GT4 (12 words). The PS1 overlapped the
+ * direct header with the masked E6 word; host tags are 16 bytes, so the
+ * emitter stages the masked layout and compacts it into the direct one. */
 typedef struct {
-    GpuDmaTag tag00;
-    union {u32 word;GpuDmaTag directTag;} command04;
-    GpuGT4Body body08;
-} GpuEnvMapBlock;
-/* The secondary coordinates are staged even for direct rendering. A caller
- * needs the whole lookahead footprint although direct emission advances56. */
+    GpuDmaTag tag;
+    GpuGT4Body body;
+} GpuEnvMapDirect;
 typedef struct {
-    GpuEnvMapBlock primary00, reflected38;
-    struct {GpuDmaTag tag;u32 command;} restore70;
+    GpuDmaTag tag;
+    u32 setMask;
+    u32 nop; /* RR_GPU_MERGED_PRIM_NOP: 14 packed payload words */
+    GpuGT4Body body;
+} GpuEnvMapMasked;
+/* The reflected coordinates are staged even for direct rendering, so a
+ * caller provides the whole emission footprint for each quad. */
+typedef struct {
+    GpuEnvMapMasked primary, reflected;
+    struct {GpuDmaTag tag; uintptr_t command;} restore; /* DR word: native width */
 } GpuEnvMapEmission;
-RR_ASSERT_SIZE(GpuGT4Body, 48);
-RR_ASSERT_SIZE(GpuEnvMapBlock, 56);
-RR_ASSERT_OFFSET(GpuEnvMapBlock, body08, 8);
-RR_ASSERT_SIZE(GpuEnvMapEmission, 120);
-RR_ASSERT_OFFSET(GpuEnvMapEmission, reflected38, 56);
-RR_ASSERT_OFFSET(GpuEnvMapEmission, restore70, 112);
 
 /* Flat textured triangle: command, three XY/UV pairs, CLUT and texture page. */
 typedef struct {
@@ -169,17 +185,22 @@ RR_ASSERT_OFFSET(GpuPolyFT3Packet, tpage, 22);
 RR_ASSERT_OFFSET(GpuPolyFT3Packet, x2, 24);
 RR_ASSERT_OFFSET(GpuPolyFT3Packet, reserved1E, 30);
 
-typedef struct {GpuDmaTag tag;u32 command[2];} GpuDrawModePacket;
-typedef struct {GpuDmaTag tag;u32 command;} GpuCommandPacket;
+/* DR_* command packets (E1..E6 words): PsyZ reads their payload as native
+ * u_long words (DR_MODE/DR_TPAGE/DR_AREA layout), unlike shape primitives,
+ * whose payload stays packed 32-bit. Each command occupies a uintptr_t. */
+typedef struct {GpuDmaTag tag;uintptr_t command[2];} GpuDrawModePacket;
+typedef struct {GpuDmaTag tag;uintptr_t command;} GpuCommandPacket;
 typedef struct {
     GpuDmaTag tag;
     s32 color0, xy0, color1, xy1, color2, xy2;
 } GpuPolyG3;
 /* One DMA chain entry: E6 mask command, untextured Gouraud quad, E6 restore.
- * Color words include the primitive command byte produced by the GTE. */
+ * Color words include the primitive command byte produced by the GTE. The
+ * merged-primitive NOP after the E6 word keeps the payload packed (11 words). */
 typedef struct {
     GpuDmaTag tag;
     u32 setMask04;
+    u32 nop;
     s32 color08, xy0C, color10, xy14, color18, xy1C, color20, xy24;
     u32 restoreMask28;
 } GpuMaskedG4Packet;
@@ -285,13 +306,13 @@ RR_ASSERT_OFFSET(GpuLineF4Packet,pad,24);
 
 /* Quad primitive GPU packets (POLY_F4, POLY_G4, POLY_GT4) and mesh face records. */
 typedef struct {
-    u8 link[3], len;
+    GpuDmaTag tag;
     s32 colorCode04;
     s32 xy0, xy1, xy2, xy3;
 } PolyF4Packet;
 
 typedef struct {
-    u8 link[3], len;
+    GpuDmaTag tag;
     u8 r0, g0, b0, code;
     s16 x0, y0;
     u8 r1, g1, b1, pad0F;
@@ -303,7 +324,7 @@ typedef struct {
 } PolyG4Packet;
 
 typedef struct {
-    u8 link[3], len;
+    GpuDmaTag tag;
     s32 color04, xy0, color0C, xy1, color14, xy2, color1C, xy3;
 } PolyG4WordPacket;
 
@@ -317,7 +338,7 @@ RR_ASSERT_SIZE(GpuPolyG4, 36);
 RR_ASSERT_OFFSET(PolyG4WordPacket, xy3, 32);
 
 typedef struct {
-    u8 link[3], len;
+    GpuDmaTag tag;
     s32 color04, xy0, uvClut0C, color10, xy1, uvTpage18, color1C, xy2;
     u16 uv2;
     u8 pad26[2];

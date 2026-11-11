@@ -1,3 +1,4 @@
+#include "rr/overlay_module.h"
 #include "rr/overlay668_camera.h"
 #include "game/system/pad.h"
 #include "rr/overlay668_replay_controller.h"
@@ -14,26 +15,26 @@ void ovl668_init_epilogue_credits(void) {
     SetupRenderer(5);
     BuildCameraMatrices();
     p = TrackNodes;
-    RaceContext.counter444 = 0;
-    RaceContext.state44C = 0;
-    RaceContext.counter4A4 = 0;
-    RaceContext.mode4A8 = 1;
-    RaceContext.phase4AC = 0;
-    RaceContext.position450[0] = (p[320].road.x * 4U);
-    RaceContext.position450[1] = p[320].road.height - 120;
-    RaceContext.position450[2] = (p[320].road.z * 4U);
-    RaceContext.pitch460 = 0;
-    RaceContext.yaw462 = (s16)(0U-(u16)p[320].road.heading);
-    RaceContext.roll464 = 0;
-    RaceContext.offset488[0] = 0;
-    RaceContext.offset488[1] = 0;
-    RaceContext.offset488[2] = 0;
-    RaceContext.angle490 = -96;
+    RaceContext.work444.epilogue.counter444 = 0;
+    RaceContext.work444.epilogue.state44C = 0;
+    RaceContext.work444.epilogue.counter4A4 = 0;
+    RaceContext.work444.epilogue.mode4A8 = 1;
+    RaceContext.work444.epilogue.phase4AC = 0;
+    RaceContext.work444.epilogue.position450[0] = (p[320].road.x * 4U);
+    RaceContext.work444.epilogue.position450[1] = p[320].road.height - 120;
+    RaceContext.work444.epilogue.position450[2] = (p[320].road.z * 4U);
+    RaceContext.work444.epilogue.pitch460 = 0;
+    RaceContext.work444.epilogue.yaw462 = (s16)(0U-(u16)p[320].road.heading);
+    RaceContext.work444.epilogue.roll464 = 0;
+    RaceContext.work444.epilogue.offset488[0] = 0;
+    RaceContext.work444.epilogue.offset488[1] = 0;
+    RaceContext.work444.epilogue.offset488[2] = 0;
+    RaceContext.work444.epilogue.angle490 = -96;
     ViewUsesCarTrackNode = 0;
-    RaceContext.timer492 = 0;
-    RaceContext.timer494 = 0;
-    RaceContext.node498 = 320;
-    ovl668_project_camera_to_track(RaceContext.position450);
+    RaceContext.work444.epilogue.timer492 = 0;
+    RaceContext.work444.epilogue.timer494 = 0;
+    RaceContext.work444.epilogue.node498 = 320;
+    ovl668_project_camera_to_track(RaceContext.work444.epilogue.position450);
     for (i = 0; i < 16; i++) {
         ovl668_step_epilogue_camera_yaw();
     }
@@ -44,7 +45,7 @@ void ovl668_init_epilogue_credits(void) {
     SetSceneOverlayEnabled(1);
     MaskBitSetting = 1;
     EpilogueCreditScrollY = 16000;
-    EpilogueCreditScrollStep = ovl668_credit_scroll_speeds[(SelectedStoryBranchId * 4U + SelectedTeamIndex)];
+    EpilogueCreditScrollStep = ovl668_credit_scroll_speeds[(Options.storyBranch3C * 4U + SelectedTeamIndex)];
 }
 
 void ovl668_update_epilogue_credits(void) {
@@ -55,35 +56,35 @@ void ovl668_update_epilogue_credits(void) {
     s32 temp_v1;
     s32 var_a0;
     s32 var_s0;
-ReplayCameraContextPrefix *ctx;
+EpilogueCameraWork78 *ctx;
 
-    switch (RaceContext.counter444) {                          
+    switch (RaceContext.work444.epilogue.counter444) {                          
     case 0:
         ovl668_init_epilogue_credits();
-        RaceContext.counter444=RaceContext.counter444+1U;
+        RaceContext.work444.epilogue.counter444=RaceContext.work444.epilogue.counter444+1U;
         break;
     case 4:
         SetDispMask(1);
     case 1: case 2: case 3:
-        RaceContext.counter444=RaceContext.counter444+1U;
+        RaceContext.work444.epilogue.counter444=RaceContext.work444.epilogue.counter444+1U;
         break;
     case 5:                                        
         var_a0 = -1;
         for(var_s0=0;ovl668_epilogue_events[var_s0].key>=0;var_s0++){
-          if(ovl668_epilogue_events[var_s0].key==RaceContext.state44C){var_a0=ovl668_epilogue_events[var_s0].action;break;}
+          if(ovl668_epilogue_events[var_s0].key==RaceContext.work444.epilogue.state44C){var_a0=ovl668_epilogue_events[var_s0].action;break;}
         }
         switch (var_a0) {                          
         case 0:                                    
-            RaceContext.phase4AC = 1;
-            RaceContext.counter4B4 = 0;
+            RaceContext.work444.epilogue.phase4AC = 1;
+            RaceContext.work444.epilogue.counter4B4 = 0;
             CdAudioBeginPlay(0);
             break;
         case 1:                                    
-            RaceContext.mode4A8 = 2;
+            RaceContext.work444.epilogue.mode4A8 = 2;
             break;
         }
         ovl668_step_epilogue_camera_yaw();
-        ctx=&RaceContext;
+        ctx=&RaceContext.work444.epilogue;
         ctx->position450[0] = ((u32)ctx->position450[0] + (ctx->delta478[0] / 6));
         temp_a1 = ctx->delta478[2] / 6;
         ctx->position450[2] = ((u32)ctx->position450[2] + temp_a1);
@@ -100,7 +101,7 @@ ReplayCameraContextPrefix *ctx;
                 ctx->counter4A4 = 0xFF;
                 ctx->mode4A8 = 0;
 }
-            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (255U - ctx->counter4A4), 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (255U - ctx->counter4A4), 0x45);
             break;
         case 2:                                    
             temp_v0_2 = ctx->counter4A4 - 4U;
@@ -111,13 +112,13 @@ ReplayCameraContextPrefix *ctx;
                 CdAudioFade(0, 0);
                 ModeGroup = (s16) temp_s1;
                 ModeIndex = 3;
-                ctx->flagB0 = 1;
+                RaceContext.streamResourceB0 = 1;
                 SubmodeState = 0;
             }
-            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (255U - ctx->counter4A4), 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (255U - ctx->counter4A4), 0x45);
             break;
         }
-        temp_v1 = RaceContext.phase4AC;
+        temp_v1 = RaceContext.work444.epilogue.phase4AC;
         if (temp_v1 != 0) {
             if (temp_v1 == 1) {
                 var_s0 = 0;
@@ -125,13 +126,13 @@ ReplayCameraContextPrefix *ctx;
                 for(;var_s0<62;var_s0++)ovl668_draw_credit_band(var_s0,160);
             }
         }
-        if ((PlayerControllers[0].edges08.fields.pressed & 0x800) && (RaceContext.mode4A8 == 0)) {
-            RaceContext.mode4A8 = 2;
+        if ((PlayerControllers[0].edges08.fields.pressed & 0x800) && (RaceContext.work444.epilogue.mode4A8 == 0)) {
+            RaceContext.work444.epilogue.mode4A8 = 2;
             CdAudioFade(0, 0x15);
         }
         SetupPlayerView(0);
         DrawTrackSceneryForPlayer(0);
-        RaceContext.state44C = (RaceContext.state44C + 1U);
+        RaceContext.work444.epilogue.state44C = (RaceContext.work444.epilogue.state44C + 1U);
         ovl668_emit_letterbox_pass(1);
         ovl668_emit_letterbox_pass(0);
         /* fallthrough */
@@ -139,3 +140,17 @@ ReplayCameraContextPrefix *ctx;
         return;
     }
 }
+
+/* Initial values of the overlay globals this module owns. */
+ReplayEvent ovl668_epilogue_events[3] = {{.key = 100}, {.key = 1800, .action = 1}, {.key = -1}};
+s32 ovl668_credit_scroll_speeds[20] = {28, 21, 24, 28, 31, 25, 28, 31, 30, 23, 31, 32, 29, 22, 25, 30, 27, 22, 26, 30};
+
+/* Writable state of this unit; ovl668_reset_module restores it. */
+static const OverlayStateRegion ovl668_epilogue_credits_regions[] = {
+    RR_OVERLAY_STATE(ovl668_credit_scroll_speeds),
+    RR_OVERLAY_STATE(ovl668_epilogue_events)};
+const OverlayStateTable ovl668_epilogue_credits_state = {ovl668_epilogue_credits_regions, sizeof(ovl668_epilogue_credits_regions) / sizeof(ovl668_epilogue_credits_regions[0])};
+
+/* Initial values of the globals this module owns. */
+s32 EpilogueCreditScrollY;
+s32 EpilogueCreditScrollStep;

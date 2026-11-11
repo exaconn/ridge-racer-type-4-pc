@@ -1,14 +1,11 @@
 #include "rr/emblem_images.h"
+#include "game/race/ranking.h"
 #include "rr/save_slots.h"
-/* RODATA 0x80011458 0x48 */
 #include "game/data/savebld.h"
 #include "game/data/savetype.h"
 #include "game/data/globals.h"
 extern CourseChoice4 CourseChoiceTable[2][9];
 extern TimeRecord16 RaceRecords[2][8][5];
-extern int CourseBestLapTimes[2][8][3];
-extern EmblemTim840 *GarageActiveDecalTimB;
-extern EmblemTim840 *GarageActiveDecalTimA;
 extern int EmblemEditFrames;
 extern unsigned short GpSaveSlotCursor;
 extern TimeRecord16 LapRecords[2][8][5];
@@ -94,3 +91,8 @@ void BuildSaveData(int mode) {
         break;
     }
 }
+
+/* Initial values of the globals this module owns. */
+EmblemTim840 *GarageActiveDecalTimA, *GarageActiveDecalTimB;
+EmblemTim840 *GarageActiveDecalTimA;
+SavedMenuSettings SaveSlotSnapshots[RR_SAVE_SLOT_COUNT];

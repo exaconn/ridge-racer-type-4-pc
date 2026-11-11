@@ -100,8 +100,6 @@ void InitPlayerCar(RaceVehicle *vehicle, s32 recordIndex, s32 gridIndex)
 
 void UpdatePlayerCar(RaceVehicle *a0, int a1)
 {
-  int unused[18];
-  int *pp = unused;
   if (RaceState > 0)
   {
     a0->half1EA = IsCarFacingReverse(a0);

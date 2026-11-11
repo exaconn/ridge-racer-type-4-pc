@@ -1,4 +1,7 @@
+#include "rr/overlay_module.h"
+#include "rr/player_cars.h"
 #include "game/system/pad.h"
+#include "scratchpad.h"
 #include "rr/overlay661_course_menu.h"
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
@@ -8,7 +11,7 @@
 extern s16 ActiveSceneId;
 s32 PsyqRand(void);
 #ifndef RR_GPU_PROJECTION_SCRATCH
-#define RR_GPU_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)0x1F800000)
+#define RR_GPU_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)SCRATCHPAD)
 #endif
 
 void ovl661_select_scene(void) { ActiveSceneId = 0x137; }
@@ -29,7 +32,7 @@ void ovl661_init_scene(void)
     RR_GPU_PROJECTION_SCRATCH->pose08.angles10.xyz.z=0;
     RR_GPU_PROJECTION_SCRATCH->pose08.position00.words[0]=0;
     RR_GPU_PROJECTION_SCRATCH->pose08.position00.words[2]=0;
-    ComCars.words20[0]=0;ComCars.words20[1]=0;ComCars.words20[2]=0;
+    ComCars[0].position20.words[0]=0;ComCars[0].position20.words[1]=0;ComCars[0].position20.words[2]=0;
     ActivePlayerIndex=0;
     LoadCursor=MenuArenas.second;
     SetMenuFrameOptions(0,1,1);
@@ -149,10 +152,10 @@ void ovl661_update_menu(void) {
             if (FadeCountdown > 0) {
                 FadeCountdown = (u16) FadeCountdown - 1;
             }
-            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - FadeCountdown) * 4, 0x45);
-            if (NumCars.halves[0] >= 3) {
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x40 - FadeCountdown) * 4, 0x45);
+            if (NumCars >= 3) {
                 GameModeType = 3;
-                if (LoadCarRangeStep(2, NumCars.halves[0] - 2) == 1) {
+                if (LoadCarRangeStep(2, NumCars - 2) == 1) {
                     MenuArenas.first = LoadCursor;
                     goto block_42;
                 }
@@ -193,7 +196,8 @@ block_42:
                 StepMenuValue(0, 2, (char *)&MenuCursor, 2, 0);
                 UiRows[24+MenuCursor].cells[0] = temp_s1;
                 if ((s16)MenuCursor == 0) {
-                    StepMenuValue(1,4,(char *)&NumCars.word,5,temp_s1);
+                    /* The PS1 stepped NumCars as a word; its upper half stays zero. */
+                    StepMenuValue(1,2,(char *)&NumCars,5,temp_s1);
                 } else {
                     StepMenuValue(1,2,(char *)&ComDifficultyLevel,4,0);
                 }
@@ -246,6 +250,29 @@ block_64:
 block_73:
         DrawUiRow(var_a0_3);
     }
-    MenuAvailableCourseMask = 0;
+    MenuFrameState.titlePlayer08 = 0;
     UpdateScreenFade(0x10026);
 }
+
+/* Initial values of the overlay globals this module owns. */
+u8 ovl661_difficulty_parameters[4] = {0, 3, 6, 0xF};
+s32 ovl661_available_course_count;
+
+/* Writable state of this unit; ovl661_reset_module restores it. */
+static const OverlayStateRegion ovl661_course_menu_regions[] = {
+    RR_OVERLAY_STATE(ovl661_available_course_count),
+    RR_OVERLAY_STATE(ovl661_difficulty_parameters)};
+const OverlayStateTable ovl661_course_menu_state = {ovl661_course_menu_regions, sizeof(ovl661_course_menu_regions) / sizeof(ovl661_course_menu_regions[0])};
+
+/* Module reset: the state a fresh load of the versus image gave
+ * (initialized data and zeroed BSS); see rr/overlay_module.h. */
+extern const OverlayStateTable ovl661_course_menu_state, ovl661_preview_state, ovl661_race_state, ovl661_results_state;
+static const OverlayStateTable *const ovl661_state_tables[] = {&ovl661_course_menu_state, &ovl661_preview_state, &ovl661_race_state, &ovl661_results_state};
+static OverlayStateImage ovl661_state_image = {ovl661_state_tables, sizeof(ovl661_state_tables) / sizeof(ovl661_state_tables[0]), NULL};
+
+void ovl661_reset_module(void) {
+    OverlayStateRestore(&ovl661_state_image);
+}
+
+/* Initial values of the globals this module owns. */
+s16 MenuCursor;

@@ -9,6 +9,8 @@
 #include "rr/scene_camera_state.h"
 #include "rr/player_cars.h"
 #include "scratchpad.h"
+#include "rr/gpu.h"
+#include "rr/gpu_scratch_types.h"
 #include "rr/geometry.h"
 #include "game/gfx/gfxdraw.h"
 #include "game/gfx/meshquad.h"
@@ -18,12 +20,6 @@
 #include "rr/matrix_workspace.h"
 #include "rr/frame_storage_types.h"
 #include "game/math/rotmat.h"
-
-
-typedef struct {
-    u8 reserved00[0x70];
-    u32 ot70;
-} DrawBufOtAt;
 
 
 void DrawGarageFloorReflection(void)
@@ -36,22 +32,19 @@ void DrawGarageFloorReflection(void)
         PreviewColor color90;
         u8 reserved94[24];
     } L;
-    int *g = (int *)SCRATCHPAD;
-    int s6;
+    RroSceneScratchPrefix *g = (RroSceneScratchPrefix *)SCRATCHPAD;
+    s32 s6;
     int a1;
-    int *a3;
-    DrawBufOtAt *a0;
-    unsigned m;
-    unsigned hm;
-    int d;
+    GpuDmaTag *secondary;
+    GpuDmaTag *entry;
     int t;
 
-    s6 = g[0x18];
-    g[0x18] = 3;
+    s6 = g->depthShift60;
+    g->depthShift60 = 3;
     SetupObjectLightMatrices(&RaceContext.camera24C->pose00, &RaceContext.camera24C->lighting78, &L.m18, &L.m38);
     SelectModelBank(8);
     SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&RaceContext.camera24C->pose00.position00, (s32 *)&L.m18);
-    g[0x1E] = 0;
+    g->draw74.draw.counter = 0;
     SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, ModelBankFormat < 1, 0, 0);
     SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&RaceContext.camera24C->pose00.position00, (s32 *)&L.m18);
     DrawMeshPrimList(RaceContext.model560, 0, 0);
@@ -59,14 +52,14 @@ void DrawGarageFloorReflection(void)
     BuildRotMatrixY(&L.m58.matrix, -RaceContext.camera24C->parts18[0].rotation10.y);
     MulMatrix2((const MatrixWords32 *)(&L.m18), &L.m58.matrix);
     SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&L.v80, L.m58.matrix.w);
-    g[0x1E] = 0;
+    g->draw74.draw.counter = 0;
     SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, 1, 0, 0);
     TransformPoint(&L.m38, &RaceContext.camera24C->pose00.position00.xyz, &RaceContext.camera24C->parts18[1].position00.xyz, &L.v80.xyz, &L.m58.matrix);
     BuildRotMatrixY(&L.m58.matrix, -RaceContext.camera24C->parts18[1].rotation10.y);
     MulMatrix2((const MatrixWords32 *)(&L.m18), &L.m58.matrix);
     SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&L.v80, L.m58.matrix.w);
     a1 = 1;
-    g[0x1E] = 0;
+    g->draw74.draw.counter = 0;
     if (ModelBankFormat >= 3)
         a1 = 2;
     SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1, 0, 0);
@@ -80,25 +73,21 @@ void DrawGarageFloorReflection(void)
     MulMatrix2((const MatrixWords32 *)(&L.m18), &L.m58.matrix);
     SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&L.v80, L.m58.matrix.w);
     DrawMeshPrimList(RaceContext.model560, RaceContext.camera24C->mirrorA4 * 2 | 1, 0);
-    g[0x18] = s6;
+    g->depthShift60 = s6;
     L.color90.channels.r = 0x80;
     L.color90.channels.g = 0x80;
     L.color90.channels.b = 0x80;
-    g[1] = &CurrentDrawBuf->buffer.secondaryOrderingB70.words[0];
+    RR_GPU_SCRATCH->order = &CurrentDrawBuf->buffer.secondaryOrderingB70.tags[0];
     UpdateCarWorldTransform(PlayerCars);
     DrawPreviewCar(PlayerCars, L.color90.argument, 0x80, 1);
     t = RotTransPersOrigin(&L.m18, &PlayerCars[0].position20);
     t = (t >> 3) + 0x64;
-    m = 0xFFFFFF;
-    t = t << 2;
-    a0 = (DrawBufOtAt *)t;
-    hm = 0xFF000000;
-    d = CurrentDrawBuf;
-    a3 = (int *)g[1];
-    a0 = (DrawBufOtAt *)((char *)a0 + d);
-    *a3 = (*a3 & hm) | (a0->ot70 & m);
-    a0->ot70 = (a0->ot70 & hm) | ((g[1] + 0xAFC) & m);
-    g[1] = d + 0x70;
+    /* Splice the reflected car's secondary table in at its floor depth. */
+    secondary = RR_GPU_SCRATCH->order;
+    entry = &CurrentDrawBuf->buffer.ordering70.tags[t];
+    secondary[0].address = entry->address;
+    entry->address = (uintptr_t)&secondary[703];
+    RR_GPU_SCRATCH->order = &CurrentDrawBuf->buffer.ordering70.tags[0];
 }
 
 s32 FindCurveSegment(PairS16 *p, s32 a1) {
@@ -114,7 +103,7 @@ s32 FindCurveSegment(PairS16 *p, s32 a1) {
 s32 InterpCurveLinear(PairS16 *t, s32 idx, s32 x) {
     PairS16 *p;
     if (idx == 0) return t[0].a;
-    p = (PairS16 *)(idx * 4 + (s32)t);
+    p = &t[idx];
     if (p->b < 0) return p->a;
     return (p->a - p[-1].a) * (x - p[-1].b * 10) / ((p->b - p[-1].b) * 10) + p[-1].a;
 }
@@ -137,7 +126,7 @@ s32 InterpCurveEase(s32 a0)
   {
     return CarCameraHeightOffsets[0].a;
   }
-  p = (short *) ((i * 4) + ((int) CarCameraHeightOffsets));
+  p = (short *) &CarCameraHeightOffsets[i];
   if (p[1] < 0)
   {
     return p[0];
@@ -162,3 +151,6 @@ s32 InterpCurveEase(s32 a0)
   q = r;
   return q;
 }
+
+/* Initial values of the globals this module owns. */
+PairS16 CarCameraHeightOffsets[3] = {{.b = 10}, {.a = 1536, .b = 40}, {.a = 1536, .b = -1}};

@@ -1,6 +1,8 @@
 #ifndef RR_OVERLAY668_CAMERA_H
 #define RR_OVERLAY668_CAMERA_H
 #include "game/gfx/scene1.h"
+#include "rr/runtime_settings.h"
+#include "scratchpad.h"
 #include "game/data/cdfile2.h"
 #include "rr/track_sample_types.h"
 #include "rr/track_lateral.h"
@@ -8,19 +10,7 @@
 #include "rr/overlay665_matrix.h"
 #include "psyq/libgte/gtecord.h"
 #include "psyq/libgte/gtemat5.h"
-typedef struct {
- u8 pad00[0xB0];
- s32 flagB0;
- u8 padB4[0x390];
- s32 counter444,step448,state44C;
- s32 position450[3],reserved45C;s16 pitch460,yaw462,roll464,reserved466;
- s32 target468[4],delta478[3];u8 reserved484[4];
- s16 offset488[4],angle490,timer492,timer494,reserved496;
- s32 node498;s16 fraction49C,lateral49E;s32 velocity4A0;
- s32 counter4A4,mode4A8,phase4AC,reserved4B0,counter4B4;
-} ReplayCameraContextPrefix;
-extern ReplayCameraContextPrefix RaceContext;
-extern TrackSample3C *TrackNodes;
+#include "rr/scene_camera_state.h"
 extern s32 TrackNodeCount;
 s32 Atan2Table();
 /* Node and its single-wrapped neighbours select accessible track samples.
@@ -40,7 +30,7 @@ void ovl668_project_camera_to_track(s32 *position);
  * one of the20 lookup entries. Initializes from captured sample320, advances
  * the camera sixteen times, then publishes the post-service lookup value. */
 void ovl668_init_epilogue_credits(void);
-extern s32 VSyncThreshold,ViewUsesCarTrackNode,MaskBitSetting,EpilogueCreditScrollY,EpilogueCreditScrollStep,SelectedStoryBranchId;
+extern s32 VSyncThreshold,ViewUsesCarTrackNode,MaskBitSetting,EpilogueCreditScrollY,EpilogueCreditScrollStep;
 extern s16 SelectedTeamIndex;
 extern s32 ovl668_credit_scroll_speeds[20];
 void SetDispMask(s32);
@@ -48,10 +38,6 @@ void SetupDrawDispEnvs(s32,s32,s16,u32);
 void InitCourseViewState(void);
 
 #ifndef RR_REPLAY_SCRATCH_WORDS
-#define RR_REPLAY_SCRATCH_WORDS ((s32 *)0x1F800000)
+#define RR_REPLAY_SCRATCH_WORDS ((s32 *)SCRATCHPAD)
 #endif
-RR_ASSERT_SIZE(ReplayCameraContextPrefix,0x4B8);
-RR_ASSERT_OFFSET(ReplayCameraContextPrefix,position450,0x450);
-RR_ASSERT_OFFSET(ReplayCameraContextPrefix,target468,0x468);
-RR_ASSERT_OFFSET(ReplayCameraContextPrefix,node498,0x498);
 #endif

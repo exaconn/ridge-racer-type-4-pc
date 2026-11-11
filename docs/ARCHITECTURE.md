@@ -34,11 +34,26 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
    - `demo/` & `effect/` — opening/attract sequences, lens flare and spark
      particles.
 2. **Statically linked overlays (`src/overlays/`):**
-   - In retail PS1, `R4.BIN` entries `659..668` are loaded on demand into
-     `0x80114998`. In the native port, all nine overlay modules (`grand_prix`,
-     `time_attack`, `versus`, `garage`, `records`, `options`, `extra_trial`,
-     `serial_link`, `movie_playback`) are linked statically and dispatched by
-     mode/overlay ID without overwriting code in a fixed RAM window.
+   - In retail PS1, `R4.BIN` entries `659..668` (copies `669..672`) are read
+     on demand into `CdDirectoryBuffer`, linked for `0x80114878`. In the
+     native port the nine modules (`grand_prix`, `time_attack`, `versus`,
+     `garage`, `records`, `options`, `extra_trial`, `serial_link`,
+     `movie_playback`) are linked statically; no code is read from disc.
+   - **Dispatch:** `ModeFuncTable` / `ModeGroup0..4FuncTable`
+     (`src/main/system/modeinit.c`) hold real function pointers; each entry
+     the PS1 resolved into the window names the `ovlNNN_` function that
+     image held at that address. Resident code calls other overlay entry
+     points directly by name.
+   - **Binding and reset:** the five loader steps that read an overlay image
+     (`ldscn1.c`, `ldscn4.c`, `trkld8.c`) first call
+     `OverlayModuleBind(entry)` (`modeinit.c`, `rr/overlay_module.h`). For an
+     executable entry it runs `ovlNNN_reset_module()` and the step completes
+     without reading or allocating; other entries (`664`, `673`, assets) are
+     read as before. Each unit that defines module state lists it in an
+     `ovlNNN_<unit>_state` table; the reset captures those objects on the
+     first bind (their linked values = a fresh load: initialized data, zero
+     BSS) and copies them back on every later bind.
+   - Overlay data is defined in C with its original values.
 3. **PsyZ runtime (`third_party/psyz/`):**
    - Provides `libgpu`, `libgte`, `libspu`, `libetc`, `libpad`, `libcd`,
      `libpress` (MDEC) and SDL3 window/audio/input integration.

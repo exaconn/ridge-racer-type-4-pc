@@ -5,6 +5,7 @@
 #include "game/course/trknode.h"
 #include "game/course/trkintp.h"
 #include "rr/menu_overlay_runtime.h"
+#include "rr/scene_camera_state.h"
 
 s32 GetSmoothedTrackHeading(int a, int b)
 {
@@ -64,7 +65,7 @@ void ComputeStartDistance(RaceVehicle *vehicle, int direction)
     int wrapped;
     int previous;
     *(volatile s32 *)&vehicle->first = 0;
-    node = *TrackStartNode;
+    node = RaceContext.startGrid53C->f0;
     target = vehicle->trackNodeF0;
     distance = 0;
     if (ReverseCourse == 0) {

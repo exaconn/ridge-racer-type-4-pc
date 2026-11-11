@@ -2,6 +2,7 @@
 #define RR_PRESENTATION_TYPES_H
 
 #include "rr/camera_types.h"
+#include "rr/model_table.h"
 
 typedef struct {s16 glyph; u16 timing;} ScrollKey4;
 typedef struct {s16 glyph; u16 offset;} ScrollChannel4;
@@ -56,16 +57,6 @@ typedef struct {
     MotionTrack44 track;
 } PresentationController;
 
-/* The pointer at +0x3D8 normally selects the inline controller at +0x250.
- * MotionController (0x800ACA28) is an address alias of that pointer slot. */
-typedef struct {
-    u8 reserved00[0x250];
-    PresentationController presentation250;
-    PresentationController *controller3D8;
-    u8 reserved3DC[0x564 - 0x3DC];
-    s32 ringModel564;
-} PresentationContextPrefix;
-
 typedef struct {
     s16 active;
     u8 reserved02[14];
@@ -81,9 +72,6 @@ RR_ASSERT_OFFSET(PresentationController,panel,0xE4);
 RR_ASSERT_OFFSET(PresentationController,scroll,0x134);
 RR_ASSERT_OFFSET(PresentationController,track,0x15C);
 RR_ASSERT_SIZE(PresentationController,0x188);
-RR_ASSERT_OFFSET(PresentationContextPrefix,presentation250,0x250);
-RR_ASSERT_OFFSET(PresentationContextPrefix,controller3D8,0x3D8);
-RR_ASSERT_OFFSET(PresentationContextPrefix,ringModel564,0x564);
 #endif
 
 #endif

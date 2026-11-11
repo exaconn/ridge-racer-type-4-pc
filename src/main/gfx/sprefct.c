@@ -1,5 +1,4 @@
 #include "game/gfx/sprefct.h"
-#include "rr/gpu_address.h"
 #include "rr/gpu_line.h"
 #include "types.h"
 #include "rr/frame_storage_types.h"
@@ -16,7 +15,7 @@
 
 
 
-u8 *AddJitterSprites(u32 *ordering, u8 *cursor, SpriteEffectSource *descriptor, s32 semi, s32 strength, s32 count) {
+u8 *AddJitterSprites(GpuDmaTag *ordering, u8 *cursor, SpriteEffectSource *descriptor, s32 semi, s32 strength, s32 count) {
     s32 i;
     s32 v;
     s32 y;
@@ -41,7 +40,7 @@ u8 *AddJitterSprites(u32 *ordering, u8 *cursor, SpriteEffectSource *descriptor, 
         ((SpritePacket *)cursor)->h = descriptor->uv.h;
         ((SpritePacket *)cursor)->u = descriptor->uv.u;
         ((SpritePacket *)cursor)->v = descriptor->uv.v;
-        SetSemiTrans(cursor, *(s32 *)&semi);
+        SetSemiTrans(cursor, semi);
         if (count == 1) {
             v = strength;
         } else if (i == 1) {
@@ -56,20 +55,20 @@ u8 *AddJitterSprites(u32 *ordering, u8 *cursor, SpriteEffectSource *descriptor, 
         {
             u8 *p = cursor;
             cursor += sizeof(SpritePacket);
-            AddPrim(ordering, (u32 *)p);
+            AddPrim(ordering, p);
         }
         if (i > 0) {
             page = (u8)descriptor->page | 0x60;
         } else {
             page = descriptor->page;
         }
-        cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], (GpuDrawModePacket *)cursor, page);
+        cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], (GpuDrawModePacket *)cursor, page);
     }
     return cursor;
 }
 
 
-GpuPolyFT3Packet *EmitPolyFT3(u32 *ordering, GpuPolyFT3Packet *packet,
+GpuPolyFT3Packet *EmitPolyFT3(GpuDmaTag *ordering, GpuPolyFT3Packet *packet,
     const s32 *x, const s32 *y, const s32 *u, const s32 *v,
     u32 pageWord, u32 clutWord, u32 modeWord, u32 shadeWord)
 {
@@ -98,15 +97,14 @@ GpuPolyFT3Packet *EmitPolyFT3(u32 *ordering, GpuPolyFT3Packet *packet,
     }
     packet->tpage = tpage;
     packet->clut = clut;
-    AddPrim(ordering, (u32 *)packet++);
+    AddPrim(ordering, packet++);
     return packet;
 }
 
 
-void *AddTileSemiTransPrim(u32 *ordering, void *cursor, s32 x, s32 y,
+void *AddTileSemiTransPrim(GpuDmaTag *ordering, void *cursor, s32 x, s32 y,
                            s32 width, s32 height, s32 red, s32 green, s32 blue) {
     GpuTilePacket *tile = cursor;
-    tile->tag.bytes.length = 3;
     tile->x = x;
     tile->w = width;
     tile->code = 0x62;
@@ -115,12 +113,11 @@ void *AddTileSemiTransPrim(u32 *ordering, void *cursor, s32 x, s32 y,
     tile->r = red;
     tile->g = green;
     tile->b = blue;
-    tile->tag.bits.address = ((GpuDmaTag *)ordering)->bits.address;
-    ((GpuDmaTag *)ordering)->bits.address = GpuDmaEncodeAddress(tile);
+    RR_GPU_ADD_PRIM(ordering, tile, 3);
     return tile + 1;
 }
 
-GpuLineF2Packet *GameQueueTileTrans(u32 *ordering, GpuLineF2Packet *line, s32 x0, s32 y0, s32 x1, s32 y1, s32 red, s32 green, s32 blue) {
+GpuLineF2Packet *GameQueueTileTrans(GpuDmaTag *ordering, GpuLineF2Packet *line, s32 x0, s32 y0, s32 x1, s32 y1, s32 red, s32 green, s32 blue) {
     SetLineF2(line);
     SetShadeTex(line, 1);
     line->x0 = x0;
@@ -130,12 +127,12 @@ GpuLineF2Packet *GameQueueTileTrans(u32 *ordering, GpuLineF2Packet *line, s32 x0
     line->r = red;
     line->g = green;
     line->b = blue;
-    AddPrim(ordering, (u32 *)line++);
+    AddPrim(ordering, line++);
     return line;
 }
 
 
-GpuLineF2Packet *AddLineF2SemiTrans(u32 *ordering, GpuLineF2Packet *line, s32 x0, s32 y0, s32 x1, s32 y1, s32 red, s32 green, s32 blue) {
+GpuLineF2Packet *AddLineF2SemiTrans(GpuDmaTag *ordering, GpuLineF2Packet *line, s32 x0, s32 y0, s32 x1, s32 y1, s32 red, s32 green, s32 blue) {
     SetLineF2(line);
     SetShadeTex(line, 1);
     line->x0 = x0;
@@ -146,12 +143,12 @@ GpuLineF2Packet *AddLineF2SemiTrans(u32 *ordering, GpuLineF2Packet *line, s32 x0
     line->r = red;
     line->g = green;
     line->b = blue;
-    AddPrim(ordering, (u32 *)line++);
+    AddPrim(ordering, line++);
     return line;
 }
 
 
-PolyF3Packet *EmitPolyF3(u32 *ordering,PolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags){
+PolyF3Packet *EmitPolyF3(GpuDmaTag *ordering,PolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags){
  SetPolyF3(packet);
  SetSemiTrans(packet,flags);
  packet->xy0=xy0;
@@ -160,6 +157,6 @@ PolyF3Packet *EmitPolyF3(u32 *ordering,PolyF3Packet *packet,s32 xy0,s32 xy1,s32 
  packet->r=rgb[0];
  packet->g=rgb[1];
  packet->b=rgb[2];
- AddPrim(ordering,(u32*)packet++);
+ AddPrim(ordering, packet++);
  return packet;
 }

@@ -13,7 +13,7 @@ extern UiBarDescriptor SelectionBarDescriptors[];
  * Coordinates use wrapping32 arithmetic; helper stores narrow to wire16.
  * The supplied cursor is threaded through helper return values; the final
  * helper result is returned to the caller. */
-SpritePacket *DrawBadgeTitleBar(u32 *ordering,SpritePacket *cursor,s32 x,s32 y,s32 style);
+SpritePacket *DrawBadgeTitleBar(GpuDmaTag *ordering,SpritePacket *cursor,s32 x,s32 y,s32 style);
 RR_ASSERT_SIZE(UiUvRect, 4);
 RR_ASSERT_SIZE(UiBarDescriptor, 4);
 RR_ASSERT_OFFSET(UiBarDescriptor, count, 2);

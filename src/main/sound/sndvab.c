@@ -106,7 +106,7 @@ void TriggerSfx(s32 programId, s32 level, s32 pan, s32 pitch, s32 voiceIndex) {
     rightLevel = rightPanned;
     leftPanned = (table[0x7F-panIndex] * (s16)level) / 16129;
     leftLevel = leftPanned;
-    if (Options.audio.mono32 != 0) {
+    if (Options.mono32 != 0) {
         monoLevel = (leftPanned + rightPanned) / 2;
         rightLevel = (s16) monoLevel;
         leftLevel = (s16) monoLevel;
@@ -124,7 +124,7 @@ void TriggerSfx(s32 programId, s32 level, s32 pan, s32 pitch, s32 voiceIndex) {
 
     rightScaled = (s16)rightScaled;
 
-    volume = Options.audio.volume31;
+    volume = Options.volume31;
     rightVolumeProduct = rightScaled * volume;
     leftScaled = leftGainProduct >> 7;
     if (rightVolumeProduct < 0) {
@@ -170,3 +170,8 @@ void SoundQueueClear(void) {
     SoundState.sequence19D0.unknown0C = 0;
     do { SoundState.sequence19D0.programs[i] = m; i--; } while (i >= 0);
 }
+
+/* Initial values of the globals this module owns. */
+char VabOpenHeadErrorStr[24] = {83, 115, 86, 97, 98, 79, 112, 101, 110, 72, 101, 97, 100, 32, 69, 114, 114, 111, 114, 33, 10};
+char VabTransBodyErrorStr[52] = {83, 115, 86, 97, 98, 84, 114, 97, 110, 115, 66, 111, 100, 121, 32, 69, 114, 114, 111, 114, 10};
+s32 ActiveVabTransferSlot;

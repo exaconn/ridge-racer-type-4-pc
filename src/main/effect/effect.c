@@ -1,6 +1,7 @@
 #include "types.h"
 #include "rr/frame_storage_types.h"
 #include "scratchpad.h"
+#include "rr/gpu_scratch_types.h"
 #include "rr/ui.h"
 #include "game/effect/ptinit.h"
 #include "game/effect/effect.h"
@@ -9,8 +10,7 @@
 #include "psyq/libgpu/gpudisp.h"
 
 void UpdateParticles(void) {
-    u32 *p;
-    u32 *ot;
+    GpuDrawModePacket *p;
     s32 i;
 
     if (ParticleSystem.fadeTimer0C > 0) {
@@ -21,14 +21,12 @@ void UpdateParticles(void) {
         SpawnParticlePair();
         ParticleSystem.spawnTimer04 = (PsyqRand() % 16) * 2 + 8;
     }
-    p = *(u32 **)SCRATCHPAD;
+    p = (GpuDrawModePacket *)RR_GPU_SCRATCH->cursor;
     ParticleSystem.spawnTimer04--;
     SetDrawMode(p, 0, 1, 0xA0, 0);
-    ot = (u32 *)(&CurrentDrawBuf->buffer.ordering70.words[75]);
-    *p = (*p & 0xFF000000) | (*ot & 0x00FFFFFF);
-    *ot = (*ot & 0xFF000000) | ((u32)p & 0x00FFFFFF);
-    p += 3;
-    *(u32 **)SCRATCHPAD = p;
+    RR_GPU_LINK(&CurrentDrawBuf->buffer.ordering70.tags[75], p);
+    p++;
+    RR_GPU_SCRATCH->cursor = (u8 *)p;
     for (i = 0; i < 0x18; i++) {
         if (ParticleSystem.entries2C[i].active00 & 1) {
             UpdateParticle(i);
@@ -36,3 +34,6 @@ void UpdateParticles(void) {
         }
     }
 }
+
+/* Initial values of the globals this module owns. */
+ParticleSystem32C ParticleSystem;

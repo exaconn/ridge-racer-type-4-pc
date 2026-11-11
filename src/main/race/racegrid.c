@@ -1,3 +1,5 @@
+#include "rr/projection_state.h"
+#include "game/menu/menu8.h"
 #include "game/sound/sndvab.h"
 #include "rr/save_slots.h"
 #include "rr/geometry.h"
@@ -10,7 +12,6 @@
 #include "rr/frame_storage_types.h"
 #include "psyq/libgte/gtemat4.h"
 #include "psyq/libgte/gtemat3.h"
-/* RODATA 0x800105d0 0x30 */
 #include "types.h"
 #include "game/car/car.h"
 #include "scratchpad.h"
@@ -46,7 +47,6 @@ extern short FadeCountdown;
 extern unsigned char PauseMenuMaxChoices[];
 extern signed char PauseCursor;
 extern int PauseAbortNextModes[];
-extern int RankEntries;
 extern int TrackLength;
 extern short ModeIndex;
 extern int TotalRaceTime;
@@ -55,13 +55,11 @@ extern short SubmodeState;
 #include "game/gfx/spremit.h"
 /* Aggregate coordinate arguments still need one recovered public contract. */
 extern unsigned char PauseMenuChoiceMap[][4];
-extern int SioDeviceName[];
+extern char SioDeviceName[];
 extern int LinkWriteHandle;
 extern int LinkReadHandle;
 extern s16 LinkState;
 extern int RaceStartSignalState;
-extern signed char LinkEntryState[];
-extern signed char LinkRaceSyncFlags;
 extern int RaceTimeRemaining;
 extern short LinkHostFlag;
 extern int CourseSelectLockedFlag;
@@ -71,7 +69,6 @@ void PlayStartCountdownVoice(int a0);
 void InitPlayerRumble(void);
 void UpdatePauseMenu(int a0);
 void ApplyPauseMenuChoice(int arg0);
-void DrawPauseMenu(u32 *ordering, int selection);
 int LinkTimeoutCallback(int a0, unsigned int a1);
 void BeginLinkSync(void);
 int ExitOnLinkLost(void);
@@ -80,14 +77,14 @@ int PollLinkStatus(void);
 
 void SetupMenuCarCamera(int a)
 {
-  int *g = (int *) SCRATCHPAD;
+  ProjectionView32 *g = &((ProjectionScratchPrefix *)SCRATCHPAD)->pose08;
   int i;
-  g[2] = StartSignalLightOffsetsB[a].x;
-  g[3] = StartSignalLightOffsetsB[a].y;
-  g[4] = StartSignalLightOffsetsB[a].z;
-  g[6] = StartSignalLightOffsetsA[a].x;
-  g[7] = StartSignalLightOffsetsA[a].y;
-  g[8] = StartSignalLightOffsetsA[a].z;
+  g->position00.words[0] = StartSignalLightOffsetsB[a].x;
+  g->position00.words[1] = StartSignalLightOffsetsB[a].y;
+  g->position00.words[2] = StartSignalLightOffsetsB[a].z;
+  g->angles10.words[0] = StartSignalLightOffsetsA[a].x;
+  g->angles10.words[1] = StartSignalLightOffsetsA[a].y;
+  g->angles10.words[2] = StartSignalLightOffsetsA[a].z;
   BuildCameraMatrices();
   ScaleMatrixRow1(2, (MatrixWords32 *)SCRATCH_ROT_MATRIX);
   if (PlayerControllers[ActivePlayerIndex & 1].input00.fields.buttons & 4)
@@ -117,7 +114,7 @@ void UpdateRaceChaseCamera(RaceVehicle *p) {
         short v[3], reserved46;
         int w[3];
     } s;
-    int *g = (int *)SCRATCHPAD;
+    ProjectionView32 *g = &((ProjectionScratchPrefix *)SCRATCHPAD)->pose08;
     int r;
     short t;
     unsigned short a1, a2;
@@ -133,43 +130,43 @@ void UpdateRaceChaseCamera(RaceVehicle *p) {
         if (p->height108 < 0x28) s.v[1] = (unsigned short)p->height108 - 0x8C;
         s.v[2] = 0;
         ApplyMatrix(&s.b, (const Vec3s8 *)(s.v), (Vec3i *)(s.w));
-        *(w3g2V *)&g[2] = *(w3g2V *)&p->worldPosition10.words[0];
-        g[2] -= p->ir40[0];
-        g[4] -= p->ir40[2];
-        *(w3g2V *)&g[6] = *(w3g2V *)&p->rot50;
-        g[6] += p->renderAngleX1AC * 2;
+        *(w3g2V *)g->position00.words = *(w3g2V *)&p->worldPosition10.words[0];
+        g->position00.words[0] -= p->ir40[0];
+        g->position00.words[2] -= p->ir40[2];
+        *(w3g2V *)g->angles10.words = *(w3g2V *)&p->rot50;
+        g->angles10.words[0] += p->renderAngleX1AC * 2;
         a1 = (u16)p->shakeRollOffset1B6;
         a2 = (u16)p->renderAngleZ1AE;
-        g[2] += s.w[0];
-        g[3] += s.w[1];
-        g[4] += s.w[2];
-        g[8] += ((short)a1 / 2) + ((short)a2 / 2);
+        g->position00.words[0] += s.w[0];
+        g->position00.words[1] += s.w[1];
+        g->position00.words[2] += s.w[2];
+        g->angles10.words[2] += ((short)a1 / 2) + ((short)a2 / 2);
         return;
     }
-    s.v[0] = (s16)AngleDiffSigned(g[6], p->rot50) / 8;
-    r = (s16)AngleDiffSigned(g[7], p->rot54);
+    s.v[0] = (s16)AngleDiffSigned(g->angles10.words[0], p->rot50) / 8;
+    r = (s16)AngleDiffSigned(g->angles10.words[1], p->rot54);
     t = r / 6;
-    g[6] += s.v[0];
+    g->angles10.words[0] += s.v[0];
     s.v[1] = t;
-    g[7] += t;
-    BuildRotMatrixY(&s.a, 0x800 - g[7]);
-    BuildRotMatrixX(&s.b, g[6]);
+    g->angles10.words[1] += t;
+    BuildRotMatrixY(&s.a, 0x800 - g->angles10.words[1]);
+    BuildRotMatrixX(&s.b, g->angles10.words[0]);
     MulMatrix(&s.a, &s.b);
-    BuildRotMatrixZ(&s.b, g[8]);
+    BuildRotMatrixZ(&s.b, g->angles10.words[2]);
     MulMatrix2(&s.a, &s.b);
     s.v[0] = 0;
     s.v[1] = -0xFA;
     if (p->height108 < 0x28) s.v[1] = (unsigned short)p->height108 - 0x122;
     s.v[2] = 0x2D0;
     ApplyMatrix(&s.b, (const Vec3s8 *)(s.v), (Vec3i *)(s.w));
-    *(w3g2V *)&g[2] = *(w3g2V *)&p->worldPosition10.words[0];
-    g[8] = p->rot58 - p->wheelRotZ1AA;
-    g[2] += s.w[0];
-    g[3] += s.w[1];
-    g[4] += s.w[2];
+    *(w3g2V *)g->position00.words = *(w3g2V *)&p->worldPosition10.words[0];
+    g->angles10.words[2] = p->rot58 - p->wheelRotZ1AA;
+    g->position00.words[0] += s.w[0];
+    g->position00.words[1] += s.w[1];
+    g->position00.words[2] += s.w[2];
 }
 
-void DrawStartCountdown(u32 *ordering, s32 frame) {
+void DrawStartCountdown(GpuDmaTag *ordering, s32 frame) {
     UiUvRect glyph;
     s32 y;
     s32 index;
@@ -184,16 +181,16 @@ void DrawStartCountdown(u32 *ordering, s32 frame) {
     if (RaceState != 0 && (s32)(frame - 0x4BU) < 0xAF) {
         tick = frame % 25;
         phase = (frame - 0x4B) / 25;
-        if ((&CurrentDrawBuf->buffer.ordering70.words[0]) == ordering) {
+        if ((&CurrentDrawBuf->buffer.ordering70.tags[0]) == ordering) {
             top = 0;
             if (phase == 6) {
                 top = -(tick * 128) / 25;
             }
         } else {
-            ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawAreaPrim(ordering, ((GpuScratchPointers *)SCRATCHPAD)->cursor, 0, 0, 0x140, 0x100);
+            RR_GPU_SCRATCH->cursor = AddDrawAreaPrim(ordering, RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x100);
             top = 0x40;
         }
-        cursor = AddDrawModePrim(ordering, (GpuDrawModePacket *)((GpuScratchPointers *)SCRATCHPAD)->cursor, 5);
+        cursor = AddDrawModePrim(ordering, (GpuDrawModePacket *)RR_GPU_SCRATCH->cursor, 5);
         if (phase == 1) {
             intensity = ((tick * 64) / 25) + 0x40;
         } else if (phase >= 4) {
@@ -284,8 +281,8 @@ void DrawStartCountdown(u32 *ordering, s32 frame) {
         }
         cursor = AddSpritePrim(ordering, cursor, 0x68, top + 0x1A, &PauseMenuLabelUvs[1], PauseTitleClutIds[phase >= 4], (intensity << 1) | 1);
         cursor = AddSpritePrim(ordering, cursor, 0x60, top, &PauseMenuLabelUvs[0], 0x797C, 0);
-        ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawModePrim(ordering, cursor, 0x3F);
-        if (ordering == &CurrentDrawBuf->buffer.secondaryOrderingB70.words[0]) {
+        RR_GPU_SCRATCH->cursor = AddDrawModePrim(ordering, cursor, 0x3F);
+        if (ordering == &CurrentDrawBuf->buffer.secondaryOrderingB70.tags[0]) {
             s32 y;
             if (phase == 6) {
                 intensity = ((0x19 - tick) * 0x18) / 25;
@@ -293,7 +290,7 @@ void DrawStartCountdown(u32 *ordering, s32 frame) {
                 intensity = 0x18;
             }
             y = (0x18 - intensity) / 2 + 0x34;
-            ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawAreaPrim(ordering, ((GpuScratchPointers *)SCRATCHPAD)->cursor, 0x70, top + y, 0x60, intensity);
+            RR_GPU_SCRATCH->cursor = AddDrawAreaPrim(ordering, RR_GPU_SCRATCH->cursor, 0x70, top + y, 0x60, intensity);
         }
     }
 }
@@ -374,7 +371,6 @@ void UpdatePauseMenu(int a0) {
 
 void ApplyPauseMenuChoice(int arg0) {
     int *t;
-    int b;
     if (PauseCursor == 0) {
         FadeCountdown = 0x1E;
         return;
@@ -384,7 +380,7 @@ void ApplyPauseMenuChoice(int arg0) {
     if (arg0 == 1) {
         SelectionState.bytes[0x19] = 9;
         RaceState = 6;
-        RankEntries = -TrackLength;
+        RankEntries[0].score00 = -TrackLength;
         if (PauseCursor == 2) {
             SubmodeState = 0;
             ModeGroup = PauseAbortNextModes[3] >> 8;
@@ -394,9 +390,8 @@ void ApplyPauseMenuChoice(int arg0) {
         FinishRace(SelectionState.bytes, PauseCursor);
         return;
     }
-    b = PauseAbortNextModes;
     RaceState = 6;
-    t = (int *)((PauseCursor - 1) * 4 + arg0 * 8 + b);
+    t = &PauseAbortNextModes[(PauseCursor - 1) + arg0 * 2];
     ModeGroup = *t >> 8;
     {
         int v = *(unsigned char *)t;
@@ -405,7 +400,7 @@ void ApplyPauseMenuChoice(int arg0) {
     }
 }
 
-void DrawPauseMenu(u32 *ordering, int selection) {
+void DrawPauseMenu(GpuDmaTag *ordering, int selection) {
     Vec2s corners[4];
     unsigned char rgb[4];
     void *cursor;
@@ -413,7 +408,7 @@ void DrawPauseMenu(u32 *ordering, int selection) {
     unsigned char (*triangles)[4];
     unsigned char *indices;
 
-    cursor = GameQueueSprite(ordering, ((GpuScratchPointers *)SCRATCHPAD)->cursor, 0x90, 0x5C, 0x1C, 8, 0x60, 0xA0, 0x7FF8);
+    cursor = GameQueueSprite(ordering, (SpritePacket *)RR_GPU_SCRATCH->cursor, 0x90, 0x5C, 0x1C, 8, 0x60, 0xA0, 0x7FF8);
     cursor = GameQueueSprite(ordering, cursor, 0x90, 0x6A, 0x20, 8, 0xC4, 0xA0, 0x7FF8);
     if (GameModeType == 1) {
         cursor = GameQueueSprite(ordering, cursor, 0x90, 0x74, 0x1C, 8, 0x7C, 0xA0, 0x7FF8);
@@ -445,7 +440,7 @@ void DrawPauseMenu(u32 *ordering, int selection) {
         rgb[1] = 0xFF;
         cursor = EmitPolyF3(ordering, cursor, corners[indices[1]], corners[indices[2]], corners[indices[3]], rgb, 1);
     }
-    ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawModePrim(ordering, cursor, 5);
+    RR_GPU_SCRATCH->cursor = AddDrawModePrim(ordering, cursor, 5);
 
     for (vertex = 0; vertex < 4; vertex++) {
         if (vertex == 1 || vertex == 2) {
@@ -483,7 +478,7 @@ void OpenLinkSerial(void) {
     _sio_control(1, 4, 1);
     LinkWriteHandle = FileOpen(SioDeviceName, 2);
     LinkReadHandle = FileOpen(SioDeviceName, 1);
-    _sio_control(4, 0, LinkTimeoutCallback);
+    _sio_control(4, 0, (unsigned long)(uintptr_t)LinkTimeoutCallback);
     _sio_control(2, 0, 0);
 }
 
@@ -516,18 +511,12 @@ int ExitOnLinkLost(void) {
 int UpdateLinkHandshake(int a0)
 {
   int r = 0;
-  long new_var2;
   int st;
   int mm;
   signed char *t;
-  signed char *bp;
-  short z;
-  int xx;
   int q3;
   ControllerState5C (*e)[2];
-  signed char *new_var;
   unsigned int k = ((unsigned int)_sio_control(0, 0, 0) >> 7) & 3;
-  short new_var3;
   st = (short) (LinkState + 1);
   switch (st)
   {
@@ -538,7 +527,7 @@ int UpdateLinkHandshake(int a0)
       if (a0 == 0)
       {
         LinkHostFlag = 0;
-        LinkRaceSyncFlags = 1;
+        LinkEntryState[1][0] = 1;
         RaceStartSignalState = 3;
         LinkState = 10;
       }
@@ -552,7 +541,7 @@ int UpdateLinkHandshake(int a0)
       if (a0 == 0)
     {
       LinkHostFlag = 1;
-      LinkEntryState[0] = 1;
+      LinkEntryState[0][0] = 1;
       LinkState = 1;
     }
     else
@@ -609,20 +598,14 @@ int UpdateLinkHandshake(int a0)
     else
       if (a0 == 0)
     {
-      new_var = LinkEntryState;
-      xx = LinkHostFlag;
-      z = 3;
-      new_var2 = xx * 2;
-      bp = new_var;
-      t = &bp[z - new_var2];
+      t = &LinkEntryState[1 - LinkHostFlag][1];
       if ((*t) == 0)
       {
         e = &PlayerControllers;
-        new_var3 = z;
         if ((*e)[1].action28 != 0)
         {
           PlaySfx(1);
-          bp[new_var3 - (LinkHostFlag * 2)] = 1;
+          LinkEntryState[1 - LinkHostFlag][1] = 1;
         }
         else
           if ((*e)[1].action2C != 0)
@@ -631,7 +614,7 @@ int UpdateLinkHandshake(int a0)
         }
         if (CourseSelectLockedFlag != 0)
         {
-          LinkEntryState[1 - (q3 = LinkHostFlag)] = -1;
+          LinkEntryState[0][1 - (q3 = LinkHostFlag)] = -1;
           ((void (*)())_sio_control)(1, 1, 0, q3);
         }
       }
@@ -651,7 +634,7 @@ int UpdateLinkHandshake(int a0)
         _sio_control(1, 1, 2);
       }
       else
-        if (LinkEntryState[3 - (LinkHostFlag * 2)] != 0)
+        if (LinkEntryState[1 - LinkHostFlag][1] != 0)
       {
         LinkState = 3;
         _sio_control(1, 1, 2);
@@ -711,3 +694,22 @@ int PollLinkStatus(void) {
     }
     return r;
 }
+
+/* Initial values of the globals this module owns. */
+char SioDeviceName[56] = {115, 105, 111, 58};
+Vec3s6 StartSignalLightOffsetsA[2] = {{.x = 512}, {.x = 120}};
+Vec3s6 StartSignalLightOffsetsB[2] = {{.y = -256}, {.x = -16, .y = -248, .z = -96}};
+UiUvRect PauseMenuLabelUvs[8] = {{.u = 0x80, .w = 0x80, .h = 0x4C}, {.w = 0x70, .h = 0x10}, {.u = 0x44, .v = 0x20, .w = 0xE, .h = 0x10}, {.u = 0x50, .v = 0x20, .w = 8, .h = 0x10}, {.u = 0x5C, .v = 0x20, .w = 8, .h = 0x10}, {.v = 0x10, .w = 0xC, .h = 0x10}, {.u = 0x20, .v = 0x20, .w = 0xC, .h = 0x10}, {.v = 0x20, .w = 0x20, .h = 0x10}};
+u16 PauseTitleClutIds[2] = {0x797E, 0x797D};
+u16 PauseRowClutIds[4] = {0x79BD, 0x79BD, 0x79BC, 0x79BE};
+u8 PauseRowOffsetX[4] = {0x58, 0x1C, 0x3A, 0x30};
+unsigned char PauseMenuMaxChoices[8] = {2, 1, 2, 2, 2, 2, 2};
+int PauseAbortNextModes[14] = {308, 279, 279, 259, 293, 279, 293, 279, 281, 279, 337, 279, 337, 279};
+unsigned char PauseMenuChoiceMap[3][4] = {{2, 0, 3, 1}, {0, 1, 2, 3}, {0xFF, 0xFF, 0xFF, 0xFF}};
+int RaceStartSignalState;
+int RaceVoiceFlags;
+int RaceTimeRemaining;
+short LinkHostFlag;
+signed char PauseCursor;
+int CourseSelectLockedFlag;
+s16 LinkState;

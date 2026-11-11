@@ -15,7 +15,7 @@ typedef struct {
     u8 reserved0B;
 } CarBounds;
 
-extern CarBounds *CarBoundsTable[];
+extern CarBounds *CarBoundsTable[4]; /* 0x800F3A08, one per player car slot */
 
 RR_ASSERT_SIZE(CarBounds, 0xC);
 RR_ASSERT_OFFSET(CarBounds, bodyHeight, 6);

@@ -3,7 +3,7 @@
 #include "psyq/libgpu/primattr.h"
 #include "rr/animated_glyph.h"
 
-SpritePacket *GameQueueSprite(u32 *ordering, SpritePacket *packet, s32 x, s32 y,
+SpritePacket *GameQueueSprite(GpuDmaTag *ordering, SpritePacket *packet, s32 x, s32 y,
     s32 width, s32 height, s32 u, s32 v, s32 clut)
 {
     SetSprt(packet);
@@ -15,6 +15,6 @@ SpritePacket *GameQueueSprite(u32 *ordering, SpritePacket *packet, s32 x, s32 y,
     packet->u = u;
     packet->v = v;
     packet->clut = clut;
-    AddPrim(ordering, (u32 *)packet++);
+    AddPrim(ordering, packet++);
     return packet;
 }

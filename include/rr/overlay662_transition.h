@@ -7,7 +7,7 @@
 #include "rr/menu_arenas.h"
 #include "rr/menu_glyph.h"
 extern s16 GaragePackedChoiceGlyph;
-extern u8 *ImageRows;
+#include "rr/image_rows.h"
 void ovl662_init_emblem_selector(void);
 /* Render first, then increment the fresh word04 modulo2^32. A signed result
  * of28 or more publishes transition3/5/0. */

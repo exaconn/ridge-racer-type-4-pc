@@ -1,5 +1,5 @@
-/* RODATA 0x80010740 0x1c */
 #include "types.h"
+#include "rr/menu_selection.h"
 #include "scratchpad.h"
 #include "rr/vehicle_table.h"
 #include "rr/lookup.h"
@@ -23,13 +23,10 @@
 
 extern unsigned char CourseStartSteeringBias[];
 extern RaceVehicle PlayerCars[2];
-extern short NumCars;
-extern unsigned short CourseIndex;
 extern s32 ReplayState;
 extern s32 TrackLength;
 extern int RaceVoiceFlags;
 extern short ReverseCourse;
-extern int NumLaps;
 
 void ResolveCarCollisions(RaceVehicle *arg0);
 void UpdateRumbleStrip(RaceVehicle *p, int b);
@@ -598,3 +595,14 @@ void CheckFinalLapEvent(RaceVehicle *vehicle)
         }
     }
 }
+
+/* Initial values of the globals this module owns. */
+#include "game/car/aipath.h"
+#include "game/car/aipath2.h"
+#include "game/car/cartimer.h"
+#include "game/car/carmove1.h"
+#include "game/car/carparam.h"
+#include "game/car/carsteer.h"
+CarUpdateStage CarUpdateStages[11] = {(void (*)(struct RaceVehicle *))ClampAiCarLateralMotion, (void (*)(struct RaceVehicle *))UpdateCarSteering, (void (*)(struct RaceVehicle *))DecayCarOffset, (void (*)(struct RaceVehicle *))IntegrateCarMotion, (void (*)(struct RaceVehicle *))UpdateCarTrackNode, (void (*)(struct RaceVehicle *))ComputeWheelOffsets, (void (*)(struct RaceVehicle *))ConstrainCarToTrack, (void (*)(struct RaceVehicle *))ResolveCarCollisions, (void (*)(struct RaceVehicle *))UpdateCarShake, (void (*)(struct RaceVehicle *))FindWheelTrackNodes, (void (*)(struct RaceVehicle *))UpdateWheelBumps};
+unsigned char CourseStartSteeringBias[4] = {4, 4, 0xC, 4};
+RaceVehicle *CarTable[8];

@@ -5,9 +5,10 @@
 #include "rr/geometry.h"
 
 /* The input is two packed words (x,y,z,padding), aligned for word loads.
- * ApplyMatrix returns the three full MAC words; ApplyMatrixSV returns three
- * saturated IR halfwords. Only those output components are written. */
-Vec3i *ApplyMatrix(const MatrixWords32 *matrix, const Vec3s8 *input, Vec3i *output);
+ * PsyZ: void ApplyMatrix(MATRIX *m, SVECTOR *v0, VECTOR *v1) writes the three
+ * MAC words. ApplyMatrixSV (not in PsyZ, src/main/psyq/libgte/gtemat.c)
+ * writes three saturated IR halfwords and returns output. */
+void ApplyMatrix(const MatrixWords32 *matrix, const Vec3s8 *input, Vec3i *output);
 s16 *ApplyMatrixSV(const MatrixWords32 *matrix, const Vec3s8 *input, s16 output[3]);
 
 #endif

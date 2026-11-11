@@ -153,8 +153,11 @@ s32 DecodeCourseIndex(s32 a0) {
     return CoursePreviewSceneIds[a0 & 7];
 }
 
-void *EmitSpinningWheelIcon(u32 *ordering, void *cursor, s32 x, s32 y, s32 frame) {
+void *EmitSpinningWheelIcon(GpuDmaTag *ordering, void *cursor, s32 x, s32 y, s32 frame) {
     s32 u = (s32)((u32)frame << 5) % 256;
     u16 clut = ((u32)frame << 6) + 0x3828U;
     return AddSpriteWithDrawMode(ordering, cursor, x, y, 0x20, 0x40, u, 0xC0, 0x9A, clut, 0, 0x80);
 }
+
+/* Initial values of the globals this module owns. */
+u8 CoursePreviewSceneIds[8] = {0, 4, 2, 1, 6, 3, 5, 7};

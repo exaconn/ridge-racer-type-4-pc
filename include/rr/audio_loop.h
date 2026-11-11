@@ -17,7 +17,5 @@ s32 SsUtKeyOnV(s32 voice,s32 bank,s32 program,s32 mode,
  * active state are re-read after helpers; their return values are ignored. */
 void SoundLoopUpdate(void);
 
-RR_ASSERT_OFFSET(AudioSettings,volume31,0x31);
-RR_ASSERT_OFFSET(AudioSettings,mono32,0x32);
 
 #endif

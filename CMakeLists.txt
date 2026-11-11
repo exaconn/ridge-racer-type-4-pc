@@ -1,0 +1,54 @@
+cmake_minimum_required(VERSION 3.21..3.31)
+if(CMAKE_HOST_APPLE AND NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET
+   AND (NOT DEFINED CMAKE_SYSTEM_NAME OR CMAKE_SYSTEM_NAME STREQUAL "Darwin"))
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "15.0" CACHE STRING "Minimum supported macOS version")
+endif()
+project(ridge-racer-type-4-pc VERSION 0.1.0 LANGUAGES C)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
+
+option(BUILD_TESTING "Build native game tests" OFF)
+include(CTest)
+
+set(PSYZ_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/psyz)
+add_subdirectory(${PSYZ_DIR}/psyz ${CMAKE_CURRENT_BINARY_DIR}/psyz)
+target_compile_definitions(psyz PRIVATE __psyz)
+
+# Shared workspaces and vehicle/track records are accessed through multiple
+# typed layout views and rely on two's-complement wrapping arithmetic.
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options("$<$<COMPILE_LANGUAGE:C>:-Werror=pointer-to-int-cast>"
+        "$<$<COMPILE_LANGUAGE:C>:-Werror=int-to-pointer-cast>")
+    add_compile_options("$<$<COMPILE_LANGUAGE:C>:-fno-strict-aliasing>"
+        "$<$<COMPILE_LANGUAGE:C>:-fwrapv>"
+        "$<$<COMPILE_LANGUAGE:C>:-ffunction-sections>"
+        "$<$<COMPILE_LANGUAGE:C>:-fdata-sections>")
+    if(NOT WIN32)
+        add_compile_options("$<$<COMPILE_LANGUAGE:C>:-fno-omit-frame-pointer>")
+    endif()
+elseif(MSVC)
+    add_compile_options("$<$<COMPILE_LANGUAGE:C>:/Gy>" "$<$<COMPILE_LANGUAGE:C>:/Gw>")
+endif()
+
+if(APPLE)
+    add_link_options(-Wl,-dead_strip)
+elseif(NOT MSVC)
+    add_link_options(-Wl,--gc-sections)
+else()
+    add_link_options(/OPT:REF)
+endif()
+
+add_executable(ridge-racer-type-4-pc
+    src/port/main.c
+)
+target_include_directories(ridge-racer-type-4-pc
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    SYSTEM PRIVATE
+        ${PSYZ_DIR}/psyz/include
+)
+target_compile_definitions(ridge-racer-type-4-pc PRIVATE __psyz)
+target_link_libraries(ridge-racer-type-4-pc PRIVATE psyz)
+psyz_title(ridge-racer-type-4-pc "Ridge Racer Type 4")

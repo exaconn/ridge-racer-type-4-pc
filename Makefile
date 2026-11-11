@@ -1,66 +1,25 @@
-VERSION ?= PAL
-BASENAME := main
-TC       := tools/toolchain/bin
-PY       := .venv/bin/python
-AS       := $(TC)/mipsel-none-elf-as
-LD       := $(TC)/mipsel-none-elf-ld
-OBJCOPY  := $(TC)/mipsel-none-elf-objcopy
-BUILD    := build/$(VERSION)
-CFG      := configs/$(VERSION)/$(BASENAME).yaml
-LD_SCRIPT:= linkers/$(VERSION)/$(BASENAME).ld
-TARGET   := assets/$(VERSION)/main.exe
-ELF      := $(BUILD)/main.elf
-OUT      := $(BUILD)/main.exe
-SHA      := $(shell cut -d' ' -f1 configs/$(VERSION)/checksum.sha)
+# Convenience commands for the native C build.
+BUILD_DIR ?= build
+CMAKE ?= cmake
 
-ASM_SRCS := $(shell find asm/$(VERSION) -name '*.s' -not -path '*/nonmatchings/*' 2>/dev/null)
-C_SRCS   := $(shell find src/main/$(VERSION) -name '*.c' 2>/dev/null)
-HEADERS  := $(shell find include -name '*.h' 2>/dev/null)
-MASPSX_SRCS := tools/maspsx/maspsx.py $(wildcard tools/maspsx/maspsx/*.py)
-CC1_BINS := $(addprefix tools/toolchain/,gcc-2.8.1/cc1 gcc-2.7.2/cc1 gcc-970318/cc1)
-OBJS     := $(ASM_SRCS:%.s=$(BUILD)/%.s.o) $(C_SRCS:%.c=$(BUILD)/%.c.o)
+.PHONY: all configure build run test ci clean
+all: build
 
-.PHONY: all split build check clean
-all: check
+configure:
+	$(CMAKE) -S . -B $(BUILD_DIR)
 
-split:
-	$(PY) tools/scripts/gen_config.py $(VERSION)
-	$(PY) -m splat split $(CFG)
-	$(PY) tools/scripts/normalize_asm_symbols.py $(VERSION)
-	$(PY) tools/scripts/normalize_bios_stubs.py $(VERSION)
+build: configure
+	$(CMAKE) --build $(BUILD_DIR) --parallel
 
-$(BUILD)/%.s.o: %.s include/macro.inc include/bios_calls.inc include/gte_macros.inc
-	@mkdir -p $(dir $@)
-	$(AS) -EL -G0 -march=r3000 -no-pad-sections -Iinclude -o $@ $<
+run: build
+	./$(BUILD_DIR)/ridge-racer-type-4-pc $(RUN_ARGS)
 
-$(BUILD)/%.c.o: %.c $(HEADERS) tools/scripts/cc.sh $(MASPSX_SRCS) $(CC1_BINS)
-	@mkdir -p $(dir $@)
-	tools/scripts/cc.sh $< $@
+test:
+	$(CMAKE) -S . -B $(BUILD_DIR) -DBUILD_TESTING=ON
+	$(CMAKE) --build $(BUILD_DIR) --parallel
+	ctest --test-dir $(BUILD_DIR) --output-on-failure
 
-$(ELF): $(OBJS) $(LD_SCRIPT)
-	$(LD) -EL -T $(LD_SCRIPT) -T linkers/$(VERSION)/undefined_syms_auto.$(BASENAME).txt -T linkers/$(VERSION)/undefined_funcs_auto.$(BASENAME).txt -Map $(BUILD)/main.map -o $@
-
-# splat's header segment already carries the 0x800-byte PS-X EXE header
-$(OUT): $(ELF)
-	$(OBJCOPY) -O binary $< $@
-
-build: $(OUT)
-
-check: build
-	@echo "$(SHA)  $(OUT)" | shasum -c -
+ci: build
 
 clean:
-	rm -rf $(BUILD)
-
-debt:
-	.venv/bin/python tools/scripts/crutch_debt.py
-debt-check:
-	.venv/bin/python tools/scripts/crutch_debt.py --check
-.PHONY: debt debt-check
-
-views:
-	.venv/bin/python tools/scripts/legacy_views.py
-# Unit tests written against single-function files read build/legacy/<func>.c
-test: views
-	.venv/bin/python tools/scripts/run_tests.py
-.PHONY: views test
+	$(CMAKE) --build $(BUILD_DIR) --target clean

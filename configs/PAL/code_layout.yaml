@@ -1,8 +1,0 @@
-# Half-open VRAM ranges. Zero-filled data must not become alignment padding.
-resident_data:
-  - [0x80096044, 0x80096050]  # Kernel descriptor reset image, read by 80095FD4.
-
-# Checked against the original disc image and excluded from C coverage.
-overlay_padding:
-  668:
-    - [0x80116920, 0x80116928]  # Alignment before libpress DecDCTvlcSize.

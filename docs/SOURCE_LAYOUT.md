@@ -17,7 +17,7 @@ src/main/PAL/
   func_XXXXXXXX.c   (top level only) a freshly matched function that has not been placed yet
 ```
 
-Overlay code stays in `src/overlays/PAL/<n>/` and is described in `docs/overlays.md`.
+Overlay code stays in `src/overlays/<n>/` and is described in `docs/overlays.md`.
 
 ## File naming
 PsyQ files take the name of the real library member. Three real source names are preserved
@@ -103,7 +103,7 @@ recovered original source-file boundaries.
 
 ## Headers
 Every translation unit that exports a function or a global gets its own header, mirrored under
-`include/` (`src/main/PAL/game/car/carmove1.c` -> `include/game/car/carmove1.h`). There is no
+`include/` (`src/main/car/carmove1.c` -> `include/game/car/carmove1.h`). There is no
 catch-all header: a caller includes the header of the unit that defines the symbol, so the include
 graph shows which units depend on each other (and therefore whether a unit boundary is right).
 

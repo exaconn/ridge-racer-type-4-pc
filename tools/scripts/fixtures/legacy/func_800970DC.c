@@ -1,7 +1,0 @@
-/* GCC_VERSION: 2.7.2 */
-#include "rr/counters.h"
-int ResetRCnt(a0) unsigned int a0; {
-  int v = a0 & 0xFFFF;
-  if (v >= 3) return 0;
-  *(short *)((u8 *)RCNT_REGS + v * 16) = 0; return 1;
-}

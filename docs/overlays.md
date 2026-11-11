@@ -136,7 +136,7 @@ and writes nine candidate-text disassemblies. It does not modify main EXE
 configuration, symbols, source ownership, or completion statistics.
 
 Use overlay identity **and** address in future symbols: the same RAM address
-has different code across images. A useful layout is `src/overlays/PAL/<id>/`
+has different code across images. A useful layout is `src/overlays/<id>/`
 and a separate split/link map per unique image. Establish code/data/BSS sections
 and function partitions before enabling exact coverage accounting. Start with
 659 (smallest candidate text span), then 660 (known resident call target and
@@ -156,7 +156,7 @@ ASPSX version (`--aspsx-version=2.79`) and gas backend are unverified guesses.
 ## First C samples (2026-10-28)
 
 One complete function from every unique image is now in
-`src/overlays/PAL/<entry>/`. Symbols include the image number to avoid collisions
+`src/overlays/<entry>/`. Symbols include the image number to avoid collisions
 between mutually exclusive RAM images. These are separate reconnaissance units;
 they are not included in the resident EXE's 1200-function ownership count.
 

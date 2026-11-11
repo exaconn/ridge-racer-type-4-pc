@@ -1,0 +1,65 @@
+#include "rr_asm.h"
+#include "psyq/libgte/gtemat2.h"
+
+MatrixWords32 *MulRotMatrix0(const MatrixWords32 *right, MatrixWords32 *output) {
+    u32 t0;
+    u32 t1;
+    u32 t2;
+    u32 t3;
+    u32 t4;
+    u32 t5;
+    u32 t6;
+    u32 t7;
+    u32 t8;
+    MatrixWords32 *result;
+    t0 = right->halves[0];
+    t1 = right->w[1];
+    t2 = right->w[3];
+    RR_GTE_MASK_HI16(t1);
+    t0 |= t1;
+    RR_GTE_MTC2(t0, 0);
+    RR_GTE_MTC2(t2, 1);
+    RR_GTE_MVMVA_ROT_V0_1NOP();
+    t0 = right->halves[1];
+    t1 = right->w[2];
+    t2 = (s16)right->halves[7];
+    t1 <<= 16;
+    t0 |= t1;
+    RR_GTE_MFC2(t3, 9);
+    RR_GTE_MFC2(t4, 10);
+    RR_GTE_MFC2(t5, 11);
+    RR_GTE_MTC2(t0, 0);
+    RR_GTE_MTC2(t2, 1);
+    RR_GTE_MVMVA_ROT_V0_1NOP();
+    t0 = right->halves[2];
+    t1 = right->w[2];
+    t2 = right->w[4];
+    RR_GTE_MASK_HI16(t1);
+    t0 |= t1;
+    RR_GTE_MFC2(t6, 9);
+    RR_GTE_MFC2(t7, 10);
+    RR_GTE_MFC2(t8, 11);
+    RR_GTE_MTC2(t0, 0);
+    RR_GTE_MTC2(t2, 1);
+    RR_GTE_MVMVA_ROT_V0_1NOP();
+    t3 &= 0xFFFF;
+    t6 <<= 16;
+    t6 |= t3;
+    RR_GTE_SW_AT(t6, output, 0);
+    t5 &= 0xFFFF;
+    t8 <<= 16;
+    t8 |= t5;
+    RR_GTE_SW_AT(t8, output, 3);
+    RR_GTE_MFC2(t0, 9);
+    RR_GTE_MFC2(t1, 10);
+    t0 &= 0xFFFF;
+    t4 <<= 16;
+    t0 |= t4;
+    RR_GTE_SW_AT(t0, output, 1);
+    t7 &= 0xFFFF;
+    t1 <<= 16;
+    t1 |= t7;
+    RR_GTE_SW_AT(t1, output, 2);
+    RR_GTE_SWC2_AT(11, 16, output);
+    return result;
+}

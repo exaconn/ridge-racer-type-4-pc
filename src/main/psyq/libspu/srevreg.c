@@ -1,0 +1,47 @@
+#include "rr/spu.h"
+#define APPLY_PATCH(index, bit) \
+    if (all == 0) { \
+        if (mask & (bit)) goto apply_##index; \
+    } else { \
+    apply_##index: \
+        _spu_RXX->control[index] = patch->values[index]; \
+    }
+
+void _spu_setReverbAttr(SpuRegisterPatch *patch) {
+    s32 mask = patch->mask;
+    s32 all = mask == 0;
+    APPLY_PATCH(0, 0x00000001U);
+    APPLY_PATCH(1, 0x00000002U);
+    APPLY_PATCH(2, 0x00000004U);
+    APPLY_PATCH(3, 0x00000008U);
+    APPLY_PATCH(4, 0x00000010U);
+    APPLY_PATCH(5, 0x00000020U);
+    APPLY_PATCH(6, 0x00000040U);
+    APPLY_PATCH(7, 0x00000080U);
+    APPLY_PATCH(8, 0x00000100U);
+    APPLY_PATCH(9, 0x00000200U);
+    APPLY_PATCH(10, 0x00000400U);
+    APPLY_PATCH(11, 0x00000800U);
+    APPLY_PATCH(12, 0x00001000U);
+    APPLY_PATCH(13, 0x00002000U);
+    APPLY_PATCH(14, 0x00004000U);
+    APPLY_PATCH(15, 0x00008000U);
+    APPLY_PATCH(16, 0x00010000U);
+    APPLY_PATCH(17, 0x00020000U);
+    APPLY_PATCH(18, 0x00040000U);
+    APPLY_PATCH(19, 0x00080000U);
+    APPLY_PATCH(20, 0x00100000U);
+    APPLY_PATCH(21, 0x00200000U);
+    APPLY_PATCH(22, 0x00400000U);
+    APPLY_PATCH(23, 0x00800000U);
+    APPLY_PATCH(24, 0x01000000U);
+    APPLY_PATCH(25, 0x02000000U);
+    APPLY_PATCH(26, 0x04000000U);
+    APPLY_PATCH(27, 0x08000000U);
+    APPLY_PATCH(28, 0x10000000U);
+    APPLY_PATCH(29, 0x20000000U);
+    APPLY_PATCH(30, 0x40000000U);
+    APPLY_PATCH(31, 0x80000000U);
+}
+
+#undef APPLY_PATCH

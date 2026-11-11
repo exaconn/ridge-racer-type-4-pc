@@ -1,0 +1,666 @@
+#include "rr/save_slots.h"
+/* RODATA 0x80011200 0x1c */
+#include "types.h"
+#include "rr/frame_storage_types.h"
+#include "scratchpad.h"
+#include "psyq/libgte/libgte.h"
+#include "rr/line_emit.h"
+#include "rr/glyph_list.h"
+#include "rr/gpu.h"
+#include "rr/icon_sprites.h"
+#include "game/sound/sndctrl.h"
+#include "game/demo/opening.h"
+#include "game/sound/cdpos.h"
+#include "game/system/modeinit.h"
+#include "game/ui/hudmap2.h"
+#include "rr/audio_state_types.h"
+#include "psyq/libgpu/gpudisp.h"
+#include "rr/race_setup.h"
+#include "rr/audio_loop.h"
+#include "psyq/libc/rand.h"
+#include "game/sound/cdplay.h"
+
+#define ADDPRIM(ot, p) \
+    (p)->addr = ((SPRT *)(ot))->addr; \
+    ((SPRT *)(ot))->addr = (p)
+#define SCRATCH ((Scratch *)SCRATCHPAD)
+/* The two original entries differ only in the sprite's vertical position. */
+#define RR_ICON_SPRITE_BODY(Y) \
+    SpritePacket *p; \
+    GpuScratchPointers *scratch; \
+    FrameStorage *context; \
+    u32 low=0xFFFFFFU; \
+\
+    u32 high; \
+    u32 u; \
+    u16 clut; \
+    u32 offset; \
+\
+    s32 length; \
+    u32 command; \
+\
+    u8 *context_page; \
+\; \
+    command=0xE1000000U; \
+\; \
+    scratch=(GpuScratchPointers*)SCRATCHPAD; \
+    length=4; \
+\; \
+    offset=index*2U; \
+    u=(offset+index)*8U+112U; \
+    p=(SpritePacket*)scratch->cursor; \
+\; \
+    context_page=(u8*)0x800B0000U; \
+\; \
+    ((u8*)p)[3]=length; \
+    p->code=0x66; \
+    p->x=148; \
+    p->y=Y; \
+    p->w=24; \
+    p->h=16; \
+    clut=*(u16*)((u8*)OpeningBannerClutTable+offset); \
+    p->r=color; \
+    p->g=color; \
+    p->b=color; \
+    p->u=u; \
+    p->v=172; \
+    context=((FrameStorageSlot*)(context_page-0x33EC))->currentDrawBuf; \
+    high=0xFF000000U; \
+    p->clut=clut; \
+    *(u32*)p=(*(u32*)p&high)|(context->buffer.ordering70.words[0]&low); \
+    context->buffer.ordering70.words[0]=(context->buffer.ordering70.words[0]&high)|((unsigned long)p&low); \
+    p++; \
+    scratch->cursor=(u8*)p; \
+    ((u8*)p)[3]=1; \
+    context=((FrameStorageSlot*)(context_page-0x33EC))->currentDrawBuf; \
+    command|=0x23EU; \
+    *((u32*)p+1)=command; \
+    *(u32*)p=(*(u32*)p&high)|(context->buffer.ordering70.words[0]&low); \
+    context->buffer.ordering70.words[0]=(context->buffer.ordering70.words[0]&high)|((unsigned long)p&low); \
+    scratch->cursor=(u8*)p+sizeof(GpuSingleCommandPacket);
+
+typedef struct {
+    u32 addr: 24;
+    u32 len: 8;
+    u8 r0, g0, b0, code;
+    s16 x0, y0;
+    u8 u0, v0;
+    s16 clut;
+    s16 w, h;
+} SPRT;
+
+typedef struct {
+    u32 addr: 24;
+    u32 len: 8;
+    u32 code[2];
+} DR_MODE;
+
+typedef struct {
+    u32 addr: 24;
+    u32 len: 8;
+    u8 r0, g0, b0, code;
+    s16 x0, y0;
+    s16 w, h;
+} TILE;
+
+typedef struct {
+    u32 addr: 24;
+    u32 len: 8;
+    u32 code[1];
+} DR_MODE_1;
+
+typedef struct {
+    s32 a, b, c, d;
+    s32 e[11];
+} S3C;
+
+typedef struct {
+    u8 u, v, w, h;
+} UvRect;
+
+typedef struct {
+    void *p;
+} Scratch;
+
+extern s32 CarCollisionGraceTimers;
+extern UvRect HudMapSpriteRects[];
+extern UvRect HudSpeedUnitScaleTable;
+extern UvRect HudSpeedUnitMaxTable;
+extern s16 CarDrivetrainStatBias[];
+extern s16 CarTireGripStatBias[];
+extern struct { u16 x, y; } CarAccelCurveThresholds[];
+extern s32 CarTopSpeedGearRatios[];
+extern S3C *TrackNodes;
+extern s32 TrackNodeCount;
+extern s16 SelectedCourseChoice;
+extern s16 CourseIndex;
+extern short SelectedTeamIndex;
+extern int HudMinimapFadeAlpha;
+extern s16 HudTachRedlineAngles[];
+extern s16 HudTachSweepLimitAngles[];
+extern s16 *HudRankOrdinalUvs[];
+extern s16 *HudTimeLabelSprites[];
+extern s16 *HudBigDigitSprites[];
+extern s32 HudSmallDigitSprites[];
+extern s32 CourseBgmChoiceTable3[];
+extern s32 HudGearDigitSprites[];
+#include "game/data/selection.h"
+
+void DrawMapBitmapIso(s32 arg0, u8 *arg1, s32 *arg2);
+void DrawTrackNodeMap(s32 *arg0);
+void CenterGlyphListX(short *a0, int a1);
+void InitRaceOpeningOverlay(s32 arg0, s32 arg1);
+void DrawGlyphList(s16 *stream,s32 color,s32 bank);
+void AddBrightnessSprite(unsigned char *a0x, int a1, int a2, int a3);
+void EmitIconSpriteRow120(s32 index,s32 color);
+void EmitIconSpriteRow128(s32 index,s32 color);
+
+void DrawMapBitmapIso(s32 arg0, u8 *arg1, s32 *arg2) {
+    SPRT *sprt;
+    s32 i, j;
+    s32 x0, y0;
+    s32 base_idx;
+    u32 idx;
+    u8 val;
+    
+    base_idx = ((0x100 - (arg2[2] + 0x200) / 256) << 8) + (0x100 - (arg2[0] + 0x200) / 256);
+    sprt = *(SPRT **)SCRATCHPAD;
+    for (i = 0; i < 24; i++) {
+        x0 = (i + 24) * 4 + 0x6C;
+        y0 = (i - 24) * 4 + 0xD0;
+        for (j = 0; j < 24; j++) {
+            val = 0;
+            idx = base_idx + (i - 12) * 256 + (j - 12);
+            if (idx < 0x10000) val = arg1[idx];
+            sprt->len = 4; sprt->code = 0x64; sprt->w = 4; sprt->h = 8;
+            if (val == 0) {
+                idx = 1;
+                sprt->u0 = 0x20; sprt->v0 = 0xE8;
+                sprt->x0 = x0;
+                sprt->y0 = y0;
+                sprt->code = (sprt->code & ~2) | 1;
+                sprt->clut = 0x7E24;
+            } else {
+                idx = 0;
+                sprt->r0 = 0xE4; sprt->g0 = 0x40; sprt->b0 = 0x18;
+                sprt->y0 = y0 - 0x18;
+                sprt->u0 = 0x20; sprt->v0 = 0xE8;
+                sprt->x0 = x0;
+                sprt->code = (sprt->code & ~2) | 1;
+                sprt->clut = 0x7F64;
+            }
+            ADDPRIM((u8 *)CurrentDrawBuf + idx * 4 + 0x98, sprt);
+            sprt++;
+            x0 -= 4;
+            y0 += 4;
+        }
+    }
+    SetDrawMode(sprt, 0, 1, 0x19, 0);
+    (sprt)->addr = ((SPRT *)((u8 *)&CurrentDrawBuf->buffer.ordering70.words[11]))->addr;
+    ((SPRT *)((u8 *)&CurrentDrawBuf->buffer.ordering70.words[11]))->addr = (sprt);
+    ((struct { void *p; } *)SCRATCHPAD)->p = (DR_MODE *)sprt + 1;
+    DrawTrackNodeMap(arg2);
+}
+
+void DrawTrackNodeMap(s32 *arg0) {
+    SVECTOR sp10;
+    SVECTOR sp18;
+    s16 sp20[4];
+    u8 sp28[4];
+    TILE *tile;
+    SPRT *sprt;
+    DR_MODE_1 *drmode;
+    s32 i;
+    s16 *s1;
+    UvRect *s3;
+    s32 s2;
+    S3C *base;
+    S3C *sec;
+
+    tile = SCRATCH->p;
+    sp10.vx = CarAccelCurveThresholds[CourseIndex].x;
+    sp10.vy = CarAccelCurveThresholds[CourseIndex].y;
+
+    for (i = 0; i < TrackNodeCount; i++) {
+        sp18.vx = TrackNodes[i].c / 384;
+        sp18.vy = -TrackNodes[i].d / 192;
+        sp18.vx += sp10.vx;
+        sp18.vy += sp10.vy;
+        tile->len = 3;
+        tile->code = 0x62;
+        tile->x0 = sp18.vx - 1;
+        tile->y0 = sp18.vy - 3;
+        tile->w = 3;
+        tile->h = 6;
+        tile->r0 = 0xFF;
+        tile->g0 = 0xDE;
+        tile->b0 = 0x7F;
+        ADDPRIM((u8 *)&CurrentDrawBuf->buffer.ordering70.words[5], tile);
+        tile++;
+    }
+    SCRATCH->p = tile;
+
+    if (SelectedCourseChoice < 8) {
+        s1 = CarDrivetrainStatBias;
+        s3 = &HudSpeedUnitScaleTable;
+    } else {
+        s1 = CarTireGripStatBias;
+        s3 = &HudSpeedUnitMaxTable;
+    }
+
+    base = TrackNodes;
+    sec = (S3C *)(CarTopSpeedGearRatios[CourseIndex] * 0x3C + (s32)base);
+    sp18.vx = sec->c / 384;
+    sp18.vy = -sec->d / 192;
+    sp18.vx += sp10.vx;
+    sp18.vy += sp10.vy;
+
+    s2 = sp20[0] = s1[0] + sp18.vx;
+    sp20[1] = s1[1] + sp18.vy;
+    sp20[2] = s1[2] + sp18.vx;
+    sp20[3] = s1[3] + sp18.vy;
+    sp28[0] = 0xFF;
+    sp28[1] = 0xDE;
+    sp28[2] = 0x7F;
+
+    for (i = 0; i < 4; i++) {
+        sp20[2] = sp20[0] = s2 + (i & 1);
+        AddLineF2Prim(sp20, sp28, 1, 5);
+    }
+
+    sprt = SCRATCH->p;
+    sprt->len = 4;
+    sprt->code = 0x64;
+    sprt->u0 = HudMapSpriteRects[1].u;
+    sprt->v0 = HudMapSpriteRects[1].v;
+    sprt->w = HudMapSpriteRects[1].w;
+    sprt->h = HudMapSpriteRects[1].h;
+    sprt->x0 = s1[4] + sp18.vx;
+    sprt->y0 = s1[5] + sp18.vy;
+    sprt->code |= 3;
+    sprt->clut = 0x7FE5;
+    ADDPRIM((u8 *)&CurrentDrawBuf->buffer.ordering70.words[5], sprt);
+    sprt++;
+
+    sprt->len = 4;
+    sprt->code = 0x64;
+    sprt->u0 = s3->u;
+    sprt->v0 = s3->v;
+    sprt->w = s3->w;
+    sprt->h = s3->h;
+    sprt->x0 = s1[6] + sp18.vx;
+    sprt->y0 = s1[7] + sp18.vy;
+    sprt->code |= 3;
+    sprt->clut = 0x7FE5;
+    ADDPRIM((u8 *)&CurrentDrawBuf->buffer.ordering70.words[5], sprt);
+    sprt++;
+
+    SCRATCH->p = sprt;
+    drmode = (DR_MODE_1 *)sprt;
+    drmode->len = 1;
+    drmode->code[0] = 0xE1000219;
+    ADDPRIM((u8 *)&CurrentDrawBuf->buffer.ordering70.words[5], drmode);
+    drmode++;
+    SCRATCH->p = drmode;
+
+    sp18.vx = arg0[0] / 384;
+    sp18.vy = -arg0[2] / 192;
+    sp18.vx += sp10.vx;
+    sp18.vy += sp10.vy;
+
+    CarCollisionGraceTimers &= 0xFF;
+    if (CarCollisionGraceTimers & 0x80) {
+        CarCollisionGraceTimers &= 0x7F;
+        if (CarCollisionGraceTimers < 0x7A) {
+            CarCollisionGraceTimers = (CarCollisionGraceTimers + 6) | 0x80;
+        } else {
+            CarCollisionGraceTimers = 0x7F;
+        }
+    } else {
+        CarCollisionGraceTimers &= 0x7F;
+        if (CarCollisionGraceTimers >= 6) {
+            CarCollisionGraceTimers -= 6;
+        } else {
+            CarCollisionGraceTimers = 0x80;
+        }
+    }
+
+    sprt = SCRATCH->p;
+    sprt->len = 4;
+    sprt->code = 0x64;
+    sprt->u0 = HudMapSpriteRects[0].u;
+    sprt->v0 = HudMapSpriteRects[0].v;
+    sprt->w = HudMapSpriteRects[0].w;
+    sprt->h = HudMapSpriteRects[0].h;
+    sprt->r0 = CarCollisionGraceTimers & 0x7F;
+    sprt->g0 = CarCollisionGraceTimers & 0x7F;
+    sprt->b0 = CarCollisionGraceTimers & 0x7F;
+    sprt->x0 = sp18.vx - 4;
+    sprt->y0 = sp18.vy - 8;
+    sprt->code = (sprt->code | 2) & ~1;
+    sprt->clut = 0x7FE5;
+    ADDPRIM((u8 *)&CurrentDrawBuf->buffer.ordering70.words[4], sprt);
+    sprt++;
+
+    SCRATCH->p = sprt;
+    drmode = (DR_MODE_1 *)sprt;
+    drmode->len = 1;
+    drmode->code[0] = 0xE1000239;
+    ADDPRIM((u8 *)&CurrentDrawBuf->buffer.ordering70.words[4], drmode);
+    drmode++;
+    SCRATCH->p = drmode;
+}
+
+void SelectReplayBgmTrack(void) {
+ int r, a1; if (GameModeType == 1) { if (CourseIndex == 7) { a1 = SelectedTeamIndex + 0x20; CdAudioSelectTrack(0, a1); return; } } r = PsyqRand(); a1 = r % 6 + 0x1A; CdAudioSelectTrack(0, a1);
+}
+
+void SelectCourseBgmTrack(void) {
+    int a0, a1, v;
+    CdAudioInit();
+    if (GameModeType == 1) {
+        a0 = SelectionState.signedBytes[SelectionState.signedBytes[0x17] + 8] < 3;
+    } else {
+        a0 = 1;
+    }
+    if (ExtraModeUnlockedFlag != 0 && GameModeType != 1) {
+        HudMinimapFadeAlpha = 0x10;
+    } else {
+        HudMinimapFadeAlpha = 0xF;
+    }
+    if (a0 == 0) {
+        a1 = CourseIndex + 3;
+        CdAudioSelectTrack(0, a1);
+    } else if (RaceBgmListIndex == 0) {
+        a1 = PsyqRand() % 14 + 0xB;
+        CdAudioSelectTrack(0, a1);
+    } else {
+        a1 = BgmNumberToCdTrack[RaceBgmListIndex - 1];
+        CdAudioSelectTrack(0, a1);
+    }
+}
+
+void CenterGlyphListX(short *a0, int a1)
+{
+  unsigned short *p = (unsigned short *) (a0 + 2);
+  int sum = 0;
+  unsigned short v;
+  char *e;
+  if (a0[2] >= 0)
+  {
+    do
+    {
+      v = p[0];
+      p++;
+      if (((short) v) >= 0x400)
+      {
+        e = (char *)HudGlyphUvRects + (((short) (v - 0x400)) << 2);
+      }
+      else
+      {
+        e = (char *) ((((short) v) * 4) + a1);
+      }
+      if (a1)
+      {
+        sum += e[2];
+        sum += ((short *) p)[0];
+        p++;
+      }
+      else
+      {
+        sum += e[2];
+        sum += ((short *) p)[0];
+        p++;
+      }
+    }
+    while (((short *) p)[0] >= 0);
+  }
+  a0[0] = 0xA0 - (sum / 2);
+}
+
+void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
+    s32 i;
+
+    OpeningBannerMode = arg0;
+    OpeningAttemptIndex = arg1;
+    OpeningFadeTimer = -1;
+    OpeningBgmSelectState = 0;
+    OpeningSlideTimer = 0;
+    SoundReverbOffAll();
+
+    if (GameModeType != 1) {
+        RaceBgmListIndex = 0;
+    } else {
+        switch (SelectedTeamIndex) {
+        case 0:
+            RaceBgmListIndex = HudGearDigitSprites[CourseIndex] + 1;
+            break;
+        case 1:
+            RaceBgmListIndex = HudSmallDigitSprites[CourseIndex] + 1;
+            break;
+        case 2:
+            RaceBgmListIndex = CourseBgmChoiceTable2[CourseIndex] + 1;
+            break;
+        case 3:
+            RaceBgmListIndex = CourseBgmChoiceTable3[CourseIndex] + 1;
+            break;
+        }
+    }
+
+    switch (GameModeType) {
+    case 0:
+    case 2:
+    case 3:
+    case 6:
+        SoundState.track28A4 = SoundState.displayed28AC;
+        for (i = 0; i < 2; i++) {
+            if (SelectionRows.entries[i].variant == 0 && SelectionRows.entries[i].selection == 2 && SelectionRows.entries[i].parameter == 0x27) {
+                SoundState.track28A4 = 0xF;
+            }
+        }
+    case 1:
+    case 5:
+        if (ExtraModeUnlockedFlag != 0 && GameModeType != 1) {
+            HudMinimapFadeAlpha = 0x10;
+        } else {
+            HudMinimapFadeAlpha = 0xF;
+        }
+        break;
+    case 4:
+    default:
+        OpeningBgmSelectState = -1;
+        SoundState.track28A4 = CourseBgmChoiceTable2[CourseIndex] + 1;
+        SoundState.count28A8 = 0;
+        break;
+    }
+
+    CdPlaybackTrackIndex = RaceBgmListIndex + 0xB;
+
+    for (i = 0; i < 8; i++) {
+        CenterGlyphListX(OpeningDateGlyphLists[i], CarHandlingResponseTable);
+        CenterGlyphListX(OpeningTimeGlyphLists[i], CarHandlingResponseTable);
+        CenterGlyphListX(OpeningStageGlyphLists[i], CarHandlingResponseTable);
+        CenterGlyphListX(HudRankOrdinalUvs[i], CarHandlingResponseTable);
+    }
+
+    for (i = 0; i < 5; i++) {
+        CenterGlyphListX(OpeningAttemptGlyphLists[i], CarHandlingResponseTable);
+    }
+
+    for (i = 0; i < 8; i++) {
+        CenterGlyphListX(HudTimeLabelSprites[i], HudGlyphUvRects);
+        CenterGlyphListX(HudTimeLabelSprites[i] + 8, HudGlyphUvRects);
+        CenterGlyphListX(HudTimeLabelSprites[i] + 14, HudGlyphUvRects);
+    }
+
+    for (i = 0; i < 7; i++) {
+        CenterGlyphListX(OpeningModeGlyphLists[i], CarHandlingResponseTable);
+    }
+
+    CenterGlyphListX(HudTachRedlineAngles, HudGlyphUvRects);
+    CenterGlyphListX(HudTachSweepLimitAngles, HudGlyphUvRects);
+
+    for (i = 0; i < 8; i++) {
+        CenterGlyphListX(HudBigDigitSprites[i], HudGlyphUvRects);
+    }
+}
+
+void DrawGlyphList(s16 *stream,s32 color,s32 bank)
+{
+    u32 x;
+    s32 y, defaultPage, clut, page, offset, gap;
+    u32 cachedGlyph;
+    
+    s32 basePage;
+    s32 spriteCode;
+    u8 *cursor;
+    UiUvRect *uv;
+    x = *stream++;
+    y = *stream++;
+    if (bank == 0) { clut = 0x7F78; defaultPage = 0x3E; } else { clut = 0x7E38; defaultPage = 0x25; }
+    cachedGlyph = *(u16 *)stream;
+    if (*stream >= 0) {
+        basePage = defaultPage & 0xFFFF;
+        do {
+            s32 glyph;
+            cursor = RR_GLYPH_SCRATCH->cursor;
+            page = defaultPage;
+            if (basePage == 0x3E) {
+                if ((s16)cachedGlyph >= 0x400) page = 0x25;
+            }
+            cachedGlyph = *(u16 *)stream;
+            glyph = *stream++;
+            if (glyph >= 0x400) {
+                offset = (s32)((cachedGlyph - 0x400U) << 16) >> 14;
+                uv = (UiUvRect*)((u8 *)HudGlyphUvRects + offset);
+            } else {
+                offset = glyph * 4;
+                if (bank == 0) uv = (UiUvRect*)((u8 *)CarHandlingResponseTable + offset);
+                else uv = (UiUvRect*)((u8 *)HudGlyphUvRects + offset);
+            }
+            spriteCode = 0x66;
+            ((SpritePacketSignedClut*)cursor)->len = 4;
+            ((SpritePacketSignedClut*)cursor)->code = spriteCode;
+            ((SpritePacketSignedClut*)cursor)->r = color; ((SpritePacketSignedClut*)cursor)->g = color; ((SpritePacketSignedClut*)cursor)->b = color;
+            ((SpritePacketSignedClut*)cursor)->x = x;
+            ((SpritePacketSignedClut*)cursor)->y = y;
+            ((SpritePacketSignedClut*)cursor)->w = uv->w;
+            ((SpritePacketSignedClut*)cursor)->h = uv->h;
+            ((SpritePacketSignedClut*)cursor)->u = uv->u;
+            ((SpritePacketSignedClut*)cursor)->v = uv->v;
+            ((SpritePacketSignedClut*)cursor)->clut = clut;
+            ((SpritePacketSignedClut*)cursor)->addr = (CurrentDrawBuf->buffer.ordering70.words[0]&0xFFFFFFU);
+            CurrentDrawBuf->buffer.ordering70.words[0] = (CurrentDrawBuf->buffer.ordering70.words[0] & 0xFF000000) | ((unsigned long)cursor & 0xFFFFFF);
+            cursor+=20;
+            RR_GLYPH_SCRATCH->cursor=cursor;
+            ((GlyphCommand8*)cursor)->len=1;
+            ((GlyphCommand8*)cursor)->command=(page&0x9FF)|0xE1000200;
+            ((GlyphCommand8*)cursor)->addr=CurrentDrawBuf->buffer.ordering70.words[0];
+            CurrentDrawBuf->buffer.ordering70.words[0]=(CurrentDrawBuf->buffer.ordering70.words[0]&0xFF000000U)|((unsigned long)cursor&0xFFFFFFU);
+            RR_GLYPH_SCRATCH->cursor=cursor+8;
+            gap = *stream++;
+            x=(x+(uv->w+gap));
+            cachedGlyph = *(u16 *)stream;
+        } while (*stream >= 0);
+    }
+}
+
+void DrawGlyphListSloped(s16 *t1, s32 a1, s32 a2) {
+    s32 t5, s4, t6 = 0, t7, t8, t3, v, w;
+    u32 a;
+    
+    s32 m;
+    s32 k;
+    SpritePacketSignedClut *p;
+    u8 *t0;
+    t5 = *t1++;
+    s4 = *t1++;
+    if (a2 == 0) { t8 = 0x7F78; t7 = 0x3E; } else { t8 = 0x7E38; t7 = 0x25; }
+    a = *(u16 *)t1;
+    if (*t1 >= 0) {
+        m = t7 & 0xFFFF;
+        do {
+            s32 e;
+            p = *(SpritePacketSignedClut **)SCRATCHPAD;
+            t3 = t7;
+            if (m == 0x3E) {
+                if ((s16)a >= 0x400) t3 = 0x25;
+            }
+            a = *(u16 *)t1;
+            e = *t1++;
+            if (e >= 0x400) {
+                v = (s32)((a - 0x400) << 16) >> 14;
+                t0 = (u8 *)HudGlyphUvRects + v;
+            } else {
+                v = e * 4;
+                if (a2 == 0) t0 = (u8 *)CarHandlingResponseTable + v;
+                else t0 = (u8 *)HudGlyphUvRects + v;
+            }
+            k = 0x66;
+            p->len = 4;
+            p->code = k;
+            p->r = a1; p->g = a1; p->b = a1;
+            p->x = t5;
+            p->y = s4 + t6;
+            p->w = t0[2];
+            p->h = t0[3];
+            p->u = t0[0];
+            p->v = t0[1];
+            p->clut = t8;
+            t6++;
+            p->addr = ((SpritePacketSignedClut *)((char *)&CurrentDrawBuf->buffer.ordering70.words[0]))->addr;
+            *(u32 *)((char *)&CurrentDrawBuf->buffer.ordering70.words[0]) = (*(u32 *)((char *)&CurrentDrawBuf->buffer.ordering70.words[0]) & 0xFF000000) | ((u32)p & 0xFFFFFF);
+            p++;
+            *(SpritePacketSignedClut **)SCRATCHPAD = p;
+            p->len = 1;
+            *((u32 *)p + 1) = (t3 & 0x9FF) | 0xE1000200;
+            p->addr = ((SpritePacketSignedClut *)((char *)&CurrentDrawBuf->buffer.ordering70.words[0]))->addr;
+            *(u32 *)((char *)&CurrentDrawBuf->buffer.ordering70.words[0]) = (*(u32 *)((char *)&CurrentDrawBuf->buffer.ordering70.words[0]) & 0xFF000000) | ((u32)p & 0xFFFFFF);
+            *(SpritePacketSignedClut **)SCRATCHPAD = (SpritePacketSignedClut *)((u32 *)p + 2);
+            w = *t1++;
+            t5 += t0[2] + w;
+            a = *(u16 *)t1;
+        } while (*t1 >= 0);
+    }
+}
+
+void AddBrightnessSprite(unsigned char *a0x, int a1, int a2, int a3) {
+    SPRT *p;
+    DR_MODE_1 *m;
+
+    p = SCRATCH->p;
+    p->len = 4;
+    p->code = 0x64;
+    if (a3 < 0xFF) {
+        p->code = 0x66;
+    } else {
+        p->code = 0x65;
+    }
+    p->r0 = a3;
+    p->g0 = a3;
+    p->b0 = a3;
+    p->x0 = a1;
+    p->y0 = a2;
+    p->w = a0x[2];
+    p->h = a0x[3];
+    p->u0 = a0x[0];
+    p->v0 = a0x[1];
+    p->clut = 0x7F78;
+    ADDPRIM((u8 *)&CurrentDrawBuf->buffer.ordering70.words[0], p);
+    p++;
+    SCRATCH->p = p;
+    m = (DR_MODE_1 *)p;
+    m->len = 1;
+    m->code[0] = 0xE100023E;
+    ADDPRIM((u8 *)&CurrentDrawBuf->buffer.ordering70.words[0], m);
+    m++;
+    SCRATCH->p = m;
+}
+
+void EmitIconSpriteRow120(s32 index,s32 color) {
+    RR_ICON_SPRITE_BODY(120)
+}
+
+void EmitIconSpriteRow128(s32 index,s32 color) {
+    RR_ICON_SPRITE_BODY(128)
+}

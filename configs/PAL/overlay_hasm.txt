@@ -1,6 +1,0 @@
-# Hand-written assembly in PAL overlays, excluded from the C-coverage denominator
-# (same evidence rules as configs/PAL/hasm.txt). Overlays are not split by splat: the
-# original bytes simply stay in the reconstructed R4.BIN.
-# Format: <overlay> <address> <size> <evidence>[,<evidence>...]  # name
-668 0x80116928 0x30  trapping-arith  # libpress DecDCTvlcSize
-668 0x80116958 0x350 trapping-arith  # libpress DecDCTvlc

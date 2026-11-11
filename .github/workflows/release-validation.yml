@@ -1,0 +1,148 @@
+name: Release validation (no publication)
+
+# Builds, tests and packages exactly like the release workflows on all three
+# platforms, without signing secrets and without touching any release.
+# Run it by hand before tagging, or let it run when packaging changes.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - CMakeLists.txt
+      - packaging/**
+      - .github/workflows/release-*.yml
+  pull_request:
+    paths:
+      - CMakeLists.txt
+      - packaging/**
+      - .github/workflows/release-*.yml
+
+permissions:
+  contents: read
+
+env:
+  VERSION: validation
+  PSYZ_HEADLESS: "1"
+  SDL_AUDIODRIVER: dummy
+
+jobs:
+  unix:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macos-arm64
+            runner: macos-14
+          - name: linux-x86_64
+            runner: ubuntu-24.04
+          - name: linux-arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: false
+      - name: Install SDL build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build pkg-config \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev \
+            libxfixes-dev libxss-dev libxtst-dev libxinerama-dev \
+            libwayland-dev wayland-protocols libxkbcommon-dev libdecor-0-dev \
+            libegl1-mesa-dev libgl1-mesa-dev libgles2-mesa-dev libvulkan-dev \
+            libdrm-dev libgbm-dev libasound2-dev libpulse-dev libudev-dev \
+            libdbus-1-dev
+      - name: Fetch PsyZ and SDL
+        run: |
+          git submodule update --init third_party/psyz
+          git -C third_party/psyz submodule update --init external/SDL
+      - name: Configure
+        run: |
+          if [ "$RUNNER_OS" = macOS ]; then
+            cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release -DRR4_MACOS_BUNDLE=ON -DBUILD_TESTING=ON
+          else
+            cmake -S . -B build/release -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+          fi
+      - name: Build
+        run: cmake --build build/release --parallel 4
+      - name: Unit tests (no game data)
+        run: ctest --test-dir build/release --output-on-failure --no-tests=error
+      - name: Package (unsigned)
+        run: |
+          set -euo pipefail
+          package="Ridge-Racer-Type-4-${VERSION}-${{ matrix.name }}"
+          mkdir -p "dist/${package}"
+          if [ "$RUNNER_OS" = macOS ]; then
+            ditto "build/release/Ridge Racer Type 4.app" "dist/${package}/Ridge Racer Type 4.app"
+            codesign --force --sign - "dist/${package}/Ridge Racer Type 4.app"
+            codesign --verify --deep --strict "dist/${package}/Ridge Racer Type 4.app"
+            plutil -lint "dist/${package}/Ridge Racer Type 4.app/Contents/Info.plist"
+            test -f "dist/${package}/Ridge Racer Type 4.app/Contents/Resources/RidgeRacerType4.icns"
+            test -f "dist/${package}/Ridge Racer Type 4.app/Contents/Resources/licenses/libwebp/COPYING"
+            packaging/stage.sh "dist/${package}" build/release --no-licenses
+          else
+            cp build/release/ridge-racer-type-4-pc packaging/icon/ridge-racer-type-4.png "dist/${package}/"
+            packaging/stage.sh "dist/${package}" build/release
+          fi
+          test -f "dist/${package}/source-commit.txt"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: validation-${{ matrix.name }}
+          path: dist/
+          retention-days: 7
+          if-no-files-found: error
+
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    # The game code still assumes LP64 (long holds a pointer); the Windows
+    # build is experimental until it is LLP64-clean, so it does not gate.
+    continue-on-error: true
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: false
+      - uses: msys2/setup-msys2@61f9e5e925871ba6c9e3e8da24ede83ea27fa91f # v2.27.0
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            git
+            zip
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+      - name: Fetch PsyZ and SDL
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init third_party/psyz
+          git -C third_party/psyz submodule update --init external/SDL
+      - name: Configure
+        run: >-
+          cmake -S . -B build/release -G Ninja -DCMAKE_BUILD_TYPE=Release
+          -DBUILD_TESTING=ON -DCMAKE_EXE_LINKER_FLAGS="-static -static-libgcc"
+      - name: Build the settings test
+        run: cmake --build build/release --target rr4_settings_test --parallel 4
+      - name: Unit tests (no game data)
+        run: ctest --test-dir build/release --output-on-failure --no-tests=error
+      - name: Build the game
+        run: cmake --build build/release --parallel 4
+      - name: Package (unsigned)
+        run: |
+          set -euo pipefail
+          package="Ridge-Racer-Type-4-${VERSION}-windows-x86_64-experimental"
+          mkdir -p "dist/${package}"
+          cp build/release/ridge-racer-type-4-pc.exe "dist/${package}/"
+          packaging/stage.sh "dist/${package}" build/release
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: validation-windows-x86_64
+          path: dist/
+          retention-days: 7
+          if-no-files-found: error

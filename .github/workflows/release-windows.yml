@@ -1,0 +1,100 @@
+name: Release Windows (experimental)
+run-name: Release ${{ inputs.version || github.ref_name }} (Windows x86-64)
+
+# Builds the game for Windows x86-64 with MSYS2 UCRT64 (GCC; the game code
+# targets GNU-compatible compilers) and attaches
+# Ridge-Racer-Type-4-<version>-windows-x86_64-experimental.zip to the
+# release <version>. See docs/RELEASING.md.
+
+on:
+  push:
+    tags:
+      - "[0-9]*.[0-9]*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release tag to attach the package to (e.g. 0.1)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-windows-${{ inputs.version || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  VERSION: ${{ inputs.version || github.ref_name }}
+  PSYZ_HEADLESS: "1"
+  SDL_AUDIODRIVER: dummy
+
+jobs:
+  package:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/{0}', inputs.version) || github.ref }}
+          submodules: false
+      - uses: msys2/setup-msys2@61f9e5e925871ba6c9e3e8da24ede83ea27fa91f # v2.27.0
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            git
+            zip
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+      - name: Fetch PsyZ and SDL
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init third_party/psyz
+          git -C third_party/psyz submodule update --init external/SDL
+      - name: Configure
+        run: >-
+          cmake -S . -B build/release -G Ninja -DCMAKE_BUILD_TYPE=Release
+          -DBUILD_TESTING=ON -DCMAKE_EXE_LINKER_FLAGS="-static -static-libgcc"
+      - name: Build
+        run: cmake --build build/release --parallel 4
+      - name: Unit tests (no game data)
+        run: ctest --test-dir build/release --output-on-failure --no-tests=error
+      - name: Package
+        run: |
+          set -euo pipefail
+          package="Ridge-Racer-Type-4-${VERSION}-windows-x86_64-experimental"
+          mkdir -p "dist/${package}"
+          cp build/release/ridge-racer-type-4-pc.exe "dist/${package}/"
+          strip "dist/${package}/ridge-racer-type-4-pc.exe"
+          packaging/stage.sh "dist/${package}" build/release
+          # Everything but Windows system DLLs is linked statically.
+          if objdump -p "dist/${package}/ridge-racer-type-4-pc.exe" | grep 'DLL Name' \
+              | grep -viE 'DLL Name: (api-ms-win-|kernel32|user32|gdi32|shell32|ole32|oleaut32|advapi32|imm32|winmm|version|setupapi|cfgmgr32|hid|dinput8|xinput|dxgi|d3d|dwmapi|uxtheme|shcore|comdlg32|winspool|ws2_32|bcrypt|ntdll|msvcrt|ucrtbase)'; then
+            echo "unexpected DLL dependency" >&2
+            exit 1
+          fi
+          (cd dist && zip -qr "${package}.zip" "${package}")
+          unzip -l "dist/${package}.zip" | grep -q "${package}/ridge-racer-type-4-pc.exe$"
+          unzip -l "dist/${package}.zip" | grep -q "${package}/source-commit.txt$"
+          sha256sum "dist/${package}.zip"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Ridge-Racer-Type-4-${{ env.VERSION }}-windows-x86_64-experimental
+          path: dist/*.zip
+          if-no-files-found: error
+      - name: Attach to the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for _ in $(seq 1 60); do
+            gh release view "$VERSION" > /dev/null 2>&1 && break
+            echo "Waiting for release $VERSION..."
+            sleep 30
+          done
+          gh release upload "$VERSION" dist/*.zip --clobber

@@ -1,0 +1,145 @@
+name: Release macOS arm64
+run-name: Release ${{ inputs.version || github.ref_name }} (macOS arm64)
+
+# Builds "Ridge Racer Type 4.app", signs it with the Developer ID from the
+# repository secrets (ad-hoc without them), notarizes and staples it, and
+# attaches Ridge-Racer-Type-4-<version>-macos-arm64.zip to the release
+# <version>. See docs/RELEASING.md.
+
+on:
+  push:
+    tags:
+      - "[0-9]*.[0-9]*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release tag to attach the package to (e.g. 0.1)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-macos-${{ inputs.version || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  VERSION: ${{ inputs.version || github.ref_name }}
+  PSYZ_HEADLESS: "1"
+  SDL_AUDIODRIVER: dummy
+
+jobs:
+  package:
+    runs-on: macos-14
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/{0}', inputs.version) || github.ref }}
+          submodules: false
+      - name: Fetch PsyZ and SDL
+        run: |
+          git submodule update --init third_party/psyz
+          git -C third_party/psyz submodule update --init external/SDL
+      - name: Configure
+        run: >-
+          cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release
+          -DRR4_MACOS_BUNDLE=ON -DBUILD_TESTING=ON
+      - name: Build
+        run: cmake --build build/release --parallel 4
+      - name: Unit tests (no game data)
+        run: ctest --test-dir build/release --output-on-failure --no-tests=error
+      - name: Sign and notarize
+        env:
+          CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+          NOTARY_KEY: ${{ secrets.MACOS_NOTARY_KEY }}
+          NOTARY_KEY_ID: ${{ secrets.MACOS_NOTARY_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ secrets.MACOS_NOTARY_ISSUER_ID || secrets.MACOS_ISSUER_ID }}
+          TEAM_ID: ${{ secrets.MACOS_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          app="build/release/Ridge Racer Type 4.app"
+          if [ -z "${CERT_P12:-}" ]; then
+            echo "::warning::No Developer ID configured; signing ad-hoc (not notarized)."
+            codesign --force --sign - "$app"
+            codesign --verify --deep --strict --verbose=2 "$app"
+            exit 0
+          fi
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+          keychain_password="$(openssl rand -base64 24)"
+          security create-keychain -p "$keychain_password" "$keychain"
+          security set-keychain-settings -lut 900 "$keychain"
+          security unlock-keychain -p "$keychain_password" "$keychain"
+          security list-keychains -d user -s "$keychain" login.keychain-db
+          printf '%s' "$CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$keychain" \
+            -P "$CERT_PASSWORD" -T /usr/bin/codesign -f pkcs12
+          rm -f "$RUNNER_TEMP/cert.p12"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$keychain_password" "$keychain" > /dev/null
+          identity="$(security find-identity -v -p codesigning "$keychain" \
+            | awk '/Developer ID Application/ {print $2; exit}')"
+          if [ -z "$identity" ]; then
+            echo "::error::No Developer ID Application identity in MACOS_CERT_P12"
+            exit 1
+          fi
+          codesign --force --options runtime --timestamp --sign "$identity" "$app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          if [ -z "${NOTARY_KEY:-}" ]; then
+            echo "::warning::No notary API key configured; Developer ID signed but not notarized."
+            exit 0
+          fi
+          printf '%s' "$NOTARY_KEY" | base64 --decode > "$RUNNER_TEMP/notary.p8"
+          ditto -c -k --sequesterRsrc --keepParent "$app" "$RUNNER_TEMP/notarize.zip"
+          team_args=()
+          if [ -n "${TEAM_ID:-}" ]; then team_args=(--team-id "$TEAM_ID"); fi
+          xcrun notarytool submit "$RUNNER_TEMP/notarize.zip" \
+            --key "$RUNNER_TEMP/notary.p8" --key-id "$NOTARY_KEY_ID" \
+            --issuer "$NOTARY_ISSUER_ID" "${team_args[@]}" \
+            --wait --timeout 30m --output-format json | tee "$RUNNER_TEMP/notary.json"
+          rm -f "$RUNNER_TEMP/notary.p8"
+          status="$(plutil -extract status raw "$RUNNER_TEMP/notary.json" 2>/dev/null || true)"
+          if [ "$status" != "Accepted" ]; then
+            echo "::error::Notarization finished with status '${status:-unknown}'"
+            exit 1
+          fi
+          xcrun stapler staple "$app"
+          xcrun stapler validate "$app"
+          spctl -a -vv "$app"
+      - name: Package
+        run: |
+          set -euo pipefail
+          package="Ridge-Racer-Type-4-${VERSION}-macos-arm64"
+          mkdir -p "dist/${package}"
+          ditto "build/release/Ridge Racer Type 4.app" "dist/${package}/Ridge Racer Type 4.app"
+          packaging/stage.sh "dist/${package}" build/release --no-licenses
+          ditto -c -k --sequesterRsrc --keepParent "dist/${package}" "dist/${package}.zip"
+          rm -rf "$RUNNER_TEMP/verify" && mkdir -p "$RUNNER_TEMP/verify"
+          ditto -x -k "dist/${package}.zip" "$RUNNER_TEMP/verify"
+          extracted="$RUNNER_TEMP/verify/${package}"
+          codesign --verify --deep --strict --verbose=2 "${extracted}/Ridge Racer Type 4.app"
+          for f in README.md CHANGELOG.md THIRD_PARTY_NOTICES.md source-commit.txt \
+                   "Ridge Racer Type 4.app/Contents/Resources/licenses/third_party/psyz/external/SDL/LICENSE.txt" \
+                   "Ridge Racer Type 4.app/Contents/Resources/licenses/libwebp/COPYING"; do
+            test -f "${extracted}/${f}" || { echo "missing ${f}" >&2; exit 1; }
+          done
+          shasum -a 256 "dist/${package}.zip"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Ridge-Racer-Type-4-${{ env.VERSION }}-macos-arm64
+          path: dist/*.zip
+          if-no-files-found: error
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The draft release is created by hand right after the tag is
+          # pushed (docs/RELEASING.md); wait for it if the build was faster.
+          for _ in $(seq 1 60); do
+            gh release view "$VERSION" > /dev/null 2>&1 && break
+            echo "Waiting for release $VERSION..."
+            sleep 30
+          done
+          gh release upload "$VERSION" dist/*.zip --clobber

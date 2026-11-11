@@ -1,0 +1,32 @@
+// Windows executable resources: application icon and version information.
+// Configured by CMakeLists.txt.
+#include <winver.h>
+
+1 ICON "@RR4_ICON_ICO@"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,0
+PRODUCTVERSION @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,0
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEFLAGS 0
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileDescription", "Ridge Racer Type 4 (native PC port)"
+            VALUE "FileVersion", "@PROJECT_VERSION@"
+            VALUE "InternalName", "ridge-racer-type-4-pc"
+            VALUE "OriginalFilename", "ridge-racer-type-4-pc.exe"
+            VALUE "ProductName", "Ridge Racer Type 4 PC"
+            VALUE "ProductVersion", "@PROJECT_VERSION@"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END

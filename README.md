@@ -24,7 +24,11 @@ Start the game with the CUE file:
 
 or set `RR4_DISC` to its path. Without either, the game starts the image you
 chose last time, or asks for the CUE file with a file dialog. Memory cards
-are kept as `bu00`/`bu10` directories in the working directory.
+are kept as `bu00`/`bu10` directories in the working directory; the macOS app
+started from Finder keeps them beside its preferences instead.
+
+Release builds are on the [releases page](https://github.com/khasinski/ridge-racer-type-4-pc/releases):
+the macOS app (`Ridge Racer Type 4.app`) is signed and notarized.
 
 Default keys: arrows steer and move through menus, `X` is Cross, `Z` Square,
 `D` Circle, `S` Triangle, `Q`/`R` L1/R1, `W`/`E` L2/R2, `Enter` Start and
@@ -68,6 +72,9 @@ cmake --build build --parallel
 ```
 
 `make`, `make run` and `make test` wrap the same CMake build.
+On macOS, `-DRR4_MACOS_BUNDLE=ON` builds `Ridge Racer Type 4.app` instead of
+a bare executable. Packaging and signing are described in
+[releasing](docs/RELEASING.md).
 
 Automated and test runs are silent and windowless:
 

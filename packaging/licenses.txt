@@ -1,0 +1,14 @@
+# License texts of everything linked into the executable, relative to the
+# source tree. Packages keep them at the same paths under licenses/ (macOS:
+# Contents/Resources/licenses/). libwebp's COPYING and PATENTS come from the
+# PsyZ build (FetchContent) and go to licenses/libwebp/.
+third_party/psyz/LICENSE
+third_party/psyz/decomp/LICENSE
+third_party/psyz/psyz/src/platform/LICENSE
+third_party/psyz/psyz/src/psyz/LICENSE
+third_party/psyz/psyz/src/platform/fsr1/third_party/fsr1/LICENSE.txt
+third_party/psyz/external/SDL/LICENSE.txt
+third_party/psyz/external/SDL/src/hidapi/LICENSE.txt
+third_party/psyz/external/SDL/src/hidapi/LICENSE-bsd.txt
+third_party/psyz/external/SDL/src/video/yuv2rgb/LICENSE
+src/port/fonts/OFL-IBMPlex.txt

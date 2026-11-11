@@ -96,6 +96,9 @@
  * start the saved image or ask for one with a file dialog. Headless runs
  * never read or write preferences and never show a dialog. */
 
+#if defined(__linux__) && !defined(_GNU_SOURCE)
+#define _GNU_SOURCE /* setenv and RTLD_DEFAULT under -std=c11 */
+#endif
 #include <psyz.h>
 #include <psyz/audio.h>
 #include <psyz/cd.h>
@@ -107,6 +110,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dlfcn.h>
+#ifdef __APPLE__
+#include <unistd.h>
+#endif
 #include "game/system/pad.h"
 #include "preferences.h"
 #include "settings_overlay.h"
@@ -639,6 +645,26 @@ static const char *disc_path(int argc, char **argv) {
     return NULL;
 }
 
+#ifdef __APPLE__
+/* Finder starts an application bundle in "/", where the memory card
+ * directories (bu00, bu10, created in the working directory) cannot be
+ * written: keep them beside the preferences instead. */
+static void enter_preferences_directory(void) {
+    char cwd[RR4_PREFS_PATH_MAX], dir[RR4_PREFS_PATH_MAX];
+    char *slash;
+
+    if (!getcwd(cwd, sizeof(cwd)) || strcmp(cwd, "/") || !Rr4PrefsPath()[0])
+        return;
+    snprintf(dir, sizeof(dir), "%s", Rr4PrefsPath());
+    slash = strrchr(dir, '/');
+    if (!slash || slash == dir)
+        return;
+    *slash = '\0';
+    if (chdir(dir))
+        fprintf(stderr, "ridge-racer-type-4-pc: cannot enter %s\n", dir);
+}
+#endif
+
 static int file_exists(const char *path) {
     FILE *f = path && *path ? fopen(path, "rb") : NULL;
     if (f)
@@ -668,6 +694,9 @@ int main(int argc, char **argv) {
     if (interactive) {
         if (!Rr4PrefsLoad(&prefs))
             fprintf(stderr, "ridge-racer-type-4-pc: no preferences location, settings are not saved\n");
+#ifdef __APPLE__
+        enter_preferences_directory();
+#endif
         if (!cue && file_exists(prefs.disc))
             cue = prefs.disc;
         if (!cue && SettingsChooseDisc(prefs.disc, sizeof(prefs.disc))) {

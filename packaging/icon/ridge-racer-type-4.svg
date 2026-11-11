@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Original application icon for the Ridge Racer Type 4 PC port: an
+       abstract night road sweeping into a sunset. No game artwork, logos
+       or lettering. Rendered to PNG/ICNS/ICO by packaging/icon/build.sh. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1030"/>
+      <stop offset="0.42" stop-color="#3a1458"/>
+      <stop offset="0.62" stop-color="#d2385a"/>
+      <stop offset="0.74" stop-color="#ffa648"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff4c2"/>
+      <stop offset="0.55" stop-color="#ffcf5a"/>
+      <stop offset="1" stop-color="#ff8a3d"/>
+    </radialGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a0d2e"/>
+      <stop offset="1" stop-color="#05060f"/>
+    </linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b3550"/>
+      <stop offset="1" stop-color="#161521"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd27a"/>
+      <stop offset="1" stop-color="#ff5a3c"/>
+    </linearGradient>
+    <linearGradient id="streak" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5fe3ff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#5fe3ff" stop-opacity="0.9"/>
+    </linearGradient>
+    <clipPath id="tile">
+      <rect x="100" y="100" width="824" height="824" rx="186" ry="186"/>
+    </clipPath>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <rect x="100" y="100" width="824" height="824" rx="186" ry="186" fill="#0b1030"/>
+  </g>
+  <g clip-path="url(#tile)">
+    <rect x="100" y="100" width="824" height="824" fill="url(#sky)"/>
+    <!-- sun with horizontal cut bands -->
+    <circle cx="512" cy="560" r="150" fill="url(#sun)"/>
+    <g fill="#d2385a" opacity="0.85">
+      <rect x="340" y="520" width="344" height="9"/>
+      <rect x="340" y="548" width="344" height="12"/>
+      <rect x="340" y="578" width="344" height="15"/>
+    </g>
+    <!-- distant ridges -->
+    <path d="M100 600 L230 540 L320 575 L430 520 L520 566 L610 528 L720 572 L820 530 L924 584 L924 640 L100 640 Z"
+          fill="#24103d"/>
+    <!-- ground -->
+    <rect x="100" y="600" width="824" height="330" fill="url(#ground)"/>
+    <!-- road sweeping from the bottom left into a right-hand bend -->
+    <path d="M180 924 C330 790 470 700 560 640 C600 614 630 604 660 602
+             L676 604 C650 612 626 626 600 648 C530 708 470 800 430 924 Z"
+          fill="url(#road)"/>
+    <!-- road edges -->
+    <path d="M180 924 C330 790 470 700 560 640 C600 614 630 604 660 602"
+          fill="none" stroke="url(#edge)" stroke-width="12" stroke-linecap="round"/>
+    <path d="M430 924 C470 800 530 708 600 648 C626 626 650 612 676 604"
+          fill="none" stroke="url(#edge)" stroke-width="12" stroke-linecap="round"/>
+    <!-- centre line -->
+    <path d="M305 924 C400 795 495 704 580 644 C612 622 640 608 668 603"
+          fill="none" stroke="#fff3d6" stroke-width="10" stroke-dasharray="46 34"
+          stroke-linecap="round"/>
+    <!-- speed streaks -->
+    <g stroke="url(#streak)" stroke-linecap="round">
+      <line x1="560" y1="760" x2="900" y2="700" stroke-width="16"/>
+      <line x1="610" y1="815" x2="920" y2="760" stroke-width="11"/>
+      <line x1="660" y1="866" x2="920" y2="820" stroke-width="7"/>
+    </g>
+  </g>
+</svg>

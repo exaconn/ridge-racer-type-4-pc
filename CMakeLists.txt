@@ -11,6 +11,7 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 option(BUILD_TESTING "Build native game tests" OFF)
 option(RR4_BUILD_GAME "Compile the game modules (src/main, src/overlays) into rr4_game" ON)
+option(RR4_MACOS_BUNDLE "Package the macOS application bundle (Ridge Racer Type 4.app)" OFF)
 include(CTest)
 
 set(PSYZ_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/psyz)
@@ -95,6 +96,47 @@ if(RR4_BUILD_GAME)
     # src/port/main.c does not enter MainLoop yet, so the archive is built and
     # linked but contributes no objects until the host entry calls the game.
     target_link_libraries(ridge-racer-type-4-pc PRIVATE rr4_game)
+endif()
+if(APPLE AND RR4_MACOS_BUNDLE)
+    # "Ridge Racer Type 4.app": icon, documentation and the license texts of
+    # everything linked into the executable go to Contents/Resources.
+    set_target_properties(ridge-racer-type-4-pc PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/packaging/macos/Info.plist"
+        OUTPUT_NAME "Ridge Racer Type 4")
+    target_sources(ridge-racer-type-4-pc PRIVATE packaging/macos/RidgeRacerType4.icns)
+    set_source_files_properties(packaging/macos/RidgeRacerType4.icns PROPERTIES
+        MACOSX_PACKAGE_LOCATION Resources)
+    foreach(doc README.md CHANGELOG.md LICENSE.md THIRD_PARTY_NOTICES.md)
+        if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${doc})
+            target_sources(ridge-racer-type-4-pc PRIVATE ${doc})
+            set_source_files_properties(${doc} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+        endif()
+    endforeach()
+    file(STRINGS packaging/licenses.txt RR4_LICENSE_FILES REGEX "^[^#]")
+    foreach(notice ${RR4_LICENSE_FILES})
+        get_filename_component(notice_dir ${notice} DIRECTORY)
+        target_sources(ridge-racer-type-4-pc PRIVATE ${notice})
+        set_source_files_properties(${notice} PROPERTIES
+            MACOSX_PACKAGE_LOCATION "Resources/licenses/${notice_dir}")
+    endforeach()
+    include(FetchContent)
+    FetchContent_GetProperties(psyz_webp)
+    if(psyz_webp_SOURCE_DIR)
+        foreach(notice COPYING PATENTS)
+            target_sources(ridge-racer-type-4-pc PRIVATE ${psyz_webp_SOURCE_DIR}/${notice})
+            set_source_files_properties(${psyz_webp_SOURCE_DIR}/${notice} PROPERTIES
+                MACOSX_PACKAGE_LOCATION Resources/licenses/libwebp)
+        endforeach()
+    endif()
+endif()
+if(WIN32)
+    # Executable icon and version information.
+    enable_language(RC)
+    set(RR4_ICON_ICO ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/ridge-racer-type-4.ico)
+    configure_file(packaging/windows/ridge-racer-type-4.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/ridge-racer-type-4.rc @ONLY)
+    target_sources(ridge-racer-type-4-pc PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/ridge-racer-type-4.rc)
 endif()
 psyz_title(ridge-racer-type-4-pc "Ridge Racer Type 4")
 

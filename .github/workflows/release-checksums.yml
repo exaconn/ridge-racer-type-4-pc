@@ -1,0 +1,77 @@
+name: Release checksums
+run-name: SHA256SUMS for ${{ inputs.version || github.event.workflow_run.display_title }}
+
+# After each platform release workflow finishes, downloads every package
+# attached to that release and (re)uploads SHA256SUMS covering all of them,
+# so the last platform to finish leaves the complete file. Run it by hand
+# with the version after re-uploading a package.
+
+on:
+  workflow_run:
+    workflows:
+      - Release macOS arm64
+      - Release Linux
+      - Release Windows (experimental)
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release tag (e.g. 0.1)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-checksums
+  cancel-in-progress: false
+
+jobs:
+  checksums:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Find the release
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          RUN_TITLE: ${{ github.event.workflow_run.display_title }}
+        run: |
+          # Platform runs are titled "Release <version> (<platform>)".
+          version="${INPUT_VERSION:-}"
+          if [ -z "$version" ]; then
+            version="$(printf '%s\n' "$RUN_TITLE" | sed -n 's/^Release \([^ ]*\) (.*)$/\1/p')"
+          fi
+          if [ -z "$version" ]; then
+            echo "::error::Cannot tell the release version from '${RUN_TITLE}'"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Download packages and upload SHA256SUMS
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          if ! gh release view "$VERSION" > /dev/null 2>&1; then
+            echo "::warning::No release $VERSION; nothing to sum."
+            exit 0
+          fi
+          mkdir packages
+          gh release download "$VERSION" --dir packages \
+            --pattern "Ridge-Racer-Type-4-${VERSION}-*.zip" \
+            --pattern "Ridge-Racer-Type-4-${VERSION}-*.tar.gz" || true
+          cd packages
+          if ! ls Ridge-Racer-Type-4-* > /dev/null 2>&1; then
+            echo "::notice::No packages attached to $VERSION yet."
+            exit 0
+          fi
+          sha256sum Ridge-Racer-Type-4-* | sort -k2 > SHA256SUMS
+          cat SHA256SUMS
+          for expected in macos-arm64.zip linux-x86_64.tar.gz linux-arm64.tar.gz \
+                          windows-x86_64-experimental.zip; do
+            grep -q -- "-${expected}\$" SHA256SUMS ||
+              echo "::notice::Ridge-Racer-Type-4-${VERSION}-${expected} is not attached yet"
+          done
+          gh release upload "$VERSION" SHA256SUMS --clobber

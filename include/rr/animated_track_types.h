@@ -44,19 +44,18 @@ typedef struct {
     AnimatedLinePacket *headsE8[2], *tailsF0[2];
 } AnimatedTrackObject;
 
-/* Original course7 data reserves these pools before its relative key tables.
- * Native allocations use this owner's actual pointer alignment and sizes. */
+/* The course 7 data file reserves room for these pools, in their PS1 sizes
+ * (5*255 particles, 5 0xF8-byte objects, 2*5*255 20-byte line packets),
+ * before its table of nine pairs of relative color key offsets and the
+ * keys themselves. The host objects and packets are larger, so the pools
+ * live in this host-owned storage and only the key table is read from the
+ * file, at its PS1 offset (RR_ANIMATED_TRACK_WIRE_KEYS). */
 typedef struct {
     AnimatedTrackParticle particles[5][255];
     AnimatedTrackObject objects[5];
     AnimatedLinePacket packets[2 * 5 * 255];
-    u32 colorOffsets[9][2];
-#if defined(__GNUC__) && __GNUC__ < 3
-    u8 colorKeys[0];
-#else
-    u8 colorKeys[];
-#endif
 } AnimatedTrackArena;
+#define RR_ANIMATED_TRACK_WIRE_KEYS 0x17F5C
 
 /* Handwritten emission saves CPU registers and stages vectors after the scene. */
 typedef struct {
@@ -81,7 +80,7 @@ RR_ASSERT_OFFSET(AnimatedTrackObject, headsE8, 0xE8);
 RR_ASSERT_OFFSET(AnimatedTrackObject, tailsF0, 0xF0);
 RR_ASSERT_OFFSET(AnimatedTrackArena, objects, 0xB34C);
 RR_ASSERT_OFFSET(AnimatedTrackArena, packets, 0xB824);
-RR_ASSERT_OFFSET(AnimatedTrackArena, colorOffsets, 0x17F5C);
+RR_ASSERT_SIZE(AnimatedTrackArena, RR_ANIMATED_TRACK_WIRE_KEYS);
 RR_ASSERT_OFFSET(AnimatedTrackScratch, work7C, 0x7C);
 RR_ASSERT_SIZE(AnimatedTrackScratch, 0xE4);
 #endif

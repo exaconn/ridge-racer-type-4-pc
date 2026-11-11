@@ -4,7 +4,8 @@
 #include "types.h"
 #include "rr/animated_track_types.h"
 
-/* Workspace is a complete AnimatedTrackArena, followed by serialized color keys. */
+/* memory is the course 7 region that reserves the PS1 pools; its color key
+ * table follows them (RR_ANIMATED_TRACK_WIRE_KEYS). */
 void InitAnimatedTrackObjects(void *memory);
 extern AnimatedTrackParticle (*TrackParticlePoolPtr)[255];
 extern const AnimatedTrackColorKey *TrackColorKeysPrimary[9],*TrackColorKeysSecondary[9];

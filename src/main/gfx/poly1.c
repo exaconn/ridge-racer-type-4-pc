@@ -50,9 +50,9 @@ extern s32 RearViewMirrorVisible;
 extern int RaceState;
 #include "psyq/libc/rand.h"
 extern short PolyStripTempCoords[];
+/* Host storage of the animated course 7 object pools (InitAnimatedTrackObjects). */
+static AnimatedTrackArena AnimatedTrackPools;
 extern s32 SquareRoot0(s32 value);
-extern short PolyStripTempCoordY;
-extern short PolyStripTempCoordZ;
 extern short *SegmentVisibilityTable;
 extern unsigned char *OctantLookupTable;
 extern struct PreviewBytes8 EmblemPreviewClutRect0;
@@ -191,11 +191,12 @@ void InitAnimatedTrackObjects(void *memory)
     const AnimatedTrackColorKey **firstKeys,**secondKeys;
     const u8 *colorBase;
     AnimatedTrackObject *state;
-    TrackParticlePoolPtr = (AnimatedTrackParticle (*)[255])memory;
-    memory = (u8 *)memory + RR_FIELD_OFFSET(AnimatedTrackArena,objects);
-    packet = (AnimatedLinePacket *)((u8 *)memory + sizeof(((AnimatedTrackArena *)0)->objects));
+    /* A fresh load of the file gives zeroed pools (rr/animated_track_types.h). */
+    PsyqMemset(&AnimatedTrackPools, 0, sizeof(AnimatedTrackPools));
+    TrackParticlePoolPtr = AnimatedTrackPools.particles;
+    packet = AnimatedTrackPools.packets;
     buffer = 0;
-    AnimatedTrackObjPool = (AnimatedTrackObject *)memory;
+    AnimatedTrackObjPool = AnimatedTrackPools.objects;
     do {
         objectIndex = 0;
         do {
@@ -215,8 +216,8 @@ void InitAnimatedTrackObjects(void *memory)
         } while (objectIndex < 5);
         buffer++;
     } while (buffer < 2);
-    offsets = (const u32 *)packet;
-    colorBase = (const u8 *)packet;
+    offsets = (const u32 *)((const u8 *)memory + RR_ANIMATED_TRACK_WIRE_KEYS);
+    colorBase = (const u8 *)offsets;
     buffer = 0;
     secondKeys = TrackColorKeysSecondary;
     firstKeys = TrackColorKeysPrimary;
@@ -500,7 +501,8 @@ s32 DrawBufIndex;
 s32 RearViewMirrorY;
 MatrixWords32 CameraViewMatrix;
 MatrixWords32 CameraPitchRollMatrix;
-short PolyStripTempCoords[1];
+/* The PS1 map also names elements 1 and 2 (PolyStripTempCoordY/Z). */
+short PolyStripTempCoords[3];
 MatrixWords32 PolyWorldTransformMtx;
 s32 RearViewMirrorVisible;
 AnimatedTrackParticle (*TrackParticlePoolPtr)[255];

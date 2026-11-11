@@ -14,7 +14,10 @@
  *                      l1 r1 triangle circle cross square. The pressed
  *                      buttons replace pad 1's receive buffer (PadPorts[0])
  *                      right after PsyZ refreshes it at each VSync; outside
- *                      the listed ranges the real input passes through. */
+ *                      the listed ranges the real input passes through.
+ *   RR4_WATCH=list     with RR4_TRACE, also print globals by name: a comma
+ *                      list of name[:size] (size 1, 2 or 4 bytes, default 4,
+ *                      signed), e.g. "TitleSceneStage:2,FadeCountdown:2". */
 
 #include <psyz.h>
 #include <psyz/cd.h>
@@ -23,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dlfcn.h>
 #include "game/system/pad.h"
 
 void MainLoop(void);
@@ -34,6 +38,53 @@ extern unsigned short SubmodeState;
 extern unsigned int FrameCounter;
 
 static long trace_every;
+
+#define WATCH_MAX 16
+static struct {
+    char name[64];
+    const void *addr;
+    int size;
+} watches[WATCH_MAX];
+static int watch_count;
+
+static void parse_watch(const char *list) {
+    while (list && *list && watch_count < WATCH_MAX) {
+        const char *end = strchr(list, ',');
+        size_t len = end ? (size_t)(end - list) : strlen(list);
+        char item[80];
+        char *colon;
+
+        if (len >= sizeof(item))
+            len = sizeof(item) - 1;
+        memcpy(item, list, len);
+        item[len] = 0;
+        colon = strchr(item, ':');
+        watches[watch_count].size = 4;
+        if (colon) {
+            *colon = 0;
+            watches[watch_count].size = atoi(colon + 1);
+        }
+        snprintf(watches[watch_count].name, sizeof(watches[0].name), "%s", item);
+        watches[watch_count].addr = dlsym(RTLD_DEFAULT, item);
+        if (!watches[watch_count].addr)
+            fprintf(stderr, "RR4_WATCH: no symbol %s\n", item);
+        else
+            watch_count++;
+        list = end ? end + 1 : NULL;
+    }
+}
+
+static void print_watches(void) {
+    for (int i = 0; i < watch_count; i++) {
+        long v = 0;
+        switch (watches[i].size) {
+        case 1: v = *(const signed char *)watches[i].addr; break;
+        case 2: v = *(const short *)watches[i].addr; break;
+        default: v = *(const int *)watches[i].addr; break;
+        }
+        fprintf(stderr, " %s=%ld", watches[i].name, v);
+    }
+}
 
 static long frame_limit;
 static long frame_count;
@@ -134,8 +185,12 @@ static void host_vsync(void) {
     frame_count++;
     apply_pad_script(frame_count);
     if (trace_every > 0 && frame_count % trace_every == 0)
-        fprintf(stderr, "vsync %ld frame %u mode %u/%d sub %u\n", frame_count,
+    {
+        fprintf(stderr, "vsync %ld frame %u mode %u/%d sub %u", frame_count,
                 FrameCounter, ModeGroup, ModeIndex, SubmodeState);
+        print_watches();
+        fputc('\n', stderr);
+    }
     if ((frame_limit > 0 && frame_count >= frame_limit) || Psyz_QuitRequested())
         host_exit();
     if (chained_vsync)
@@ -172,6 +227,7 @@ int main(int argc, char **argv) {
         const char *trace = getenv("RR4_TRACE");
         frame_limit = limit ? strtol(limit, NULL, 10) : 0;
         trace_every = trace ? strtol(trace, NULL, 10) : 0;
+        parse_watch(getenv("RR4_WATCH"));
         parse_pad_script(getenv("RR4_PAD_SCRIPT"));
     }
     chained_vsync = Psyz_SetVSyncCb(host_vsync);

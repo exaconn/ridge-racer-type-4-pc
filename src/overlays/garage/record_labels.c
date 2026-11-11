@@ -15,7 +15,7 @@ extern s16 GpSaveSlotCursor;
 extern UiUvRect UiFontGlyphs[];
 void FormatDecimalDigits(char *output, s32 value, s32 digitsMinusOne);
 
-void ovl662_draw_stage_history_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
+void *ovl662_draw_stage_history_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
     char buf[8];
     s32 i;
     s32 x;
@@ -43,10 +43,10 @@ void ovl662_draw_stage_history_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
             arg1 = AddTextSprites(arg0, arg1, x, y, buf, flag + 0x7FF8, 0, 0);
         }
     }
-    AddDrawModePrim(arg0, arg1, 56);
+    return AddDrawModePrim(arg0, arg1, 56);
 }
 
-void ovl662_draw_team_car_counts_label(GpuDmaTag *order, void *cursor, s32 row)
+void *ovl662_draw_team_car_counts_label(GpuDmaTag *order, void *cursor, s32 row)
 {
     s32 i, x, y;
     s32 flag = 0;
@@ -80,10 +80,10 @@ void ovl662_draw_team_car_counts_label(GpuDmaTag *order, void *cursor, s32 row)
             x += UiFontGlyphs[ovl662_team_count_glyphs[i]].w + 2;
         }
     }
-    AddDrawModePrim(order, cursor, 56);
+    return AddDrawModePrim(order, cursor, 56);
 }
 
-void ovl662_draw_maker_car_count_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
+void *ovl662_draw_maker_car_count_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
     s32 i;
     s32 x;
     s32 y;
@@ -113,10 +113,10 @@ void ovl662_draw_maker_car_count_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
         arg1 += t1 - 1;
         x += UiFontGlyphs[ovl662_maker_count_glyphs[i]].w + 2;
     }
-    AddDrawModePrim(arg0, arg1, 56);
+    return AddDrawModePrim(arg0, arg1, 56);
 }
 
-void ovl662_draw_car_number_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
+void *ovl662_draw_car_number_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
     char buf[8];
     s32 i;
     s32 x;
@@ -135,10 +135,10 @@ void ovl662_draw_car_number_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
             arg1 = AddTextSprites(arg0, arg1, x, y, buf, 0x7FF8, 0, 0);
         }
     }
-    AddDrawModePrim(arg0, arg1, 56);
+    return AddDrawModePrim(arg0, arg1, 56);
 }
 
-void ovl662_draw_emblem_index_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
+void *ovl662_draw_emblem_index_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
     s32 x;
     s32 y;
     s32 i = 0;
@@ -156,10 +156,10 @@ void ovl662_draw_emblem_index_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
         arg1 += t1 - 1;
         x += UiFontGlyphs[ovl662_emblem_index_glyphs[i]].w + 2;
     }
-    AddDrawModePrim(arg0, arg1, 56);
+    return AddDrawModePrim(arg0, arg1, 56);
 }
 
-void ovl662_draw_character_grid(GpuDmaTag *order, void *cursor, s32 row)
+void *ovl662_draw_character_grid(GpuDmaTag *order, void *cursor, s32 row)
 {
     char text[4];
     s32 i, x, y, dx, dy, clut, color;
@@ -217,10 +217,10 @@ void ovl662_draw_character_grid(GpuDmaTag *order, void *cursor, s32 row)
             dx += UiFontGlyphs[ovl662_char_grid_cmd_glyphs[i]].w + 4;
         }
     }
-    AddDrawModePrim(order, cursor, 56);
+    return AddDrawModePrim(order, cursor, 56);
 }
 
-void ovl662_draw_name_entry_chars(GpuDmaTag *arg0, void *arg1, s32 arg2) {
+void *ovl662_draw_name_entry_chars(GpuDmaTag *arg0, void *arg1, s32 arg2) {
     char buf[4];
     s32 i;
     s32 offset;
@@ -261,7 +261,7 @@ void ovl662_draw_name_entry_chars(GpuDmaTag *arg0, void *arg1, s32 arg2) {
         arg1 = AddTilePrim(arg0, arg1, x2, y, 8, 2, color, color, color);
         arg1 = AddTextSprites(arg0, arg1, x2 + 2, y - 20, buf, clut, 0, 0);
     }
-    AddDrawModePrim(arg0, arg1, 56);
+    return AddDrawModePrim(arg0, arg1, 56);
 }
 
 void *ovl662_draw_extra_record_row(GpuDmaTag *ord, void *cur, s32 row)

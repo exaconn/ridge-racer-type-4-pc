@@ -18,7 +18,6 @@
 #include "rr/driver_control.h"
 
 extern short MenuCursor;
-extern int MainMenuSavedCursor;
 extern short MenuScriptId;
 extern int DialogueSceneMode;
 extern short MenuTransitionOverlayMode;
@@ -135,6 +134,5 @@ int ModeSelectMenuStep(void)
 }
 
 /* Initial values of the globals this module owns. */
-int MainMenuSavedCursor;
 short ModeSelectBaseCount;
 short MainMenuChoice;

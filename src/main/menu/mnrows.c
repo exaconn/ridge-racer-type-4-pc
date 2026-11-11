@@ -281,7 +281,10 @@ char StrCdReadPtrFmt[100] = {99, 100, 95, 114, 101, 97, 100, 95, 112, 116, 114, 
 u8 CarSpecStatWeights[16] = {5, 5, 4, 3, 0xA, 0xA, 3, 2, 0xC, 4, 2, 1, 0xF, 0xA, 1, 1};
 s8 CarSpecStatThresholds[20] = {15, 14, 7, 6, 27, 17, 13, 4, 27, 17, 13, 4, 27, 17, 13, 4, 27, 17, 13, 4};
 MenuScriptOperation MenuScriptOps[12] = {(int (*)(void))LoadModeMenuAssetsStep, (int (*)(void))LoadSceneStep, (int (*)(void))LoadAllCarsStep, (int (*)(void))LoadIndexedTimStep, (int (*)(void))LoadDialogueStep, (int (*)(void))LoadDefaultRaceStep, (int (*)(void))LoadAttractTimStep, (int (*)(void))LoadGlyphRowsStep, (int (*)(void))LoadResultsSceneStep, (int (*)(void))LoadMenuSoundStep, (int (*)(void))LoadMenuCarModelsStep, (int (*)(void))LoadCarClutStep};
-MenuSceneEntry MenuSceneEntries[12] = {0, (void (*)(void))MenuSceneNoop, (void (*)(void))SetupRaceAndSceneId, (void (*)(void))InitModeSelectMenu, (void (*)(void))DialogueSceneSetup, (void (*)(void))TitleMenuInit, (void (*)(void))&DrawBuffers[1].buffer.packets1670[16600], (void (*)(void))InitPostRaceScreen, (void (*)(void))InitCarPreviewScene, (void (*)(void))SetNextModeByGameType, (void (*)(void))&DrawBuffers[1].buffer.packets1670[16464], (void (*)(void))SetupRace};
+/* Entries 6 and 10 were overlay-window addresses: the garage progress menu
+ * (0x80114998) and the time attack scene selector (0x80114910). */
+void ovl662_init_progress_menu(void), ovl660_select_scene(void);
+MenuSceneEntry MenuSceneEntries[12] = {0, (void (*)(void))MenuSceneNoop, (void (*)(void))SetupRaceAndSceneId, (void (*)(void))InitModeSelectMenu, (void (*)(void))DialogueSceneSetup, (void (*)(void))TitleMenuInit, ovl662_init_progress_menu, (void (*)(void))InitPostRaceScreen, (void (*)(void))InitCarPreviewScene, (void (*)(void))SetNextModeByGameType, ovl660_select_scene, (void (*)(void))SetupRace};
 s8 *MenuScripts[11] = {(signed char *)D_8009F8A0, (signed char *)D_8009F8AC, (signed char *)D_8009F8B0, (signed char *)D_8009F8B8, (signed char *)D_8009F8BC, (signed char *)D_8009F8C8, (signed char *)D_8009F8B4, (signed char *)D_8009F8CC, (signed char *)D_8009F8C0, (signed char *)D_8009F8C4, (signed char *)D_8009F8A4};
 s8 MenuScriptStep;
 u16 MenuScriptId;

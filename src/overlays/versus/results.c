@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "rr/overlay_module.h"
 #include "rr/menu_text_rows.h"
 #include "rr/overlay_menu.h"

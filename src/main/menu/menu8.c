@@ -46,7 +46,6 @@ extern u16 SubmodeState;
 extern short FadeCountdown;
 extern short MenuScriptId;
 extern u8 *MenuSharedScratchPtr;
-extern unsigned short MenuSelectedCarSlot;
 extern int MenuAutoAdvanceTimer;
 extern s16 MenuCursor;
 extern s32 ModeFrame;

@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "game/ui/uipart1.h"
 #include "rr/menu_frame_state.h"
 #include "game/sound/cdpos.h"

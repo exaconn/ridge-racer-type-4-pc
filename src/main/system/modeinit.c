@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "game/sound/sndvab.h"
 #include "rr/save_progress.h"
 #include "rr/menu_selection.h"
@@ -51,7 +52,6 @@ extern int VSyncThreshold;
 extern short MenuCursor;
 extern short ActiveSceneId;
 extern int ModeFrame;
-extern int MenuReturnSubmodeIndex;
 
 void TitleModeEnter(void);
 void TitleMenuInit(void);

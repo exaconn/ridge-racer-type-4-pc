@@ -692,7 +692,12 @@ int LoadSplashAssetsStep(void) {
 
 /* Initial values of the globals this module owns. */
 #include "rr/menu_overlay_runtime.h"
-u8 *CdDirectoryBuffer = (u8 *)&DrawBuffers[1].buffer.packets1670[16312];
+/* PS1 free RAM above the executable: the overlay window 0x80114878 up to the
+ * stack, about 0xEB000 bytes, where menus and race loads place overlay
+ * images, models, textures and sound banks. Host tables and packets are
+ * wider, so the arena is twice that. */
+static u8 FreeRamArena[0x200000] __attribute__((aligned(16)));
+u8 *CdDirectoryBuffer = FreeRamArena;
 char LoadIndex;
 u8 *LoadDestCursor;
 signed char *DialogueAssetTable;

@@ -261,4 +261,3 @@ const OverlayStateTable ovl662_history_screen_state = {ovl662_history_screen_reg
 
 /* Initial values of the globals this module owns. */
 s32 MenuStepDirection;
-u16 MenuSelectedCarSlot;

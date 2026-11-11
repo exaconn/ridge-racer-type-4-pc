@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "rr/overlay_module.h"
 #include "game/car/carparam.h"
 #include "rr/menu_selection.h"
@@ -93,7 +94,6 @@ extern s32 TotalRaceTime;
 extern s16 FadeCountdown;
 extern s32 RaceTimeRemaining;
 extern s16 LinkHostFlag;
-extern u16 Pad0Buttons;
 extern s8 RacePaused;
 extern s8 PauseCursor;
 extern s16 GameModeType;

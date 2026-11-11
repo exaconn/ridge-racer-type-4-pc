@@ -58,8 +58,6 @@ extern s32 TrackLength;
 extern s8 PauseCursor;
 extern s16 SelectedMakerIndex;
 extern s16 ModeIndex;
-extern u16 MenuSelectedCarSlot;
-extern s32 MenuReturnSubmodeIndex;
 extern u16 MenuScriptId;
 extern s32 TotalRaceTime;
 extern s8 RacePaused;

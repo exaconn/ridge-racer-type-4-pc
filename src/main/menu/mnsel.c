@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "game/ui/uidraw.h"
 #include "game/sound/sndvab.h"
 #include "rr/save_slots.h"
@@ -16,8 +17,6 @@ extern int MenuStepDirection;
 extern short SelectedTeamIndex;
 extern int ModeFrame;
 extern short ModeIndex;
-extern unsigned short MenuSelectedCarSlot;
-extern int MenuReturnSubmodeIndex;
 extern short ModeGroup;
 extern short SubmodeState;
 

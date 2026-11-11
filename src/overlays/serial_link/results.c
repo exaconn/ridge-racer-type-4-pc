@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "rr/overlay_module.h"
 #include "rr/vehicle_table.h"
 #include "game/race/racegrid.h"
@@ -54,7 +55,7 @@ s32 ovl667_update_retry_choice(s32 mode){
  return -1;
 }
 
-extern s32 ModeFrame, TotalRaceTime, MenuReturnSubmodeIndex, ActivePlayerIndex;
+extern s32 ModeFrame, TotalRaceTime, ActivePlayerIndex;
 extern u16 SubmodeState;
 extern s16 ModeGroup, ModeIndex, FadeCountdown, MenuCursor, LinkHostFlag;
 extern s16 LinkState, LinkRaceAbortFlag, LinkPlayerCount;

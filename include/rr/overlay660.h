@@ -23,7 +23,6 @@ extern s16 ovl660_preview_bank;
 
 #include "rr/runtime_settings.h"
 extern s16 ActiveSceneId;
-extern s32 CourseSelectLockedFlag, ResultNextActionMode;
 extern s16 CardMenuReturnModeId, CardMenuOperation;
 void CopyStringClearTail(char *destination, char *source);
 void StepNameChar(char *text);

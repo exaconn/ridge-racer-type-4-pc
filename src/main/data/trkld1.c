@@ -384,7 +384,17 @@ int LoadRaceSoundStep(void) {
 short CourseSkyboxTypeTable[8] = {1, 4, 4, 7, 1, 7, 7, 7};
 int RaceLoadState;
 int RaceLoadSubState;
-VabLoadConfig CourseVabLoadConfigs[1] = {{.file_index = 17, .open_mode = 4112}};
+/* Rows 0..6 (0x800A0228..0x800A027B): row 0 the menu pair, rows 1..2 the
+ * track audio banks, 3..5 the race effect banks, 6 the attract race bank. */
+VabLoadConfig CourseVabLoadConfigs[7] = {
+    {.file_index = 0x11, .open_mode = 0x1010, .bank_slot = 0},
+    {.file_index = 1, .open_mode = 0x8000, .bank_slot = 2},
+    {.file_index = 1, .open_mode = 0x20000, .bank_slot = 3},
+    {.file_index = 0x13, .open_mode = 0x8000, .bank_slot = 1},
+    {.file_index = 0x14, .open_mode = 0x16000, .bank_slot = 4},
+    {.file_index = 0x15, .open_mode = 0x16000, .bank_slot = 4},
+    {.file_index = 0, .open_mode = 0x8000, .bank_slot = 7},
+};
 int CourseAssetGroupIds[8] = {0, 6, 2, 17, 1, 24, 10, 31};
 int CourseAssetBaseFileIndex;
 char *RaceLoadCursor;

@@ -2,18 +2,24 @@
 #define RR_OVERLAY668_STREAM_H
 #include "psyq/libgpu/gpuenv.h"
 #include "rr/overlay668_display.h"
+#include "rr/library.h"
 #include "rr/overlay668_control.h"
 #include "psyq/libcd/dsstrm32.h"
-/* The shared live allocation, including the display configuration at0x24. */
+/* The shared live allocation at MenuArenaBase. ovl668_init_stream_buffers
+ * carves the buffers that follow it: two MDEC command buffers (VLC output),
+ * two 16-pixel-wide RGB24 slice buffers and the LIBCD stream ring. */
 typedef struct {
     s32 width00,height04;
     u8 reserved08[8];
     StrCommandHeader *commands10[2];
     void *buffers18[2];
-    u32 commandIndex20;
+    LibQueueRecord32 *queue20;
     StrDisplayConfig display24;
 } StrPlaybackState;
-extern s32 CdMediaChangeCount,VSyncThreshold,ModeFrame;
+extern s32 VSyncThreshold,ModeFrame;
+/* LIBCD: set when StCdInterrupt deferred a sector until the MDEC output
+ * transfer finished; the slice callback then runs it. */
+extern s32 StCdIntrFlag;
 #include "rr/runtime_settings.h"
 void SetDispMask(s32);
 void SsSetSerialAttr(s8,s8,s8);

@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "types.h"
 #include "scratchpad.h"
 #include "rr/line_emit.h"
@@ -350,7 +351,6 @@ u8 HudViewModeIconUvs[4] = {0x40, 0xD4, 0xC, 0xC};
 u8 HudLapSlashSprite[4] = {0x4C, 0xD4, 6, 0xC};
 u32 HudSplitSignSprites[6] = {5, 0x32u, 0x64u, 0x96u, 0xC8u, 0xFAu};
 u32 HudRecordCrownSprites[6] = {5, 0x32u, 0x64u, 0x96u, 0xC8u, 0xC8u};
-u16 Pad0Buttons;
 s32 OpeningFadeTimer;
 s32 OpeningBannerMode;
 s32 OpeningAttemptIndex;

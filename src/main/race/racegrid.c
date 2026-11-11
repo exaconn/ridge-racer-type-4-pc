@@ -62,7 +62,6 @@ extern s16 LinkState;
 extern int RaceStartSignalState;
 extern int RaceTimeRemaining;
 extern short LinkHostFlag;
-extern int CourseSelectLockedFlag;
 
 void SetupMenuCarCamera(int a);
 void PlayStartCountdownVoice(int a0);
@@ -711,5 +710,4 @@ int RaceVoiceFlags;
 int RaceTimeRemaining;
 short LinkHostFlag;
 signed char PauseCursor;
-int CourseSelectLockedFlag;
 s16 LinkState;

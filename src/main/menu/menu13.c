@@ -1,4 +1,5 @@
 /* RODATA 0x800105b0 0x18 */
+#include "game/system/pad.h"
 #include "types.h"
 #include "rr/menu_selection.h"
 #include "rr/menu_text_state.h"
@@ -10,7 +11,6 @@
 #include "rr/badge_rows.h"
 #include "rr/menu_choice.h"
 
-extern int MenuReturnSubmodeIndex;
 
 void UpdateDialogue(int a0, int a1, MenuTextState *s);
 

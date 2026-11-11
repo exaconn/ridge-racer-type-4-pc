@@ -353,5 +353,4 @@ const OverlayStateTable ovl660_results_state = {ovl660_results_regions, sizeof(o
 u16 HudMapZoomMode;
 s16 ReverseCourse;
 TimeRecord16 RaceRecords[2][8][5];
-s32 ResultNextActionMode;
 TimeRecord16 LapRecords[2][8][5];

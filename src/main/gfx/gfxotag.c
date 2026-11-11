@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "rr/save_slots.h"
 #include "rr/menu_selection.h"
 #include "rr/rro_model.h"

@@ -2,6 +2,7 @@
 #define RR_GAME_DEMO_ATTRACT_H
 
 #include "types.h"
+#include "game/system/pad.h"
 #include "rr/color_conversion.h"
 
 /* Attract-demo work block, RaceContext.attract4BC (PS1 AttractDemoStateBuffer,
@@ -31,7 +32,6 @@ RR_ASSERT_OFFSET(AttractDemoState80, overlayHsv24, 0x24);
 RR_ASSERT_OFFSET(AttractDemoState80, camera30, 0x30);
 RR_ASSERT_OFFSET(AttractDemoState80, freeCamera74, 0x74);
 
-extern unsigned short AttractPromptBlinkMask;
 void StartAttractDemo(int a0);
 void AttractDemoRaceEnter(void);
 

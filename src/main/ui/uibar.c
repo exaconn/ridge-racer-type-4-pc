@@ -106,6 +106,12 @@ void DrawBadgeRow(s32 index) {
 #include "game/ui/uicnt.h"
 #include "game/menu/mnlist.h"
 #include "rr/menu_overlay_runtime.h"
+#include "rr/overlay662_history_labels.h"
+#include "rr/overlay662_character_grid.h"
+#include "rr/overlay_extra_labels.h"
+#include "rr/overlay663.h"
 UiUvRect SelectionBarGlyphUvs[7] = {{.u = 0x58, .v = 0x48, .w = 0x28, .h = 0x10}, {.u = 0x80, .v = 0x48, .w = 0x30, .h = 0x10}, {.u = 0xB4, .v = 0x48, .w = 0x39, .h = 0x10}, {.u = 0x58, .v = 0x58, .w = 0x28, .h = 0x10}, {.u = 0x80, .v = 0x58, .w = 0x24, .h = 0x10}, {.u = 0xA4, .v = 0x58, .w = 0x30, .h = 0x10}, {.u = 0xD4, .v = 0x58, .w = 0x28, .h = 0x10}};
 UiBarDescriptor SelectionBarDescriptors[7] = {{.count = 6}, {.glyph = 1, .count = 7}, {.glyph = 2, .count = 8}, {.glyph = 3, .count = 6}, {.glyph = 4, .count = 6}, {.glyph = 5, .count = 6}, {.glyph = 6, .count = 6}};
-PanelDraw UiRowDrawHandlers[15] = {(void *(*)(struct GpuDmaTag *, void *, int))DrawCarSpecBadgePanel, (void *(*)(struct GpuDmaTag *, void *, int))&DrawBuffers[1].buffer.packets1670[28052], (void *(*)(struct GpuDmaTag *, void *, int))&DrawBuffers[1].buffer.packets1670[28564], (void *(*)(struct GpuDmaTag *, void *, int))&DrawBuffers[1].buffer.packets1670[29156], (void *(*)(struct GpuDmaTag *, void *, int))&DrawBuffers[1].buffer.packets1670[29656], (void *(*)(struct GpuDmaTag *, void *, int))&DrawBuffers[1].buffer.packets1670[30012], (void *(*)(struct GpuDmaTag *, void *, int))DrawGpSaveSlotsPanel, (void *(*)(struct GpuDmaTag *, void *, int))&DrawBuffers[1].buffer.packets1670[30356], (void *(*)(struct GpuDmaTag *, void *, int))&DrawBuffers[1].buffer.packets1670[31096], (void *(*)(struct GpuDmaTag *, void *, int))&DrawBuffers[1].buffer.packets1670[23288], (void *(*)(struct GpuDmaTag *, void *, int))&DrawBuffers[1].buffer.packets1670[22380], (void *(*)(struct GpuDmaTag *, void *, int))&DrawBuffers[1].buffer.packets1670[24196], (void *(*)(struct GpuDmaTag *, void *, int))DrawControllerConfigPanel, (void *(*)(struct GpuDmaTag *, void *, int))&DrawBuffers[1].buffer.packets1670[31488], (void *(*)(struct GpuDmaTag *, void *, int))DrawBadgeCountdownSprites};
+/* Entries 2..6, 8..12 and 14 were overlay-window addresses (0x80117654...)
+ * holding the garage (ovl662) and records (ovl663) panel drawers. */
+PanelDraw UiRowDrawHandlers[15] = {DrawCarSpecBadgePanel, ovl662_draw_stage_history_label, ovl662_draw_team_car_counts_label, ovl662_draw_maker_car_count_label, ovl662_draw_car_number_label, ovl662_draw_emblem_index_label, DrawGpSaveSlotsPanel, ovl662_draw_character_grid, ovl662_draw_name_entry_chars, ovl663_draw_lap_records, ovl663_draw_race_records, ovl663_draw_record_labels, DrawControllerConfigPanel, ovl662_draw_extra_record_row, DrawBadgeCountdownSprites};

@@ -10,10 +10,9 @@
 #include "rr/menu_state_types.h"
 #include "game/menu/menuwork.h"
 
-extern s32 MenuStepDirection, MenuReturnSubmodeIndex;
+extern s32 MenuStepDirection;
 #include "rr/menu_arena_base.h"
 extern s16 SelectedMakerIndex;
-extern u16 MenuSelectedCarSlot;
 #include "game/ui/uidraw.h"
 #include "game/data/selection.h"
 #include "rr/menu_text_state.h"

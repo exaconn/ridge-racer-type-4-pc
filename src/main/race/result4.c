@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "game/race/result4.h"
 #include "rr/menu_selection.h"
 #include "rr/gpu_scratch_types.h"
@@ -35,7 +36,6 @@ extern s16 SubmodeState;
 extern char NewCar0Msg[];
 extern char StrNewCarLog[];
 extern int MenuStepDirection;
-extern int MenuReturnSubmodeIndex;
 
 
 void DrawResultsStandingsOverlay(int fadeLevel) {

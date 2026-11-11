@@ -45,7 +45,6 @@ extern short LinkHostFlag;
 extern short GameModeType;
 extern short FadeCountdown;
 extern int TrackLength;
-extern int MenuReturnSubmodeIndex;
 extern RaceVehicle PlayerCars[2];
 extern short ModeIndex;
 extern short ModeGroup;

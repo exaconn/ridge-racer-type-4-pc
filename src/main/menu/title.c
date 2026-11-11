@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "game/sound/cdstart.h"
 #include "rr/player_cars.h"
 #include "game/data/resinit.h"
@@ -46,9 +47,6 @@ extern short FadeCountdown;
 extern int RaceQuitTargetMode;
 extern int MaskBitSetting;
 extern short ModeIndex;
-extern int MenuReturnSubmodeIndex;
-extern int TitleStartPressedFlag;
-extern int TitleSubmenuSelection;
 extern short ModeGroup;
 extern short SubmodeState;
 extern int ViewUsesCarTrackNode;
@@ -440,6 +438,3 @@ void AttractDemoRaceUpdate(void) {
 char RepeatLabel[8] = {82, 69, 80, 69, 65, 84};
 char StrFmtTwoDigitsTitle[80] = {37, 48, 50, 100, 0, 0, 0, 0, 67, 82, 83, 53, 65, 0, 0, 0, 67, 82, 83, 52, 66, 0, 0, 0, 67, 82, 83, 52, 65, 0, 0, 0, 67, 82, 83, 51, 66, 0, 0, 0, 67, 82, 83, 51, 65, 0, 0, 0, 67, 82, 83, 50, 66, 0, 0, 0, 67, 82, 83, 50, 65, 0, 0, 0, 67, 82, 83, 49, 66, 0, 0, 0, 67, 82, 83, 49, 65};
 int MaskBitSetting;
-unsigned short AttractPromptBlinkMask;
-int TitleStartPressedFlag;
-int TitleSubmenuSelection;

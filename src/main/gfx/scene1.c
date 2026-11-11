@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "game/gfx/gtepoly1.h"
 #include "game/math/rotmat.h"
 #include "psyq/libgte/gtemat5.h"

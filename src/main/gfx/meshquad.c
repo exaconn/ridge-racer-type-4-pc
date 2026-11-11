@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "game/car/carbound.h"
 #include "rr_asm.h"
 #include "rr/gpu.h"

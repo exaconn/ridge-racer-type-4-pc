@@ -9,7 +9,6 @@ typedef struct {
     volatile u32 ready0C;
     GpuRectangleFields rectangles[3];
 } StrDisplayConfig;
-typedef struct {u8 pad00[0x10];void *buffers[5];} StrBufferSet;
 #include "rr/scene_camera_state.h"
 extern s32 DrawBufIndex;
 
@@ -26,6 +25,4 @@ void ovl668_wait_frame_ready(StrDisplayConfig *config,s32 mode);
 RR_ASSERT_SIZE(StrDisplayConfig,0x28);
 RR_ASSERT_OFFSET(StrDisplayConfig,ready0C,0x0C);
 RR_ASSERT_OFFSET(StrDisplayConfig,rectangles,0x10);
-RR_ASSERT_SIZE(StrBufferSet,0x24);
-RR_ASSERT_OFFSET(StrBufferSet,buffers,0x10);
 #endif

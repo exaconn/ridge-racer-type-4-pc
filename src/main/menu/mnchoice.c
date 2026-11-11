@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "rr/save_slots.h"
 #include "types.h"
 #include "rr/load_cursor.h"

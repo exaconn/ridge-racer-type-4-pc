@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "game/gfx/scene1.h"
 #include "rr/menu_selection.h"
 #include "types.h"

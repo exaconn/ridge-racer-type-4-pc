@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "rr/menu_text_state.h"
 #include "types.h"
 #include "scratchpad.h"
@@ -36,7 +37,6 @@ extern u32 ModeFrame;
 extern short SelectedMakerIndex;
 #include "rr/badge_rows.h"
 extern int MenuStepDirection;
-extern int MenuReturnSubmodeIndex;
 
 void DrawResultsRankIcons(void);
 void SetMenuTextRowStyle();

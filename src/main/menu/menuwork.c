@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "game/ui/uipart1.h"
 #include "game/sound/sndvab.h"
 #include "rr/save_slots.h"
@@ -50,7 +51,6 @@ extern s32 VSyncThreshold;
 extern s16 ActiveSceneId;
 extern unsigned char GpStageShowcaseModes[];
 extern short FadeCountdown;
-extern int MenuReturnSubmodeIndex;
 
 void GetNameChar(unsigned char *a0, int a1);
 void StepNameChar(unsigned char *a0);

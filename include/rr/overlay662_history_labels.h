@@ -15,11 +15,11 @@ s32 rsin(s32 angle);
  * values fit two decimal digits. Services return full native arena pointers.
  * Ordering and cursor remain pointers throughout; each helper may change globals.
  * History matching captures the pulse flag before rendering the labels. */
-void ovl662_draw_stage_history_label(GpuDmaTag *,void *,s32);
+void *ovl662_draw_stage_history_label(GpuDmaTag *,void *,s32);
 /* Choice byte0 remains0..3 across services; live counts fit0..80/0..320.
  * Seven label keys are nonnegative UV indices or sentinels-1/-2. */
-void ovl662_draw_team_car_counts_label(GpuDmaTag *,void *,s32);
-void ovl662_draw_maker_car_count_label(GpuDmaTag *,void *,s32);
-void ovl662_draw_car_number_label(GpuDmaTag *,void *,s32);
-void ovl662_draw_emblem_index_label(GpuDmaTag *,void *,s32);
+void *ovl662_draw_team_car_counts_label(GpuDmaTag *,void *,s32);
+void *ovl662_draw_maker_car_count_label(GpuDmaTag *,void *,s32);
+void *ovl662_draw_car_number_label(GpuDmaTag *,void *,s32);
+void *ovl662_draw_emblem_index_label(GpuDmaTag *,void *,s32);
 #endif

@@ -2,19 +2,7 @@
 #define RR_OVERLAY668_DECODE_H
 #include "rr/library.h"
 
-/* Stream state prefix: two display buffers followed by the queue header.
- * Pointer fields retain their native width outside the PAL build. */
-typedef struct {
-    u8 reserved00[0x10];
-    void *commands10[2];
-    void *buffers18[2];
-    LibQueueRecord32 *queue20;
-} StrStreamPrefix;
 void ovl668_setup_stream_ring(LibInterruptCallback callback);
-RR_ASSERT_OFFSET(StrStreamPrefix, commands10, 0x10);
-RR_ASSERT_OFFSET(StrStreamPrefix, buffers18, 0x18);
-RR_ASSERT_OFFSET(StrStreamPrefix, queue20, 0x20);
-RR_ASSERT_SIZE(StrStreamPrefix, 0x24);
 
 typedef union {u32 word;u16 halves[2];} StrCommandHeader;
 typedef struct {

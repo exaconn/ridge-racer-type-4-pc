@@ -92,6 +92,20 @@ RR_ASSERT_OFFSET(ControllerState5C, rumbleActive50, 0x50);
 
 extern ControllerState5C PlayerControllers[2];
 extern PadPort28 PadPorts[2];
+
+/* Names the menus use for PlayerControllers fields that PadUpdate derives
+ * each frame (the PAL symbols at 0x800F3A3A..0x800F3AA4 lie inside
+ * PlayerControllers): held and newly pressed buttons, auto-repeat edges and
+ * the decoded menu actions (confirm, cancel, ...). Read-only views. */
+#define AttractPromptBlinkMask (PlayerControllers[0].input00.fields.buttons)
+#define Pad0Buttons (PlayerControllers[0].edges08.fields.pressed)
+#define MenuSelectedCarSlot (PlayerControllers[0].edges08.fields.repeat)
+#define ResultNextActionMode (PlayerControllers[0].protocol10)
+#define MenuReturnSubmodeIndex (PlayerControllers[0].action28)
+#define CourseSelectLockedFlag (PlayerControllers[0].action2C)
+#define TitleStartPressedFlag (PlayerControllers[0].action30)
+#define TitleSubmenuSelection (PlayerControllers[0].action34)
+#define MainMenuSavedCursor (PlayerControllers[1].protocol10)
 extern PadPulseState18 PadPulseState[2];
 
 void PadUpdate(void);

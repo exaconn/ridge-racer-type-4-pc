@@ -2,8 +2,9 @@
  * original values (R4.BIN entry 668, 0x80116E90..0x80127E90). */
 #include "rr/overlay668_vlc.h"
 
-/* Version-3 chroma DC sizes (Cr, Cb): indexed by the next 8 bits; {shift, size}. */
-const Ovl668VlcDcCode ovl668_vlc_dc_chroma[256] = {
+/* Version-3 luma DC sizes (Y0..Y3), the MPEG-1 luminance dct_dc_size codes
+ * (00=1, 01=2, 100=0, 101=3, ...): indexed by the next 8 bits; {shift, size}. */
+const Ovl668VlcDcCode ovl668_vlc_dc_luma[256] = {
     {2, 1}, {2, 1}, {2, 1}, {2, 1}, {2, 1}, {2, 1}, {2, 1}, {2, 1},
     {2, 1}, {2, 1}, {2, 1}, {2, 1}, {2, 1}, {2, 1}, {2, 1}, {2, 1},
     {2, 1}, {2, 1}, {2, 1}, {2, 1}, {2, 1}, {2, 1}, {2, 1}, {2, 1},
@@ -38,8 +39,9 @@ const Ovl668VlcDcCode ovl668_vlc_dc_chroma[256] = {
     {6, 7}, {6, 7}, {6, 7}, {6, 7}, {7, 8}, {7, 8}, {0, 0}, {0, 0},
 };
 
-/* Version-3 luma DC sizes (Y0..Y3): indexed by the next 8 bits; {shift, size}. */
-const Ovl668VlcDcCode ovl668_vlc_dc_luma[256] = {
+/* Version-3 chroma DC sizes (Cr, Cb), the MPEG-1 chrominance dct_dc_size
+ * codes (00=0, 01=1, 10=2, 110=3, ...): indexed by the next 8 bits. */
+const Ovl668VlcDcCode ovl668_vlc_dc_chroma[256] = {
     {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0},
     {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0},
     {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0},

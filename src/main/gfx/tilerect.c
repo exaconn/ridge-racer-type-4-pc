@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "game/ui/uipart1.h"
 #include "psyq/libgte/rotmat.h"
 #include "rr/model_table.h"
@@ -66,7 +67,6 @@ extern Vec3sFields8 TileRectDefaultAngles;
 extern GpuRectangleFields TileRectCaptureVramRect;
 extern int TileRectSkyHorizonY;
 extern unsigned char TileRectBgFileOffset;
-extern int MenuReturnSubmodeIndex;
 extern S_8010BF70 *TileRectScene;
 
 extern int TileFadeColorTable[];

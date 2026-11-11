@@ -28,7 +28,6 @@
 #include "game/sound/cdplay.h"
 
 extern s16 FadeCountdown;
-extern int MenuReturnSubmodeIndex;
 
 /* Host scratchpad buffer and the GPU packet cursor/ordering pointers that
  * occupied its first two words on the PS1 (include/scratchpad.h). */

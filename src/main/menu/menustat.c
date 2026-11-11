@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "game/sound/cdpos.h"
 #include "rr/save_slots.h"
 /* RODATA 0x80010538 0x18 */
@@ -26,7 +27,6 @@ extern unsigned int ModeFrame;
 extern unsigned short SubmodeState;
 extern RaceVehicle PlayerCars[2];
 extern unsigned char MenuCameraPresetIndices[];
-extern int MenuReturnSubmodeIndex;
 extern unsigned short FadeCountdown;
 extern short ModeIndex;
 

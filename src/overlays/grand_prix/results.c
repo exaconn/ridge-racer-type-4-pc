@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "rr/save_slots.h"
 #include "rr/overlay659.h"
 #include "rr/frame_storage_types.h"

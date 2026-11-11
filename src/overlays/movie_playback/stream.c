@@ -149,15 +149,15 @@ void ovl668_stop_stream_playback(void){
 }
 
 void ovl668_init_stream_buffers(u8 *base){
- ((StrBufferSet*)RaceContext.streamStateB8)->buffers[0]=base;
+ ((StrPlaybackState*)RaceContext.streamStateB8)->commands10[0]=(StrCommandHeader*)base;
  base+=0xa000;
- ((StrBufferSet*)RaceContext.streamStateB8)->buffers[1]=base;
+ ((StrPlaybackState*)RaceContext.streamStateB8)->commands10[1]=(StrCommandHeader*)base;
  base+=0xa000;
- ((StrBufferSet*)RaceContext.streamStateB8)->buffers[2]=base;
+ ((StrPlaybackState*)RaceContext.streamStateB8)->buffers18[0]=base;
  base+=0x2d00;
- ((StrBufferSet*)RaceContext.streamStateB8)->buffers[3]=base;
+ ((StrPlaybackState*)RaceContext.streamStateB8)->buffers18[1]=base;
  base+=0x2d00;
- ((StrBufferSet*)RaceContext.streamStateB8)->buffers[4]=base;
+ ((StrPlaybackState*)RaceContext.streamStateB8)->queue20=(LibQueueRecord32*)base;
 }
 
 void ovl668_init_stream_display(StrDisplayConfig*p,s32 x,s32 y,s32 second_x,s32 second_y){
@@ -179,7 +179,7 @@ void ovl668_init_stream_display(StrDisplayConfig*p,s32 x,s32 y,s32 second_x,s32 
 void ovl668_setup_stream_ring(LibInterruptCallback callback) {
     ovl668_mdec_reset(0);
     ovl668_mdec_out_callback(callback);
-    StSetRing(((StrStreamPrefix *)RaceContext.streamStateB8)->queue20, 32);
+    StSetRing(((StrPlaybackState *)RaceContext.streamStateB8)->queue20, 32);
     StSetStream(1, 1, -1, 0, 0);
 }
 
@@ -187,9 +187,9 @@ void ovl668_on_mdec_slice_ready(void) {
     GpuRectangle sp10;
     u32 prev2C;
 
-    if (CdMediaChangeCount != 0) {
+    if (StCdIntrFlag != 0) {
         StCdInterrupt();
-        CdMediaChangeCount = 0;
+        StCdIntrFlag = 0;
     }
     prev2C = ((StrPlaybackState *)RaceContext.streamStateB8)->display24.word08;
     sp10.rect = ((StrPlaybackState *)RaceContext.streamStateB8)->display24.rectangles[2];
@@ -206,7 +206,7 @@ void ovl668_on_mdec_slice_ready(void) {
         ((StrPlaybackState *)RaceContext.streamStateB8)->display24.rectangles[2].x = ((StrPlaybackState *)RaceContext.streamStateB8)->display24.rectangles[((StrPlaybackState *)RaceContext.streamStateB8)->display24.alternate04].x;
         ((StrPlaybackState *)RaceContext.streamStateB8)->display24.rectangles[2].y = ((StrPlaybackState *)RaceContext.streamStateB8)->display24.rectangles[((StrPlaybackState *)RaceContext.streamStateB8)->display24.alternate04].y;
     }
-    LoadImage(&sp10, ((StrStreamPrefix *)RaceContext.streamStateB8)->buffers18[prev2C]);
+    LoadImage(&sp10, ((StrPlaybackState *)RaceContext.streamStateB8)->buffers18[prev2C]);
 }
 
 s32 ovl668_decode_next_frame(StrDisplayConfig *config) {
@@ -225,7 +225,7 @@ s32 ovl668_decode_next_frame(StrDisplayConfig *config) {
     }
     index = &config->word00;
     *index = *index < 1U;
-    ovl668_mdec_decode_vlc(data, ((StrStreamPrefix *)RaceContext.streamStateB8)->commands10[*index]);
+    ovl668_mdec_decode_vlc(data, ((StrPlaybackState *)RaceContext.streamStateB8)->commands10[*index]);
     return StFreeRing(data);
 }
 
@@ -302,4 +302,3 @@ void ovl668_reset_module(void) {
 
 /* Initial values of the globals this module owns. */
 FrameStorage DrawBuffers[2];
-s32 CdMediaChangeCount;

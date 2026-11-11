@@ -1,3 +1,4 @@
+#include "game/system/pad.h"
 #include "game/ui/uipart1.h"
 #include "game/sound/sndvab.h"
 #include "scratchpad.h"
@@ -25,7 +26,6 @@ extern short MenuCursor;
 extern short ModeIndex;
 extern unsigned short SubmodeState;
 extern int ModeFrame;
-extern int MenuReturnSubmodeIndex;
 extern u8 *MenuSharedScratchPtr;
 extern int DialogueSceneMode;
 extern UiUvRect SaveSlotPanelSpriteUv;

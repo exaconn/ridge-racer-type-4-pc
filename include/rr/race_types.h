@@ -125,7 +125,7 @@ typedef struct {
 /* Fields shared by distance comparison, vehicle physics, AI and response calculations. */
 typedef struct RaceVehicle {
     s32 posScaled00[3], pad0C;
-    s32 pos10[3], pad1C;
+    VectorWords16 worldPosition10;
     VehiclePosition16 position20;
     s32 vel30, pad34, vel38, pad3C;
     s32 ir40[3], pad4C;
@@ -182,6 +182,8 @@ typedef struct RaceVehicle {
     VehicleContactFlags contactFlags1F0;
     RaceVehicleControl control;
 } RaceVehicle;
+RR_ASSERT_OFFSET(RaceVehicle, worldPosition10, 0x10);
+RR_ASSERT_OFFSET(RaceVehicle, position20, 0x20);
 RR_ASSERT_OFFSET(RaceVehicle, footprint110, 0x110);
 
 typedef struct {
@@ -189,22 +191,14 @@ typedef struct {
     RaceVehicle *vehicle08;
 } RaceStandingEntry0C;
 
-typedef struct {
-    s32 unk00, unk04, dist08, dist0C, unk10, gap14;
+/* Per-frame race work: player speeds, distances from the current car, then
+ * sorted standings. CalcDistanceToPlayer updates this same scratchpad owner. */
+typedef struct RaceStandingsTable {
+    s32 playerSpeed[2];
+    s32 playerDistance[2];
+    s32 closestPlayer;
+    s32 gap14;
     RaceStandingEntry0C entries18[8];
 } RaceStandingsTable;
-
-typedef struct {
-    u8 pad00[8];
-    s32 first, second, selected;
-} RaceDistanceResult;
-
-/* Prefix of the race context; the output pointer is at E8 on PAL. */
-typedef struct {
-    u8 pad00[0x14];
-    s32 mode;
-    u8 pad18[0xE8-0x18];
-    RaceDistanceResult *result;
-} RaceDistanceContextPrefix;
 
 #endif

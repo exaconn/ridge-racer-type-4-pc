@@ -11,4 +11,7 @@ void PlaySfxBank2(int);
 void SoundQueueClear(void);
 void LoadVab(const VabData *data, s32 mode, s32 bankIndex);
 
+
+void PlaySfx(s32 sound);
+
 #endif /* RR_GAME_SOUND_SNDVAB_H */

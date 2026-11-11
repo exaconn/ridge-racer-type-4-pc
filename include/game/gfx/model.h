@@ -2,6 +2,7 @@
 #define RR_GAME_GFX_MODEL_H
 
 #include "types.h"
+#include "rr/emblem_tim_types.h"
 #include "rr/model_table.h"
 #include "rr/course_view_types.h"
 #include "rr/projection_state.h"
@@ -9,7 +10,7 @@
 int GetViewTrackSegment(const ProjectionView32 *view, s32 player);
 s32 YawToOctant(const ProjectionView32 *view);
 CourseViewIndices *GetSegmentViewTable(s32 player);
-void InitTimTemplate(int *a0);
+void InitTimTemplate(EmblemTimImage840 *image);
 void RelocateModelTable(RroModelTableWire *table);
 extern RroModelBank *ModelBankTable[];
 extern s32 ModelBankFormat;

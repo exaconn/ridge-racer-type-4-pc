@@ -1,3 +1,5 @@
+#include "game/car/carctrl.h"
+#include "rr/scene_camera_state.h"
 #include "scratchpad.h"
 #include "rr/track_projection.h"
 #include "rr/race.h"
@@ -10,12 +12,10 @@
 #include "game/car/cardrive.h"
 #include "psyq/libc/rand.h"
 
-extern RaceStandingsTable *RaceStandings;
 extern RaceVehicle ComCars[];
 extern int RaceState;
 #include "rr/audio_state_types.h"
 
-extern void UpdateComCarLaneChange();
 
 void UpdateComCars(void) {
     int i;
@@ -23,7 +23,7 @@ void UpdateComCars(void) {
     RaceVehicleControl *s1;
     int r;
 
-    RaceStandings = (RaceStandingsTable *)(SCRATCHPAD + 0x7C);
+    RaceContext.standings = (RaceStandingsTable *)(SCRATCHPAD + 0x7C);
     UpdateRaceStandings();
     switch (RaceState) {
     case 0:

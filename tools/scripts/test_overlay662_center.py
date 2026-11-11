@@ -1,4 +1,5 @@
 """Rectangle-center struct return, signed extents and overlapping result owners."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +9,7 @@ import unittest
 class OverlayCenterTest(unittest.TestCase):
     def test_centers_and_overlapping_return_destinations(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_8011DC74.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_8011DC74.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

@@ -1,4 +1,5 @@
 """Scale-panel argument capture and full cursor publication; renderer services simulated."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -7,7 +8,7 @@ import unittest
 class Overlay662ScalePanelTest(unittest.TestCase):
     def test_scale_coordinates_and_mutating_services(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_8011C610.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_8011C610.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -37,7 +38,7 @@ static u8 *service(unsigned kind,u32 *order,u8 *cursor,const u32 *args,unsigned 
  return cursor+(4*(w->calls+1));
 }
 GpuLineF4Packet *ovl662_emit_wire_box(u32 *o,GpuLineF4Packet *p,u32 x,u32 y,u32 width,u32 height,u32 r,u32 g,u32 b){u32 args[]={x,y,width,height,r,g,b};return (GpuLineF4Packet*)service(1,o,(u8*)p,args,7);}
-u8 *ovl662_emit_draw_area(u32 *o,u8 *p,u32 x,u32 y,u32 width,u32 height){u32 args[]={x,y,width,height};return service(2,o,p,args,4);}
+u8 *ovl662_emit_draw_area(u32 *o,u32 *words,u32 x,u32 y,u32 width,u32 height){u8 *p=(u8 *)words;u32 args[]={x,y,width,height};return service(2,o,p,args,4);}
 GpuPolyFT4Packet *ovl662_emit_textured_quad(u32 *o,GpuPolyFT4Packet *p,u32 x,u32 y,u32 width,u32 height,u32 u,u32 v,u32 uw,u32 vh,u32 clut,u32 page){u32 args[]={x,y,width,height,u,v,uw,vh,clut,page};return (GpuPolyFT4Packet*)service(3,o,(u8*)p,args,10);}
 ''' + body + r'''
 static s16 narrow(unsigned bits){u16 u=bits;s16 v;memcpy(&v,&u,2);return v;}

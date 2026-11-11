@@ -2,58 +2,24 @@
 #define RR_GAME_CAR_CARSP_H
 
 #include "types.h"
+#include "rr/geometry.h"
+#include "rr/race_types.h"
+#include "rr/track_sample_types.h"
 
 /* RaceVehicle-physics work area in the scratchpad (0x1F800080). */
-typedef struct T16 { s32 a; s32 pa; s32 c; s32 pc; } T16;
 
-typedef struct SP {
-    s32 w0, w4; s32 idx;
-    s32 wC[10]; s32 w34; s32 cnt; s32 r3c; s32 r40;
-    s32 w44[8];
-    u16 h64, h66, h68, h6a, h6c, h6e, h70, h72, h74, h76;
-    s32 w78;
-    s32 w7c; s32 w80;
-    s32 w84[35];
-    T16 t110[4];
-    s16 s150[16];
-} SP;
+/* NCLIP consumes each signed halfword pair as one packed register word. */
+typedef union {
+    struct { u16 x, z; } halves;
+    s32 word;
+} CarTrackPoint4;
 
-
-typedef struct Z52 {
-    s32 w0;
+/* Search, contact and suspension operate on one owner. The first member stays
+ * a full native pointer, so callers and callees agree on every later offset. */
+typedef struct CarTrackWork {
+    RaceVehicle *vehicle00;
     s32 w4;
-    s16 s8;
-    s16 sA;
-    s16 sC;
-    s16 sE;
-    s16 s10;
-    s16 s12;
-    s16 s14;
-    s16 s16;
-    s16 s18;
-    s16 s1A;
-    s32 w1C;
-    struct {
-        u8 b0;
-        u8 b1;
-    } a20[2];
-    s16 s24[2];
-    s16 s28[2];
-    s16 s2C[2];
-    s16 s30[2];
-} Z52;
-
-typedef struct T16_1 {
-    s32 a;
-    s32 b;
-    s32 c;
-    s32 d;
-} T16_1;
-
-typedef struct SP_1 {
-    RaceVehicle *p0;
-    s32 w4;
-    s32 w8;
+    s32 wheelIndex08;
     s32 wC;
     s32 w10;
     s32 w14;
@@ -70,7 +36,11 @@ typedef struct SP_1 {
     s32 w38;
     s32 w3C;
     s32 w40;
-    s32 w44[29];
+    s32 w44[8];
+    CarTrackPoint4 queryPoint64, rightEdge68, leftEdge6C;
+    CarTrackPoint4 nextRight70, nextLeft74;
+    s32 originX78, w7C, originZ80;
+    s32 w84[13];
     s16 sB8;
     s16 sBA;
     s16 sBC;
@@ -93,12 +63,13 @@ typedef struct SP_1 {
     s16 sFA;
     s16 sFC;
     s16 sFE;
-    s32 w100;
-    s32 w104;
-    s32 w108;
-    s32 w10C;
-    T16_1 t110[4];
-    s16 s150[4];
+    VectorWords16 translation100;
+    Vector positions110[4];
+    /* Track indices are consumed before the suspension phase reuses them. */
+    union {
+        s16 trackNodes[4];
+        s16 heightOffsets[4];
+    } wheelState150;
     s16 s158;
     s16 s15A;
     s16 s15C;
@@ -116,16 +87,20 @@ typedef struct SP_1 {
     s16 s174;
     s16 s176;
     s32 w178[2];
-    Z52 z180[4];
-    s16 s250[2][4];
-} SP_1;
+    TrackRoadSample34 road180[4];
+    s16 wheelHeights250[2][4];
+} CarTrackWork;
 
-typedef struct ScratchCarPad {
-    u8 reserved00[0x7C];
-    s32 wheelBufIdx7C;
-    u8 reserved80[0x100];
-    Vector pos180;
-    Vector wheels190[4];
-} ScratchCarPad;
+/* On PAL the vehicle pointer occupies one word; native owners retain its width. */
+RR_ASSERT_SIZE(CarTrackPoint4,4);
+RR_ASSERT_OFFSET(CarTrackWork,wheelIndex08,4 + sizeof(RaceVehicle *));
+RR_ASSERT_OFFSET(CarTrackWork,queryPoint64,0x60 + sizeof(RaceVehicle *));
+RR_ASSERT_OFFSET(CarTrackWork,nextLeft74,0x70 + sizeof(RaceVehicle *));
+RR_ASSERT_OFFSET(CarTrackWork,w4,sizeof(RaceVehicle *));
+RR_ASSERT_OFFSET(CarTrackWork,translation100,0xFC + sizeof(RaceVehicle *));
+RR_ASSERT_OFFSET(CarTrackWork,positions110,0x10C + sizeof(RaceVehicle *));
+RR_ASSERT_OFFSET(CarTrackWork,wheelState150,0x14C + sizeof(RaceVehicle *));
+RR_ASSERT_OFFSET(CarTrackWork,road180,0x17C + sizeof(RaceVehicle *));
+RR_ASSERT_OFFSET(CarTrackWork,wheelHeights250,0x24C + sizeof(RaceVehicle *));
 
 #endif

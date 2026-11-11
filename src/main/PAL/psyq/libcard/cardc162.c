@@ -28,11 +28,6 @@ s32 _cardCmd5ABegin(s32 request, u8 *buffer) {
     CardWriteHandler = _cardCmd5ARx;
     active = 2;
     CardCmdBuffer = buffer;
-    {
-        s32 *base;
-        /* PAL RAM mapping: base[-0x421C / 4] is CardCommandStatus. */
-        base = (s32 *)0x800B0000U;
-        base[-0x421C / 4] = active;
-    }
+    CardCommandStatus = active;
     return result;
 }

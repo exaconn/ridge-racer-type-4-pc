@@ -5,7 +5,7 @@
 #include "rr/race_types.h"
 #include "rr/preview_rgb.h"
 
-int TriggerWheelBump(RaceVehicle *a, int b);
+int TriggerWheelBump(RaceVehicle *vehicle, int wheel);
 void DrawPreviewCar(RaceVehicle *vehicle, PreviewRgb3 color, s32 brightness, s32 flags);
 void DrawPlayerCar(RaceVehicle *vehicle, s32 viewMode);
 void DrawOpponentCar(RaceVehicle *vehicle, s32 viewMode);

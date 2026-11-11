@@ -1,7 +1,7 @@
 #ifndef RR_ANIMATED_GLYPH_H
 #define RR_ANIMATED_GLYPH_H
 #include "rr/icon_sprites.h"
-#include "rr/draw_environment.h"
+#include "psyq/libgpu/gpudisp.h"
 #ifndef RR_GLYPH_ANIMATION_SCRATCH
 #define RR_GLYPH_ANIMATION_SCRATCH ((GpuScratchPointers *)0x1F800000U)
 #endif

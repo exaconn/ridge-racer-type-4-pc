@@ -23,6 +23,8 @@ void UpdateComCarDrive(RaceVehicle *arg0) {
     s16 temp_v0_3;
     /* ASM_BARRIER: Keep this initialized drive value in its original phase. */
     register s32 var_s0 __asm__("$16");
+    /* ASM_BARRIER: Keep this initialized drive value in its original phase. */
+    register s32 heading __asm__("$2");
     s16 var_v1_2;
     s32 temp_a0_2;
     s32 temp_a1;
@@ -45,11 +47,8 @@ void UpdateComCarDrive(RaceVehicle *arg0) {
     if (temp_v1 & 0x800) {
         arg0->heading1D4 = (u16) (temp_a0 | 0xF000);
     }
-    {
-        /* ASM_BARRIER: Keep this initialized drive value in its original phase. */
-        register s32 heading __asm__("$2") = arg0->heading1D4;
-        var_s0 = heading - temp_a1;
-    }
+    heading = arg0->heading1D4;
+    var_s0 = heading - temp_a1;
     var_s0 &= 0xFFF;
     if (var_s0 & 0x800) {
         var_s0 |= ~0xFFF;
@@ -119,12 +118,9 @@ void UpdateComCarDrive(RaceVehicle *arg0) {
         temp_s1->accel50 = 0;
         if (half_limit < temp_a0_2) {
             temp_s1->dragFlag46 = 1;
-            {
-            /* ASM_BARRIER: Keep this initialized drive value in its original phase. */
-            register s32 fraction __asm__("$2") = (var_s0 * 2) / 3;
-            if ((fraction < temp_a0_2) && (temp_s1->steeringEnabled124 != 0) && (temp_s1->dynamics94.steering.mode00 == 0)) {
+            heading = (var_s0 * 2) / 3;
+            if ((heading < temp_a0_2) && (temp_s1->steeringEnabled124 != 0) && (temp_s1->dynamics94.steering.mode00 == 0)) {
                 PlanComCarCornerTurn(arg0);
-            }
             }
         }
     } else {

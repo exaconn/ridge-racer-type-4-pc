@@ -1,5 +1,6 @@
 #ifndef RR_TEXT_SPRITES_H
 #define RR_TEXT_SPRITES_H
+#include "game/course/trktext.h"
 
 #include "rr/icon_sprites.h"
 
@@ -16,6 +17,5 @@ extern u8 FontAtlasRowTable[288], FontGlyphWidths[256];
  * Widths and text are read again after packet stores/list insertion. Coordinates
  * and X increments wrap at 16/32 bits respectively. Height is 12 and width comes
  * from the first width-table read. */
-void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank);
 
 #endif

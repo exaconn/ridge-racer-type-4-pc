@@ -1,8 +1,9 @@
 #ifndef RR_GAME_DATA_SELECTION_H
 #define RR_GAME_DATA_SELECTION_H
 
-/* Current selection rows (menu / car choice), byte view used by the game units. */
+#include "rr/current_selection_types.h"
 
-extern unsigned char SelectionRows[];
+/* Eight four-byte records; menu selectors occupy the first record. */
+extern CurrentSelection SelectionRows;
 
 #endif

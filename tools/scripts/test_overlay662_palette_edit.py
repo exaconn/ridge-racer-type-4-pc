@@ -1,4 +1,5 @@
 """RGB editing with genuine palette unions and actual backup/clip/hit bodies."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -8,7 +9,7 @@ class Overlay662PaletteEditTest(unittest.TestCase):
     def test_all_cursor_halfwords_start_gates_and_backup(self):
         root=Path(__file__).resolve().parents[2]
         paths=['8011E6C8','8011E7C0','8011D120','80124258','801243DC','80124560']
-        bodies='\n'.join((root/f'src/overlays/PAL/662/func_{a}.c').read_text() for a in paths)
+        bodies='\n'.join(read_c_source(root/f'src/overlays/PAL/garage/func_{a}.c') for a in paths)
         source=r'''
 #include <assert.h>
 #include <stdint.h>

@@ -105,13 +105,13 @@ void _SsTickCallbackDivided(void) {
         s32 one = 1;
         /* PAL mapping: page + 0x4D4C is &D_800A4D4C. */
         page = (u8 *)0x800A0000U;
-        *(s32 *)(page + 0x4D4C) = one;
+        ((s32 *)page)[0x4D4C / sizeof(s32)] = one;
     } else {
         u8 *page;
         void (*callback)(void) = D_800A4D40;
         /* PAL mapping: page + 0x4D4C is &D_800A4D4C. */
         page = (u8 *)0x800A0000U;
-        *(s32 *)(page + 0x4D4C) = 0;
+        ((s32 *)page)[0x4D4C / sizeof(s32)] = 0;
         callback();
     }
 }

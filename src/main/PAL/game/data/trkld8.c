@@ -1,3 +1,5 @@
+#include "rr/scene_camera_state.h"
+#include "game/gfx/scene1.h"
 /* RODATA 0x800110c0 0x18 */
 #include "game/data/cdfile2.h"
 #include "rr/load_cursor.h"
@@ -19,11 +21,8 @@ extern short SelectedTeamIndex;
 extern int SelectedStoryBranchId;
 extern short CourseIndex;
 #include "rr/menu_arena_base.h"
-extern char RaceContext[];
 extern void SsSetSerialAttr(signed char a0, signed char a1, signed char a2);
 extern int SsSetSerialVol(signed char a0, int a1, int a2);
-extern void InitSceneOverlayState(void);
-extern void CdAudioInit(void);
 
 int LoadIntroSceneStep(void) {
     int v;
@@ -97,7 +96,7 @@ void SoundSystemInit(void) {
     SsStart();
     SsSetMVol(0x7F, 0x7F);
     PsyqBzero(state, sizeof(*state));
-    PsyqBzero(RaceContext, 0x57C);
+    PsyqBzero(&RaceContext, sizeof(RaceContext));
     InitSceneOverlayState();
     ResetSlotOrder();
     state->master08 = 0x80;

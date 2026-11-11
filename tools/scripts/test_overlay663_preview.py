@@ -8,7 +8,7 @@ import unittest
 class Overlay663PreviewTest(unittest.TestCase):
     def test_mutating_boundaries_and_complete_owners(self):
         root=Path(__file__).resolve().parents[2]
-        body=read_c_source(root/'src/overlays/PAL/663/func_801157B8.c')
+        body=read_c_source(root/'src/overlays/PAL/records/func_801157B8.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

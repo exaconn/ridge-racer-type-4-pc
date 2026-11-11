@@ -9,7 +9,7 @@ import unittest
 class OverlaySerialHandlesTest(unittest.TestCase):
     def test_handle_order_reloads_and_ignored_failures(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/overlays/PAL/667/func_80114A40.c')
+        body = read_c_source(root / 'src/overlays/PAL/serial_link/func_80114A40.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

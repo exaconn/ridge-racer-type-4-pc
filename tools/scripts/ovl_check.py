@@ -61,8 +61,9 @@ def main():
     spans = dict(vos.RODATA_SPANS)
     if rodata:
         spans[(index, address)] = rodata
+    functions = list(dict.fromkeys(vos.SAMPLES + vos.EXTRA_FUNCTIONS + [(index, address, size)]))
     try:
-        elf, span = link_unit(index, source, [(index, address, size)], spans, output,
+        elf, span = link_unit(index, source, functions, spans, output,
                               vos.validate_object_sections, ROOT)
     except subprocess.CalledProcessError as e:
         print('BUILD ERROR:\n' + (e.stderr or b'').decode(errors='replace')[-3000:])

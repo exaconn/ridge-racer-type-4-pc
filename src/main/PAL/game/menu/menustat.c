@@ -1,3 +1,5 @@
+#include "game/sound/cdpos.h"
+#include "rr/save_slots.h"
 /* RODATA 0x80010538 0x18 */
 #include "scratchpad.h"
 #include "rr/frame_storage_types.h"
@@ -15,19 +17,9 @@
 #include "game/sound/cdplay.h"
 #include "game/ui/badge1.h"
 #include "game/menu/mnrows.h"
-typedef struct {
-    s32 unk00[5];
-    unsigned char b14;
-    char p15, p16;
-    signed char b17;
-    char p18[2];
-    short h1A;
-} S4D8;
 
-extern int CdAudioInit();
 extern unsigned int ModeFrame;
 extern unsigned short SubmodeState;
-extern S4D8 SelectionState;
 extern RaceVehicle PlayerCars[2];
 extern unsigned char MenuCameraPresetIndices[];
 extern int MenuReturnSubmodeIndex;
@@ -42,18 +34,18 @@ void CarStandingsModeUpdate(void) {
     int sp[3];
     unsigned int x;
     int r;
-    S4D8 *p;
+    MenuSettings2C *p;
     ModeFrame++;
     if (ModeFrame > 0x7FFFF) ModeFrame = 0x1000;
     switch (SubmodeState) {
     case 0:
-        p = &SelectionState;
-        if (p->h1A == 6) {
+        p = &SelectionState.fields;
+        if (p->mode1A == 6) {
             if (LoadCarRangeStep(0, 1) == 1) {
                 ResetCarState(PlayerCars);
                 SavedLoadCursor = LoadCursor;
-                r = (p->b17 - 1) / 2;
-                x = MenuCameraPresetIndices[p->b14];
+                r = (p->phase17 - 1) / 2;
+                x = MenuCameraPresetIndices[p->reserved10[4]];
                 if (r >= 3) { r = 2; x = x * 3; }
                 InitCameraState(r, x);
                 SetRaceLoadCursor(LoadCursor);
@@ -70,7 +62,7 @@ void CarStandingsModeUpdate(void) {
         SubmodeState = 5;
         break;
     case 3:
-        if (LoadMenuCarStep(SelectionRows[0], SelectionRows[1])) SubmodeState = 4;
+        if (LoadMenuCarStep(SelectionRows.bytes[0], SelectionRows.bytes[1])) SubmodeState = 4;
         break;
     case 4:
         if (MenuReturnSubmodeIndex != 0 || ModeFrame >= 0x177) {

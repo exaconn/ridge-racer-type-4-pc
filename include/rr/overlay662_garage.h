@@ -1,6 +1,7 @@
 #ifndef RR_OVERLAY662_GARAGE_H
 #define RR_OVERLAY662_GARAGE_H
 #include "rr/layout.h"
+#include "rr/emblem_tim_types.h"
 typedef struct GarageOptionRecord GarageOptionRecord;
 /* One pointer owner has flat initialization and3/5 navigation group views. */
 typedef struct {GarageOptionRecord *first[3],*second[5];} GarageOptionPointerGroups;
@@ -8,7 +9,7 @@ typedef union {GarageOptionRecord *flat[8];GarageOptionPointerGroups groups;} Ga
 typedef struct {s32 first[3],second[5];} GarageOptionIndexGroups;
 typedef union {s32 flat[8];GarageOptionIndexGroups groups;} GarageOptionIndices;
 /* Complete TIM byte image; byte alignment retains the original unaligned copy path. */
-typedef struct {u8 data[0x840];} GarageTimBytes;
+typedef EmblemTim840 GarageTimBytes;
 typedef struct {
     s32 fade00,word04;
     s16 reset08[10];

@@ -25,7 +25,9 @@ void UpdateCameraMotion(MotionClock20 *input) {
     s32 temp_v1_2;
     s32 temp_v1_5;
     /* ASM_BARRIER: retain the initialized value or pointer in the original phase. */
-    register s32 temp_v1_3 __asm__("$3");
+    register s32 value __asm__("$2"), temp_v1_3 __asm__("$3");
+    /* ASM_BARRIER: retain the initialized value or pointer in the original phase. */
+    register s32 first __asm__("$5"), second __asm__("$4");
     CameraMotion70 *temp_a3;
     CameraKey16 *temp_v1_4;
 
@@ -44,12 +46,9 @@ copy_start:
                 return;
             }
             {
-                /* ASM_BARRIER: retain the initialized value or pointer in the original phase. */
-                register s32 value __asm__("$2"),start __asm__("$3");
-                /* ASM_BARRIER: retain the initialized value or pointer in the original phase. */
-                register s32 first __asm__("$5"),second __asm__("$4"),third;
-                value= arg0->tempo;start=object->scale4C;
-                value=W_SUB(W_MUL(value,2),300);RR_MD_MULT_S(value,start);
+                s32 third;
+                value= arg0->tempo;temp_v1_3=object->scale4C;
+                value=W_SUB(W_MUL(value,2),300);RR_MD_MULT_S(value,temp_v1_3);
                 value = temp_a3->keys0C[temp_a3->key08].x;
                 temp_a3->target20[0] = value;
                 value = W_SUB(value, temp_a3->start10[0]);
@@ -65,10 +64,10 @@ copy_start:
                 /* ASM_BARRIER: retain the original read/publish phase before this physical is reused. */
                 temp_a3->target20[2]=value;
                 __asm__("" : "=r"(value) : "0"(value) : "memory");
-                start=value;
+                temp_v1_3=value;
                 value=temp_a3->start10[2];
-                start=W_SUB(start,value);
-                third=W_MUL(start,100);
+                temp_v1_3=W_SUB(temp_v1_3,value);
+                third=W_MUL(temp_v1_3,100);
                 RR_MD_DIV_S(third,third,temp_lo);
                 temp_a3->delta30[0]=first;
                 temp_a3->delta30[1]=second;
@@ -76,18 +75,16 @@ copy_start:
             }
             {
                 PresentationController *settings=root->controller3D8;
-                /* ASM_BARRIER: retain the initialized value or pointer in the original phase. */
-                register s32 result __asm__("$2"),product __asm__("$3");
-                result=settings->scale4C;product= arg0->tempo;
-                result=W_MUL(result,2);RR_MD_MULT_S(product,result);RR_MD_LO(product);
-                result=0x51EB851FU;RR_MD_MULT_U(product,result);
+                value=settings->scale4C;temp_v1_3= arg0->tempo;
+                value=W_MUL(value,2);RR_MD_MULT_S(temp_v1_3,value);RR_MD_LO(temp_v1_3);
+                value=0x51EB851FU;RR_MD_MULT_U(temp_v1_3,value);
 
-                product=(u16)settings->scale4C;
+                temp_v1_3=(u16)settings->scale4C;
                 temp_a3->counter50=0;
-                product+=1;
+                temp_v1_3+=1;
 
-                RR_MD_HI(result);result=(u32)result>>5;
-                result=W_SUB(result,product);temp_a3->horizon52=(s16)result;
+                RR_MD_HI(value);value=(u32)value>>5;
+                value=W_SUB(value,temp_v1_3);temp_a3->horizon52=(s16)value;
             }
             object->motion74.phase00 = W_ADD(object->motion74.phase00,1);
         case 1:
@@ -126,8 +123,6 @@ copy_start:
                 s32 first,second,third;
                 /* ASM_BARRIER: retain the initialized value or pointer in the original phase. */
                 register s32 highFirst __asm__("$10"),highSecond __asm__("$8"),highThird __asm__("$9");
-                /* ASM_BARRIER: retain the initialized value or pointer in the original phase. */
-                register s32 quotient __asm__("$2");
                 first=temp_a3->current40[0];RR_MD_MULT_S_FINISH16(first,multiplier,0x851F);RR_MD_HI(highFirst);
                 second=temp_a3->current40[1];RR_MD_MULT_S(second,multiplier);
                 temp_v1_3=temp_a3->counter50;RR_MD_HI(highSecond);
@@ -135,15 +130,15 @@ copy_start:
                 RR_MD_MULT_S(third,multiplier);
                 first>>=31;temp_a3->counter50=(u16)temp_v1_3;
                 temp_v1_3 = (temp_v1_3 * 0x10000U);second>>=31;
-                quotient=highFirst>>5;quotient=W_SUB(quotient,first);temp_a3->angles64[0]=(s16)quotient;
-                quotient=highSecond>>5;
-                quotient=W_SUB(quotient,second);
+                value=highFirst>>5;value=W_SUB(value,first);temp_a3->angles64[0]=(s16)value;
+                value=highSecond>>5;
+                value=W_SUB(value,second);
                 third>>=31;
-                temp_a3->angles64[1]=(s16)quotient;
+                temp_a3->angles64[1]=(s16)value;
                 RR_MD_HI(highThird);
-                quotient=highThird>>5;
-                quotient=W_SUB(quotient,third);
-                temp_a3->angles64[2]=(s16)quotient;
+                value=highThird>>5;
+                value=W_SUB(value,third);
+                temp_a3->angles64[2]=(s16)value;
             }
             if ((temp_v1_3>>16) >= temp_a3->horizon52) {
                 temp_v0_4 = W_ADD(temp_a3->key08,1);
@@ -179,12 +174,9 @@ copy_start:
                 goto copy_start;
             }
             {
-                /* ASM_BARRIER: retain the initialized value or pointer in the original phase. */
-                register s32 value __asm__("$2"),start __asm__("$3");
-                /* ASM_BARRIER: retain the initialized value or pointer in the original phase. */
-                register s32 first __asm__("$5"),second __asm__("$4"),third;
-                value= arg0->tempo;start=object->scale4C;
-                value=W_SUB(W_MUL(value,2),300);RR_MD_MULT_S(value,start);
+                s32 third;
+                value= arg0->tempo;temp_v1_3=object->scale4C;
+                value=W_SUB(W_MUL(value,2),300);RR_MD_MULT_S(value,temp_v1_3);
                 value = temp_a3->keys0C[temp_a3->key08].x;
                 temp_a3->target20[0] = value;
                 value = W_SUB(value, temp_a3->start10[0]);
@@ -200,10 +192,10 @@ copy_start:
                 /* ASM_BARRIER: retain the original read/publish phase before this physical is reused. */
                 temp_a3->target20[2]=value;
                 __asm__("" : "=r"(value) : "0"(value) : "memory");
-                start=value;
+                temp_v1_3=value;
                 value=temp_a3->start10[2];
-                start=W_SUB(start,value);
-                third=W_MUL(start,100);
+                temp_v1_3=W_SUB(temp_v1_3,value);
+                third=W_MUL(temp_v1_3,100);
                 RR_MD_DIV_S(third,third,temp_lo_2);
                 temp_a3->delta30[0]=first;
                 temp_a3->delta30[1]=second;
@@ -212,35 +204,34 @@ copy_start:
             object->motion74.phase00 = W_ADD(object->motion74.phase00,1);
         case 1:
             {
-                /* ASM_BARRIER: retain the initialized value or pointer in the original phase. */
-                register s32 value __asm__("$2"),delta;
+                s32 delta;
                 s32 first,second,third;
                 /* ASM_BARRIER: retain the initialized value or pointer in the original phase. */
                 register s32 highFirst __asm__("$9"),highSecond __asm__("$8"),highThird __asm__("$6");
                 s32 multiplier=0x51EB851F;
-                /* ASM_BARRIER: retain the original read/publish phase before this physical is reused. */
                 value=temp_a3->current40[0];
                 delta=temp_a3->delta30[0];
                 value=W_ADD(value,delta);
                 temp_a3->current40[0]=value;
+                /* ASM_BARRIER: retain the original read/publish phase before this physical is reused. */
                 __asm__("" : "=r"(value) : "0"(value) : "memory");
                 first=value;
                 RR_MD_MULT_S(first,multiplier);
-                /* ASM_BARRIER: retain the original read/publish phase before this physical is reused. */
                 value=temp_a3->current40[1];
                 delta=temp_a3->delta30[1];
                 value=W_ADD(value,delta);
                 RR_MD_HI(highFirst);
                 temp_a3->current40[1]=value;
+                /* ASM_BARRIER: retain the original read/publish phase before this physical is reused. */
                 __asm__("" : "=r"(value) : "0"(value) : "memory");
                 second=value;
                 RR_MD_MULT_S(second,multiplier);
-                /* ASM_BARRIER: retain the original read/publish phase before this physical is reused. */
                 value=temp_a3->current40[2];
                 delta=temp_a3->delta30[2];
                 value=W_ADD(value,delta);
                 RR_MD_HI(highSecond);
                 temp_a3->current40[2]=value;
+                /* ASM_BARRIER: retain the original read/publish phase before this physical is reused. */
                 __asm__("" : "=r"(value) : "0"(value) : "memory");
                 third=value;
                 RR_MD_MULT_S(third,multiplier);

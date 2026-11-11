@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 import re,subprocess
 root=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file())
 stage=root/'build/goal_50/parallel660'
-public=root/'src/overlays/PAL/660/func_80114D38.c'
+public=root/'src/overlays/PAL/time_attack/func_80114D38.c'
 use_public=True
 body=read_c_source(public);body=body[body.index('void ovl660_update_menu'):]
 body=re.sub(r' __asm__\("\$\d+"\)','',body)

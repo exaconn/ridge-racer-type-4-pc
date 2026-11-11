@@ -258,3 +258,8 @@ class MenuArenaPipelineTest(unittest.TestCase):
 
 
 if __name__=='__main__':unittest.main()
+
+# Native glyph rows retain full pointer cells; the historical PAL oracle and
+# arena input/output schema remain unchanged.
+from menu_glyph_arena_transport import install as _install_glyph_arena_transport
+_install_glyph_arena_transport(MenuArenaPipelineTest, globals())

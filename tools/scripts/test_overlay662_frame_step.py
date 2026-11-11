@@ -1,4 +1,5 @@
 """Frame dispatcher: defined PAL counter wrap and fresh full-width published roots."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -7,7 +8,7 @@ import unittest
 class Overlay662FrameStepTest(unittest.TestCase):
     def test_counter_edges_order_and_fresh_service_state(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_8011AAF4.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_8011AAF4.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

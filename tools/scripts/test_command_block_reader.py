@@ -22,7 +22,8 @@ class CommandBlockReaderTest(unittest.TestCase):
 typedef uint8_t u8;typedef uint32_t u32;typedef int32_t s32;
 ''' + header + '''
 volatile s32 CardTxCount;
-s32 CardCommandStatus,CardCommandRequest,CardRetriesLeft,CardReceiveIndex,CardRxCount;
+volatile s32 CardCommandStatus;
+s32 CardCommandRequest,CardRetriesLeft,CardReceiveIndex,CardRxCount;
 s32 CardChecksum,CardCmdSector,CardCmdCount,CardBytesRemaining,CardCurrentCommand;
 CommandParameter CardCmdParam;
 CommandReadCallback CardCommandReader;

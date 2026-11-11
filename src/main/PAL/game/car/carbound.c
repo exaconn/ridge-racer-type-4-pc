@@ -21,8 +21,6 @@ extern short NumCars;
 extern short LinkHostFlag;
 
 void SetCarBounds(RaceVehicle *a);
-void ResetCarState(RaceVehicle *a);
-void UpdateCarWorldTransform(RaceVehicle *a0);
 
 void DrawCars(s32 a0) {
     int z; 
@@ -142,9 +140,9 @@ void UpdateCarWorldTransform(RaceVehicle *a0) {
     } L;
     int t1, t2;
     unsigned short u1, u2, u3;
-    a0->pos10[0] = a0->position20.words[0] * 4;
-    a0->pos10[1] = a0->position20.words[1] * 4;
-    a0->pos10[2] = a0->position20.words[2] * 4;
+    a0->worldPosition10.words[0] = a0->position20.words[0] * 4;
+    a0->worldPosition10.words[1] = a0->position20.words[1] * 4;
+    a0->worldPosition10.words[2] = a0->position20.words[2] * 4;
     a0->ang80 = (unsigned short)a0->rot50;
     a0->ang82 = (unsigned short)a0->rot54;
     a0->ang84 = (unsigned short)a0->rot58;
@@ -170,21 +168,21 @@ void UpdateCarWorldTransform(RaceVehicle *a0) {
     L.v[1] = -((a0->wheelSuspensionDC[2] + a0->wheelSuspensionDC[3]) >> 3);
     L.v[2] = 0;
     ApplyMatrix((const MatrixWords32 *)(L.m2), (const Vec3s8 *)(L.v), (Vec3i *)a0->ir60);
-    a0->ir70[0] = a0->ir70[0] + a0->pos10[0];
-    a0->ir70[1] = a0->ir70[1] + a0->pos10[1];
-    a0->ir70[2] = a0->ir70[2] + a0->pos10[2];
+    a0->ir70[0] = a0->ir70[0] + a0->worldPosition10.words[0];
+    a0->ir70[1] = a0->ir70[1] + a0->worldPosition10.words[1];
+    a0->ir70[2] = a0->ir70[2] + a0->worldPosition10.words[2];
     a0->ang80 = (unsigned short)a0->rot50;
     a0->ang82 = (unsigned short)a0->rot54;
     a0->ang84 = (unsigned short)a0->rot58;
-    a0->pos10[1] = a0->pos10[1] + a0->ir40[1];
-    a0->pos10[0] = a0->pos10[0] + a0->ir40[0];
+    a0->worldPosition10.words[1] = a0->worldPosition10.words[1] + a0->ir40[1];
+    a0->worldPosition10.words[0] = a0->worldPosition10.words[0] + a0->ir40[0];
     a0->ang80 = (unsigned short)a0->ang80 + (unsigned short)a0->renderAngleX1AC;
     a0->ang84 = (unsigned short)a0->ang84 + (unsigned short)a0->renderAngleZ1AE;
     a0->ir70[1] = a0->ir70[1] + a0->ir40[1];
     a0->ir70[0] = a0->ir70[0] + a0->ir40[0];
-    a0->pos10[2] = a0->pos10[2] + a0->ir40[2];
+    a0->worldPosition10.words[2] = a0->worldPosition10.words[2] + a0->ir40[2];
     a0->ir70[2] = a0->ir70[2] + a0->ir40[2];
-    a0->bodyPosition = *(Vector *)a0->pos10;
+    a0->bodyPosition = a0->worldPosition10.vector;
 }
 
 void ScaleMatrixRow1(s32 scale, MatrixWords32 *matrix) {
@@ -202,7 +200,7 @@ void AssignCarModelSlot(RaceVehicle *p) {
     int c;
     int r = 0;
     if (GameModeType == 1) {
-        a2 = SelectionRows;
+        a2 = SelectionRows.bytes;
         t = p->flags1E4 & 7;
         c = a2[0];
         r = (t < 4) ^ 1;

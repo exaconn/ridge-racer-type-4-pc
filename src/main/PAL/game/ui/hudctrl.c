@@ -22,7 +22,7 @@ void DrawRaceMinimap(s32 arg0) {
     s32 var_s0_2;
     u32 *var_s3;
     s32 var_s4;
-    register s32 var_v0 __asm__("$2");
+    s32 var_v0;
     RaceVehicle *temp_a0;
 
     var_s4 = 0;
@@ -54,27 +54,25 @@ void DrawRaceMinimap(s32 arg0) {
             if ((u16)temp_a0->flags1E4 & 0x10) {
                 u16 clut=(temp_hi<<6)+0x1A16;
                 s32 yNumerator=temp_a0->position20.words[2]; s32 xNumerator=temp_a0->position20.words[0];
-                register s32 yValue __asm__("$2");
                 s32 xValue;
                 xValue=xNumerator/1150+4;
                 yBase=var_s4+242;
-                yValue=yBase-yNumerator/1150;
-                var_a1 = AddSpritePrim(var_s3, var_a1, xValue, yValue-4, glyph, clut, 0);
+                var_v0=yBase-yNumerator/1150;
+                var_a1 = AddSpritePrim(var_s3, var_a1, xValue, var_v0-4, glyph, clut, 0);
             }
             var_s0 += 1;
         } while (var_s0 < NumCars);
     }
     var_s0_2 = 0;
     if ((arg0 + 1) > 0) {
-        s16 originX=8;
+        s16 originX = 8;
         do {
-            /* ASM_BARRIER: preserve original register scheduling. */
-            __asm__("" : : "r"((s32)originX));
+            s32 x = originX;
             var_v0 = var_s4 + 0x3E;
             if (var_s0_2 <= 0) {
                 var_v0 = var_s4 + 0xBE;
             }
-            var_a1 = GameQueueSprite(var_s3, var_a1, originX, var_v0, 0x34, 0x34, 0x4C, 0x6C, 0x1BD6);
+            var_a1 = GameQueueSprite(var_s3, var_a1, x, var_v0, 0x34, 0x34, 0x4C, 0x6C, 0x1BD6);
             var_s0_2 += 1;
         } while (var_s0_2 < (arg0 + 1));
     }
@@ -125,7 +123,7 @@ void DrawSteeringIndicator(u32 *ordering, s32 layout) {
             if ((ScreenFrame & 3) >= 2U || i == status) {
                 modeCursor = AddDrawModePrim(ordering, RR_HUD_SCRATCH->cursor, 0x25);
                 RR_HUD_SCRATCH->cursor = modeCursor;
-                spriteCursor = GameQueueSprite(ordering, (SpritePacketSignedClut *)RR_HUD_SCRATCH->cursor, 0x80, baselineY - 0xA, 0x44, 8, 0x80, 0x40, 0x1B16);
+                spriteCursor = GameQueueSprite(ordering, (SpritePacket *)RR_HUD_SCRATCH->cursor, 0x80, baselineY - 0xA, 0x44, 8, 0x80, 0x40, 0x1B16);
                 RR_HUD_SCRATCH->cursor = spriteCursor;
                 RR_HUD_SCRATCH->cursor = AddDrawModePrim(ordering, spriteCursor, 0x25);
             }

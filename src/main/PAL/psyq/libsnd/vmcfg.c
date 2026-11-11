@@ -1,6 +1,5 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-#include "rr_asm.h"
 #include "rr/channels.h"
 #include "rr/spu.h"
 #include "psyq/libspu/sminit.h"
@@ -33,28 +32,16 @@ void SsVabClose(s16 channel) {
 
 void SpuFree(u32 address) {
     s32 visited = 0;
-    s32 count = _spu_AllocBlockNum;
-    if (count > 0) {
-        u32 end_marker = 0x40000000U;
-        u32 freed = address | 0x80000000U;
-        s32 limit = count;
-        SpuAllocation *entry;
-
-        /* ASM_BARRIER: materialize loop invariants before loading the cursor. */
-        __asm__ volatile("" : : "r"(end_marker), "r"(freed), "r"(limit));
-        entry = _spu_memList;
-        RR_NOP_DEP();
+    if (_spu_AllocBlockNum > 0) {
         do {
-            /* ASM_BARRIER: reuse v1 for the current entry's address and flags. */
-            register u32 flags __asm__("$3") = entry->address_flags;
-            if (flags & end_marker) break;
-            visited++;
+            u32 flags = _spu_memList[visited].address_flags;
+            if (flags & 0x40000000U) break;
             if (flags == address) {
-                entry->address_flags = freed;
+                _spu_memList[visited].address_flags = address | 0x80000000U;
                 break;
             }
-            entry++;
-        } while (visited < limit);
+            visited++;
+        } while (visited < _spu_AllocBlockNum);
     }
     _spu_gcSPU();
 }

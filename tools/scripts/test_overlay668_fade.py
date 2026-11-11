@@ -13,7 +13,7 @@ class Overlay668FadeTest(unittest.TestCase):
 #include <stdint.h>
 #include <string.h>
 #include "rr/overlay668_fade.h"
-''' + read_c_source(root / 'src/overlays/PAL/668/func_8011596C.c') + r'''
+''' + read_c_source(root / 'src/overlays/PAL/movie_playback/func_8011596C.c') + r'''
 static s32 reference(s32 frame){
  int64_t left=16*((int64_t)frame-48),right=16*(156-(int64_t)frame),level=256;
  if(left<level)level=left;if(right<level)level=right;if(level<0)level=0;

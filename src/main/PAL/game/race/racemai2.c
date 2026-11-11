@@ -311,11 +311,11 @@ void ResolveCarCollisions(RaceVehicle *arg0) {
                 {
                     s32 tx;
                     s32 tz;
-                    tx = other->pos10[0];
-                    tx -= arg0->pos10[0];
+                    tx = other->worldPosition10.words[0];
+                    tx -= arg0->worldPosition10.words[0];
                     sp->dx30 = tx;
-                    tz = other->pos10[2];
-                    tz -= arg0->pos10[2];
+                    tz = other->worldPosition10.words[2];
+                    tz -= arg0->worldPosition10.words[2];
                     sp->dy34 = tz;
                     sp->pts40[1][1].pt.x = other->wheelPositions88[0].x + sp->dx30;
                     sp->pts40[1][1].pt.y = other->wheelPositions88[0].z + sp->dy34;
@@ -429,8 +429,8 @@ void ResolveCarCollisions(RaceVehicle *arg0) {
                             ang = rcos(AngleDiffAbs(cars[0]->heading1D4, cars[1]->heading1D4));
                             cars[1]->posScaled00[0] -= sp->dx30;
                             cars[1]->posScaled00[2] -= sp->dy34;
-                            cars[1]->pos10[0] -= sp->dx30 >> 6;
-                            cars[1]->pos10[2] -= sp->dy34 >> 6;
+                            cars[1]->worldPosition10.words[0] -= sp->dx30 >> 6;
+                            cars[1]->worldPosition10.words[2] -= sp->dy34 >> 6;
                             cars[1]->impactFlags1A0 |= hit << 3;
 
                             if (side < 2) {
@@ -469,11 +469,11 @@ void ResolveCarCollisions(RaceVehicle *arg0) {
                             if (k == 0) {
                                 s32 tx;
                                 s32 tz;
-                                tx = other->pos10[0];
-                                tx -= arg0->pos10[0];
+                                tx = other->worldPosition10.words[0];
+                                tx -= arg0->worldPosition10.words[0];
                                 sp->dx30 = tx;
-                                tz = other->pos10[2];
-                                tz -= arg0->pos10[2];
+                                tz = other->worldPosition10.words[2];
+                                tz -= arg0->worldPosition10.words[2];
                                 sp->dy34 = tz;
                                 sp->pts40[1][1].pt.x = other->wheelPositions88[0].x + sp->dx30;
                                 sp->pts40[1][1].pt.y = other->wheelPositions88[0].z + sp->dy34;
@@ -559,7 +559,7 @@ void UpdateRumbleStrip(RaceVehicle *p, int b) {
                 s0 = -0x3F;
             }
             t = p->rot54 - 0x800;
-            t += TrackNodes[p->trackNodeF0].heading12;
+            t += TrackNodes[p->trackNodeF0].road.heading;
             ang = t & 0xFFF;
             if (s0 < 0 && (a1 & 1) > 0) {
                 s2 = -(s0 + s0 * rcos(ang) / 4096);

@@ -1,3 +1,5 @@
+#include "rr/scene_camera_state.h"
+#include "rr/race_audio_resources.h"
 /* RODATA 0x80011068 0x20 */
 #include "types.h"
 #include "game/sound/sndvab.h"
@@ -20,16 +22,6 @@ extern int CourseAssetGroupIds[];
 extern AudioBankSetup SlotBankSetup;
 
 extern int TrackSeqTargetSlot;
-extern int RaceContext[];
-extern int PendingTrackSfxVabId;
-
-void SetRaceLoadCursor(char *arg0);
-char *GetRaceLoadCursor(void);
-int LoadSlotBankStep(int a0, int a1);
-int LoadComSlotBankStep(int a0);
-int LoadSoundBanksStep();
-int LoadSfxVabStep(int a0, int a1);
-s32 LoadMenuSoundSeqStep(void);
 
 int LoadCarSpecStep(int a0, int a1, int a2) {
   int v;
@@ -107,8 +99,8 @@ int LoadMenuCarStep(int a0, int a1) {
     case 1:
             t = CdFileBytesLoaded();
             if (t != 0) {
-                LoadTimList((char *)RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
-                LoadTimImage((char *)RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
+                LoadTimList((int *)(RaceLoadCursor + ((const MenuCarImageResourceHeader *)RaceLoadCursor)->imageListOffset));
+                LoadTimImage((int *)(RaceLoadCursor + ((const MenuCarImageResourceHeader *)RaceLoadCursor)->imageOffset));
                 RaceLoadState++;
             }
             v = 0;
@@ -121,10 +113,10 @@ int LoadMenuCarStep(int a0, int a1) {
     case 3:
             t = CdFileBytesLoaded();
             if (t != 0) {
-                RegisterModelBank((RroModelBank *)((char *)RaceLoadCursor + ((int *)RaceLoadCursor)[1]), 8);
-                RelocateOffsetTable((char *)RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
-                RaceContext[0x560 / 4] = ((char *)RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
-                ((int *)RaceContext[0x24C / 4])[0x138 / 4] = ((char *)RaceLoadCursor + ((int *)RaceLoadCursor)[3]);
+                RegisterModelBank((RroModelBank *)((char *)RaceLoadCursor + ((const MenuCarModelResourceHeader *)RaceLoadCursor)->modelBankOffset), 8);
+                RelocateOffsetTable((char *)RaceLoadCursor + ((const MenuCarModelResourceHeader *)RaceLoadCursor)->meshTableOffset);
+                RaceContext.model560 = ((char *)RaceLoadCursor + ((const MenuCarModelResourceHeader *)RaceLoadCursor)->meshTableOffset);
+                RaceContext.camera24C->tracks138 = (SceneCameraTrack24 *)(RaceLoadCursor + ((const MenuCarModelResourceHeader *)RaceLoadCursor)->cameraTracksOffset);
                 v = AlignUp4(t);
                 RaceLoadState = 0;
                 RaceLoadCursor += v;
@@ -373,12 +365,12 @@ int LoadRaceSoundStep(void) {
         }
         return 0;
     case 1:
-        if (LoadSfxVabStep(PendingTrackSfxVabId, 0) != 0) {
+        if (LoadSfxVabStep(RaceContext.sound.sfxVabId, 0) != 0) {
             RaceLoadStepIndex += 1;
         }
         return 0;
     case 2:
-        if (LoadSoundBanksStep(RaceContext[0x570 / 4], RaceContext[0x574 / 4], RaceContext[0x578 / 4]) != 0) {
+        if (LoadSoundBanksStep(RaceContext.sound.carVariants[0], RaceContext.sound.carVariants[1], RaceContext.sound.comBank) != 0) {
             RaceLoadStepIndex = 0;
             LoadCursor = RaceLoadCursor;
             return 1;

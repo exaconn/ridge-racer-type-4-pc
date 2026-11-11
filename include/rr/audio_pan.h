@@ -4,8 +4,6 @@
 #include "rr/audio_loop.h"
 
 extern s16 PanGainTable[128];
-extern s16 SoundMasterGain; /* Alias of SoundState.gain18. */
-extern u16 AudioPanCenterAngle, AudioPanRearAngle, AudioPanFrontAngle;
 s32 SsUtKeyOn(s32 bank,s32 program,s32 mode,s32 note,
                  s32 fine,s32 left,s32 right);
 /* Bank selection uses the full program word; helpers receive signed low16.

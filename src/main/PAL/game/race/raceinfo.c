@@ -1,3 +1,4 @@
+#include "game/menu/menu13.h"
 #include "psyq/libgte/gtemat5.h"
 #include "rr/frame_storage_types.h"
 #include "psyq/libgte/gtemat4.h"
@@ -44,7 +45,6 @@ extern int CourseBestLapRecords[];
 extern int CourseBestLap[][8];
 extern short NumCars;
 extern short ComDifficultyLevel;
-extern int EmitSpinningWheelIcon();
 extern TrackSample3C *TrackNodes;
 extern int TrackNodeCount;
 extern short ReverseCourse;
@@ -140,7 +140,7 @@ void DrawCourseInfoPanel(int arg0, int arg1) {
         }
     }
 
-    *(int *)SCRATCHPAD = EmitSpinningWheelIcon(&CurrentDrawBuf->buffer.ordering70.words[0], *(int *)SCRATCHPAD, 0x16, 0xE4, arg0);
+    *(void **)SCRATCHPAD = EmitSpinningWheelIcon(&CurrentDrawBuf->buffer.ordering70.words[0], *(void **)SCRATCHPAD, 0x16, 0xE4, arg0);
 }
 
 void DrawCourseMapPreview(int unusedSelection,int unusedMode) {
@@ -158,8 +158,8 @@ void DrawCourseMapPreview(int unusedSelection,int unusedMode) {
     }
     b = TrackNodes;
     t = (TrackSample3C *)(i * 0x3C + b);
-    v.x = t->x08;
-    v.z = t->z0C;
+    v.x = t->road.x;
+    v.z = t->road.z;
     TrackPreviewTick += 1;
     DrawMapBitmapIso(&CurrentDrawBuf->buffer.ordering70.words[0], TrackNodesEnd, &v);
 }
@@ -230,23 +230,23 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
   BuildRotMatrixZ(&m40, a0->rot58);
   MulMatrix2(&m20, &m40);
   ApplyMatrix(&m40, (const Vec3s8 *)(RaceLapSplitFlags), (Vec3i *)(sp10));
-  g[2] = a0->pos10[0] + sp10[0];
-  g[3] = a0->pos10[1] + sp10[1];
-  g[4] = a0->pos10[2] + sp10[2];
+  g[2] = a0->worldPosition10.words[0] + sp10[0];
+  g[3] = a0->worldPosition10.words[1] + sp10[1];
+  g[4] = a0->worldPosition10.words[2] + sp10[2];
   v1 = rsin(i = a0->rot54) * 0x60;
   if (v1 < 0)
   {
     v1 += 0xFFF;
   }
-  sp10[0] = (a0->pos10[0] + (v1 >> 12)) - g[2];
-  sp10[1] = a0->pos10[1] - g[3];
+  sp10[0] = (a0->worldPosition10.words[0] + (v1 >> 12)) - g[2];
+  sp10[1] = a0->worldPosition10.words[1] - g[3];
   v1 = rcos(a0->rot54) * 0x60;
   if (v1 < 0)
   {
     v1 += 0xFFF;
   }
   v1 >>= 12;
-  sp10[2] = (a0->pos10[2] + v1) - g[4];
+  sp10[2] = (a0->worldPosition10.words[2] + v1) - g[4];
   v0 = Atan2Table(sp10[0], sp10[2]);
   g[7] = 0x400 - v0;
   v0 = CordicSqrt((sp10[0] * sp10[0]) + (sp10[2] * sp10[2]));

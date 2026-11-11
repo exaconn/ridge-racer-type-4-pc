@@ -52,7 +52,7 @@ out:
 }
 
 int GetPlayerCarVariantIndex(int i) {
-    SelectionRow *base = (SelectionRow *)SelectionRows;
+    SelectionRow *base = SelectionRows.entries;
     SelectionRow *t = base + i;
     int r = 0;
     if (t->parameter != 0x27) {

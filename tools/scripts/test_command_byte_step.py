@@ -34,7 +34,8 @@ s32 test_page[0x4000];
 #define RR_NOP_DEP_ON(value) ((void)(value))
 ''' + headers + '''
 volatile s32 CardTxCount;
-s32 CardCommandStatus,CardCommandRequest,CardReceiveIndex,CardRxCount;
+volatile s32 CardCommandStatus;
+s32 CardCommandRequest,CardReceiveIndex,CardRxCount;
 s32 CardCmdCount,CardCurrentCommand;
 u8 CardRxTrace[160],D_801147D8[160];
 CommandReadCallback CardCommandReader;

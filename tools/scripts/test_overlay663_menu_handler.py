@@ -8,7 +8,7 @@ import unittest
 class Overlay663MenuHandlerTest(unittest.TestCase):
     def test_phases_and_mutations(self):
         root=Path(__file__).resolve().parents[2]
-        body=read_c_source(root/'src/overlays/PAL/663/func_80115964.c')
+        body=read_c_source(root/'src/overlays/PAL/records/func_80115964.c')
         source=r'''
 #include <assert.h>
 #include "rr/frame_storage_types.h"

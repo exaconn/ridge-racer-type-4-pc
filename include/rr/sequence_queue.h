@@ -9,7 +9,6 @@ extern AudioState SoundState;
 /* Existing SoundSequenceTable..PanGainTable storage:25 two-pointer rows. */
 enum {RR_SEQUENCE_TABLE_COUNT=25};
 extern s16 *SoundSequenceTable[RR_SEQUENCE_TABLE_COUNT][2];
-extern s32 SoundSeqVariantIndex;
 
 typedef char rr_sequence_count_offset[
     (RR_FIELD_OFFSET(AudioState, sequence19D0) +

@@ -1,3 +1,6 @@
+#include "game/ui/uipart1.h"
+#include "game/sound/cdpos.h"
+#include "game/gfx/drawlist.h"
 /* RODATA 0x800101f4 0xd8 */
 #include "types.h"
 #include "rr/frame_storage_types.h"
@@ -56,8 +59,6 @@ struct GpuPrimPacket20 { union GpuPacketHeader h; int w[4]; };
 
 struct GpuOrderTablePair { int x; union GpuPacketHeader h; };
 
-extern void ClearScreenOverlayState();
-extern int CdAudioInit();
 extern int SetGeomOffset();
 extern BadgeRow1C *BadgeRows;
 extern short FadeCountdown;
@@ -76,7 +77,6 @@ extern const VectorWords16 TitleModelPosLayer1;
 extern char IntroCameraPosKeyframes[];
 
 void StepIntroScene();
-void EmitSpriteGrid(u32 intensity,SpriteGridClock *state);
 
 void StepIntroScene(void) {
     int idx;
@@ -1048,7 +1048,7 @@ void EmitSpriteGrid(u32 intensity, SpriteGridClock *state) {
     u32 hi, middle;
     s32 row, x, phase, index;
     GpuScratchPointers *scratch;
-    struct GpuPrimPacket20 *packet;
+    GpuSpriteCommand *packet;
 
     hi = color << 16;
     middle = color << 8;
@@ -1056,21 +1056,21 @@ void EmitSpriteGrid(u32 intensity, SpriteGridClock *state) {
     hi |= middle;
     color |= hi;
 
-    packet = *(struct GpuPrimPacket20 **)SCRATCHPAD;
+    packet = (GpuSpriteCommand *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
     state->tick0E++;
     phase = state->tick0E;
     for (row = 0; row < 144; row += 48) {
         for (x = 0; x < 130; x += 26) {
             index = (phase / 4) & 15;
             if (index == 15) index = 0;
-            packet->w[1] = ((row + 0xB0) << 16) | (x + 172);
-            packet->w[0] = color;
-            packet->w[3] = 0x180010;
-            packet->w[2] = index * 16 + 0x2F29A400U;
+            packet->words.position = ((row + 0xB0) << 16) | (x + 172);
+            packet->words.color.word = color;
+            packet->words.size = 0x180010;
+            packet->words.uv = index * 16 + 0x2F29A400U;
             phase += 5;
-            *(u32 *)packet = *((GpuScratchPointers *)SCRATCHPAD)->order;
-            packet->h.b.len = 4;
-            *((GpuScratchPointers *)SCRATCHPAD)->order = packet;
+            packet->words.tag.word = *((GpuScratchPointers *)SCRATCHPAD)->order;
+            packet->words.tag.bytes.length = 4;
+            *((GpuScratchPointers *)SCRATCHPAD)->order = (u32)(unsigned long)packet;
             ((u8 *)((GpuScratchPointers *)SCRATCHPAD)->order)[3] = 0;
             packet++;
         }
@@ -1080,7 +1080,7 @@ void EmitSpriteGrid(u32 intensity, SpriteGridClock *state) {
     ((u32 *)packet)[1] = 0xE100022A;
     *(u32 *)scratch->cursor = *scratch->order;
     scratch->cursor[3] = 1;
-    *scratch->order = scratch->cursor;
+    *scratch->order = (u32)(unsigned long)scratch->cursor;
     ((u8 *)scratch->order)[3] = 0;
     scratch->cursor += sizeof(GpuSingleCommandPacket);
 }

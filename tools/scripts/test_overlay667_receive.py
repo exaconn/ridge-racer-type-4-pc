@@ -14,7 +14,7 @@ import unittest
 class Overlay667ReceiveTest(unittest.TestCase):
     def test_checksum_queue_retry_and_real_serial_state_machines(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/667/func_{a}.c')
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/serial_link/func_{a}.c')
                            for a in ('80114E34', '80115068', '80114D30', '801151E0'))
         source = r'''
 #include <assert.h>

@@ -9,7 +9,7 @@ import unittest
 class Overlay666PulseTest(unittest.TestCase):
     def test_real_sine_and_context_reload_after_first_emitter(self):
         root=Path(__file__).resolve().parents[2]
-        body=read_c_source(root/'src/overlays/PAL/666/func_801152B0.c')
+        body=read_c_source(root/'src/overlays/PAL/extra_trial/func_801152B0.c')
         trig=read_c_source(root/'tools/scripts/fixtures/legacy/trig_sine.c')
         exe=(root/'assets/PAL/main.exe').read_bytes()
         table=struct.unpack_from('<4097h',exe,0x800+0x800A50C0-0x80010000)

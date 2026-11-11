@@ -6,7 +6,7 @@ import re, subprocess, unittest
 ROOT=Path(__file__).resolve().parents[2]
 class CheckpointTest(unittest.TestCase):
  def test_counters_modes_and_mutating_services(self):
-  body=read_c_source(ROOT/'src/overlays/PAL/666/func_8011656C.c')
+  body=read_c_source(ROOT/'src/overlays/PAL/extra_trial/func_8011656C.c')
   body='\n'.join(line for line in body.splitlines() if not line.startswith('#include') and not line.startswith('extern '))
   body=re.sub(r' __asm__\("\$3"\)','',body)
   code=r'''

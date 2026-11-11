@@ -10,20 +10,61 @@ from c_functions import source_owners
 
 ROOT = Path(__file__).resolve().parents[2]
 
+OVERLAY_NAMES = {
+    659: 'grand_prix',
+    660: 'time_attack',
+    661: 'versus',
+    662: 'garage',
+    663: 'records',
+    665: 'options',
+    666: 'extra_trial',
+    667: 'serial_link',
+    668: 'movie_playback',
+}
+OVERLAY_INDICES = {name: index for index, name in OVERLAY_NAMES.items()}
+OVERLAY_INDICES.update({
+    'race_results': 659,
+    'time_attack_course_select': 660,
+    'versus_select': 661,
+    'extra_course_select': 666,
+})
+
+
+def overlay_index(overlay):
+    if isinstance(overlay, int):
+        return overlay
+    text = str(overlay)
+    return int(text) if text.isdigit() else OVERLAY_INDICES[text]
+
+
+def overlay_name(overlay):
+    index = overlay_index(overlay)
+    return OVERLAY_NAMES.get(index, str(index))
+
 
 @lru_cache(maxsize=None)
-def manifest(index, root=ROOT):
-    path = root / f'configs/PAL/overlays/{index}.json'
-    return json.loads(path.read_text()) if path.exists() else None
+def manifest(overlay, root=ROOT):
+    index = overlay_index(overlay)
+    name = overlay_name(index)
+    for stem in (name, str(index)):
+        path = root / f'configs/PAL/overlays/{stem}.json'
+        if path.exists():
+            return json.loads(path.read_text())
+    return None
 
 
-def function_owner(index, address, root=ROOT):
+def function_owner(overlay, address, root=ROOT):
+    index = overlay_index(overlay)
+    name = overlay_name(index)
     config = manifest(index, root)
     if config:
         for function in config['functions']:
             if function['address'] == address and function.get('source'):
                 return root / function['source'], function.get(
                     'symbol', f'ovl{index}_func_{address:08X}')
+    named = root / f'src/overlays/PAL/{name}/func_{address:08X}.c'
+    if named.exists():
+        return named, f'ovl{index}_func_{address:08X}'
     return (root / f'src/overlays/PAL/{index}/func_{address:08X}.c',
             f'ovl{index}_func_{address:08X}')
 
@@ -68,7 +109,7 @@ def resolve_c_source_path(path):
     path = Path(path)
     if path.exists():
         return path
-    match = re.search(r'src/overlays/PAL/(\d+)/func_([0-9A-Fa-f]{8})\.c$', str(path))
+    match = re.search(r'src/overlays/PAL/([^/]+)/func_([0-9A-Fa-f]{8})\.c$', str(path))
     if not match:
         main = re.search(r'src/main/PAL/(func_[0-9A-Fa-f]{8})\.c$', str(path))
         if main:
@@ -76,7 +117,7 @@ def resolve_c_source_path(path):
             if owner is not None:
                 return owner
         raise FileNotFoundError(path)
-    return function_owner(int(match[1]), int(match[2], 16))[0]
+    return function_owner(overlay_index(match[1]), int(match[2], 16))[0]
 
 
 def read_c_source(path):
@@ -94,8 +135,8 @@ def read_c_source(path):
     if match:
         symbol = match[1]
     else:
-        match = re.search(r'src/overlays/PAL/(\d+)/func_([0-9A-Fa-f]{8})\.c$', str(path))
-        _, symbol = function_owner(int(match[1]), int(match[2], 16))
+        match = re.search(r'src/overlays/PAL/([^/]+)/func_([0-9A-Fa-f]{8})\.c$', str(path))
+        _, symbol = function_owner(overlay_index(match[1]), int(match[2], 16))
     source = owner.read_text()
     start, end = function_extent(source, symbol)
     return source[start:end] + '\n'

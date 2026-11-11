@@ -1,5 +1,5 @@
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* CC1_FLAGS: -mno-split-addresses */
 #include "rr_asm.h"
 #include "rr/serial.h"
 
@@ -44,15 +44,7 @@ s32 _cardXferByte(s32 value) {
     if(input<0) {
         while(!(initial->status&1)) {}
         while(!chkRC2wait()) {}
-        {
-            /* ASM_BARRIER: Form the complemented byte in the original polling delay slot. */
-            register u32 complement __asm__("$2")=~input;
-            SerialPortRegisters *output=CardSio0Base;
-            /* ASM_BARRIER: Preserve the original load gap before the shared success jump. */
-            RR_NOP_DEP_ON(output);
-            /* Ordinary write view retains the original jump-delay store. */
-            *(u8 *)&output->data=complement;
-        }
+        CardSio0Base->data = ~input;
         goto success;
     }
     goto irq_test;
@@ -65,18 +57,8 @@ irq_done:
     if(!ready) return (u32)-0x200-D_80114700;
     setRC2wait(5);
     while(!chkRC2wait()) {}
-    {
-        s32 limit=60;
-        SerialPortRegisters *output;
-        /* ASM_BARRIER: Prepare the next timer limit before loading the fresh output port. */
-        __asm__("" : "+r"(limit));
-        output=CardSio0Base;
-        /* ASM_BARRIER: Retain the original output-port load gap before launching the timer. */
-        RR_NOP_DEP_ON(output);
-        /* Ordinary write view retains the original call-delay store. */
-        *(u8 *)&output->data=input;
-        setRC2wait(limit);
-    }
+    CardSio0Base->data = input;
+    setRC2wait(60);
     interrupt=I_STAT_CardSel;
     port=CardSio0Base;
     *interrupt=~0x80U;

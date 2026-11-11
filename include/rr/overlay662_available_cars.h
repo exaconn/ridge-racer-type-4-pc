@@ -12,8 +12,8 @@
 typedef struct {s16 value;u16 reserved;} GarageAvailableCar;
 extern CourseChoice4 CourseChoiceTable[2][9];
 extern s16 ovl662_menu_substate,ovl662_available_car_count,ovl662_selected_car_slot;
-extern s16 MenuCursor,MenuItemCount,ModeIndex,SubmodeState;
-extern u16 ModeGroup;
+extern s16 MenuCursor,MenuItemCount,ModeIndex;
+extern u16 ModeGroup,SubmodeState;
 extern s16 ovl662_car_slot_statuses[20];
 extern GarageAvailableCar ovl662_available_car_slots[20];
 void InitPreviewImageRows(void);s32 PackChoiceGlyph(void *);

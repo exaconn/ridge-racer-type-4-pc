@@ -1,3 +1,4 @@
+#include "game/ui/uipart1.h"
 #include "psyq/libgte/rotmat.h"
 #include "rr/model_table.h"
 #include "rr/camera_matrices.h"
@@ -63,7 +64,6 @@ typedef struct {
 } SPD;
 
 extern GpuRectangleFields TileRectSkyVramRect;
-extern int SetMenuFrameOptions();
 extern short FadeCountdown;
 extern int VSyncThreshold;
 extern short ModeIndex;
@@ -106,8 +106,6 @@ void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head) {
     /* ASM_BARRIER: stage E1000200 in A0 within each tile. */
     register u32 drawmode asm("$4");
     u32 high, middle;
-    /* ASM_BARRIER: retain the signed page-field shift in V1. */
-    register s32 xpage asm("$3");
     u8 *packet;
     GpuScratchPointers *scratch;
     shade = (shade < 0 ? 0 : shade) > 255 ? 255 : (shade < 0 ? 0 : shade);
@@ -159,7 +157,7 @@ void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head) {
                     drawmode = 0xE1000200U;
 
                     value = x&65535;
-                    xpage = x&1023;
+                    v = x&1023;
                     x+=tile_w;
                     packed = top|value;
                     ((u32 *)(packet+4))[2] = packed;
@@ -167,13 +165,13 @@ void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head) {
                     ((u32 *)(packet+4))[4] = packed;
                     packed = vpart|u;
                     /* ASM_BARRIER: retain an arithmetic X-page shift. */
-                    __asm__("" : "+r"(xpage));
-                    xpage >>= 6;
-                    xpage |= 256;
-                    xpage = ypage|xpage;
+                    __asm__("" : "+r"(v));
+                    v >>= 6;
+                    v |= 256;
+                    v = ypage|v;
                     ((u32 *)(packet+4))[1] = shade;
                     ((u32 *)(packet+4))[3] = packed;
-                    ((u32 *)(packet+4))[0] = xpage|drawmode;
+                    ((u32 *)(packet+4))[0] = v|drawmode;
                     packed = *ordering;
                     width-=tile_w;
                     *(u32 *)packet = packed;

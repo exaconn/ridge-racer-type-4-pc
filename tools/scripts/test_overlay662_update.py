@@ -1,4 +1,5 @@
 """Garage dispatch: defined fade arithmetic and state changes at typed ABI calls."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -7,7 +8,7 @@ import unittest
 class Overlay662UpdateTest(unittest.TestCase):
     def test_mutating_dispatch_and_full_word_fades(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_8011CF8C.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_8011CF8C.c')
         # Compiler-only empty scheduling metadata has no executable C behavior.
         body=body.replace('__asm__ volatile("" : : : "memory");','')
         source=r'''
@@ -22,6 +23,7 @@ class Overlay662UpdateTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"target size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_update.h"
+_Static_assert(offsetof(FrameStorage,ordering)+offsetof(FrameOrderingPrefix,rectangle)==0,"same native frame root address");
 typedef struct {s32 kind,args[3];const void *pointer;GarageSelectionPrefix garage;FrameStorage *context;MenuTextState *text;} Event;
 static struct World {u32 guard[4];GarageSelectionPrefix garage;FrameStorage *context;MenuTextState *text;MenuTextState texts[3];u32 calls;Event events[8];u32 tail[4];} world,expected;
 static FrameStorage frames[3],original[3];
@@ -39,7 +41,7 @@ static void effect(struct World *v,s32 kind,const void *pointer){
  if(!mutate)return;
  v->garage.fade00=fades[(scenario+step)%19];v->garage.flagsD1=(u8)(scenario*73U+step*29U);
  v->garage.word04=word(scenario^0xABCDEF01U^step);v->garage.current60=(s32)step;v->garage.optionIndices98.flat[step%8]=(s32)(scenario*step);
- v->context=&frames[id].ordering.rectangle;v->text=&world.texts[(id+1)%3];
+ v->context=&frames[id];v->text=&world.texts[(id+1)%3];
 }
 static void observe(struct World *v,s32 kind,s32 a,s32 b,s32 c,const void *pointer){
  Event *e;assert(v->calls<8);e=&v->events[v->calls++];memset(e,0,sizeof(*e));e->kind=kind;e->args[0]=a;e->args[1]=b;e->args[2]=c;e->pointer=pointer;memcpy(&e->garage,&v->garage,sizeof(v->garage));e->context=v->context;e->text=v->text;effect(v,kind,pointer);
@@ -73,7 +75,7 @@ int main(void){unsigned k,m,i,j;
   for(i=0;i<2;i++){world.garage.image38[i]=frames[0].buffer.ordering70.words;world.garage.image40[i]=frames[1].buffer.ordering70.words;world.garage.palette48[i]=frames[2].buffer.ordering70.words;}
   for(i=0;i<8;i++)world.garage.options78.flat[i]=0;
   for(i=0;i<3;i++)world.texts[i].p=(u16*)&frames[i].buffer.ordering70.words[0];
-  world.context=&frames[k%3].ordering.rectangle;world.text=&world.texts[(k+1)%3];assert((uintptr_t)world.context>UINT32_MAX && (uintptr_t)world.text>UINT32_MAX);
+  world.context=&frames[k%3];world.text=&world.texts[(k+1)%3];assert((uintptr_t)world.context>UINT32_MAX && (uintptr_t)world.text>UINT32_MAX);
   memcpy(&expected,&world,sizeof(world));reference();ovl662_update_editor_overlay();assert(memcmp(&world,&expected,sizeof(world))==0);
   for(j=0;j<world.calls;j++)assert(world.events[j].kind>=0 && world.events[j].kind<=6);
  }
@@ -82,7 +84,7 @@ int main(void){unsigned k,m,i,j;
 '''
         with TemporaryDirectory() as temp:
             p=Path(temp);(p/'test.c').write_text(source)
-            subprocess.run(['cc','-std=gnu11','-O2','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(root/'include'),str(p/'test.c'),'-o',str(p/'test')],check=True)
+            subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(root/'include'),str(p/'test.c'),'-o',str(p/'test')],check=True)
             subprocess.run([str(p/'test')],check=True)
 
 if __name__=='__main__':unittest.main()

@@ -22,12 +22,12 @@ class CommandResponseWritersTest(unittest.TestCase):
         directory = Path(cls.temp.name)
         header = (root / 'include/rr/commands.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        header = header.replace('extern s32 CardCommandStatus,', 'extern s32')
+        header = header.replace('extern volatile s32 CardCommandStatus;\n', '')
         source = '''#include <stdint.h>
 #include <string.h>
 typedef uint8_t u8; typedef uint32_t u32; typedef int32_t s32;
 s32 test_ram[0x4000];
-#define CardCommandStatus test_ram[0xBDE4/4]
+#define CardCommandStatus (*(volatile s32*)&test_ram[0xBDE4/4])
 ''' + header + '''
 u8 *CardCmdBuffer;
 void *CardCmdResultPtrA;

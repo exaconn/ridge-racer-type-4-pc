@@ -22,13 +22,6 @@ RR_ASSERT_OFFSET(MenuSettings2C, mode1A, 0x1A);
 RR_ASSERT_OFFSET(MenuSettings2C, copies, 0x1C);
 RR_ASSERT_OFFSET(MenuSettings2C,result19,0x19);
 
-typedef struct {
-    u8 flags00, pad01;
-    s8 control02;
-    u8 pad03[4], glyph07;
-    s16 x08, y0A, w0C, h0E;
-    u8 pad10[8];
-    s32 phase18;
-} MenuGlyphRow1C;
+#include "rr/menu_glyph_types.h"
 
 #endif

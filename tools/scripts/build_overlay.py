@@ -10,7 +10,7 @@ import subprocess
 
 from elftools.elf.elffile import ELFFile
 from levenshtein import levenshtein
-from overlay_units import symbol_addresses
+from overlay_units import manifest, overlay_index, overlay_name, symbol_addresses
 from verify_overlay_samples import RODATA_SPANS
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -20,8 +20,10 @@ def run(*args):
     subprocess.run([str(arg) for arg in args], cwd=ROOT, check=True, capture_output=True)
 
 
-def build(index):
-    config = json.loads((ROOT / f'configs/PAL/overlays/{index}.json').read_text())
+def build(overlay):
+    index = overlay_index(overlay)
+    name = overlay_name(index)
+    config = manifest(index, ROOT)
     output = ROOT / f'build/overlays/{index}-full'
     output.mkdir(parents=True, exist_ok=True)
     objects, sections = [], []
@@ -37,7 +39,10 @@ def build(index):
                 address, size = table
                 sections.append((address, f'.table_{address:X} 0x{address:X} : SUBALIGN(4) {{ {obj}(.rodata) }}'))
     data = output / 'data.o'
-    run(ROOT / 'tools/scripts/cc.sh', ROOT / f'src/overlays/PAL/{index}/data.c', data)
+    data_src = ROOT / f'src/overlays/PAL/{name}/data.c'
+    if not data_src.exists():
+        data_src = ROOT / f'src/overlays/PAL/{index}/data.c'
+    run(ROOT / 'tools/scripts/cc.sh', data_src, data)
     objects.append(data)
     for row in config['data_sections']:
         section, address = row['section'], row['address']
@@ -104,7 +109,7 @@ def build(index):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--overlay', type=int, choices=(659, 663, 666), required=True)
+    parser.add_argument('--overlay', type=overlay_index, choices=(659, 663, 666), required=True)
     parser.add_argument('--require-complete', action='store_true', help='All manifest units are always C.')
     build(parser.parse_args().overlay)
 

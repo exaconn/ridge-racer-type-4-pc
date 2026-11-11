@@ -3,6 +3,8 @@
 
 #include "types.h"
 
-void *AddSpriteWithDrawMode(u32 *a0, void *a1, int a2, int a3, int a4, int a5, int a6, int a7, unsigned short a8, unsigned short a9, s32 a10, s32 a11);
+void *AddSpriteWithDrawMode(u32 *ordering, void *cursor,
+    int x, int y, int width, int height, int u, int v,
+    unsigned short page, unsigned short clut, s32 transparency, s32 brightness);
 
 #endif /* RR_GAME_UI_BADGESPR_H */

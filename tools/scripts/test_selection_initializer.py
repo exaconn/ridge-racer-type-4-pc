@@ -1,3 +1,4 @@
+from selection_fixture_transport import transport as transport_selection
 """Guarded native oracle for the two-player overlay667 selection initializer."""
 from pathlib import Path
 from overlay_units import read_c_source
@@ -5,7 +6,7 @@ from tempfile import TemporaryDirectory
 import re,subprocess,sys,os,json,hashlib
 root=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file())
 stage=root/'tools/scripts'
-source_path=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/overlays/PAL/667/func_801161A8.c'
+source_path=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/overlays/PAL/serial_link/func_801161A8.c'
 body=read_c_source(source_path);macro='\n'.join(l for l in body.splitlines() if l.startswith('#define KEEP_GLYPH'))
 body=body[body.index('void ovl667_init_car_selection'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
 encoder=(root/'tools/scripts/fixtures/views/func_80037040.c').read_text().replace('void UnpackChoiceGlyph','static void encode_original')
@@ -123,7 +124,7 @@ int main(void){assert(sizeof(void*)==8);for(scenario=0;scenario<65536;scenario++
 }
 '''
 with TemporaryDirectory() as d:
- c=Path(d)/'test.c';exe=Path(d)/'test';c.write_text(source)
+ c=Path(d)/'test.c';exe=Path(d)/'test';c.write_text(transport_selection(source,body,'ovl667_init_car_selection','&actual.selectionRows',32,[('record','w==&actual'),('effect','w==&actual'),('UnpackChoiceGlyph','w==&actual')]))
  subprocess.run(['cc','-std=gnu11','-O2','-funsigned-char','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I'+str(stage),'-I'+str(root/'include'),str(c),'-o',str(exe)],check=True)
  subprocess.run([str(exe)],check=True)
 

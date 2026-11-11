@@ -1,33 +1,9 @@
+#include "rr/gpu_address.h"
 #include "scratchpad.h"
 #include "rr/gpu_scratch_types.h"
 #include "rr_asm.h"
 #include "rr/sprite_preset.h"
 #include "game/effect/spfade.h"
-
-struct Ot { int x; int next; };
-
-struct Pk {
-    u8 link0, link1, link2;
-    char len;
-    int a, b, c, d;
-};
-
-typedef struct {
-    u32 tag;
-    u32 cmd04;
-    u32 pos08;
-    u32 uv0C;
-    u32 size10;
-} GpuSpriteWords20;
-
-typedef struct {
-    u32 tag;
-    u32 cmd04;
-    u32 pos08;
-    u32 size0C;
-} GpuTileWords10;
-
-extern short SpinningWheelBaseVerts[];
 
 void RampValueToLimit(unsigned short *a0, short *a1, int a2);
 void RampValuePairTo4096(unsigned short *a0, unsigned short *a1, short *a2);
@@ -35,7 +11,7 @@ void RampValueTo4096(unsigned short *a0, short *a1);
 void EmitTitleBeamFades(s32 intensity, s32 scale);
 void EmitPresetSprite(s32 intensity,s32 index);
 void EmitFadeTile(s32 intensity, s32 scale, u32 pos, s32 width);
-void EmitTitleMaskSprites(int a0, int a1);
+void EmitTitleMaskSprites(s32 mask, s32 animation);
 
 void RampValueToLimit(unsigned short *a0, short *a1, int a2) {
     int v = *a1;
@@ -111,7 +87,7 @@ void EmitTitleBeamFades(s32 intensity, s32 scale) {
     register GpuScratchPointers *scratch __asm__("$5");
     /* ASM_BARRIER: keep sprite command word in $a3 */
     register u32 r_a3 __asm__("$7");
-    GpuSpriteWords20 *packet;
+    GpuSpriteCommand *packet;
     /* ASM_BARRIER: keep tag size 4 in $t1 */
     register u32 r_t1 __asm__("$9");
     u32 r_v1;
@@ -145,33 +121,33 @@ void EmitTitleBeamFades(s32 intensity, s32 scale) {
         r_a3 = r_a2 | 0x64000000U;
         r_a2 = r_t0 << r_t7;
         r_v1 = r_a2 | r_t5;
-        packet = (GpuSpriteWords20 *)scratch->cursor;
+        packet = (GpuSpriteCommand *)scratch->cursor;
         r_t0 = 0x1BA40000U;
 
-        packet->cmd04 = r_a3;
-        packet->pos08 = r_v1;
-        packet->uv0C = r_t0;
-        packet->size10 = r_t2;
+        packet->words.color.word = r_a3;
+        packet->words.position = r_v1;
+        packet->words.uv = r_t0;
+        packet->words.size = r_t2;
         r_v1 = (u32)(unsigned long)scratch->order;
         r_v1 = ((u32 *)r_v1)[1];
         r_t1 = 4;
-        packet->tag = r_v1;
+        packet->words.tag.word = r_v1;
         r_v1 = 0x90;
-        ((u8 *)packet)[3] = r_t1;
+        packet->words.tag.bytes.length = r_t1;
         r_a0 = (u32)(unsigned long)scratch->order;
         r_t5 = r_v1 - r_t6;
         ((u32 *)r_a0)[1] = (u32)(unsigned long)packet;
         ((u8 *)&scratch->order[1])[3] = 0;
         packet++;
 
-        packet->cmd04 = r_a3;
-        packet->pos08 = r_a2 | r_t5;
+        packet->words.color.word = r_a3;
+        packet->words.position = r_a2 | r_t5;
         /* ASM_BARRIER: keep r_t5 live so r_a2 | r_t5 writes to $v1 */
         __asm__("" : : "r"(r_t5));
-        packet->uv0C = r_t0;
-        packet->size10 = r_t2;
-        packet->tag = scratch->order[1];
-        ((u8 *)packet)[3] = r_t1;
+        packet->words.uv = r_t0;
+        packet->words.size = r_t2;
+        packet->words.tag.word = scratch->order[1];
+        packet->words.tag.bytes.length = r_t1;
         scratch->order[1] = (u32)(unsigned long)packet;
         ((u8 *)&scratch->order[1])[3] = 0;
         packet++;
@@ -182,54 +158,54 @@ void EmitTitleBeamFades(s32 intensity, s32 scale) {
         /* ASM_BARRIER: keep 0x88 load in $v1 after packet 2 order stores */
         __asm__ ("" : : "r"(r_t5));
         r_v1 = 0x88;
-        packet->uv0C = r_t0;
+        packet->words.uv = r_t0;
         r_t0 = r_v1 - r_t6;
-        packet->cmd04 = r_a3;
-        packet->pos08 = r_a2;
-        packet->size10 = r_t2;
+        packet->words.color.word = r_a3;
+        packet->words.position = r_a2;
+        packet->words.size = r_t2;
         r_a0 = (u32)(unsigned long)scratch->order;
         r_v1 = ((u32 *)r_a0)[1];
         r_a2 = 0x1BA40020U;
-        packet->tag = r_v1;
-        ((u8 *)packet)[3] = r_t1;
+        packet->words.tag.word = r_v1;
+        packet->words.tag.bytes.length = r_t1;
         r_a0 = r_t0 << r_t7;
         scratch->order[1] = (u32)(unsigned long)packet;
         ((u8 *)&scratch->order[1])[3] = 0;
         packet++;
 
-        packet->cmd04 = r_a3;
-        packet->pos08 = r_a0 | r_t5;
+        packet->words.color.word = r_a3;
+        packet->words.position = r_a0 | r_t5;
         /* ASM_BARRIER: keep r_t5 live so r_a0 | r_t5 writes to $v1 */
         __asm__("" : : "r"(r_t5));
-        packet->uv0C = r_a2;
-        packet->size10 = r_t2;
-        packet->tag = scratch->order[1];
-        ((u8 *)packet)[3] = r_t1;
+        packet->words.uv = r_a2;
+        packet->words.size = r_t2;
+        packet->words.tag.word = scratch->order[1];
+        packet->words.tag.bytes.length = r_t1;
         scratch->order[1] = (u32)(unsigned long)packet;
         ((u8 *)&scratch->order[1])[3] = 0;
         packet++;
 
         r_t5 = r_t6 + 0x90;
-        packet->cmd04 = r_a3;
-        packet->pos08 = r_a0 | r_t5;
+        packet->words.color.word = r_a3;
+        packet->words.position = r_a0 | r_t5;
         /* ASM_BARRIER: keep r_t5 live so r_a0 | r_t5 writes to $v1 */
         __asm__("" : : "r"(r_t5));
-        packet->uv0C = r_a2;
-        packet->size10 = r_t2;
-        packet->tag = scratch->order[1];
-        ((u8 *)packet)[3] = r_t1;
+        packet->words.uv = r_a2;
+        packet->words.size = r_t2;
+        packet->words.tag.word = scratch->order[1];
+        packet->words.tag.bytes.length = r_t1;
         scratch->order[1] = (u32)(unsigned long)packet;
         ((u8 *)&scratch->order[1])[3] = 0;
         packet++;
 
         r_t5 = r_t3 + 0xB0;
         r_a0 |= r_t5;
-        packet->cmd04 = r_a3;
-        packet->pos08 = r_a0;
-        packet->uv0C = r_a2;
-        packet->size10 = r_t2;
-        packet->tag = scratch->order[1];
-        ((u8 *)packet)[3] = r_t1;
+        packet->words.color.word = r_a3;
+        packet->words.position = r_a0;
+        packet->words.uv = r_a2;
+        packet->words.size = r_t2;
+        packet->words.tag.word = scratch->order[1];
+        packet->words.tag.bytes.length = r_t1;
         scratch->order[1] = (u32)(unsigned long)packet;
         ((u8 *)&scratch->order[1])[3] = 0;
         packet++;
@@ -242,7 +218,7 @@ void EmitPresetSprite(s32 intensity,s32 index) {
     s32 value=intensity;
     s32 selected=index;
     /* ASM_BARRIER: captured packet cursor, independent of scratch pointer reloads. */
-    register GpuSpriteWords20 *packet __asm__("$5");
+    register GpuSpriteCommand *packet __asm__("$5");
     /* ASM_BARRIER: table address reuses the dead offset temporary. */
     register SpritePreset *preset __asm__("$2");
     /* ASM_BARRIER: keep the packed color in the original word temporary. */
@@ -261,14 +237,14 @@ void EmitPresetSprite(s32 intensity,s32 index) {
         hi|=middle;
         hi|=value;
         offset=selected*sizeof(SpritePreset);
-        packet=(GpuSpriteWords20 *)scratch->cursor;
-        packet->cmd04=hi;
+        packet=(GpuSpriteCommand *)scratch->cursor;
+        packet->words.color.word=hi;
         preset=(SpritePreset*)((u8*)PresetSpriteDescriptors+offset);
-        packet->pos08=preset->position;
-        packet->size10=preset->size;
-        packet->uv0C=preset->uv;
-        packet->tag=scratch->order[1];
-        ((u8 *)packet)[3]=4;
+        packet->words.position=preset->position;
+        packet->words.size=preset->size;
+        packet->words.uv=preset->uv;
+        packet->words.tag.word=scratch->order[1];
+        packet->words.tag.bytes.length=4;
         scratch->order[1]=(u32)(unsigned long)packet;
         ((u8*)&scratch->order[1])[3]=0;
         scratch->cursor=(u8 *)(packet+1);
@@ -281,7 +257,7 @@ void EmitFadeTile(s32 intensity, s32 scale, u32 pos, s32 width) {
     /* ASM_BARRIER: keep interpolated width in $t1 */
     register u32 interp __asm__("$9");
     /* ASM_BARRIER: keep packet pointer in $a1 */
-    register GpuTileWords10 *packet __asm__("$5");
+    register GpuTileCommand *packet __asm__("$5");
     u32 hi;
     u32 middle;
     /* ASM_BARRIER: keep scratch base in $a2 */
@@ -299,43 +275,43 @@ void EmitFadeTile(s32 intensity, s32 scale, u32 pos, s32 width) {
         middle |= 0x62000000U;
         hi |= middle;
         value |= hi;
-        packet = (GpuTileWords10 *)scratch->cursor;
-        packet->cmd04 = value;
-        packet->pos08 = position;
-        packet->size0C = interp | 0x20000U;
+        packet = (GpuTileCommand *)scratch->cursor;
+        packet->words.color.word = value;
+        packet->words.position = position;
+        packet->words.size = interp | 0x20000U;
         /* ASM_BARRIER: keep interp ($t1) live so (interp | 0x20000) writes to $v0 */
         __asm__("" : : "r"(interp));
-        packet->tag = scratch->order[1];
-        ((u8 *)packet)[3] = 3;
+        packet->words.tag.word = scratch->order[1];
+        packet->words.tag.bytes.length = 3;
         scratch->order[1] = (u32)(unsigned long)packet;
         ((u8 *)&scratch->order[1])[3] = 0;
         scratch->cursor = (u8 *)(packet + 1);
     }
 }
 
-void EmitTitleMaskSprites(int a0, int a1)
+void EmitTitleMaskSprites(s32 mask, s32 animation)
 {
-    struct Pk *p = *(struct Pk **)SCRATCHPAD;
-    int col = (((-a1) >> 3) & 3) | 0x1BA4F0D0;
-    short *t = SpinningWheelBaseVerts;
-    int i = 11;
-    int *g;
+    GpuSpriteCommand *packet = (GpuSpriteCommand *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
+    u32 uv = (((s32)(0U - (u32)animation) >> 3) & 3U) | 0x1BA4F0D0U;
+    s16 *vertex = SpinningWheelBaseVerts;
+    s32 remaining = RR_TITLE_MASK_SPRITE_COUNT;
+    GpuScratchPointers *scratch;
     do {
-        if (a0 & 1) {
-            p->a = 0x65000000;
-            p->b = *t | 0xA80000;
-            p->d = 0x100004;
-            p->c = col;
-            g = (int *)SCRATCHPAD;
-            *(int *)p = ((struct Ot *)g[1])->next;
-            p->len = 4;
-            ((struct Ot *)g[1])->next = p;
-            p++;
-            ((char *)g[1])[7] = 0;
+        if (mask & 1) {
+            packet->words.color.word = 0x65000000U;
+            packet->words.position = *vertex | 0xA80000;
+            packet->words.size = 0x100004;
+            packet->words.uv = uv;
+            scratch = (GpuScratchPointers *)SCRATCHPAD;
+            packet->words.tag.word = scratch->order[1];
+            packet->words.tag.bytes.length = 4;
+            scratch->order[1] = GpuDmaEncodeAddress(packet);
+            packet++;
+            ((GpuDmaTag *)&scratch->order[1])->bytes.length = 0;
         }
-        a0 >>= 1;
-        i--;
-        t++;
-    } while (i > 0);
-    *(struct Pk **)SCRATCHPAD = p;
+        mask >>= 1;
+        remaining--;
+        vertex++;
+    } while (remaining > 0);
+    ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)packet;
 }

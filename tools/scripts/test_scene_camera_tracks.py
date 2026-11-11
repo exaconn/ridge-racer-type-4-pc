@@ -52,6 +52,7 @@ PREFIX = r'''
 #include <stddef.h>
 #include <string.h>
 #include "vehicle_wire.h"
+#include "scene_context_wire.h"
 #include "rr/scene_camera_state.h"
 #include "rr/projection_state.h"
 #include "game/car/bounds.h"
@@ -72,6 +73,11 @@ typedef struct {
  BoundsOwner bounds[3];BoundsPointers table;ScratchOwner scratch;ArenaOwner arena;
  VectorWords16 fallback;Vec3s8 angles;s32 projection;u16 buttons;SegmentOwner segment;
 } World;
+typedef struct {
+ FrozenNativeSceneOwner598 context;CameraOwner cameras[2];TrackOwner banks[3];CarOwner cars;
+ BoundsOwner bounds[3];BoundsPointers table;ScratchOwner scratch;ArenaOwner arena;
+ VectorWords16 fallback;Vec3s8 angles;s32 projection;u16 buttons;SegmentOwner segment;
+} FrozenWorldInput;
 enum {WIRE_SIZE=0x564+32+2*384+3*(3*1056+32)+1632+3*44+44+104+160+28+2+36};
 typedef struct {World entry,after;u32 operation,args[4],sizes[2],resultSize,outputSlot,result;
  u8 inputs[2][32],output[32];unsigned undefinedPositionWord;} Event;
@@ -130,9 +136,9 @@ static void cameraWire(u8 *p,const SceneCameraState160 *c){
  memcpy(p,c,0x138);put32(p+0x138,pointer(c->tracks138));memcpy(p+0x13C,&c->mode13C,0x24);
 }
 static void wire(const World *w,u8 *out){
- u8 *p=out;memcpy(p,w->context.before,16);p+=16;memcpy(p,&w->context.value,0xEC);p+=0xEC;
+ u8 *p=out;memcpy(p,w->context.before,16);p+=16;rr_scene_context_prefix_store(p,&w->context.value);p+=0xEC;
  cameraWire(p,&w->context.value.cameraEC);p+=0x160;put32(p,pointer(w->context.value.camera24C));p+=4;
- memcpy(p,w->context.value.reserved250,0x314);p+=0x314;memcpy(p,w->context.after,16);p+=16;
+ rr_scene_context_tail_store(p,&w->context.value);p+=0x314;memcpy(p,w->context.after,16);p+=16;
  for(unsigned i=0;i<2;i++){memcpy(p,w->cameras[i].before,16);p+=16;cameraWire(p,&w->cameras[i].value);p+=0x160;memcpy(p,w->cameras[i].after,16);p+=16;}
  memcpy(p,w->banks,sizeof(w->banks));p+=sizeof(w->banks);memcpy(p,w->cars.before,16);p+=16;
  for(unsigned i=0;i<2;i++){rr_vehicle_wire_store_fields(p,&w->cars.values[i]);p+=800;}
@@ -298,7 +304,12 @@ static int referenceScene(s32 track){
 }
 static void initialize(unsigned number){
  scenario=number;kind=number%3;serial=0;undefinedPositionWord=0;carIndex=(number/3)%2;trackIndex=(number/54)%3;viewIndex=(number/162)%10;segmentIndex=(number/486)%4;
- u32 seed=number*0x9E3779B9U+0x5642CU;u8 *p=(u8*)&live;for(unsigned i=0;i<sizeof(live);i++)p[i]=(u8)next(&seed);
+ u32 seed=number*0x9E3779B9U+0x5642CU;FrozenWorldInput frozen;u8 *p=(u8*)&frozen;for(unsigned i=0;i<sizeof(frozen);i++)p[i]=(u8)next(&seed);
+ memset(&live,0xA5,sizeof(live));
+ memcpy(live.context.before,frozen.context.before,16);memcpy(live.context.after,frozen.context.after,16);
+ rr_scene_context_load_native578(&RaceContext,&frozen.context.value);
+ _Static_assert(sizeof(World)-offsetof(World,cameras)==sizeof(FrozenWorldInput)-offsetof(FrozenWorldInput,cameras),"unchanged frozen suffix");
+ memcpy((u8*)&live+offsetof(World,cameras),(const u8*)&frozen+offsetof(FrozenWorldInput,cameras),sizeof(frozen)-offsetof(FrozenWorldInput,cameras));
  rr_vehicle_wire_reset();for(unsigned i=0;i<2;i++){CarRecord *r=rr_vehicle_record_resolve(0x80200000U+i*4096U);PlayerCars[i].control.record18=r;PlayerCars[i].control.handling1C=&r->handling1C8;}
  for(unsigned i=0;i<3;i++){camera(i)->tracks138=live.banks[(number/18+i)%3].rows;live.table.values[i]=&live.bounds[i].value;}
  unsigned root=(number/6)%3,bank=(number/18)%3;RaceContext.camera24C=camera(root);RaceContext.camera24C->tracks138=live.banks[bank].rows;
@@ -374,7 +385,7 @@ class SceneCameraTracksTest(unittest.TestCase):
                 getattr(native, name).argtypes = [C.c_uint]*arguments
             for name in ['prepare_trace', 'wire_size', 'event_value', 'argument', 'result', 'undefined_word']:
                 getattr(native, name).restype = C.c_uint32
-            regions = [(address_of('RaceContext')-16, 0x564+32), (0x80180000, 384), (0x80181000, 384),
+            regions = [(address_of('RaceContext')-16, 0x564+16), (address_of('RaceContext')+0x57C,16), (0x80180000, 384), (0x80181000, 384),
                        *((0x801B0000+b*65536, 3200) for b in range(3)), (address_of('PlayerCars')-16, 1632),
                        *((0x801A0000+b*4096, 44) for b in range(3)), (address_of('CarBoundsTable')-16, 44),
                        (0x1F7FFFF0, 104), (0x801F0000, 160), (address_of('ReplayCamZoomMultipliers'), 28),
@@ -414,11 +425,13 @@ class SceneCameraTracksTest(unittest.TestCase):
                 self.assertEqual((cpu.r[2], cpu.r[3]), (divider.reg_read(UC_MIPS_REG_V0), divider.reg_read(UC_MIPS_REG_V1)))
 
             def write_state(data):
+                write(address_of('RaceContext')+0x564,bytes(8)+b'\xA5'*0x10)
                 offset = 0
                 for address, length in regions:
                     write(address, data[offset:offset+length]);offset += length
 
             def state():
+                self.assertEqual(read(address_of('RaceContext')+0x564,0x18),bytes(8)+b'\xA5'*0x10)
                 return b''.join(read(a, n) for a, n in regions)
 
             def normalized(data, undefined):

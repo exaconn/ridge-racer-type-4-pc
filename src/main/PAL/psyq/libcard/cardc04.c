@@ -25,12 +25,7 @@ s32 _cardCmd5BBegin(s32 request, u8 *buffer) {
     CardWriteHandler = _cardCmd5BRx;
     active = 2;
     CardCmdBuffer = buffer;
-    {
-        s32 *base;
-        /* PAL RAM mapping: base[-0x421C / 4] is CardCommandStatus. */
-        base = (s32 *)0x800B0000U;
-        base[-0x421C / 4] = active;
-    }
+    CardCommandStatus = active;
     return result;
 }
 
@@ -71,12 +66,7 @@ s32 _cardCmd5BRangeBegin(s32 request, u8 *buffer, s32 sector, s32 input_count) {
     CardCmdBuffer = buffer;
     CardCmdSector = sector;
     CardCmdCount = count;
-    {
-        s32 *base;
-        /* PAL RAM mapping: base[-0x421C / 4] is CardCommandStatus. */
-        base = (s32 *)0x800B0000U;
-        base[-0x421C / 4] = active;
-    }
+    CardCommandStatus = active;
     return result;
 }
 
@@ -121,11 +111,6 @@ s32 _cardCmd5CRangeBegin(s32 request, u8 *buffer, s32 sector, s32 input_count) {
     CardCmdBuffer = buffer;
     CardCmdSector = sector;
     CardCmdCount = count;
-    {
-        s32 *base;
-        /* PAL RAM mapping: base[-0x421C / 4] is CardCommandStatus. */
-        base = (s32 *)0x800B0000U;
-        base[-0x421C / 4] = active;
-    }
+    CardCommandStatus = active;
     return result;
 }

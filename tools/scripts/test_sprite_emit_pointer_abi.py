@@ -2,9 +2,13 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
+from c_functions import definition_source, source_owners
 
-sources = ['800940E0', '8009424C', '80093C24', '80095B94', '80095B24', '80095AF4', '8001FF84', '8001FCC8']
-body = '\n'.join(Path(f'tools/scripts/fixtures/legacy/func_{a}.c').read_text().replace('register int v0 asm("$2");', 'int v0;') for a in sources)
+owners = source_owners(Path('src/main/PAL'))
+body = '\n'.join(definition_source(owners[n].read_text(), n) for n in ('get_mode', 'get_tw', 'SetDrawMode'))
+assert 'asm' not in body
+sources = ['80095B94', '80095B24', '80095AF4', '8001FF84', '8001FCC8']
+body += '\n' + '\n'.join(Path(f'tools/scripts/fixtures/legacy/func_{a}.c').read_text() for a in sources)
 source = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -14,6 +18,7 @@ source = r'''
 #undef RR_ASSERT_OFFSET
 #define RR_ASSERT_SIZE(t,n)
 #define RR_ASSERT_OFFSET(t,f,n)
+#include "psyq/libgpu/gpudisp.h"
 ''' + body + r'''
 static u32 ordering, *expected_packet;
 static unsigned calls;

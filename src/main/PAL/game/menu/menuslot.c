@@ -1,3 +1,5 @@
+#include "game/ui/uipart1.h"
+#include "game/sound/sndvab.h"
 #include "scratchpad.h"
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
@@ -17,9 +19,7 @@
 #include "rr/menu_label_render.h"
 #include "rr/trig.h"
 #include "game/ui/uidraw.h"
-extern int StepMenuValue();
 extern int DrawUiRow();
-extern void PlaySfx();
 extern short FadeCountdown;
 extern short MenuCursor;
 extern short ModeIndex;

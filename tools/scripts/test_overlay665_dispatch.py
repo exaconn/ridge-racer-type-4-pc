@@ -8,7 +8,7 @@ import unittest
 class Overlay665DispatchTest(unittest.TestCase):
     def test_scene_capture_and_modular_increment(self):
         root=Path(__file__).resolve().parents[2]
-        body=read_c_source(root / 'src/overlays/PAL/665/func_80118EB8.c')
+        body=read_c_source(root / 'src/overlays/PAL/options/func_80118EB8.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

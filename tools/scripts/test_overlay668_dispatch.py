@@ -8,7 +8,7 @@ import unittest
 class Overlay668DispatchTest(unittest.TestCase):
     def test_phase_and_mutating_boundaries(self):
         root=Path(__file__).resolve().parents[2]
-        body=read_c_source(root / 'src/overlays/PAL/668/func_80114AA8.c')
+        body=read_c_source(root / 'src/overlays/PAL/movie_playback/func_80114AA8.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

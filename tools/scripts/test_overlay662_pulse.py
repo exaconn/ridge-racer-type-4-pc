@@ -1,4 +1,5 @@
 """Garage pulse with the actual sine TU, PAL ROM table and defined phase wrap."""
+from overlay_units import read_c_source
 from pathlib import Path
 import struct
 import subprocess
@@ -9,7 +10,7 @@ import unittest
 class OverlayPulseTest(unittest.TestCase):
     def test_pulse_with_real_sine_and_full_word_phases(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_8011D208.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_8011D208.c')
         trig = (root / 'tools/scripts/fixtures/legacy/trig_sine.c').read_text()
         exe = (root / 'assets/PAL/main.exe').read_bytes()
         offset = 0x800 + 0x800A50C0 - 0x80010000

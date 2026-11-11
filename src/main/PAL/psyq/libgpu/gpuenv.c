@@ -5,7 +5,7 @@
 #include "rr/gpu_reset.h"
 #include "rr/gpu.h"
 #include "rr/library.h"
-#include "rr/draw_environment.h"
+#include "psyq/libgpu/gpudisp.h"
 #include "psyq/libgpu/addprim.h"
 #include "psyq/libgpu/gpubase2.h"
 #include "psyq/libgpu/gpuenv.h"
@@ -151,16 +151,8 @@ s32 SetGraphDebug(s32 enabled) {
     previous = state[0];
     state[0] = enabled;
     if (enabled & 0xFF) {
-        const char *format;
-        void (*callback)(const char *, s32, s32, s32) = GPU_printf;
-        s32 first = state[0], second = state[-2], third = state[1];
-        /* ASM_BARRIER: read the callback and state bytes before materializing the format page. */
-        __asm__ volatile("" : : "r"(callback), "r"(first), "r"(second), "r"(third) : "$4");
-        /* PAL read-only mapping: format + 0x1E24 is SetGraphDebugFmt. */
-        format = (const char *)0x80010000U;
-        /* ASM_BARRIER: expose the page-relative addition in the indirect-call delay slot. */
-        __asm__("" : "=r"(format) : "0"(format));
-        callback(format + 0x1E24, first, second, third);
+        extern const char SetGraphDebugFmt[];
+        GPU_printf(SetGraphDebugFmt, state[0], state[-2], state[1]);
         return previous;
     }
     return previous;
@@ -238,10 +230,7 @@ void checkRECT(const char *name,GpuRectangle *rectangle) {
         if(h>0) return;
     }
 invalid:
-        format=(const char *)0x80010000U;
-        /* ASM_BARRIER: Expose the mapped invalid-message address for the jump delay slot. */
-        __asm__("" : "+r"(format));
-        format+=0x1EA8;
+        format=StrBadRectFmt;
         goto report;
     case 2:
         format=D_80011EC8;

@@ -25,7 +25,7 @@ typedef struct {
   struct { s16 x, y, z, pad; } v74;
 } CarMotionScratch;
 
-extern int PadSetRumbleParams();
+#include "game/system/pad3.h"
 extern RaceVehicle PlayerCars[];
 extern int RaceState;
 extern unsigned char CarInputs[][4];
@@ -811,8 +811,8 @@ void IntegrateCarMotion(RaceVehicle *p) {
     a1 = s3 - p->rot54;
     p->posScaled00[0] = p->posScaled00[0] + p->vel30;
     p->posScaled00[2] = p->posScaled00[2] + p->vel38;
-    p->pos10[0] = p->posScaled00[0] >> 6;
-    p->pos10[2] = p->posScaled00[2] >> 6;
+    p->worldPosition10.words[0] = p->posScaled00[0] >> 6;
+    p->worldPosition10.words[2] = p->posScaled00[2] >> 6;
     BuildRotMatrixY(s2, a1);
     s0 = &s5->m04;
     BuildRotMatrixX(s0, p->rot50);
@@ -844,9 +844,9 @@ void IntegrateCarMotion(RaceVehicle *p) {
     s5->v74.y = (v0 + v1) >> 3;
     RR_GTE_STORE_IR(p->ir70);
     RR_GTE_MVMVA_ROT_V0_NOCV(&s5->v74);
-    p->pos10[0] = p->pos10[0] + p->ir40[0];
-    p->pos10[2] = p->pos10[2] + p->ir40[2];
-    p->position20.words[0] = p->pos10[0] >> 2;
-    p->position20.words[2] = p->pos10[2] >> 2;
+    p->worldPosition10.words[0] = p->worldPosition10.words[0] + p->ir40[0];
+    p->worldPosition10.words[2] = p->worldPosition10.words[2] + p->ir40[2];
+    p->position20.words[0] = p->worldPosition10.words[0] >> 2;
+    p->position20.words[2] = p->worldPosition10.words[2] >> 2;
     RR_GTE_STORE_IR(p->ir60);
 }

@@ -1,7 +1,9 @@
+from selection_fixture_transport import transport as transport_selection
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess,re
-body=Path('src/overlays/PAL/662/func_80116C34.c').read_text();body=re.sub(r'__asm__\("(?:s3|a1)"\)','',body);body=re.sub(r'^extern .*;\n','',body,flags=re.M)
+body=read_c_source(Path('src/overlays/PAL/garage/func_80116C34.c'));body=re.sub(r'__asm__\("(?:s3|a1)"\)','',body);body=re.sub(r'^extern .*;\n','',body,flags=re.M)
 source=r'''
 #include <assert.h>
 #include "rr/frame_storage_types.h"
@@ -64,6 +66,7 @@ int main(void){assert(sizeof(void*)==8);
  puts("262144 cases;fresh status/context/cursor state,all16-bit status encodings and controller bytes");return 0;
 }
 '''
+source=transport_selection(source,body,'ovl662_draw_car_slot_bars','&world.choice',4,[('service','!reference_run')])
 with TemporaryDirectory() as d:
  c=Path(d)/'test.c';exe=Path(d)/'test';c.write_text(source)
  subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined','-fno-sanitize-recover=all','-Iinclude',str(c),'-o',str(exe)],check=True)

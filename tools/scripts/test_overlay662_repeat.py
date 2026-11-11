@@ -1,4 +1,5 @@
 """Garage digital motion and repeat masks, with live overlapping storage."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -7,7 +8,7 @@ import unittest
 class GarageRepeatTest(unittest.TestCase):
     def test_motion_and_live_repeat_owners(self):
         root=Path(__file__).resolve().parents[2]
-        bodies='\n'.join((root/f'src/overlays/PAL/662/func_{a}.c').read_text() for a in ['8011D664','8011D730','8011D8E4'])
+        bodies='\n'.join(read_c_source(root/f'src/overlays/PAL/garage/func_{a}.c') for a in ['8011D664','8011D730','8011D8E4'])
         source=r'''
 #include <assert.h>
 #include "game/system/pad.h"

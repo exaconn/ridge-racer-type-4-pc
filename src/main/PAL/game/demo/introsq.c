@@ -1,3 +1,4 @@
+#include "game/sound/cdpos.h"
 #include "scratchpad.h"
 #include "rr/textured_panel.h"
 #include "game/data/trkld8.h"
@@ -10,7 +11,6 @@ extern int RaceContext[];
 extern short ModeIndex;
 extern short ModeGroup;
 extern short SubmodeState;
-extern void CdAudioInit();
 
 void IntroModeUpdate(void);
 

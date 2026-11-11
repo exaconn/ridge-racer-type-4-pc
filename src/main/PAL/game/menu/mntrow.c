@@ -26,7 +26,6 @@
 #include "game/ui/uidraw.h"
 #include "game/sound/fxplay.h"
 extern unsigned short MenuTextRowClutTable[];
-extern MenuGlyphRow1C *GlyphRows;
 extern s32 VSyncThreshold;
 extern s16 ModeIndex;
 extern s16 ModeGroup;
@@ -216,19 +215,12 @@ void SetMenuTextRowStyle(int a0, int a1, int a2) {
 }
 
 
-void SetGlyphRowImageBase(int a0, int a1) {
-  int i;
-  int new_var;
-  for (i = 0; i < 4; i++)
-  {
-    new_var = i;
-    GlyphRows[a1 + new_var].phase18 = a0;
-    new_var = 0xC000;
-    a0 = a0 + new_var;
-  }
-
+void SetGlyphRowImageBase(u8 *imageBase, s32 firstRow) {
+    s32 i;
+    for (i = 0; i < 4; i++) {
+        GlyphRows[firstRow + i].imageBase18 = imageBase + i * 0xC000;
+    }
 }
-
 void ModeSelectMenuEnter(void) {
     SetupDrawDispEnvs(0, 0, 0, 2);
     VSyncThreshold = 0x80;
@@ -245,7 +237,7 @@ void InitModeSelectMenu(void) {
         InitGlyphRow(i, -2, 0, 0);
     }
     SelectedTeamIndex = 2;
-    SelectionRows[0] = 2;
+    SelectionRows.bytes[0] = 2;
     SelectedMakerIndex = 0;
     SeqStartTrack(0);
     InitRect16Row(GlyphRows->glyph07, GlyphRows->x08, GlyphRows->y0A, GlyphRows->w0C, GlyphRows->h0E, 0, 0);

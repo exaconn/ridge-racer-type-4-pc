@@ -16,7 +16,11 @@ extern s32 OpeningSlideTimer;
 void DrawMapBitmapIso(s32 arg0, u8 *arg1, s32 *arg2);
 void SelectReplayBgmTrack(void);
 void InitRaceOpeningOverlay(s32 arg0, s32 arg1);
-void DrawGlyphListSloped();
+void SelectCourseBgmTrack(void);
+void DrawGlyphList(s16 *stream, s32 color, s32 bank);
+void DrawGlyphListSloped(s16 *stream, s32 color, s32 bank);
+void EmitIconSpriteRow120(s32 index, s32 color);
+void EmitIconSpriteRow128(s32 index, s32 color);
 void AddBrightnessSprite(unsigned char *a0x, int a1, int a2, int a3);
 
 #endif /* RR_GAME_UI_HUDMAP2_H */

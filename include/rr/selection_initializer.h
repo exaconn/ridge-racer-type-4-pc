@@ -15,7 +15,7 @@ extern s16 MenuCursor,MenuItemCount,LinkMenuSyncPhase;
 #include "rr/menu_arena_state.h"
 #include "rr/menu_arena_base.h"
 #include "rr/player_cars.h"
-extern SelectionRows32 SelectionRows;
+#include "game/data/selection.h"
 extern CourseChoice4 LinkCarChoiceTable[2][2][9];
 extern s16 LinkCarChoiceCounts[2][2],LinkCarChoiceGroup[2],LinkCarChoiceIndex[2];
 void ResetScreenCounters(void);

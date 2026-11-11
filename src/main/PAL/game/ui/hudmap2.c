@@ -1,3 +1,4 @@
+#include "rr/save_slots.h"
 /* RODATA 0x80011200 0x1c */
 #include "types.h"
 #include "rr/frame_storage_types.h"
@@ -13,7 +14,7 @@
 #include "game/system/modeinit.h"
 #include "game/ui/hudmap2.h"
 #include "rr/audio_state_types.h"
-#include "rr/draw_environment.h"
+#include "psyq/libgpu/gpudisp.h"
 #include "rr/race_setup.h"
 #include "rr/audio_loop.h"
 #include "psyq/libc/rand.h"
@@ -139,8 +140,6 @@ extern s32 TrackNodeCount;
 extern s16 SelectedCourseChoice;
 extern s16 CourseIndex;
 extern short SelectedTeamIndex;
-extern int CdAudioInit();
-extern signed char SelectionState[];
 extern int HudMinimapFadeAlpha;
 extern s16 HudTachRedlineAngles[];
 extern s16 HudTachSweepLimitAngles[];
@@ -150,12 +149,7 @@ extern s16 *HudBigDigitSprites[];
 extern s32 HudSmallDigitSprites[];
 extern s32 CourseBgmChoiceTable3[];
 extern s32 HudGearDigitSprites[];
-extern struct {
-    u8 unk0;
-    u8 unk1;
-    u8 unk2;
-    u8 unk3;
-} SelectionRows[];
+#include "game/data/selection.h"
 
 void DrawMapBitmapIso(s32 arg0, u8 *arg1, s32 *arg2);
 void DrawTrackNodeMap(s32 *arg0);
@@ -370,7 +364,7 @@ void SelectCourseBgmTrack(void) {
     int a0, a1, v;
     CdAudioInit();
     if (GameModeType == 1) {
-        a0 = SelectionState[SelectionState[0x17] + 8] < 3;
+        a0 = SelectionState.signedBytes[SelectionState.signedBytes[0x17] + 8] < 3;
     } else {
         a0 = 1;
     }
@@ -465,7 +459,7 @@ void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
     case 6:
         SoundState.track28A4 = SoundState.displayed28AC;
         for (i = 0; i < 2; i++) {
-            if (SelectionRows[i].unk1 == 0 && SelectionRows[i].unk0 == 2 && SelectionRows[i].unk2 == 0x27) {
+            if (SelectionRows.entries[i].variant == 0 && SelectionRows.entries[i].selection == 2 && SelectionRows.entries[i].parameter == 0x27) {
                 SoundState.track28A4 = 0xF;
             }
         }

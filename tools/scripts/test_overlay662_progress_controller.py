@@ -1,4 +1,7 @@
 """Progress controller: valid PAL phases, actual completion wrapper and live roots."""
+from menu_glyph_fixture_transport import transport
+from overlay_units import read_c_source
+from selection_fixture_transport import transport as transport_selection
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -8,7 +11,7 @@ import unittest
 class ProgressControllerTest(unittest.TestCase):
     def test_valid_phases_and_mutable_services(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/662/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/garage/func_{a}.c')
                            for a in ('8011662C', '801161FC'))
         source = r'''
 #include <assert.h>
@@ -145,7 +148,7 @@ int main(void){unsigned p,i,j,k;uint64_t cases=0;
 '''
         with TemporaryDirectory() as tmp:
             p = Path(tmp)
-            (p / 'test.c').write_text(source)
+            (p / 'test.c').write_text(transport_selection(transport(source,bodies,'ovl662_update_history_screen','&actual.s.glyphs[0][0]','8',[('event', 'w==&actual'), ('change', 'w==&actual')]),bodies,'ovl662_update_history_screen','&actual.s.choice',4,[('event','w==&actual'),('change','w==&actual')]))
             subprocess.run(['cc', '-std=gnu11', '-O2', '-fsanitize=undefined',
                             '-fno-sanitize-recover=all', '-I', str(root / 'include'),
                             str(p / 'test.c'), '-o', str(p / 'test')], check=True)

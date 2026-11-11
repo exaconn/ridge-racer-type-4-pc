@@ -5,6 +5,7 @@
 #include "rr/cd_init.h"
 
 extern s32 DebugPrintStub(const char *, ...);
+extern const char D_800118A8[];
 int DeliverEvent(int, int);
 
 int CdInitAttempt();
@@ -37,15 +38,7 @@ loop:
     __asm__ volatile("" : : : "memory");
     i--;
     if(i!=-1) goto loop;
-    {
-        const char *message;
-        /* ASM_BARRIER: Load the error message only after all retry attempts fail. */
-        __asm__("" : : : "$4");
-        message=(const char *)0x80010000U;
-        /* ASM_BARRIER: Expose the message offset for the print-call delay slot. */
-        __asm__("" : "+r"(message));
-        DebugPrintStub(message+0x18A8);
-    }
+    DebugPrintStub(D_800118A8);
     result=0;
 out:
     return result;

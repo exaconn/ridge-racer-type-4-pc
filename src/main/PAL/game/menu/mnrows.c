@@ -1,3 +1,5 @@
+#include "game/ui/uipart1.h"
+#include "rr/save_slots.h"
 /* RODATA 0x80010774 0x4c */
 #include "types.h"
 #include "rr/frame_storage_types.h"
@@ -21,11 +23,9 @@
 
 #include "rr/cd_directory_buffer.h"
 extern char StrCdReadPtrFmt[];
-extern void ClearScreenOverlayState();
 #include "rr/menu_arena_base.h"
 extern short SelectedMakerIndex;
 
-void ResetScreenCounters(void);
 void InitMenuArenas();
 void InitMenuScript();
 
@@ -110,15 +110,13 @@ high_level:
 publish_rank:;
   }
   {
-   /* ASM_BARRIER: materialize the configuration page in V0. */
-   register u8 *publish_page asm("$2")=(u8 *)0x800B0000U;
-   /* ASM_BARRIER: reuse the dead page temporary for the configuration pointer. */
-   register SelectionStatePrefix *publish asm("$2");
+   /* ASM_BARRIER: materialize the configuration page in V0 and reuse it for the configuration pointer. */
+   register SelectionStatePrefix *publish asm("$2")=(SelectionStatePrefix *)0x800B0000U;
    SelectionRow *target;
    u32 index;
    /* ASM_BARRIER: form a fresh state pointer for publication. */
-   __asm__("" : "+r"(publish_page));
-   publish=(SelectionStatePrefix *)(publish_page-0x2B28);
+   __asm__("" : "+r"(publish));
+   publish=(SelectionStatePrefix *)((u8 *)publish-0x2B28);
    index=publish->index;
    /* ASM_BARRIER: read the history index before materializing the row page. */
    __asm__("" : "+r"(index) : : "$17");
@@ -230,8 +228,8 @@ l428:
         switch (GameModeType) {
         case 0: a0 = 8; break;
         case 1:
-            a0 = SelectionState[0x17];
-            a1 = 3 - SelectionState[a0 + 8];
+            a0 = SelectionState.signedBytes[0x17];
+            a1 = 3 - SelectionState.signedBytes[a0 + 8];
             break;
         case 2:
         case 3: a0 = 9; break;

@@ -1,4 +1,5 @@
 """Name screen uses actual tail-copy semantics and two fresh badge rows."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -8,7 +9,7 @@ class Overlay662NameInitTest(unittest.TestCase):
     def test_real_string_copy_and_mutating_badge_roots(self):
         root=Path(__file__).resolve().parents[2]
         copy=(root/'tools/scripts/fixtures/views/func_8002B75C.c').read_text()
-        body=(root/'src/overlays/PAL/662/func_80118930.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_80118930.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

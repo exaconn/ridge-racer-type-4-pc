@@ -10,7 +10,7 @@ class MenuScreenExitTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2]
         bodies="\n".join(read_c_source(root/p) for p in [
             'tools/scripts/fixtures/views/func_80036068.c','tools/scripts/fixtures/views/func_8003CAB4.c',
-            'src/overlays/PAL/660/func_8011712C.c','src/overlays/PAL/661/func_80114AA0.c'])
+            'src/overlays/PAL/time_attack/func_8011712C.c','src/overlays/PAL/versus/func_80114AA0.c'])
         source=r'''
 #include <assert.h>
 #include "rr/frame_storage_types.h"

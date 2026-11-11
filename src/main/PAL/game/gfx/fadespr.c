@@ -1,3 +1,4 @@
+#include "game/ui/badgeprim.h"
 #include "scratchpad.h"
 #include "rr/frame_storage_types.h"
 #include "rr/fade_sprite.h"
@@ -30,8 +31,6 @@ extern char FadeSpriteRaceContext[];
 extern struct OptionsDefaultTail16 OptionsDefaultTailData;
 extern unsigned char HudPauseMenuTitleY[];
 extern FadeRaceContext RaceContext;
-extern SpritePacket *AddSpritePrim(u32 *, SpritePacket *, s32, s32,
-                                  UiUvRect *, u16, s32);
 
 void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity);
 

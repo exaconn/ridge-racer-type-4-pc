@@ -1,4 +1,5 @@
 """Real16-byte button owners and the actual72-record sprite emitter closure."""
+from overlay_units import read_c_source
 from pathlib import Path
 import struct
 import subprocess
@@ -18,10 +19,10 @@ class Overlay662ButtonSpriteTest(unittest.TestCase):
         self.assertTrue(all(0<=row[4]<71 for row in buttons))
         button_data='static const GarageButton original_buttons[46]={\n'+',\n'.join('{{'+','.join(map(str,r[:4]))+'},'+','.join(map(str,r[4:]))+'}' for r in buttons)+'\n};\n'
         sprite_data='static const GarageSpriteRecord original_sprites[72]={\n'+',\n'.join('{'+','.join(map(str,r))+'}' for r in sprites)+'\n};\n'
-        child=(root/'src/overlays/PAL/662/func_8011B2D4.c').read_text()
+        child=read_c_source(root/'src/overlays/PAL/garage/func_8011B2D4.c')
         hint='    __asm__("" ::: "memory");\n'
         self.assertEqual(child.count(hint),0) # The emitter no longer needs scheduling metadata.
-        body=(root/'src/overlays/PAL/662/func_8011B940.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_8011B940.c')
         source=r'''
 #include <assert.h>
 #include <stddef.h>

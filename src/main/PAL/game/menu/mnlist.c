@@ -1,3 +1,5 @@
+#include "game/ui/uipart1.h"
+#include "rr/save_slots.h"
 #include "game/menu/mnlist.h"
 #include "rr/runtime_settings.h"
 #include "game/system/pad.h"
@@ -17,7 +19,6 @@
 
 
 
-extern int FormatDecimalDigits();
 extern UiUvRect UiFontGlyphs[];
 extern char SaveSlotGradePrefixBuf[];
 extern char SaveSlotQuestionMarks[];
@@ -25,8 +26,7 @@ extern char SaveSlotDashPlaceholder[];
 extern u8 SaveSlotHeaderStepX[];
 extern u8 SaveSlotHeaderGlyphIds[];
 extern u8 SaveSlotDigitGlyphIds[];
-extern SelectionRow SelectionRows[];
-extern void *AddTileSemiTransPrim();
+#include "game/data/selection.h"
 extern u8 SaveSlotTrophyStepX[];
 extern u8 SaveSlotRowOffsetY[];
 extern u8 SaveSlotStageGlyphIds[];
@@ -34,7 +34,6 @@ extern u8 SaveSlotDifficultyCharsA[];
 extern u8 SaveSlotDifficultyCharsB[];
 extern u8 SaveSlotPhaseChars[];
 extern u8 SaveSlotTrophyTileColors[];
-extern MenuSettings2C SaveSlotSelections[];
 extern short GpSaveSlotCursor;
 extern char FractionText[];
 extern int MenuAvailableCourseMask;
@@ -73,18 +72,18 @@ void *DrawCarSpecBadgePanel(u32 *arg0, void *arg1, s32 arg2)
   x = BadgeRows[arg2].x04;
   y = BadgeRows[arg2].y06;
   sp30 = BadgeRows[arg2].width0C;
-  sp3C = (SelectionRows[ActivePlayerIndex].variant * 2) + 8;
-  sp38 = SelectionRows[ActivePlayerIndex].selection * 2;
-  sp34 = (SelectionRows[ActivePlayerIndex].parameter ^ 0x27) == 0;
-  if ((SelectionRows[ActivePlayerIndex].parameter ^ 0x27) == 0)
+  sp3C = (SelectionRows.entries[ActivePlayerIndex].variant * 2) + 8;
+  sp38 = SelectionRows.entries[ActivePlayerIndex].selection * 2;
+  sp34 = (SelectionRows.entries[ActivePlayerIndex].parameter ^ 0x27) == 0;
+  if ((SelectionRows.entries[ActivePlayerIndex].parameter ^ 0x27) == 0)
   {
-    if (SelectionRows[ActivePlayerIndex].selection == 2)
+    if (SelectionRows.entries[ActivePlayerIndex].selection == 2)
     {
       sp4C = SaveSlotDashPlaceholder;
     }
     else
     {
-      if (SelectionRows[ActivePlayerIndex].selection == 0)
+      if (SelectionRows.entries[ActivePlayerIndex].selection == 0)
       {
         CopyStringClearTail(SaveSlotGradePrefixBuf, "D ");
       }
@@ -93,7 +92,7 @@ void *DrawCarSpecBadgePanel(u32 *arg0, void *arg1, s32 arg2)
         CopyStringClearTail(SaveSlotGradePrefixBuf, "G ");
       }
       q = SaveSlotQuestionMarks;
-      FormatDecimalDigits(q, SelectionRows[ActivePlayerIndex].variant + 1, 0);
+      FormatDecimalDigits(q, SelectionRows.entries[ActivePlayerIndex].variant + 1, 0);
       sp4C = q - 8;
     }
   }
@@ -251,14 +250,14 @@ void *DrawGpSaveSlotsPanel(u32 *arg0, void *arg1, s32 arg2)
         x = BadgeRows[arg2].x04 + 8;
         FormatDecimalDigits(sp38, i + 1, 0);
         arg1 = AddTextSprites(arg0, arg1, x, y + SaveSlotRowOffsetY[i + 1], sp38, 0x7FF8, 0, 0);
-        if ((sp28[2] = SaveSlotSelections[i].phase17) != -1) {
-            sp28[0] = SaveSlotDifficultyCharsA[SaveSlotSelections[i].copies[0].bytes[0] & 3];
-            sp28[1] = SaveSlotDifficultyCharsB[SaveSlotSelections[i].copies[0].bytes[1] & 3];
-            sp28[2] = SaveSlotPhaseChars[SaveSlotSelections[i].phase17 / 2];
+        if ((sp28[2] = SaveSlotSelections[i].fields.phase17) != -1) {
+            sp28[0] = SaveSlotDifficultyCharsA[SaveSlotSelections[i].fields.copies[0].bytes[0] & 3];
+            sp28[1] = SaveSlotDifficultyCharsB[SaveSlotSelections[i].fields.copies[0].bytes[1] & 3];
+            sp28[2] = SaveSlotPhaseChars[SaveSlotSelections[i].fields.phase17 / 2];
             for (j = 0; j < 3; j++) {
                 x += SaveSlotTrophyStepX[j + 1];
                 arg1 = AddSpritePrim(arg0, arg1, x, y + SaveSlotRowOffsetY[i + 1], &UiFontGlyphs[sp28[j]], 0x7FF8, 0);
-                if (j == 2 && SaveSlotSelections[i].phase17 < 4) {
+                if (j == 2 && SaveSlotSelections[i].fields.phase17 < 4) {
                     x += 0xE;
                     arg1 = AddSpritePrim(arg0, arg1, x, y + SaveSlotRowOffsetY[i + 1], &UiFontGlyphs[38], 0x7FF8, 0);
                 }

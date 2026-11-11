@@ -1,4 +1,6 @@
 """Full choice group and save owner with actual name/glyph helpers."""
+from overlay_units import read_c_source
+from selection_fixture_transport import transport as transport_selection
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +10,7 @@ import unittest
 class CarChoiceTest(unittest.TestCase):
     def test_native_choice_initialization_and_update(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/662/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/garage/func_{a}.c')
                            for a in ('801153B0', '80118E6C'))
         helpers = '\n'.join((root / f'tools/scripts/fixtures/views/func_{a}.c').read_text()
                             for a in ('8002B75C', '80037040'))
@@ -91,7 +93,7 @@ int main(void){unsigned scenario,kind;u32 seen=0;
 '''
         with TemporaryDirectory() as d:
             p = Path(d)
-            (p / 'test.c').write_text(source)
+            (p / 'test.c').write_text(transport_selection(source,bodies,None,'&actual.s.current',4,[('event', 'w==&actual')]))
             run = subprocess.run(['cc', '-std=gnu11', '-O2', '-fsanitize=undefined',
                                   '-fno-sanitize-recover=all', '-I', str(root / 'include'),
                                   str(p / 'test.c'), '-o', str(p / 'test')], capture_output=True, text=True)

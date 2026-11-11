@@ -1,3 +1,4 @@
+#include "game/car/carctrl.h"
 #include "rr/steering.h"
 
 void UpdateComCarLaneChange(RaceVehicle *vehicle) {

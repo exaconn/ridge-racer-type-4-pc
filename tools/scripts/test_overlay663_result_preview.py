@@ -8,7 +8,7 @@ import unittest
 class Overlay663ResultPreviewTest(unittest.TestCase):
     def test_states_roots_and_all_fade_timers(self):
         root=Path(__file__).resolve().parents[2]
-        body=read_c_source(root/'src/overlays/PAL/663/func_80115C34.c')
+        body=read_c_source(root/'src/overlays/PAL/records/func_80115C34.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

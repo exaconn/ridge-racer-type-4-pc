@@ -1,7 +1,6 @@
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
-#include "rr_asm.h"
 #include "rr/cd.h"
 #include "rr/cd_poll.h"
 #include "rr/library.h"
@@ -9,26 +8,23 @@
 
 /* $at as the %hi() base: with $1 allocatable cc1 2.8.1 emits lui $1,%hi / sw %lo($1) and its reorg fills the jr/jal delay slot with the sw (see DECOMP_GUIDE "delay-slot store"). */
 extern int CdTestParamNum;
+extern u8 CD_syncResult[];
+extern u8 CdReadyResult[];
 
 s32 CD_getsector(u8 *a0, u32 a1);
 s32 CD_getsector2(u8 *a, u32 b);
 void CD_set_test_parmnum(int a);
 
-static inline int check_alarm(s32 limit, const char **ac, volatile u8 *st, const char **sc) {
-    if (VSync(-1) > CD_timeout_deadline || CD_timeout_count++ > limit) {
+static inline int check_alarm(void) {
+    if (VSync(-1) > CD_timeout_deadline || CD_timeout_count++ > 0x3C0000) {
         PsyqPuts(CdTimeoutPrefixStr);
-        {
-            u8 s0_ = st[0];
-            u8 s1_ = st[1];
-            const char *x5 = sc[s1_];
-            DebugPrintStub(
-                CdTimeoutStatusFmt,
-                CdWaitCallerName[0],
-                ac[CD_com],
-                sc[s0_],
-                x5
-            );
-        }
+        DebugPrintStub(
+            CdTimeoutStatusFmt,
+            CdWaitCallerName[0],
+            CD_comstr[CD_com],
+            CD_intstr[CD_intr_status[0]],
+            CD_intstr[CD_intr_status[1]]
+        );
         CD_flush();
         return -1;
     }
@@ -36,23 +32,12 @@ static inline int check_alarm(s32 limit, const char **ac, volatile u8 *st, const
 }
 
 s32 CD_datasync(s32 mode) {
-    s32 limit;
-    const char **ac;
-    u8 *st;
-    const char **sc;
-
     s32 t = VSync(-1);
-    /* ASM_BARRIER: Set allocno priorities for s2..s4 (mode, ac, limit). */
-    __asm__("" : : "r"(mode), "r"(mode));
     CD_timeout_deadline = t + 0x3C0;
     CD_timeout_count = 0;
     CdWaitCallerName[0] = CdDatasyncNameStr;
-    limit = 0x3C0000;
-    ac = CD_comstr;
-    st = CD_intr_status;
-    sc = CD_intstr;
     do {
-        if (check_alarm(limit, ac, st, sc) != 0) {
+        if (check_alarm() != 0) {
             return -1;
         }
         if ((*DMA3_CHCR & 0x1000000) == 0) {
@@ -73,7 +58,6 @@ s32 CD_getsector(u8 *a0, u32 a1) {
     *DMA3_MADR = a0;
     *DMA3_BCR = a1 | 0x10000;
     p = CD_reg0;
-    RR_NOP_DEP();
     do {
     } while (!(*p & 0x40));
     *DMA3_CHCR = 0x11000000;
@@ -109,26 +93,11 @@ void CdCommandCallback(void) {
     s32 saved=*CD_reg0 & 3;
     s32 result;
     while((result=getintr())) {
-        if(result & 4) {
-            if(CD_cbready) {
-                s32 argument=*p;
-                u8 *page;
-                /* ASM_BARRIER: Materialize the callback data page only on its active path. */
-                /* ASM_BARRIER: Keep the data-page offset separate inside the loop for call scheduling. */
-                __asm__ volatile("" : "=r"(page) : "0"((u8 *)0x80110000U));
-                CD_cbready(argument,page+0x320);
-            }
+        if((result & 4) && CD_cbready) {
+            CD_cbready(*p,CdReadyResult);
         }
-        if(result & 2) {
-            if(CD_cbsync) {
-                s32 argument=*q;
-                u8 *page;
-                /* ASM_BARRIER: Materialize the callback data page only on its active path. */
-                __asm__("" : : "r"(argument));
-                /* ASM_BARRIER: Keep the data-page offset separate inside the loop for call scheduling. */
-                __asm__ volatile("" : "=r"(page) : "0"((u8 *)0x80110000U));
-                CD_cbsync(argument,page+0x318);
-            }
+        if((result & 2) && CD_cbsync) {
+            CD_cbsync(*q,CD_syncResult);
         }
     }
     *CD_reg0=saved;

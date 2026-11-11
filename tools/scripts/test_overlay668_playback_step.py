@@ -9,7 +9,7 @@ import unittest
 class PlaybackStepTest(unittest.TestCase):
     def test_state_roots_retries_and_fresh_inputs(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/overlays/PAL/668/func_80114C3C.c')
+        body = read_c_source(root / 'src/overlays/PAL/movie_playback/func_80114C3C.c')
         source = r'''
 #include <assert.h>
 #include "game/system/pad.h"

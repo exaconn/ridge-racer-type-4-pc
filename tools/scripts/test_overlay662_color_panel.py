@@ -1,4 +1,5 @@
 """RGB555 panel with actual tile/sprite bodies and observable channel boundaries."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import struct
@@ -11,7 +12,7 @@ class GarageColorPanelTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2]
         bodies=[]
         for address in ['8011B034','8011B2D4','8011BF04']:
-            body=(root/f'src/overlays/PAL/662/func_{address}.c').read_text()
+            body=read_c_source(root/f'src/overlays/PAL/garage/func_{address}.c')
             body=re.sub(r' asm\("\$\d+"\)','',body)
             body=body.replace('    __asm__("" ::: "memory");\n','')
             bodies.append(body)

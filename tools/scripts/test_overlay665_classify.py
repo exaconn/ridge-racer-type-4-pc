@@ -9,7 +9,7 @@ import unittest
 class OverlayClassifyTest(unittest.TestCase):
     def test_classification_and_read_only_rows(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/overlays/PAL/665/func_8011629C.c')
+        body = read_c_source(root / 'src/overlays/PAL/options/func_8011629C.c')
         source = r'''
 #include <assert.h>
 #include "game/system/pad.h"

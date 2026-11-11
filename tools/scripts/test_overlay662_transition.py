@@ -1,4 +1,6 @@
 """Transition wrappers, defined counter wrap and the real glyph reset closure."""
+from overlay_units import read_c_source
+from selection_fixture_transport import transport as transport_selection
 from pathlib import Path
 import re
 import subprocess
@@ -27,7 +29,7 @@ class Overlay662TransitionTest(unittest.TestCase):
 
     def test_fresh_renderer_state_and_modulo_counter(self):
         root=Path(__file__).resolve().parents[2]
-        bodies='\n'.join((root/f'src/overlays/PAL/662/func_{a}.c').read_text() for a in ['8011AA84','80119DB4'])
+        bodies='\n'.join(read_c_source(root/f'src/overlays/PAL/garage/func_{a}.c') for a in ['8011AA84','80119DB4'])
         source=PREFIX+r'''
 typedef struct {u32 guard[4];GarageSelectionPrefix garage;u16 mode;s16 scene,phase;u32 tail[4];} State;
 typedef struct {s32 kind,arg;State state;} Event;
@@ -79,7 +81,7 @@ int main(void){unsigned k;static const s32 edges[]={26,27,28,INT32_MAX,INT32_MIN
         root=Path(__file__).resolve().parents[2]
         reset=re.sub(r'^extern[^\n]*;\n','',(root/'tools/scripts/fixtures/legacy/func_8003A198.c').read_text(),flags=re.M)
         encoder=(root/'tools/scripts/fixtures/legacy/func_80037040.c').read_text()
-        body=(root/'src/overlays/PAL/662/func_80115474.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_80115474.c')
         source=PREFIX+r'''
 static struct World {u32 guard[4];MenuArenas8 arenas;void *published;MenuChoice4 choice;s16 glyph;u8 *mode;u8 backing[3][2];s32 counter;s8 flag1,flag2;u32 tail[4];} world,expected;
 static u8 resources[3][64];
@@ -110,6 +112,6 @@ int main(void){unsigned k,i,alias,id;
  return 0;
 }
 '''
-        self.run_native(root,source)
+        self.run_native(root,transport_selection(source,body,None,'&world.choice',4,pointers=[('ImageRows','u8 *')]))
 
 if __name__=='__main__':unittest.main()

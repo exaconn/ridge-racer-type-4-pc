@@ -22,14 +22,14 @@ class CommandCompletionTest(unittest.TestCase):
         for name in ('commands', 'interrupts', 'serial'):
             text = (root / ('include/rr/' + name + '.h')).read_text()
             text = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', text, flags=re.M)
-            text = re.sub(r'^extern s32 CardCommandStatus,[^\n]*\n', '', text, flags=re.M)
+            text = re.sub(r'^extern volatile s32 CardCommandStatus;\n|^extern s32 CardCommandRequest,[^\n]*\n', '', text, flags=re.M)
             text = re.sub(r'^extern volatile s32 CardTxCount;\n', '', text, flags=re.M)
             headers += text
         source = '''#include <stdint.h>
 #include <string.h>
 typedef uint8_t u8; typedef uint16_t u16; typedef uint32_t u32; typedef int32_t s32;
 s32 test_ram[0x4000];
-#define CardCommandStatus test_ram[0xBDE4/4]
+#define CardCommandStatus (*(volatile s32*)&test_ram[0xBDE4/4])
 #define CardTxCount (*(volatile s32*)&test_ram[0xBDE8/4])
 #define CardCommandRequest test_ram[0xBDEC/4]
 #define CardReceiveIndex test_ram[0xBDF4/4]

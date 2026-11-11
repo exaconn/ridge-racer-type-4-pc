@@ -1,4 +1,5 @@
 """Pixel color picker with real hit testing and actual sound-wrapper closure."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re
@@ -8,8 +9,8 @@ import unittest
 class Overlay662ColorPickTest(unittest.TestCase):
     def test_all_pixels_color_pairs_zoom_and_gates(self):
         root=Path(__file__).resolve().parents[2]
-        paths=['src/overlays/PAL/662/func_8011E6C8.c','tools/scripts/fixtures/views/func_8004F218.c','tools/scripts/fixtures/views/func_8004F24C.c','src/overlays/PAL/662/func_80125370.c']
-        bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',(root/p).read_text(),flags=re.M) for p in paths)
+        paths=['src/overlays/PAL/garage/func_8011E6C8.c','tools/scripts/fixtures/views/func_8004F218.c','tools/scripts/fixtures/views/func_8004F24C.c','src/overlays/PAL/garage/func_80125370.c']
+        bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',read_c_source(root/p),flags=re.M) for p in paths)
         source=r'''
 #include <assert.h>
 #include <stdint.h>

@@ -1,94 +1,93 @@
+#include "rr/emblem_images.h"
+#include "rr/save_slots.h"
 /* RODATA 0x80011458 0x48 */
 #include "game/data/savebld.h"
 #include "game/data/savetype.h"
 #include "game/data/globals.h"
 extern CourseChoice4 CourseChoiceTable[2][9];
-extern Struct2C SelectionState;
-extern Struct10 RaceRecords[2][8][5];
+extern TimeRecord16 RaceRecords[2][8][5];
 extern int CourseBestLapTimes[2][8][3];
-extern Struct840 *GarageActiveDecalTimB;
-extern Struct840 *GarageActiveDecalTimA;
-extern int CustomEmblemBuffers[];
+extern EmblemTim840 *GarageActiveDecalTimB;
+extern EmblemTim840 *GarageActiveDecalTimA;
 extern int EmblemEditFrames;
 extern unsigned short GpSaveSlotCursor;
-extern Struct10 LapRecords[2][8][5];
-extern Struct2C SaveSlotSnapshots[3];
+extern TimeRecord16 LapRecords[2][8][5];
 
-void BuildSaveData(int arg0) {
-    SaveBuf *s3;
-    SaveBuf11 *p;
-    int a3;
-    int t0;
-    int a1;
-    int t1;
+void BuildSaveData(int mode) {
+    GameSaveData1AA8 *gameSave;
+    EmblemSaveData1380 *emblemSave;
+    int i;
+    int j;
+    int k;
+    u32 checksum;
 
-    switch (arg0) {
+    switch (mode) {
     case 0:
     case 2:
     case 4:
     default:
-        for (a3 = 0xA0; a3 < 0x800; a3++) {
-            ((int *)SaveBuffer)[a3] = 0;
+        for (i = 0xA0; i < 0x800; i++) {
+            ((CardSaveBlock2000 *)SaveBuffer)->words[i] = 0;
         }
-        s3 = SaveBuffer;
-        s3->f280 = SaveProgress;
-        s3->f2FC = Options;
-        for (a3 = 0; a3 < 9; a3++) {
-            s3->f33C[a3] = CourseChoiceTable[1][a3];
+        gameSave = (GameSaveData1AA8 *)SaveBuffer;
+        gameSave->fields.progress280 = SaveProgress;
+        gameSave->fields.options2FC = Options;
+        for (i = 0; i < 9; i++) {
+            gameSave->fields.courseChoices33C[i] = CourseChoiceTable[1][i];
         }
-        for (a3 = 0; a3 < 3; a3++) {
-            SaveSlotSnapshots[a3].checksum10 = 0;
-            t1 = 0;
-            for (t0 = 0; t0 < 0x16U; t0++) {
-                t1 += ((short *)&SaveSlotSnapshots[a3])[t0];
+        for (i = 0; i < 3; i++) {
+            SaveSlotSnapshots[i].signedHalves[RR_SAVE_SLOT_CHECKSUM_HALFWORD] = 0;
+            checksum = 0;
+            for (j = 0; (u32)j < RR_SAVE_SLOT_HALFWORDS; j++) {
+                checksum += SaveSlotSnapshots[i].signedHalves[j];
             }
-            SaveSlotSnapshots[a3].checksum10 = t1;
-            s3->f360[a3] = SaveSlotSnapshots[a3];
+            SaveSlotSnapshots[i].signedHalves[RR_SAVE_SLOT_CHECKSUM_HALFWORD] = checksum;
+            gameSave->fields.slots360[i] = SaveSlotSnapshots[i];
         }
-        if (arg0 == 3) {
-            SelectionState.checksum10 = 0;
-            t1 = 0;
-            for (t0 = 0; t0 < 0x16U; t0++) {
-                t1 += ((short *)&SelectionState)[t0];
+        if (mode == 3) {
+            SelectionState.signedHalves[RR_SAVE_SLOT_CHECKSUM_HALFWORD] = 0;
+            checksum = 0;
+            for (j = 0; (u32)j < RR_SAVE_SLOT_HALFWORDS; j++) {
+                checksum += SelectionState.signedHalves[j];
             }
-            SelectionState.checksum10 = t1;
-            s3->f360[(short)((short)GpSaveSlotCursor % 3)] = SelectionState;
+            SelectionState.signedHalves[RR_SAVE_SLOT_CHECKSUM_HALFWORD] = checksum;
+            gameSave->fields.slots360[(short)((short)GpSaveSlotCursor % 3)] = SelectionState;
         }
-        for (a3 = 0; a3 < 2; a3++) {
-            for (t0 = 0; t0 < 8; t0++) {
-                for (a1 = 0; a1 < 3; a1++) {
-                    s3->f3E4[a3][t0][a1] = CourseBestLapTimes[a3][t0][a1];
+        for (i = 0; i < 2; i++) {
+            for (j = 0; j < 8; j++) {
+                for (k = 0; k < 3; k++) {
+                    gameSave->fields.bestLapTimes3E4[i][j][k] = CourseBestLapTimes[i][j][k];
                 }
-                for (a1 = 0; a1 < 5; a1++) {
-                    s3->f4A4[a3][t0][a1] = LapRecords[a3][t0][a1];
-                    s3->f9A4[a3][t0][a1] = RaceRecords[a3][t0][a1];
+                for (k = 0; k < 5; k++) {
+                    gameSave->fields.lapRecords4A4[i][j][k] = LapRecords[i][j][k];
+                    gameSave->fields.raceRecords9A4[i][j][k] = RaceRecords[i][j][k];
                 }
             }
         }
-        for (a3 = 0; a3 < 0x210; a3++) {
-            s3->fEA4[a3] = CustomEmblemBuffers[a3];
+        for (i = 0; i < 0x210; i++) {
+            gameSave->fields.emblemWordsEA4[i] = CustomEmblemBuffers.words[i];
         }
-        t1 = 0;
-        for (a3 = 0; a3 < 0x6A9U; a3++) {
-            t1 += ((int *)s3)[a3];
+        checksum = 0;
+        for (i = 0; (u32)i < 0x6A9U; i++) {
+            checksum += gameSave->words[i];
         }
-        s3->f1AA4 = t1;
+        gameSave->fields.checksum1AA4 = checksum;
         break;
     case 6:
-        s3 = SaveBuffer;
-        for (a3 = 0; a3 < 0x210; a3++) {
-            s3->fEA4[a3] = CustomEmblemBuffers[a3];
+        gameSave = (GameSaveData1AA8 *)SaveBuffer;
+        for (i = 0; i < 0x210; i++) {
+            gameSave->fields.emblemWordsEA4[i] = CustomEmblemBuffers.words[i];
         }
         /* fallthrough */
     case 17:
-        p = (SaveBuf11 *)SaveBuffer;
-        p->f280 = EmblemEditFrames;
-        for (t0 = 0; t0 < 2; t0++) {
-            for (a3 = 0; a3 < 0x840; a3++) {
-                if (t0 == 0) {
-                    p->f300[0][a3] = GarageActiveDecalTimA->b[a3];
+        emblemSave = (EmblemSaveData1380 *)SaveBuffer;
+        emblemSave->editFrames280 = EmblemEditFrames;
+        for (j = 0; j < 2; j++) {
+            for (i = 0; i < 0x840; i++) {
+                if (j == 0) {
+                    emblemSave->decals300[0].bytes[i] = GarageActiveDecalTimA->bytes[i];
                 } else {
-                    p->f300[t0][a3] = GarageActiveDecalTimB->b[a3];
+                    emblemSave->decals300[j].bytes[i] = GarageActiveDecalTimB->bytes[i];
                 }
             }
         }

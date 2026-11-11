@@ -13,4 +13,8 @@ void AssignCarModelSlot(RaceVehicle *p);
 /* Scale the second rotation row; its halfwords retain the low16 product. */
 void ScaleMatrixRow1(s32 scale, MatrixWords32 *matrix);
 
+
+void ResetCarState(RaceVehicle *vehicle);
+void UpdateCarWorldTransform(RaceVehicle *vehicle);
+
 #endif /* RR_GAME_CAR_CARBOUND_H */

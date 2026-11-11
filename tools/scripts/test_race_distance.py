@@ -24,14 +24,19 @@ class Distance(C.Structure):
                 ('pad1DA', C.c_uint8*(0x1F4-0x1DA)), ('control', DistanceControl)]
 
 
+class StandingEntry(C.Structure):
+    _fields_ = [('id', C.c_int32), ('distance', C.c_int32), ('vehicle', C.c_void_p)]
+
+
 class Result(C.Structure):
     _fields_ = [('pad', C.c_uint8*8), ('first', C.c_int32), ('second', C.c_int32),
-                ('selected', C.c_int32)]
+                ('selected', C.c_int32), ('gap', C.c_int32), ('entries', StandingEntry*8)]
 
 
 class Context(C.Structure):
     _fields_ = [('pad', C.c_uint8*0x14), ('mode', C.c_int32),
-                ('middle', C.c_uint8*(0xE8-0x18)), ('result', C.POINTER(Result))]
+                ('middle', C.c_uint8*(0xE8-0x18)), ('result', C.POINTER(Result)),
+                ('native_tail', C.c_uint8*(0x5A8-0xF0))]
 
 
 class GuardedResult(C.Structure):
@@ -66,9 +71,11 @@ static __inline__ s32 WrappingMagnitude(s32 value) {
     return value < 0 ? 0U - u : u;
 }
 RaceVehicle PlayerCars[2];
-RaceDistanceContextPrefix RaceContext;
-unsigned long test_context_size(void) {return sizeof(RaceDistanceContextPrefix);}
+SceneRaceContext RaceContext;
+unsigned long test_context_size(void) {return sizeof(SceneRaceContext);}
 unsigned long test_record_size(void) {return sizeof(RaceVehicle);}
+unsigned long test_table_size(void) {return sizeof(RaceStandingsTable);}
+unsigned long test_entries_offset(void) {return __builtin_offsetof(RaceStandingsTable,entries18);}
 ''' + body
         directory = Path(cls.temp.name)
         (directory/'function.c').write_text(source)
@@ -82,7 +89,7 @@ unsigned long test_record_size(void) {return sizeof(RaceVehicle);}
         cls.calculate = cls.lib.CalcDistanceToPlayer
         cls.calculate.argtypes = [C.POINTER(Distance)]
         cls.calculate.restype = None
-        for name in ('test_context_size', 'test_record_size'):
+        for name in ('test_context_size', 'test_record_size', 'test_table_size', 'test_entries_offset'):
             getattr(cls.lib, name).restype = C.c_ulong
 
     def setUp(self):
@@ -121,6 +128,9 @@ unsigned long test_record_size(void) {return sizeof(RaceVehicle);}
     def test_native_layout_full_pointer_and_signed_boundaries(self):
         self.assertEqual(self.lib.test_context_size(), C.sizeof(Context))
         self.assertEqual(self.lib.test_record_size(), C.sizeof(Distance))
+        self.assertEqual(self.lib.test_table_size(), C.sizeof(Result))
+        self.assertEqual(self.lib.test_entries_offset(), Result.entries.offset)
+        self.assertGreater(C.addressof(self.output.result), 0xFFFFFFFF)
         self.assertEqual(Context.result.offset, 0xE8)
         self.assertEqual(C.addressof(self.context.result.contents), C.addressof(self.output.result))
         boundaries = (-0x80000000,-0x7FFFFFFF,-1,0,1,0x7FFFFFFE,0x7FFFFFFF)

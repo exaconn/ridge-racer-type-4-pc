@@ -1,4 +1,5 @@
 """Full save/map/palette initialization with mutable typed service boundaries."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -7,7 +8,7 @@ import unittest
 class Overlay662PaletteInitializerTest(unittest.TestCase):
     def test_mapping_and_fresh_roots(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_80119B44.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_80119B44.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

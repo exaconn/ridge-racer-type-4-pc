@@ -9,7 +9,7 @@ import unittest
 class OverlaySerialResetTest(unittest.TestCase):
     def test_thresholds_and_exact_flag(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/overlays/PAL/667/func_801153F0.c')
+        body = read_c_source(root / 'src/overlays/PAL/serial_link/func_801153F0.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

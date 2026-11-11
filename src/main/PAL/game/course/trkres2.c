@@ -2,6 +2,7 @@
 #include "rr/steering.h"
 #include "rr/track_resources.h"
 #include "game/course/trkres2.h"
+#include "game/gfx/dispenv.h"
 
 extern RaceSpecEntry30 *CarSpecTable;
 
@@ -52,16 +53,16 @@ unsigned long AlignUp4(unsigned long a) {
     return v;
 }
 
-void RelocateTrackLookupTables(LookupTables32 *tables)
+void RelocateTrackLookupTables(TrackEventDirectory *tables)
 {
     RaceContext.lookupTables = tables;
-    tables->auxiliary10 = (void *)(tables->auxiliary10 + (unsigned long)tables);
-    RaceContext.lookupTables->auxiliary14 = (void *)(RaceContext.lookupTables->auxiliary14 + (unsigned long)tables);
-    RaceContext.lookupTables->table0 = (TrackEventEntry *)((unsigned long)RaceContext.lookupTables->table0 + (unsigned long)tables);
-    RaceContext.lookupTables->table1 = (TrackEventEntry *)((unsigned long)RaceContext.lookupTables->table1 + (unsigned long)tables);
-    RaceContext.lookupTables->table2 = (TrackEventEntry *)((unsigned long)RaceContext.lookupTables->table2 + (unsigned long)tables);
-    RaceContext.lookupTables->table3 = (TrackEventEntry *)((unsigned long)RaceContext.lookupTables->table3 + (unsigned long)tables);
-    RaceContext.lookupTables->auxiliary28 = (void *)(RaceContext.lookupTables->auxiliary28 + (unsigned long)tables);
+    tables->pairs0.entries = (TrackEventPair *)(tables->pairs0.offset + (unsigned long)tables);
+    RaceContext.lookupTables->pairs1.entries = (TrackEventPair *)(RaceContext.lookupTables->pairs1.offset + (unsigned long)tables);
+    RaceContext.lookupTables->table0.entries = (TrackEventEntry *)(RaceContext.lookupTables->table0.offset + (unsigned long)tables);
+    RaceContext.lookupTables->table1.entries = (TrackEventEntry *)(RaceContext.lookupTables->table1.offset + (unsigned long)tables);
+    RaceContext.lookupTables->table2.entries = (TrackEventEntry *)(RaceContext.lookupTables->table2.offset + (unsigned long)tables);
+    RaceContext.lookupTables->table3.entries = (TrackEventEntry *)(RaceContext.lookupTables->table3.offset + (unsigned long)tables);
+    RaceContext.lookupTables->pairs2.entries = (TrackEventPair *)(RaceContext.lookupTables->pairs2.offset + (unsigned long)tables);
 }
 
 void SetTrackLaneOffsets(TrackLaneOffset8 *offsets)
@@ -76,19 +77,19 @@ void SetTrackStartNode(s32 *startNode)
 
 void SetTrackWorkspace(u8 *workspace)
 {
-    TrackResourceContext *context = &RaceContext;
+    SceneRaceContext *context = &RaceContext;
     context->workspace554 = workspace;
     workspace += 0xA00;
-    context->workspace558 = workspace;
+    context->lightPresets558 = (TrackLightPreset8 *)workspace;
     workspace += 0x20;
     context->workspace55C = workspace;
     workspace += 0x200;
-    context->cameraNodes550 = workspace;
+    context->cameraNodes550 = (CamNode44 *)workspace;
 }
 
 void LoadTrackResource(TrackResourceFile *file)
 {
-    RelocateTrackLookupTables((LookupTables32 *)((u8 *)file + file->lookupOffset04));
+    RelocateTrackLookupTables((TrackEventDirectory *)((u8 *)file + file->lookupOffset04));
     SetTrackLaneOffsets((TrackLaneOffset8 *)((u8 *)file + file->laneOffset08));
     SetTrackStartNode((s32 *)((u8 *)file + file->startNodeOffset0C));
     SetTrackWorkspace((u8 *)file + file->workspaceOffset10);

@@ -2,14 +2,14 @@
 #include "rr/gpu.h"
 #include "psyq/libgpu/primattr.h"
 
-void SetShadeTex(void *arg0, s32 arg1) {
-    PolyG4Packet *p = arg0;
-    u8 var_v0;
+void SetShadeTex(void *packet, s32 enabled) {
+    GpuPrimitiveHeader *header = packet;
+    u8 code;
 
-    if (arg1 != 0) {
-        var_v0 = p->code | 1;
+    if (enabled != 0) {
+        code = header->color.bytes.code | 1;
     } else {
-        var_v0 = p->code & 0xFE;
+        code = header->color.bytes.code & 0xFE;
     }
-    p->code = var_v0;
+    header->color.bytes.code = code;
 }

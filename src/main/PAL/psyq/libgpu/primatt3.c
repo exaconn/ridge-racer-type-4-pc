@@ -2,8 +2,8 @@
 #include "rr/gpu.h"
 #include "psyq/libgpu/primatt3.h"
 
-void SetPolyFT3(void *arg0) {
-    PolyG4Packet *p = arg0;
-    p->len = 7;
-    p->code = 0x24;
+void SetPolyFT3(void *packet) {
+    GpuPrimitiveHeader *header = packet;
+    header->tag.bytes.length = 7;
+    header->color.bytes.code = 0x24;
 }

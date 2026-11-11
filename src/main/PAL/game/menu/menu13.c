@@ -13,8 +13,6 @@
 extern int MenuReturnSubmodeIndex;
 
 void UpdateDialogue(int a0, int a1, MenuTextState *s);
-int DecodeCourseIndex(s32 a0);
-void EmitSpinningWheelIcon();
 
 void UpdateDialogue(int a0, int a1, MenuTextState *s) {
     unsigned short *p;
@@ -155,8 +153,8 @@ s32 DecodeCourseIndex(s32 a0) {
     return CoursePreviewSceneIds[a0 & 7];
 }
 
-void EmitSpinningWheelIcon(int a0, int a1, int a2, int a3, int a4) {
-    int m = (a4 << 5) % 256;
-    unsigned short s = (a4 << 6) + 0x3828;
-    AddSpriteWithDrawMode(a0, a1, a2, a3, 0x20, 0x40, m, 0xC0, 0x9A, s, 0, 0x80);
+void *EmitSpinningWheelIcon(u32 *ordering, void *cursor, s32 x, s32 y, s32 frame) {
+    s32 u = (s32)((u32)frame << 5) % 256;
+    u16 clut = ((u32)frame << 6) + 0x3828U;
+    return AddSpriteWithDrawMode(ordering, cursor, x, y, 0x20, 0x40, u, 0xC0, 0x9A, clut, 0, 0x80);
 }

@@ -11,7 +11,7 @@ void _padInitDirSeq(void) {
     update = _padPacketDone;
     /* PAL RAM mapping: PadPacketDoneCallback is base minus 0x4378. */
     base = (u8 *)0x800B0000U;
-    *(ChannelUpdateCallback *)(base - 0x4378) = update;
+    ((ChannelUpdateCallback *)base)[-0x4378 / (s32)sizeof(ChannelUpdateCallback)] = update;
 }
 
 s32 _padChannelDispatch(void *a0) {

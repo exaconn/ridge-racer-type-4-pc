@@ -9,7 +9,7 @@ import unittest
 class CalibrationSetupTest(unittest.TestCase):
     def test_native_setup(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/overlays/PAL/665/func_80115798.c')
+        body = read_c_source(root / 'src/overlays/PAL/options/func_80115798.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

@@ -5,6 +5,9 @@
 
 /* Raw card-sector BIOS entries: 128 bytes per sector. Status is indexed by
  * slot (port >> 4); bit0 signals a completed transfer, including error statuses. */
+/* Encoded card channel is an integer selector, not an address. */
+s32 _card_info(s32 channel);
+s32 _card_load(s32 channel);
 s32 _card_write(s32 port, s32 sector, const u8 *buffer);
 void _new_card(void);
 s32 _card_read(s32 port, s32 sector, u8 *buffer);

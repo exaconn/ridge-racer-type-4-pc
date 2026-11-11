@@ -1,3 +1,4 @@
+#include "game/gfx/sprefct.h"
 #include "game/gfx/fontdraw.h"
 #include "rr/sprite_emit.h"
 #include "rr/badge_rows.h"
@@ -39,7 +40,6 @@ extern s32 NumLaps;
 extern s32 TimeAttackBestTotalTimes;
 extern s32 TimeAttackBestLapTimes;
 extern ImagePreset10 PreviewImageRowPresets[];
-extern int EmitPolyFT3();
 
 void DrawImageRow(int a0, int a1, int a2, int a3);
 
@@ -434,9 +434,9 @@ void DrawImageRow(int a0, int a1, int a2, int a3) {
     int tx, ty;
     int x[4], y[4], u[4], v[4];
     unsigned short tpage, clut;
-    int s2;
+    void *cursor;
 
-    s2 = *(int *)SCRATCHPAD;
+    cursor = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
     for (i = 0; i < 18; i++) {
         tx = ImageRows[a0].geom.coords.u + (i % 9) * 24;
         ty = ImageRows[a0].geom.coords.v + (i / 9) * 96;
@@ -454,7 +454,7 @@ void DrawImageRow(int a0, int a1, int a2, int a3) {
                 if (j >= 2) {
                     y[0] += 48;
                 }
-                s2 = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.words[694], s2, x[0], y[0], 24, 48, u[0], v[0], tpage, clut, a3, a2);
+                cursor = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.words[694], cursor, x[0], y[0], 24, 48, u[0], v[0], tpage, clut, a3, a2);
             } else if (a1 == 1) {
                 for (k = 0; k < 4; k++) {
                     x[k] = ImageRows[a0].geom.coords.x + (i % 6) * 48 + (k & 1) * 48;
@@ -472,10 +472,10 @@ void DrawImageRow(int a0, int a1, int a2, int a3) {
                 y[1] = -(a2 * 12) / 128 + y[1] + 12;
                 y[2] = (a2 * 12) / 128 + y[2] - 12;
                 y[3] = (a2 * 12) / 128 + y[3] - 12;
-                s2 = EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.words[694], s2, &x[0], &y[0], &u[0], &v[0], tpage, clut, 0, a2);
-                s2 = EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.words[694], s2, &x[1], &y[1], &u[1], &v[1], tpage, clut, 0, a2);
+                cursor = EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.words[694], cursor, &x[0], &y[0], &u[0], &v[0], tpage, clut, 0, a2);
+                cursor = EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.words[694], cursor, &x[1], &y[1], &u[1], &v[1], tpage, clut, 0, a2);
             }
         }
     }
-    *(int *)SCRATCHPAD = s2;
+    ((GpuScratchPointers *)SCRATCHPAD)->cursor = cursor;
 }

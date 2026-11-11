@@ -19,11 +19,6 @@ s32 _cardCmd5BVarBegin(s32 request, s32 parameter, u8 *buffer, u8 *first) {
     CardCmdResultPtrA = first;
     CardCmdCount = 0;
     CardCmdParam.value = 0;
-    {
-        s32 *base;
-        /* PAL RAM mapping: base[-0x421C / 4] is CardCommandStatus. */
-        base = (s32 *)0x800B0000U;
-        base[-0x421C / 4] = active;
-    }
+    CardCommandStatus = active;
     return result;
 }

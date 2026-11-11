@@ -1,3 +1,4 @@
+#include "game/ui/uipart1.h"
 #include "rr/menu_text_state.h"
 #include "types.h"
 #include "game/ui/barsel1.h"
@@ -8,8 +9,6 @@
 #include "game/ui/uidraw.h"
 #include "game/ui/uiwin.h"
 
-extern int SetMenuFrameOptions();
-extern int DrawMenuStepArrows();
 extern s16 SelectedTeamIndex;
 
 s32 UpdateModeSelectBarAnim(void) {
@@ -26,7 +25,7 @@ s32 UpdateModeSelectBarAnim(void) {
             ((s16 *)BadgeRows)[8] = 0;
         } else if (((s16 *)BadgeRows)[8] < 4) {
             DrawMenuStepArrows(0xA0, 0xCC, 0x30, 0, SelectedTeamIndex, 0, 4);
-            var_s2 = UpdateGlyphRow(SelectionRows[0]);
+            var_s2 = UpdateGlyphRow(SelectionRows.bytes[0]);
         }
     }
     SetMenuFrameOptions(1, 1, 0);

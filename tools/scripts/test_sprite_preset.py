@@ -1,5 +1,6 @@
 """Actual sprite emitter, including live table and ordering-page aliases."""
 from pathlib import Path
+from c_functions import definition_source, source_owners
 import re
 import subprocess
 from tempfile import TemporaryDirectory
@@ -16,11 +17,10 @@ class SpritePresetTest(unittest.TestCase):
         def header(name):
             text=(ROOT/'include/rr'/name).read_text()
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-        body=(ROOT/'tools/scripts/fixtures/views/func_8001BAF8.c').read_text()
+        owner=source_owners(ROOT/'src/main/PAL')['EmitPresetSprite']
+        body=definition_source(owner.read_text(),'EmitPresetSprite')
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
-        assert body.count('(GpuScratchPointers*)0x1F800000U')==1
-        body=body.replace('(GpuScratchPointers*)0x1F800000U','&actual.scratch')
         code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -40,6 +40,7 @@ typedef struct {
 } World;
 static World actual __attribute__((aligned(65536))),expected;
 #define PresetSpriteDescriptors actual.presets
+#define SCRATCHPAD (&actual.scratch)
 ''' + body + r'''
 static u8 *locate(const void *address,size_t size) {
     uintptr_t offset=(uintptr_t)address-(uintptr_t)&actual;

@@ -1,3 +1,4 @@
+#include "game/gfx/scene1.h"
 #include "types.h"
 #include "game/gfx/fadesel.h"
 #include "game/math/shuffle.h"
@@ -30,10 +31,6 @@ extern short SubmodeState;
 extern int MaskBitSetting;
 extern char RaceContext[];
 extern short ActiveSceneId;
-extern int InitSceneOverlayState();
-extern int SetSceneOverlayColor();
-extern int SetSceneOverlayEnabled();
-
 void StartAttractDemo(int a0);
 void AttractDemoRaceEnter(void);
 
@@ -90,7 +87,7 @@ v = s0 + PsyqRand() % 2;
     s2 = x6 % 18;
     tb = MenuTransitionFadeRates;
     w = AttractCarTeams;
-    b = (void *)SelectionRows;
+    b = (void *)SelectionRows.bytes;
     do {
         b[i].a = sp[i];
         b[i].b = tb[sp[i]];

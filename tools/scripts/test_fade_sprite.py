@@ -8,7 +8,7 @@ def header(name):
  return re.sub(r'extern[^;]*;','',s)
 from c_functions import definition_source, source_owners
 owner_text=source_owners(ROOT/'src/main/PAL')['EmitFadeSprite'].read_text()
-body=re.search(r'extern SpritePacket \*AddSpritePrim[^;]*;',owner_text).group(0)+'\n'+definition_source(owner_text,'EmitFadeSprite')
+body=definition_source(owner_text,'EmitFadeSprite')
 body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
 body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
 body=re.sub(r',?\s*"\$\d+"','',body)
@@ -51,6 +51,7 @@ static int mutate,return_offset,return_kind,original_selector;
 #define FadeSpriteIntensityScale actual.gain
 #define HudCourseMapScaleTable actual.uv
 #define FadeSpriteDrawModes actual.modes
+#include "game/ui/badgeprim.h"
 '''+body+r'''
 static s32 bits(u32 u){s32 s;memcpy(&s,&u,4);return s;}
 static void *mapped(World *world,const void *p) {
@@ -80,7 +81,7 @@ static SpritePacket *helper(int model,u32 *ordering,SpritePacket *cursor,
  if(!return_kind)memset(mapped(w,raw),0xCA,24);
  return (SpritePacket*)raw;
 }
-SpritePacket *AddSpritePrim(u32 *a,SpritePacket *b,s32 c,s32 d,
+void *AddSpritePrim(u32 *a,void *b,s32 c,s32 d,
  UiUvRect *e,u16 f,s32 g){return helper(0,a,b,c,d,e,f,g);}
 static void reference(s32 index,s32 x,s32 y,s32 intensity) {
  s32 phase=expected.phase;

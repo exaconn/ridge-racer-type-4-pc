@@ -11,12 +11,12 @@ from c_functions import source_owners, definition_source
 class ReplayMenuTest(unittest.TestCase):
     def test_native_menu(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/665/func_{a}.c')
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/options/func_{a}.c')
                            for a in ('80114A24', '80114C4C'))
         bodies = re.sub(r'__asm__\("\$6"\)', '', bodies)
         owner = source_owners(root / 'src/main/PAL')['ResetScreenCounters']
         reset = definition_source(owner.read_text(), 'ResetScreenCounters')
-        classifier = read_c_source(root / 'src/overlays/PAL/665/func_8011629C.c')
+        classifier = read_c_source(root / 'src/overlays/PAL/options/func_8011629C.c')
         classifier = classifier.replace('ovl665_detect_controller_kind','real_classify')
         source = r'''
 #include <assert.h>

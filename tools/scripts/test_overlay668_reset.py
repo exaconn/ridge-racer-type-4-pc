@@ -10,7 +10,7 @@ import unittest
 class StrResetTest(unittest.TestCase):
     def test_reset_and_recovery(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/668/func_{a}.c')
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/movie_playback/func_{a}.c')
                            for a in ('80116558', '801168A4'))
         bodies = re.sub(r'__asm__\("\$2"\)', '', bodies)
         source = r'''

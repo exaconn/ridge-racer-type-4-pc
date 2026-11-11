@@ -1,4 +1,5 @@
 """Palette refresh: complete owners, mutable sine/upload services and wrapping phases."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re
@@ -9,7 +10,7 @@ import unittest
 class PaletteRefreshTest(unittest.TestCase):
     def test_aliases_fresh_roots_and_signed_phases(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_8011CD18.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_8011CD18.c')
         body = re.sub(r' __asm__\("\$[0-9]+"\)', '', body)
         source = r'''
 #include <assert.h>

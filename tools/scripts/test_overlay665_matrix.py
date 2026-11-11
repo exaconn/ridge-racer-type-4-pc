@@ -14,7 +14,7 @@ import unittest
 class Overlay665MatrixTest(unittest.TestCase):
     def test_matrix_capture_order_halfword_input_and_aliasing(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/overlays/PAL/665/func_80116358.c')
+        body = read_c_source(root / 'src/overlays/PAL/options/func_80116358.c')
         source = r'''
 #include <assert.h>
 #include <stddef.h>

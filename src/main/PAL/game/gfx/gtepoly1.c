@@ -35,7 +35,6 @@ typedef struct {
 } TrailEntry8;
 
 extern int MaskBitSetting;
-extern s32 ModelTexturePage;
 extern char UnknownRroTypeFmt[];
 extern signed char RacePaused;
 extern RroEffectColorTable RroEffectColorPresets;
@@ -44,7 +43,6 @@ extern int SpotlightConeRingInner[];
 
 
 
-void SetModelTexturePage(s32 arg0);
 int DrawRroModel(const Vector *position, MatrixWords32 *rotation, s32 object, s32 flags);
 
 
@@ -757,8 +755,8 @@ const u32 *EmitRroEnvMapQuads(const u32 *commands, RroRenderWork *inputWork, s32
     return (const u32 *)quad;
 }
 
-void SetModelTexturePage(s32 arg0) {
-    ModelTexturePage = arg0;
+void SetModelTexturePage(s32 page) {
+    ModelTexturePage = page;
 }
 
 int DrawRroModel(const Vector *position, MatrixWords32 *rotation, s32 object, s32 flags)

@@ -12,7 +12,7 @@ class OverlayWaitTest(unittest.TestCase):
         cls.temp = TemporaryDirectory()
         cls.addClassCleanup(cls.temp.cleanup)
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/668/func_{a}.c')
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/movie_playback/func_{a}.c')
                            for a in ('80116764', '801167F8'))
         source = r'''
 #include <assert.h>

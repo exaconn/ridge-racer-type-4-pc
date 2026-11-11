@@ -1,4 +1,5 @@
 """Option initialization with opaque object identities and full native pointers."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +9,7 @@ import unittest
 class OverlayOptionsTest(unittest.TestCase):
     def test_negative_modes_and_complete_owner(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_8011D278.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_8011D278.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

@@ -1,4 +1,5 @@
 """POLY_G4 semantic/DMA views, wrapped geometry and actual word aliases."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -20,7 +21,7 @@ class Overlay662GradientQuadTest(unittest.TestCase):
 #include "rr/overlay662_gradient.h"
 static struct World {u32 head[4];GarageSelectionPrefix state;PolyG4Storage packets[5];u32 ordering[4];u32 tail[4];} world,expected;
 #define ovl662_editor_workspace world.state
-''' + (root/'src/overlays/PAL/662/func_8011B0CC.c').read_text() + r'''
+''' + read_c_source(root/'src/overlays/PAL/garage/func_8011B0CC.c') + r'''
 static u32 seed=0x1B0CC;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 static s16 half(u32 raw){u16 bits=(u16)raw;s16 v;memcpy(&v,&bits,2);return v;}

@@ -66,6 +66,14 @@ Between those constraints functions were grouped thematically (shared callees an
 TextTiling over the call/data reference profile), then each group was cut at the first point
 where the merged text no longer compiled or matched. Treat the boundaries as editable.
 
+Overlay 662 keeps `editor_selection.c` and `editor_hit.c` as adjacent units.
+Selection uses its existing stock `-fno-schedule-insns` profile; hit testing and
+clip stores use the default profile. Combining all six functions under either
+current profile loses the relocated match. The two-unit arrangement verifies
+all six functions at their original addresses, with unchanged C bodies and no
+new compiler constraints. These are verified reconstruction boundaries, not
+recovered original source-file boundaries.
+
 ## Tools
 * `tools/scripts/gen_config.py` + `make split` – segment names are the paths below `src/main/PAL`
   (`game/car/carmove1`), so moving or renaming a file is just a `git mv` followed by `make split`.
@@ -81,6 +89,12 @@ where the merged text no longer compiled or matched. Treat the boundaries as edi
   `unittest`, runs standalone script tests normally, rejects zero-test unittest runs and returns
   failure if any module fails. Per-module logs and incremental results are in `build/tests/run/`.
   Running a TestCase file directly is insufficient: many modules have no `unittest.main()` guard.
+* Overlay 662 fixtures keep their historical address paths as function identifiers,
+  but use `overlay_units.read_c_source` to extract the current definition from its
+  owning TU. Their native harnesses, models, cases and PRNG streams are unchanged.
+  The controller and fade trace tools resolve the actual TU for dependency hashes;
+  the controller selects its named definition explicitly instead of dropping the
+  first line of a former single-function file. Frozen fixture files are not edited.
 * New matches: write `src/main/PAL/func_XXXXXXXX.c`, use `fd.py` for iteration, then move it into the
   TU it belongs to (same compiler markers, address-contiguous with its neighbours) or leave it at
   top level until a neighbour is matched. `verify_c_unit.py` compiles and fully relocates the TU,
@@ -135,6 +149,343 @@ callers. These are unresolved reconstruction constraints. Further cleanup must r
 native fixtures while preserving the relocated instruction match and complete EXE identity.
 
 ## Shared types and constants
+
+`SceneRaceContext` now covers the complete `0x57C` PAL allocation cleared by
+`SoundSystemInit`. Its resource tail names the camera-node root, workspaces,
+light-preset array, sound-payload pointer and event directory. The constructor
+clears `sizeof(RaceContext)` through the shared declaration, including complete
+native pointer cells. `TrackCameraNodes` (`+0x550`), `TrackLightPresets` (`+0x558`),
+`TrackEventTables` (`+0x568`) and `SceneOverlayEnabled` (`+0xD4`) are historical
+PAL labels for fields of this owner; their active C consumers no longer declare
+separate objects. The light-preset producer and consumer share the same typed
+four-entry array, and the enable setter writes the same field as scene reset.
+
+The same owner now names `playerCount14` and the full standings pointer at
+`+0xE8`. `RaceStandings` is a historical PAL label for this pointer cell, not
+a separate C global. Its four resident consumers use `RaceContext.standings`.
+One `RaceStandingsTable` contains two player speeds, two distances from the
+current car, the closest-player index, the overtake gap and eight standings
+rows. This replaces the former distance-result prefix and rubber-band array
+projection. The overtake caller indexes the actual row array instead of
+advancing a native pointer by a hardcoded twelve-byte PAL stride.
+
+`test_race_standings_owner.py` checks the actual standings producer followed by
+four distance calculations in 1,024 scenarios on native C and original/linked
+MIPS. Independent models check stable ranking, signed speeds, wrapped distances
+and player aliases. Both complete standings buffers, thirteen vehicles, the
+complete context, immutable inputs, guards, MIPS stores and register/stack ABI
+are checked. There are no substituted services or production-body rewrites.
+`test_car_overtake_owner.py` adds 8,192 native cases for the successful selected-row
+lane-target branch, with controlled search/score boundaries that can change
+the published standings root, selected entry and gap. This fixture does not
+cover the algorithms behind those services or the fallback projection branch.
+
+The E8 pointer uses the old native scalar/padding cell without moving the
+inline camera: the context remains `0x57C` on PAL and `0x5A8` on LP64. Frozen
+camera inputs retain their original tokens, schemas, PRNG streams and cases;
+the test codec binds the E8 token to a guarded complete native standings owner
+and serializes its saved logical token separately. It never reconstructs a
+host pointer from token bits. The existing distance and front-search fixtures
+also use the complete context and standings owners.
+
+`RaceSoundConfig` names the four scalar configuration words at `+0x56C`:
+SFX VAB selection, two car variants and the computer-car bank. Race setup,
+the staged sound loader and slot startup use this same nested record.
+`PendingTrackSfxVabId`, `ComSoundBankIndex` and `TrackSoundPayloadPtr` remain
+historical PAL labels, with no separate active C declarations. The loaders
+now publish the sound-payload and camera-track roots through full native
+pointer members. `DualPlayerSoundEnabled` likewise names `SoundState.split10`,
+and `SoundSeqVariantIndex` names `SoundState.sequenceVariant19CC`; queue
+selection consumes the same field written by race setup. `SlotStart` indexes
+the real slot array instead of casting an interior address to `AudioState`.
+
+`rr/race_audio_resources.h` describes five actual wire-header layouts used by
+track audio, trophy, attract audio and the menu-car loaders. Their signed
+section offsets remain file-relative words; address addition retains the live
+native base. The menu loader's `model560` assignment still belongs to the
+legacy integer mesh API and needs the separate model/renderer migration.
+These controller changes do not supply a native decoder for a raw PAL mesh,
+VAB or TIM payload.
+
+`test_race_audio_owner.py` executes nine actual C functions in 1,024 scenarios
+on native C and original/linked MIPS, from race configuration through staged
+bank loading, slot key-on and queue selection. Independent models check both
+complete owners, selection/program tables, return values and every observed
+service boundary. Controlled I/O and key-on services can change configuration,
+loader roots, slot fields and queue variant; the caller must retain captured
+arguments while re-reading later live fields. Native pointer cells, alignment
+gaps, exterior guards, MIPS stores and stack/callee-save state are checked.
+Only the queue's existing target register annotation is elided for native
+compilation; no production calculation is rewritten.
+
+`test_track_audio_resources.py` checks three actual resource controllers plus
+the real alignment helper in 3,072 native cases. It covers pending/default
+states, section arguments, live arena switches, full-width published pointers,
+all surrounding state and read-only resource guards. Its relocation tables are
+empty and its bank/image/reset services are controlled boundaries. The two
+existing fixtures changed only their owner lvalues; their decision rules,
+case generation and PRNG streams are preserved.
+
+`rr/track_lookup_types.h` owns one `TrackEventDirectory`: three pair-table counts,
+four threshold-table counts and seven references. The former `LookupTables16`
+and `LookupTables32` described overlapping parts of this same record. Each
+reference now has a signed-offset member before relocation and a typed pointer
+member afterwards. Address relocation retains the native pointer width and
+supports references to sections before and after the descriptor. The dispatcher
+has a defined zero result for selectors outside 0..6, matching the original
+MIPS range-check result; no warning suppression or compiler constraint is used.
+The node search also imports the full shared camera record and a typed vehicle
+parameter instead of a private `TrackEntry44` projection.
+
+`test_track_resource_owner.py` executes the actual relocation, workspace setup,
+node queries, all seven event queries, light-preset caller and scene setters in
+2,048 scenarios on native C and original/linked MIPS. It covers all 256 light
+selectors, negative/positive resource offsets, counts 0..8, circular node search,
+signed keys and invalid selectors with an unpublished directory. There are no
+opaque resource services or host-only body rewrites. Complete owners and full
+resource/context/slot snapshots, native pointers above 4 GiB, exterior guards,
+MIPS stores, stack and callee-save state are checked. This is a test of these
+producers and consumers, not of importing an entire raw track file on a host.
+
+`scene_context_wire.h` preserves the old camera trace format while binding its
+opaque resource tokens to real native node, buffer and preset owners. Tokens
+never become host pointer bits. New physical-tail guards follow `0x57C`; the
+historical `0x564` trace prefix and all prior case matrices remain. Camera-track
+and render-state fixtures generate their original frozen LP64 input records,
+then decode them into the current owner. Compiled schema audits preserve every
+input member offset and PRNG byte count. The render oracle moves its enable and
+palette accesses to their actual scene fields; its decision rules remain.
+The audio constructor fixture likewise checks a complete typed native context.
+
+Remaining aliases include the start-grid/spec/lane slots, the trigger-table
+consumer, sound consumers and other private `RaceContext` projections. The
+sound-payload slot is pointer-sized in the shared owner, but its loader still
+uses a legacy declaration. These remaining paths need their own producer and
+consumer migration; this resource cleanup does not establish one declaration
+for every user of the context.
+
+`RaceVehicle.worldPosition10` owns the complete 16-byte SDK world-position
+vector at `0x10`, including its fourth reserved word. Vehicle/render consumers
+share this word/vector union rather than treating three words and the following
+slot as an unrelated private structure. The vehicle body-position copy now uses
+the actual vector member. Layout checks for `worldPosition10` and `position20`
+live with `RaceVehicle`; their duplicate declarations in `rr/race.h` are removed.
+
+`CarLocalToWorld` accepts `RaceVehicle *`, `const Vec3s8 *` and `Vector *` through
+one public declaration. All six call sites in the two camera TUs pass actual
+packed-offset and full-vector members. The helper reads the vehicle's published
+position after its matrix services, copies all four words, and adds the three
+transformed components with explicit 32-bit wrapping. Its old private `V` copy
+and integer-carried input pointer are removed. The camera caller's private `V4`
+is also replaced by the common SDK vector. Their other `RaceContext` projections
+remain separate reconstruction debt.
+
+`test_car_local_world.py` executes the current body without host rewriting in
+4,096 native scenarios and on original/linked MIPS. Six explicit matrix-service
+adapters check argument identities, live angle reads, initialized rotation bytes,
+input components and scalar-owner snapshots. All six output owners and three
+input owners are exercised, including output equal to the vehicle's source
+vector, all 64 service-mutation masks, signed limits and wrapping in both
+directions. Native pointers stay above 4 GiB; unchanged owner tails, exterior
+guards, stack bounds and callee-save state are checked. GTE matrix arithmetic is
+outside this service-boundary test. The helper's pre-existing two spare matrix
+words remain documented debt; removing them is not claimed by this cleanup.
+
+`SceneRaceContext` now names the camera-follow prefix through `0x4C`.
+`ComputeCameraNodeDist` imports this shared owner rather than declaring a private
+48-byte view. `CarTrackProgressDelta` (`RaceContext + 0x40`) and
+`CarTrackDirectionSign` (`RaceContext + 0x44`) are accessed as the same owner's
+previous-distance and limit fields, including the final store after the look-ahead
+service. Their historical PAL address labels remain in the symbol map. The
+function uses a three-component delta and three-word look-ahead output, explicit
+32-bit wrapping, a typed public vehicle/node interface and the resident SDK
+square-root declaration. Its pre-existing second assembler name for `RaceContext`
+remains a documented compiler constraint; this change does not retire it.
+
+`test_track_camera_distance.py` checks 2,048 cases on the current native C and
+original/linked MIPS. It compares the scalar context prefix, vehicle/node inputs,
+service-entry traces and final stores, and checks the rest of the declared native
+owners and exterior guards. Both explicit service adapters may replace live
+scalar state; square-root and interpolation internals are outside this test.
+Native pointers stay above 4 GiB. The one host normalization maps the existing
+assembler alias to the same native object. Both outcomes of all six tested
+predicates are required. Other `RaceContext` views and remaining resource aliases
+still require a shared-owner migration; the prefix cleanup does not establish
+one complete declaration for every consumer.
+
+`game/car/carsp.h` owns one `CarTrackWork` shared by track search, wheel
+contact and suspension. The old search view omitted the leading vehicle pointer:
+on LP64 it therefore disagreed with the contact view's offsets. Both caller and
+callee now use the same complete owner with a full native pointer. Layout
+assertions account for that width. Packed NCLIP coordinates have explicit
+halfword/word union views; the search no longer reads halfword fields through
+cast word pointers. Four shared `Vector` positions replace private `T16` formats.
+The `wheelState150` union separates track indices from suspension height offsets.
+
+`rr/track_sample_types.h` owns `TrackRoadSample34`, the centre-line/surface
+subrecord at byte 8 of `TrackSample3C`. The resource and scratch copies share this
+exact type; private `Node`/`Z52` projections and their casts are removed. Known
+coordinates, heights, widths and angles have semantic names. Uninterpreted fields
+remain explicitly unknown. The translation and wheel-position stores also use
+`CarTrackWork`, replacing the separate `ScratchCarPad` view whose fixed native
+offsets could disagree with the pointer-bearing owner.
+
+`UpdateWheelBumps` uses this owner instead of the private `T` view, whose
+three-row declaration was indexed for all four wheels. Wheel state, velocity
+and base use actual vehicle arrays instead of a vehicle pointer shifted by two
+bytes. The low heading halfword uses integer conversion rather than pointer
+punning. `test_wheel_bump_owner.py` checks 768 bounded-arithmetic scenarios against
+original/linked MIPS, including four wheels, both height banks, successful and
+declined triggers and landings. Trigger, impact and angle services are explicit
+stateful adapters. The body's one register binding and four empty barriers remain
+debt and are removed only for host compilation.
+
+`test_track_road_format.py` runs the current contact definition through all four
+subrecord copies, stopping at its first sine service boundary. A 512-case sweep
+replaces track roots during explicit search adapters; another 256 cases execute
+the actual axle search and model NCLIP on native C and original/linked MIPS.
+The latter includes searches requiring zero through three retries. Complete
+owners, all resource bytes, service/GTE boundaries and exterior guards are
+checked with native pointers above 4 GiB. The actual search's three old register
+annotations are removed only on the host. This test does not execute the later
+rotation/contact arithmetic. Existing track consumers retain their test cases,
+PRNG streams and oracles; only accesses to the shared record fields are migrated.
+
+`psyq/libgpu/gpudisp.h` owns the area, offset, texture-window and drawing-mode
+packet interfaces. Rectangle/window arguments share `GpuRectangleFields *`;
+`SetTexWindow` no longer transports its window pointer through a signed word.
+`rr/draw_environment.h` and the overlay area header import those declarations.
+The particle caller also drops its conflicting integer window argument.
+
+`SetupViewport` uses the complete `RroSceneScratchPrefix`, including real packet
+and ordering pointers. Its seven rectangles per draw-buffer bank share the SDK
+rectangle type. Passing the actual rectangle to `SetDrawArea` replaces the old
+one-argument declaration/call, allowing both viewport register bindings to be
+removed. The duplicated mirror predicate and address-named private structs are
+removed. Mirror-coordinate additions retain explicit unsigned word wrapping.
+The UI/sky callers use actual rectangle locals; `AddDrawAreaPrim` reads the two
+`FrameStorage` display descriptors rather than a private `char[]` global view.
+
+The overlay662 clip entry has one minimal public header. It accepts an aligned
+word packet, full-word coordinates/dimensions and returns a full native byte
+cursor. The constructor explicitly narrows its dimensions to the rectangle's
+low16 fields. Former private byte-pointer/halfword declarations are removed;
+all callers and service adapters use the same entry type. The original 458,752
+geometry/link cases remain, and an additional 458,752 cases pass nonzero upper
+dimension words. Two caller fixtures now compile the current SDK mode/window
+helpers instead of frozen copies; their existing models and case streams remain.
+
+The overlay662 area constructor uses the same resident declaration and the
+native DMA address backend. Its framebuffer row offset is unsigned bank*256;
+this preserves the original whole-word load without the old volatile cast,
+under the unchanged compiler and assembler configuration.
+
+`test_viewport_draw_area.py` executes the current viewport, area constructor,
+coordinate encoders and DMA linker on complete native owners and original/linked
+MIPS for 336 scenarios. Geometry/GTE setup calls are explicit mutable service
+adapters. Calls, actual SDK helper results, owner snapshots, stack/callee-save
+state and both CPU address aliases are checked. Native pointers remain above
+4 GiB; the viewport needs no host-only source changes. The DMA linker's existing
+single register annotation is removed only for host compilation.
+`test_draw_area_primitive.py` checks 8,192 UI/SDK scenarios against an independent
+byte oracle, including full-word coordinates, both framebuffer layouts, signed
+limits, null/real texture windows and offset packets. The overlay fixture retains
+its 458,752 cases, original PRNG and geometry/linking model; it now compiles the
+current resident constructor/helpers and uses registered CPU-address transport.
+`get_tw` now names its four encoded offset/mask fields and builds the command
+through used horizontal/vertical intermediates. Its assignment-only `new_var`,
+numeric local array and byte-pointer field casts are removed. All four local
+fields participate in the returned command; their storage is not frame padding.
+The mode, drawing-offset and mask builders also use semantic argument names
+and fixed-width scalar types. Mode commands now return `u32`, matching their
+encoded GPU-word consumers. The helper/environment declarations live in
+`psyq/libgpu/gpudisp.h`; production consumers include that owner directly.
+`rr/draw_environment.h` remains a compatibility include for older fixtures.
+The two environment fixtures update only their mode service's return type and
+remove the signed result cast; their cases, PRNG streams and byte/protocol models
+are otherwise unchanged, including mutable owners and NULL windows.
+
+`EmitPolyFT3` now uses the complete `GpuPolyFT3Packet` wire layout in `rr/gpu.h`
+instead of the private `struct S32` byte array. XY, UV, color, CLUT and texture
+page stores name their fields; the reserved final halfword remains untouched.
+The emitting TU owns the declaration in `game/gfx/sprefct.h`, with read-only
+four-byte coordinate/UV arrays and full-word material arguments narrowed inside
+the emitter. `rr/textured_triangle.h` is a compatibility include. `DrawImageRow`
+imports the same declaration and threads a full native scratch cursor through
+the triangle and sprite helpers, replacing its integer return declaration and
+integer scratch access. The pause-menu flat-triangle interface remains separate
+debt, as described below.
+
+`test_textured_triangle.py` extracts the current emitter and SDK setters. Its
+262,144 original packet/ordering-alias cases, model and PRNG are retained;
+another 262,144 cases pass nonzero upper material words. The image-fade fixture
+updates its service signature without changing its mutations or case stream.
+The sprite/page fixture also selects the current mode/window helpers, preserving
+its original packet oracle and generator rather than editing frozen sources.
+
+`AddSpriteWithDrawMode` shares `SpritePacket` rather than a private copy of the
+same packet. Its ordering, cursor, coordinates, UVs and material parameters have
+semantic names; packet casts occur at the word-link and draw-mode boundaries.
+`test_image_row_pipeline.py` executes the actual image-row caller, both emitters,
+SDK command setters, CLUT encoder and DMA linker in 2,048 native scenarios.
+Complete frame banks, image rows, scratch and packet arena are compared against
+an independent byte/link oracle, covering both banks, both CPU aliases, sprite
+and triangle styles, no-op styles, signed geometry, shade and transparency.
+The DMA backend registers the real native buffers above 4 GiB. All selected C
+bodies execute literally, with layout assertions enabled. This is a memory and
+command-stream test, not GPU hardware execution.
+
+`TriggerWheelBump` indexes the vehicle's actual four-wheel arrays rather than
+forming a shifted `RaceVehicle *`. Its lock update uses the declared halfword,
+and event multiplication explicitly wraps as a PAL word before signed division.
+`test_wheel_bump_trigger.py` compares 1,552 cases on native C and original/linked
+MIPS, including all four wheels, the input threshold, absent events, signed/full
+word event values and a lookup service that changes live input. Complete vehicle
+prefixes, service snapshots, exterior guards and saved registers are checked;
+the native owner remains above 4 GiB and the body needs no host rewrites. The
+lookup implementation itself is an instrumented service in this fixture.
+
+`game/gfx/spremit.h` now owns `GameQueueSprite`. It uses the shared unsigned
+CLUT `SpritePacket` layout and full native packet/ordering pointers; the former
+signed-CLUT view and address-like local names are removed from this emitter.
+Its pause and HUD callers agree with the public sprite declaration. The pause
+renderer threads a real scratch cursor and uses shared `Vec2s` corners with
+named loop/geometry locals. Its triangle return declaration now preserves a
+pointer, but the old aggregate-coordinate call contract remains unresolved:
+the current emitter takes three scalar words, while this caller passes pairs
+of shorts. Do not hide that difference with aliases or ABI wrappers. Native
+execution of the complete pause renderer is not established by these changes.
+
+`game/gfx/scene1.h` owns the scene initializer and both state setters, including
+the enable word's declaration. Color channels arrive as complete argument
+words and narrow only at the three stored bytes. `TrackLightPreset8` and its
+palette pointer belong to `game/gfx/dispenv.h`, replacing the caller's private
+record. `ApplyTrackLightPreset` decodes its selector once, uses an ordinary
+signed comparison value and no longer needs its empty-asm barrier. Its ignored
+second enable argument and redundant loop-counter assignments are removed.
+
+The title, opening and camera consumers now import the defining headers for
+view setup, CD playback/fade, opening glyph/icon emission, track interpolation
+and font strings. The opening's icon fade retains its explicit byte conversion;
+font input uses the existing encoded-byte interface. The chase-camera caller
+keeps its signed-halfword angle interpretation explicit with the shared
+word-returning declaration. `ResetCarSlotBuffers` has one no-argument public
+declaration in `game/data/resinit.h`; its callers drop ignored arguments, and
+the former single-iteration reset loop is a direct call.
+
+`test_render_state_owners.py` executes the actual state setters, light-preset
+caller and slot reset on complete `SceneRaceContext` and 16 native slot owners.
+An independent byte oracle checks 8,192 scenarios, all 256 light selectors,
+full-word colors/modes, both enable outcomes, every slot and exterior guards.
+Layout assertions remain enabled, pointers stay above 4 GiB, and no production
+body needs host rewriting. The packet-emitter fixture now extracts the current
+sprite body; its cases, service mutations and protocol model are retained.
+The two HUD service fixtures change only their sprite packet type spelling.
+The player/reverse-heading fixture's reset adapter now has the actual
+no-argument signature. Its historical flag payload comes from the selected
+vehicle's already-published flags, and an additional MIPS assertion checks the
+incoming register against that same owner. The event layout, all prior
+assertions, case matrices and PRNG streams are retained.
 
 `psyq/libsnd/vab_format.h` owns the complete VAB header, program and tone
 formats. `VagAtr` has named tone attributes and the original reserved fields;
@@ -1626,8 +1977,9 @@ cases and 512 original/compiled MIPS cases per image, checking complete frame
 banks, arenas, ROM/scalar owners, callback changes to roots and local/shared
 UVs, every service entry/exit, full native pointers, and ABI/store guards under
 UBSan. GPU service implementations are covered separately. The older pause
-menu's aggregate/scalar triangle-argument mismatch and integer cursor remain
-unresolved; a matching caller declaration alone does not settle that interface.
+menu's aggregate/scalar triangle-argument mismatch remains unresolved; a
+matching caller declaration alone does not settle that interface. Its scratch
+cursor and helper returns now preserve native pointer width.
 
 
 `GetTrackTargetHeading` now removes the redundant identical-branch condition
@@ -2222,3 +2574,580 @@ for the allocator's remaining register/page constraints is still explicit debt.
 selector and attribute-copy chain with complete native pointer cells and
 `SvmCur`, original/linked MIPS, full resource snapshots and an independent byte
 oracle. The original parser cases and resource PRNG streams are retained.
+
+Race sound startup and shutdown now use the canonical scene/audio owners in
+`sndcmd.c` and `sndctrl.c`. The startup controller no longer declares a private
+`RaceContext` prefix. Slot shutdown indexes `SoundState.slots38` directly instead
+of advancing a pointer to the whole `AudioState`. `SoundPaused` is the existing
+PAL symbol at `SoundState + 4`, so all pause/resume/shutdown writes use the common
+`muted04` field; the linker alias is preserved for address identification.
+
+`test_sound_scene_owner.py` checks 1024 startup/shutdown/pause/resume scenarios,
+including every initial combination of the four slot active flags and service
+mutations of later-read configuration and slot state. Its independent model
+compares complete native scene/audio owners and guards at every service boundary.
+The same full-state trace runs the original and linked MIPS implementations;
+three scene setters and reverb shutdown execute their real C/MIPS bodies.
+Native owners are allocated above 4 GiB. Resource pointer cells remain null in
+this controller test; resource loading/decoding is outside its scope.
+
+The audio frame path in `sndslot.c`, `sndchan.c`, `sndvol2.c` and `sndvab.c`
+now uses `SoundState` for slots, player voice records, master scale/gain and bank
+IDs. The historical `SoundSlots` (+38), `PlayerEngineVoiceState` (+195C),
+`VoiceVolumeScale` (+8), `SoundMasterGain` (+18), and three `AudioPan*Angle`
+labels (+24/+26/+32, actually bank-ID slots0/1/7) remain linker address names, not
+separate C owners. `SoundUpdate` advances a real `AudioSlot620` pointer rather
+than stepping from one flags member to another. Player voice parameters are a
+shared typed three-record table with program, unknown word and gain fields.
+Descriptive locals replace register names in slot/voice updates and panning;
+the panning path uses an actual signed16 conversion instead of its shift idiom.
+
+`test_audio_dispatch_owner.py` exercises six actual C functions through 1024
+reset/set/frame/voice/panning scenarios on native, original and linked MIPS.
+It checks full audio/settings/table state at every controlled service boundary,
+all sixteen combinations of slot-active flags and player modes0..3, both viewport selection modes, dynamic
+slot changes, signed parameter conversions and wrapped hardware volume scaling.
+The native full owner and guards include native pointer cells/alignment gaps;
+resource pointers are null in this test. The master fade, per-slot synthesis,
+CD/sequence/listener and remaining audio controllers are controlled services,
+not additional bodies claimed by this pipeline test.
+
+`test_audio_pan.py` now reads the current `TriggerSfx` definition. Its original
+fixture World, independent arithmetic model, PRNG and 131072 cases are unchanged.
+A gain/bank-only adapter transfers fields to/from a complete native `AudioState`
+while guarding all remaining bytes and valid full-width pointer cells. SDK
+snapshots still use the original fixture protocol. Native compilation retains
+UBSan and additionally checks bounds and warnings without suppressions.
+The preexisting ignored-argument call from `SoundMasterFadeStep` to `SoundStopAll`
+and remaining compiler constraints/manual rounding sequences remain explicit
+reconstruction work; this audio-owner migration does not retire them.
+
+Two failed concurrent canvas cleanups were rolled back to their previously
+verified bodies: pointer/configuration identity operations and an uninitialized
+second-flag read are not accepted replacements for compiler constraints. The two
+preexisting empty barriers were restored in that verified rollback. Other canvas
+functions were preserved. A subsequent concurrent, semantically valid rewrite
+of the option flags removes one barrier but currently has relocated instruction
+Levenshtein distance2; its full match remains unfinished. The existing update-controller test now rejects compiler warnings
+and checks bounds; a negative control rejects the uninitialized read. Its two
+frame-root assignments now select the complete `FrameStorage` owner at the
+same asserted native address, preserving the original World/model/PRNG/cases.
+
+`PatchModelBankTexPages` now uses a plain unsigned positive-count loop.
+The previous loop predicate added a local zero twenty times to inhibit compiler
+loop optimization; that workaround and its unused temporaries are removed.
+Named texture-page/CLUT masks and the atlas page describe the real packet-field
+operations shared by the raw and environment-mapped paths. No compiler flags,
+register bindings, memory barriers or dummy operations replace the workaround.
+The entire `cdfile2.c` TU retains relocated instruction Levenshtein distance0.
+
+The existing model-bank lifecycle test is unchanged: 4576 complete native
+registration/setup/selection/patch/detachment cases, including full-width pointers,
+backwards relative offsets and repeated command streams. Original and compiled
+MIPS additionally run 208 fixtures each on both the instruction runner and
+Unicorn, checking complete snapshots, ABI and ordered stores. The sibling mesh
+texture patcher and track-resource controller tests also remain unchanged.
+The legacy integer `DrawMeshPrimList` interface and its model/resource owners
+still need a separate coordinated reconstruction; this loop cleanup does not
+claim to migrate that path.
+
+## Card header and save-buffer interfaces
+
+The memory-card header builders use one `CardFileHeader280` layout: the title
+starts at `+4`, the 16-colour palette at `+0x60`, and the icon payload at
+`+0x80`. Animated headers write three 128-byte frames. Static headers write
+one frame and three copies of a 128-byte extra block, ending at application
+data `+0x280`. `CardFileImage4000` describes the complete 16 KiB image used
+by the card-copy mode. Size and member offsets are checked on both compilers.
+
+The title is a real `const char *`, and the extra block has a shared type.
+`SaveBuffer` has one `u8 *` declaration in `rr/save_buffer.h`: its allocated
+arena carries alternate serialized layouts, so consumers select the relevant
+`SaveBuf`, `SaveBuf11`, header or complete-image view at the access boundary.
+The byte arena declaration does not imply that the remaining readers are
+native pointer-safe; two integer-address expressions in `StepCardDataTransfer`
+still need reconstruction.
+
+The animated builder no longer contains the permuter's discarded address-of
+expression. Its local changing X coordinate is a signed 16-bit GPU coordinate;
+advancing it wraps through the same low 16 bits written by the original code.
+The old compiler still verifies the complete three-function TU at relocated
+instruction Levenshtein distance 0. The static builder retains its existing
+single-iteration loop; removing that loop changes the current compiler output.
+
+The four card read/write APIs carry full name and buffer pointers, including
+`const` source-buffer views for writes. Their path storage is a character
+array. `PsyqSprintf` has the actual implementation's signed-character variadic
+prototype, and `DrawSync` is declared by its owning GPU unit. The formatter
+implementation itself remains a PAL stack-varargs implementation; declaring
+its true interface is not a native port of that implementation. Existing
+register annotations and barriers in the offset I/O functions remain debt.
+
+`test_card_header_pipeline.py` compiles the actual two header builders,
+`CardSaveStep`, `CardReadFile` and `CardWriteFile` without production-body
+rewrites. Across 256 scenarios, an independent byte model checks native C
+with full pointers above 4 GiB and original/linked MIPS with the instruction
+runner. It checks complete buffers, title and extra inputs, rectangle and
+selection owners, callback snapshots, stack/register ABI and guards.
+Scenarios cover coordinate extremes, extra data aliasing the icon frame,
+both save initialization modes, all six controller states, retries, create
+and overwrite I/O, and pending reads/writes. Formatting, GPU transfers,
+`BuildSaveData` and BIOS services are controlled boundaries; this test does
+not establish the native correctness of the formatter or save-data writer.
+The native build keeps warnings as errors and undefined/bounds sanitizers.
+
+## Persistent menu records and card blocks
+
+`SavedMenuSettings` is the complete 44-byte owner shared by `SelectionState`,
+`SaveSlotSelections[3]` and `SaveSlotSnapshots[3]`. Their only declarations are
+in `rr/save_slots.h`. The runtime fields remain `MenuSettings2C`, selected
+through `.fields`; signed/unsigned halfword and byte arrays describe the same
+serialized record. Checksum halfword8 is at `+0x10`. This replaces the former
+`Struct2C`, byte-array declarations and three private card-transfer projections.
+Existing locals that operate on runtime fields point to the actual `.fields`
+subobject, rather than casting unrelated prefixes of the global.
+
+`GameSaveData1AA8` owns both the structured game-save fields and the complete
+word array used for its checksum. Named fields identify progress, options,
+course choices, slots, lap times, lap/race records and emblem data. The header
+is the shared `CardFileHeader280`, and time records use `TimeRecord16`. The
+alternate `EmblemSaveData1380` contains the edit-frame count and two real
+`EmblemTim840` blocks. The name-only import paths use character-array pointers
+and the actual progress-name member.
+
+`CardSaveBlock2000` owns a complete 8 KiB card block. The writer's initial
+clear continues through `+0x2000`, beyond the shorter game-data structure,
+so it uses the block's actual word array. The 256-byte header-scan window
+receives file bytes `+0x300..+0x400` at arena `+0x1F00`; its three records begin
+at window `+0x60`. Size and offset assertions cover these views. Whole-save
+checksum accumulation uses unsigned32 wrapping, and record checksum accesses
+stay within the declared 22-halfword arrays.
+
+Eleven existing native fixtures migrate only their owner type, dependency
+include, field selectors and one whole-owner binding. Reversing those exact
+transport changes reproduces each previous fixture text; models, Worlds'
+record sizes/alignments, cases and PRNG streams are preserved. No frozen fixture
+contents or symlink targets change.
+
+`test_save_record_writer.py` additionally executes the current complete
+`BuildSaveData` body without body rewrites or substituted services. Across
+256 scenarios and nine mode values, an independent serialized-byte oracle
+checks native C with undefined/bounds sanitizers and warnings as errors,
+original MIPS, and linked MIPS. Both buffers, every input and record owner,
+all output bytes, real full-width source pointers, pointer guards and MIPS
+register/stack ABI are checked. Source TIMs can be independent objects or
+actual TIM subobjects of either buffer, including forward-copy aliases.
+
+Remaining reconstruction debt is explicit: `StepCardDataTransfer` still has
+two legacy integer-address expressions and an unused 56-byte stack array.
+Ordinary pointer forms currently give relocated instruction Levenshtein
+distance2; fully selected scan-record forms give distance29. Neither failed
+probe is promoted. The selection-history backing and historical scalar aliases
+need further owner reconstruction. The writer test alone does not establish
+native correctness of those consumers.
+
+
+## Shared custom-emblem images
+
+`rr/emblem_tim_types.h` owns the 0x840-byte TIM representation. `EmblemTim840`
+retains byte alignment for unaligned source files; `EmblemTimImage840` supplies
+aligned word and palette views. `CustomEmblemImages1080` owns both images
+initialized at the custom-buffer base and base+0x840, with complete byte and
+word arrays spanning the pair. `rr/emblem_images.h` declares that pair and the
+separate `SaveDataWork` image. Resident initialization, save construction/import,
+backup/restore and garage code share these owners instead of incompatible
+char/int/single-image externs. `InitTimTemplate` accepts an actual image pointer
+through its owning header.
+
+`ApplySaveData` retains the complete custom-buffer pointer while selecting its
+serialized destination. Its byte view spans both real images; word accesses
+are aligned and stay within the owner. The game-save checksum field is unsigned32,
+matching the wrapping calculation. Header-frame imports select the complete
+card block's first word. These changes do not repair `StepCardDataTransfer`.
+
+`test_save_import_pipeline.py` executes the current `InitTimTemplate`,
+`BackupSaveData`, `RestoreSaveData`, `BuildSaveData`, `ApplySaveData` and
+`CopyStringClearTail` bodies in native C and original/linked MIPS. Its 256
+scenarios cover eight import modes, valid/corrupted checksums, actual TIM
+subobject aliases, both custom images, the work image, and pointer/root changes
+at the controlled audio boundary. Template, copy, constructor, string and import
+operations run their actual code; only audio application is substituted.
+Explicit card-input transport is fixture I/O after verifying the preceding
+operation's complete state. Native roots remain above 4 GiB. The checks include
+warnings as errors, undefined/bounds sanitizers, complete owners, outer guards,
+and MIPS stack/register ABI.
+
+The older writer and TIM-compositor tests retain their original models, Worlds,
+cases and PRNG streams. Their native transport binds real paired-image owners
+and preserves known aliases; additional guards check the second image and
+workspace. Reversing these explicit transport and selector changes restores
+the complete previous test texts. Frozen fixture contents and symlink targets
+remain unchanged.
+
+The garage flood-fill caller retains its existing scheduling barriers and
+legacy local-variable workarounds. Its replacement-color shift now operates
+on unsigned32, removing signed-shift UB while preserving its relocated match.
+This is not a claim that the flood-fill caller is already clean reconstructed C.
+
+
+## Card-port channels and completion status
+
+`CardUpdate(port, slot)` takes two integers. Its BIOS channel is the numeric
+selector `port*16+slot`, not a RAM address. The former `char *` argument/local
+and pointer-to-int expression were incompatible with the real caller's low-byte
+slot and with `_cardCmd5ABegin` and `_card_clear`. BIOS `_card_info` and
+`_card_load` now have explicit integer-channel declarations in `rr/bios_devices.h`.
+The owning game header declares the five complete two-port state arrays and
+the 48-byte raw-reply scratch allocation; each port's response window is17 bytes.
+Named phase constants describe the controller's existing seven states.
+Result-range checks perform unsigned32 subtraction, preserving word wrapping.
+
+`MemCardSync` has one typed three-argument prototype and ordinary named
+parameters. Its switch no longer nests a case label inside an else block or
+uses the completion goto. `CardCommandStatus` has a single volatile declaration
+in `rr/commands.h`: the IRQ writes it and the synchronous mode polls it.
+The pointer-containing command types retain PAL size/offset assertions on MIPS;
+native consumers retain complete host-width pointer fields.
+
+Twelve command-start writes now address `CardCommandStatus` directly instead
+of casting a fixed RAM page. The IRQ's two counter writes use `CardTxCount`, and
+reset writes use `CardCommandRequest`. SIO control stores retain the actual
+volatile hardware lvalue. The IRQ prepares its event argument on the retry and
+no-retry paths after publishing completion. Existing register/scheduling
+constraints in that handler remain explicit debt; this does not add constraints
+or establish native interrupt timing.
+
+`test_card_port_pipeline.py` runs the actual `CardUpdate`, `MemCardSync`,
+`PollHwCardEvents`, both event-clear helpers, `WaitSwCardEvent`, and `_card_clear`
+bodies without rewriting them. Across4608 scenarios, native C and original/linked
+MIPS execute both ports, all256 slot values, all seven phases, unknown phases,
+event priorities, pending/completed command outcomes, timeouts and loaded-card
+branches. BIOS event/info/load/new-card/write calls and command-start calls are
+scripted boundaries; `MemCardSync` is real code. Scripted callbacks can change
+port state, counters and reply contents. Complete owner snapshots, service
+arguments, full native buffer pointers above4 GiB, untouched bytes, and MIPS
+store bounds/stack/register ABI are checked. The command-sync calls use mode1;
+the test does not simulate an interrupt waking a native blocking mode0 call.
+
+Four older command fixtures change only the status qualifier, public-header
+filter and qualified RAM-cell binding. Reversing those exact transport changes
+restores their previous texts, preserving models, cases and PRNG streams.
+Frozen fixture files and symlink targets do not change.
+
+## Sprite and tile packet owners
+
+`GpuSpriteCommand` and `GpuTileCommand` own complete GPU packets, exposing the
+existing coordinate/color fields and packed command words through the same
+shared union. `spfade.c` uses these owners instead of its private word-only
+packet structs. Tag lengths use the shared DMA tag member.
+
+`EmitTitleMaskSprites` now keeps the packet cursor and ordering-table root as
+full pointers through `GpuScratchPointers`. Its public interface names the mask
+and animation, and the vertex declaration names the eleven consumed positions.
+CPU pointers are encoded into GPU link words through `GpuDmaEncodeAddress`;
+the native backend uses registered real buffers and explicit PSX CPU aliases,
+without reconstructing native pointers from truncated address bits. Animation
+negation wraps in unsigned arithmetic before the signed phase shift, including
+`INT_MIN`. The emitter retains its original order of packet and head writes.
+
+`test_title_mask_packets.py` compiles the actual current function body and real
+native DMA backend without body rewriting. It compares native C, original MIPS
+and linked MIPS in 8,192 cases covering all 2,048 low masks, high mask bits,
+animation extrema, both packet arenas, live ordering-head/packet aliases and
+empty roots for empty masks. Full packet arenas, input vertices, root pointers,
+guards, MIPS stores and register/stack ABI are checked. Native pointer roots
+are separate from GPU RAM; this fixture does not model wire writes into host
+pointer cells. The preset harness now extracts the actual current definition
+from its owning TU and binds the hardware scratchpad explicitly. Its historical
+World, independent oracle, cases, PRNG and test methods remain byte-identical,
+including the pointer-cell alias cases. Its existing native register-annotation
+adapter is unchanged. The former frozen function source is retained unchanged.
+
+The existing register pins and empty barriers in the other three `spfade.c`
+emitters remain reconstruction debt. Sharing packet types does not establish
+that those functions have clean dataflow or full-width native pointer handling.
+
+## Recovered game call contracts
+
+Game callers use their defining unit headers for vehicle reset/transforms,
+chase-camera setup, sound setup, SFX requests, menu controls and formatters.
+Declarations that disagreed with the actual void return or omitted parameter
+types have been removed. `SetModelTexturePage` owns its public scalar state
+and accepts only the page word. `InitCameraState` calls that actual interface;
+its former three additional arguments were observations of unused MIPS
+registers, not inputs consumed by the setter. The historical camera fixture
+retains all old scenarios, oracle images, hashes and PAL register checks. Its
+native observation adapter reads the equivalent already-published camera
+state. A separate fixture compiles the actual initializer and actual setter
+together, with only the BIOS clear boundary controlled.
+
+`EmitSpinningWheelIcon` now receives full ordering/cursor pointers and returns
+the actual sprite builder's cursor. Its packed animation arithmetic wraps
+explicitly before signed remainder/halfword narrowing. The course-info caller
+keeps the returned scratch cursor as a pointer. The new contract fixture runs
+the actual icon and sprite chain with seven additional C helpers, an independent
+packet oracle, full native buffers and original/linked MIPS. Native GPU linking
+is a controlled boundary; MIPS executes the original/linked AddPrim too.
+
+`FrameTaskState` owns the sixteen-byte prefix reserved after the TIM list:
+frame, three intensities, three ramp steps and a sprite tick. It exposes the
+existing grid-clock view at the same address. `FrmTaskModeUpdate` now passes
+that explicit clock to `EmitSpriteGrid`, as required by the original MIPS
+argument setup. Grid packets use the shared complete `GpuSpriteCommand`
+instead of the intro renderer's private pointer-bearing packet view. The old
+grid fixture now extracts the actual current function, preserving its complete
+World, byte oracle, all tick/color/alias cases and PRNG unchanged. The rest of
+the frame-task renderer still has legacy integer scratch accesses; this pass
+does not establish full native portability of that caller.
+
+`ScreenPosition` shares the signed XY/packed-word union previously private to
+the RRO renderer. Remaining aggregate triangle arguments, the extra menu-frame
+sprite argument and the progress decoder caller still need dataflow recovery;
+failed candidates for those consumers are not promoted. Existing register pins,
+empty barriers and compiler profiles are unchanged by this interface pass.
+
+The fade-sprite fixture imports AddSpritePrim from its real public header rather
+than searching the caller for a local declaration. Its controlled native helper
+uses that same void-pointer signature; its oracle, World, effects, input cases
+and PRNG are unchanged. All native owner/observation adapter migrations in this
+pass have exact reversible normalization records, with frozen fixtures intact.
+
+## Frame-task controller scratch ownership
+
+`FrmTaskModeUpdate` now accesses scratch cursor and ordering roots through
+`GpuScratchPointers`, and the final eight-byte GPU command through the shared
+command/tag types. It encodes the hardware link with the real DMA address
+backend and captures the current head before encoding the cursor. No CPU
+memory access reconstructs a pointer from a truncated integer. The old local
+volatile projection is removed; no replacement pin, barrier or qualifier was
+introduced. Named phases and named script fields replace numeric state/word
+views, and the common renderer follows the switch without a goto. Ramp
+accumulators use their permitted unsigned-halfword view for wrapping arithmetic.
+
+`test_frame_task_controller.py` compiles the actual enter/reset/update and ramp
+bodies without rewriting them. It checks 4,224 native cases and 1,152 cases on
+each of original and linked MIPS. Explicit native DMA regions use physical,
+KSEG0 and KSEG1 aliases. Complete script, frame-bank and packet owners, root
+pointers, scalar state, service entry/exit images, guards, MIPS stores and ABI
+are compared. Cases cover all named/unused/unknown phases, reveal thresholds,
+fade edges, null early-return roots, callback root replacement, OT/packet
+aliases and the final accessible packet slot with a one-past cursor.
+
+IO, audio, TIM parsing and GPU emitters are controlled boundaries in this
+controller fixture; their algorithms are not exercised by it. The existing
+actual-body sprite/grid fixtures remain unchanged. MIPS service effects are
+implemented independently rather than copied from expected after-state images.
+The outer MainLoop still retains its existing register constraints and physical
+bank-index projection; the rejected direct-index candidate is not promoted.
+
+
+### Row animation and rumble constructors
+
+`BadgeRow1C.animationTick12` is a signed animation counter, not byte padding.
+The badge update names its observed phases and captures each trig result
+before reading the live row root and dimensions. Multiplication by 1024
+replaces a signed left shift, preserving the target instruction sequence for
+negative counters as well. Rectangle initialization and animation index the
+shared `MenuRectRow10` array directly. Their two intensity initialization loops
+use array indices instead of forming a pointer before the array.
+
+`InitRect16Row` retains its matching signed-halfword parameter interface.
+Its menu caller imports the owner header for both initialization and badge
+updates. `PadSetRumbleParams` instead accepts full signed call words, narrowing
+only at the actual signed16 direction and unsigned8 level stores. The steering
+caller includes the same public header; no private weak prototype is needed.
+
+`test_ui_row_owners.py` runs five actual production bodies without rewriting:
+these four functions plus `InitBadgeRow`. It compares 2,560 input scenarios
+against independent models on native C and original/linked MIPS. Trig, badge
+drawing and partial-line emission are explicit controlled boundaries; their
+algorithms are not covered here. The test checks complete guarded row owners,
+both controllers, full frame storage, input tables, service snapshots, live
+root/table changes, null roots on skipped paths, negative valid indices,
+last-row access, unknown phases, signed counter extremes and call/store ABI.
+Existing frozen fixtures, old models, cases and PRNG streams are unchanged.
+
+Remaining rectangle cleanup includes the six-edge traversal's byte-addressed
+corner/level reads and its jump label. Direct indexing and structured loops
+have not yet preserved the relocated match; no new compiler constraints are
+introduced to compensate.
+
+
+### Rectangle line definitions
+
+`MenuRectLineCorners` is the six-entry array of directed corner pairs consumed
+by `UpdateRect16Row`; `MenuRectLineIntensitySlots` selects one of four Q8
+intensity slots for each line. The previous names `SmallDigitSpriteUvs` and
+`BigDigitGlyphWidths` were incorrect descriptive guesses, not recovered
+identifiers. Original data directs the left/right sides first, then top/bottom,
+then both diagonals; slot selection is `0,0,1,1,2,3`. The matching public layout
+uses two unsigned bytes per pair. `MenuRectCorners` owns the two full signed32
+coordinate columns used while the row is animated. Phase constants now name
+those observed stages and the completed/restart states.
+
+The resident symbol registry and generated data labels use these same names.
+Only the existing native fixture's symbol bindings and its C table declaration
+change; exact reverse normalization reproduces its previous source. Its state
+model, owner buffers, case selection, mutation logic and PRNG are unchanged,
+as are all frozen fixture contents and symlink targets. The six-line caller
+still uses its established byte-addressed coordinate/slot reads and jump label;
+removing those remaining constructs has not yet preserved the relocated match.
+
+### Menu image row ownership
+
+`MenuGlyphRow1C` has one shared definition in `rr/menu_glyph_types.h`.
+Its frame index/count, tick, frame duration, image-sector stride, texture page,
+CLUT and UV fields replace the old overlapping padding views. `imageBase18`
+is a CPU image pointer, previously represented by the misleading signed word
+`phase18`. The PAL record remains 0x1C bytes; LP64 uses a 0x20-byte record with
+a complete pointer. `AllocGlyphRows` reserves and clears the actual native
+record size. Constructors, image publication, results setup and overlay
+controllers all index the same declared owner. Their descriptive field and
+phase names are inferred from use, not recovered original identifiers.
+
+`InitResultsMenuRows` and `NewCarModeUpdate` use the complete shared dialogue
+and badge owners, replacing their private short-prefix layouts. The latter
+keeps `LoadCursor` in a real pointer across layout services. The shared
+`UpdateResultsBarSelection` interface accepts the direction word observed at
+its caller; the current implementation ignores that argument. The direction
+load is present in the original caller, so simply deleting the call slot does
+not reproduce its instruction sequence. This is an interface reconstruction,
+not evidence of an original parameter name. Semitransparent tile ordering
+heads use the same unsigned GPU words as their callers.
+
+`test_glyph_row_owner.py` includes eight actual production bodies without
+rewriting them. Independent state/event models check native C and original
+and linked MIPS, complete guarded row/dialogue/badge owners, full image and
+cursor pointers, service-induced live-root changes and actual multi-call
+allocation/loading/animation sequences. CD, GPU emission, rectangle, badge
+and layout services remain explicitly controlled boundaries. No GPU emitter
+or TIM parser algorithm is claimed as covered by this fixture.
+
+Ten older native fixtures retain their literal models, Worlds, cases and PRNG
+streams. Their explicit transport converts between the existing PAL oracle
+and full native row/image owners, checking the real allocation size before
+normalizing PAL byte counts. Reverse normalization reproduces each prior
+test file exactly; frozen fixture contents and symlink targets are unchanged.
+
+### Results label renderer
+
+`DrawResultsStandingsOverlay` keeps the scratch packet cursor as a complete
+pointer and reads/writes it through `GpuScratchPointers`. Its labels use the
+shared `UiUvRect`, also used by `AddSpritePrim`. The public owner declares 24
+four-byte rectangles and 16 index bytes (eight pairs). The following object is
+`CarUpdateStages`, not part of the index array. These extents follow the actual
+data boundaries and original texture records. Both table annotations in the
+symbol registry use byte data; the generated data and full EXE remain identical.
+
+The left-label loop uses normal C control flow and named values instead of
+register names and its old skip label. The captured UV record is retained
+across the drawing helper, then its width is read live for the next position.
+Mode, selected-course, table contents and current frame can change through a
+helper; subsequent reads preserve the observed target behavior. Fade arithmetic
+uses unsigned wrapping before narrowing to the actual signed flags word.
+
+`test_results_label_pipeline.py` checks complete native frame/packet owners,
+table guards, pointer identities and the independent geometry/packet oracle.
+It runs the current C bodies verbatim, original MIPS and linked MIPS, with
+ordinary game modes, all eight index pairs, course choices, signed fade limits,
+both frame banks and KSEG0/KSEG1 aliases. A controlled-helper layer also checks
+live mutations and cursor-return threading. The packet layer includes the
+actual sprite/page builders, SDK setters and `AddPrim` on native, original and
+linked MIPS. Native tracing binds the literal linker definition to a test name
+and observes its result after calling that definition; it does not replace its
+link algorithm. Native DMA serialization uses `GpuDmaEncodeAddress` and actual
+registered owners. Existing models, cases, PRNG streams and frozen fixtures are
+unchanged.
+
+
+### GPU tag address fields
+
+`AddPrim` now uses the existing `GpuDmaTag.bits.address` view for each 24-bit
+link assignment. The complete tag already defines its eight-bit length and
+24-bit address, so the two assignments preserve the original protocol without
+manual masks or the previous forced `$a2` mask-register binding. The shared
+layout, public word-pointer interface and `GpuDmaEncodeAddress` backend are
+unchanged. The complete SDK TU retains relocated instruction distance zero.
+
+`test_dma_tag_owner.py` executes the literal function on complete guarded
+native tag arrays and original/linked MIPS. Its independent word oracle checks
+every ordered slot pair, self-alias and adjacent tags, both CPU address aliases,
+length-byte preservation, untouched guards and register/stack ABI. All native
+CPU pointers retain their full width; serialized DMA links use the registered
+PSX addresses. Three older native pipelines no longer remove a register
+annotation from the source before compiling it. Their exact reversible source
+construction migrations leave the old Worlds, models, cases and PRNG streams
+unchanged. The viewport fixture binds the literal definition to its existing
+observed service name instead of rewriting that definition.
+
+### Tile packets and the common primitive header
+
+`AddTilePrim` and `AddTileSemiTransPrim` use the complete `GpuTilePacket` owner
+instead of indexing byte/halfword pointers. The semitransparent builder writes
+the existing 24-bit tag address field and calls `GpuDmaEncodeAddress`; it no
+longer casts a CPU packet pointer to a signed word. Their returned cursors keep
+the full native pointer width. `AddTileGrid2x2` uses unsigned coordinate words
+for the target's wrapping additions, with signed division by two for negative
+dimensions. No compiler constraints or dummy operations are introduced.
+
+The semitransparent tile's coordinates are full-word arguments, as observed in
+the resident and garage callers. Narrowing belongs to the packet stores. The
+public declaration, definition and consumers now share that interface; local
+K&R declarations and the garage's private full-word declaration are removed.
+The glyph-controller fixture changes only its service parameter binding from
+signed16 to signed32. Its World, model, case stream and PRNG are unchanged;
+exact reverse normalization reproduces the previous fixture file.
+
+`GpuPrimitiveHeader` is the real eight-byte drawing-primitive prefix: a DMA tag
+and a color/command word. Sprite and tile command unions expose this same view
+without changing their complete sizes. Six SDK initializers and the shade and
+semitransparency setters use it instead of claiming a `PolyG4Packet` object for
+every primitive format. They continue to preserve all other packet storage.
+
+`test_tile_packet_owner.py` includes all three tile builders, the actual DMA
+linker and all eight header setters literally. Independent wire models check
+native C and original/linked MIPS on complete guarded packet arenas, ordering
+heads that alias packet words, both CPU mirrors, last-slot/one-past cursors,
+full-word coordinate/color limits and all initial command bytes. The grid
+model checks negative odd dimensions and wrapping coordinates. No helper is
+mocked and no production body is rewritten for host compilation.
+
+### Current selection and serial exchange ownership
+
+`SelectionRows` has one public declaration in `game/data/selection.h`: a full
+32-byte `CurrentSelection` object. Its byte view, eight `SelectionRow` entries,
+eight packed choice records and menu-list view share that allocation. Resident
+and overlay consumers import the declaration instead of declaring separate
+four-byte prefixes, arrays or record lists. The fourth row byte is named
+`option`: callers use it for menu confirmation and car setup, so it is not an
+unused reserved byte.
+
+`ActiveSelectionRowValue` is the historical PAL label for byte1; active C uses
+`SelectionRows.choice.bytes[1]`. `LinkRacePositionSyncBuf` is the historical
+label at byte8. Its serial exchange uses records2/3 and records0/1 of this same
+owner. Neither label describes a separate C object. Peer role determines which
+pair is sent and which is received.
+
+`LinkExchange` accepts full buffer pointers. Both BIOS writes supply their real
+buffer and count explicitly, including the formerly omitted initial write
+arguments. Its public declaration and file-service declarations agree. The
+role is interpreted as a signed halfword without a pointer reinterpretation.
+
+`test_selection_owner_pipeline.py` runs literal glyph codecs and the car-variant
+consumer on a complete guarded owner, native C and original/linked MIPS. It
+covers all eight records, signed glyph limits, option-byte preservation, both
+CPU mirrors and register/stack ABI. `test_selection_link_exchange.py` adds the
+literal exchange body with controlled BIOS boundaries: full native pointer
+identities, overlapping buffers, both roles, short I/O, live handle changes and
+CPU mirrors are checked against an independent model on all three backends.
+
+Legacy native fixtures retain their literal Worlds, models, cases and PRNGs.
+`selection_fixture_transport.py` supplies a complete guarded native owner and
+synchronizes old wire views at entries and controlled service boundaries. It
+also maps real pointer aliases between the two allocations at full width. The
+production bodies remain literal; the transport does not reconstruct CPU
+pointers from low address bits. Existing full-size byte views remain valid.
+
+This unifies the selection allocation and its active aliases. The fixed-page
+accesses and existing compiler constraints inside `InitSelectionRows` still
+need separate reconstruction; this pass does not claim to retire them.

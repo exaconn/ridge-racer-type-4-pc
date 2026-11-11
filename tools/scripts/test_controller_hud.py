@@ -28,7 +28,7 @@ _Static_assert(sizeof(HudTriangle)==12,"triangle");
 typedef uintptr_t (*Callback)(unsigned,uintptr_t*);static Callback cb;void set_callback(Callback c){cb=c;}
 s32 GetControllerWarning(s32 n){uintptr_t a[9]={(u32)n};return cb(0,a);}
 void *AddDrawModePrim(u32*h,GpuDrawModePacket *mode_packet,u16 page){ void *p = (void *)mode_packet;uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,page};return(void*)cb(1,a);}
-SpritePacketSignedClut *GameQueueSprite(u32*h,SpritePacketSignedClut*p,s32 x,s32 y,s32 w,s32 he,s32 u,s32 v,s32 c){uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,(u32)x,(u32)y,(u32)w,(u32)he,(u32)u,(u32)v,(u32)c};return(SpritePacketSignedClut*)cb(2,a);}
+SpritePacket *GameQueueSprite(u32*h,SpritePacket*p,s32 x,s32 y,s32 w,s32 he,s32 u,s32 v,s32 c){uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,(u32)x,(u32)y,(u32)w,(u32)he,(u32)u,(u32)v,(u32)c};return(SpritePacketSignedClut*)cb(2,a);}
 void *AddTilePrim(u32*h,void*p,s32 x,s32 y,s32 w,s32 he,s32 r,s32 g,s32 b){uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,(u32)x,(u32)y,(u32)w,(u32)he,(u32)r,(u32)g,(u32)b};return(void*)cb(3,a);}
 PolyF3Packet *EmitPolyF3(u32*h,PolyF3Packet*p,s32 a,s32 b,s32 c,const u8*rgb,s32 f){uintptr_t args[9]={(uintptr_t)h,(uintptr_t)p,(u32)a,(u32)b,(u32)c,(uintptr_t)rgb,(u32)f};return(PolyF3Packet*)cb(4,args);}
 void *object(unsigned n){switch(n){case 0:return PlayerControllers;case 1:return streams;case 2:return HudRotatingQuadVerts;case 3:return HudIndicatorTriColor;case 4:return HudLapFlashToggles;case 5:return &ScreenFrame;case 6:return &scratch;default:abort();}}

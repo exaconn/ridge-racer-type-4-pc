@@ -1,9 +1,10 @@
 """Native cursor controller oracle: complete state, service order and fresh owners."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
-body=Path('src/overlays/PAL/662/func_8011E070.c').read_text()
-center=Path('src/overlays/PAL/662/func_8011DC74.c').read_text().replace('ovl662_get_rect_center','actual_center')
+body=read_c_source(Path('src/overlays/PAL/garage/func_8011E070.c'))
+center=read_c_source(Path('src/overlays/PAL/garage/func_8011DC74.c')).replace('ovl662_get_rect_center','actual_center')
 source=r'''
 #include <assert.h>
 #include "game/system/pad.h"

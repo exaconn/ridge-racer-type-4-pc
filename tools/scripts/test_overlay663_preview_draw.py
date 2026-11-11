@@ -8,7 +8,7 @@ import unittest
 class Overlay663PreviewDrawTest(unittest.TestCase):
     def test_angles_matrix_and_mutating_abi(self):
         root=Path(__file__).resolve().parents[2]
-        body=read_c_source(root/'src/overlays/PAL/663/func_801158B4.c')
+        body=read_c_source(root/'src/overlays/PAL/records/func_801158B4.c')
         source=r'''
 #include <assert.h>
 #include "rr/frame_storage_types.h"

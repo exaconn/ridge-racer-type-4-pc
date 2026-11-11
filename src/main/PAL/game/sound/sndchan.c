@@ -8,111 +8,109 @@
 
 extern u16 MenuCarTextureFileOffsets[];
 
-int SlotInterpCurve(int a0, int x, int a2, int a3);
+void UpdateSoundSlot(int slotIndex) {
+    AudioSlot620 *slot = &SoundState.slots38[slotIndex];
+    u16 spread = 0;
+    int voice, programIndex;
+    u16 pitchOffset;
+    int activeLevel;
+    int curvePosition;
+    int filterIndex;
 
-void UpdateSoundSlot(int a0) {
-    AudioSlot620 *s0 = &SoundSlots[a0];
-    u16 fp = 0;
-    int s3, i;
-    u16 sp20;
-    int sp28;
-    int s5;
-    int v1;
-
-    if (s0->program14 != s0->previous18) {
-        s3 = s0->voice08;
-        for (i = 0; i < s0->count0C; i++, s3++) {
-            if (s0->programData3C.programs[0][i] != s0->programData3C.programs[1][i]) {
-                SsUtKeyOnV((s16)s3, s0->bank04.half.value, (s16)s0->programData3C.programs[s0->program14][i], 0, s0->group28, 0, 0, 0);
+    if (slot->program14 != slot->previous18) {
+        voice = slot->voice08;
+        for (programIndex = 0; programIndex < slot->count0C; programIndex++, voice++) {
+            if (slot->programData3C.programs[0][programIndex] != slot->programData3C.programs[1][programIndex]) {
+                SsUtKeyOnV((s16)voice, slot->bank04.half.value, (s16)slot->programData3C.programs[slot->program14][programIndex], 0, slot->group28, 0, 0, 0);
             }
         }
-        s0->previous18 = s0->program14;
+        slot->previous18 = slot->program14;
     }
 
-    if ((s0->flags00 & 4) == 0) {
-        sp28 = s0->levels20.halves.level;
+    if ((slot->flags00 & 4) == 0) {
+        activeLevel = slot->levels20.halves.level;
     } else {
-        sp28 = 0;
+        activeLevel = 0;
     }
 
-    s5 = (s0->level10 * 0x2800) / s0->programData3C.duration;
-    s3 = s0->voice08;
-    if (s5 > 0x2800) {
-        s5 = 0x2800;
+    curvePosition = (slot->level10 * 0x2800) / slot->programData3C.duration;
+    voice = slot->voice08;
+    if (curvePosition > 0x2800) {
+        curvePosition = 0x2800;
     }
 
-    v1 = 0x11A800 / (0x2350 - s0->filter30);
-    v1 -= 0x4D;
-    if (v1 < 0) {
-        v1 = 0;
+    filterIndex = 0x11A800 / (0x2350 - slot->filter30);
+    filterIndex -= 0x4D;
+    if (filterIndex < 0) {
+        filterIndex = 0;
     }
-    if (v1 >= 0x120) {
-        v1 = 0x11F;
+    if (filterIndex >= 0x120) {
+        filterIndex = 0x11F;
     }
-    sp20 = MenuCarTextureFileOffsets[v1];
+    pitchOffset = MenuCarTextureFileOffsets[filterIndex];
 
-    for (i = 0; i < s0->count0C; i++, s3++) {
-        int s6 = SlotInterpCurve(i * 2, s5, s0->program14, a0);
-        int a1 = SlotInterpCurve(i * 2 + 1, s5, s0->program14, a0) * sp28;
-        int a2;
-        if (a1 < 0) {
-            a1 += 0x7F;
+    for (programIndex = 0; programIndex < slot->count0C; programIndex++, voice++) {
+        int pitchCurve = SlotInterpCurve(programIndex * 2, curvePosition, slot->program14, slotIndex);
+        int leftVolume = SlotInterpCurve(programIndex * 2 + 1, curvePosition, slot->program14, slotIndex) * activeLevel;
+        int rightVolume;
+        if (leftVolume < 0) {
+            leftVolume += 0x7F;
         }
-        a1 >>= 7;
-        a2 = (PanGainTable[s0->pan24] * a1) / 16129;
-        a1 = (PanGainTable[(s16)(0x7F - s0->pan24)] * a1) / 16129;
+        leftVolume >>= 7;
+        rightVolume = (PanGainTable[slot->pan24] * leftVolume) / 16129;
+        leftVolume = (PanGainTable[(s16)(0x7F - slot->pan24)] * leftVolume) / 16129;
 
-        if (a0 >= 2 && i == 2) {
-            int t = PanGainTable[s0->spatial2C.halves.value];
-            fp = s0->programData3C.spread;
-            a2 = (t * a2) / 16129;
-            a1 = (t * a1) / 16129;
-            a2 = -a2;
-            a1 = -a1;
+        if (slotIndex >= 2 && programIndex == 2) {
+            int spatialGain = PanGainTable[slot->spatial2C.halves.value];
+            spread = slot->programData3C.spread;
+            rightVolume = (spatialGain * rightVolume) / 16129;
+            leftVolume = (spatialGain * leftVolume) / 16129;
+            rightVolume = -rightVolume;
+            leftVolume = -leftVolume;
         }
 
-        a2 = (a2 * s0->levels20.halves.level * s0->levels20.halves.gain) / 16384;
-        a1 = (a1 * s0->levels20.halves.level * s0->levels20.halves.gain) / 16384;
-        a2 = (a2 * s0->programData3C.gain) / 128;
-        a1 = (a1 * s0->programData3C.gain) / 128;
+        rightVolume = (rightVolume * slot->levels20.halves.level * slot->levels20.halves.gain) / 16384;
+        leftVolume = (leftVolume * slot->levels20.halves.level * slot->levels20.halves.gain) / 16384;
+        rightVolume = (rightVolume * slot->programData3C.gain) / 128;
+        leftVolume = (leftVolume * slot->programData3C.gain) / 128;
 
         if (Options.audio.mono32 != 0) {
-            a2 = (a2 + a1) / 2;
-            a1 = a2;
+            rightVolume = (rightVolume + leftVolume) / 2;
+            leftVolume = rightVolume;
         }
 
-        a1 = (a1 * SoundMasterGain) / 128;
-        a2 = (a2 * SoundMasterGain) / 128;
-        a2 = (a2 * Options.audio.volume31) / 16;
-        a1 = (a1 * Options.audio.volume31) / 16;
+        leftVolume = (leftVolume * SoundState.gain18) / 128;
+        rightVolume = (rightVolume * SoundState.gain18) / 128;
+        rightVolume = (rightVolume * Options.audio.volume31) / 16;
+        leftVolume = (leftVolume * Options.audio.volume31) / 16;
 
-        SetVoiceVolumeScaled(s3, a1, a2);
+        SetVoiceVolumeScaled(voice, leftVolume, rightVolume);
 
         {
-            s16 v;
-            int t1;
-            s16 t0;
-            int c;
-            v = (s0->pitch5F8[s0->program14][i].fine * s6) / 128;
-            v += sp20;
-            v += fp;
-            t0 = v % 128;
-            t1 = v / 128;
-            c = s0->pitch5F8[s0->program14][i].coarse + t1;
-            SsUtChangePitch((s16)s3, s0->bank04.half.value, (s16)s0->programData3C.programs[s0->program14][i], s0->group28, 0, (s16)c, t0);
+            s16 pitch;
+            int coarseOffset;
+            s16 fine;
+            int coarse;
+            pitch = (slot->pitch5F8[slot->program14][programIndex].fine * pitchCurve) / 128;
+            pitch += pitchOffset;
+            pitch += spread;
+            fine = pitch % 128;
+            coarseOffset = pitch / 128;
+            coarse = slot->pitch5F8[slot->program14][programIndex].coarse + coarseOffset;
+            SsUtChangePitch((s16)voice, slot->bank04.half.value, (s16)slot->programData3C.programs[slot->program14][programIndex], slot->group28, 0, (s16)coarse, fine);
         }
     }
 }
 
-int SlotInterpCurve(int a0, int x, int a2, int a3) {
-    int i, lo, vlo, vhi, klo, khi;
-    for (i = 1; i < 9; i++) {
-        if (x < SoundState.slots38[a3].programData3C.curves[a2][a0].keys[i]) break;
+int SlotInterpCurve(int curveIndex, int position, int programGroup, int slotIndex) {
+    int upperIndex, lowerIndex, lowerValue, upperValue, lowerKey, upperKey;
+    for (upperIndex = 1; upperIndex < 9; upperIndex++) {
+        if (position < SoundState.slots38[slotIndex].programData3C.curves[programGroup][curveIndex].keys[upperIndex]) break;
     }
-    lo = i - 1;
-    vlo = SoundState.slots38[a3].programData3C.curves[a2][a0].values[lo];
-    vhi = SoundState.slots38[a3].programData3C.curves[a2][a0].values[i];
-    klo = SoundState.slots38[a3].programData3C.curves[a2][a0].keys[lo];
-    khi = SoundState.slots38[a3].programData3C.curves[a2][a0].keys[i];
-    return (vhi - vlo) * (x - klo) / (khi - klo) + vlo;
+    lowerIndex = upperIndex - 1;
+    lowerValue = SoundState.slots38[slotIndex].programData3C.curves[programGroup][curveIndex].values[lowerIndex];
+    upperValue = SoundState.slots38[slotIndex].programData3C.curves[programGroup][curveIndex].values[upperIndex];
+    lowerKey = SoundState.slots38[slotIndex].programData3C.curves[programGroup][curveIndex].keys[lowerIndex];
+    upperKey = SoundState.slots38[slotIndex].programData3C.curves[programGroup][curveIndex].keys[upperIndex];
+    return (upperValue - lowerValue) * (position - lowerKey) / (upperKey - lowerKey) + lowerValue;
 }

@@ -1,3 +1,4 @@
+#include "game/ui/uipart1.h"
 #include "game/system/pad.h"
 /* RODATA 0x800104f4 0x1c */
 #include "types.h"
@@ -20,7 +21,6 @@ extern int MainMenuSavedCursor;
 extern short MenuScriptId;
 extern int DialogueSceneMode;
 extern short MenuTransitionOverlayMode;
-extern void StepMenuValue();
 extern unsigned _sio_control();
 
 int RunIntroScriptStep(void) {

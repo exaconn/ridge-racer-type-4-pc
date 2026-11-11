@@ -2,7 +2,7 @@
 #define RR_SELECTION_TYPES_H
 #include "types.h"
 typedef struct {
-    u8 selection, variant, parameter, reserved;
+    u8 selection, variant, parameter, option;
 } SelectionRow;
 
 typedef struct {

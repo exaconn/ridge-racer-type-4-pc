@@ -26,8 +26,6 @@ void CdAudioUpdate(void) {
     s32 temp_v0_3;
     s32 rate;
     s32 temp_v0_4;
-    /* ASM_BARRIER: retain this phase value in its original MIPS register. */
-    register s32 temp_v0_5 __asm__("$6");
     s32 temp_v0_6;
     s32 temp_v1;
     s32 temp_v1_3;
@@ -179,8 +177,8 @@ block_27:
     CdAudioFadeStep();
     SoundState.previous268C = SoundState.position2688;
     if ((SoundState.state269C - 1U) < 2U) {
-        temp_v0_5 = CdSync(1, SoundState.status265C);
-        switch (temp_v0_5) {
+        temp_v0_2 = CdSync(1, SoundState.status265C);
+        switch (temp_v0_2) {
         case 0:
         case 1:
             break;

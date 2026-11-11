@@ -42,18 +42,16 @@ extern u8 CarPartTransformIndices[];
 extern u8 CarPartMatrixIndices[];
 extern LodDist6 CarModelLodDistances[];
 
-int TriggerWheelBump(RaceVehicle *a, int b);
-
-int TriggerWheelBump(RaceVehicle *a, int b)
+int TriggerWheelBump(RaceVehicle *vehicle, int wheel)
 {
-    RaceVehicle *p;
-    int t;
-    if (a->input < 0x320 || (p = (RaceVehicle *)((char *)a + b * 2), t = LookupTrackEvent(a->half1EA, p->prevWheelNodes100[0]), t == -1)) {
+    int event;
+    if (vehicle->input < 0x320 ||
+        (event = LookupTrackEvent(vehicle->half1EA, vehicle->prevWheelNodes100[wheel])) == -1) {
         return 0;
     }
-    p->wheelBumpVel1C4[0] = -(t * a->input / 2800);
-    p->wheelBumpState1BC[0] = 1;
-    *(unsigned short *)&a->steeringLock1B8 ^= 1 << b;
+    vehicle->wheelBumpVel1C4[wheel] = -((s32)((u32)event * vehicle->input) / 2800);
+    vehicle->wheelBumpState1BC[wheel] = 1;
+    vehicle->steeringLock1B8 ^= 1 << wheel;
     return 1;
 }
 
@@ -99,9 +97,9 @@ void DrawPreviewCar(RaceVehicle *arg0, PreviewRgb3 color, s32 arg2, s32 flags) {
     MulMatrix(&sp98[1], &sp50);
     MulMatrix2(&sp10, &sp98[1]);
 
-    sp158[2].x = arg0->pos10[0] + arg0->ir60[0];
-    sp158[2].y = arg0->pos10[1] + arg0->ir60[1];
-    sp158[2].z = arg0->pos10[2] + arg0->ir60[2];
+    sp158[2].x = arg0->worldPosition10.words[0] + arg0->ir60[0];
+    sp158[2].y = arg0->worldPosition10.words[1] + arg0->ir60[1];
+    sp158[2].z = arg0->worldPosition10.words[2] + arg0->ir60[2];
 
     if (arg0->wheelSteering17C & 0x1000) {
         s4_val = -arg0->wheelSteering17C;
@@ -197,9 +195,9 @@ void DrawPlayerCar(RaceVehicle *arg0, s32 viewMode) {
     BuildRotMatrixZ(&sp60, -arg0->ang84);
     MulMatrix(&spA8[1], &sp60);
     MulMatrix2(&sp20, &spA8[1]);
-    sp168[2].x = arg0->pos10[0] + arg0->ir60[0];
-    sp168[2].y = arg0->pos10[1] + arg0->ir60[1];
-    sp168[2].z = arg0->pos10[2] + arg0->ir60[2];
+    sp168[2].x = arg0->worldPosition10.words[0] + arg0->ir60[0];
+    sp168[2].y = arg0->worldPosition10.words[1] + arg0->ir60[1];
+    sp168[2].z = arg0->worldPosition10.words[2] + arg0->ir60[2];
     if (arg0->wheelSteering17C & 0x1000) {
         s4_val = -arg0->wheelSteering17C;
     } else {
@@ -286,9 +284,9 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
     slot_idx = arg0->slotIndex1E6 + CarViewportBankOffset;
     SelectModelBank(slot_half);
 
-    sp168[0].x = (arg0->pos10[0] - G->x08) >> 2;
+    sp168[0].x = (arg0->worldPosition10.words[0] - G->x08) >> 2;
     sp168[0].y = 0;
-    sp168[0].z = (arg0->pos10[2] - G->z10) >> 2;
+    sp168[0].z = (arg0->worldPosition10.words[2] - G->z10) >> 2;
     ApplyMatrixLV((const MatrixWords32 *)(SCRATCH_ROT_MATRIX), (const Vec3i *)(&sp168[0]), (Vec3i *)(&sp168[1]));
     if (sp168[0].x < 0) {
         sp168[0].x = -sp168[0].x;
@@ -336,9 +334,9 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
             BuildRotMatrixZ(&sp60, -arg0->ang84);
             MulMatrix(&spA8[1], &sp60);
             MulMatrix2(&sp20, &spA8[1]);
-            sp168[2].x = arg0->pos10[0] + arg0->ir60[0];
-            sp168[2].y = arg0->pos10[1] + arg0->ir60[1];
-            sp168[2].z = arg0->pos10[2] + arg0->ir60[2];
+            sp168[2].x = arg0->worldPosition10.words[0] + arg0->ir60[0];
+            sp168[2].y = arg0->worldPosition10.words[1] + arg0->ir60[1];
+            sp168[2].z = arg0->worldPosition10.words[2] + arg0->ir60[2];
             if (arg0->wheelSteering17C & 0x1000) {
                 s4_val = -arg0->wheelSteering17C;
             } else {
@@ -423,9 +421,9 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
             return;
         } else if (i < CarModelLodDistances[arg1].d4) {
             MulMatrix0((const MatrixWords32 *)((void *)SCRATCH_ROT_MATRIX), &sp80, &spA8[0]);
-            sp168[0].x = arg0->pos10[0];
-            sp168[0].y = arg0->pos10[1];
-            sp168[0].z = arg0->pos10[2];
+            sp168[0].x = arg0->worldPosition10.words[0];
+            sp168[0].y = arg0->worldPosition10.words[1];
+            sp168[0].z = arg0->worldPosition10.words[2];
             DrawWheelTrailEffects(arg0, &sp168[0], &spA8[0], &sp80, slot_idx, s5_val, s7_val);
             SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&sp168[0], spA8[0].w);
             G->col78 = fp_val;

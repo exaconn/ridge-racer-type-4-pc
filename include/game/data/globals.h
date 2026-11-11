@@ -7,7 +7,7 @@
 
 extern int BackColorR;
 extern s32 ActiveViewportIndex;
-extern SaveBuf *SaveBuffer;
+#include "rr/save_buffer.h"
 extern signed char MenuSubmodePendingId;
 extern int DefaultSegmentVisibilityMask;
 extern unsigned short PendingModeId;

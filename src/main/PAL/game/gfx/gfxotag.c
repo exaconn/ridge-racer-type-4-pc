@@ -1,3 +1,4 @@
+#include "rr/save_slots.h"
 #include "rr/rro_model.h"
 #include "game/gfx/model.h"
 #include "psyq/libgte/gtemat5.h"
@@ -29,15 +30,11 @@
 
 
 typedef struct {
-    int x, y, z, w;
-} V4;
-
-typedef struct {
     short x, y, z, w;
 } V8;
 
 typedef struct {
-    V4 f0;
+    Vector f0;
     V8 f10;
     int f18;
     int f1C;
@@ -48,11 +45,11 @@ typedef struct {
 
 typedef struct {
     s32 unk00[12];
-    short f30, f32, f34, f36;
+    Vec3s8 cameraFollowOffset30;
     s32 unk38[6];
     int f50[2];
     int f58[2];
-    V4 f60;
+    Vector f60;
     V8 f70;
     int f78;
     int f7C;
@@ -82,7 +79,6 @@ extern SceneCameraView24 SecondaryViewportCam;
 extern Elem28 (*CameraTrackTriggerTable)[16];
 extern s32 SceneRenderScratchPad;
 extern int RaceIntroCameraState;
-extern signed char SelectionState[];
 extern int ViewUsesCarTrackNode;
 
 void RenderSubOtObject(void);
@@ -186,8 +182,8 @@ void ApplyCameraState(const SceneCameraView24 *state) {
 }
 int FindCameraTrackTrigger(RaceVehicle *a0, int a1, int a2) {
     int unused10[4];
-    V4 sp20;
-    V4 sp30;
+    Vector sp20;
+    Vector sp30;
     int s0;
     int s3;
     int i;
@@ -214,16 +210,16 @@ int FindCameraTrackTrigger(RaceVehicle *a0, int a1, int a2) {
     t1 = (s2[s0].f24 - s2[s3].f24) * 5;
     t2 = a1 - s2[s3].f24 * 5;
     if (s2[s3].f18 == 0) {
-        sp20.x = a0->pos10[0];
-        sp20.y = a0->pos10[1];
-        sp20.z = a0->pos10[2];
+        sp20.x = a0->worldPosition10.words[0];
+        sp20.y = a0->worldPosition10.words[1];
+        sp20.z = a0->worldPosition10.words[2];
     } else {
         sp20 = s2[s3].f0;
     }
     if (s2[s0].f18 == 0) {
-        sp30.x = a0->pos10[0];
-        sp30.y = a0->pos10[1];
-        sp30.z = a0->pos10[2];
+        sp30.x = a0->worldPosition10.words[0];
+        sp30.y = a0->worldPosition10.words[1];
+        sp30.z = a0->worldPosition10.words[2];
     } else {
         sp30 = s2[s0].f0;
     }
@@ -346,7 +342,7 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
     }
     gC = &RaceContext;
     if (gC->f94 == 0) {
-        if ((GameModeType == 1) && (SelectionState[SelectionState[0x17] + 8] >= 3)) {
+        if ((GameModeType == 1) && (SelectionState.signedBytes[SelectionState.signedBytes[0x17] + 8] >= 3)) {
             s0 = 1;
             gL = gC;
             gL->f98 = 0;
@@ -400,10 +396,10 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
             arg0->flags1E4 = arg0->flags1E4 | 0x100;
         }
         if (gD->f9C == 0) {
-            RaceContext.f30 = 0;
-            RaceContext.f32 = 0;
-            RaceContext.f34 = -0x100;
-            CarLocalToWorld(arg0, &RaceContext.f30, &RaceContext.f60);
+            RaceContext.cameraFollowOffset30.fields.x = 0;
+            RaceContext.cameraFollowOffset30.fields.y = 0;
+            RaceContext.cameraFollowOffset30.fields.z = -0x100;
+            CarLocalToWorld(arg0, &RaceContext.cameraFollowOffset30, &RaceContext.f60);
             RaceContext.f70.z = 0;
             RaceContext.f80 = 0x1D6;
             RaceContext.f70.x = ((RaceContext.f88 * 0x190) / 73) - 0x280;
@@ -413,10 +409,10 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
                 RaceContext.f70.y = -0x400;
             }
         } else {
-            RaceContext.f30 = 0;
-            RaceContext.f32 = 0;
-            RaceContext.f34 = -0x100;
-            CarLocalToWorld(arg0, &RaceContext.f30, &RaceContext.f60);
+            RaceContext.cameraFollowOffset30.fields.x = 0;
+            RaceContext.cameraFollowOffset30.fields.y = 0;
+            RaceContext.cameraFollowOffset30.fields.z = -0x100;
+            CarLocalToWorld(arg0, &RaceContext.cameraFollowOffset30, &RaceContext.f60);
             RaceContext.f70.x = -0xF0;
             RaceContext.f70.y = -0x400;
             RaceContext.f7C = 0x200;

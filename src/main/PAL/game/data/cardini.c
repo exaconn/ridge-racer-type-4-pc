@@ -26,20 +26,12 @@ extern int SwCardEvError;
 extern int SwCardEvTimeout;
 extern int SwCardEvNew;
 extern unsigned char CardPortPollStatus[];
-extern int CardPortTimer[];
 extern char StrCardDirPatternFmt[];
 extern char CardDirEntries[];
 extern char *nextfile();
 extern char CardFilePathFmt[];
 extern int CardFileHandle;
 extern int FileSeek();
-extern int _card_info();
-extern int _card_load();
-extern int CardPortState[];
-extern int CardPortLastResult[];
-extern int CardPortResult[];
-extern int CardPortLoaded[];
-extern char CardRawSectorWorkBuf[];
 
 void CardSystemShutdown(void);
 int PollHwCardEvents(int arg);
@@ -48,9 +40,6 @@ int WaitSwCardEvent(void);
 void ClearSwCardEvents(void);
 int CountCardFiles(int a, int b);
 int CardHasFile(int a0, unsigned char *a1);
-int CardReadFileAt(int a0, int a1, int a2, int a3, int a4, int a5);
-int CardWriteFileAt(int a0, int a1, int a2, int a3, int a4, int a5);
-int CardUpdate(int p, char *a1);
 void CardFormatSlot(s32 arg0, s32 arg1);
 
 void CardSystemInit(void) {
@@ -78,7 +67,7 @@ void CardSystemInit(void) {
     EnableEvent(SwCardEvNew);
     CardPortPollStatus[1] = 0x5A;
     CardPortPollStatus[0] = 0x5A;
-    SaveBuffer = (SaveBuf *)SharedWorkArena;
+    SaveBuffer = SharedWorkArena;
 }
 
 void CardSystemShutdown(void) {
@@ -148,7 +137,7 @@ int CountCardFiles(int a, int b) {
     char sp[32];
     char *s0;
     int n = 0;
-    PsyqSprintf(sp, StrCardDirPatternFmt, a, b);
+    PsyqSprintf((s8 *)sp, (const s8 *)StrCardDirPatternFmt, a, b);
     s0 = CardDirEntries;
     if (firstfile(sp, s0) == s0) {
         do { n++; s0 += 0x28; } while (nextfile(s0) == s0);
@@ -209,256 +198,256 @@ next_entry:
     return t2;
 }
 
-int CardReadFile(int a0, int a1, int a2, int a3, int a4) {
-    int sp[8];
-    int r;
-    int v;
-    int ret;
-    PsyqSprintf(sp, CardFilePathFmt, a0, a1, a2);
-    v = a4 << 13;
-    r = FileOpen(sp, 0x8001);
-    if (r != -1) {
-        CardFileHandle = r;
+int CardReadFile(int port, int slot, const char *name, void *buffer, int blocks) {
+    char path[32];
+    int descriptor;
+    int length;
+    int result;
+    PsyqSprintf((s8 *)path, (const s8 *)CardFilePathFmt, port, slot, name);
+    length = blocks << 13;
+    descriptor = FileOpen(path, 0x8001);
+    if (descriptor != -1) {
+        CardFileHandle = descriptor;
         ClearHwCardEvents();
-        while (FileRead(r, a3, v) == 0) {
+        while (FileRead(descriptor, buffer, length) == 0) {
         }
-        ret = 0;
-        FileClose(r);
+        result = 0;
+        FileClose(descriptor);
     } else {
-        ret = -1;
+        result = -1;
     }
-    return ret;
+    return result;
 }
 
-int CardReadFileAt(int a0, int a1, int a2, int a3, int a4, int a5) {
-    char sp18[32];
-    int h;
-    /* ASM_BARRIER: pin return status r to $s1 ($17) */
-    register int r asm("$17");
-    int t;
-    PsyqSprintf(sp18, CardFilePathFmt, a0, a1, a2);
-    t = a4;
-    h = FileOpen(sp18, 0x8001);
-    /* ASM_BARRIER: loads -1 into r after the call, not hoisted before it */
-    __asm__ volatile("" : "=r"(r) : "0"(-1));
-    if (h != r) {
-        if (FileSeek(h, a5, 0) != r) {
-            CardFileHandle = h;
+int CardReadFileAt(int port, int slot, const char *name, void *buffer, int bytes, int offset) {
+    char path[32];
+    int descriptor;
+    /* ASM_BARRIER: pin return status result to $s1 ($17) */
+    register int result asm("$17");
+    int length;
+    PsyqSprintf((s8 *)path, (const s8 *)CardFilePathFmt, port, slot, name);
+    length = bytes;
+    descriptor = FileOpen(path, 0x8001);
+    /* ASM_BARRIER: loads -1 into result after the call, not hoisted before it */
+    __asm__ volatile("" : "=r"(result) : "0"(-1));
+    if (descriptor != result) {
+        if (FileSeek(descriptor, offset, 0) != result) {
+            CardFileHandle = descriptor;
             ClearHwCardEvents();
-            while (FileRead(h, a3, t) == 0) ;
-            r = 0;
+            while (FileRead(descriptor, buffer, length) == 0) ;
+            result = 0;
         }
-        FileClose(h);
-        return r;
+        FileClose(descriptor);
+        return result;
     }
-    /* ASM_BARRIER: re-launders r so the -1 return uses s1 (not the equal h in s0) */
-    __asm__ ("" : "=r"(r) : "0"(r));
-    return r;
+    /* ASM_BARRIER: re-launders result so the -1 return uses s1 (not the equal descriptor in s0) */
+    __asm__ ("" : "=r"(result) : "0"(result));
+    return result;
 }
 
-int CardWriteFile(int a0, int a1, int a2, int a3, int a4, int a5) {
-    int sp[8];
-    int r;
-    int v;
-    int ret;
-    PsyqSprintf(sp, CardFilePathFmt, a0, a1, a2);
-    if (a5 == 1) {
-        r = FileOpen(sp, (a4 << 16) | 0x200);
-        if (r == -1) {
+int CardWriteFile(int port, int slot, const char *name, const void *buffer, int blocks, int create) {
+    char path[32];
+    int descriptor;
+    int length;
+    int result;
+    PsyqSprintf((s8 *)path, (const s8 *)CardFilePathFmt, port, slot, name);
+    if (create == 1) {
+        descriptor = FileOpen(path, (blocks << 16) | 0x200);
+        if (descriptor == -1) {
             return -1;
         }
-        FileClose(r);
+        FileClose(descriptor);
     }
-    v = a4 << 13;
-    r = FileOpen(sp, 0x8002);
-    if (r != -1) {
-        CardFileHandle = r;
+    length = blocks << 13;
+    descriptor = FileOpen(path, 0x8002);
+    if (descriptor != -1) {
+        CardFileHandle = descriptor;
         ClearHwCardEvents();
-        while (FileWrite(r, a3, v) == 0) {
+        while (FileWrite(descriptor, buffer, length) == 0) {
         }
-        ret = 0;
-        FileClose(r);
+        result = 0;
+        FileClose(descriptor);
     } else {
-        ret = -1;
+        result = -1;
     }
-    return ret;
+    return result;
 }
 
-int CardWriteFileAt(int a0, int a1, int a2, int a3, int a4, int a5) {
-    char sp18[32];
-    int h;
-    /* ASM_BARRIER: pin return status r to $s1 ($17) */
-    register int r asm("$17");
-    int t;
-    PsyqSprintf(sp18, CardFilePathFmt, a0, a1, a2);
-    t = a4;
-    h = FileOpen(sp18, 0x8002);
-    /* ASM_BARRIER: loads -1 into r after the call, not hoisted before it */
-    __asm__ volatile("" : "=r"(r) : "0"(-1));
-    if (h != r) {
-        if (FileSeek(h, a5, 0) != r) {
-            CardFileHandle = h;
+int CardWriteFileAt(int port, int slot, const char *name, const void *buffer, int bytes, int offset) {
+    char path[32];
+    int descriptor;
+    /* ASM_BARRIER: pin return status result to $s1 ($17) */
+    register int result asm("$17");
+    int length;
+    PsyqSprintf((s8 *)path, (const s8 *)CardFilePathFmt, port, slot, name);
+    length = bytes;
+    descriptor = FileOpen(path, 0x8002);
+    /* ASM_BARRIER: loads -1 into result after the call, not hoisted before it */
+    __asm__ volatile("" : "=r"(result) : "0"(-1));
+    if (descriptor != result) {
+        if (FileSeek(descriptor, offset, 0) != result) {
+            CardFileHandle = descriptor;
             ClearHwCardEvents();
-            while (FileWrite(h, a3, t) == 0) ;
-            r = 0;
+            while (FileWrite(descriptor, buffer, length) == 0) ;
+            result = 0;
         }
-        FileClose(h);
-        return r;
+        FileClose(descriptor);
+        return result;
     }
-    /* ASM_BARRIER: re-launders r so the -1 return uses s1 (not the equal h in s0) */
-    __asm__ ("" : "=r"(r) : "0"(r));
-    return r;
+    /* ASM_BARRIER: re-launders result so the -1 return uses s1 (not the equal descriptor in s0) */
+    __asm__ ("" : "=r"(result) : "0"(result));
+    return result;
 }
 
-int CardUpdate(int p, char *a1) {
-    char *s2;
-    int a0;
-    int sp[2];
-    int x;
-    s2 = (char *)((p << 4) + (int)a1);
-    switch (CardPortState[p]) {
-    case 0:
-        _card_info(s2);
-        CardPortState[p] = 1;
-        CardPortTimer[p] = 0;
-        CardPortLastResult[p] = 0;
+int CardUpdate(int port, int slot) {
+    int channel;
+    int status;
+    int sync[2];
+    int previousResult;
+    channel = (port << 4) + slot;
+    switch (CardPortState[port]) {
+    case RR_CARD_PORT_START_INFO:
+        _card_info(channel);
+        CardPortState[port] = RR_CARD_PORT_WAIT_INFO;
+        CardPortTimer[port] = 0;
+        CardPortLastResult[port] = 0;
         break;
-    case 1:
-        a0 = PollHwCardEvents(p);
-        if (a0 == 0) break;
-        switch (a0) {
+    case RR_CARD_PORT_WAIT_INFO:
+        status = PollHwCardEvents(port);
+        if (status == 0) break;
+        switch (status) {
         case 1:
-            CardPortResult[p] = a0;
-            CardPortState[p] = 2;
-            CardPortTimer[p] = 0;
+            CardPortResult[port] = status;
+            CardPortState[port] = RR_CARD_PORT_START_READ;
+            CardPortTimer[port] = 0;
             break;
         case 3:
-            CardPortResult[p] = -1;
-            CardPortState[p] = 6;
-            CardPortLoaded[p] = 0;
+            CardPortResult[port] = -1;
+            CardPortState[port] = RR_CARD_PORT_PUBLISH_RESULT;
+            CardPortLoaded[port] = 0;
             break;
         case 4:
-            CardPortResult[p] = 2;
-            CardPortState[p] = 2;
-            CardPortTimer[p] = 0;
+            CardPortResult[port] = 2;
+            CardPortState[port] = RR_CARD_PORT_START_READ;
+            CardPortTimer[port] = 0;
             break;
         case 2:
         default:
-            CardPortResult[p] = -4;
-            CardPortState[p] = 6;
-            CardPortLoaded[p] = 0;
+            CardPortResult[port] = -4;
+            CardPortState[port] = RR_CARD_PORT_PUBLISH_RESULT;
+            CardPortLoaded[port] = 0;
             break;
         }
         break;
-    case 2:
-        if (_cardCmd5ABegin(s2, p * 17 + CardRawSectorWorkBuf)) {
-            CardPortState[p] = 3;
-            CardPortTimer[p] = 0;
+    case RR_CARD_PORT_START_READ:
+        if (_cardCmd5ABegin(channel, port * RR_CARD_RAW_REPLY_BYTES + CardRawSectorWorkBuf)) {
+            CardPortState[port] = RR_CARD_PORT_WAIT_READ;
+            CardPortTimer[port] = 0;
         } else {
-            if (CardPortTimer[p]++ >= 0x78) {
-                CardPortResult[p] = -4;
-                CardPortState[p] = 6;
-                CardPortLoaded[p] = 0;
+            if (CardPortTimer[port]++ >= 0x78) {
+                CardPortResult[port] = -4;
+                CardPortState[port] = RR_CARD_PORT_PUBLISH_RESULT;
+                CardPortLoaded[port] = 0;
             }
         }
         break;
-    case 3:
-        a0 = MemCardSync(1, &sp[0], &sp[1]);
-        if (a0 != 0) {
-            if (a0 > 0) {
-                a0 = sp[1];
-                switch (a0) {
+    case RR_CARD_PORT_WAIT_READ:
+        status = MemCardSync(1, &sync[0], &sync[1]);
+        if (status != 0) {
+            if (status > 0) {
+                status = sync[1];
+                switch (status) {
                 case 0:
-                    CardPortResult[p] = 3;
-                    if (CardPortLoaded[p] == 1) {
-                        CardPortState[p] = 6;
+                    CardPortResult[port] = 3;
+                    if (CardPortLoaded[port] == 1) {
+                        CardPortState[port] = RR_CARD_PORT_PUBLISH_RESULT;
                     } else {
-                        CardPortState[p] = 4;
+                        CardPortState[port] = RR_CARD_PORT_START_LOAD;
                     }
                     break;
                 case 2:
-                    if (CardPortResult[p] == 1) {
-                        if (CardPortLoaded[p] == 1) {
-                            CardPortState[p] = 6;
+                    if (CardPortResult[port] == 1) {
+                        if (CardPortLoaded[port] == 1) {
+                            CardPortState[port] = RR_CARD_PORT_PUBLISH_RESULT;
                         } else {
-                            CardPortState[p] = 4;
+                            CardPortState[port] = RR_CARD_PORT_START_LOAD;
                         }
                     } else {
-                        CardPortResult[p] = 2;
+                        CardPortResult[port] = 2;
                         ClearSwCardEvents();
-                        _card_clear(s2);
+                        _card_clear(channel);
                         WaitSwCardEvent();
-                        CardPortState[p] = 4;
-                        CardPortLoaded[p] = 0;
+                        CardPortState[port] = RR_CARD_PORT_START_LOAD;
+                        CardPortLoaded[port] = 0;
                     }
                     break;
                 case 1:
-                    CardPortResult[p] = -1;
-                    CardPortState[p] = 6;
-                    CardPortLoaded[p] = 0;
+                    CardPortResult[port] = -1;
+                    CardPortState[port] = RR_CARD_PORT_PUBLISH_RESULT;
+                    CardPortLoaded[port] = 0;
                     break;
                 case 3:
-                    CardPortResult[p] = 4;
+                    CardPortResult[port] = 4;
                     ClearSwCardEvents();
-                    _card_clear(s2);
+                    _card_clear(channel);
                     WaitSwCardEvent();
-                    CardPortState[p] = 4;
-                    CardPortLoaded[p] = 0;
+                    CardPortState[port] = RR_CARD_PORT_START_LOAD;
+                    CardPortLoaded[port] = 0;
                     break;
                 }
             } else {
-                CardPortResult[p] = -4;
-                CardPortState[p] = 6;
-                CardPortLoaded[p] = 0;
+                CardPortResult[port] = -4;
+                CardPortState[port] = RR_CARD_PORT_PUBLISH_RESULT;
+                CardPortLoaded[port] = 0;
             }
         } else {
-            if (CardPortTimer[p]++ >= 0x78) {
-                CardPortResult[p] = -4;
-                CardPortState[p] = 6;
-                CardPortLoaded[p] = 0;
+            if (CardPortTimer[port]++ >= 0x78) {
+                CardPortResult[port] = -4;
+                CardPortState[port] = RR_CARD_PORT_PUBLISH_RESULT;
+                CardPortLoaded[port] = 0;
             }
         }
         break;
-    case 4:
+    case RR_CARD_PORT_START_LOAD:
         ClearHwCardEvents();
-        _card_load(s2);
-        CardPortState[p] = 5;
-        CardPortTimer[p] = 0;
+        _card_load(channel);
+        CardPortState[port] = RR_CARD_PORT_WAIT_LOAD;
+        CardPortTimer[port] = 0;
         break;
-    case 5:
-        a0 = PollHwCardEvents(p);
-        if (a0 == 0) break;
-        CardPortState[p] = 6;
-        switch (a0) {
+    case RR_CARD_PORT_WAIT_LOAD:
+        status = PollHwCardEvents(port);
+        if (status == 0) break;
+        CardPortState[port] = RR_CARD_PORT_PUBLISH_RESULT;
+        switch (status) {
         case 1:
-            CardPortLoaded[p] = a0;
+            CardPortLoaded[port] = status;
             break;
         case 3:
-            CardPortResult[p] = -1;
-            CardPortLoaded[p] = 0;
+            CardPortResult[port] = -1;
+            CardPortLoaded[port] = 0;
             break;
         case 4:
-            x = CardPortResult[p];
-            if ((x - 1) < 2U) {
-                CardPortResult[p] = -2;
-            } else if ((x - 3) < 2U) {
-                CardPortResult[p] = -3;
+            previousResult = CardPortResult[port];
+            if (((u32)previousResult - 1U) < 2U) {
+                CardPortResult[port] = -2;
+            } else if (((u32)previousResult - 3U) < 2U) {
+                CardPortResult[port] = -3;
             }
-            CardPortLoaded[p] = 0;
+            CardPortLoaded[port] = 0;
             break;
         case 2:
         default:
-            CardPortResult[p] = -4;
-            CardPortLoaded[p] = 0;
+            CardPortResult[port] = -4;
+            CardPortLoaded[port] = 0;
             break;
         }
         break;
-    case 6:
-        CardPortLastResult[p] = CardPortResult[p];
-        CardPortState[p] = 0;
+    case RR_CARD_PORT_PUBLISH_RESULT:
+        CardPortLastResult[port] = CardPortResult[port];
+        CardPortState[port] = RR_CARD_PORT_START_INFO;
         break;
     }
-    return CardPortLastResult[p];
+    return CardPortLastResult[port];
 }
 
 void CardFormatSlot(s32 arg0, s32 arg1) {

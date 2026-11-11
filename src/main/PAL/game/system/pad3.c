@@ -10,15 +10,14 @@ extern s16 PadRangeLimits[];
 extern u8 PadDualShockActAlignCmd[];
 extern u8 PadActAlignBytes[];
 
-void PadSetRumbleParams(int i, short a, char b);
 void PadSetRumbleFlags(int i, int flags);
 void PadUpdateRumble(void);
 void PadPollPort(int a0);
 
-void PadSetRumbleParams(int i, short a, char b) {
-    ControllerState5C *t = &PlayerControllers[i];
-    t->rumbleDir52 = a;
-    t->rumbleLevel49 = b;
+void PadSetRumbleParams(s32 channel, s32 direction, s32 level) {
+    ControllerState5C *controller = &PlayerControllers[channel];
+    controller->rumbleDir52 = direction;
+    controller->rumbleLevel49 = level;
 }
 
 void PadRumbleStart(int i) {

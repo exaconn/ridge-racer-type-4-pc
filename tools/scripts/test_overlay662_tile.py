@@ -1,4 +1,5 @@
 """Serialized DMA links, overlapping ordering words and captured garage origin."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -7,7 +8,7 @@ import unittest
 class GarageTileTest(unittest.TestCase):
     def test_native_packets_and_serialized_dma_links(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_8011B034.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_8011B034.c')
         source=r'''
 #include <assert.h>
 #include <stddef.h>

@@ -1,5 +1,6 @@
 #ifndef RR_OVERLAY668_CAMERA_H
 #define RR_OVERLAY668_CAMERA_H
+#include "game/gfx/scene1.h"
 #include "game/data/cdfile2.h"
 #include "rr/track_sample_types.h"
 #include "rr/track_lateral.h"
@@ -46,9 +47,6 @@ void SetDispMask(s32);
 void SetupDrawDispEnvs(s32,s32,s16,u32);
 void InitCourseViewState(void);
 
-void InitSceneOverlayState(void);
-void SetSceneOverlayColor(s32,u8,u8,u8);
-void SetSceneOverlayEnabled(s32);
 #ifndef RR_REPLAY_SCRATCH_WORDS
 #define RR_REPLAY_SCRATCH_WORDS ((s32 *)0x1F800000)
 #endif

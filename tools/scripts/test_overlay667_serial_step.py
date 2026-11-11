@@ -13,7 +13,7 @@ import unittest
 class Overlay667SerialStepTest(unittest.TestCase):
     def test_ring_branches_retry_capture_and_wrapping_counters(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/667/func_{a}.c')
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/serial_link/func_{a}.c')
                            for a in ('80115068', '801151E0'))
         source = r'''
 #include <assert.h>

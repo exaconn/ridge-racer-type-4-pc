@@ -1,3 +1,4 @@
+#include "game/car/carbound.h"
 #include "rr/rro_model.h"
 #include "game/gfx/model.h"
 #include "psyq/libgte/gtemat4.h"
@@ -24,7 +25,6 @@ typedef struct {
     u32 ot70;
 } DrawBufOtAt;
 
-extern void UpdateCarWorldTransform();
 
 void DrawGarageFloorReflection(void)
 {

@@ -1,11 +1,12 @@
 """Packed64x64 image rotation, action dispatch and fresh callback state."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re,subprocess,unittest
 class RotateTest(unittest.TestCase):
  def test_pixels_and_service_order(self):
   root=Path(__file__).resolve().parents[2]
-  body=(root/'src/overlays/PAL/662/func_8011ED20.c').read_text()
+  body=read_c_source(root/'src/overlays/PAL/garage/func_8011ED20.c')
   body=re.sub(r'__asm__\("(?:v1|t9|\$3|\$25)"\)','',body)
   code=r'''
 #include <assert.h>

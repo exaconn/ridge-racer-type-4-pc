@@ -9,7 +9,7 @@ import unittest
 class PanelsTest(unittest.TestCase):
     def test_native_detail_and_panel(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/665/func_{a}.c')
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/options/func_{a}.c')
                            for a in ('80116070', '80115CFC'))
         source = r'''
 #include <assert.h>

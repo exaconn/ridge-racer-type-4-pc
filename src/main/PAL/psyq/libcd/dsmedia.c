@@ -62,14 +62,7 @@ int CdGetDiskType(void) {
         if (v & 0x10) return 0x10;
         if (v & 1) {
             if (L.st[1] & 0x40) {
-                /* ASM_BARRIER: Begin message address formation after the status-bit gate. */
-                __asm__("" : : : "$4");
-                {
-                const char *page=(const char *)0x80010000U;
-                /* ASM_BARRIER: Expose the real PAL message page before forming its call argument. */
-                __asm__("" : "+r"(page));
-                DebugPrintStub(page+0x1D78);
-                }
+                DebugPrintStub(CdCommandErrorStr);
                 return 1;
             }
         }

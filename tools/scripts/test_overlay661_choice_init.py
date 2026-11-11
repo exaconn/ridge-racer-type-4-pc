@@ -9,8 +9,8 @@ from overlay_units import read_c_source
 class Overlay661ChoiceInitTest(unittest.TestCase):
     def test_random_calls_word_result_and_projection_fields(self):
         root=Path(__file__).resolve().parents[2]
-        body=read_c_source(root/'src/overlays/PAL/661/func_80117350.c')
-        fixed=read_c_source(root/'src/overlays/PAL/667/func_80117EF8.c')
+        body=read_c_source(root/'src/overlays/PAL/versus/func_80117350.c')
+        fixed=read_c_source(root/'src/overlays/PAL/serial_link/func_80117EF8.c')
         lookup=(root/'tools/scripts/fixtures/legacy/func_80032E9C.c').read_text()
         reset=re.sub(r'^extern[^\n]*;\n','',(root/'tools/scripts/fixtures/legacy/func_8003A198.c').read_text(),flags=re.M)
         exe=(root/'assets/PAL/main.exe').read_bytes();table=exe[0x800+0x8009F64C-0x80010000:0x800+0x8009F64C-0x80010000+8]

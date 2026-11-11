@@ -1,11 +1,10 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
-#include "rr/draw_environment.h"
+#include "psyq/libgpu/gpudisp.h"
 #include "rr/gpu.h"
 #include "rr/library.h"
 #include "rr/gpu_reset.h"
-#include "psyq/libgpu/gpudisp.h"
 #include "rr/spu_tick.h"
 
 #define CLAMP(v, lo, hi) ((v) < (lo) ? (lo) : ((v) > (hi) ? (hi) : (v)))
@@ -28,15 +27,14 @@ extern u32 GpuDrawEnvPacket[10];
 extern u32 D_801127B0[4];
 
 u32 GetODE(void);
-void SetTexWindow(void *arg0, s32 arg1);
-void SetDrawArea(void *arg0, void *arg1);
-void SetDrawOffset(void *arg0, void *arg1);
+void SetTexWindow(void *packet, GpuRectangleFields *window);
+void SetDrawOffset(void *packet, GpuRectangleFields *rectangle);
 void SetPriority(void *arg0, s32 arg1, s32 arg2);
 void SetDrawStp(GpuDrawModePacket *packet, int enabled);
-void SetDrawMode(void *arg0, s32 arg1, s32 arg2, s32 arg3, GpuRectangleFields *arg4);
+void SetDrawMode(void *output, s32 drawDisplay, s32 dither, s32 page, GpuRectangleFields *window);
 void SetDrawEnv(u32 *arg0, DrawEnvironment *arg1);
 void SetDrawEnv2(u32 *arg0, DrawEnvironment *arg1);
-int get_mode(int a0, int a1, int a2);
+u32 get_mode(s32 drawDisplay, s32 dither, s32 page);
 u32 get_cs(s32 x, s32 y);
 u32 get_ce(s32 x, s32 y);
 unsigned get_ofs(int a, int b);
@@ -170,40 +168,38 @@ u32 GetODE(void) {
 }
 
 
-void SetTexWindow(void *arg0, s32 arg1) {
-    GpuDrawModePacket *p = arg0;
-    p->tag.bytes.length = 2;
-    p->command[0] = get_tw(arg1);
-    p->command[1] = 0;
+void SetTexWindow(void *output, GpuRectangleFields *window) {
+    GpuDrawModePacket *packet = output;
+    packet->tag.bytes.length = 2;
+    packet->command[0] = get_tw(window);
+    packet->command[1] = 0;
 }
 
-void SetDrawArea(void *arg0, void *arg1) {
-    GpuDrawModePacket *p = arg0;
-    GpuRectangleFields *r = arg1;
-    p->tag.bytes.length = 2;
-    p->command[0] = get_cs(r->x, r->y);
-    p->command[1] = get_ce((s16)(((u16)r->x + (u16)r->w) - 1), (s16)(((u16)r->y + (u16)r->h) - 1));
+void SetDrawArea(void *output, GpuRectangleFields *rectangle) {
+    GpuDrawModePacket *packet = output;
+    packet->tag.bytes.length = 2;
+    packet->command[0] = get_cs(rectangle->x, rectangle->y);
+    packet->command[1] = get_ce((s16)(((u16)rectangle->x + (u16)rectangle->w) - 1), (s16)(((u16)rectangle->y + (u16)rectangle->h) - 1));
 }
 
-void SetDrawOffset(void *arg0, void *arg1) {
-    GpuDrawModePacket *p = arg0;
-    GpuRectangleFields *r = arg1;
-    p->tag.bytes.length = 2;
-    p->command[0] = get_ofs(r->x, r->y);
-    p->command[1] = 0;
+void SetDrawOffset(void *output, GpuRectangleFields *rectangle) {
+    GpuDrawModePacket *packet = output;
+    packet->tag.bytes.length = 2;
+    packet->command[0] = get_ofs(rectangle->x, rectangle->y);
+    packet->command[1] = 0;
 }
 
-void SetPriority(void *arg0, s32 arg1, s32 arg2) {
-    GpuDrawModePacket *p = arg0;
-    s32 var_v1;
+void SetPriority(void *output, s32 maskTest, s32 maskWrite) {
+    GpuDrawModePacket *packet = output;
+    u32 command;
 
-    p->tag.bytes.length = 2;
-    var_v1 = 0xE6000000;
-    if (arg1 != 0) {
-        var_v1 = 0xE6000002;
+    packet->tag.bytes.length = 2;
+    command = 0xE6000000;
+    if (maskTest != 0) {
+        command = 0xE6000002;
     }
-    p->command[0] = (var_v1 | (arg2 != 0));
-    p->command[1] = 0;
+    packet->command[0] = (command | (maskWrite != 0));
+    packet->command[1] = 0;
 }
 
 void SetDrawStp(GpuDrawModePacket *packet, int enabled) {
@@ -212,11 +208,11 @@ void SetDrawStp(GpuDrawModePacket *packet, int enabled) {
     packet->command[1] = 0;
 }
 
-void SetDrawMode(void *arg0, s32 arg1, s32 arg2, s32 arg3, GpuRectangleFields *arg4) {
-    GpuDrawModePacket *p = arg0;
-    p->tag.bytes.length = 2;
-    p->command[0] = get_mode(arg1, arg2, arg3 & 0xFFFF);
-    p->command[1] = get_tw(arg4);
+void SetDrawMode(void *output, s32 drawDisplay, s32 dither, s32 page, GpuRectangleFields *window) {
+    GpuDrawModePacket *packet = output;
+    packet->tag.bytes.length = 2;
+    packet->command[0] = get_mode(drawDisplay, dither, page & 0xFFFF);
+    packet->command[1] = get_tw(window);
 }
 
 void SetDrawEnv(u32 *arg0, DrawEnvironment *arg1) {
@@ -287,8 +283,8 @@ void SetDrawEnv2(u32 *arg0, DrawEnvironment *arg1) {
     }
     ((u8 *)output)[3] = word_count - 1;
 }
-int get_mode(int a0, int a1, int a2) {
-    return (a1 ? 0xE1000200 : 0xE1000000) | (a0 ? 0x400 : 0) | (a2 & 0x9FF);
+u32 get_mode(s32 drawDisplay, s32 dither, s32 page) {
+    return (dither ? 0xE1000200 : 0xE1000000) | (drawDisplay ? 0x400 : 0) | (page & 0x9FF);
 }
 u32 get_cs(s32 x, s32 y) {
     s16 clippedX = x;
@@ -304,27 +300,28 @@ u32 get_ce(s32 x, s32 y) {
     clippedY = clippedY < 0 ? 0 : (clippedY > D_800ABAC6 - 1 ? D_800ABAC6 - 1 : clippedY);
     return 0xE4000000 | ((clippedY & 0x3FF) << 10) | (clippedX & 0x3FF);
 }
-unsigned get_ofs(int a, int b) { return 0xE5000000 | (b & 0x7FF) << 11 | (a & 0x7FF); }
-
-u32 get_tw(GpuRectangleFields *a0)
-{
-  int v[4];
-  int new_var;
-  unsigned r;
-  if (a0 == 0)
-  {
-    r = 0;
-  }
-  else
-  {
-    v[0] = ((u8 *)&a0->x)[0] >> 3;
-    v[2] = ((-a0->w) & 0xFF) >> 3;
-    v[1] = ((u8 *)&a0->y)[0] >> 3;
-    v[3] = ((-a0->h) & 0xFF) >> 3;
-    r = (((v[1] << 15) | ((v[0] << 10) | (new_var = 0xE2000000))) | (v[3] << 5)) | v[2];
-  }
-  return r;
+u32 get_ofs(s32 x, s32 y) {
+    return 0xE5000000U | ((y & 0x7FF) << 11) | (x & 0x7FF);
 }
+
+u32 get_tw(GpuRectangleFields *window) {
+    /* E2 offsets and masks are encoded in units of eight pixels. */
+    struct {s32 offsetX, offsetY, maskWidth, maskHeight;} fields;
+    u32 verticalBits, horizontalCommand, command;
+    if (window == 0) {
+        command = 0;
+    } else {
+        fields.offsetX = (u8)window->x >> 3;
+        fields.maskWidth = ((-window->w) & 0xFF) >> 3;
+        fields.offsetY = (u8)window->y >> 3;
+        verticalBits = fields.offsetY << 15;
+        fields.maskHeight = ((-window->h) & 0xFF) >> 3;
+        horizontalCommand = (fields.offsetX << 10) | 0xE2000000U;
+        command = ((verticalBits | horizontalCommand) | (fields.maskHeight << 5)) | fields.maskWidth;
+    }
+    return command;
+}
+
 
 u32 _status(void) {
     return *GPU_STATUS;

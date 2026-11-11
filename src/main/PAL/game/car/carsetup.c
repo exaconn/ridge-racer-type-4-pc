@@ -1,3 +1,4 @@
+#include "game/data/resinit.h"
 #include "psyq/libgte/rotmat.h"
 #include "game/data/bankrec.h"
 #include "types.h"
@@ -16,13 +17,12 @@
 #include "game/race/racesamp.h"
 #include "game/ui/hudmap.h"
 
-extern unsigned char SelectionRows[][4];
+#include "game/data/selection.h"
 extern int RaceState;
 extern int TrackEventSfxEnabled;
 extern int ReplayState;
 extern int ChaseViewEnabled;
 extern RaceVehicle PlayerCars[];
-extern void ResetCarSlotBuffers();
 
 void UpdatePlayerCar(RaceVehicle *a0, int a1);
 void StepCarPhysics(RaceVehicle *arg0);
@@ -64,7 +64,7 @@ void InitPlayerCar(RaceVehicle *vehicle, s32 recordIndex, s32 gridIndex)
     control = &vehicle->control;
     record = CarRecordPtrs[recordIndex];
     PsyqBzero(vehicle, sizeof(*vehicle));
-    control->previewSample84.halves.low = SelectionRows[recordIndex][3] & 1;
+    control->previewSample84.halves.low = SelectionRows.entries[recordIndex].option & 1;
     vehicle->slotIndex1E6 = recordIndex * 2;
     control->playerFlags24 = recordIndex;
     vehicle->flags1E4 = (u16)control->playerFlags24 | 0x110;
@@ -134,7 +134,7 @@ void UpdatePlayerCar(RaceVehicle *a0, int a1)
         unsigned short t = a0->flags1E4 ^ 0x100;
         ChaseViewEnabled ^= 1;
         a0->flags1E4 = t;
-        do { ResetCarSlotBuffers(t); } while (0);
+        ResetCarSlotBuffers();
       }
     }
   }

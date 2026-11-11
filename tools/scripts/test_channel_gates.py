@@ -9,7 +9,7 @@ body=definition_source(owners['_padAllocGates'].read_text(),'_padAllocGates')
 body=re.sub(r' asm\("\$\d+"\)','',body)
 body=re.sub(r'__asm__\("".*?\);',';',body)
 body=body.replace('_padAllocGates','compiled_alloc_gates').replace('PsyqBzero(','native_zero(')
-body,n=re.subn(r'\(s32 \*\)0x800B0000U','(s32 *)(native_budget_page.bytes+0x4350)',body);assert n==2
+assert '0x800B0000U' not in body
 code=r'''
 #include <assert.h>
 #include <stdint.h>

@@ -1,4 +1,5 @@
 """Garage bit-pair dispatch with native callback identities and live table changes."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -9,7 +10,7 @@ import unittest
 class OverlayGarageActionsTest(unittest.TestCase):
     def test_priorities_and_live_callback_table(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_8011DCDC.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_8011DCDC.c')
         sound = (root / 'tools/scripts/fixtures/views/func_8004F24C.c').read_text()
         sound = re.sub(r'^extern[^\n]*;\n', '', sound, flags=re.M)
         bridge = (root / 'tools/scripts/fixtures/views/func_8004F218.c').read_text()

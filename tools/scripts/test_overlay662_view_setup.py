@@ -1,4 +1,7 @@
 """Garage view setup: reset checkpoint, seven typed boundaries and fresh owners."""
+from menu_glyph_fixture_transport import transport
+from overlay_units import read_c_source
+from selection_fixture_transport import transport as transport_selection
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -7,7 +10,7 @@ import unittest
 class GarageViewSetupTest(unittest.TestCase):
     def test_ordered_setup_with_replaced_glyph_and_badge_roots(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_80116020.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_80116020.c')
         source=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -78,7 +81,7 @@ int main(void){unsigned k,i;
 }
 '''
         with TemporaryDirectory() as temp:
-            p=Path(temp);(p/'test.c').write_text(source)
+            p=Path(temp);(p/'test.c').write_text(transport_selection(transport(source,body,'ovl662_init_history_overview','&world.glyphs[0][0]','12',[('event', 'v==&world')]),body,'ovl662_init_history_overview','&world.choice',4,[('event','v==&world')]))
             subprocess.run(['cc','-std=gnu11','-O2','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(root/'include'),str(p/'test.c'),'-o',str(p/'test')],check=True)
             subprocess.run([str(p/'test')],check=True)
 

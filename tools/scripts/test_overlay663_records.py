@@ -8,8 +8,8 @@ import unittest
 class Overlay663RecordsTest(unittest.TestCase):
     def test_live_records_widths_and_captured_footer(self):
         root=Path(__file__).resolve().parents[2]
-        bodies='\n'.join(read_c_source(root/f'src/overlays/PAL/663/func_{a}.c') for a in ['8011602C','801163B8'])
-        formatter=read_c_source(root/'src/overlays/PAL/663/func_80115EE8.c')
+        bodies='\n'.join(read_c_source(root/f'src/overlays/PAL/records/func_{a}.c') for a in ['8011602C','801163B8'])
+        formatter=read_c_source(root/'src/overlays/PAL/records/func_80115EE8.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

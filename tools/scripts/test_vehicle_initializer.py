@@ -1,3 +1,4 @@
+from selection_fixture_transport import transport as transport_selection
 """InitPlayerCar: complete owners, real pointer capture and original MIPS traces."""
 import ctypes as C
 import os
@@ -105,7 +106,7 @@ def main():
     body=definition_source(SOURCE.read_text(),'InitPlayerCar')
     with TemporaryDirectory() as temporary:
         directory=Path(temporary);source=directory/'native.c';library=directory/'native.dylib'
-        source.write_text(PREFIX+body+TAIL)
+        source.write_text(transport_selection(PREFIX+'\n#define SelectionRows SelectionRows\n'+body+TAIL,body,'InitPlayerCar','&SelectionRows',32,[('PsyqBzero','1'),('PlaceCarOnGrid','1')]))
         subprocess.run(['cc','-std=c11','-O2','-shared','-fPIC','-Wall','-Wextra','-Werror',
                         '-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude',
                         '-Itools/scripts',str(source),'-o',str(library)],check=True)

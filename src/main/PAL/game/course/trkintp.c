@@ -71,7 +71,7 @@ void ComputeStartDistance(RaceVehicle *vehicle, int direction)
         if (direction == 0) {
             while (1) {
                 wrapped = node % TrackNodeCount;
-                distance -= TrackNodes[wrapped].segmentLength1C;
+                distance -= TrackNodes[wrapped].road.segmentLength;
                 if (target == wrapped) break;
                 node++;
             }
@@ -82,7 +82,7 @@ void ComputeStartDistance(RaceVehicle *vehicle, int direction)
                 if (node < 0) previous = TrackNodeCount + node;
                 node = previous;
                 if (target == node) break;
-                distance += TrackNodes[node].segmentLength1C;
+                distance += TrackNodes[node].road.segmentLength;
             }
         }
     } else {
@@ -92,13 +92,13 @@ void ComputeStartDistance(RaceVehicle *vehicle, int direction)
                 previous = node;
                 if (node < 0) previous = TrackNodeCount + node;
                 node = previous;
-                distance -= TrackNodes[node].segmentLength1C;
+                distance -= TrackNodes[node].road.segmentLength;
             } while (target != node);
         } else {
             while (1) {
                 if (target == node % TrackNodeCount) break;
                 node++;
-                distance += TrackNodes[node % TrackNodeCount].segmentLength1C;
+                distance += TrackNodes[node % TrackNodeCount].road.segmentLength;
             }
         }
     }

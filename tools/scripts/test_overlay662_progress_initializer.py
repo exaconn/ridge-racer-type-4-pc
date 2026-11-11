@@ -1,4 +1,5 @@
 """Closed progress initializer: real reset, loader/UI boundaries and 320 bits."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -8,7 +9,7 @@ import unittest
 class Overlay662ProgressInitializerTest(unittest.TestCase):
     def test_counts_and_fresh_resource_publication(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_80114998.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_80114998.c')
         reset=re.sub(r'^extern[^\n]*;\n','',(root/'tools/scripts/fixtures/legacy/func_8003A198.c').read_text(),flags=re.M)
         source=r'''
 #include <assert.h>

@@ -4,7 +4,7 @@
 #include "rr/overlay662_tool_action.h"
 #include "rr/menu_text_state.h"
 #include "rr/tables.h"
-extern s16 ModeIndex,ModeGroup,SubmodeState;
+#include "rr/menu_transition.h"
 extern s32 ovl662_emblem_edit_from_menu;
 /* Negative modes reset the first option index. Modes1/2/4/8 configure
  * navigation; other positive modes preserve state. Mode0 enters or operates

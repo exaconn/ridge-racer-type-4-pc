@@ -8,7 +8,7 @@ extern unsigned char *DialoguePageCounts;
 extern u16 *DialogueScriptPtrs[];
 void SkipDialoguePage(MenuTextState *arg0);
 s32 DecodeCourseIndex(s32 a0);
-void EmitSpinningWheelIcon(int a0, int a1, int a2, int a3, int a4);
+void *EmitSpinningWheelIcon(u32 *ordering, void *cursor, s32 x, s32 y, s32 frame);
 
 
 #endif /* RR_GAME_MENU_MENU13_H */

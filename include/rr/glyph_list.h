@@ -1,5 +1,6 @@
 #ifndef RR_GLYPH_LIST_H
 #define RR_GLYPH_LIST_H
+#include "game/ui/hudmap2.h"
 #include "rr/icon_sprites.h"
 #include "rr/ui_bar.h"
 typedef struct {
@@ -12,7 +13,6 @@ extern UiUvRect CarHandlingResponseTable[50],HudGlyphUvRects[40];
 #ifndef RR_GLYPH_SCRATCH
 #define RR_GLYPH_SCRATCH ((GpuScratchPointers*)0x1F800000U)
 #endif
-void DrawGlyphList(s16*,s32,s32);
 /* Readable signed16 x/y, then glyph/gap pairs and a negative terminator.
  * Bank0 selects primary glyph0..49; every nonzero bank selects0..39.
  * Glyph0x400..0x427 always selects the secondary40-entry font. Each glyph

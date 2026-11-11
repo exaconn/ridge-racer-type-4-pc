@@ -1,3 +1,5 @@
+#include "game/ui/uipart1.h"
+#include "rr/save_slots.h"
 #include "game/data/bankrec.h"
 /* RODATA 0x80010e20 0x7c */
 #include "rr/menu_text_rows.h"
@@ -7,8 +9,6 @@
 #include "rr/menu_choice.h"
 #include "game/menu/mntext.h"
 
-void FormatDecimalDigits(char *output, s32 value, s32 digits);
-void FormatRaceTime(char *output, s32 time);
 extern char StrStarSpacePrefix[];
 extern char LapTimeTemplateStr[];
 extern u8 *MenuTextTemplates[];
@@ -94,7 +94,7 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
             FormatDecimalDigits((char *)&MenuTextRows[row].rendering.text[12], value + 1, 0);
             break;
         case 16:
-            FormatDecimalDigits((char *)&MenuTextRows[row].rendering.text[8], SelectionState.retries08[SelectionState.phase17], 0);
+            FormatDecimalDigits((char *)&MenuTextRows[row].rendering.text[8], SelectionState.fields.retries08[SelectionState.fields.phase17], 0);
             break;
         case 17:
             value = MenuDifficultySetting;

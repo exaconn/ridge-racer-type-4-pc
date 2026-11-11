@@ -87,29 +87,30 @@ void SetFogNearFar(s32 a0, s32 a1, s32 a2) {
     GTE_CTC2_27(r0);
     GTE_CTC2_28(r1);
 }
-void InitTimTemplate(int *a0) {
+void InitTimTemplate(EmblemTimImage840 *image) {
+    u32 *words = image->words;
     int n;
-    *a0++ = 0x10;
-    *a0++ = 8;
-    *a0++ = 0x2C;
-    *a0++ = 0x400280;
-    *a0++ = 0x10010;
-    *a0++ = 0x7FFF0000;
-    *a0++ = 0x7C1F03FF;
-    *a0++ = 0x7FE0001F;
-    *a0++ = 0x7C0003E0;
-    *a0++ = 0x42100000;
-    *a0++ = 0x40100210;
-    *a0++ = 0x42000010;
-    *a0++ = 0x40000200;
-    *a0++ = 0x80C;
-    *a0++ = 0x280;
-    *a0++ = 0x400010;
+    *words++ = 0x10;
+    *words++ = 8;
+    *words++ = 0x2C;
+    *words++ = 0x400280;
+    *words++ = 0x10010;
+    *words++ = 0x7FFF0000;
+    *words++ = 0x7C1F03FF;
+    *words++ = 0x7FE0001F;
+    *words++ = 0x7C0003E0;
+    *words++ = 0x42100000;
+    *words++ = 0x40100210;
+    *words++ = 0x42000010;
+    *words++ = 0x40000200;
+    *words++ = 0x80C;
+    *words++ = 0x280;
+    *words++ = 0x400010;
     n = 0x1FF;
     do {
-        *a0 = 0;
+        *words = 0;
         n--;
-        a0++;
+        words++;
     } while (n >= 0);
 }
 
@@ -179,9 +180,9 @@ s32 DrawArticulatedCarModel(RaceVehicle *arg0, s32 arg1, s32 arg2, s32 arg3, s32
         BuildRotMatrixZ(&m50, -arg0->ang84);
         MulMatrix(&mD8[1], &m50);
         MulMatrix2(&m10, &mD8[1]);
-        v198[2].vx = arg0->pos10[0] + arg0->ir60[0];
-        v198[2].vy = arg0->pos10[1] + arg0->ir60[1];
-        v198[2].vz = arg0->pos10[2] + arg0->ir60[2];
+        v198[2].vx = arg0->worldPosition10.words[0] + arg0->ir60[0];
+        v198[2].vy = arg0->worldPosition10.words[1] + arg0->ir60[1];
+        v198[2].vz = arg0->worldPosition10.words[2] + arg0->ir60[2];
         BuildRotMatrixX(&m30, -arg0->rot50);
         BuildRotMatrixX(&mD8[3], arg0->wheelSteering17C);
         BuildRotMatrixZ(&mD8[2], -arg0->rot58);

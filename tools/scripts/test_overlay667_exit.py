@@ -9,7 +9,7 @@ import unittest
 class OverlayScreenExitTest(unittest.TestCase):
     def test_setup_order_and_fresh_ordering_pointer(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/overlays/PAL/667/func_801155E0.c')
+        body = read_c_source(root / 'src/overlays/PAL/serial_link/func_801155E0.c')
         source = r'''
 #include <assert.h>
 #include "rr/frame_storage_types.h"

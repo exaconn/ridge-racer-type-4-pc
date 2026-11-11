@@ -46,12 +46,12 @@ void UpdateFinishingPlayerCar(RaceVehicle *p) {
     UpdateWheelBumps(p);
     v3 = rsin(PlayerCars[0].rot54);
     if (v3 < 0) v3 += 0x7F;
-    sp[0] = PlayerCars[0].pos10[0] + (v3 >> 7) - g[2];
-    sp[1] = PlayerCars[0].pos10[1] - g[3];
+    sp[0] = PlayerCars[0].worldPosition10.words[0] + (v3 >> 7) - g[2];
+    sp[1] = PlayerCars[0].worldPosition10.words[1] - g[3];
     v4 = rcos(PlayerCars[0].rot54);
     if (v4 < 0) v4 += 0x7F;
-    sp[2] = PlayerCars[0].pos10[2] + (v4 >> 7) - g[4];
-    ((ScratchCarView *)SCRATCHPAD)->pos08 = *(w3g2V *)p->pos10;
+    sp[2] = PlayerCars[0].worldPosition10.words[2] + (v4 >> 7) - g[4];
+    ((ScratchCarView *)SCRATCHPAD)->pos08 = *(w3g2V *)p->worldPosition10.words;
     g[3] -= 0x100;
     g[7] = 0x400 - Atan2Table(sp[0], sp[2]);
     g[6] = 0x400 - Atan2Table(sp[1], CordicSqrt(sp[0] * sp[0] + sp[2] * sp[2]) >> 6);

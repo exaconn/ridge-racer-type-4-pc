@@ -1,8 +1,10 @@
+#include "rr/save_slots.h"
 #include "game/gfx/fontdraw.h"
 #include "rr/gpu_scratch_types.h"
 #include "game/data/bankrec.h"
 #include "rr/frame_storage_types.h"
 #include "rr/menu_state_types.h"
+#include "game/data/selection.h"
 /* RODATA 0x800106b0 0x1c */
 #include "types.h"
 #include "scratchpad.h"
@@ -26,7 +28,6 @@
 #include "rr/screen_tiles.h"
 #include "game/sound/sndctrl.h"
 
-extern int FileWrite();
 extern int LinkReadHandle;
 extern int LinkWriteHandle;
 extern int VSyncThreshold;
@@ -41,7 +42,6 @@ extern char SelectedCourseChoice[];
 extern char LinkCarSyncStateBuf[];
 extern char CourseIndex[];
 extern char NumLaps[];
-extern char LinkRacePositionSyncBuf[];
 extern char LinkPlayerPacketBuf[];
 extern short ActiveSceneId;
 extern short MenuTransitionOverlayMode;
@@ -59,11 +59,9 @@ extern void ovl667_init_results();
 extern void ovl666_init_results();
 extern int LinkCommTimeoutTimer;
 extern char ScreenFadeState;
-extern MenuSettings2C SelectionState;
 extern int TotalRaceTime;
 extern unsigned char GpStageMaxRetryRanks[];
 
-int LinkExchange();
 void LinkWaitModeEnter(void);
 void LinkWaitModeUpdate(void);
 void LinkExchangeModeUpdate(void);
@@ -128,23 +126,24 @@ void DrawLinkEntryScreen(s32 mode) {
     }
 }
 
-int LinkExchange(int a0, int a1, int a2, int a3) {
+int LinkExchange(void *first, void *second, s32 count, s32 bidirectional) {
     int r;
-    if (*(short *)&LinkHostFlag != 0) {
+    s16 role = LinkHostFlag;
+    if (role != 0) {
         r = -1;
-        if (FileWrite(LinkWriteHandle) == a2) {
-            if (a3 == 0 || FileRead(LinkReadHandle, a0, a2) == a2) {
+        if (FileWrite(LinkWriteHandle, second, count) == count) {
+            if (bidirectional == 0 || FileRead(LinkReadHandle, first, count) == count) {
                 return 0;
             }
-neg:
+failed:
             return -1;
         }
         return r;
     }
-    if (FileRead(LinkReadHandle, a1, a2) != a2) goto neg;
-    if (a3 != 0) {
+    if (FileRead(LinkReadHandle, second, count) != count) goto failed;
+    if (bidirectional != 0) {
         r = -1;
-        if (FileWrite(LinkWriteHandle, a0, a2) != a2) return r;
+        if (FileWrite(LinkWriteHandle, first, count) != count) return r;
     }
     return 0;
 }
@@ -205,7 +204,7 @@ void LinkExchangeModeUpdate(void) {
     case 1:
         if (LinkExchange(LinkRaceSyncFlags, LinkRaceSyncFlags - 2, 2, 1) == -1) { LinkState = 3; return; }
         if (LinkExchange(LinkPlayerPacketBuf, LinkPlayerPacketBuf - 0x18, 0x18, 1) == -1) { LinkState = 3; return; }
-        if (LinkExchange(LinkRacePositionSyncBuf, LinkRacePositionSyncBuf - 8, 8, 1) == -1) { LinkState = 3; return; }
+        if (LinkExchange(SelectionRows.records + 2, SelectionRows.records, 2 * sizeof(MenuChoice4), 1) == -1) { LinkState = 3; return; }
         if (LinkExchange(LinkCarSyncStateBuf, LinkCarSyncStateBuf - 8, 8, 1) == -1) { LinkState = 3; return; }
         if (LinkExchange(CourseIndex, CourseIndex, 2, 0) == -1) { LinkState = 3; return; }
         if (LinkExchange(SelectedCourseChoice, SelectedCourseChoice, 2, 0) == -1) { LinkState = 3; return; }
@@ -434,11 +433,11 @@ void EvaluateGpQualifyingResult(void) {
     int rankIndex;
     int stageBase;
     targetFrames = CarRecordPtrs[0]->targetFrames1E8;
-    if (SelectionState.phase17 >= 0) {
+    if (SelectionState.fields.phase17 >= 0) {
         stageBase = 0;
-        if (SelectionState.phase17 >= 2) {
+        if (SelectionState.fields.phase17 >= 2) {
             stageBase = 2;
-            if (SelectionState.phase17 >= 4) {
+            if (SelectionState.fields.phase17 >= 4) {
                 stageBase = 4;
             }
         }
@@ -448,12 +447,12 @@ void EvaluateGpQualifyingResult(void) {
     rankIndex = 0;
     do {
         if (RankTable[rankIndex]->carIndex04 == 0) {
-            SelectionState.results00[SelectionState.phase17] = rankIndex + 1;
+            SelectionState.fields.results00[SelectionState.fields.phase17] = rankIndex + 1;
             if (rankIndex == 0) {
                 if (stageBase < 4) {
-                    selectedTime = targetFrames + (SelectionState.phase17 - stageBase);
+                    selectedTime = targetFrames + (SelectionState.fields.phase17 - stageBase);
                     if (FramesToMilliseconds(*selectedTime, 0) > TotalRaceTime) {
-                        SelectionState.results00[SelectionState.phase17] = 0;
+                        SelectionState.fields.results00[SelectionState.fields.phase17] = 0;
                     }
                 }
             }
@@ -461,8 +460,8 @@ void EvaluateGpQualifyingResult(void) {
         }
         rankIndex += 1;
     } while (rankIndex < 8);
-    if (SelectionState.result19 < 9) {
-        SelectionState.result19 = SelectionState.results00[SelectionState.phase17];
+    if (SelectionState.fields.result19 < 9) {
+        SelectionState.fields.result19 = SelectionState.fields.results00[SelectionState.fields.phase17];
     }
 }
 
@@ -489,7 +488,7 @@ void SortRaceRankTable(void) {
 void EnterRaceResultScreen(void) {
     MenuSettings2C *p;
     if (GameModeType == 1) {
-        p = &SelectionState;
+        p = &SelectionState.fields;
         if (p->result19 > GpStageMaxRetryRanks[p->phase17 / 2]) p->mode1A = 5;
         else p->mode1A = 4;
     }

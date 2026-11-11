@@ -12,11 +12,9 @@ static __inline__ void ResetQueuedSoundPlayback(AudioState *state, s32 restart) 
 void *SoundQueueEnqueue(s32 id, s32 restart) {
     s32 incomingCount = 0, programCount = 0, copiedCount;
     const s16 *input, *scan;
-    /* ASM_BARRIER: keep the final address in the ABI return register. */
-    register u8 *result __asm__("$2");
     AudioState *state;
     AudioState *updatedState;
-    if (SoundSeqVariantIndex == 0) {
+    if (SoundState.sequenceVariant19CC == 0) {
         input = SoundSequenceTable[id][0];
     } else {
         input = SoundSequenceTable[id][1];
@@ -53,12 +51,12 @@ void *SoundQueueEnqueue(s32 id, s32 restart) {
         } while (*input > 0);
     }
     updatedState = &SoundState;
-    /* Preserve the existing base-plus-count result with a native byte pointer. */
-    result = (u8 *)updatedState + programCount * sizeof(updatedState->sequence19D0.programs[0]);
     updatedState->sequence19D0.programs[programCount] = -1;
     updatedState->sequence19D0.count = programCount;
     if (copiedCount == 0) {
         updatedState->sequence19D0.active = 0;
     }
-    return result;
+#ifndef __mips__
+    return (u8 *)updatedState + programCount * sizeof(updatedState->sequence19D0.programs[0]);
+#endif
 }

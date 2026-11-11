@@ -1,3 +1,4 @@
+#include "rr/save_slots.h"
 /* RODATA 0x80010514 0x24 */
 #include "rr/menu_transition.h"
 #include "game/menu/menutran.h"
@@ -17,7 +18,6 @@ extern short SelectedCourseChoice;
 extern short SelectedTeamIndex;
 extern short SelectedMakerIndex;
 extern short CourseIndex;
-extern signed char SelectionState[];
 extern unsigned char MenuTransitionStyleId;
 extern unsigned char NextMenuTransitionStyle;
 
@@ -43,12 +43,12 @@ void UpdateGrandPrixStageProgress(void) {
     int v1;
     int a2;
     char *s0, *p;
-    a2 = (unsigned char)SelectionState[0x17];
+    a2 = (unsigned char)SelectionState.signedBytes[0x17];
     i0 = (signed char)a2;
     if (i0 != -1) {
-        if (SelectionState[0x19] <= GpStageQualifyRanks[i0 / 2]) {
-            if (SelectionState[i0] != -1) {
-                SelectionState[0x17] = a2 + 1;
+        if (SelectionState.signedBytes[0x19] <= GpStageQualifyRanks[i0 / 2]) {
+            if (SelectionState.signedBytes[i0] != -1) {
+                SelectionState.signedBytes[0x17] = a2 + 1;
             }
         }
     }
@@ -62,42 +62,42 @@ void UpdateGrandPrixStageProgress(void) {
             j++;
         } while (j < 8);
         v1 = 0;
-        PsyqBzero(SelectionRows, 0x20);
-        PsyqBzero(SelectionState, 0x2C);
+        PsyqBzero(SelectionRows.bytes, 0x20);
+        PsyqBzero(SelectionState.signedBytes, 0x2C);
         a0 = 0;
         v1 = 0;
         a2 = -1;
-        *(U4 *)&SelectionState[0x1C] = *(U4 *)&SelectionRows[0];
+        *(U4 *)&SelectionState.signedBytes[0x1C] = *(U4 *)&SelectionRows.bytes[0];
         ComDifficultyLevel = 0;
         do {
-            p = (char *)SelectionState + v1;
+            p = (char *)SelectionState.signedBytes + v1;
             v1++;
             p[0] = a2;
             p[8] = 3;
         } while (v1 < 8);
         MenuTransitionStyleId = NextMenuTransitionStyle;
     }
-    x = (unsigned char)SelectionState[0x17];
+    x = (unsigned char)SelectionState.signedBytes[0x17];
     x = (x << 24) >> 25;
-    SelectionState[0x15] = x;
+    SelectionState.signedBytes[0x15] = x;
     if ((x & 0xFF) >= 3U) {
-        SelectionState[0x15] = 2;
+        SelectionState.signedBytes[0x15] = 2;
     }
-    *(U4 *)&SelectionRows[0] = *(U4 *)&SelectionState[0x1C];
+    *(U4 *)&SelectionRows.bytes[0] = *(U4 *)&SelectionState.signedBytes[0x1C];
     SelectedCourseChoice = a0;
-    c0 = SelectionRows[0];
+    c0 = SelectionRows.bytes[0];
     SelectedTeamIndex = c0;
-    SelectedMakerIndex = SelectionRows[1];
-    SelectedMakerCarIndex = SelectionRows[2];
+    SelectedMakerIndex = SelectionRows.bytes[1];
+    SelectedMakerCarIndex = SelectionRows.bytes[2];
     CourseIndex = DecodeCourseIndex(a0, c0, a2);
     ComDifficultyLevel = 0;
     SaveProgress.prefix.progress.prefix00.fields.configuration0C |= 1 << SelectedCourseChoice;
-    if (SelectionRows[2] >= 5) {
-        ComDifficultyLevel = (SelectionRows[2] - 5) % 7;
+    if (SelectionRows.bytes[2] >= 5) {
+        ComDifficultyLevel = (SelectionRows.bytes[2] - 5) % 7;
         return;
     }
-    if (SelectionRows[2] != 0) {
-        ComDifficultyLevel = SelectionRows[2] - 1;
+    if (SelectionRows.bytes[2] != 0) {
+        ComDifficultyLevel = SelectionRows.bytes[2] - 1;
     }
 }
 

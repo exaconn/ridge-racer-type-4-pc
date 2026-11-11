@@ -9,7 +9,7 @@ import unittest
 class OverlayDriverTest(unittest.TestCase):
     def test_retry_counts_returns_and_order(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/overlays/PAL/667/func_80115494.c')
+        body = read_c_source(root / 'src/overlays/PAL/serial_link/func_80115494.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

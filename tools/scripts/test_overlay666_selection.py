@@ -1,4 +1,5 @@
 """Four-position UI selection, real sound closure and replaced native owners."""
+from menu_glyph_fixture_transport import transport
 from overlay_units import read_c_source
 from pathlib import Path
 import re
@@ -9,7 +10,7 @@ import unittest
 class Overlay666SelectionTest(unittest.TestCase):
     def test_flags_priorities_and_full_signed_callback_selection(self):
         root=Path(__file__).resolve().parents[2]
-        body=read_c_source(root/'src/overlays/PAL/666/func_80115148.c')
+        body=read_c_source(root/'src/overlays/PAL/extra_trial/func_80115148.c')
         bridge=read_c_source(root/'tools/scripts/fixtures/views/func_8004F218.c').replace('#include "rr/audio_pan.h"','')
         sound=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'tools/scripts/fixtures/views/func_8004F24C.c'),flags=re.M)
         source=r'''
@@ -74,7 +75,7 @@ int main(void){unsigned k,i;u16 flags;
 }
 '''
         with TemporaryDirectory() as temp:
-            p=Path(temp);(p/'test.c').write_text(source)
+            p=Path(temp);(p/'test.c').write_text(transport(source,body,'ovl666_update_course_selection','&world.records[0][0]','12',[('effect', 'v==&world')]))
             subprocess.run(['cc','-std=gnu11','-O2','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(root/'include'),str(p/'test.c'),'-o',str(p/'test')],check=True)
             subprocess.run([str(p/'test')],check=True)
 

@@ -1,4 +1,5 @@
 """Packed nibble blending with forward overlaps and source rereads."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +9,7 @@ import unittest
 class OverlayPixelsTest(unittest.TestCase):
     def test_packed_nibbles_and_overlapping_buffers(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_80125F60.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_80125F60.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

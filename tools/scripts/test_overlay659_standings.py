@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class Overlay659StandingsTest(unittest.TestCase):
     def test_standings_with_native_ubsan(self):
-        body = read_c_source(ROOT / 'src/overlays/PAL/659/func_801158B4.c')
+        body = read_c_source(ROOT / 'src/overlays/PAL/grand_prix/func_801158B4.c')
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         source = r'''

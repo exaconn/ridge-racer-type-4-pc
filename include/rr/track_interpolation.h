@@ -1,7 +1,7 @@
 #ifndef RR_TRACK_INTERPOLATION_H
 #define RR_TRACK_INTERPOLATION_H
+#include "game/course/trkintp2.h"
 
-#include "rr/race.h"
 
 #include "rr/track_sample_types.h"
 
@@ -12,6 +12,5 @@ extern s16 ReverseCourse;
 /* The original performs a single wrap, including the signed neighbour index.
  * Both selected records must be accessible. Differences, interpolation products,
  * additions and the final x/z scale must fit s32. Output may overlap samples. */
-void GetTrackPointAhead(RaceVehicle *vehicle, s32 *output, s32 distance);
 
 #endif

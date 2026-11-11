@@ -6,7 +6,7 @@ import subprocess, unittest
 ROOT=Path(__file__).resolve().parents[2]
 class ReplaySetupTest(unittest.TestCase):
  def test_sample320_initialization_and_service_reload_order(self):
-  body=read_c_source(ROOT / 'src/overlays/PAL/668/func_80115DFC.c')
+  body=read_c_source(ROOT / 'src/overlays/PAL/movie_playback/func_80115DFC.c')
   body='\n'.join(line for line in body.splitlines() if not line.startswith('#include'))
   code=r'''
 #include <assert.h>

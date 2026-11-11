@@ -1,3 +1,4 @@
+#include "game/sound/sndvab.h"
 /* RODATA 0x800104c4 0x2c */
 #include "rr/ui.h"
 #include "rr/load_cursor.h"
@@ -52,7 +53,6 @@ extern short MenuCursor;
 extern short ActiveSceneId;
 extern int ModeFrame;
 extern int MenuReturnSubmodeIndex;
-extern void PlaySfx();
 
 void TitleModeEnter(void);
 void TitleMenuInit(void);
@@ -65,7 +65,7 @@ void TitleModeEnter(void) {
     SetDispMask(0);
     SeqMuteVolume();
     a2 = 0;
-    a1 = SelectionRows;
+    a1 = SelectionRows.bytes;
     a0 = PlayerCourseChoices;
     LinkHostFlag = -1;
     LinkState = 0;

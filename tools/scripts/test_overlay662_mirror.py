@@ -1,11 +1,12 @@
 """Packed64x64 horizontal image reflection, action dispatch and fresh callback state."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re,subprocess,unittest
 class MirrorTest(unittest.TestCase):
  def test_pixels_and_service_order(self):
   root=Path(__file__).resolve().parents[2]
-  body=(root/'src/overlays/PAL/662/func_8011EFFC.c').read_text()
+  body=read_c_source(root/'src/overlays/PAL/garage/func_8011EFFC.c')
   body=re.sub(r'__asm__\("(?:v1|t9)"\)','',body)
   code=r'''
 #include <assert.h>

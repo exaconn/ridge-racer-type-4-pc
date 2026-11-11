@@ -6,7 +6,7 @@ import re
 import subprocess
 
 root = Path(__file__).resolve().parents[2]
-body = read_c_source(root / 'src/overlays/PAL/665/func_801151A4.c')
+body = read_c_source(root / 'src/overlays/PAL/options/func_801151A4.c')
 body = body[body.index('void ovl665_update_audio_options'):]
 body = re.sub(r' __asm__\("\$\d+"\)', '', body)
 source = r'''

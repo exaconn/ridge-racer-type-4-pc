@@ -19,16 +19,9 @@
 #include "game/sound/sndctrl.h"
 #include "rr/audio_bank_setup.h"
 
-extern s32 SoundPaused;
-
-void SoundReset(int a0, int a1);
-void SoundSetMasterVolume(short arg0, short arg1);
-
 void SoundReset(int a0, int a1) {
     int a[3] = { 2, 3, 7 };
     int i;
-    int *p;
-    char *g;
     SsUtAllKeyOff(0);
     if (SoundState.seqHandle2864 >= 0) {
         SsSeqStop((short)SoundState.seqHandle2864);
@@ -74,33 +67,23 @@ void SoundReverbOffAll(void) {
 }
 
 void SoundPause(void) {
-    s32 var_a0;
-    s32 var_s0;
+    s32 slot;
 
-    SoundPaused = 1;
+    SoundState.muted04 = 1;
     CdAudioRequestPause();
-    var_s0 = 0;
-    var_a0 = 0;
-    do {
-        SlotSetPause(var_a0, 1);
-        var_s0 += 1;
-        var_a0 = var_s0;
-    } while (var_s0 < 4);
+    for (slot = 0; slot < 4; slot++) {
+        SlotSetPause(slot, 1);
+    }
 }
 
 void SoundResume(void) {
-    s32 var_a0;
-    s32 var_s0;
+    s32 slot;
 
-    SoundPaused = 0;
+    SoundState.muted04 = 0;
     CdAudioRequestPause();
-    var_s0 = 0;
-    var_a0 = 0;
-    do {
-        SlotSetPause(var_a0, 0);
-        var_s0 += 1;
-        var_a0 = var_s0;
-    } while (var_s0 < 4);
+    for (slot = 0; slot < 4; slot++) {
+        SlotSetPause(slot, 0);
+    }
 }
 
 void SetCdMixMode(int a0) {
@@ -126,18 +109,23 @@ void SetCdMixMode(int a0) {
 
 void SoundStopAll(void) {
     int i;
-    AudioState *p;
-    for (i = 0, p = &SoundState; i < 4; i++, p = (AudioState *)((u8 *)p + sizeof(AudioSlot620))) {
-        if (p->slots38[0].flags00 & 1) SlotKeyOffAll(i);
+    for (i = 0; i < 4; i++) {
+        if (SoundState.slots38[i].flags00 & 1) {
+            SlotKeyOffAll(i);
+        }
     }
-    for (i = 0; i < 2; i++) SetPlayerVoice(0, 0, 0, i);
-    for (i = 0; i < 2; i++) SetLoopVoiceVolumes(i, 0, 0);
+    for (i = 0; i < 2; i++) {
+        SetPlayerVoice(0, 0, 0, i);
+    }
+    for (i = 0; i < 2; i++) {
+        SetLoopVoiceVolumes(i, 0, 0);
+    }
     SetSoundChannelVolLR(0, 0, 0);
     SoundLoopSet(5, 0x1E00, 0, 0x40);
     CdAudioMute();
     SoundReverbOffAll();
     DisableEngineSoundUpdates();
-    SoundPaused = 1;
+    SoundState.muted04 = 1;
 }
 
 void SoundMasterVolumeReset(void) {

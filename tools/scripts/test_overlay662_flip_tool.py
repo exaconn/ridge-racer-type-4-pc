@@ -1,4 +1,5 @@
 """Vertical flip: full native addresses, fresh roots and ordered overlapping copies."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re
@@ -8,8 +9,8 @@ import unittest
 class Overlay662FlipToolTest(unittest.TestCase):
     def test_native_pointers_backup_and_ordered_overlaps(self):
         root=Path(__file__).resolve().parents[2]
-        paths=['src/overlays/PAL/662/func_8011E734.c','src/overlays/PAL/662/func_8011E694.c','src/overlays/PAL/662/func_8011D120.c','tools/scripts/fixtures/views/func_8004F218.c','tools/scripts/fixtures/views/func_8004F24C.c','src/overlays/PAL/662/func_8011F290.c']
-        bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',(root/p).read_text(),flags=re.M) for p in paths)
+        paths=['src/overlays/PAL/garage/func_8011E734.c','src/overlays/PAL/garage/func_8011E694.c','src/overlays/PAL/garage/func_8011D120.c','tools/scripts/fixtures/views/func_8004F218.c','tools/scripts/fixtures/views/func_8004F24C.c','src/overlays/PAL/garage/func_8011F290.c']
+        bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',read_c_source(root/p),flags=re.M) for p in paths)
         source=r'''
 #include <assert.h>
 #include <stdint.h>

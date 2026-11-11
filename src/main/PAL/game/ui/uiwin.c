@@ -18,172 +18,165 @@
 #include "rr/trig.h"
 #include "game/gfx/sprefct.h"
 
-typedef struct {
-    short x, y;
-    unsigned short page, clut;
-    unsigned char u, v, w, h;
-} SpriteDesc;
 
-extern MenuGlyphRow1C *GlyphRows;
 
 int UpdateGlyphRow(int arg0);
 void InitUiRow(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32 h,...);
 void DrawUiWindowRowText(s32 arg0, s32 arg1, s32 arg2);
 
-int UpdateGlyphRow(int arg0) {
-    SpriteDesc sp30;
-    SpriteDesc sp40;
-    MenuGlyphRow1C *base;
-    MenuGlyphRow1C *p;
-    int s7;
-    unsigned int s5;
-    int v0;
-    void *a1;
+int UpdateGlyphRow(int index) {
+    SpriteEffectSource captionSprite;
+    SpriteEffectSource imageSprite;
+    MenuGlyphRow1C *initialRows;
+    int initialControl;
+    unsigned int initialTick;
+    int shade;
+    void *cursor;
 
-    base = GlyphRows;
-    p = (MenuGlyphRow1C *)((arg0 * 0x1C) + (int)base);
-    sp40.page = sp30.page = ((unsigned short *)p->pad10)[0];
-    sp40.clut = sp30.clut = ((unsigned short *)p->pad10)[1];
-    sp40.x = sp30.x = p->x08;
-    sp40.y = sp30.y = p->y0A;
-    sp30.y += p->h0E / 2 - 10;
-    sp40.u = sp30.u = p->pad10[4];
-    sp40.w = sp30.w = p->w0C;
-    sp30.v = p->pad10[5] + p->h0E;
-    sp30.h = 0x10;
-    sp40.v = p->pad10[5];
-    sp40.h = p->h0E;
+    initialRows = GlyphRows;
+    imageSprite.page = captionSprite.page = initialRows[index].texturePage10;
+    imageSprite.clut = captionSprite.clut = initialRows[index].clut12;
+    imageSprite.x = captionSprite.x = initialRows[index].x08;
+    imageSprite.y = captionSprite.y = initialRows[index].y0A;
+    captionSprite.y += initialRows[index].h0E / 2 - 10;
+    imageSprite.uv.u = captionSprite.uv.u = initialRows[index].u14;
+    imageSprite.uv.w = captionSprite.uv.w = initialRows[index].w0C;
+    captionSprite.uv.v = initialRows[index].v15 + initialRows[index].h0E;
+    captionSprite.uv.h = 0x10;
+    imageSprite.uv.v = initialRows[index].v15;
+    imageSprite.uv.h = initialRows[index].h0E;
 
-    s7 = p->control02;
-    s5 = p->pad03[0];
+    initialControl = initialRows[index].control02;
+    initialTick = initialRows[index].tick03;
 
-    switch (s7) {
-    case -2:
-        GlyphRows[arg0].pad03[0] = 0;
-        GlyphRows[arg0].control02 = -4;
-        GlyphRows[arg0].flags00 = 0;
+    switch (initialControl) {
+    case MENU_GLYPH_RESET:
+        GlyphRows[index].tick03 = 0;
+        GlyphRows[index].control02 = MENU_GLYPH_INIT_RECTANGLE;
+        GlyphRows[index].frameIndex00 = 0;
         break;
-    case -3:
+    case MENU_GLYPH_IDLE:
         break;
-    case -4:
-        InitRect16Row(GlyphRows[arg0].glyph07, GlyphRows[arg0].x08, GlyphRows[arg0].y0A, GlyphRows[arg0].w0C, GlyphRows[arg0].h0E, 0, 0);
-        GlyphRows[arg0].control02 = -5;
+    case MENU_GLYPH_INIT_RECTANGLE:
+        InitRect16Row(GlyphRows[index].glyph07, GlyphRows[index].x08, GlyphRows[index].y0A, GlyphRows[index].w0C, GlyphRows[index].h0E, 0, 0);
+        GlyphRows[index].control02 = MENU_GLYPH_WAIT_RECTANGLE;
         break;
-    case -5:
-        if (UpdateRect16Row(GlyphRows[arg0].glyph07) != 0) {
-            GlyphRows[arg0].control02 = -1;
+    case MENU_GLYPH_WAIT_RECTANGLE:
+        if (UpdateRect16Row(GlyphRows[index].glyph07) != 0) {
+            GlyphRows[index].control02 = MENU_GLYPH_FADE_BACKGROUND;
         }
         break;
-    case -6:
-        GlyphRows[arg0].pad03[0] = 0;
-        GlyphRows[arg0].control02 = -7;
-    case -7:
-        UpdateRect16Row(GlyphRows[arg0].glyph07);
-        if (GlyphRows[arg0].pad03[0] >= 0x14) {
-            GlyphRows[arg0].control02 = -1;
-            GlyphRows[arg0].pad03[0] = 0;
+    case MENU_GLYPH_START_RECTANGLE_DELAY:
+        GlyphRows[index].tick03 = 0;
+        GlyphRows[index].control02 = MENU_GLYPH_RECTANGLE_DELAY;
+    case MENU_GLYPH_RECTANGLE_DELAY:
+        UpdateRect16Row(GlyphRows[index].glyph07);
+        if (GlyphRows[index].tick03 >= 0x14) {
+            GlyphRows[index].control02 = MENU_GLYPH_FADE_BACKGROUND;
+            GlyphRows[index].tick03 = 0;
         } else {
-            GlyphRows[arg0].pad03[0]++;
+            GlyphRows[index].tick03++;
         }
         break;
-    case -1:
-        a1 = *(void **)SCRATCHPAD;
-        v0 = ((unsigned short)s5 * 0x7C) / 10;
-        *(void **)SCRATCHPAD = (void *)AddDrawModePrim(
-            &CurrentDrawBuf->buffer.ordering70.words[1],
-            AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.words[1], a1, GlyphRows[arg0].x08, GlyphRows[arg0].y0A, GlyphRows[arg0].w0C, GlyphRows[arg0].h0E, v0, v0, v0),
-            0x45
-        );
-        if ((unsigned short)s5 >= 10) {
-            GlyphRows[arg0].control02 = 0;
-            GlyphRows[arg0].pad03[0] = 0;
+    case MENU_GLYPH_FADE_BACKGROUND:
+        cursor = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
+        shade = ((unsigned short)initialTick * 0x7C) / 10;
+        cursor = AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.words[1],
+                                      cursor, GlyphRows[index].x08, GlyphRows[index].y0A,
+                                      GlyphRows[index].w0C, GlyphRows[index].h0E,
+                                      shade, shade, shade);
+        ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawModePrim(
+            &CurrentDrawBuf->buffer.ordering70.words[1], cursor, 0x45);
+        if ((unsigned short)initialTick >= 10) {
+            GlyphRows[index].control02 = MENU_GLYPH_PREPARE_IMAGE;
+            GlyphRows[index].tick03 = 0;
         } else {
-            GlyphRows[arg0].pad03[0]++;
+            GlyphRows[index].tick03++;
         }
-        UpdateRect16Row(GlyphRows[arg0].glyph07);
+        UpdateRect16Row(GlyphRows[index].glyph07);
         break;
-    case 0:
-        a1 = *(void **)SCRATCHPAD;
-        if ((unsigned short)s5 >= 3) {
-            a1 = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], a1, &sp30, 1, 0xFF, 3);
+    case MENU_GLYPH_PREPARE_IMAGE:
+        cursor = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
+        if ((unsigned short)initialTick >= 3) {
+            cursor = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, &captionSprite, 1, 0xFF, 3);
         }
-        *(void **)SCRATCHPAD = AddTilePrim(
+        ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddTilePrim(
             &CurrentDrawBuf->buffer.ordering70.words[1],
-            a1,
-            GlyphRows[arg0].x08,
-            GlyphRows[arg0].y0A,
-            GlyphRows[arg0].w0C,
-            GlyphRows[arg0].h0E,
+            cursor,
+            GlyphRows[index].x08,
+            GlyphRows[index].y0A,
+            GlyphRows[index].w0C,
+            GlyphRows[index].h0E,
             8, 8, 8
         );
-        if ((unsigned short)s5 >= 0x15) {
-            GlyphRows[arg0].control02 = 1;
-            GlyphRows[arg0].pad03[0] = 0;
+        if ((unsigned short)initialTick >= 0x15) {
+            GlyphRows[index].control02 = MENU_GLYPH_BLEND_IMAGE;
+            GlyphRows[index].tick03 = 0;
         } else {
-            GlyphRows[arg0].pad03[0]++;
+            GlyphRows[index].tick03++;
         }
-        if (s5 == 1) {
-            LoadTimImage(GlyphRows[arg0].phase18 + ((GlyphRows[arg0].pad03[3] * (s8)GlyphRows[arg0].flags00) << 11));
+        if (initialTick == 1) {
+            LoadTimImage((int *)(GlyphRows[index].imageBase18 + GlyphRows[index].imageSectors06 * (s8)GlyphRows[index].frameIndex00 * 2048));
         }
         break;
-    case 1:
-        a1 = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], *(void **)SCRATCHPAD, &sp30, 1, (0x80 - s5) * 2, 2);
-        a1 = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], a1, &sp40, 1, s5, 1);
-        *(void **)SCRATCHPAD = AddTilePrim(
+    case MENU_GLYPH_BLEND_IMAGE:
+        cursor = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], ((GpuScratchPointers *)SCRATCHPAD)->cursor, &captionSprite, 1, (0x80 - initialTick) * 2, 2);
+        cursor = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, &imageSprite, 1, initialTick, 1);
+        ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddTilePrim(
             &CurrentDrawBuf->buffer.ordering70.words[3],
-            a1,
-            GlyphRows[arg0].x08,
-            GlyphRows[arg0].y0A,
-            GlyphRows[arg0].w0C,
-            GlyphRows[arg0].h0E,
+            cursor,
+            GlyphRows[index].x08,
+            GlyphRows[index].y0A,
+            GlyphRows[index].w0C,
+            GlyphRows[index].h0E,
             8, 8, 8
         );
-        if (s5 >= 0x80) {
-            GlyphRows[arg0].pad03[0] = 0;
-            GlyphRows[arg0].control02 = 2;
+        if (initialTick >= 0x80) {
+            GlyphRows[index].tick03 = 0;
+            GlyphRows[index].control02 = MENU_GLYPH_DISPLAY_IMAGE;
         } else {
-            GlyphRows[arg0].pad03[0] += 8;
+            GlyphRows[index].tick03 += 8;
         }
         break;
-    case 2:
+    case MENU_GLYPH_DISPLAY_IMAGE:
     default:
-        a1 = *(void **)SCRATCHPAD;
-        if ((s8)GlyphRows[arg0].flags00 >= 0) {
-            a1 = AddSpriteWithDrawMode(
+        cursor = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
+        if ((s8)GlyphRows[index].frameIndex00 >= 0) {
+            cursor = AddSpriteWithDrawMode(
                 &CurrentDrawBuf->buffer.ordering70.words[0],
-                a1,
-                GlyphRows[arg0].x08,
-                GlyphRows[arg0].y0A,
-                GlyphRows[arg0].w0C,
-                GlyphRows[arg0].h0E,
-                GlyphRows[arg0].pad10[4],
-                GlyphRows[arg0].pad10[5],
-                ((unsigned short *)GlyphRows[arg0].pad10)[0],
-                ((unsigned short *)GlyphRows[arg0].pad10)[1],
+                cursor,
+                GlyphRows[index].x08,
+                GlyphRows[index].y0A,
+                GlyphRows[index].w0C,
+                GlyphRows[index].h0E,
+                GlyphRows[index].u14,
+                GlyphRows[index].v15,
+                GlyphRows[index].texturePage10,
+                GlyphRows[index].clut12,
                 0,
                 0x80
             );
         }
-        *(void **)SCRATCHPAD = AddTilePrim(
+        ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddTilePrim(
             &CurrentDrawBuf->buffer.ordering70.words[1],
-            a1,
-            GlyphRows[arg0].x08,
-            GlyphRows[arg0].y0A,
-            GlyphRows[arg0].w0C,
-            GlyphRows[arg0].h0E,
+            cursor,
+            GlyphRows[index].x08,
+            GlyphRows[index].y0A,
+            GlyphRows[index].w0C,
+            GlyphRows[index].h0E,
             8, 8, 8
         );
-        if (s5 >= GlyphRows[arg0].pad03[2] && (s8)GlyphRows[arg0].pad01 >= 2) {
-            GlyphRows[arg0].pad03[0] = 0;
-            GlyphRows[arg0].control02 = 0;
-            GlyphRows[arg0].flags00 = (s8)(++GlyphRows[arg0].flags00) % (s8)GlyphRows[arg0].pad01;
+        if (initialTick >= GlyphRows[index].frameDuration05 && (s8)GlyphRows[index].frameCount01 >= 2) {
+            GlyphRows[index].tick03 = 0;
+            GlyphRows[index].control02 = MENU_GLYPH_PREPARE_IMAGE;
+            GlyphRows[index].frameIndex00 = (s8)(++GlyphRows[index].frameIndex00) % (s8)GlyphRows[index].frameCount01;
         } else {
-            GlyphRows[arg0].pad03[0]++;
+            GlyphRows[index].tick03++;
         }
         break;
     }
 
-    return s7 >= 0;
+    return initialControl >= 0;
 }
 
 int AllocUiRows(void *a) {

@@ -13,7 +13,7 @@ class OverlayStrDisplayTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         path = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/668/func_{name}.c')
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/movie_playback/func_{name}.c')
                            .replace('#include "rr/overlay668_display.h"', '')
                            for name in ('80114E48', '80114E90'))
         source = r'''

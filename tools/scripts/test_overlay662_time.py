@@ -1,4 +1,5 @@
 """Garage time text: signed input, raw byte conversion and complete buffer ownership."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +9,7 @@ import unittest
 class OverlayTimeTest(unittest.TestCase):
     def test_time_boundaries_and_full_word_inputs(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_8011883C.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_8011883C.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

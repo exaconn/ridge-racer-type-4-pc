@@ -120,8 +120,8 @@ void ReadCarInput(RaceVehicle *arg0, s32 arg1) {
     short t5;
     short t1;
     short a1;
-    register int t2 asm("$10"); /* ASM_BARRIER: pin t2 for idx copy */
     int idx;
+    register int t2 asm("$10"); /* ASM_BARRIER: pin t2 for idx copy */
     int b;
     int f;
     int mode;
@@ -151,8 +151,9 @@ void ReadCarInput(RaceVehicle *arg0, s32 arg1) {
                     }
                     b = (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].h6) != 0;
                     {
-                        register int f1 asm("$3"); /* ASM_BARRIER: pin f1 to v1 */
-                        f1 = (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].h0) != 0;
+                        int f1, tand;
+                        tand = PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].h0;
+                        f1 = tand != 0;
                         if ((PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].h2) > 0) {
                             f1 |= 2;
                         }
@@ -207,25 +208,25 @@ void ReadCarInput(RaceVehicle *arg0, s32 arg1) {
                     case 0:
                     case 5: {
                         int i0;
-                        t1 = (PlayerControllers[({ i0 = t2;i0; })].pressure22 * 0xFF) / 106; /* ASM_BARRIER: keep index copy */
+                        t1 = (PlayerControllers[({ i0 = t2;i0; })].pressure22 * 0xFF) / 106;
                         a1 = (PlayerControllers[i0].pressure24 * 0xFF) / 106;
                         break;
                     }
                     case 1:
                     case 6: {
                         int i1;
-                        t1 = (PlayerControllers[({ i1 = t2;i1; })].pressure24 * 0xFF) / 106; /* ASM_BARRIER: keep index copy */
+                        t1 = (PlayerControllers[({ i1 = t2;i1; })].pressure24 * 0xFF) / 106;
                         a1 = (PlayerControllers[i1].pressure22 * 0xFF) / 106;
                         break;
                     }
                     case 2: {
                         int i2;
-                        a1 = (PlayerControllers[({ i2 = t2;i2; })].pressure26 * 0xFF) / 106; /* ASM_BARRIER: keep index copy */
+                        a1 = (PlayerControllers[({ i2 = t2;i2; })].pressure26 * 0xFF) / 106;
                         break;
                     }
                     case 3: {
                         int i3;
-                        t1 = (PlayerControllers[({ i3 = t2;i3; })].pressure24 * 0xFF) / 106; /* ASM_BARRIER: keep index copy */
+                        t1 = (PlayerControllers[({ i3 = t2;i3; })].pressure24 * 0xFF) / 106;
                         a1 = (PlayerControllers[i3].pressure26 * 0xFF) / 106;
                         break;
                     }

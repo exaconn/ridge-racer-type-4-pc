@@ -10,9 +10,6 @@
 #include "psyq/libsio/siostart.h"
 #include "psyq/libsio/siowait.h"
 
-/* ASM_BARRIER: retain a constant data base in a register so its fields use base offsets. */
-#define KEEP_BASE(p) __asm__ volatile("" : "=r"(p) : "0"(p))
-
 extern s32 ResetGraph(s32);
 extern s32 EnterCriticalSection(void);
 extern void ExitCriticalSection(void);
@@ -233,7 +230,6 @@ s32 _sio_irq_handler(void) {
 
         SIO1_REGS->control &= ~0x820;
         cfg = &SioShadowRegs.mode;
-        KEEP_BASE(cfg);
         req = &SioRequest;
 
         req->remaining = 0;

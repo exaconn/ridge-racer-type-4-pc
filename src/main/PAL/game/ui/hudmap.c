@@ -11,7 +11,6 @@
 #include "rr/track_lateral.h"
 #include "rr/badge_rows.h"
 
-extern int FormatDecimalDigits();
 extern char StrTotalTimeLabel[];
 extern char LapTimeLabel[];
 extern char StrPressStart[];
@@ -126,6 +125,6 @@ void AddPartialLine(u32 *a0, int a1, int a2, int a3, int a4, int a5, int a6, int
 
 
 int IsCarFacingReverse(RaceVehicle *vehicle) {
-    int reverseHeading = 0x800 - TrackNodes[vehicle->trackNodeF0].heading12;
+    int reverseHeading = 0x800 - TrackNodes[vehicle->trackNodeF0].road.heading;
     return (unsigned)(((vehicle->heading1D4 - reverseHeading) & 0xFFF) - 0x401) < 0x7FF;
 }

@@ -119,7 +119,7 @@ void cb_read(s32 event,u8 *data) {
         CdControlF(9,0);
         /* PAL page+0x63F0 contains the data notification function pointer. */
         notify_page=(u8 *)0x800A0000U;
-        notify=*(CdDataNotify *)(notify_page+0x63F0);
+        notify=((CdDataNotify *)notify_page)[0x63F0 / sizeof(CdDataNotify)];
         ((LibReadRequestState *)state)->finished24=1;
         if (notify) {
             notify(state->remaining14==0?2:5,data);
@@ -143,7 +143,7 @@ void cb_data(void) {
         CdControlF(9, 0);
         /* PAL mapping: page + 0x63F0 is &CD_cbread. */
         page = (u8 *)0x800A0000U;
-        callback = *(LibNotificationCallback *)(page + 0x63F0);
+        callback = ((LibNotificationCallback *)page)[0x63F0 / sizeof(LibNotificationCallback)];
         /* Ordinary state publication permits the original branch-delay store. */
         ((LibTransferState38 *)state)->finished24 = 1;
         if (callback != 0) callback(2, state->notify_arg34);

@@ -3,10 +3,9 @@
 #include "rr/overlay662_render_step.h"
 #include "rr/overlay662_garage.h"
 #include "rr/gpu.h"
-#include "rr/draw_environment.h"
+#include "psyq/libgpu/gpudisp.h"
+#include "rr/overlay662_draw_area.h"
 #include "rr/overlay662_sprites.h"
-/* Clip helper takes a packet cursor and preserves the low16 rectangle fields. */
-u8 *ovl662_emit_draw_area(u32 *ordering,u8 *cursor,u32 x,u32 y,u32 w,u32 h);
 /* Unless work bit0 is set, emit the selected sprite then the full-screen clip.
  * The active work index must select an initialized sprite. */
 void ovl662_draw_editor_cursor(void);

@@ -1,4 +1,5 @@
 """Garage entry publishes state between initialization and screen dispatch."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +9,7 @@ import unittest
 class OverlayEnterTest(unittest.TestCase):
     def test_state_publication_and_hook_order(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_801161B0.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_801161B0.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

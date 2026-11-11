@@ -73,7 +73,7 @@ void data_ready_callback(void)
         D_80112754 = value;
         /* PAL mapping: base + 0x2F8 is &StRingFrameStartIndex. */
         base = (u8 *)0x80110000U;
-        *(s32 *)(base + 0x2F8) = next;
+        ((s32 *)base)[0x2F8 / sizeof(s32)] = next;
     }
     if (callback != 0) callback();
     StStreamStarted = 0;

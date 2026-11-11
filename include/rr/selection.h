@@ -1,5 +1,6 @@
 #ifndef RR_SELECTION_H
 #define RR_SELECTION_H
+#include "rr/save_slots.h"
 
 #include "rr/layout.h"
 
@@ -21,7 +22,6 @@ typedef struct {
     u8 byte18,byte19,byte1A,byte1B;
     SelectionRow current;
 } SelectionStatePrefix;
-extern s8 SelectionState[];
 /* Alias of the rank byte at offset 0x14, read before its new value is stored. */
 extern u8 MenuSelectionLockedFlag;
 extern u8 CarSpecStatWeights[];
@@ -31,7 +31,7 @@ extern s8 CarSpecStatThresholds[];
  * Signed choices and group indices must select readable table addresses. */
 void UpdateSelectionRank(void);
 
-extern SelectionRows32 SelectionRows;
+#include "game/data/selection.h"
 void InitSelectionRows(void);
 
 RR_ASSERT_SIZE(SelectionRow, 4);

@@ -1,7 +1,8 @@
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re,subprocess
-s=Path('src/overlays/PAL/662/func_80121074.c').read_text();s=re.sub(r'^extern .*\n','',s,flags=re.M)
+s=read_c_source(Path('src/overlays/PAL/garage/func_80121074.c'));s=re.sub(r'^extern .*\n','',s,flags=re.M)
 source=r'''
 #include <assert.h>
 #include "game/system/pad.h"

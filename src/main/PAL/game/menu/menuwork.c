@@ -1,3 +1,6 @@
+#include "game/ui/uipart1.h"
+#include "game/sound/sndvab.h"
+#include "rr/save_slots.h"
 #include "game/car/carbound.h"
 #include "game/car/carwheel.h"
 #include "rr/menu_arena_state.h"
@@ -35,25 +38,19 @@
 
 
 extern unsigned char NameCharset[];
-extern int StepMenuValue();
 extern s32 ModeFrame;
 extern s16 ModeIndex;
 extern s16 ModeGroup;
 extern u16 SubmodeState;
 extern unsigned char ProgressBitMasks[];
-extern unsigned char SelectionState[];
 extern unsigned char CurrentStageUnlockFlags;
 
-extern int ResetCarState();
 extern RaceVehicle PlayerCars[2];
 extern s32 VSyncThreshold;
 extern s16 ActiveSceneId;
-extern int SetMenuFrameOptions();
-extern int UpdateCarWorldTransform();
 extern unsigned char GpStageShowcaseModes[];
 extern short FadeCountdown;
 extern int MenuReturnSubmodeIndex;
-extern void PlaySfx();
 
 void GetNameChar(unsigned char *a0, int a1);
 void StepNameChar(unsigned char *a0);
@@ -87,8 +84,8 @@ void CarPreviewLoadModeUpdate(void) {
 
 void SelectTeamCarGroup(void) {
     int v;
-    if (SelectionState[0x1E] == 0x12) {
-        int i = SelectionState[0x1C] * 2 + (SelectionState[0x1D] >> 1);
+    if (SelectionState.bytes[0x1E] == 0x12) {
+        int i = SelectionState.bytes[0x1C] * 2 + (SelectionState.bytes[0x1D] >> 1);
         v = ProgressBitMasks[i];
     } else {
         v = 1;
@@ -98,14 +95,14 @@ void SelectTeamCarGroup(void) {
     } else if (v >= 9) {
         v = 8;
     }
-    SelectionState[0x12] = v;
+    SelectionState.bytes[0x12] = v;
     if (v == 1) {
-        SelectionState[0x13] = SelectionState[0x18];
+        SelectionState.bytes[0x13] = SelectionState.bytes[0x18];
     }
 }
 
 void UpdateUnlockedCarMask(void) {
-    int i = SelectionState[0x1C] * 2 + (SelectionState[0x1D] >> 1);
+    int i = SelectionState.bytes[0x1C] * 2 + (SelectionState.bytes[0x1D] >> 1);
     int v = ProgressBitMasks[i];
     if (v < 0) {
         v = 0;
@@ -138,7 +135,7 @@ void CarPreviewModeUpdate(void) {
     ModeFrame = (ModeFrame + 1U);
     SetupViewport(6);
     if (SubmodeState == 0) {
-        if (StepCarShowcaseScene(GpStageShowcaseModes[((MenuSettings2C *)SelectionState)->phase17 / 2]) != 0) {
+        if (StepCarShowcaseScene(GpStageShowcaseModes[((MenuSettings2C *)SelectionState.bytes)->phase17 / 2]) != 0) {
             FadeCountdown = 0x40;
             CdAudioFade(0, 0x3C);
             SubmodeState = 1;
@@ -198,7 +195,7 @@ void GarageCarPreviewModeUpdate(void)
             rowState = (u8)rows[1].byte14;
             optionCount = 2;
             if (rowState == optionCount) {
-                selection = SelectionRows;
+                selection = SelectionRows.bytes;
                 rows[selection[3] + 1].cells[0] = 0;
                 StepMenuValue(0, 1, (char *)selection + 3, optionCount, 0);
                 UiRows[selection[3] + 1].cells[0] = optionCount;
@@ -218,8 +215,8 @@ void GarageCarPreviewModeUpdate(void)
             BadgeRows->state10 = 4;
             ResetScreenCounters();
             {
-                MenuSettings2C *settings = (MenuSettings2C *)SelectionState;
-                settings->copies[0] = *(MenuChoice4 *)SelectionRows;
+                MenuSettings2C *settings = (MenuSettings2C *)SelectionState.bytes;
+                settings->copies[0] = SelectionRows.choice;
                 if (settings->phase17 <= 0)
                     settings->mode1A = 2;
             }

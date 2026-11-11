@@ -1,4 +1,5 @@
 """Unsigned animation ticks and the shared halfword/word working owner."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +9,7 @@ import unittest
 class OverlayTickTest(unittest.TestCase):
     def test_counter_wrap_modes_and_shared_storage(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/662/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/garage/func_{a}.c')
                            for a in ('8011DDD8', '8011E7C0'))
         source = r'''
 #include <assert.h>

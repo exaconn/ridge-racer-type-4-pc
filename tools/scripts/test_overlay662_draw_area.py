@@ -1,4 +1,5 @@
 """Draw-area packet with real resident constructor and coordinate helpers."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -7,8 +8,14 @@ from c_functions import definition_source, source_owners
 
 class Overlay662DrawAreaTest(unittest.TestCase):
     def test_geometry_shift_links_and_real_constructor(self):
+        self.run_geometry(False)
+
+    def test_full_word_dimensions_use_the_canonical_entry(self):
+        self.run_geometry(True)
+
+    def run_geometry(self, raw_dimensions):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_8011ABB4.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_8011ABB4.c')
         owners=source_owners(root/'src/main/PAL')
         resident='\n'.join(definition_source(owners[name].read_text(),name) for name in ('get_cs','get_ce'))
         constructor=definition_source(owners['SetDrawArea'].read_text(),'SetDrawArea')
@@ -23,6 +30,10 @@ class Overlay662DrawAreaTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay662_draw_area.h"
+#include "rr/overlay662_garage.h"
+#include "rr/frame_loop.h"
+#include "psyq/libgpu/gpudisp.h"
+#include "rr/gpu_address.h"
 _Static_assert(sizeof(FrameStorage)==0x22778,"real frame stride");
 _Static_assert(offsetof(FrameEnvironment,display5C.display.y)==0x5E,"comparison halfword");
 FrameStorage DrawBuffers[2];static FrameStorage expected_frames[2];
@@ -81,6 +92,10 @@ int main(void){unsigned i,shape,j;u32 x,y,w,h;uint64_t cases=0;
  assert(cases==458752ULL);return 0;
 }
 '''
+        if raw_dimensions:
+            source=source.replace('w=(u16)i;h=(u16)(i*73U+17);',
+                                  'w=(u16)i|0xACF00000U;h=(u16)(i*73U+17)|0x13570000U;')
+            source=source.replace('x,y,(u16)w,(u16)h);','x,y,w,h);')
         with TemporaryDirectory() as tmp:
             p=Path(tmp);(p/'test.c').write_text(source)
             subprocess.run(['cc','-std=gnu11','-O2','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(root/'include'),str(p/'test.c'),str(root/'src/native/gpu_address.c'),'-o',str(p/'test')],check=True)

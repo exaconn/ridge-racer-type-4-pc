@@ -22,15 +22,7 @@ s32 SsUtSetReverbType(s32 raw_a0) {
         if (neg) _svm_rattr[1] = a0 | 0x100;
         else _svm_rattr[1] = a0;
         if (a0 == 0) SpuSetReverb(0);
-        {
-            s32 *page;
-            /* ASM_BARRIER: Finish the optional reset before preparing its shared command argument. */
-            __asm__ volatile("" : : : "$4");
-            page = (s32 *)0x80110000U;
-            /* ASM_BARRIER: Materialize the command page before the call-delay offset. */
-            __asm__("" : "+r"(page));
-            SpuSetReverbModeParam(page + 2);
-        }
+        SpuSetReverbModeParam((void *)_svm_rattr);
         return a0;
     }
     return -1;

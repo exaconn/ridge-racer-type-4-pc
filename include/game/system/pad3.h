@@ -4,7 +4,8 @@
 #include "types.h"
 
 void PadRumbleStop(int i);
-void PadSetRumbleParams(int i, short a, char b);
+/* Full call words are narrowed only when stored in the controller record. */
+void PadSetRumbleParams(s32 channel, s32 direction, s32 level);
 void PadRumbleStart(int i);
 void PadSetRumbleFlags(int i, int flags);
 void PadUpdateRumble(void);

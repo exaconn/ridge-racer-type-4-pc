@@ -1,4 +1,5 @@
 """Stroke wrapper with actual hit-test/clip/backup and typed rasterizer boundary."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -8,7 +9,7 @@ class Overlay662ImageStrokeTest(unittest.TestCase):
     def test_points_byte_arguments_backup_and_fresh_postcall_anchor(self):
         root=Path(__file__).resolve().parents[2]
         paths=['8011E6C8','8011E7C0','8011D120','80125500']
-        bodies='\n'.join((root/f'src/overlays/PAL/662/func_{a}.c').read_text() for a in paths)
+        bodies='\n'.join(read_c_source(root/f'src/overlays/PAL/garage/func_{a}.c') for a in paths)
         source=r'''
 #include <assert.h>
 #include <stdint.h>

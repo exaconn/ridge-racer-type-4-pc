@@ -1,3 +1,6 @@
+#include "game/sound/cdpos.h"
+#include "rr/emblem_images.h"
+#include "rr/save_slots.h"
 #include "game/car/carstat.h"
 #include "game/data/cdfile2.h"
 #include "rr/frame_environment.h"
@@ -28,7 +31,6 @@
 #include "rr/string_tail_copy.h"
 #include "game/menu/mnrows.h"
 
-extern void CdAudioInit(void);
 extern int InitGeom();
 
 #include "rr/cd_directory_buffer.h"
@@ -48,12 +50,8 @@ extern char StrTerrazi[];
 extern char StrAgeSolo[];
 extern RaceVehicle PlayerCars[2];
 extern int MirrorRenderFlag;
-extern signed char SelectionState[];
 extern short LinkHostFlag;
-extern char SaveDataWork[];
 extern char SaveHeaderPlayerNameBuf[];
-extern char CustomEmblemBuffers[];
-extern signed char SaveSlotSelections[];
 extern int TeamStringPtrTable[];
 extern int RivalTeamNamePtrTable[];
 extern int NumLaps;
@@ -62,7 +60,6 @@ extern int DisplayEnvOffsetY;
 extern int DialogueSceneMode;
 #include "rr/menu_arena_base.h"
 extern short GameModeType;
-extern char *CustomEmblemTimPtr;
 extern void SetGeomOffset(s32,s32);
 extern void SetGeomScreen(s32);
 
@@ -99,9 +96,9 @@ void SystemInit(void)
     NumLaps = 2;
     MirrorRenderFlag = 0;
     PsyqBzero(&SaveProgress, 0x7C);
-    PsyqBzero(SelectionRows, 0x20);
-    PsyqBzero(SelectionState, 0x2C);
-    SelectionState[0x17] = -1;
+    PsyqBzero(SelectionRows.bytes, 0x20);
+    PsyqBzero(SelectionState.signedBytes, 0x2C);
+    SelectionState.signedBytes[0x17] = -1;
     PsyqBzero(RankEntries, 8 * sizeof(*RankEntries));
     i = 7;
     do {
@@ -143,7 +140,7 @@ void SystemInit(void)
     DialogueSceneMode = 0;
     GameModeType = 0;
     LoadDestCursor = CdDirectoryBuffer + k;
-    r = SaveSlotSelections + i * 0x2C;
+    r = (s8 *)&SaveSlotSelections + i * 0x2C;
     do {
         r[0x17] = m;
         i--;
@@ -151,10 +148,10 @@ void SystemInit(void)
     } while (i >= 0);
     InitDefaultTimeRecords();
     InitCourseChoices();
-    InitTimTemplate(CustomEmblemBuffers);
-    InitTimTemplate(CustomEmblemBuffers + 0x840);
-    InitTimTemplate(SaveDataWork);
-    CustomEmblemTimPtr = CustomEmblemBuffers;
+    InitTimTemplate(&CustomEmblemBuffers.images[0]);
+    InitTimTemplate(&CustomEmblemBuffers.images[1]);
+    InitTimTemplate(&SaveDataWork);
+    CustomEmblemTimPtr = &CustomEmblemBuffers.images[0];
     ResetRankEntries();
     InitCarTable(1);
     ResetGraph(3);

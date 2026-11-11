@@ -1,4 +1,5 @@
 """Exhaustive garage controller movement, including neutral output preservation."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -7,7 +8,7 @@ import unittest
 class GarageMotionTest(unittest.TestCase):
     def test_all_axes_and_controller_types(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_8011D58C.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_8011D58C.c')
         body=body.replace('extern ControllerState5C PlayerControllers[];','')
         source=r'''
 #include <assert.h>

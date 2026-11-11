@@ -1,4 +1,5 @@
 """Save/load-back setup: correct diagnostic ABI and fresh scene-state writes."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -9,7 +10,7 @@ import unittest
 class GarageBackSetupTest(unittest.TestCase):
     def test_native_save_and_load_setup(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/662/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/garage/func_{a}.c')
                            for a in ('8011A898','8011A988'))
         bodies = re.sub(r'^extern[^\n]*\n', '', bodies, flags=re.M)
         source = r'''

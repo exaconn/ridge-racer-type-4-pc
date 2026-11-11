@@ -30,6 +30,7 @@ SERVICES = ['SetupViewport', 'StepCarShowcaseScene', 'CdAudioFade', 'InitCarPrev
 STACK, STOP = 0x803F0000, 0x803FF000
 PREFIX = r'''
 #include <assert.h>
+#include "rr/save_slot_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -47,7 +48,7 @@ _Static_assert(sizeof(ImageRow20)==20&&sizeof(BadgeRow1C)==28,"wire row storage"
 enum {WIRE_SIZE=1600+80+288+112+44+32+72+6144+8+16+4+2+4+2+2+2+4+1+1+4,MAX_EVENTS=24};
 typedef struct {
  u32 before[4];RaceVehicle cars[2];ImageRow20 images[2][2];UiRow24 rows[2][4];
- BadgeRow1C badges[2][2];MenuSettings2C settings;CurrentSelection choice;
+ BadgeRow1C badges[2][2];SavedMenuSettings settings;CurrentSelection choice;
  ViewMatrixScratch48 scratch;u32 buffers[3][512];MenuArenas8 arenas;void *cursor;
  s32 frame,accepted,screen;s16 group,next,fade;u16 phase;
  u8 load,step,table[4];unsigned imageRoot,rowRoot,badgeRoot;u32 after[4];
@@ -68,8 +69,8 @@ static const s8 modes[]={INT8_MIN,-1,0,1,2,3,INT8_MAX};
 #define ImageRows live.images[live.imageRoot]
 #define UiRows live.rows[live.rowRoot]
 #define BadgeRows live.badges[live.badgeRoot]
-#define SelectionState ((u8*)&live.settings)
-#define SelectionRows ((u8*)&live.choice)
+#define SelectionState (live.settings)
+#define SelectionRows live.choice
 #define MenuArenas live.arenas
 #define LoadCursor live.cursor
 #define ModeFrame live.frame
@@ -120,8 +121,8 @@ static void mutate(unsigned operation){
  live.imageRoot=(scenario+n)&1;live.rowRoot=(scenario+n+1)&1;live.badgeRoot=(scenario/3+n)&1;
  live.phase=phases[(scenario+n)%6];live.accepted=word((n&1)?v:0);
  live.frame=word(v);live.group=(s16)v;live.next=(s16)~v;live.fade=(s16)(v>>7);
- live.settings.phase17=kind?(s8)v:(s8)(((scenario+n)%4)*2);
- live.settings.mode1A=(s16)v;live.choice.choice.bytes[3]=(u8)((scenario+n)&1);
+ live.settings.fields.phase17=kind?(s8)v:(s8)(((scenario+n)%4)*2);
+ live.settings.fields.mode1A=(s16)v;live.choice.choice.bytes[3]=(u8)((scenario+n)&1);
  live.cursor=(u8*)live.buffers[(scenario+n)%3]+(v&255);
  live.arenas.first=(u8*)live.buffers[(scenario+n+1)%3]+(v&127);
  live.arenas.second=(u8*)live.buffers[(scenario+n+2)%3]+(v&63);
@@ -181,7 +182,7 @@ static void reference(void){
  if(!kind){
   SetupViewport(6);
   if(!live.phase){
-   if(StepCarShowcaseScene(live.table[live.settings.phase17/2])){
+   if(StepCarShowcaseScene(live.table[live.settings.fields.phase17/2])){
     live.fade=64;CdAudioFade(0,60);live.phase=1;InitCarPreviewScene();ImageRows->f1=0;
    }
   }else{
@@ -210,8 +211,8 @@ static void reference(void){
   }break;
   case 2:
    live.frame=0;ImageRows->f1=3;BadgeRows->state10=4;ResetScreenCounters();
-   memcpy(live.settings.copies[0].bytes,live.choice.choice.bytes,4);
-   if(live.settings.phase17<=0)live.settings.mode1A=2;
+   memcpy(live.settings.fields.copies[0].bytes,live.choice.choice.bytes,4);
+   if(live.settings.fields.phase17<=0)live.settings.fields.mode1A=2;
    InitMotionController();live.group=1;live.next=11;live.phase=0;break;
   default:break;
   }
@@ -243,7 +244,7 @@ static void initialize(unsigned number){
  live.imageRoot=(number>>2)&1;live.rowRoot=(number>>3)&1;live.badgeRoot=(number>>4)&1;
  live.phase=phases[(number/512)%6];phaseSeen[(number/512)%6]++;
  live.frame=frames[(number/128)%5];live.accepted=word((number&8)?number*0x1234567U:0);
- live.settings.phase17=kind?(s8)(number/32):(s8)(((number/8)%4)*2);
+ live.settings.fields.phase17=kind?(s8)(number/32):(s8)(((number/8)%4)*2);
  live.choice.choice.bytes[3]=(u8)((number/8)&1);
  for(unsigned i=0;i<3;i++)live.choice.choice.bytes[i]=(u8)(number+i*73U);
  live.arenas.first=live.buffers[0];live.arenas.second=(u8*)live.buffers[1]+32;live.cursor=(u8*)live.buffers[2]+64;

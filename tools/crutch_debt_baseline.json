@@ -3,45 +3,45 @@
   "scopes": {
     "resident": {
       "counts": {
-        "pins": 1249,
-        "barriers": 1566,
-        "asm_bodies": 78,
-        "directives": 3,
-        "gte_asm": 439,
-        "gotos": 694,
-        "pad_arrays": 452,
-        "raw_offset_derefs": 1458,
-        "integer_casts": 1486,
-        "gcc_2_7_2_units": 70,
-        "cc1_flags_units": 105,
-        "volatile_qualifiers": 1601,
-        "legacy_type_blocks": 315,
-        "cast_alias_macros": 270,
-        "m2c_accesses": 371
+        "pins": 307,
+        "barriers": 346,
+        "asm_bodies": 1,
+        "directives": 0,
+        "gte_asm": 1,
+        "gotos": 309,
+        "pad_arrays": 0,
+        "raw_offset_derefs": 0,
+        "integer_casts": 531,
+        "gcc_2_7_2_units": 52,
+        "cc1_flags_units": 35,
+        "volatile_qualifiers": 208,
+        "legacy_type_blocks": 0,
+        "cast_alias_macros": 0,
+        "m2c_accesses": 0
       },
       "files": 462,
-      "files_to_review": 323
+      "files_to_review": 126
     },
     "overlays": {
       "counts": {
-        "pins": 54,
-        "barriers": 49,
-        "asm_bodies": 10,
+        "pins": 0,
+        "barriers": 4,
+        "asm_bodies": 0,
         "directives": 0,
         "gte_asm": 0,
-        "gotos": 149,
+        "gotos": 66,
         "pad_arrays": 0,
-        "raw_offset_derefs": 28,
-        "integer_casts": 570,
-        "gcc_2_7_2_units": 13,
-        "cc1_flags_units": 4,
-        "volatile_qualifiers": 26,
+        "raw_offset_derefs": 0,
+        "integer_casts": 107,
+        "gcc_2_7_2_units": 1,
+        "cc1_flags_units": 3,
+        "volatile_qualifiers": 6,
         "legacy_type_blocks": 0,
-        "cast_alias_macros": 4,
+        "cast_alias_macros": 0,
         "m2c_accesses": 0
       },
-      "files": 271,
-      "files_to_review": 39
+      "files": 58,
+      "files_to_review": 2
     }
   }
 }

@@ -61,10 +61,8 @@ void v_wait(s32 a0, s32 a1) {
 loop:
         cnt=cnt-1;
         if (cnt == m) {
-            char *page=(char *)0x80010000U;
-            /* ASM_BARRIER: Materialize the message page before its call-delay offset. */
-            __asm__("" : "=r"(page) : "0"(page));
-            PsyqPuts(page+0x17F8);
+            extern const char D_800117F8[];
+            PsyqPuts(D_800117F8);
             ChangeClearPAD(0);
             ChangeClearRCnt(3, 0);
             return;

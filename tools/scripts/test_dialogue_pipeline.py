@@ -41,10 +41,11 @@ SERVICES=(('PsyqBzero',2,(0,)),('PlaySfx',1,()),('DrawDialogueContinueMark',2,()
           ('LoadTimImage',1,(0,)),('LoadTimList',1,(0,)))
 PREFIX=r'''
 #include <stdint.h>
+#include "rr/save_slot_types.h"
 #include <stddef.h>
 #include <string.h>
 #include "rr/menu_text_state.h"
-#include "rr/menu_state_types.h"
+#include "rr/save_slots.h"
 #include "rr/badge_row_types.h"
 #include "rr/bios_devices.h"
 #include "rr/cd_directory_buffer.h"
@@ -62,7 +63,7 @@ typedef struct {u32 before[4];MenuTextState value;u32 after[4];} TextBox;
 typedef struct {u32 before[4];u8 prefix[0xAF000];MenuTextState value;u8 assets[0x20000];u32 after[4];} LoadArena;
 TextBox texts[2];LoadArena loading;
 u16 script[2048];u8 images[8192],counts[128];BadgeRow1C badges[4];
-MenuSettings2C SelectionState;
+SavedMenuSettings SelectionState;
 MenuTextState *Dialogue,*CardDialogueStatePtr;
 u8 *LoadDestCursor,*CdDirectoryBuffer,*DialoguePageCounts;
 s8 *DialogueAssetTable;
@@ -72,11 +73,11 @@ u16 PendingModeId; s16 CardMenuOperation;
 u8 LoadState;char LoadIndex;
 /* This symbol is the low byte of the first current-choice record, not a
  * second allocation. The loader also reads that same field through its owner. */
-#define MenuSelectedTeamId (SelectionState.copies[0].bytes[0])
-#define MenuSelectedMakerId (SelectionState.copies[0].bytes[1])
-#define MenuActiveDialogId (SelectionState.mode1A)
-#define MenuSubmodePendingId (SelectionState.phase17)
-#define MenuSelectionLockedFlag (SelectionState.reserved10[4])
+#define MenuSelectedTeamId (SelectionState.fields.copies[0].bytes[0])
+#define MenuSelectedMakerId (SelectionState.fields.copies[0].bytes[1])
+#define MenuActiveDialogId (SelectionState.fields.mode1A)
+#define MenuSubmodePendingId (SelectionState.fields.phase17)
+#define MenuSelectionLockedFlag (SelectionState.fields.reserved10[4])
 typedef u32 (*Observer)(u32,const uintptr_t *);
 static Observer observer;
 void set_observer(Observer value){observer=value;}
@@ -96,7 +97,7 @@ _Static_assert(sizeof(DialogueGlyphAnimation4)==4,"wire glyph cell");
 _Static_assert(sizeof(((MenuTextState*)0)->animation28)==800,"all 200 glyph cells");
 _Static_assert(offsetof(LoadArena,value)-offsetof(LoadArena,prefix)==0xAF000,"real placement boundary");
 _Static_assert(offsetof(LoadArena,assets)==offsetof(LoadArena,value)+sizeof(MenuTextState),"native assets follow the complete owner");
-_Static_assert(offsetof(MenuSettings2C,phase17)==0x17&&offsetof(MenuSettings2C,mode1A)==0x1A&&offsetof(MenuSettings2C,copies)==0x1C,"shared scalar selection views");
+_Static_assert(offsetof(SavedMenuSettings,fields.phase17)==0x17&&offsetof(SavedMenuSettings,fields.mode1A)==0x1A&&offsetof(SavedMenuSettings,fields.copies)==0x1C,"shared scalar selection views");
 size_t native_text_size(void){return sizeof(MenuTextState);}
 '''
 

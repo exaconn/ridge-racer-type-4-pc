@@ -1,8 +1,9 @@
 """Native guarded state/service oracle for the palette controller; no hardware claim."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
-body=Path('src/overlays/PAL/662/func_80119E00.c').read_text()
+body=read_c_source(Path('src/overlays/PAL/garage/func_80119E00.c'))
 source=r'''
 #include <assert.h>
 #include "game/system/pad.h"
@@ -80,7 +81,7 @@ void UploadCarClut(void *p,s32 a,s32 b){unsigned bank;assert((uintptr_t)p>UINT32
 }
 void PlaySfx(s32 a){assert(a==1||a==2||a==4);record(4,a,0,0,0,0,0,0);change(4);}
 s32 UpdateRect16Row(s32 a){record(5,a,0,0,0,0,0,0);change(5);return (scenario&1)?1:word(scenario*0x1020304U);}
-void ovl662_draw_emblem_preview_fade(s32 a){record(6,a,0,0,0,0,0,0);change(6);}
+s32 ovl662_draw_emblem_preview_fade(s32 a){record(6,a,0,0,0,0,0,0);change(6);return 0;}
 void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){record(7,a,b,c,d,e,f,g);change(7);}
 void DrawUiRow(s32 a){assert(a>=0&&a<4);record(8,a,0,0,0,0,0,0);change(8);}
 void UpdateBadgeRowAnim(s32 a){record(9,a,0,0,0,0,0,0);change(9);}

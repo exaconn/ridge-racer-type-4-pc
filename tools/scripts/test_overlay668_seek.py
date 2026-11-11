@@ -8,7 +8,7 @@ import unittest
 class Overlay668SeekTest(unittest.TestCase):
     def test_retry_schedules(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/overlays/PAL/668/func_801153F0.c')
+        body = read_c_source(root / 'src/overlays/PAL/movie_playback/func_801153F0.c')
         body = '\n'.join(line for line in body.splitlines() if not line.startswith('#include'))
         source = r'''
 #include <stdint.h>

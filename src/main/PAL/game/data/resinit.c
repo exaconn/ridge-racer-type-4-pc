@@ -1,3 +1,4 @@
+#include "game/data/resinit.h"
 #include "game/data/cdfile2.h"
 
 void ResetCarSlotBuffers(void) {

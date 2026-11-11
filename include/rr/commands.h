@@ -33,7 +33,9 @@ s32 _cardSioHandler(void);
 s32 _cardCmdStep(void);
 s32 _cardCmdReset(s32 request);
 
-extern s32 CardCommandStatus, CardCommandRequest, CardReceiveIndex, CardRxCount;
+/* Completion is written by the interrupt handler and polled by MemCardSync. */
+extern volatile s32 CardCommandStatus;
+extern s32 CardCommandRequest, CardReceiveIndex, CardRxCount;
 extern volatile s32 CardTxCount;
 extern u8 *CardCmdBuffer;
 extern void *CardCmdResultPtrA;
@@ -63,6 +65,7 @@ static __inline__ s32 rr_command_begin(s32 request) {
     return 1;
 }
 
+#if defined(__mips__)
 RR_ASSERT_SIZE(CommandParameter, 4);
 RR_ASSERT_SIZE(CommandContextPrefix, 0x24);
 RR_ASSERT_OFFSET(CommandContextPrefix, first_result, 4);
@@ -73,5 +76,6 @@ RR_ASSERT_OFFSET(CommandContextPrefix, parameter2C, 0x14);
 RR_ASSERT_OFFSET(CommandContextPrefix, result30, 0x18);
 RR_ASSERT_OFFSET(CommandContextPrefix, read, 0x1C);
 RR_ASSERT_OFFSET(CommandContextPrefix, write, 0x20);
+#endif
 
 #endif

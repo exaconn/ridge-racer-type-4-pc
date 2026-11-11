@@ -18,7 +18,7 @@ class Overlay663TimeFormatterTest(unittest.TestCase):
 #include "rr/overlay663_time.h"
 static struct {u32 before[4];u8 text[10];u8 padding[6];u32 after[4];} buffer,expected;
 #define ovl663_time_text buffer.text
-''' + read_c_source(root/'src/overlays/PAL/663/func_80115EE8.c') + r'''
+''' + read_c_source(root/'src/overlays/PAL/records/func_80115EE8.c') + r'''
 static u32 seed=0x15EE8;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 static void check(s32 input,unsigned template){

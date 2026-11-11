@@ -1,3 +1,4 @@
+#include "rr/scene_camera_state.h"
 #include "types.h"
 #include "game/course/control.h"
 #include "rr/track_projection.h"
@@ -20,7 +21,6 @@
     ((RaceStandingEntry0C*)((base)+RR_STANDING_PREFIX_SIZE))
 #define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -SinTable[0x400 - ((x) & 0x3FF)] : -SinTable[(x) & 0x3FF]) : (((x) & 0x400) ? SinTable[0x400 - ((x) & 0x3FF)] : SinTable[(x) & 0x3FF]))
 
-extern RaceStandingsTable *RaceStandings;
 extern s8 CarShadowOffsetTableA[][16];
 extern s8 CarShadowOffsetTableB[][16];
 
@@ -103,8 +103,8 @@ void ProjectToTrackSegment(TrackOffsetArgument offsetX, TrackOffsetArgument offs
     sample = &TrackNodes[node];
     nextSample = &TrackNodes[nextNode];
 
-    angle = sample->heading12 + 0x800;
-    node = sample->heading12 + 0x400;
+    angle = sample->road.heading + 0x800;
+    node = sample->road.heading + 0x400;
 
     across = SIN(angle);
     cosine = SIN(node);
@@ -116,8 +116,8 @@ void ProjectToTrackSegment(TrackOffsetArgument offsetX, TrackOffsetArgument offs
         along = 0;
     }
 
-    node = nextSample->heading12 - sample->heading12;
-    node = sample->segmentLength1C - ((across * SIN(node)) / 4096);
+    node = nextSample->road.heading - sample->road.heading;
+    node = sample->road.segmentLength - ((across * SIN(node)) / 4096);
     if (along > node) {
         along = node;
     }
@@ -127,8 +127,8 @@ void ProjectToTrackSegment(TrackOffsetArgument offsetX, TrackOffsetArgument offs
     *remaining = node - ((node * (s16)position) >> 10);
 
     if (across < 0) {
-        width = sample->leftWidth18 + sample->leftExtension2E;
-        nextWidth = nextSample->leftWidth18 + nextSample->leftExtension2E;
+        width = sample->road.leftWidth + sample->road.leftExtension;
+        nextWidth = nextSample->road.leftWidth + nextSample->road.leftExtension;
         node = width - nextWidth;
         if (node == 0) {
             *lateral = (across << 10) / width;
@@ -137,8 +137,8 @@ void ProjectToTrackSegment(TrackOffsetArgument offsetX, TrackOffsetArgument offs
             *lateral = (across << 10) / node;
         }
     } else {
-        width = sample->rightWidth1A + sample->rightExtension2C;
-        nextWidth = nextSample->rightWidth1A + nextSample->rightExtension2C;
+        width = sample->road.rightWidth + sample->road.rightExtension;
+        nextWidth = nextSample->road.rightWidth + nextSample->road.rightExtension;
         node = width - nextWidth;
         if (node == 0) {
             *lateral = (across << 10) / width;
@@ -152,8 +152,8 @@ void ProjectToTrackSegment(TrackOffsetArgument offsetX, TrackOffsetArgument offs
 void UpdateCarTrackProjection(RaceVehicle *vehicle)
 {
     struct { TrackOffsetArgument x, z; } offset;
-    offset.x.value = vehicle->position20.words[0] - TrackNodes[vehicle->trackNodeF0].x08;
-    offset.z.value = vehicle->position20.words[2] - TrackNodes[vehicle->trackNodeF0].z0C;
+    offset.x.value = vehicle->position20.words[0] - TrackNodes[vehicle->trackNodeF0].road.x;
+    offset.z.value = vehicle->position20.words[2] - TrackNodes[vehicle->trackNodeF0].road.z;
     ProjectToTrackSegment(offset.x, offset.z, vehicle->trackNodeF0,
         &vehicle->trackFraction170, &vehicle->lateralOffset172, &vehicle->second);
 }
@@ -167,22 +167,20 @@ s32 FindNearestCarAhead(RaceVehicle *vehicle) {
     /* ASM_BARRIER: retain the second pass's table-relative cursor. */
     register u8 *cursor __asm__("$9");
     u8 *reference;
-    RaceDistanceContextPrefix *context;
+    SceneRaceContext *context;
     u32 flags;
-    /* ASM_BARRIER: retain context mode until the initial identifier is formed. */
-    register s32 mode __asm__("$5");
     s32 input;
     u8 *lookup_cursor;
     context=&RaceContext;
     flags=vehicle->flags1E4;
-    mode=context->mode;
+    circumference=context->playerCount14;
     input=vehicle->input;
-    table=(RaceStandingsTable*)context->result;
+    table=context->standings;
     flags=(flags&15)+best;
     input++;
     limit=input*16;
     count=NumCars;
-    selected=(flags+mode);
+    selected=(flags+circumference);
     if(count>0) {
         first_count=count;
         lookup_cursor=(u8*)table;
@@ -241,12 +239,12 @@ s32 ScoreOvertakeOpportunity(RaceVehicle *arg0, s32 arg1) {
     s32 v1_2;
 
     s0 = 0;
-    t = RaceStandings;
+    t = RaceContext.standings;
     s1 = &arg0->control;
     other = t->entries18[arg1].vehicle08;
 
     i = -other->heading1D4 + 0x400;
-    i -= TrackNodes[other->trackNodeF0].heading12;
+    i -= TrackNodes[other->trackNodeF0].road.heading;
     v1 = -((SIN(i) * other->input) / 4096);
     a1 = t->gap14;
     a2 = s1->lateralSpeed58 - v1;
@@ -306,7 +304,6 @@ void UpdateComCarOvertake(RaceVehicle *p)
   int th2;
   int c0;
   int e1;
-  int e2;
   int e3;
   int s2;
   int s4;
@@ -314,17 +311,14 @@ void UpdateComCarOvertake(RaceVehicle *p)
   int a0;
   int v0;
   int v1;
-  int k;
-  int tt;
   s6 = 0;
   s4 = -1;
-  s5 = RaceStandings;
+  s5 = RaceContext.standings;
   q = &p->control;
   s2 = FindNearestCarAhead(p);
   if (s2 >= 0)
   {
-    k = s2 * 12;
-    s1 = ((RaceStandingsTable *)((char *)s5 + k))->entries18[0].vehicle08;
+    s1 = s5->entries18[s2].vehicle08;
     if ((ScoreOvertakeOpportunity(p, s2) > 0) && (q->boostTimer44 == 0))
     {
       if (q->laneActive6A == 0)
@@ -381,14 +375,14 @@ void UpdateComCarOvertake(RaceVehicle *p)
   }
   if (NumPlayers > 0)
   {
-    x8 = s5->dist08;
+    x8 = s5->playerDistance[0];
     if ((x8 < 0) && (q->metric12A < x8))
     {
       s4 = 0;
     }
     if (NumPlayers == 2)
     {
-      if ((s5->dist08 < s5->dist0C) && (q->metric12A < s5->dist0C))
+      if ((s5->playerDistance[0] < s5->playerDistance[1]) && (q->metric12A < s5->playerDistance[1]))
       {
         s4 = 1;
       }
@@ -533,23 +527,23 @@ void InterpolateLanePointXZ(const TrackSample3C *first, const TrackSample3C *sec
     offset = __builtin_abs(lateral);
     sample = first;
     if (lateral < 0) {
-        firstPoint.x = extend_track_edge(sample->leftOffsetX04, sample->leftWidth18, sample->leftExtension2E);
-        firstPoint.x = (firstPoint.x * offset) / 1024 + sample->x08;
-        firstPoint.z = extend_track_edge(sample->leftOffsetZ06, sample->leftWidth18, sample->leftExtension2E);
-        firstPoint.z = (firstPoint.z * offset) / 1024 + sample->z0C;
-        secondPoint.x = extend_track_edge(second->leftOffsetX04, second->leftWidth18, second->leftExtension2E);
-        secondPoint.x = (secondPoint.x * offset) / 1024 + second->x08;
-        secondPoint.z = extend_track_edge(second->leftOffsetZ06, second->leftWidth18, second->leftExtension2E);
-        secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
+        firstPoint.x = extend_track_edge(sample->leftOffsetX04, sample->road.leftWidth, sample->road.leftExtension);
+        firstPoint.x = (firstPoint.x * offset) / 1024 + sample->road.x;
+        firstPoint.z = extend_track_edge(sample->leftOffsetZ06, sample->road.leftWidth, sample->road.leftExtension);
+        firstPoint.z = (firstPoint.z * offset) / 1024 + sample->road.z;
+        secondPoint.x = extend_track_edge(second->leftOffsetX04, second->road.leftWidth, second->road.leftExtension);
+        secondPoint.x = (secondPoint.x * offset) / 1024 + second->road.x;
+        secondPoint.z = extend_track_edge(second->leftOffsetZ06, second->road.leftWidth, second->road.leftExtension);
+        secondPoint.z = (secondPoint.z * offset) / 1024 + second->road.z;
     } else {
-        firstPoint.x = extend_track_edge(sample->rightOffsetX00, sample->rightWidth1A, sample->rightExtension2C);
-        firstPoint.x = (firstPoint.x * offset) / 1024 + sample->x08;
-        firstPoint.z = extend_track_edge(sample->rightOffsetZ02, sample->rightWidth1A, sample->rightExtension2C);
-        firstPoint.z = (firstPoint.z * offset) / 1024 + sample->z0C;
-        secondPoint.x = extend_track_edge(second->rightOffsetX00, second->rightWidth1A, second->rightExtension2C);
-        secondPoint.x = (secondPoint.x * offset) / 1024 + second->x08;
-        secondPoint.z = extend_track_edge(second->rightOffsetZ02, second->rightWidth1A, second->rightExtension2C);
-        secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
+        firstPoint.x = extend_track_edge(sample->rightOffsetX00, sample->road.rightWidth, sample->road.rightExtension);
+        firstPoint.x = (firstPoint.x * offset) / 1024 + sample->road.x;
+        firstPoint.z = extend_track_edge(sample->rightOffsetZ02, sample->road.rightWidth, sample->road.rightExtension);
+        firstPoint.z = (firstPoint.z * offset) / 1024 + sample->road.z;
+        secondPoint.x = extend_track_edge(second->rightOffsetX00, second->road.rightWidth, second->road.rightExtension);
+        secondPoint.x = (secondPoint.x * offset) / 1024 + second->road.x;
+        secondPoint.z = extend_track_edge(second->rightOffsetZ02, second->road.rightWidth, second->road.rightExtension);
+        secondPoint.z = (secondPoint.z * offset) / 1024 + second->road.z;
     }
 
     output[0] = (secondPoint.x - firstPoint.x) * fraction / 1024 + firstPoint.x;
@@ -568,27 +562,27 @@ void InterpolateLanePointXYZ(const TrackSample3C *first, const TrackSample3C *se
     offset = __builtin_abs(lateral);
     sample = first;
     if (lateral < 0) {
-        firstPoint.x = extend_track_edge(sample->leftOffsetX04, sample->leftWidth18, sample->leftExtension2E);
-        firstPoint.x = (firstPoint.x * offset) / 1024 + sample->x08;
-        firstPoint.y = sample->y10;
-        firstPoint.z = extend_track_edge(sample->leftOffsetZ06, sample->leftWidth18, sample->leftExtension2E);
-        firstPoint.z = (firstPoint.z * offset) / 1024 + sample->z0C;
-        secondPoint.x = extend_track_edge(second->leftOffsetX04, second->leftWidth18, second->leftExtension2E);
-        secondPoint.x = (secondPoint.x * offset) / 1024 + second->x08;
-        secondPoint.y = second->y10;
-        secondPoint.z = extend_track_edge(second->leftOffsetZ06, second->leftWidth18, second->leftExtension2E);
-        secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
+        firstPoint.x = extend_track_edge(sample->leftOffsetX04, sample->road.leftWidth, sample->road.leftExtension);
+        firstPoint.x = (firstPoint.x * offset) / 1024 + sample->road.x;
+        firstPoint.y = sample->road.height;
+        firstPoint.z = extend_track_edge(sample->leftOffsetZ06, sample->road.leftWidth, sample->road.leftExtension);
+        firstPoint.z = (firstPoint.z * offset) / 1024 + sample->road.z;
+        secondPoint.x = extend_track_edge(second->leftOffsetX04, second->road.leftWidth, second->road.leftExtension);
+        secondPoint.x = (secondPoint.x * offset) / 1024 + second->road.x;
+        secondPoint.y = second->road.height;
+        secondPoint.z = extend_track_edge(second->leftOffsetZ06, second->road.leftWidth, second->road.leftExtension);
+        secondPoint.z = (secondPoint.z * offset) / 1024 + second->road.z;
     } else {
-        firstPoint.x = extend_track_edge(sample->rightOffsetX00, sample->rightWidth1A, sample->rightExtension2C);
-        firstPoint.x = (firstPoint.x * offset) / 1024 + sample->x08;
-        firstPoint.y = sample->y10;
-        firstPoint.z = extend_track_edge(sample->rightOffsetZ02, sample->rightWidth1A, sample->rightExtension2C);
-        firstPoint.z = (firstPoint.z * offset) / 1024 + sample->z0C;
-        secondPoint.x = extend_track_edge(second->rightOffsetX00, second->rightWidth1A, second->rightExtension2C);
-        secondPoint.x = (secondPoint.x * offset) / 1024 + second->x08;
-        secondPoint.y = second->y10;
-        secondPoint.z = extend_track_edge(second->rightOffsetZ02, second->rightWidth1A, second->rightExtension2C);
-        secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
+        firstPoint.x = extend_track_edge(sample->rightOffsetX00, sample->road.rightWidth, sample->road.rightExtension);
+        firstPoint.x = (firstPoint.x * offset) / 1024 + sample->road.x;
+        firstPoint.y = sample->road.height;
+        firstPoint.z = extend_track_edge(sample->rightOffsetZ02, sample->road.rightWidth, sample->road.rightExtension);
+        firstPoint.z = (firstPoint.z * offset) / 1024 + sample->road.z;
+        secondPoint.x = extend_track_edge(second->rightOffsetX00, second->road.rightWidth, second->road.rightExtension);
+        secondPoint.x = (secondPoint.x * offset) / 1024 + second->road.x;
+        secondPoint.y = second->road.height;
+        secondPoint.z = extend_track_edge(second->rightOffsetZ02, second->road.rightWidth, second->road.rightExtension);
+        secondPoint.z = (secondPoint.z * offset) / 1024 + second->road.z;
     }
 
     output[0] = (secondPoint.x - firstPoint.x) * fraction / 1024 + firstPoint.x;
@@ -629,11 +623,11 @@ void UpdateComCarTargetPoint(RaceVehicle *vehicle) {
         switch (control->laneTimer38) {
         case 0:
             firstOffset = &TrackLaneOffsets[firstNode];
-            firstPoint.x = firstSample->x08 + firstOffset->x;
-            firstPoint.z = firstSample->z0C + firstOffset->z;
+            firstPoint.x = firstSample->road.x + firstOffset->x;
+            firstPoint.z = firstSample->road.z + firstOffset->z;
             secondOffset = &TrackLaneOffsets[secondNode];
-            secondPoint.x = secondSample->x08 + secondOffset->x;
-            secondPoint.z = secondSample->z0C + secondOffset->z;
+            secondPoint.x = secondSample->road.x + secondOffset->x;
+            secondPoint.z = secondSample->road.z + secondOffset->z;
             target.x = (secondPoint.x - firstPoint.x) * fraction / 1024 + firstPoint.x;
             target.z = (secondPoint.z - firstPoint.z) * fraction / 1024 + firstPoint.z;
             break;

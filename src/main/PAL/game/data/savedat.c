@@ -1,3 +1,5 @@
+#include "rr/emblem_images.h"
+#include "rr/save_slots.h"
 /* RODATA 0x800114a0 0xc4 */
 #include "game/gfx/color.h"
 #include "psyq/libc/printf.h"
@@ -12,20 +14,16 @@
 #include "rr/audio_loop.h"
 #include "rr/overlay667_course_initializer.h"
 #include "rr/string_tail_copy.h"
-typedef struct { char b[0x80]; } B;
 
 extern int CourseBestLap[2][8];
-extern Struct10 RaceRecords[2][8][5];
-extern Struct2C SaveSlotSelections[3];
+extern TimeRecord16 RaceRecords[2][8][5];
 extern int CourseBestLapTimes[2][8][3];
-extern Struct840 *GarageSavedDecalTimB;
-extern Struct840 *GarageSavedDecalTimA;
-extern int CustomEmblemBuffers[];
+extern EmblemTim840 *GarageSavedDecalTimB;
+extern EmblemTim840 *GarageSavedDecalTimA;
 extern short GpSaveSlotCursor;
-extern Struct10 LapRecords[2][8][5];
-extern Struct2C SaveSlotSnapshots[3];
+extern TimeRecord16 LapRecords[2][8][5];
 extern CourseChoice4 LinkCarChoiceTable[2][2][9];
-extern StructC VsPlayerNames[];
+extern char VsPlayerNames[2][12];
 extern CourseChoice4 VsCarChoiceTable[2][2][9];
 extern int GarageExtraDefaultTimes[];
 extern char StrFmtPercentS[];
@@ -33,163 +31,166 @@ extern GpuRectangle SavedEmblemClutRect;
 extern char StrCardMagicCrd0[];
 extern GpuRectangle SavedEmblemPixelRect;
 
-void BuildCardHeaderAnim(char *a0, int a1, int a2, int a3, int a4, int a5);
 
-int ApplySaveData(int arg0) {
-    int a2 = 0;
-    SaveBuf *s3;
-    SaveBuf11 *p;
-    int a1;
-    int s0;
-    int t0;
+int ApplySaveData(int mode) {
+    int result = 0;
+    GameSaveData1AA8 *gameSave;
+    EmblemSaveData1380 *emblemSave;
+    u32 checksum;
+    int i;
+    int j;
     int k;
-    int v10;
-    int v11;
+    int headerFrames;
+    int emblemFrames;
 
-    switch (arg0) {
+    switch (mode) {
     case 0:
     case 1:
     case 0x30:
     default:
-        s3 = SaveBuffer;
-        a1 = 0;
-        for (s0 = 0; s0 < 0x6A9U; s0++) {
-            a1 += ((int *)s3)[s0];
+        gameSave = (GameSaveData1AA8 *)SaveBuffer;
+        checksum = 0;
+        for (i = 0; (u32)i < 0x6A9U; i++) {
+            checksum += gameSave->words[i];
         }
-        if (s3->f1AA4 == a1) {
-            SaveProgress = s3->f280;
-            Options = s3->f2FC;
-            for (s0 = 0; s0 < 3; s0++) {
-                if (arg0 == 0x30) {
-                    SaveSlotSelections[s0] = s3->f360[s0];
+        if (gameSave->fields.checksum1AA4 == checksum) {
+            SaveProgress = gameSave->fields.progress280;
+            Options = gameSave->fields.options2FC;
+            for (i = 0; i < 3; i++) {
+                if (mode == 0x30) {
+                    SaveSlotSelections[i] = gameSave->fields.slots360[i];
                 } else {
-                    SaveSlotSnapshots[s0] = s3->f360[s0];
+                    SaveSlotSnapshots[i] = gameSave->fields.slots360[i];
                 }
             }
-            for (s0 = 0; s0 < 9; s0++) {
-                CourseChoiceTable[1][s0] = s3->f33C[s0];
+            for (i = 0; i < 9; i++) {
+                CourseChoiceTable[1][i] = gameSave->fields.courseChoices33C[i];
             }
-            for (s0 = 0; s0 < 2; s0++) {
-                for (t0 = 0; t0 < 8; t0++) {
+            for (i = 0; i < 2; i++) {
+                for (j = 0; j < 8; j++) {
                     for (k = 0; k < 3; k++) {
-                        CourseBestLapTimes[s0][t0][k] = s3->f3E4[s0][t0][k];
+                        CourseBestLapTimes[i][j][k] = gameSave->fields.bestLapTimes3E4[i][j][k];
                     }
                     for (k = 0; k < 5; k++) {
-                        LapRecords[s0][t0][k] = s3->f4A4[s0][t0][k];
-                        RaceRecords[s0][t0][k] = s3->f9A4[s0][t0][k];
+                        LapRecords[i][j][k] = gameSave->fields.lapRecords4A4[i][j][k];
+                        RaceRecords[i][j][k] = gameSave->fields.raceRecords9A4[i][j][k];
                     }
-                    CourseBestLap[s0][t0] = LapRecords[s0][t0][0].w[3];
-                    CourseBestTotal[s0][t0] = RaceRecords[s0][t0][0].w[3];
+                    CourseBestLap[i][j] = LapRecords[i][j][0].time;
+                    CourseBestTotal[i][j] = RaceRecords[i][j][0].time;
                 }
             }
-            for (s0 = 0; s0 < 0x210; s0++) {
-                CustomEmblemBuffers[s0] = s3->fEA4[s0];
+            for (i = 0; i < 0x210; i++) {
+                CustomEmblemBuffers.words[i] = gameSave->fields.emblemWordsEA4[i];
             }
             ApplySoundVolumes();
-            a2 = 1;
+            result = 1;
         }
         break;
     case 2:
-        s3 = SaveBuffer;
-        a1 = 0;
-        for (s0 = 0; s0 < 0x6A9U; s0++) {
-            a1 += ((int *)s3)[s0];
+        gameSave = (GameSaveData1AA8 *)SaveBuffer;
+        checksum = 0;
+        for (i = 0; (u32)i < 0x6A9U; i++) {
+            checksum += gameSave->words[i];
         }
-        if (s3->f1AA4 == a1) {
-            for (s0 = 0; s0 < 9; s0++) {
+        if (gameSave->fields.checksum1AA4 == checksum) {
+            for (i = 0; i < 9; i++) {
                 if (GameModeType == 2 || GameModeType == 3) {
-                    VsCarChoiceTable[ActivePlayerIndex & 1][1][s0] = s3->f33C[s0];
-                    CopyStringClearTail(&VsPlayerNames[ActivePlayerIndex & 1], &s3->f280);
+                    VsCarChoiceTable[ActivePlayerIndex & 1][1][i] = gameSave->fields.courseChoices33C[i];
+                    CopyStringClearTail(VsPlayerNames[ActivePlayerIndex & 1], gameSave->fields.progress280.prefix.progress.prefix00.fields.name);
                 } else if (GameModeType == 4) {
-                    LinkCarChoiceTable[ActivePlayerIndex & 1][1][s0] = s3->f33C[s0];
-                    CopyStringClearTail(&LinkPlayerNames[ActivePlayerIndex], &s3->f280);
+                    LinkCarChoiceTable[ActivePlayerIndex & 1][1][i] = gameSave->fields.courseChoices33C[i];
+                    CopyStringClearTail(LinkPlayerNames[ActivePlayerIndex], gameSave->fields.progress280.prefix.progress.prefix00.fields.name);
                 }
             }
-            for (s0 = 0; s0 < 0x210; s0++) {
-                *(int *)((ActivePlayerIndex & 1) * 0x840 + (s0 << 2) + (int)CustomEmblemBuffers) = s3->fEA4[s0];
+            for (i = 0; i < 0x210; i++) {
+                *(u32 *)(CustomEmblemBuffers.bytes + (ActivePlayerIndex & 1) * sizeof(EmblemTim840) + i * sizeof(u32)) = gameSave->fields.emblemWordsEA4[i];
             }
-            a2 = 1;
+            result = 1;
         }
         break;
     case 0x10:
-        v10 = *(int *)SaveBuffer;
-        GarageExtraDefaultTimes[GpSaveSlotCursor] = v10;
-        a2 = 1;
+        headerFrames = ((CardSaveBlock2000 *)SaveBuffer)->words[0];
+        GarageExtraDefaultTimes[GpSaveSlotCursor] = headerFrames;
+        result = 1;
         break;
     case 0x11:
-        v11 = (p = (SaveBuf11 *)SaveBuffer)->f280;
-        EmblemEditFrames = GarageExtraDefaultTimes[GpSaveSlotCursor] = v11;
-        for (t0 = 0; t0 < 2; t0++) {
-            for (s0 = 0; s0 < 0x840; s0++) {
-                if (t0 == 0) {
-                    GarageSavedDecalTimA->b[s0] = p->f300[0][s0];
+        emblemFrames = (emblemSave = (EmblemSaveData1380 *)SaveBuffer)->editFrames280;
+        EmblemEditFrames = GarageExtraDefaultTimes[GpSaveSlotCursor] = emblemFrames;
+        for (j = 0; j < 2; j++) {
+            for (i = 0; i < 0x840; i++) {
+                if (j == 0) {
+                    GarageSavedDecalTimA->bytes[i] = emblemSave->decals300[0].bytes[i];
                 } else {
-                    GarageSavedDecalTimB->b[s0] = p->f300[t0][s0];
+                    GarageSavedDecalTimB->bytes[i] = emblemSave->decals300[j].bytes[i];
                 }
             }
         }
-        a2 = 1;
+        result = 1;
         break;
     }
-    return a2;
+    return result;
 }
 
-void BuildCardHeaderAnim(char *a0, int a1, int a2, int a3, int a4, int a5) {
-    int i;
-    int *new_var;
-    a0[0] = 0x53;
-    a0[1] = 0x43;
-    a0[2] = 0x13;
-    a0[3] = 1;
-    PsyqSprintf(a0 + 4, StrFmtPercentS, a1);
-    SavedEmblemClutRect.rect.x = a2;
+void BuildCardHeaderAnim(CardFileHeader280 *header, const char *title,
+    s32 paletteX, s32 paletteY, s32 imageX, s32 imageY) {
+    int frameIndex;
+    /* GPU rectangle coordinates wrap in their signed 16-bit fields. */
+    s16 frameX;
+    header->magic00[0] = 0x53;
+    header->magic00[1] = 0x43;
+    header->iconMode02 = 0x13;
+    header->blockCount03 = 1;
+    PsyqSprintf((s8 *)header->title04, (const s8 *)StrFmtPercentS, title);
+    SavedEmblemClutRect.rect.x = paletteX;
     SavedEmblemClutRect.rect.w = 0x10;
-    SavedEmblemClutRect.rect.y = a3;
+    SavedEmblemClutRect.rect.y = paletteY;
     SavedEmblemClutRect.rect.h = 1;
-    StoreImage(&SavedEmblemClutRect, a0 + 0x60);
+    StoreImage(&SavedEmblemClutRect, header->palette60);
     DrawSync(0);
-    i = 0;
+    frameX = imageX;
+    frameIndex = 0;
     do {
-        SavedEmblemClutRect.rect.x = a4;
-        SavedEmblemClutRect.rect.y = a5;
+        SavedEmblemClutRect.rect.x = frameX;
+        SavedEmblemClutRect.rect.y = imageY;
         SavedEmblemClutRect.rect.w = 4;
         SavedEmblemClutRect.rect.h = 0x10;
-        /* (new_var = &a4) is a dead address-of that keeps gcc from hoisting the li 0x10 out of the loop (found by permuter) */
-        StoreImage(&SavedEmblemClutRect, a0 + 0x80 + (*(new_var = &a4), i) * 0x80);
+        StoreImage(&SavedEmblemClutRect, &header->payload80.frames[frameIndex]);
         DrawSync(0);
-        i++;
-        a4 += 4;
-    } while (i < 3);
+        frameIndex++;
+        frameX = frameX + 4;
+    } while (frameIndex < 3);
 }
 
-void BuildCardHeaderStatic(unsigned char *a0, int a1, int a2, int a3, int a4, int a5, B *a6) {
-    int i;
-    a0[0] = 0x53;
-    a0[1] = 0x43;
-    a0[2] = 0x11;
-    a0[3] = 1;
-    PsyqSprintf(a0 + 4, StrFmtPercentS, a1);
-    a0[0x50] = 1;
-    a0[0x51] = 0;
-    PsyqSprintf(a0 + 0x52, StrFmtPercentS, StrCardMagicCrd0);
-    SavedEmblemPixelRect.rect.x = a2;
+void BuildCardHeaderStatic(CardFileHeader280 *header, const char *title,
+    s32 paletteX, s32 paletteY, s32 imageX, s32 imageY,
+    const CardHeaderBlock128 *extra) {
+    int frameIndex;
+    header->magic00[0] = 0x53;
+    header->magic00[1] = 0x43;
+    header->iconMode02 = 0x11;
+    header->blockCount03 = 1;
+    PsyqSprintf((s8 *)header->title04, (const s8 *)StrFmtPercentS, title);
+    header->flags50[0] = 1;
+    header->flags50[1] = 0;
+    PsyqSprintf((s8 *)header->applicationTag52, (const s8 *)StrFmtPercentS, StrCardMagicCrd0);
+    SavedEmblemPixelRect.rect.x = paletteX;
     SavedEmblemPixelRect.rect.w = 0x10;
-    SavedEmblemPixelRect.rect.y = a3;
+    SavedEmblemPixelRect.rect.y = paletteY;
     SavedEmblemPixelRect.rect.h = 1;
-    StoreImage(&SavedEmblemPixelRect, a0 + 0x60);
+    StoreImage(&SavedEmblemPixelRect, header->palette60);
     DrawSync(0);
-    i = 0;
-    do {
-        SavedEmblemPixelRect.rect.x = a4;
-        SavedEmblemPixelRect.rect.y = a5;
+    frameIndex = 0;
+    while (frameIndex < 1) {
+        SavedEmblemPixelRect.rect.x = imageX;
+        SavedEmblemPixelRect.rect.y = imageY;
         SavedEmblemPixelRect.rect.w = 4;
         SavedEmblemPixelRect.rect.h = 0x10;
-        StoreImage(&SavedEmblemPixelRect, a0 + 0x80 + i * 0x80);
+        StoreImage(&SavedEmblemPixelRect, &header->payload80.frames[frameIndex]);
         DrawSync(0);
-        i++;
-        a4 += 4;
-    } while (i <= 0);
-    ((B *)a0)[2] = *a6;
-    ((B *)a0)[3] = *a6;
-    ((B *)a0)[4] = *a6;
+        frameIndex++;
+        imageX = (u32)imageX + 4U;
+    }
+    header->payload80.single.extra[0] = *extra;
+    header->payload80.single.extra[1] = *extra;
+    header->payload80.single.extra[2] = *extra;
 }

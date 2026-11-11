@@ -1,5 +1,6 @@
 """Two complete layout initializers with real reset, glyph and count helpers."""
 from overlay_units import read_c_source
+from selection_fixture_transport import transport as transport_selection
 from pathlib import Path
 import re
 import subprocess
@@ -125,7 +126,7 @@ int main(void){unsigned i;assert((uintptr_t)resources>UINT32_MAX);
 '''
         with TemporaryDirectory() as d:
             p = Path(d)
-            (p / 'test.c').write_text(source)
+            (p / 'test.c').write_text(transport_selection(source,bodies,None,'&actual.s.choice',4,[('event', 'w==&actual'), ('change', 'w==&actual')]))
             run = subprocess.run(['cc', '-std=gnu11', '-O2', '-fsanitize=undefined',
                                   '-fno-sanitize-recover=all', '-I', str(root / 'include'),
                                   str(p / 'test.c'), '-o', str(p / 'test')], capture_output=True, text=True)

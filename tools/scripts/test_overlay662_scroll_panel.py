@@ -1,11 +1,12 @@
 """Scrollbar/gradient orchestration with full native roots and service mutation."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess,unittest
 class ScrollPanelTest(unittest.TestCase):
  def test_dispatch_and_fresh_cursors(self):
   root=Path(__file__).resolve().parents[2]
-  body=(root/'src/overlays/PAL/662/func_8011C37C.c').read_text()
+  body=read_c_source(root/'src/overlays/PAL/garage/func_8011C37C.c')
   source=r'''
 #include <assert.h>
 #include <stdint.h>

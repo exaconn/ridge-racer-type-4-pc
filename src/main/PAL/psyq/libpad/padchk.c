@@ -1,5 +1,5 @@
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channel_gates.h"
 #include "psyq/libpad/padchk.h"
 void _padAllocGates(void *argument) {
@@ -7,24 +7,20 @@ void _padAllocGates(void *argument) {
     s32 i,j,found,mask;
     s32 value;
     s32 one;
-    s32 bound;
-    s32 offset;
     s32 length;
+    /* ASM_BARRIER: keep the gate cursor in A0 across both write loops. */
     register u8 *mapping,*data,*gates asm("$4");
     PsyqBzero((record->output54.fields.gates+3),6);
     if(record->pending && record->data28) {
         length=6;
-        if(((PadChannel *)record)->length34<7)length=((PadChannel *)record)->length34;
+        if(record->length34<7)length=record->length34;
         i=0;
         if(record->entry_countE9) {
             one=1;
-            /* ASM_BARRIER: keep the row index distinct from the zero byte offset. */
-            __asm__("" : "+r"(i));
-            offset=0;
             do {
                 found=0;
                 mask=1;
-                if(((const ChannelGateEntry5 *)((const u8 *)(offset+(unsigned long)record->entries04)))->all_bits02)mask=255;
+                if(record->entries04[i].all_bits02)mask=255;
                 mapping=record->output54.fields.payload;
                 data=record->data28;
                 j=0;
@@ -41,25 +37,18 @@ miss:
                 }
 scan_done:
                 if(found) {
-                    value=((u32)PadTotalGateCost+((const ChannelGateEntry5 *)((const u8 *)(offset+(unsigned long)record->entries04)))->cost03);
+                    value=((u32)PadTotalGateCost+record->entries04[i].cost03);
                     if(value<61) {
-                        /* ASM_BARRIER: stage the mapped budget address in AT after acceptance. */
-                        register s32 *budget_page asm("$1");
-                        __asm__("" : : : "$1");
-                        budget_page=(s32 *)0x800B0000U;
-                        /* ASM_BARRIER: expose the final store independently of address formation. */
-                        __asm__("" : "+r"(budget_page));
-                        budget_page[-0x4350/4]=value;
+                        PadTotalGateCost=value;
                         goto reserved;
 matched:
                         found=1;goto scan_done;
                     } else found=0;
 reserved:
-                    /* ASM_BARRIER: share the accepted/rejected continuation before marking gates. */
-                    __asm__("" : "+r"(found));
                     if(found) {
                         mapping=record->output54.fields.payload;
-                        gates=(record->output54.fields.gates+3);
+                        gates=(u8 *)record;
+                        gates+=RR_FIELD_OFFSET(PadChannel,output54.fields.gates[3]);
                         j=0;
                         if(length) {
                             do {
@@ -71,11 +60,8 @@ reserved:
                         }
                     }
                 }
-                bound=record->entry_countE9;
-                /* ASM_BARRIER: capture the live row bound before incrementing the index. */
-                __asm__("" : "+r"(bound));
-                i++;offset+=5;
-            } while(i<bound);
+                i++;
+            } while(i<record->entry_countE9);
         }
         goto out;
     }
@@ -87,12 +73,7 @@ reserved:
                 s32 enable=1;
                 (record->output54.fields.gates+3)[1]=enable;
                 (record->output54.fields.gates+3)[0]=enable;
-                {
-                    s32 total=PadTotalGateCost+10U;
-                    s32 *tail_page;
-                    tail_page=(s32 *)0x800B0000U;
-                    tail_page[-0x4350/4]=total;
-                }
+                PadTotalGateCost=PadTotalGateCost+10U;
             }
             goto out;
         }
@@ -101,12 +82,9 @@ reserved:
     if(!record->pending) {
         s32 fill=1;
         j=5;
-        /* ASM_BARRIER: keep the reverse count separate from the byte-view base bias. */
-        __asm__("" : "+r"(j));
         gates=(u8 *)record+5;
         do {gates[RR_FIELD_OFFSET(PadChannel,output54.fields.gates[3])]=fill;j--;gates--;}while(j>=0);
     }
 out:
-    /* ASM_BARRIER: end short V0 values at the common void return. */
-    __asm__("" : : : "$2");
+    ;
 }

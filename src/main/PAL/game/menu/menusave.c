@@ -1,3 +1,4 @@
+#include "rr/save_slots.h"
 #include "types.h"
 #include "rr/save_progress.h"
 #include "rr/menu_choice.h"
@@ -28,10 +29,10 @@ void UpdateSaveProgress(void) {
     i = 0;
 
 #define MARK_PROGRESS(c) SaveProgress.prefix.progress.progress10[(c).bytes[0]][(c).bytes[1]] |= 1 << (c).bytes[2]
-    MARK_PROGRESS(SelectionState.copies[0]);
-    SaveProgress.history6C[3] = *(SelectionRow *)&SelectionState.copies[0];
+    MARK_PROGRESS(SelectionState.fields.copies[0]);
+    SaveProgress.history6C[3] = *(SelectionRow *)&SelectionState.fields.copies[0];
     do {
-        settings = (MenuSettings2C *)((u8 *)&SelectionState + i * 4);
+        settings = (MenuSettings2C *)((u8 *)&SelectionState.fields + i * 4);
         MARK_PROGRESS(settings->copies[1]);
         SaveProgress.history6C[i] = *(SelectionRow *)&settings->copies[1];
         i++;
@@ -75,11 +76,11 @@ void UpdateSaveProgress(void) {
         }
     }
 
-    i = SelectionState.reserved10[3];
+    i = SelectionState.fields.reserved10[3];
     if (i < 99) {
         i++;
     }
-    SaveProgress.unlocked60[SelectionState.reserved10[2]] = i;
+    SaveProgress.unlocked60[SelectionState.fields.reserved10[2]] = i;
 
     SaveProgress.prefix.progress.prefix00.fields.configuration0C |= 0x100;
     old_count = SaveProgress.prefix.reserved50.words[1];
@@ -89,15 +90,15 @@ void UpdateSaveProgress(void) {
     }
 
     for (i = 4, slot = 0; i < 8; i++) {
-        slot += SelectionState.retries08[i];
+        slot += SelectionState.fields.retries08[i];
     }
 
     for (i = 0, old_count = 0; i < 4; i++) {
         old_count |= SaveProgress.prefix.reserved50.bytes[i + 8] << i;
     }
 
-    if (SelectionState.copies[0].bytes[2] == 0x12 && slot == 12) {
-        SaveProgress.prefix.reserved50.bytes[SelectionState.copies[0].bytes[0] + 8] = 1;
+    if (SelectionState.fields.copies[0].bytes[2] == 0x12 && slot == 12) {
+        SaveProgress.prefix.reserved50.bytes[SelectionState.fields.copies[0].bytes[0] + 8] = 1;
     }
 
     for (i = 0, new_mask = 0; i < 4; i++) {

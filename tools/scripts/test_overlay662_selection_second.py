@@ -1,4 +1,7 @@
 """Garage byte selection in a genuine40-row UI bank, with real sound closure."""
+from menu_glyph_fixture_transport import transport
+from overlay_units import read_c_source
+from selection_fixture_transport import transport as transport_selection
 from pathlib import Path
 import re
 import subprocess
@@ -8,7 +11,7 @@ import unittest
 class Overlay662SelectionSecondTest(unittest.TestCase):
     def test_flags_priorities_and_full_signed_callback_selection(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_80116808.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_80116808.c')
         bridge=(root/'tools/scripts/fixtures/views/func_8004F218.c').read_text().replace('#include "rr/audio_pan.h"','')
         sound=re.sub(r'^extern[^\n]*;\n','',(root/'tools/scripts/fixtures/views/func_8004F24C.c').read_text(),flags=re.M)
         source=r'''
@@ -78,7 +81,7 @@ int main(void){unsigned k,i;u16 flags;
 }
 '''
         with TemporaryDirectory() as temp:
-            p=Path(temp);(p/'test.c').write_text(source)
+            p=Path(temp);(p/'test.c').write_text(transport_selection(transport(source,body,'ovl662_step_selected_maker','&world.records[0][0]','12',[('effect', 'v==&world')]),body,'ovl662_step_selected_maker','&world.choice',4,[('effect','v==&world')]))
             subprocess.run(['cc','-std=gnu11','-O2','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(root/'include'),str(p/'test.c'),'-o',str(p/'test')],check=True)
             subprocess.run([str(p/'test')],check=True)
 

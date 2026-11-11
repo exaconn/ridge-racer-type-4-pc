@@ -13,10 +13,6 @@ extern char VabOpenHeadErrorStr[];
 extern char VabTransBodyErrorStr[];
 extern s32 ActiveVabTransferSlot;
 
-void SetReverb(int a0, int a1);
-void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-void PlaySfxVolPan(int a0, s16 a1, s16 a2, int a3);
-
 void LoadVab(const VabData *data, s32 mode, s32 bankIndex) {
     s32 opened;
     s32 transferred;
@@ -70,92 +66,87 @@ void SetReverb(int a0, int a1) {
     }
 }
 
-void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    s16 temp_a2_2;
-    s16 temp_s0_2;
-    s16 temp_s0_4;
-    s16 temp_v1;
-    s16 var_a0;
-    s16 var_a1;
-    s32 var_t0;
-    s32 temp_a2;
-    s32 temp_s1;
-    s32 temp_s2;
-    s32 temp_t1;
-    s32 temp_v0;
-    s32 var_a0_2;
-    s32 var_s0;
-    s32 var_s1;
-    s32 var_v0;
-    s32 first_div,second_div;
+void TriggerSfx(s32 programId, s32 level, s32 pan, s32 pitch, s32 voiceIndex) {
+    s16 rightPanned;
+    s16 automaticFine;
+    s16 fixedFine;
+    s16 leftPanned;
+    s16 rightLevel;
+    s16 leftLevel;
+    s32 bankProgram;
+    s32 panIndex;
+    s32 rightVolume;
+    s32 leftVolume;
+    s32 pitchOffset;
+    s32 monoLevel;
+    s32 leftGainProduct;
+    s32 rightVolumeProduct;
+    s32 leftVolumeProduct;
+    s32 rightScaled, leftScaled;
     s32 volume;
     s16 *table;
     s16 note;
-    s32 var_v1;
-    u16 var_a3;
-var_t0 = arg0;
-    temp_t1 = (arg3 + 0x3CU);
-    if (var_t0 < 0x1E) {
-        var_a3 = AudioPanCenterAngle;
-    } else if (var_t0 < 0x3C) {
-        var_a3 = AudioPanRearAngle;
-        var_t0 -= 0x1E;
+    s32 rightGainProduct;
+    u16 bankId;
+    bankProgram = programId;
+    pitchOffset = (pitch + 0x3CU);
+    if (bankProgram < 0x1E) {
+        bankId = SoundState.banks24.ids[0];
+    } else if (bankProgram < 0x3C) {
+        bankId = SoundState.banks24.ids[1];
+        bankProgram -= 0x1E;
     } else {
-        var_a3 = AudioPanFrontAngle;
-        var_t0 -= 0x3C;
+        bankId = SoundState.banks24.ids[7];
+        bankProgram -= 0x3C;
     }
-    table=PanGainTable;
+    table = PanGainTable;
 
-    temp_a2 = arg2 & 0x7F;
-    temp_a2_2 = (table[temp_a2] * (s16)arg1) / 16129;
-    var_a0 = temp_a2_2;
-    temp_v1 = (table[0x7F-temp_a2] * (s16)arg1) / 16129;
-    var_a1 = temp_v1;
+    panIndex = pan & 0x7F;
+    rightPanned = (table[panIndex] * (s16)level) / 16129;
+    rightLevel = rightPanned;
+    leftPanned = (table[0x7F-panIndex] * (s16)level) / 16129;
+    leftLevel = leftPanned;
     if (Options.audio.mono32 != 0) {
-        temp_v0 = (temp_v1 + temp_a2_2) / 2;
-        var_a0 = (s16) temp_v0;
-        var_a1 = (s16) temp_v0;
+        monoLevel = (leftPanned + rightPanned) / 2;
+        rightLevel = (s16) monoLevel;
+        leftLevel = (s16) monoLevel;
     }
-    var_v1 = var_a0 * SoundMasterGain;
-    if (var_v1 < 0) {
-        var_v1 += 0x7F;
-    }
-
-    var_a0_2 = var_a1 * SoundMasterGain;
-    first_div=var_v1>>7;
-    if (var_a0_2 < 0) {
-        var_a0_2 += 0x7F;
+    rightGainProduct = rightLevel * SoundState.gain18;
+    if (rightGainProduct < 0) {
+        rightGainProduct += 0x7F;
     }
 
-    first_div=(first_div * 0x10000U);
-
-    volume=Options.audio.volume31;
-    var_s1 = (first_div>>16) * volume;
-    second_div=var_a0_2>>7;
-    if (var_s1 < 0) {
-        var_s1 += 0xF;
+    leftGainProduct = leftLevel * SoundState.gain18;
+    rightScaled = rightGainProduct >> 7;
+    if (leftGainProduct < 0) {
+        leftGainProduct += 0x7F;
     }
 
-    var_v0 = (s16)second_div * volume;
-    temp_s1 = var_s1 >> 4;
-    if (var_v0 < 0) {
-        var_v0 += 0xF;
+    rightScaled = (s16)rightScaled;
+
+    volume = Options.audio.volume31;
+    rightVolumeProduct = rightScaled * volume;
+    leftScaled = leftGainProduct >> 7;
+    if (rightVolumeProduct < 0) {
+        rightVolumeProduct += 0xF;
     }
-    temp_s2 = var_v0 >> 4;
-    var_s0 = temp_t1;
-    if (arg4 == -1) {
-        s16 bank = var_a3;
-        s16 program = var_t0;
-        SsUtKeyOn(bank, program, 0, note = temp_t1 / 128, temp_s0_2 = temp_t1 % 128, (s16) temp_s2, (s16) temp_s1);
-        SsUtKeyOn(bank, program, 1, note, temp_s0_2, (s16) temp_s2, (s16) temp_s1);
+
+    leftVolumeProduct = (s16)leftScaled * volume;
+    rightVolume = rightVolumeProduct >> 4;
+    leftVolume = leftVolumeProduct / 16;
+    if (voiceIndex == -1) {
+        s16 bank = bankId;
+        s16 program = bankProgram;
+        SsUtKeyOn(bank, program, 0, note = pitchOffset / 128, automaticFine = pitchOffset % 128, (s16) leftVolume, (s16) rightVolume);
+        SsUtKeyOn(bank, program, 1, note, automaticFine, (s16) leftVolume, (s16) rightVolume);
         return;
     }
     {
-        u32 voice = arg4 * 2U;
-        s16 bank = var_a3;
-        s16 program = var_t0;
-        SsUtKeyOnV((s16)voice, bank, program, 0, note = temp_t1 / 128, temp_s0_4 = temp_t1 % 128, (s16) temp_s2, (s16) temp_s1);
-        SsUtKeyOnV((s16)(voice + 1U), bank, program, 1, note, temp_s0_4, (s16) temp_s2, (s16) temp_s1);
+        u32 voice = voiceIndex * 2U;
+        s16 bank = bankId;
+        s16 program = bankProgram;
+        SsUtKeyOnV((s16)voice, bank, program, 0, note = pitchOffset / 128, fixedFine = pitchOffset % 128, (s16) leftVolume, (s16) rightVolume);
+        SsUtKeyOnV((s16)(voice + 1U), bank, program, 1, note, fixedFine, (s16) leftVolume, (s16) rightVolume);
     }
 }
 

@@ -1,3 +1,4 @@
+#include "game/ui/uipart1.h"
 #include "game/data/cardchk.h"
 #include "game/menu/loadmenu.h"
 #include "game/menu/savemenu.h"
@@ -9,7 +10,6 @@
 #include "rr/menu_choice.h"
 #include "rr/string_tail_copy.h"
 
-extern int StepMenuValue();
 extern short CardMenuOperation;
 extern short CardActivePort;
 extern short MenuActiveControllerIndex;

@@ -1,4 +1,5 @@
 """Actual grid mapper, original ROM grids, rectangle centers and distance body."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re
@@ -9,7 +10,7 @@ class Overlay662MapperTest(unittest.TestCase):
     def test_every_original_grid_cell_and_root_side_effects(self):
         root=Path(__file__).resolve().parents[2]
         paths=['8011D278','8011DC74','8011DBD8','8011E5C0']
-        bodies='\n'.join((root/f'src/overlays/PAL/662/func_{a}.c').read_text() for a in paths)
+        bodies='\n'.join(read_c_source(root/f'src/overlays/PAL/garage/func_{a}.c') for a in paths)
         source=r'''
 #include <assert.h>
 #include <stdint.h>

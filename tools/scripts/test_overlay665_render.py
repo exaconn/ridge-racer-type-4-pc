@@ -9,8 +9,8 @@ from c_functions import definition_source, source_owners
 class Overlay665RenderTest(unittest.TestCase):
     def test_modes_and_service_mutations(self):
         root=Path(__file__).resolve().parents[2]
-        body=read_c_source(root / 'src/overlays/PAL/665/func_8011643C.c')
-        prepare=read_c_source(root / 'src/overlays/PAL/665/func_80116358.c')
+        body=read_c_source(root / 'src/overlays/PAL/options/func_8011643C.c')
+        prepare=read_c_source(root / 'src/overlays/PAL/options/func_80116358.c')
         owner=source_owners(root/'src/main/PAL')['ScaleMatrixRow1']
         scale=definition_source(owner.read_text(),'ScaleMatrixRow1')
         source=r'''

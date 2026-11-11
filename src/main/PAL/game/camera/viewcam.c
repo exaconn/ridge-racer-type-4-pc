@@ -17,31 +17,10 @@
 #include "game/data/globals.h"
 #include "rr/object_transform_types.h"
 #include "rr/projection_state.h"
+#include "rr/rro_model.h"
+#include "psyq/libgpu/gpudisp.h"
 #include "game/camera/viewcam.h"
 #include "rr/animated_glyph.h"
-
-#define G ((Scratch_8006EF8C *)SCRATCHPAD)
-
-
-typedef struct {
-    s16 f0;
-    s16 f2;
-    s16 f4;
-    s16 f6;
-} S_800A3C20;
-
-typedef struct {
-    s32 f00;
-    s32 f04;
-    s32 reserved08[23];
-    s32 f64;
-    s32 f68;
-    u16 f6C;
-    u16 f6E;
-    u16 f70;
-    u16 f72;
-} Scratch_8006EF8C;
-
 
 extern int ScaleMatrix();
 extern char ActiveCameraModeTable[];
@@ -55,10 +34,8 @@ extern u16 CourseSelectMapCoordsX[];
 extern s16 CourseSelectMapCoordsY[];
 extern u16 CourseSelectLabelPosX[];
 extern s16 CourseSelectLabelPosY[];
-extern S_800A3C20 CourseSelectPreviewUvs[][7];
 extern void SetGeomOffset(s32, s32);
 extern void SetGeomScreen(s32);
-extern void SetDrawArea(s32);
 extern int ViewUsesCarTrackNode;
 extern RaceVehicle PlayerCars[];
 
@@ -195,68 +172,64 @@ void BuildLightMatrix(void) {
 }
 
 
-void SetupViewport(s32 a0) {
-    Scratch_8006EF8C *s2 = G;
-    s32 s3;
-    s32 s1;
-    s32 s5;
-    s32 v1;
-    S_800A3C20 *p;
-    /* ASM_BARRIER: Keep a0_val in $a0 in the s5 != 0 branch so p is allocated to $a1. */
-    register s32 a0_val asm("$4");
-    /* ASM_BARRIER: Keep a2_val in $a2 in the s5 != 0 branch so p is allocated to $a1. */
-    register s32 a2_val asm("$6");
+void SetupViewport(s32 viewport) {
+    RroSceneScratchPrefix *scene = (RroSceneScratchPrefix *)SCRATCHPAD;
+    u8 *packet;
+    s32 isMirror;
+    s32 coordinate;
+    GpuRectangleFields *rectangle;
+    s32 top;
+    s32 height;
 
-    s3 = s2->f00;
-    ActiveViewportIndex = a0;
-    s1 = (a0 == 1);
-    SetGeomOffset(ViewOffsetX[a0], ViewOffsetY[a0]);
-    s5 = (a0 == 1);
-    SetGeomScreen(ViewScreenH[a0]);
-    s2->f6C = CourseSelectMapCoordsX[a0];
-    v1 = CourseSelectMapCoordsY[a0];
-    if (s1) {
-        v1 += RearViewMirrorY;
+    packet = scene->view.projection.pointers.cursor;
+    ActiveViewportIndex = viewport;
+    isMirror = (viewport == 1);
+    SetGeomOffset(ViewOffsetX[viewport], ViewOffsetY[viewport]);
+    SetGeomScreen(ViewScreenH[viewport]);
+    scene->viewport6C.rect.x = CourseSelectMapCoordsX[viewport];
+    coordinate = CourseSelectMapCoordsY[viewport];
+    if (isMirror) {
+        coordinate = (s32)((u32)coordinate + (u32)RearViewMirrorY);
     }
-    s2->f6E = v1;
-    s2->f70 = CourseSelectLabelPosX[a0];
-    v1 = CourseSelectLabelPosY[a0];
-    if (s1) {
-        v1 += RearViewMirrorY;
+    scene->viewport6C.rect.y = coordinate;
+    scene->viewport6C.rect.w = CourseSelectLabelPosX[viewport];
+    coordinate = CourseSelectLabelPosY[viewport];
+    if (isMirror) {
+        coordinate = (s32)((u32)coordinate + (u32)RearViewMirrorY);
     }
-    s2->f72 = v1;
-    p = &CourseSelectPreviewUvs[DrawBufIndex][a0];
-    if (!s5) {
-        s2->f64 = 0;
+    scene->viewport6C.rect.h = coordinate;
+    rectangle = &CourseSelectPreviewUvs[DrawBufIndex][viewport];
+    if (!isMirror) {
+        scene->renderFlags64 = 0;
     } else {
-        s2->f64 = 1;
-        a0_val = RearViewMirrorY;
-        if (a0_val < 0) {
-            a0_val = 0;
+        scene->renderFlags64 = 1;
+        top = RearViewMirrorY;
+        if (top < 0) {
+            top = 0;
         }
-        p->f2 = a0_val;
-        a2_val = s2->f72;
-        if ((s16)a0_val < (s16)a2_val) {
-            a0_val = a2_val - a0_val;
+        rectangle->y = top;
+        height = (u16)scene->viewport6C.rect.h;
+        if ((s16)top < (s16)height) {
+            top = height - top;
         } else {
-            a0_val = 0;
+            top = 0;
         }
-        p->f6 = a0_val;
-        v1 = p->f2;
+        rectangle->h = top;
+        coordinate = rectangle->y;
         if (DrawBufIndex != 0) {
-            v1 += 0x100;
+            coordinate += 0x100;
         }
-        p->f2 = v1;
+        rectangle->y = coordinate;
     }
-    if (a0 & 1) {
-        s2->f04 = &CurrentDrawBuf->buffer.secondaryOrderingB70.words[0];
+    if (viewport & 1) {
+        scene->view.projection.pointers.order = &CurrentDrawBuf->buffer.secondaryOrderingB70.words[0];
     } else {
-        s2->f04 = &CurrentDrawBuf->buffer.ordering70.words[0];
+        scene->view.projection.pointers.order = &CurrentDrawBuf->buffer.ordering70.words[0];
     }
-    SetDrawArea(s3);
-    AddPrim(s2->f04 + 0xAFC, s3);
-    s3 += 0xC;
-    G->f00 = s3;
+    SetDrawArea(packet, rectangle);
+    AddPrim(scene->view.projection.pointers.order + 703, (u32 *)packet);
+    packet += 0xC;
+    ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = packet;
 }
 
 int GetViewTrackNode(const s32 *position, s32 player) {

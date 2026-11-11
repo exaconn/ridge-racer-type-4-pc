@@ -1,3 +1,4 @@
+#include "game/sound/fxplay.h"
 #include "types.h"
 #include "rr/audio_state_types.h"
 #include "game/camera/campath.h"
@@ -15,7 +16,6 @@ extern struct { s32 a, b, c; } ReplayCamTargetDistTable[];
 extern s16 ActiveSfxSeqHandle;
 
 void SeqStartTrack(int a0);
-void SeqMuteVolume(void);
 void SeqMusicPause(void);
 void SeqMusicResume(void);
 

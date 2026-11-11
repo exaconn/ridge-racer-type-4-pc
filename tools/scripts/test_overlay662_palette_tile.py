@@ -1,4 +1,5 @@
 """16-color palette ownership and real TILE/sprite emission closure."""
+from overlay_units import read_c_source
 from pathlib import Path
 import struct
 import subprocess
@@ -14,11 +15,11 @@ class Overlay662PaletteTileTest(unittest.TestCase):
         rows=[struct.unpack_from('<iHHBBHiI',blob,offset+0x80126260+20*i) for i in range(72)]
         self.assertEqual(sorted(r[6] for r in rows),list(range(72)))
         original='static const GarageSpriteRecord original[72]={\n'+',\n'.join('{'+','.join(map(str,r))+'}' for r in rows)+'\n};\n'
-        sprite=(root/'src/overlays/PAL/662/func_8011B2D4.c').read_text()
+        sprite=read_c_source(root/'src/overlays/PAL/garage/func_8011B2D4.c')
         hint='    __asm__("" ::: "memory");\n'
         self.assertEqual(sprite.count(hint),0) # The emitter no longer needs scheduling metadata.
-        tile=(root/'src/overlays/PAL/662/func_8011B034.c').read_text()
-        body=(root/'src/overlays/PAL/662/func_8011BCC0.c').read_text()
+        tile=read_c_source(root/'src/overlays/PAL/garage/func_8011B034.c')
+        body=read_c_source(root/'src/overlays/PAL/garage/func_8011BCC0.c')
         source=r'''
 #include <assert.h>
 #include <stddef.h>

@@ -9,7 +9,7 @@ P=Path(__file__).resolve().parent
 ROOT=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file())
 os.chdir(ROOT)
 scratch=TemporaryDirectory(prefix='rr661-native-');T=Path(scratch.name)
-source=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'src/overlays/PAL/661/func_80117430.c'
+source=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'src/overlays/PAL/versus/func_80117430.c'
 resolved=resolve_c_source_path(source).resolve()
 body=read_c_source(source);header='#include "game/system/pad.h"\n#include "rr/overlay661_course_menu.h"\n#include "rr/frame_storage_types.h"\n#include "rr/load_cursor.h"\n'
 body=re.sub(r' __asm__\("\$\d+"\)','',body)

@@ -6,7 +6,7 @@
 #include "game/effect/effect.h"
 #include "psyq/libc/rand.h"
 
-void SetDrawMode(u32 *, s32, s32, s32, s32);
+#include "psyq/libgpu/gpudisp.h"
 
 void UpdateParticles(void) {
     u32 *p;

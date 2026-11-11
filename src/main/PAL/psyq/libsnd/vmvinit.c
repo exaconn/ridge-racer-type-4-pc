@@ -63,6 +63,10 @@ void SpuSetVoiceAttr(SpuVoiceAttr *attributes) {
     unsigned int value;
     int envelopeMode;
     unsigned int note;
+    /* ASM_BARRIER: Keep loaded hardware register in $v0 before masking into $v1. */
+    register unsigned short currentEnvelope __asm__("$2");
+    /* ASM_BARRIER: Keep masked hardware register in $v1 across envelope combine. */
+    register unsigned int preservedBits __asm__("$3");
 
     mask = attributes->mask;
     allFields = (mask == 0);
@@ -182,15 +186,11 @@ void SpuSetVoiceAttr(SpuVoiceAttr *attributes) {
                         break;
                     }
                 }
-                {
-                    /* ASM_BARRIER: Keep loaded hardware register in $v0 before masking into $v1. */
-                    register unsigned short currentEnvelope __asm__("$2") =
-                        ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr1;
-                    /* ASM_BARRIER: Keep masked hardware register in $v1 across envelope combine. */
-                    register unsigned int preservedBits __asm__("$3") = currentEnvelope & 0xFF;
-                    ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr1 =
-                        preservedBits | ((value | envelopeMode) << 8);
-                }
+                currentEnvelope =
+                    ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr1;
+                preservedBits = currentEnvelope & 0xFF;
+                ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr1 =
+                    preservedBits | ((value | envelopeMode) << 8);
             }
             if (allFields || (mask & 0x1000)) {
                 value = attributes->dr;
@@ -219,15 +219,11 @@ void SpuSetVoiceAttr(SpuVoiceAttr *attributes) {
                         break;
                     }
                 }
-                {
-                    /* ASM_BARRIER: Keep loaded hardware register in $v0 before masking into $v1. */
-                    register unsigned short currentEnvelope __asm__("$2") =
-                        ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr2;
-                    /* ASM_BARRIER: Keep masked hardware register in $v1 across envelope combine. */
-                    register unsigned int preservedBits __asm__("$3") = currentEnvelope & 0x3F;
-                    ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr2 =
-                        preservedBits | ((value | envelopeMode) << 6);
-                }
+                currentEnvelope =
+                    ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr2;
+                preservedBits = currentEnvelope & 0x3F;
+                ((SpuVoiceRegisters *)((u8 *)_spu_RXX + registerIndex * sizeof(u16)))->adsr2 =
+                    preservedBits | ((value | envelopeMode) << 6);
             }
             if (allFields || (mask & 0x4000)) {
                 value = attributes->rr;

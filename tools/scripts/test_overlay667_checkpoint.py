@@ -6,7 +6,7 @@ import subprocess, unittest
 ROOT=Path(__file__).resolve().parents[2]
 class CheckpointTest(unittest.TestCase):
  def test_all_counter_encodings_and_callback_mutations(self):
-  body=read_c_source(ROOT / 'src/overlays/PAL/667/func_80115508.c')
+  body=read_c_source(ROOT / 'src/overlays/PAL/serial_link/func_80115508.c')
   body='\n'.join(line for line in body.splitlines() if not line.startswith('#include') and not line.startswith('extern '))
   code=r'''
 #include <assert.h>

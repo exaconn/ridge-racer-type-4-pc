@@ -317,12 +317,12 @@ void UpdateTrackObjects(void) {
                                         }
                                         ObjSimBlimpTrackNode = v1;
                                     }
-                                    sp[2] = (((TrackNodes[ObjSimJetTrackNode].x08 - TrackNodes[ObjSimBlimpTrackNode].x08) * MenuSoundEffectMap) >> 5) + TrackNodes[ObjSimBlimpTrackNode].x08 * 4;
-                                    sp[3] = (((TrackNodes[ObjSimJetTrackNode].y10 - TrackNodes[ObjSimBlimpTrackNode].y10) * MenuSoundEffectMap) >> 7) + TrackNodes[ObjSimBlimpTrackNode].y10;
-                                    sp[4] = (((TrackNodes[ObjSimJetTrackNode].z0C - TrackNodes[ObjSimBlimpTrackNode].z0C) * MenuSoundEffectMap) >> 5) + TrackNodes[ObjSimBlimpTrackNode].z0C * 4;
-                                    sp[5] = ((((TrackNodes[ObjSimCopterTrackNode].x08 - TrackNodes[ObjSimJetTrackNode].x08) * MenuSoundEffectMap) >> 5) + TrackNodes[ObjSimJetTrackNode].x08 * 4) - sp[2];
-                                    sp[6] = ((((TrackNodes[ObjSimCopterTrackNode].y10 - TrackNodes[ObjSimJetTrackNode].y10) * MenuSoundEffectMap) >> 7) + TrackNodes[ObjSimJetTrackNode].y10) - sp[3];
-                                    sp[7] = ((((TrackNodes[ObjSimCopterTrackNode].z0C - TrackNodes[ObjSimJetTrackNode].z0C) * MenuSoundEffectMap) >> 5) + TrackNodes[ObjSimJetTrackNode].z0C * 4) - sp[4];
+                                    sp[2] = (((TrackNodes[ObjSimJetTrackNode].road.x - TrackNodes[ObjSimBlimpTrackNode].road.x) * MenuSoundEffectMap) >> 5) + TrackNodes[ObjSimBlimpTrackNode].road.x * 4;
+                                    sp[3] = (((TrackNodes[ObjSimJetTrackNode].road.height - TrackNodes[ObjSimBlimpTrackNode].road.height) * MenuSoundEffectMap) >> 7) + TrackNodes[ObjSimBlimpTrackNode].road.height;
+                                    sp[4] = (((TrackNodes[ObjSimJetTrackNode].road.z - TrackNodes[ObjSimBlimpTrackNode].road.z) * MenuSoundEffectMap) >> 5) + TrackNodes[ObjSimBlimpTrackNode].road.z * 4;
+                                    sp[5] = ((((TrackNodes[ObjSimCopterTrackNode].road.x - TrackNodes[ObjSimJetTrackNode].road.x) * MenuSoundEffectMap) >> 5) + TrackNodes[ObjSimJetTrackNode].road.x * 4) - sp[2];
+                                    sp[6] = ((((TrackNodes[ObjSimCopterTrackNode].road.height - TrackNodes[ObjSimJetTrackNode].road.height) * MenuSoundEffectMap) >> 7) + TrackNodes[ObjSimJetTrackNode].road.height) - sp[3];
+                                    sp[7] = ((((TrackNodes[ObjSimCopterTrackNode].road.z - TrackNodes[ObjSimJetTrackNode].road.z) * MenuSoundEffectMap) >> 5) + TrackNodes[ObjSimJetTrackNode].road.z * 4) - sp[4];
                                     TrackObjectStates[i].fC += sp[2];
                                     TrackObjectStates[i].f10 += sp[3] - 0xFA;
                                     TrackObjectStates[i].f14 += sp[4];

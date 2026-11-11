@@ -1,5 +1,6 @@
 #ifndef RR_MODE_MENU_STATE_H
 #define RR_MODE_MENU_STATE_H
+#include "rr/save_slots.h"
 
 #include "rr/menu_setup.h"
 #include "rr/frame_environment.h"
@@ -11,7 +12,6 @@ extern s16 MenuActiveControllerIndex, MenuStateIndex, CardTransferMode, ModeGrou
 extern s16 GpSaveSlotCursor, GameModeType, LinkState, CardActivePort, CardMenuOperation;
 extern s16 CardReplayLoadedFlag, CardPromptIndex, CardPromptChoices[3];
 extern u16 ModeIndex, SubmodeState;
-extern MenuSettings2C SaveSlotSelections[3], SaveSlotSnapshots[3];
 
 void CopyStringClearTail(char *destination, char *source);
 s32 UpdateLinkHandshake(s32);

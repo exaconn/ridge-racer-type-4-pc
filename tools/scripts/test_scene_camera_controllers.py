@@ -30,6 +30,7 @@ PREFIX = r'''
 #include <string.h>
 #include "vehicle_wire.h"
 #include "scene_camera_wire.h"
+#include "scene_context_wire.h"
 #include "rr/scene_camera_state.h"
 #include "game/car/bounds.h"
 #include "game/gfx/scene1.h"
@@ -79,10 +80,10 @@ static SceneCameraState160 *camera(unsigned n){assert(n<3);return n?&live.camera
 static void put32(u8 *p,u32 n){memcpy(p,&n,4);}
 static void wire(const World *w,u8 *out){
  u8 *p=out;
- memcpy(p,w->context.before,16);p+=16;memcpy(p,&w->context.value,0xEC);p+=0xEC;
+ memcpy(p,w->context.before,16);p+=16;rr_scene_context_prefix_store(p,&w->context.value);p+=0xEC;
  rr_scene_camera_store(p,&w->context.value.cameraEC);p+=0x160;
  put32(p,pointer(w->context.value.camera24C));p+=4;
- memcpy(p,w->context.value.reserved250,0x314);p+=0x314;memcpy(p,w->context.after,16);p+=16;
+ rr_scene_context_tail_store(p,&w->context.value);p+=0x314;memcpy(p,w->context.after,16);p+=16;
  for(unsigned i=0;i<2;i++){
   memcpy(p,w->cameras[i].before,16);p+=16;rr_scene_camera_store(p,&w->cameras[i].value);p+=0x160;
   memcpy(p,w->cameras[i].after,16);p+=16;
@@ -130,6 +131,14 @@ void PsyqBzero(void *p,s32 bytes){
  * only its first argument. This adapter does not redefine its public API. */
 static void traceModelTexturePage(s32 page,s32 distance,SceneRaceContext *context,SceneCameraState160 *selected){
  assert(page==25&&context==&RaceContext);(void)service(2,(u32)page,(u32)distance,pointer(context),pointer(selected));
+}
+/* The historical PAL trace retains three unused register observations.
+ * The corrected C service has one argument; its native observation adapter
+ * reads the equivalent already-published camera state. The old oracle and
+ * all PAL register checks remain unchanged. */
+static void traceCurrentModelTexturePage(s32 page){
+ SceneCameraState160 *selected=RaceContext.camera24C;
+ traceModelTexturePage(page,selected->distance100,&RaceContext,selected);
 }
 s32 InterpCurveEase(s32 x){return word(service(3,(u32)x,0,0,0));}
 s32 FindCurveSegment(PairS16 *curve,s32 x){
@@ -183,9 +192,9 @@ static void initialize(unsigned number){
  for(unsigned i=0;i<sizeof(frozen);i++)p[i]=(u8)next(&seed);
  memset(&live,0xA5,sizeof(live));rr_scene_track_reset();
  memcpy(live.context.before,frozen.context.before,16);memcpy(live.context.after,frozen.context.after,16);
- memcpy(&RaceContext,frozen.context.value.prefix,0xEC);
+ rr_scene_context_prefix_load(&RaceContext,frozen.context.value.prefix);
  rr_scene_camera_load(&RaceContext.cameraEC,frozen.context.value.camera.bytes);
- memcpy(RaceContext.reserved250,frozen.context.value.tail,0x314);
+ rr_scene_context_tail_load(&RaceContext,frozen.context.value.tail);
  for(unsigned i=0;i<2;i++){
   memcpy(live.cameras[i].before,frozen.cameras[i].before,16);memcpy(live.cameras[i].after,frozen.cameras[i].after,16);
   rr_scene_camera_load(&live.cameras[i].value,frozen.cameras[i].value.bytes);
@@ -207,7 +216,7 @@ static s32 argument1(unsigned n){return edges[(n/5)%12];}
 unsigned exercise_native(void){
  _Static_assert(sizeof(CameraOwner)==sizeof(SceneCameraState160)+32&&sizeof(BoundsOwner)==44,"complete native camera/bounds owners");
  _Static_assert(offsetof(SceneRaceContext,reserved250)==offsetof(SceneRaceContext,camera24C)+sizeof(void*),"native context tail");
- _Static_assert(offsetof(SceneRaceContext,model560)+4-(offsetof(SceneRaceContext,reserved250))==0x314,"complete serialized context tail");
+ _Static_assert(offsetof(SceneRaceContext,cameraNodes550)-offsetof(SceneRaceContext,reserved250)==0x300,"scalar tail before resource pointers");
  for(unsigned n=0;n<32768;n++){
   initialize(n);assert((uintptr_t)RaceContext.camera24C>UINT32_MAX&&(uintptr_t)CarBoundsTable[0]>UINT32_MAX);
   capture=&expected;capture->count=0;reference(argument0(n),argument1(n));memcpy(&capture->final,&live,sizeof(live));
@@ -235,7 +244,7 @@ class SceneCameraControllerTest(unittest.TestCase):
     def test_complete_native_contexts_and_original_mips(self):
         owners = source_owners(ROOT/'src/main/PAL')
         body = '\n'.join(definition_source(owners[n].read_text(), n) for n in NAMES)
-        body = body.replace('SetModelTexturePage(', 'traceModelTexturePage(')
+        body = body.replace('SetModelTexturePage(', 'traceCurrentModelTexturePage(')
         prefix = PREFIX.replace('@RACE@', hex(address_of('RaceContext'))+'U').replace('@CURVES@', hex(address_of('CarCameraHeightOffsets'))+'U')
         self.assertEqual(address_of('D_800AC006'), address_of('PlayerCars')+0x10E)
         for offset, name in [(12, 'FinishCamFollowTargets'), (24, 'ShowcaseCamDepthCurve'), (36, 'FinishCamSplineWeights'), (48, 'IntroCamDollyKeyframes')]:
@@ -269,7 +278,7 @@ class SceneCameraControllerTest(unittest.TestCase):
                 traces.update(C.string_at(native.final_wire(), 4112))
             self.assertEqual(inputs.hexdigest(), 'b31ab5ff4e2aed1412cd7db95eaf65ab0b2fe83bbc52b880dcd1b0506a2d126d')
             self.assertEqual(traces.hexdigest(), 'c75b00d6ff550d1e42f4367cd6895be23ae82dec9b2ea29f9f9b485d485dae84')
-            regions = [(address_of('RaceContext')-16, 0x564+32), (0x80180000, 384), (0x80181000, 384),
+            regions = [(address_of('RaceContext')-16, 0x564+16), (address_of('RaceContext')+0x57C,16), (0x80180000, 384), (0x80181000, 384),
                        (address_of('PlayerCars')-16, 1632), (0x801A0000, 44), (0x801A1000, 44), (0x801A2000, 44),
                        (address_of('CarBoundsTable')-16, 44), (address_of('CarCameraHeightOffsets'), 100),
                        (address_of('ReplayCamBankWeights'), 16), (address_of('SelectedMakerIndex'), 2),
@@ -299,11 +308,13 @@ class SceneCameraControllerTest(unittest.TestCase):
             cpu = Cpu(memory, 0, 100, 101, 102, store)
 
             def write_state(data):
+                write(address_of('RaceContext')+0x564,bytes(8)+b'\xA5'*0x10)
                 offset = 0
                 for address, length in regions:
                     write(address, data[offset:offset+length]);offset += length
 
             def state():
+                self.assertEqual(read(address_of('RaceContext')+0x564,0x18),bytes(8)+b'\xA5'*0x10)
                 return b''.join(read(a, n) for a, n in regions)
 
             for case in range(1024):

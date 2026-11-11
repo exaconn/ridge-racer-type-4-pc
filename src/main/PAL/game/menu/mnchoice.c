@@ -1,3 +1,4 @@
+#include "rr/save_slots.h"
 #include "types.h"
 #include "rr/load_cursor.h"
 #include "scratchpad.h"
@@ -17,7 +18,7 @@ s32 CountChoiceGlyphs(const CourseChoice4 *a0);
 
 void StepResultsMenuChoice(void) {
     s32 state;
-    u32 selected=ActiveSelectionRowValue;
+    u32 selected=SelectionRows.choice.bytes[1];
     SelectedMakerIndex=selected;
     ((u8 *)UiRows)[12+selected]=0;
     if ((MenuSelectedCarSlot & 0x2000) && SelectedMakerIndex < 3) {
@@ -35,9 +36,9 @@ void StepResultsMenuChoice(void) {
     if(SelectedMakerIndex<0)SelectedMakerIndex=0;
     else if(SelectedMakerIndex>=4)SelectedMakerIndex=3;
     Dialogue->b4=(u8)SelectedMakerIndex+34;
-    ActiveSelectionRowValue=SelectedMakerIndex;
+    SelectionRows.choice.bytes[1]=SelectedMakerIndex;
     GlyphRows[SelectedMakerIndex].control02=-6;
-    GlyphRows[SelectedMakerIndex].flags00=0;
+    GlyphRows[SelectedMakerIndex].frameIndex00=0;
     UiRows->byte16=(u8)SelectedMakerIndex+4;
 skip_step:;
     {
@@ -52,19 +53,19 @@ skip_step:;
         if(state==3) {
             PlaySfx(1);
             {
-                MenuSettings2C *settings=&SelectionState;
+                MenuSettings2C *settings=&SelectionState.fields;
                 BadgeRow1C *control=BadgeRows;
                 UiRow24 *ui=UiRows;
 
                 /* Four copies of the same byte-aligned source record. */
-                settings->copies[0]=SelectionRows;
-                settings->copies[1]=SelectionRows;
-                settings->copies[2]=SelectionRows;
-                settings->copies[3]=SelectionRows;
+                settings->copies[0]=SelectionRows.choice;
+                settings->copies[1]=SelectionRows.choice;
+                settings->copies[2]=SelectionRows.choice;
+                settings->copies[3]=SelectionRows.choice;
                 control->state10=4;
                 ui->byte14=state;
                 {
-                    u32 byte=SelectionRows.bytes[1];
+                    u32 byte=SelectionRows.choice.bytes[1];
                     s32 mode;
 
                     mode=2;

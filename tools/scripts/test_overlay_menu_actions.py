@@ -1,5 +1,6 @@
 """Four menu actions, live helper mutations and captured choice bytes."""
 from overlay_units import read_c_source
+from selection_fixture_transport import transport as transport_selection
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -113,7 +114,7 @@ static void choices(void){u32 k,m;
 int main(int argc,char **argv){unsigned which;assert(argc==2);which=atoi(argv[1]);if(which<4)menus(which);else choices();return 0;}
 '''
         path = Path(cls.temp.name)
-        (path / 'test.c').write_text(source)
+        (path / 'test.c').write_text(transport_selection(source,resident+bodies,None,'&world.choice',4,[('DrawMenuStepArrows', '1'), ('UpdateGlyphRow', '1')]))
         cls.binary = path / 'test'
         subprocess.run(['cc', '-std=gnu11', '-O2', '-Wno-deprecated-non-prototype',
                         '-fsanitize=undefined', '-fno-sanitize-recover=all',

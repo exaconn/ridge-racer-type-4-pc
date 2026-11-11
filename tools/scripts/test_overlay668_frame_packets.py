@@ -153,7 +153,7 @@ class Overlay668FramePacketsTest(unittest.TestCase):
             if name in ('SetDefDrawEnv', 'SetDrawEnv'):
                 body = body.replace(name, 'real_' + name)
             helpers.append(body)
-        emitter = definition_source(read_c_source(ROOT / 'src/overlays/PAL/668/func_80115BD0.c'),
+        emitter = definition_source(read_c_source(ROOT / 'src/overlays/PAL/movie_playback/func_80115BD0.c'),
                                     'ovl668_emit_letterbox_pass')
         with TemporaryDirectory() as directory:
             source = Path(directory) / 'frame_packets.c'

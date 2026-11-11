@@ -1,11 +1,12 @@
 """Horizontal thumb dragging: signed narrowing, capture gates and fresh services."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess,unittest
 class HorizontalScrollDragTest(unittest.TestCase):
  def test_geometry_and_service_state(self):
   root=Path(__file__).resolve().parents[2]
-  body=(root/'src/overlays/PAL/662/func_80123CC8.c').read_text()
+  body=read_c_source(root/'src/overlays/PAL/garage/func_80123CC8.c')
   code=r'''
 #include <assert.h>
 #include <stddef.h>

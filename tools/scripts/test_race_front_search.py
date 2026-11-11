@@ -38,7 +38,7 @@ typedef union {
 typedef struct {
     u8 prefix[32];
     RaceVehicle vehicle;
-    RaceDistanceContextPrefix context;
+    SceneRaceContext context;
     CountStorage counter;
     RaceStandingsTable ordinary,track;
     u8 suffix[32];
@@ -57,8 +57,8 @@ static s32 get32(const void *address) {
 }
 static s32 bits(u32 value) {s32 result;memcpy(&result,&value,4);return result;}
 static int reference(void) {
-    s32 desired=bits((u32)(expected.vehicle.flags1E4&15)-1U+(u32)expected.context.mode);
-    RaceStandingsTable *table=(RaceStandingsTable*)expected.context.result;
+    s32 desired=bits((u32)(expected.vehicle.flags1E4&15)-1U+(u32)expected.context.playerCount14);
+    RaceStandingsTable *table=expected.context.standings;
     int rows=expected.counter.count.value;
     int target=desired;
     for(int row=0;row<rows;row++) {
@@ -88,8 +88,8 @@ static int reference(void) {
 static RaceStandingsTable *initialize(int rows,s32 length,u32 seed,int alias) {
     memset(&actual,(u8)(seed^(seed>>8)),sizeof(actual));
     RaceStandingsTable *table=alias==1?&actual.counter.table:alias==2?&actual.track:&actual.ordinary;
-    actual.context.result=(RaceDistanceResult*)table;
-    actual.context.mode=1;
+    actual.context.standings=table;
+    actual.context.playerCount14=1;
     actual.vehicle.flags1E4=0xFFF0;
     actual.vehicle.input=100;
     for(int i=0;i<8;i++) {
@@ -130,12 +130,12 @@ int main(int argc,char **argv) {
         for(u32 flags=0;flags<65536;flags++) {
             initialize(8,1023,flags,0);
             actual.vehicle.flags1E4=flags;
-            actual.context.mode=1-(int)(flags&15)+(flags/16)%8;check();
+            actual.context.playerCount14=1-(int)(flags&15)+(flags/16)%8;check();
         }
         for(int rows=0;rows<=8;rows++)for(unsigned l=0;l<12;l++) {
             for(int target=0;target<8;target++)for(int delta=-130;delta<=130;delta++) {
                 RaceStandingsTable *t=initialize(rows,lengths[l],rows*71+target,0);
-                actual.context.mode=target+1;
+                actual.context.playerCount14=target+1;
                 for(int i=0;i<8;i++)t->entries18[i].totalDist04=delta+i*17;
                 check();
             }
@@ -151,14 +151,14 @@ int main(int argc,char **argv) {
         do {
             RaceStandingsTable *t=initialize(8,511,seed++,0);
             for(int i=0;i<8;i++){t->entries18[i].unk00=ids[i];t->entries18[i].totalDist04=(i%3)*31;}
-            actual.context.mode=ids[seed%8]+1;
+            actual.context.playerCount14=ids[seed%8]+1;
             check();
         }while(permutation(ids));
         for(int alias=1;alias<=2;alias++)for(int rows=2;rows<=8;rows++) {
             for(int selected=0;selected<rows;selected++)for(int n=0;n<127;n++) {
                 RaceStandingsTable *t=initialize(rows,127,n,alias);
                 for(int i=0;i<8;i++)t->entries18[i].totalDist04=i*i*7+n;
-                actual.context.mode=selected+1;
+                actual.context.playerCount14=selected+1;
                 check();
             }
         }
@@ -176,18 +176,18 @@ int main(int argc,char **argv) {
         const s32 modes[]={(-2147483647-1),-1,0,1,2147483647};
         for(unsigned n=0;n<3;n++)for(unsigned m=0;m<5;m++) {
             initialize(inactive[n],0,n,0);
-            actual.context.result=0;actual.context.mode=modes[m];
+            actual.context.standings=0;actual.context.playerCount14=modes[m];
             actual.vehicle.flags1E4=0xFFFF;check();
         }
         for(int count=-32768;count<0;count++) {
-            initialize(count,0,(u32)count,0);actual.context.result=0;check();
+            initialize(count,0,(u32)count,0);actual.context.standings=0;check();
         }
         /* The lookup may miss: the original identifier then remains the
          * reference index, provided it still names an accessible row. */
         for(int target=0;target<8;target++) {
             RaceStandingsTable *t=initialize(8,1000,target,0);
             for(int i=0;i<8;i++)t->entries18[i].unk00=(target+1)%8;
-            actual.context.mode=target+1;check();
+            actual.context.playerCount14=target+1;check();
         }
     }
     return 0;

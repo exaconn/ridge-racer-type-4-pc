@@ -18,8 +18,7 @@ s32 _SsVmAlloc(void) {
     u32 one;
     s32 offset;
     s32 signed_priority;
-    /* ASM_BARRIER: retain the captured selection accumulator in its original temporary. */
-    register u32 raw_priority asm("$4");
+    u32 raw_priority;
     s32 cutoff;
     u32 gate;
     u32 age;
@@ -34,16 +33,10 @@ s32 _SsVmAlloc(void) {
     register u8 *at_page asm("$1");
     /* ASM_BARRIER: retain shared field page temporary in A2. */
     register u8 *a2_page asm("$6");
-    /* ASM_BARRIER: retain shared field page temporary in T0. */
-    register u8 *t0_page asm("$8");
     chosen=99;
     best_gate=65535;
     ties=0;
-    /* ASM_BARRIER: initialize independent candidate accumulators before scanning. */
-    __asm__("" : "+r"(ties), "+r"(chosen));
     best_age=0;
-    /* ASM_BARRIER: retain the independent initial age accumulator. */
-    __asm__("" : "+r"(best_age));
     best=99;
     index=0;
     /* ASM_BARRIER: keep the byte loop comparison separate from the next byte index. */
@@ -88,29 +81,18 @@ s32 _SsVmAlloc(void) {
                     *( s16 *)((u8 *)&((ChannelControlRow36 *)(a2_page-0x6F8))-> priority1A );
                 }
                 );
-raw_priority= ( {
-                    /* ASM_BARRIER: retain this field page in its original temporary until the row access. */
-                    register u8 *page asm("$4")=(u8 *)0x80110000U;
-page+=( offset );
-                    *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> priority1A );
-                }
-                );
+                raw_priority = 0x80110000U;
+                raw_priority += offset;
+                raw_priority = *( u16 *)((u8 *)&((ChannelControlRow36 *)((u8 *)raw_priority-0x6F8))-> priority1A );
                 if(signed_priority<cutoff) {
                     priority=raw_priority;
                     best=index;
-                    best_gate= ( {
-                        /* ASM_BARRIER: retain this field page in its original temporary until the row access. */
-                        register u8 *page asm("$12")=(u8 *)0x80110000U;
-page+=( offset );
-                        *( u16 *)((u8 *)&((ChannelControlRow36 *)(page-0x6F8))-> value06 );
-                    }
-                    );
-best_age= ( {
-                    t0_page=(u8 *)0x80110000U;
-                    t0_page+=offset;
-                        *( u16 *)((u8 *)&((ChannelControlRow36 *)(t0_page-0x6F8))-> age02 );
-                    }
-                    );
+                    best_gate = 0x80110000U;
+                    best_gate += offset;
+                    best_gate = *( u16 *)((u8 *)&((ChannelControlRow36 *)((u8 *)best_gate-0x6F8))-> value06 );
+                    best_age = 0x80110000U;
+                    best_age += offset;
+                    best_age = *( u16 *)((u8 *)&((ChannelControlRow36 *)((u8 *)best_age-0x6F8))-> age02 );
                     ties=1;
                 }
                 else if(signed_priority==cutoff) {
@@ -123,12 +105,9 @@ best_age= ( {
                     );
                     ties++;
                     if((u16)gate<raw_priority) {
-                        best_age= ( {
-                    t0_page=(u8 *)0x80110000U;
-                    t0_page+=offset;
-                            *( u16 *)((u8 *)&((ChannelControlRow36 *)(t0_page-0x6F8))-> age02 );
-                        }
-                        );
+                        best_age = 0x80110000U;
+                        best_age += offset;
+                        best_age = *( u16 *)((u8 *)&((ChannelControlRow36 *)((u8 *)best_age-0x6F8))-> age02 );
                         best_gate=gate;
                         best=index;
                     }
@@ -252,8 +231,7 @@ void _SsVmDoAllocate(void) {
     u32 *mask;
     u32 one;
     u32 scaled;
-    /* ASM_BARRIER: reuse V1 for the selected voice only after each preceding value dies. */
-    register s32 voice asm("$3");
+    s32 voice;
     /* ASM_BARRIER: materialize each PAL page in AT after preceding values have been consumed. */
     register u8 *store asm("$1");
     s16 program;
@@ -279,12 +257,13 @@ void _SsVmDoAllocate(void) {
 voice=*selected;
     mask=_svm_envx_hist;
     scaled=voice*8U;
-    voice=(s16)voice;
+    voice<<=16;
+    voice>>=16;
     value=voice*sizeof(ChannelControlRow36);
     voice=32767;
 store=(u8 *)0x80110000U;
 store+=value;
-    *(u16 *)(store - 0x6F8 + RR_FIELD_OFFSET(ChannelControlRow36, value06))=voice;
+    ((ChannelControlRow36 *)(store - 0x6F8))->value06=voice;
     do {
         i++;
         *mask &= ~(one << (s16)*selected);
@@ -305,7 +284,7 @@ store+=value;
     offset>>=15;
     store=(u8 *)0x80110000U;
 store+=offset;
-    *(u16 *)(store - 0x1E8 + RR_FIELD_OFFSET(SpuVolumeCache, voices) + RR_FIELD_OFFSET(SpuCachedVolumeEntry, program06))=value;
+    ((SpuVolumeCache *)(store - 0x1E8))->voices[0].program06=value;
     voice=selection[1];
 load=(u8 *)0x80110000U;
 load+=voice;
@@ -325,7 +304,7 @@ store+=voice;
     base=&_svm_sreg_dirty.voices[0].tone08;
     store=(u8 *)0x80110000U;
 store+=offset2;
-    *(u16 *)(store - 0x1E8 + RR_FIELD_OFFSET(SpuVolumeCache, voices) + RR_FIELD_OFFSET(SpuCachedVolumeEntry, tone08))=voice;
+    ((SpuVolumeCache *)(store - 0x1E8))->voices[0].tone08=voice;
     flags=*(u16 *)&_svm_tn[toneIndex][VAB_TONE_ADSR2];
     value=_svm_damper;
     value+=(flags&31);

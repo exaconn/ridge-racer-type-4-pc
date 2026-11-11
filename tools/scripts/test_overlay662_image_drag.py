@@ -1,4 +1,5 @@
 """Image drag executes actual hit-test, clip, backup and toroidal shift bodies."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re
@@ -9,7 +10,7 @@ class Overlay662ImageDragTest(unittest.TestCase):
     def test_start_continue_cancel_and_all_relative_shifts(self):
         root=Path(__file__).resolve().parents[2]
         paths=['8011E6C8','8011E7C0','8011D120','80125DE0','801251AC']
-        bodies='\n'.join(re.sub(r' asm\("[^"\n]*"\)','',(root/f'src/overlays/PAL/662/func_{a}.c').read_text()) for a in paths)
+        bodies='\n'.join(re.sub(r' asm\("[^"\n]*"\)','',read_c_source(root/f'src/overlays/PAL/garage/func_{a}.c')) for a in paths)
         source=r'''
 #include <assert.h>
 #include <stdint.h>

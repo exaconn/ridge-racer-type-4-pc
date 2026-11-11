@@ -36,11 +36,10 @@ static StatePage state_page,expected_page;
 #define SoundState state_page.owned.sound
 ''' + helper + body + r'''
 s16 *SoundSequenceTable[RR_SEQUENCE_TABLE_COUNT][2];
-s32 SoundSeqVariantIndex;
 static s16 values[20],other[2]={123,0};
 static int model(int id,int restart) {
     AudioState *state=&expected_page.owned.sound;
-    const s16 *input=SoundSequenceTable[id][SoundSeqVariantIndex!=0];
+    const s16 *input=SoundSequenceTable[id][state->sequenceVariant19CC!=0];
     if(input==(s16*)-1)return -1;
     int used=0;
     if(!state->sequence19D0.active || restart) {
@@ -94,21 +93,21 @@ int main(int argc,char **argv) {
             for(unsigned t=0;t<sizeof(terminals)/sizeof(*terminals);t++)
             for(unsigned d=0;d<sizeof(directions)/sizeof(*directions);d++) {
                 prepare(active_values[a],used,length,terminals[t]);
-                SoundSeqVariantIndex=directions[d];
-                SoundSequenceTable[2][SoundSeqVariantIndex!=0]=values;
+                SoundState.sequenceVariant19CC=directions[d];
+                SoundSequenceTable[2][SoundState.sequenceVariant19CC!=0]=values;
                 run(2,restarts[r]);
             }
         }
     } else if(!strcmp(argv[1],"sentinel")) {
         for(unsigned d=0;d<sizeof(directions)/sizeof(*directions);d++)
         for(unsigned r=0;r<sizeof(restarts)/sizeof(*restarts);r++) {
-            prepare(0,-100,4,0);SoundSeqVariantIndex=directions[d];
-            SoundSequenceTable[1][SoundSeqVariantIndex!=0]=(s16*)-1;
+            prepare(0,-100,4,0);SoundState.sequenceVariant19CC=directions[d];
+            SoundSequenceTable[1][SoundState.sequenceVariant19CC!=0]=(s16*)-1;
             run(1,restarts[r]);
         }
     } else {
         /* Repeated appends must preserve older entries, and a rejection is inert. */
-        prepare(0,7,2,0);SoundSeqVariantIndex=0;SoundSequenceTable[0][0]=values;
+        prepare(0,7,2,0);SoundState.sequenceVariant19CC=0;SoundSequenceTable[0][0]=values;
         run(0,0);assert(SoundState.sequence19D0.count==2);
         run(0,0);assert(SoundState.sequence19D0.count==4);
         run(0,0);assert(SoundState.sequence19D0.count==6);

@@ -1,3 +1,4 @@
+#include "rr/emblem_images.h"
 #include "types.h"
 #include "rr/load_cursor.h"
 #include "game/data/ldscn1.h"
@@ -31,8 +32,6 @@ extern int CourseBestLapRecords[8];
 extern TimeRecord16 LapRecords[2][8][5];
 extern CourseChoice4 CourseChoiceTable[2][9];
 extern unsigned short DefaultCourseChoiceGlyphs[];
-extern unsigned char SaveDataWork[];
-extern unsigned char CustomEmblemBuffers[];
 #include "rr/cd_directory_buffer.h"
 extern s32 StrTitle0Log;
 extern s32 VSyncThreshold;
@@ -98,14 +97,14 @@ void InitCourseChoices(void)
 void BackupSaveData(void) {
     int i;
     for (i = 0; i < 0x840; i++) {
-        CustomEmblemBuffers[i] = SaveDataWork[i];
+        CustomEmblemBuffers.bytes[i] = SaveDataWork.file.bytes[i];
     }
 }
 
 void RestoreSaveData(void) {
     int i;
     for (i = 0; i < 0x840; i++) {
-        SaveDataWork[i] = CustomEmblemBuffers[i];
+        SaveDataWork.file.bytes[i] = CustomEmblemBuffers.bytes[i];
     }
 }
 

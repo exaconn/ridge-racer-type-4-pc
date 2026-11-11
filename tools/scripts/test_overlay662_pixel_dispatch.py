@@ -1,4 +1,5 @@
 """Coupled dispatcher/pixel C with real hit testing and mutable service state."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re
@@ -9,10 +10,10 @@ import unittest
 class GaragePixelDispatchTest(unittest.TestCase):
     def test_callbacks_byte_coordinates_and_captured_operation(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/662/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/garage/func_{a}.c')
                            for a in ('80124E4C', '80124974'))
         bodies = re.sub(r' __asm__\("\$[0-9]+"\)', '', bodies)
-        hit = (root / 'src/overlays/PAL/662/func_8011E6C8.c').read_text().replace(
+        hit = read_c_source(root / 'src/overlays/PAL/garage/func_8011E6C8.c').replace(
             'ovl662_point_outside_rect(', 'real_hit(')
         source = r'''
 #include <assert.h>

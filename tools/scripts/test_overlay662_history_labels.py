@@ -1,4 +1,6 @@
 """History labels: full native cursors, live globals and actual decimal helper."""
+from overlay_units import read_c_source
+from selection_fixture_transport import transport as transport_selection
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +10,7 @@ import unittest
 class HistoryLabelsTest(unittest.TestCase):
     def test_native_labels(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/662/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/garage/func_{a}.c')
                            for a in ('80117654', '80117AA4', '80117C98', '80117DFC'))
         formatter = (root / 'tools/scripts/fixtures/views/func_8002B814.c').read_text()
         source = r'''
@@ -115,7 +117,7 @@ int main(void){unsigned scenario,kind,i;void (*functions[4])(u32*,void*,s32)={ov
 '''
         with TemporaryDirectory() as d:
             p = Path(d)
-            (p / 'test.c').write_text(source)
+            (p / 'test.c').write_text(transport_selection(source,bodies,None,'&actual.s.choice',4,[('event', 'w==&actual'), ('change', 'w==&actual')]))
             subprocess.run(['cc', '-std=gnu11', '-O2', '-fsanitize=undefined',
                             '-fno-sanitize-recover=all', '-I', str(root / 'include'),
                             str(p / 'test.c'), '-o', str(p / 'test')], check=True,

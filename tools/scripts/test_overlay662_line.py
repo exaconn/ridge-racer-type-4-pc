@@ -1,4 +1,5 @@
 """Vertical LINE_F2 packet and serialized DMA links, with real owner aliasing."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -9,7 +10,7 @@ class Overlay662LineTest(unittest.TestCase):
     def test_packet_bits_links_aliases_and_native_cursor(self):
         root=Path(__file__).resolve().parents[2]
         # Remove only target register-placement metadata for the native compiler.
-        body=re.sub(r' asm\("[^"]*"\)','',(root/'src/overlays/PAL/662/func_8011AE2C.c').read_text())
+        body=re.sub(r' asm\("[^"]*"\)','',read_c_source(root/'src/overlays/PAL/garage/func_8011AE2C.c'))
         source=r'''
 #include <assert.h>
 #include <stddef.h>

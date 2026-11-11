@@ -69,12 +69,10 @@ extern short BadgeTitleColumnX[];
 extern short BadgeTitleBarX[];
 extern R4 BadgeTitleDigitUv;
 extern void *AddSpritePrim();
-extern void *AddTileSemiTransPrim();
 extern S_F4CB0 MenuFrameState;
 extern s8 BeamFadeStripHeights[];
 extern char UiBeamFadePalettePair[];
 extern s32 MenuStepDirection;
-extern void PlaySfx();
 extern char RaceTimeDigits[];
 extern int NumLaps;
 extern int LapTimes[];
@@ -518,7 +516,7 @@ L:
     if ((a0 & 2) == 0) {
         if (s0 < a3) {
             if (s0 >= a4) {
-                PlaySfx(0, a);
+                PlaySfx(0);
             } else {
                 s0 = a4;
             }
@@ -526,7 +524,7 @@ L:
             s0 = a3 - 1;
         }
     } else {
-        PlaySfx(0, a);
+        PlaySfx(0);
         if (s0 >= a3) {
             s0 = a4;
         } else if (s0 < a4) {

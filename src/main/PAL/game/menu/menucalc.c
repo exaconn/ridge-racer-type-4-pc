@@ -1,3 +1,7 @@
+#include "game/ui/uipart1.h"
+#include "game/sound/sndvab.h"
+#include "game/menu/mnrows.h"
+#include "rr/save_slots.h"
 #include "types.h"
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
@@ -30,20 +34,15 @@ extern unsigned char BadgeGlyphUvTable[][4];
 extern signed char BadgeStripPatterns[][8];
 extern unsigned char CourseSelectGroupCounts[];
 extern unsigned char GpStageCourseBaseIndex[];
-extern MenuSettings2C SelectionState;
 extern unsigned char MakerTeamCarCounts[];
 extern int ModeFrame;
-extern int SetMenuFrameOptions();
-extern int UpdateBadgeRowAnim();
-extern int InitRect16Row();
+#include "game/ui/uidraw.h"
 extern short ModeIndex;
 extern short ModeGroup;
 extern int DialogueSceneMode;
 extern unsigned short SubmodeState;
 extern s32 VSyncThreshold;
 extern s16 ActiveSceneId;
-extern void ResetScreenCounters();
-extern void PlaySfx();
 extern unsigned short FadeCountdown;
 extern BadgeRow1C *BadgeRows;
 extern int MenuSharedScratchPtr;
@@ -75,7 +74,7 @@ int DrawCarStatBars(int x, int a1)
     {
       s2 = 0;
     }
-    s0 = SelectionState.phase17 >> 1;
+    s0 = SelectionState.fields.phase17 >> 1;
     if (s0 >= 3)
     {
       s0 = 2;
@@ -90,7 +89,7 @@ int DrawCarStatBars(int x, int a1)
       a = s0;
       if (i == 1)
       {
-        s0 = SelectionState.phase17 + 3;
+        s0 = SelectionState.fields.phase17 + 3;
         a = s0;
       }
     }
@@ -100,7 +99,7 @@ int DrawCarStatBars(int x, int a1)
     {
       unsigned char *t;
       int b = BadgeStripPatterns[s0][4];
-      s0 = GpStageCourseBaseIndex[SelectionState.phase17] + 0x20;
+      s0 = GpStageCourseBaseIndex[SelectionState.fields.phase17] + 0x20;
       new_var = BadgeGlyphUvTable;
       t = new_var[s0];
       x = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.words[0], x, b + 0x34, s3, t[2], t[3], t[0], t[1], 0x4A, 0x2E28, i, s2);
@@ -199,7 +198,7 @@ void DialogueModeUpdate(void) {
                 FadeCountdown = 0;
                 if (PendingModeId == 0x10F || PendingModeId == 0x12A || PendingModeId == 0x205) {
                     FadeCountdown = 0x40;
-                    ResetScreenCounters(tab);
+                    ResetScreenCounters();
                     LoadCursor = MenuSharedScratchPtr;
                     LoadTimListStep(0);
                     SeqFadeVolume(0, (short)(FadeCountdown - 4));

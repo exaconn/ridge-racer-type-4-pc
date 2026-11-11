@@ -1,3 +1,6 @@
+#include "game/ui/uipart1.h"
+#include "game/sound/sndvab.h"
+#include "rr/save_slots.h"
 /* RODATA 0x80010550 0x60 */
 #include "types.h"
 #include "rr/frame_storage_types.h"
@@ -6,8 +9,7 @@
 #include "rr/menu_state_types.h"
 #include "rr/selection_types.h"
 #include "game/menu/mnrows.h"
-extern MenuSettings2C SelectionState;
-extern SelectionRows32 SelectionRows;
+#include "game/data/selection.h"
 extern u8 MenuSelectionLockedFlag;
 #include "rr/ui.h"
 #include "rr/badge_row_types.h"
@@ -29,27 +31,21 @@ extern u8 MenuSelectionLockedFlag;
 #include "game/ui/uibar.h"
 
 
-typedef MenuSettings2C SaveSlotSelection;
 
 extern unsigned char MenuSelectedMakerId;
 extern short CardMenuOperation;
 #include "rr/sprite_effect.h"
 extern SpriteEffectSource MenuJitterSpritePresetA;
 extern SpriteEffectSource MenuJitterSpritePresetB;
-extern int SetMenuFrameOptions();
 extern short NumCars;
-extern void ClearScreenOverlayState(void);
 extern s8 ScreenFadeState;
 extern s16 ModeIndex;
 extern s16 ModeGroup;
 extern s16 GpSaveSlotCursor;
 extern u16 SubmodeState;
-extern int StepMenuValue();
-extern void PlaySfx();
 extern short FadeCountdown;
 extern short MenuScriptId;
 extern int MenuSharedScratchPtr;
-extern SaveSlotSelection SaveSlotSelections[];
 extern BadgeRow1C *BadgeRows;
 extern unsigned short MenuSelectedCarSlot;
 extern int MenuAutoAdvanceTimer;
@@ -88,37 +84,37 @@ void SelectDialogueScript(void) {
         PendingModeId = 0x10F;
         break;
     case 4:
-        idx = SelectionState.phase17;
+        idx = SelectionState.fields.phase17;
         if (idx < 4) {
-            a3 = SelectionState.results00[idx];
+            a3 = SelectionState.fields.results00[idx];
         } else {
-            a3 = 3 - SelectionState.retries08[idx];
+            a3 = 3 - SelectionState.fields.retries08[idx];
             if (idx == 7) a3 = 0;
         }
         switch (idx) {
         case 0:
-            a1 = SelectionState.retries08[idx] < 3;
+            a1 = SelectionState.fields.retries08[idx] < 3;
             break;
         case 1:
         case 3:
             a1 = 4;
-            if (SelectionState.retries08[idx] >= 3) a1 = SelectionState.results00[idx - 1];
+            if (SelectionState.fields.retries08[idx] >= 3) a1 = SelectionState.fields.results00[idx - 1];
             break;
         case 2:
             a1 = 4;
-            if (SelectionState.retries08[idx] >= 3) a1 = SelectionState.reserved10[4];
+            if (SelectionState.fields.retries08[idx] >= 3) a1 = SelectionState.fields.reserved10[4];
             break;
         case 4:
             a1 = MenuSelectionLockedFlag;
             break;
         case 5:
-            a1 = 3 - SelectionState.retries08[idx - 1];
+            a1 = 3 - SelectionState.fields.retries08[idx - 1];
             break;
         case 6:
         case 7:
             a1 = 0;
             i = 0;
-            settings = &SelectionState;
+            settings = &SelectionState.fields;
             do {
                 a1 += settings->retries08[i + 4];
                 i++;
@@ -128,7 +124,7 @@ void SelectDialogueScript(void) {
             } else if (idx == 7) {
                 a1 = 1;
             } else {
-                a1 = 4 - SelectionState.retries08[idx - 1];
+                a1 = 4 - SelectionState.fields.retries08[idx - 1];
             }
             break;
         }
@@ -393,7 +389,7 @@ void GpSaveSlotMenuUpdate(void) {
             if (s0 == 4) {
                 SetMenuFrameOptions(1, 1, 1);
                 if (PlayerControllers[0].action28 != 0) {
-                    if (SaveSlotSelections[GpSaveSlotCursor].phase17 > 0) {
+                    if (SaveSlotSelections[GpSaveSlotCursor].fields.phase17 > 0) {
                         PlaySfx(1);
                         SubmodeState = 1;
                         FadeCountdown = 0x40;
@@ -423,7 +419,7 @@ void GpSaveSlotMenuUpdate(void) {
         AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (0x40 - FadeCountdown) * 4, 0x45);
         if (FadeCountdown <= 0) {
             if (LoadTimListStep(1) == 1) {
-                SelectionState = SaveSlotSelections[GpSaveSlotCursor];
+                SelectionState.fields = SaveSlotSelections[GpSaveSlotCursor].fields;
                 ModeGroup = 1;
                 ModeIndex = 0xF;
                 SubmodeState = 0;

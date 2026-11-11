@@ -23,16 +23,17 @@ RECORDS = (0x80180010, 0x80190010)
 RANKS = 0x801A0010
 PREFIX = r'''
 #include <assert.h>
+#include "rr/save_slot_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
 #include "game/data/bankrec.h"
 #include "game/ui/uipart1.h"
-#include "rr/menu_state_types.h"
+#include "rr/save_slots.h"
 #include "game/menu/menu8.h"
 static struct World {
     u32 before[4];CarRecord records[2];RankEntry8 ranks[8];
-    CarRecord *table[8];RankEntry8 *rankTable[8];MenuSettings2C selection;
+    CarRecord *table[8];RankEntry8 *rankTable[8];SavedMenuSettings selection;
     s32 time;u32 after[4];
 } world;
 #define CarRecordPtrs world.table
@@ -65,8 +66,8 @@ int FramesToMilliseconds(s32 frames,s32 subframe) {
     assert(calls++==0&&subframe==0);snapshot(trace);
     if(scenario&1){
         world.table[0]=&world.records[world.table[0]==world.records?1:0];
-        world.selection.phase17=(world.selection.phase17+3)&7;
-        world.selection.result19=(scenario&2)?9:-1;
+        world.selection.fields.phase17=(world.selection.fields.phase17+3)&7;
+        world.selection.fields.result19=(scenario&2)?9:-1;
         {u32 bits=0x80000000U|scenario;memcpy(&world.time,&bits,4);}
     }
     return result;

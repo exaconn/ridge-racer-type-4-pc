@@ -1,4 +1,5 @@
 """Mode button: real16-byte owners, all signed timers, actual sprite closure."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import struct
@@ -15,8 +16,8 @@ class Overlay662ModeButtonTest(unittest.TestCase):
         self.assertEqual(sorted(r[6] for r in sprites),list(range(72)))
         data='static const GarageButton original_buttons[46]={\n'+',\n'.join('{{'+','.join(map(str,r[:4]))+'},'+','.join(map(str,r[4:]))+'}' for r in buttons)+'\n};\n'
         data+='static const GarageSpriteRecord original_sprites[72]={\n'+',\n'.join('{'+','.join(map(str,r))+'}' for r in sprites)+'\n};\n'
-        child=(root/'src/overlays/PAL/662/func_8011B2D4.c').read_text().replace('    __asm__("" ::: "memory");\n','')
-        body=(root/'src/overlays/PAL/662/func_8011BDC8.c').read_text()
+        child=read_c_source(root/'src/overlays/PAL/garage/func_8011B2D4.c').replace('    __asm__("" ::: "memory");\n','')
+        body=read_c_source(root/'src/overlays/PAL/garage/func_8011BDC8.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

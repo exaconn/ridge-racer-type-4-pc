@@ -1,8 +1,8 @@
 #include "types.h"
 #include "rr/gpu.h"
 
-void SetSprt(void *arg0) {
-    PolyG4Packet *p = arg0;
-    p->len = 4;
-    p->code = 0x64;
+void SetSprt(void *packet) {
+    GpuPrimitiveHeader *header = packet;
+    header->tag.bytes.length = 4;
+    header->color.bytes.code = 0x64;
 }

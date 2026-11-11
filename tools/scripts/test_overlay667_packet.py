@@ -8,7 +8,7 @@ import unittest
 class Overlay667PacketTest(unittest.TestCase):
     def test_packet_and_driver_write_boundaries(self):
         root=Path(__file__).resolve().parents[2]
-        body=read_c_source(root / 'src/overlays/PAL/667/func_80114D30.c')
+        body=read_c_source(root / 'src/overlays/PAL/serial_link/func_80114D30.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

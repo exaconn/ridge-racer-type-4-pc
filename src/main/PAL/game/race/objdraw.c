@@ -1,7 +1,7 @@
 #include "psyq/libgte/rotmat.h"
 #include "rr/rro_model.h"
 #include "rr/memory.h"
-#include "rr/draw_environment.h"
+#include "psyq/libgpu/gpudisp.h"
 #include "rr/animated_glyph.h"
 #include "rr/projection_state.h"
 #include "game/gfx/model.h"
@@ -426,7 +426,7 @@ void DrawTrackObjects(s32 arg0) {
             }
             sp1CB8 = FindTrackNodeAtXZ(TrackObjectStates[i].fC, TrackObjectStates[i].f14);
             for (j = 0; j < 8; j++) {
-                spA0[j].vy = (TrackNodes[sp1CB8].y10 - TrackObjectStates[i].f10) >> 2;
+                spA0[j].vy = (TrackNodes[sp1CB8].road.height - TrackObjectStates[i].f10) >> 2;
                 spA0[j].vx = (((spA0[j].vy >> 1)) * rcos(TrackObjectStates[i].f0 * 57 + j * 512)) / 4096;
                 spA0[j].vz = (((spA0[j].vy >> 1)) * rsin(TrackObjectStates[i].f0 * 57 + j * 512)) / 4096 + (((spA0[j].vy >> 1)) + 250) * s3[0x20 / 4];
                 sp128[j].b = 0;
@@ -455,7 +455,7 @@ void DrawTrackObjects(s32 arg0) {
                 }
                 for (j = 0; j < 8; j++) {
                     sp1D8[j + 4].v0.vx = 0;
-                    sp1D8[j + 4].v0.vy = (TrackNodes[sp1CB8].y10 - TrackObjectStates[i].f10) >> 2;
+                    sp1D8[j + 4].v0.vy = (TrackNodes[sp1CB8].road.height - TrackObjectStates[i].f10) >> 2;
                     sp1D8[j + 4].v0.vz = ((spA0[j].vy / 4) + 250) * s3[0x20 / 4];
                     sp1D8[j + 4].v1.vx = (spA0[j].vx >> 1);
                     sp1D8[j + 4].v1.vy = spA0[j].vy;

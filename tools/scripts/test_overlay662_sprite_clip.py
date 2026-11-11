@@ -1,4 +1,5 @@
 """Sprite/clip orchestration with genuine scratchpad pointers and ABI boundaries."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -7,7 +8,7 @@ import unittest
 class GarageSpriteClipTest(unittest.TestCase):
     def test_gate_captured_order_and_cursor_returns(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_8011B8B4.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_8011B8B4.c')
         source=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -48,7 +49,8 @@ u8 *ovl662_emit_indexed_sprite(s32 index,u8 *packet,s32 x,s32 y){
  for(i=0;i<20;i++)packet[i]=(u8)(i*19U+(u32)index+(u32)x+(u32)y);
  changes(&world,0);return packet+20;
 }
-u8 *ovl662_emit_draw_area(u32 *ordering,u8 *packet,u32 x,u32 y,u32 width,u32 height){
+u8 *ovl662_emit_draw_area(u32 *ordering,u32 *words,u32 x,u32 y,u32 width,u32 height){
+ u8 *packet=(u8 *)words;
  unsigned i;assert(world.calls==1 && ordering==world.orders[root_id]+132 && packet==cursor(20));
  assert(world.scratch.cursor==packet && x==0 && y==0 && width==320 && height==480);
  record(&world,packet,ordering,x,y,width,height);

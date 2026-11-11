@@ -1,4 +1,7 @@
 """Glyph phase duplication: modulo words, overlapping rows and fresh roots."""
+from menu_glyph_fixture_transport import transport
+from overlay_units import read_c_source
+from selection_fixture_transport import transport as transport_selection
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -7,7 +10,7 @@ import unittest
 class Overlay662GlyphDuplicateTest(unittest.TestCase):
     def test_phase_wrap_aliasing_and_typed_layout_calls(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_80115EC4.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_80115EC4.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -30,6 +33,7 @@ static unsigned scenario,base,switching;
 #define ovl662_history_arrow_phase world.local
 #define SelectedMakerIndex world.selected
 #define ActiveSelectionRowValue world.choice.bytes[1]
+#define SelectionRows world.choice
 '''+body+r'''
 static u32 rng=0x15EC4;
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
@@ -87,7 +91,7 @@ int main(void){unsigned b,j,k;
 }
 '''
         with TemporaryDirectory() as tmp:
-            p=Path(tmp);(p/'test.c').write_text(source)
+            p=Path(tmp);(p/'test.c').write_text(transport_selection(transport(source,body,'ovl662_init_history_subpage','&world.glyphs[0][0]','36',[('event', 'w==&world')]),body,'ovl662_init_history_subpage','&world.choice',4,[('event','w==&world'),('InitGlyphRow','1')]))
             subprocess.run(['cc','-std=gnu11','-O2','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(root/'include'),str(p/'test.c'),'-o',str(p/'test')],check=True)
             subprocess.run([str(p/'test')],check=True)
 

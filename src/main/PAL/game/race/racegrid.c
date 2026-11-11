@@ -1,3 +1,6 @@
+#include "game/sound/sndvab.h"
+#include "rr/save_slots.h"
+#include "rr/geometry.h"
 #include "game/sound/sndque.h"
 #include "game/ui/badgeprim.h"
 #include "game/ui/badge1.h"
@@ -29,33 +32,28 @@
 typedef struct { int a, b, c, d; } w3g2V;
 
 typedef struct {
-    short x, y;
-} V;
-
-typedef struct {
     short x, y, z;
 } Vec3s6;
 
+extern PolyF3Packet *EmitPolyF3();
 extern Vec3s6 StartSignalLightOffsetsA[];
 extern Vec3s6 StartSignalLightOffsetsB[];
-extern short AngleDiffSigned();
+#include "game/course/trkintp.h"
 extern int ViewUsesCarTrackNode;
 extern s32 RaceState;
 extern int RaceVoiceFlags;
 extern short FadeCountdown;
-extern void PlaySfx();
 extern unsigned char PauseMenuMaxChoices[];
 extern signed char PauseCursor;
 extern int PauseAbortNextModes[];
-extern char SelectionState[];
 extern int RankEntries;
 extern int TrackLength;
 extern short ModeIndex;
 extern int TotalRaceTime;
 extern short ModeGroup;
 extern short SubmodeState;
-extern int GameQueueSprite();
-extern int EmitPolyF3();
+#include "game/gfx/spremit.h"
+/* Aggregate coordinate arguments still need one recovered public contract. */
 extern unsigned char PauseMenuChoiceMap[][4];
 extern int SioDeviceName[];
 extern int LinkWriteHandle;
@@ -69,12 +67,11 @@ extern short LinkHostFlag;
 extern int CourseSelectLockedFlag;
 
 void SetupMenuCarCamera(int a);
-void UpdateRaceChaseCamera(RaceVehicle *p);
 void PlayStartCountdownVoice(int a0);
 void InitPlayerRumble(void);
 void UpdatePauseMenu(int a0);
 void ApplyPauseMenuChoice(int arg0);
-void DrawPauseMenu(u32 *a0, int a1);
+void DrawPauseMenu(u32 *ordering, int selection);
 int LinkTimeoutCallback(int a0, unsigned int a1);
 void BeginLinkSync(void);
 int ExitOnLinkLost(void);
@@ -136,7 +133,7 @@ void UpdateRaceChaseCamera(RaceVehicle *p) {
         if (p->height108 < 0x28) s.v[1] = (unsigned short)p->height108 - 0x8C;
         s.v[2] = 0;
         ApplyMatrix(&s.b, (const Vec3s8 *)(s.v), (Vec3i *)(s.w));
-        *(w3g2V *)&g[2] = *(w3g2V *)&p->pos10[0];
+        *(w3g2V *)&g[2] = *(w3g2V *)&p->worldPosition10.words[0];
         g[2] -= p->ir40[0];
         g[4] -= p->ir40[2];
         *(w3g2V *)&g[6] = *(w3g2V *)&p->rot50;
@@ -149,8 +146,8 @@ void UpdateRaceChaseCamera(RaceVehicle *p) {
         g[8] += ((short)a1 / 2) + ((short)a2 / 2);
         return;
     }
-    s.v[0] = AngleDiffSigned(g[6], p->rot50) / 8;
-    r = AngleDiffSigned(g[7], p->rot54);
+    s.v[0] = (s16)AngleDiffSigned(g[6], p->rot50) / 8;
+    r = (s16)AngleDiffSigned(g[7], p->rot54);
     t = r / 6;
     g[6] += s.v[0];
     s.v[1] = t;
@@ -165,7 +162,7 @@ void UpdateRaceChaseCamera(RaceVehicle *p) {
     if (p->height108 < 0x28) s.v[1] = (unsigned short)p->height108 - 0x122;
     s.v[2] = 0x2D0;
     ApplyMatrix(&s.b, (const Vec3s8 *)(s.v), (Vec3i *)(s.w));
-    *(w3g2V *)&g[2] = *(w3g2V *)&p->pos10[0];
+    *(w3g2V *)&g[2] = *(w3g2V *)&p->worldPosition10.words[0];
     g[8] = p->rot58 - p->wheelRotZ1AA;
     g[2] += s.w[0];
     g[3] += s.w[1];
@@ -382,10 +379,10 @@ void ApplyPauseMenuChoice(int arg0) {
         FadeCountdown = 0x1E;
         return;
     }
-    SelectionState[0x19] = 0;
+    SelectionState.bytes[0x19] = 0;
     TotalRaceTime = -1;
     if (arg0 == 1) {
-        SelectionState[0x19] = 9;
+        SelectionState.bytes[0x19] = 9;
         RaceState = 6;
         RankEntries = -TrackLength;
         if (PauseCursor == 2) {
@@ -394,7 +391,7 @@ void ApplyPauseMenuChoice(int arg0) {
             ModeIndex = *(unsigned char *)&PauseAbortNextModes[3];
             return;
         }
-        FinishRace(SelectionState, PauseCursor);
+        FinishRace(SelectionState.bytes, PauseCursor);
         return;
     }
     b = PauseAbortNextModes;
@@ -408,64 +405,64 @@ void ApplyPauseMenuChoice(int arg0) {
     }
 }
 
-void DrawPauseMenu(u32 *a0, int a1) {
-    V v[4];
+void DrawPauseMenu(u32 *ordering, int selection) {
+    Vec2s corners[4];
     unsigned char rgb[4];
-    int p;
-    int i, j;
-    unsigned char (*base)[4];
-    unsigned char *t;
+    void *cursor;
+    int tile, vertex;
+    unsigned char (*triangles)[4];
+    unsigned char *indices;
 
-    p = GameQueueSprite(a0, *(int *)SCRATCHPAD, 0x90, 0x5C, 0x1C, 8, 0x60, 0xA0, 0x7FF8);
-    p = GameQueueSprite(a0, p, 0x90, 0x6A, 0x20, 8, 0xC4, 0xA0, 0x7FF8);
+    cursor = GameQueueSprite(ordering, ((GpuScratchPointers *)SCRATCHPAD)->cursor, 0x90, 0x5C, 0x1C, 8, 0x60, 0xA0, 0x7FF8);
+    cursor = GameQueueSprite(ordering, cursor, 0x90, 0x6A, 0x20, 8, 0xC4, 0xA0, 0x7FF8);
     if (GameModeType == 1) {
-        p = GameQueueSprite(a0, p, 0x90, 0x74, 0x1C, 8, 0x7C, 0xA0, 0x7FF8);
+        cursor = GameQueueSprite(ordering, cursor, 0x90, 0x74, 0x1C, 8, 0x7C, 0xA0, 0x7FF8);
     } else {
-        p = GameQueueSprite(a0, p, 0x90, 0x74, 0x24, 8, 0x9C, 0xA0, 0x7FF8);
-        p = GameQueueSprite(a0, p, 0x90, 0x7E, 0x1C, 8, 0x7C, 0xA0, 0x7FF8);
+        cursor = GameQueueSprite(ordering, cursor, 0x90, 0x74, 0x24, 8, 0x9C, 0xA0, 0x7FF8);
+        cursor = GameQueueSprite(ordering, cursor, 0x90, 0x7E, 0x1C, 8, 0x7C, 0xA0, 0x7FF8);
     }
-    p = GameQueueSprite(a0, p, 0x88, a1 * 10 + 0x6A, 8, 8, 0xE4, 0xA0, 0x7FF8);
+    cursor = GameQueueSprite(ordering, cursor, 0x88, selection * 10 + 0x6A, 8, 8, 0xE4, 0xA0, 0x7FF8);
 
-    for (i = 0; i < 9; i++) {
-        for (j = 0; j < 4; j++) {
-            int kx = ((j & 1) << 5) + 0x70;
-            v[j].x = ((i % 3) << 5) + kx;
+    for (tile = 0; tile < 9; tile++) {
+        for (vertex = 0; vertex < 4; vertex++) {
+            int columnX = ((vertex & 1) << 5) + 0x70;
+            corners[vertex].x = ((tile % 3) << 5) + columnX;
             {
-                int ky = ((j >> 1) << 4) + 0x56;
-                v[j].y = ((i / 3) << 4) + ky;
+                int rowY = ((vertex >> 1) << 4) + 0x56;
+                corners[vertex].y = ((tile / 3) << 4) + rowY;
             }
         }
         rgb[0] = 0xFF;
         rgb[2] = 0x20;
         rgb[1] = 0x20;
-        j = i / 3;
-        j = j == 1;
-        base = PauseMenuChoiceMap;
-        t = base[j];
-        p = EmitPolyF3(a0, p, v[t[0]], v[t[1]], v[t[2]], rgb, 1);
+        vertex = tile / 3;
+        vertex = vertex == 1;
+        triangles = PauseMenuChoiceMap;
+        indices = triangles[vertex];
+        cursor = EmitPolyF3(ordering, cursor, corners[indices[0]], corners[indices[1]], corners[indices[2]], rgb, 1);
         rgb[0] = 0xFF;
         rgb[2] = 0xFF;
         rgb[1] = 0xFF;
-        p = EmitPolyF3(a0, p, v[t[1]], v[t[2]], v[t[3]], rgb, 1);
+        cursor = EmitPolyF3(ordering, cursor, corners[indices[1]], corners[indices[2]], corners[indices[3]], rgb, 1);
     }
-    *(int *)SCRATCHPAD = AddDrawModePrim(a0, p, 5);
+    ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawModePrim(ordering, cursor, 5);
 
-    for (j = 0; j < 4; j++) {
-        if (j == 1 || j == 2) {
-            v[j].x = 0xD0;
+    for (vertex = 0; vertex < 4; vertex++) {
+        if (vertex == 1 || vertex == 2) {
+            corners[vertex].x = 0xD0;
         } else {
-            v[j].x = 0x70;
+            corners[vertex].x = 0x70;
         }
-        if (j >= 2) {
-            v[j].y = 0x86;
+        if (vertex >= 2) {
+            corners[vertex].y = 0x86;
         } else {
-            v[j].y = 0x56;
+            corners[vertex].y = 0x56;
         }
     }
 
-    for (i = 0; i < 3; i++) {
-        j = 0x40;
-        AddPartialLine(a0, v[i].x, v[i].y, v[i + 1].x, v[i + 1].y, 0x100, 0, j, j, j, -1);
+    for (tile = 0; tile < 3; tile++) {
+        vertex = 0x40;
+        AddPartialLine(ordering, corners[tile].x, corners[tile].y, corners[tile + 1].x, corners[tile + 1].y, 0x100, 0, vertex, vertex, vertex, -1);
     }
 }
 

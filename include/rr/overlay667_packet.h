@@ -27,7 +27,7 @@ extern Overlay667ChoicePair LinkPendingCarInputs;
 extern u8 ovl667_tx_slot_index,ovl667_checksum_error_flag;
 extern s32 RaceState,ovl667_pending_pause_bits;
 /* BIOS B0 service35: write count bytes, returning the transferred count. */
-s32 FileWrite(s32 descriptor,const void *buffer,s32 count);
+#include "rr/bios_events.h"
 s32 ovl667_send_race_packet(void);
 /* Eight stored serial records, from 80118F20 through 80118F7F. Ring indices
  * used for payload access must remain in0..7, including after service calls. */

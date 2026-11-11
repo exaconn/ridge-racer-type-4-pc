@@ -112,9 +112,6 @@ class DrawAreaPrimitiveTest(unittest.TestCase):
         bodies=[]
         for name in ('get_cs','get_ce','get_ofs','get_tw','SetDrawArea','SetTexWindow','SetDrawOffset','AddPrim','AddDrawAreaPrim'):
             body=definition_source(owners[name].read_text(),name)
-            if name=='AddPrim':
-                body,count=re.subn(r'\s+asm\("\$6"\)','',body)
-                self.assertEqual(count,1)
             self.assertIsNone(re.search(r'\b(?:asm|__asm__)\s*\(',body))
             bodies.append(body)
         with TemporaryDirectory() as temporary:

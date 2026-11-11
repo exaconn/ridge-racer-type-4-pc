@@ -1,4 +1,5 @@
 """Actual garage C, scalar snapshots, rectangle boundaries and live aliases."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +9,7 @@ import unittest
 class OverlayGarageTest(unittest.TestCase):
     def test_native_garage_helpers(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/662/func_{name}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/garage/func_{name}.c')
                            .replace('#include "rr/overlay662_garage.h"', '')
                            for name in ('8011E694', '8011E6C8', '8011E734', '8011E7DC'))
         source = r'''

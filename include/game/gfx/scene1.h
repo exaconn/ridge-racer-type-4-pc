@@ -6,6 +6,11 @@
 
 extern VectorWords16 UnitScaleVector;
 
+/* State setters accept complete PAL argument words. Color stores retain the
+ * low byte of each channel. */
+void InitSceneOverlayState(void);
+void SetSceneOverlayColor(s32 mode, s32 red, s32 green, s32 blue);
+void SetSceneOverlayEnabled(s32 enabled);
 void QueueDrawStp(void);
 void DrawSceneOverlayIfActive(void);
 void UpdateAndDrawSceneOverlay(void);

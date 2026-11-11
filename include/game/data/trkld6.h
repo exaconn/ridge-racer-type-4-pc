@@ -3,8 +3,6 @@
 
 #include "types.h"
 
-extern int ComSoundBankIndex;
-extern int DualPlayerSoundEnabled;
 int LoadRaceSoundAndTrackStep(void);
 int LoadTrackVabsStep(void);
 int LoadAttractRaceStep();

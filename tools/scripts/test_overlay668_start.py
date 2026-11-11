@@ -13,7 +13,7 @@ import unittest
 class Overlay668StartTest(unittest.TestCase):
     def test_fresh_stream_root_callback_and_service_order(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/overlays/PAL/668/func_80114EE8.c')
+        body = read_c_source(root / 'src/overlays/PAL/movie_playback/func_80114EE8.c')
         source = r'''
 #include <assert.h>
 #include <stddef.h>

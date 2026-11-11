@@ -79,12 +79,12 @@ s32 GetTrackNodeHeading(s32 node, s32 lane)
         currentOffsetBytes = node * sizeof(TrackSample3C);
         previousSample = (TrackSample3C *)(previousOffsetBytes + (unsigned long)TrackNodes);
         currentSample = (TrackSample3C *)(currentOffsetBytes + (unsigned long)TrackNodes);
-        delta[2] = previousSample->x08 + previousOffset->x - (currentSample->x08 + currentOffset->x);
-        delta[3] = previousSample->z0C + previousOffset->z - (currentSample->z0C + currentOffset->z);
+        delta[2] = previousSample->road.x + previousOffset->x - (currentSample->road.x + currentOffset->x);
+        delta[3] = previousSample->road.z + previousOffset->z - (currentSample->road.z + currentOffset->z);
         break;
     case 10:
-        delta[2] = TrackNodes[previous].x08 - TrackNodes[node].x08;
-        delta[3] = TrackNodes[previous].z0C - TrackNodes[node].z0C;
+        delta[2] = TrackNodes[previous].road.x - TrackNodes[node].road.x;
+        delta[3] = TrackNodes[previous].road.z - TrackNodes[node].road.z;
         break;
     }
     return (s16)ratan2(delta[3], delta[2]);

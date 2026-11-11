@@ -1,3 +1,4 @@
+#include "rr/scene_camera_state.h"
 #include "types.h"
 #include "rr/audio_loop.h"
 #include "game/sound/fxramp1.h"
@@ -13,13 +14,6 @@
 #include "rr/memory.h"
 #include "rr/menu_overlay_runtime.h"
 #include "rr/audio_cd_controller.h"
-
-void SoundMasterFadeStep(void);
-void SetVoiceVolumeScaled(s32 a0, int a1, int a2);
-void SlotStart(int a0);
-void SlotSetPause(int a0, int a1);
-void SlotSetLevelProgram(int a0, int a1, int a2);
-void SlotKeyOn();
 
 void SoundMasterFadeStep(void) {
     AudioState *p = &SoundState;
@@ -44,27 +38,29 @@ void SoundMasterFadeStep(void) {
 }
 
 void SoundUpdate(void) {
-    int i;
-    u32 *p;
-    int a;
+    int slotIndex;
+    AudioSlot620 *slot;
+    u32 beatPhase;
     if (SoundState.seqPrevBeat2878 != SoundState.seqBeat2874) {
-        a = SoundState.seqBeat2874 - 1;
+        beatPhase = SoundState.seqBeat2874 - 1;
         SoundState.seqTick286C = 1;
-        if ((a & 1) == 0) SoundState.seqHalf286E = 1;
-        if ((a & 3) == 0) SoundState.seqQuarter2870 = 1;
+        if ((beatPhase & 1) == 0) SoundState.seqHalf286E = 1;
+        if ((beatPhase & 3) == 0) SoundState.seqQuarter2870 = 1;
     } else {
         SoundState.seqTick286C = 0;
         SoundState.seqHalf286E = 0;
         SoundState.seqQuarter2870 = 0;
     }
-    i = 0;
+    slotIndex = 0;
     SoundState.seqPrevBeat2878 = SoundState.seqBeat2874;
     CdAudioUpdate();
     SeqFadeStep();
     SoundMasterFadeStep();
     SoundListenerUpdate();
-    for (p = &SoundState.slots38[0].flags00; i < 4; i++, p += 0x188) {
-        if (*p & 1) UpdateSoundSlot(i);
+    for (slot = SoundState.slots38; slotIndex < 4; slotIndex++, slot++) {
+        if (slot->flags00 & 1) {
+            UpdateSoundSlot(slotIndex);
+        }
     }
     UpdatePlayerVoices();
     UpdateLoopVoices();
@@ -75,18 +71,16 @@ void SoundUpdate(void) {
 
 void SetVoiceVolumeScaled(s32 voice, s32 left, s32 right) {
     /* Hardware volume products wrap at 32 bits before the logical shift. */
-    u32 scale = VoiceVolumeScale;
+    u32 scale = SoundState.master08;
     u32 leftProduct = left * scale;
     u32 rightProduct = right * scale;
     SsUtSetVVol((s16)voice, (s16)(leftProduct >> 7), (s16)(rightProduct >> 7));
 }
 
 void SlotsStartForRace(void) {
-    s32 var_a0;
-
     SlotStart(0);
-    if (DualPlayerSoundEnabled == 0) {
-        if (ComSoundBankIndex >= 0) {
+    if (SoundState.split10 == 0) {
+        if (RaceContext.sound.comBank >= 0) {
             SlotStart(2);
             SlotStart(3);
         }
@@ -95,33 +89,34 @@ void SlotsStartForRace(void) {
     }
 }
 
-void SlotStart(int a0) {
-    AudioState *base = &SoundState;
-    AudioState *e = (AudioState *)((u8 *)base + a0 * 0x620);
-    e->slots38[0].flags00 |= 1;
-    SlotKeyOn(a0);
-    e->slots38[0].previous18 = e->slots38[0].program14;
-    SlotSetPause(a0, 0);
+void SlotStart(int index) {
+    SoundState.slots38[index].flags00 |= 1;
+    SlotKeyOn(index);
+    SoundState.slots38[index].previous18 = SoundState.slots38[index].program14;
+    SlotSetPause(index, 0);
 }
 
-void SlotKeyOffAll(int arg0) {
-    int i;
-    int s0;
-    AudioSlot620 *t = &SoundSlots[arg0];
-    s0 = t->voice08;
-    i = 0;
-    while (i < t->count0C) {
-        SsUtKeyOffV((short)s0);
-        i++;
-        s0++;
+void SlotKeyOffAll(int slotIndex) {
+    int channel;
+    int voice;
+    AudioSlot620 *slot = &SoundState.slots38[slotIndex];
+    voice = slot->voice08;
+    channel = 0;
+    while (channel < slot->count0C) {
+        SsUtKeyOffV((short)voice);
+        channel++;
+        voice++;
     }
-    t->flags00 = 0;
+    slot->flags00 = 0;
 }
 
-void SlotSetPause(int a0, int a1) {
-    u32 *p = &SoundSlots[a0].flags00;
-    if (a1 == 1) *p |= 4;
-    else *p &= ~4;
+void SlotSetPause(int slotIndex, int paused) {
+    u32 *flags = &SoundState.slots38[slotIndex].flags00;
+    if (paused == 1) {
+        *flags |= 4;
+    } else {
+        *flags &= ~4;
+    }
 }
 
 void SlotSetLevelProgram(int a0, int a1, int a2) {
@@ -129,27 +124,27 @@ void SlotSetLevelProgram(int a0, int a1, int a2) {
     SoundState.slots38[a2].program14 = a1;
 }
 
-void SlotKeyOn(int a0) {
+void SlotKeyOn(int slotIndex) {
     AudioUnsignedWord4 groups[4];
-    AudioSlot620 *w = &SoundSlots[a0];
-    AudioUnsignedWord4 *q;
-    int i;
-    int k;
-    int t;
+    AudioSlot620 *slot = &SoundState.slots38[slotIndex];
+    AudioUnsignedWord4 *group;
+    int channel;
+    int voice;
+    int noteGroup;
     PsyqMemset(groups, 0, sizeof(groups));
     groups[3].word = 2;
-    k = w->voice08;
-    i = 0;
-    if (w->count0C > 0) {
-        q = &groups[a0];
+    voice = slot->voice08;
+    channel = 0;
+    if (slot->count0C > 0) {
+        group = &groups[slotIndex];
         do {
-            SsUtKeyOnV((short)k, w->bank04.half.value, (s16)w->programData3C.programs[w->program14][i], 0, (short)(q->halves.value + 0x3C), 0, 0, 0);
-            k++;
-            i++;
-        } while (i < w->count0C);
+            SsUtKeyOnV((short)voice, slot->bank04.half.value, (s16)slot->programData3C.programs[slot->program14][channel], 0, (short)(group->halves.value + 0x3C), 0, 0, 0);
+            voice++;
+            channel++;
+        } while (channel < slot->count0C);
     }
-    t = groups[a0].halves.value;
-    w->reserved2A = 0;
-    w->group28 = t + 0x3C;
+    noteGroup = groups[slotIndex].halves.value;
+    slot->reserved2A = 0;
+    slot->group28 = noteGroup + 0x3C;
 }
 

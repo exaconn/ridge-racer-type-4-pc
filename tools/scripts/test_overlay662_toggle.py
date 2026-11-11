@@ -1,4 +1,5 @@
 """Garage page toggle after the actual resident sound forwarding function."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +9,7 @@ import unittest
 class OverlayToggleTest(unittest.TestCase):
     def test_control_flag_and_post_sound_selector(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_801256D4.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_801256D4.c')
         resident = (root / 'tools/scripts/fixtures/views/func_8004F24C.c').read_text()
         source = r'''
 #include <assert.h>

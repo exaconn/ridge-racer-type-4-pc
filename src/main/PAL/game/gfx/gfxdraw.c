@@ -1,3 +1,5 @@
+#include "game/race/racegrid.h"
+#include "game/data/resinit.h"
 #include "game/math/rotmat.h"
 #include "psyq/libgte/gtemat4.h"
 #include "rr/frame_storage_types.h"
@@ -21,8 +23,8 @@ typedef struct { int a; int b; } P;
 typedef struct {
     s32 unk00[7];
     int f1C;
-    int f20, f24, f28, f2C;
-    short f30, f32, f34, f36;
+    Vector cameraFollowPosition20;
+    Vec3s8 cameraFollowOffset30;
     s32 unk38[4];
     int f48, f4C;
     P e[2];
@@ -72,10 +74,6 @@ typedef struct {
 extern Context650 RaceContext;
 extern int HorizonRollTargetAngle;
 extern int ViewUsesCarTrackNode;
-extern int ResetCarSlotBuffers();
-extern void UpdateRaceChaseCamera(void *);
-extern void BuildCameraMatrices(void);
-extern int Atan2Table(int, int);
 extern void SetGeomScreen(int);
 extern int *TrackNodes;
 extern int SceneFogWorkVector[];
@@ -118,7 +116,7 @@ void UpdateRaceCamera(int arg0, void *arg1) {
             RaceContext.f4C = a0;
             RaceContext.f48 = 0;
         }
-        ResetCarSlotBuffers(a0, a1);
+        ResetCarSlotBuffers();
     }
     switch (arg0) {
     case 0:
@@ -128,34 +126,34 @@ void UpdateRaceCamera(int arg0, void *arg1) {
         scratch[2] = s2->x * 4;
         scratch[3] = s2->y * 4;
         scratch[4] = s2->z * 4;
-        RaceContext.f30 = 0;
-        RaceContext.f32 = 0;
-        RaceContext.f34 = -0x100;
-        CarLocalToWorld(arg1, &RaceContext.f30, &RaceContext.f20);
-        sp10[0] = RaceContext.f20 - scratch[2];
-        sp10[2] = RaceContext.f28 - scratch[4];
-        sp10[1] = RaceContext.f24 - scratch[3];
+        RaceContext.cameraFollowOffset30.fields.x = 0;
+        RaceContext.cameraFollowOffset30.fields.y = 0;
+        RaceContext.cameraFollowOffset30.fields.z = -0x100;
+        CarLocalToWorld(arg1, &RaceContext.cameraFollowOffset30, &RaceContext.cameraFollowPosition20);
+        sp10[0] = RaceContext.cameraFollowPosition20.x - scratch[2];
+        sp10[2] = RaceContext.cameraFollowPosition20.z - scratch[4];
+        sp10[1] = RaceContext.cameraFollowPosition20.y - scratch[3];
         scratch[7] = 0x400 - Atan2Table(sp10[0], sp10[2]);
         scratch[6] = 0x400 - Atan2Table(sp10[1], CordicSqrt(sp10[0] * sp10[0] + sp10[2] * sp10[2]) >> 6);
         scratch[8] = LerpAngleWrap4096(s2, RaceContext.f48);
         SetGeomScreen(s2->f28);
         break;
     case 2:
-        RaceContext.f30 = 0;
-        RaceContext.f32 = 0;
-        RaceContext.f34 = -0x100;
-        CarLocalToWorld(arg1, &RaceContext.f30, &RaceContext.f20);
+        RaceContext.cameraFollowOffset30.fields.x = 0;
+        RaceContext.cameraFollowOffset30.fields.y = 0;
+        RaceContext.cameraFollowOffset30.fields.z = -0x100;
+        CarLocalToWorld(arg1, &RaceContext.cameraFollowOffset30, &RaceContext.cameraFollowPosition20);
         a2 = ComputeCameraNodeDist(arg1, s2) >> 4;
         t1 = a2 / 4;
         if (a2 - t1 > (0x400000 / s2->f28) * 8) {
             t1 = a2 - (0x400000 / s2->f28) * 8;
         }
-        sp10[0] = (RaceContext.f20 / 4) - s2->x;
-        sp10[1] = (RaceContext.f24 / 4) - s2->y;
-        sp10[2] = (RaceContext.f28 / 4) - s2->z;
-        scratch[2] = RaceContext.f20 - ((sp10[0] * t1) / a2) * 4;
-        scratch[3] = RaceContext.f24 - ((sp10[1] * t1) / a2) * 4;
-        scratch[4] = RaceContext.f28 - ((sp10[2] * t1) / a2) * 4;
+        sp10[0] = (RaceContext.cameraFollowPosition20.x / 4) - s2->x;
+        sp10[1] = (RaceContext.cameraFollowPosition20.y / 4) - s2->y;
+        sp10[2] = (RaceContext.cameraFollowPosition20.z / 4) - s2->z;
+        scratch[2] = RaceContext.cameraFollowPosition20.x - ((sp10[0] * t1) / a2) * 4;
+        scratch[3] = RaceContext.cameraFollowPosition20.y - ((sp10[1] * t1) / a2) * 4;
+        scratch[4] = RaceContext.cameraFollowPosition20.z - ((sp10[2] * t1) / a2) * 4;
         a0 = (t1 * (s2->f28 << 4)) / 4096;
         if (a0 >= 0x401) {
             a0 = 0x400;
@@ -163,9 +161,9 @@ void UpdateRaceCamera(int arg0, void *arg1) {
             a0 = 0x118;
         }
         SetGeomScreen(a0);
-        sp10[0] = RaceContext.f20 - scratch[2];
-        sp10[2] = RaceContext.f28 - scratch[4];
-        sp10[1] = RaceContext.f24 - scratch[3];
+        sp10[0] = RaceContext.cameraFollowPosition20.x - scratch[2];
+        sp10[2] = RaceContext.cameraFollowPosition20.z - scratch[4];
+        sp10[1] = RaceContext.cameraFollowPosition20.y - scratch[3];
         scratch[7] = 0x400 - Atan2Table(sp10[0], sp10[2]);
         scratch[6] = 0x400 - Atan2Table(sp10[1], CordicSqrt(sp10[0] * sp10[0] + sp10[2] * sp10[2]) >> 6);
         scratch[8] = LerpAngleWrap4096(s2, RaceContext.f48);
@@ -183,10 +181,10 @@ void UpdateRaceCamera(int arg0, void *arg1) {
         scratch[2] = s2->x * 4;
         scratch[3] = s2->y * 4;
         scratch[4] = s2->z * 4;
-        RaceContext.f30 = 0;
-        RaceContext.f32 = 0;
-        RaceContext.f34 = -0x100;
-        CarLocalToWorld(arg1, &RaceContext.f30, &RaceContext.f20);
+        RaceContext.cameraFollowOffset30.fields.x = 0;
+        RaceContext.cameraFollowOffset30.fields.y = 0;
+        RaceContext.cameraFollowOffset30.fields.z = -0x100;
+        CarLocalToWorld(arg1, &RaceContext.cameraFollowOffset30, &RaceContext.cameraFollowPosition20);
         sp30[0] = s2->f10;
         sp30[1] = s2->f14;
         sp30[2] = 0;
@@ -194,38 +192,38 @@ void UpdateRaceCamera(int arg0, void *arg1) {
         sp20[0] += s2->x;
         sp20[1] += s2->y;
         sp20[2] += s2->z;
-        RaceContext.f20 = ((((RaceContext.f20 / 4) - sp20[0]) * s2->f2C) / 1024 + sp20[0]) * 4;
-        RaceContext.f24 = ((((RaceContext.f24 / 4) - sp20[1]) * s2->f2C) / 1024 + sp20[1]) * 4;
-        RaceContext.f28 = ((((RaceContext.f28 / 4) - sp20[2]) * s2->f2C) / 1024 + sp20[2]) * 4;
-        sp10[0] = RaceContext.f20 - scratch[2];
-        sp10[2] = RaceContext.f28 - scratch[4];
-        sp10[1] = RaceContext.f24 - scratch[3];
+        RaceContext.cameraFollowPosition20.x = ((((RaceContext.cameraFollowPosition20.x / 4) - sp20[0]) * s2->f2C) / 1024 + sp20[0]) * 4;
+        RaceContext.cameraFollowPosition20.y = ((((RaceContext.cameraFollowPosition20.y / 4) - sp20[1]) * s2->f2C) / 1024 + sp20[1]) * 4;
+        RaceContext.cameraFollowPosition20.z = ((((RaceContext.cameraFollowPosition20.z / 4) - sp20[2]) * s2->f2C) / 1024 + sp20[2]) * 4;
+        sp10[0] = RaceContext.cameraFollowPosition20.x - scratch[2];
+        sp10[2] = RaceContext.cameraFollowPosition20.z - scratch[4];
+        sp10[1] = RaceContext.cameraFollowPosition20.y - scratch[3];
         scratch[7] = 0x400 - Atan2Table(sp10[0], sp10[2]);
         scratch[6] = 0x400 - Atan2Table(sp10[1], CordicSqrt(sp10[0] * sp10[0] + sp10[2] * sp10[2]) >> 6);
         scratch[8] = LerpAngleWrap4096(s2, RaceContext.f48);
         SetGeomScreen(s2->f28);
         break;
     case 5:
-        GetTrackLaneWorldPos(arg1, &RaceContext.f20, s2);
+        GetTrackLaneWorldPos(arg1, &RaceContext.cameraFollowPosition20.x, s2);
         sp38[0] = s2->f10;
         sp38[1] = s2->f14;
         sp38[2] = s2->f18;
         TransformCameraOffset(sp38, s2->f2C, &scratch[2]);
         scratch[8] = LerpAngleWrap4096(s2, RaceContext.f48);
-        scratch[2] += RaceContext.f20;
-        scratch[3] += RaceContext.f24;
-        scratch[4] += RaceContext.f28;
+        scratch[2] += RaceContext.cameraFollowPosition20.x;
+        scratch[3] += RaceContext.cameraFollowPosition20.y;
+        scratch[4] += RaceContext.cameraFollowPosition20.z;
         SetGeomScreen(s2->f28);
         break;
     case 6:
-        RaceContext.f30 = 0;
-        RaceContext.f32 = 0;
-        RaceContext.f34 = -0x100;
-        CarLocalToWorld(arg1, &RaceContext.f30, &RaceContext.f20);
+        RaceContext.cameraFollowOffset30.fields.x = 0;
+        RaceContext.cameraFollowOffset30.fields.y = 0;
+        RaceContext.cameraFollowOffset30.fields.z = -0x100;
+        CarLocalToWorld(arg1, &RaceContext.cameraFollowOffset30, &RaceContext.cameraFollowPosition20);
         GetTrackLaneWorldPos(arg1, &scratch[2], s2);
-        sp10[0] = RaceContext.f20 - scratch[2];
-        sp10[2] = RaceContext.f28 - scratch[4];
-        sp10[1] = RaceContext.f24 - scratch[3];
+        sp10[0] = RaceContext.cameraFollowPosition20.x - scratch[2];
+        sp10[2] = RaceContext.cameraFollowPosition20.z - scratch[4];
+        sp10[1] = RaceContext.cameraFollowPosition20.y - scratch[3];
         scratch[7] = 0x400 - Atan2Table(sp10[0], sp10[2]);
         scratch[6] = 0x400 - Atan2Table(sp10[1], CordicSqrt(sp10[0] * sp10[0] + sp10[2] * sp10[2]) >> 6);
         scratch[8] = LerpAngleWrap4096(s2, RaceContext.f48);

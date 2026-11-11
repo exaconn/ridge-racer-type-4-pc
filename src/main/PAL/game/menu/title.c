@@ -1,3 +1,6 @@
+#include "game/sound/cdstart.h"
+#include "game/data/resinit.h"
+#include "game/camera/viewcam.h"
 #include "rr/vehicle_table.h"
 #include "rr/frame_storage_types.h"
 #include "scratchpad.h"
@@ -31,14 +34,6 @@
 #include "game/sound/sndctrl.h"
 #include "game/sound/cdplay.h"
 
-extern int ResetCarSlotBuffers();
-extern int CdAudioBeginPlay();
-extern int CdAudioFade();
-extern int SetSceneOverlayColor();
-extern int SetSceneOverlayEnabled();
-extern int SelectCourseBgmTrack();
-extern int SetupPlayerView();
-extern int SetupViewport();
 extern char RepeatLabel[];
 extern char StrFmtTwoDigitsTitle[];
 extern char HudLapSlashSprite[];
@@ -450,7 +445,7 @@ void AttractDemoRaceUpdate(void) {
       DrawFontStringRight(0xFA, 0xD4, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5), 0xFF, 0);
       AddBrightnessSprite(HudLapSlashSprite, 0xFC, 0xD4, 0xFF);
       AddBrightnessSprite(HudLapSlashSprite - 4, 0x105, 0xD4, 0xFF);
-      PsyqSprintf(sp18, StrFmtTwoDigitsTitle, SoundState.track28A4);
+      PsyqSprintf((s8 *)sp18, (const s8 *)StrFmtTwoDigitsTitle, SoundState.track28A4);
       DrawFontString(0x112, 0xD4, sp18, 0xFF, 0);
       AddBrightnessSprite(HudLapSlashSprite - 0xC, 0x121, 0xD4, 0xFF);
         AddBrightnessSprite(HudLapSlashSprite - 8, 0x12A, 0xD4, 0xFF);

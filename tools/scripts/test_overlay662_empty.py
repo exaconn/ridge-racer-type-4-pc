@@ -1,4 +1,5 @@
 """Selected image emptiness, full-width pointers and protected early exits."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +9,7 @@ import unittest
 class OverlayEmptyTest(unittest.TestCase):
     def test_selected_layers_and_early_return(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_8011D0C0.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_8011D0C0.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

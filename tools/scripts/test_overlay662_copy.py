@@ -1,4 +1,5 @@
 """Garage image/palette copy with genuine native pointers and live overlaps."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +9,7 @@ import unittest
 class OverlayCopyTest(unittest.TestCase):
     def test_forward_and_cross_stream_aliases(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_8011D120.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_8011D120.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

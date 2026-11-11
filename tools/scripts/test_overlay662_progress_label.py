@@ -1,4 +1,6 @@
 """History labels: full native cursors, live globals and actual decimal helper."""
+from overlay_units import read_c_source
+from selection_fixture_transport import transport as transport_selection
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -9,7 +11,7 @@ from c_functions import source_owners, definition_source
 class ProgressLabelTest(unittest.TestCase):
     def test_live_counts_and_native_cursors(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/662/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/garage/func_{a}.c')
                            for a in ('80117854',))
         owners = source_owners(root / 'src/main/PAL')
         formatter = '\n'.join(definition_source(owners[name].read_text(), name)
@@ -111,7 +113,7 @@ int main(void){unsigned scenario,i;
 '''
         with TemporaryDirectory() as d:
             p = Path(d)
-            (p / 'test.c').write_text(source)
+            (p / 'test.c').write_text(transport_selection(source,bodies,None,'&actual.s.choice',4,[('event', 'w==&actual'), ('change', 'w==&actual')]))
             subprocess.run(['cc', '-std=gnu11', '-O2', '-fsanitize=undefined',
                             '-fno-sanitize-recover=all', '-I', str(root / 'include'),
                             str(p / 'test.c'), '-o', str(p / 'test')], check=True,

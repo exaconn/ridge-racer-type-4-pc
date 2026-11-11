@@ -27,7 +27,6 @@ extern RaceVehicle ComCars[];
 extern RaceSpecEntry30 *ActiveDraftCarSpecPtr;
 extern u16 CarDraftSlipstreamFactor;
 
-extern void ResetCarState(RaceVehicle *);
 
 void InitComCars(s32 count) {
     s32 i, j, k;

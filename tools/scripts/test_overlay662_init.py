@@ -1,4 +1,5 @@
 """Initial garage configuration and opaque saved-word reset."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +9,7 @@ import unittest
 class OverlayInitTest(unittest.TestCase):
     def test_initial_state_and_preserved_fields(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_8011A414.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_8011A414.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

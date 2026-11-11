@@ -1,3 +1,5 @@
+#include "rr/scene_camera_state.h"
+#include "rr/race_audio_resources.h"
 /* RODATA 0x800110a0 0x1c */
 #include "game/data/cdfile2.h"
 #include "rr/load_cursor.h"
@@ -15,75 +17,60 @@
 #include "rr/sequence_queue.h"
 #include "game/course/trkintp2.h"
 #include "game/sound/sndvab.h"
-extern int RaceContext[];
 extern short SelectedMakerIndex;
 extern unsigned short SavedCourseIndex;
 extern short CourseIndex;
 
-extern char *TrackSoundPayloadPtr;
 
-void SetupRaceSoundCarConfig(void);
-int LoadTrophyModelStep(void);
-
-/* Offsets in the track audio resource are relative to its live load base. */
-typedef struct {
-    u32 tag;
-    s32 modelOffset,relocationOffset;
-    s32 sequenceOffsets[2],bankHeaderOffsets[2],bankSampleOffsets[2];
-    s32 imageListOffset;
-} TrackSoundHeader;
-RR_ASSERT_SIZE(TrackSoundHeader,40);
-RR_ASSERT_OFFSET(TrackSoundHeader,sequenceOffsets,12);
-RR_ASSERT_OFFSET(TrackSoundHeader,bankSampleOffsets,28);
 void SetupRaceSoundCarConfig(void) {
     switch (GameModeType) {
     case 6:
-        SoundState.unk19CC = 1;
-        RaceContext[0x56C / 4] = 5;
-        RaceContext[0x570 / 4] = GetPlayerCarVariantIndex(0);
-        RaceContext[0x574 / 4] = -1;
+        SoundState.sequenceVariant19CC = 1;
+        RaceContext.sound.sfxVabId = 5;
+        RaceContext.sound.carVariants[0] = GetPlayerCarVariantIndex(0);
+        RaceContext.sound.carVariants[1] = -1;
         SoundState.split10 = 0;
-        RaceContext[0x578 / 4] = SelectedMakerIndex + 1;
+        RaceContext.sound.comBank = SelectedMakerIndex + 1;
         break;
     case 0:
-        SoundState.unk19CC = 1;
-        RaceContext[0x56C / 4] = 5;
-        RaceContext[0x570 / 4] = GetPlayerCarVariantIndex(0);
-        RaceContext[0x574 / 4] = -1;
-        RaceContext[0x578 / 4] = -1;
+        SoundState.sequenceVariant19CC = 1;
+        RaceContext.sound.sfxVabId = 5;
+        RaceContext.sound.carVariants[0] = GetPlayerCarVariantIndex(0);
+        RaceContext.sound.carVariants[1] = -1;
+        RaceContext.sound.comBank = -1;
         SoundState.split10 = 0;
         break;
     default:
     case 1:
     case 5:
-        SoundState.unk19CC = 0;
-        RaceContext[0x56C / 4] = 4;
-        RaceContext[0x570 / 4] = GetPlayerCarVariantIndex(0);
-        RaceContext[0x574 / 4] = -1;
-        RaceContext[0x578 / 4] = 0;
+        SoundState.sequenceVariant19CC = 0;
+        RaceContext.sound.sfxVabId = 4;
+        RaceContext.sound.carVariants[0] = GetPlayerCarVariantIndex(0);
+        RaceContext.sound.carVariants[1] = -1;
+        RaceContext.sound.comBank = 0;
         SoundState.split10 = 0;
         break;
     case 2:
     case 3:
-        SoundState.unk19CC = 1;
-        RaceContext[0x56C / 4] = 5;
-        RaceContext[0x570 / 4] = GetPlayerCarVariantIndex(0);
-        RaceContext[0x574 / 4] = GetPlayerCarVariantIndex(1);
-        RaceContext[0x578 / 4] = -1;
+        SoundState.sequenceVariant19CC = 1;
+        RaceContext.sound.sfxVabId = 5;
+        RaceContext.sound.carVariants[0] = GetPlayerCarVariantIndex(0);
+        RaceContext.sound.carVariants[1] = GetPlayerCarVariantIndex(1);
+        RaceContext.sound.comBank = -1;
         SoundState.split10 = 1;
         break;
     case 4:
-        SoundSeqVariantIndex = 1;
-        RaceContext[0x56C / 4] = 5;
+        SoundState.sequenceVariant19CC = 1;
+        RaceContext.sound.sfxVabId = 5;
         if (LinkHostFlag != 0) {
-            RaceContext[0x570 / 4] = GetPlayerCarVariantIndex(0);
-            RaceContext[0x574 / 4] = GetPlayerCarVariantIndex(1);
+            RaceContext.sound.carVariants[0] = GetPlayerCarVariantIndex(0);
+            RaceContext.sound.carVariants[1] = GetPlayerCarVariantIndex(1);
         } else {
-            RaceContext[0x570 / 4] = GetPlayerCarVariantIndex(2);
-            RaceContext[0x574 / 4] = GetPlayerCarVariantIndex(3);
+            RaceContext.sound.carVariants[0] = GetPlayerCarVariantIndex(2);
+            RaceContext.sound.carVariants[1] = GetPlayerCarVariantIndex(3);
         }
-        ComSoundBankIndex = -1;
-        DualPlayerSoundEnabled = 1;
+        RaceContext.sound.comBank = -1;
+        SoundState.split10 = 1;
         break;
     }
 }
@@ -131,21 +118,21 @@ int LoadTrackVabsStep(void)
         RaceLoadStepIndex = RaceLoadStepIndex + 1;
     case 1:
         if (CdFileBytesLoaded() == 0) { result = 0; break; }
-        resource = (char *)(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->modelOffset);
+        resource = (char *)(RaceLoadCursor + ((const TrackAudioResourceHeader *)RaceLoadCursor)->modelBankOffset);
         RegisterModelBank((RroModelBank *)(resource), 7);
         bank = 0;
-        RelocateOffsetTable(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->relocationOffset);
+        RelocateOffsetTable((int *)(RaceLoadCursor + ((const TrackAudioResourceHeader *)RaceLoadCursor)->relocationOffset));
         configs = &CourseVabLoadConfigs[1];
-        TrackSoundPayloadPtr = (char *)(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->relocationOffset);
+        RaceContext.soundPayload564 = (char *)(RaceLoadCursor + ((const TrackAudioResourceHeader *)RaceLoadCursor)->relocationOffset);
         do {
-            VabLoadArgs.header = (u8 *)(RaceLoadCursor + *(((const TrackSoundHeader *)RaceLoadCursor)->bankHeaderOffsets + bank));
-            VabLoadArgs.samples = (const u16 *)(RaceLoadCursor + *(((const TrackSoundHeader *)RaceLoadCursor)->bankSampleOffsets + bank));
+            VabLoadArgs.header = (u8 *)(RaceLoadCursor + *(((const TrackAudioResourceHeader *)RaceLoadCursor)->bankHeaderOffsets + bank));
+            VabLoadArgs.samples = (const u16 *)(RaceLoadCursor + *(((const TrackAudioResourceHeader *)RaceLoadCursor)->bankSampleOffsets + bank));
             LoadVab(&VabLoadArgs, configs[bank].open_mode, configs[bank].bank_slot);
-            SoundState.seqAddr2858[bank] = (u8 *)(RaceLoadCursor + *(((const TrackSoundHeader *)RaceLoadCursor)->sequenceOffsets + bank));
+            SoundState.seqAddr2858[bank] = (u8 *)(RaceLoadCursor + *(((const TrackAudioResourceHeader *)RaceLoadCursor)->sequenceOffsets + bank));
             bank++;
         } while (bank < 2);
-        LoadTimList(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->imageListOffset);
-        resource = (char *)AlignUp4((unsigned long)(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->bankSampleOffsets[0]));
+        LoadTimList((int *)(RaceLoadCursor + ((const TrackAudioResourceHeader *)RaceLoadCursor)->imageListOffset));
+        resource = (char *)AlignUp4((unsigned long)(RaceLoadCursor + ((const TrackAudioResourceHeader *)RaceLoadCursor)->bankSampleOffsets[0]));
         LoadCursor = resource;
         RaceLoadCursor = resource;
         RaceLoadStepIndex = 0;
@@ -168,8 +155,8 @@ int LoadTrophyModelStep(void) {
             RaceLoadStepIndex += 1;
     case 1:
             if (CdFileBytesLoaded() != 0) {
-                RegisterModelBank((RroModelBank *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]), 8);
-                LoadTimList(RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
+                RegisterModelBank((RroModelBank *)(RaceLoadCursor + ((const TrophyResourceHeader *)RaceLoadCursor)->modelBankOffset), 8);
+                LoadTimList((int *)(RaceLoadCursor + ((const TrophyResourceHeader *)RaceLoadCursor)->imageListOffset));
                 RaceLoadStepIndex = 0;
                 return 1;
             }
@@ -192,12 +179,12 @@ int LoadAttractRaceStep(void) {
     case 1:
             if (CdFileBytesLoaded()) {
                 q = &CourseVabLoadConfigs[6];
-                VabLoadArgs.header = (u8 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
-                VabLoadArgs.samples = (const u16 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
+                VabLoadArgs.header = (u8 *)(RaceLoadCursor + ((const AttractAudioResourceHeader *)RaceLoadCursor)->bankHeaderOffset);
+                VabLoadArgs.samples = (const u16 *)(RaceLoadCursor + ((const AttractAudioResourceHeader *)RaceLoadCursor)->bankSamplesOffset);
                 LoadVab(&VabLoadArgs, q->open_mode, q->bank_slot);
-                LoadTimList(RaceLoadCursor + ((int *)RaceLoadCursor)[3]);
+                LoadTimList((int *)(RaceLoadCursor + ((const AttractAudioResourceHeader *)RaceLoadCursor)->imageListOffset));
                 RaceLoadStepIndex = 0;
-                RaceLoadCursor = RaceLoadCursor + ((int *)RaceLoadCursor)[2];
+                RaceLoadCursor = RaceLoadCursor + ((const AttractAudioResourceHeader *)RaceLoadCursor)->bankSamplesOffset;
                 LoadCursor = (void *)RaceLoadCursor;
                 return 1;
             }

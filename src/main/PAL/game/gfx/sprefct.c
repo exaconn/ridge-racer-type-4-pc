@@ -1,8 +1,9 @@
+#include "game/gfx/sprefct.h"
+#include "rr/gpu_address.h"
 #include "rr/gpu_line.h"
 #include "types.h"
 #include "rr/frame_storage_types.h"
 #include "rr/sprite_effect.h"
-#include "rr/textured_triangle.h"
 #include "rr/sprite_emit.h"
 #include "psyq/libgpu/primatt2.h"
 #include "psyq/libgpu/primatt3.h"
@@ -12,20 +13,8 @@
 #include "rr/animated_glyph.h"
 #include "psyq/libc/rand.h"
 
-struct TilePrimPacket16 {
-    int tag;
-    unsigned char r, g, b, code;
-    short x, y, w, h;
-};
 
-/* extern */
-/* extern */
-/* extern */
 
-u8 *AddJitterSprites(u32 *ordering,u8 *cursor,SpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg);
-struct S32 *EmitPolyFT3(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9);
-void *AddTileSemiTransPrim(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
-PolyF3Packet *EmitPolyF3(u32 *ordering,PolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags);
 
 u8 *AddJitterSprites(u32 *ordering, u8 *cursor, SpriteEffectSource *descriptor, s32 semi, s32 strength, s32 count) {
     s32 i;
@@ -80,50 +69,55 @@ u8 *AddJitterSprites(u32 *ordering, u8 *cursor, SpriteEffectSource *descriptor, 
 }
 
 
-/* extern */
-struct S32 *EmitPolyFT3(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9) {
-    SetPolyFT3(arg1);
-    ((u16 *)arg1)[4] = (u16) ((u16 *)arg2)[0];
-    ((u16 *)arg1)[5] = (u16) ((u16 *)arg3)[0];
-    ((u16 *)arg1)[8] = (u16) ((u16 *)arg2)[2];
-    ((u16 *)arg1)[9] = (u16) ((u16 *)arg3)[2];
-    ((u16 *)arg1)[12] = (u16) ((u16 *)arg2)[4];
-    ((u16 *)arg1)[13] = (u16) ((u16 *)arg3)[4];
-    ((u8 *)arg1)[12] = (u8) ((u8 *)arg4)[0];
-    ((u8 *)arg1)[13] = (u8) ((u8 *)arg5)[0];
-    ((u8 *)arg1)[20] = (u8) ((u8 *)arg4)[4];
-    ((u8 *)arg1)[21] = (u8) ((u8 *)arg5)[4];
-    ((u8 *)arg1)[28] = (u8) ((u8 *)arg4)[8];
-    ((u8 *)arg1)[29] = (u8) ((u8 *)arg5)[8];
-    SetSemiTrans(arg1, arg8 & 0xFFFF);
-    if ((arg9 & 0xFFFF) != 0x80) {
-        SetShadeTex(arg1, 0);
-        ((s8 *)arg1)[4] = (s8) arg9;
-        ((s8 *)arg1)[5] = (s8) arg9;
-        ((s8 *)arg1)[6] = (s8) arg9;
+GpuPolyFT3Packet *EmitPolyFT3(u32 *ordering, GpuPolyFT3Packet *packet,
+    const s32 *x, const s32 *y, const s32 *u, const s32 *v,
+    u32 pageWord, u32 clutWord, u32 modeWord, u32 shadeWord)
+{
+    u16 tpage = pageWord, clut = clutWord, mode = modeWord, shade = shadeWord;
+    SetPolyFT3(packet);
+    packet->x0 = x[0];
+    packet->y0 = y[0];
+    packet->x1 = x[1];
+    packet->y1 = y[1];
+    packet->x2 = x[2];
+    packet->y2 = y[2];
+    packet->u0 = u[0];
+    packet->v0 = v[0];
+    packet->u1 = u[1];
+    packet->v1 = v[1];
+    packet->u2 = u[2];
+    packet->v2 = v[2];
+    SetSemiTrans(packet, mode);
+    if (shade != 0x80) {
+        SetShadeTex(packet, 0);
+        packet->r = shade;
+        packet->g = shade;
+        packet->b = shade;
     } else {
-        SetShadeTex(arg1, 1);
+        SetShadeTex(packet, 1);
     }
-    ((u16 *)arg1)[11] = arg6;
-    ((u16 *)arg1)[7] = arg7;
-    AddPrim(arg0, (u32 *)arg1++);
-    return arg1;
+    packet->tpage = tpage;
+    packet->clut = clut;
+    AddPrim(ordering, (u32 *)packet++);
+    return packet;
 }
 
 
-void *AddTileSemiTransPrim(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
-    ((s8 *)arg1)[3] = 3;
-    ((s16 *)arg1)[4] = arg2;
-    ((s16 *)arg1)[6] = (s16) arg4;
-    ((s8 *)arg1)[7] = 0x62;
-    ((s16 *)arg1)[5] = arg3;
-    ((s16 *)arg1)[7] = (s16) arg5;
-    ((s8 *)arg1)[4] = (s8) arg6;
-    ((s8 *)arg1)[5] = (s8) arg7;
-    ((s8 *)arg1)[6] = (s8) arg8;
-    ((s32 *)arg1)[0] = ((((s32 *)arg1)[0] & 0xFF000000) | (*arg0 & 0xFFFFFF));
-    *arg0 = (*arg0 & 0xFF000000) | ((s32) arg1 & 0xFFFFFF);
-    return arg1 + 0x10;
+void *AddTileSemiTransPrim(u32 *ordering, void *cursor, s32 x, s32 y,
+                           s32 width, s32 height, s32 red, s32 green, s32 blue) {
+    GpuTilePacket *tile = cursor;
+    tile->tag.bytes.length = 3;
+    tile->x = x;
+    tile->w = width;
+    tile->code = 0x62;
+    tile->y = y;
+    tile->h = height;
+    tile->r = red;
+    tile->g = green;
+    tile->b = blue;
+    tile->tag.bits.address = ((GpuDmaTag *)ordering)->bits.address;
+    ((GpuDmaTag *)ordering)->bits.address = GpuDmaEncodeAddress(tile);
+    return tile + 1;
 }
 
 GpuLineF2Packet *GameQueueTileTrans(u32 *ordering, GpuLineF2Packet *line, s32 x0, s32 y0, s32 x1, s32 y1, s32 red, s32 green, s32 blue) {

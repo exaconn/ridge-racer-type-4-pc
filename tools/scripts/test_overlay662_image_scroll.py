@@ -1,4 +1,5 @@
 """Pixel-reference tests for the packed64x64 toroidal image shift."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -9,7 +10,7 @@ class Overlay662ImageScrollTest(unittest.TestCase):
     def test_all_coordinate_differences_and_overlapping_images(self):
         root=Path(__file__).resolve().parents[2]
         # Preserve the executable C; remove only MIPS register-placement metadata.
-        body=re.sub(r' asm\("[^"]*"\)','',(root/'src/overlays/PAL/662/func_80125DE0.c').read_text())
+        body=re.sub(r' asm\("[^"]*"\)','',read_c_source(root/'src/overlays/PAL/garage/func_80125DE0.c'))
         source=r'''
 #include <assert.h>
 #include <stdint.h>

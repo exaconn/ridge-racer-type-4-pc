@@ -8,7 +8,7 @@ import unittest
 class Overlay668FrameAcquireTest(unittest.TestCase):
     def test_headers_retries_aliases_and_clear_callbacks(self):
         root=Path(__file__).resolve().parents[2]
-        body=read_c_source(root / 'src/overlays/PAL/668/func_80115164.c')
+        body=read_c_source(root / 'src/overlays/PAL/movie_playback/func_80115164.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

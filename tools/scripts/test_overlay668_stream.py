@@ -9,7 +9,7 @@ import unittest
 class StreamTest(unittest.TestCase):
     def test_stream_and_start(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/668/func_{a}.c')
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/movie_playback/func_{a}.c')
                            for a in ('80114F48', '80114B2C'))
         source = r'''
 #include <assert.h>

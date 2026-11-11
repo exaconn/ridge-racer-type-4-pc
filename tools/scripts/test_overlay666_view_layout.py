@@ -1,4 +1,5 @@
 """Resource arena publication, four glyph callbacks and seven UI rows."""
+from menu_glyph_fixture_transport import transport
 from overlay_units import read_c_source
 from pathlib import Path
 import re
@@ -9,7 +10,7 @@ import unittest
 class Overlay666ViewLayoutTest(unittest.TestCase):
     def test_fresh_glyph_and_selected_value_after_layout_calls(self):
         root=Path(__file__).resolve().parents[2]
-        body=read_c_source(root/'src/overlays/PAL/666/func_801148D4.c')
+        body=read_c_source(root/'src/overlays/PAL/extra_trial/func_801148D4.c')
         reset=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'tools/scripts/fixtures/legacy/func_8003A198.c'),flags=re.M)
         source=r'''
 #include <assert.h>
@@ -79,7 +80,7 @@ int main(void){unsigned k,i;
 }
 '''
         with TemporaryDirectory() as temp:
-            p=Path(temp);(p/'test.c').write_text(source)
+            p=Path(temp);(p/'test.c').write_text(transport(source,body,'ovl666_init_menu','&world.glyphs[0][0]','12',[('observe', 'v==&world')]))
             subprocess.run(['cc','-std=gnu11','-O2','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(root/'include'),str(p/'test.c'),'-o',str(p/'test')],check=True)
             subprocess.run([str(p/'test')],check=True)
 

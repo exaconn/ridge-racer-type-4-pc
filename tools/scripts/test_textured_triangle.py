@@ -2,17 +2,25 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess,unittest
+from c_functions import definition_source, source_owners
 class TexturedTriangleTest(unittest.TestCase):
  def test_packet_and_pointer_abi(self):
+  self.run_packet_cases(False)
+
+ def test_full_material_words_are_narrowed_by_the_emitter(self):
+  self.run_packet_cases(True)
+
+ def run_packet_cases(self,raw_words):
   root=Path(__file__).resolve().parents[2]
-  bodies='\n'.join((root/f'tools/scripts/fixtures/views/func_{a}.c').read_text() for a in ['80095B74','80095AF4','80095B24','8002039C'])
+  owners=source_owners(root/'src/main/PAL')
+  bodies='\n'.join(definition_source(owners[n].read_text(),n) for n in ['SetPolyFT3','SetSemiTrans','SetShadeTex','EmitPolyFT3'])
   code=r'''
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 #include "rr/textured_triangle.h"
-static struct World {u32 guard[4];union {u32 words[24];struct S32 packets[3];} arena;s32 x[3],y[3],u[3],v[3];u32 head,tail[4];} world,expected;
+static struct World {u32 guard[4];union {u32 words[24];GpuPolyFT3Packet packets[3];} arena;s32 x[3],y[3],u[3],v[3];u32 head,tail[4];} world,expected;
 static u32 *expected_head,*expected_packet;static unsigned calls;
 void AddPrim(u32 *head,u32 *packet){assert(calls++==0&&head==expected_head&&packet==expected_packet);assert((uintptr_t)head>UINT32_MAX&&(uintptr_t)packet>UINT32_MAX);assert(memcmp(&world,&expected,sizeof(world))==0);*packet=(*packet&0xFF000000U)|(*head&0xFFFFFFU);*head=(*head&0xFF000000U)|((uintptr_t)packet&0xFFFFFFU);}
 '''+bodies+r'''
@@ -31,7 +39,7 @@ int main(void){assert(sizeof(void*)==8);
   /* Ordering may alias a real packet word,including tag and the last word. */
   unsigned kind=(n>>4)%3;expected_head=kind==0?&world.head:kind==1?world.arena.words+slot*8:world.arena.words+slot*8+7;
   expected_packet=world.arena.words+slot*8;calls=0;
-  struct S32 *result=EmitPolyFT3(expected_head,(struct S32*)packet,world.x,world.y,world.u,world.v,tpage,clut,mode,shade);
+  GpuPolyFT3Packet *result=EmitPolyFT3(expected_head,(GpuPolyFT3Packet*)packet,world.x,world.y,world.u,world.v,tpage,clut,mode,shade);
   u32 *eh=kind==0?&expected.head:kind==1?expected.arena.words+slot*8:expected.arena.words+slot*8+7;u32 *ep=expected.arena.words+slot*8;
   *ep=(*ep&0xFF000000U)|(*eh&0xFFFFFFU);*eh=(*eh&0xFF000000U)|((uintptr_t)expected_packet&0xFFFFFFU);
   assert(calls==1&&result==&world.arena.packets[slot+1]&&memcmp(&world,&expected,sizeof(world))==0);
@@ -39,6 +47,8 @@ int main(void){assert(sizeof(void*)==8);
  puts("262144 cases;actual command setters,full native pointer ABI and ordering aliases");return 0;
 }
 '''
+  if raw_words:
+   code=code.replace('tpage,clut,mode,shade);','((u32)tpage|0xACE00000U),((u32)clut|0xBDF00000U),((u32)mode|0xCAFE0000U),((u32)shade|0x12340000U));')
   with TemporaryDirectory() as d:
    c=Path(d)/'test.c';exe=Path(d)/'test';c.write_text(code)
    subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined','-fno-sanitize-recover=all','-I'+str(root/'include'),str(c),'-o',str(exe)],check=True)

@@ -1,4 +1,5 @@
 """Distance scale: full signed16 point differences and PAL modular squares."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -7,7 +8,7 @@ import unittest
 class Overlay662DistanceTest(unittest.TestCase):
     def test_modular_argument_and_nonnegative_root_contract(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_8011DBD8.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_8011DBD8.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

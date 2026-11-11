@@ -138,8 +138,8 @@ void StepCameraScript(void) {
             maskPacket = (GpuDrawModePacket *)((GpuTilePacket *)packet + 1);
             ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)maskPacket;
             SetDrawStp(maskPacket, 1);
-            __asm__ ("" : "+r"(maskPacket)); /* ASM_BARRIER: prevent CSE from folding maskPacket + 1 into packet + 28 */
-            packet = maskPacket + 1;
+            packet = maskPacket;
+            packet++;
             maskPacket->tag.bits.address = CurrentDrawBuf->buffer.ordering70.tags[703].bits.address;
             CurrentDrawBuf->buffer.ordering70.tags[703].bits.address = GpuDmaEncodeAddress(maskPacket);
             ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packet;

@@ -1,19 +1,21 @@
 """Draw-mode list insertion and the real resident helper closure, with full pointers."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import definition_source, source_owners
 
 class GarageDrawModeTest(unittest.TestCase):
     def test_actual_helpers_and_live_packet_words(self):
         root=Path(__file__).resolve().parents[2]
-        mode=(root/'src/overlays/PAL/662/func_8011AC94.c').read_text()
-        page=(root/'tools/scripts/fixtures/views/func_800940E0.c').read_text()
-        # Register allocation metadata has no native architectural equivalent.
-        page=re.sub(r' asm\("\$\d+"\)','',page)
-        window=(root/'tools/scripts/fixtures/views/func_8009424C.c').read_text()
-        builder=(root/'tools/scripts/fixtures/views/func_80093C24.c').read_text()
+        mode=read_c_source(root/'src/overlays/PAL/garage/func_8011AC94.c')
+        owners=source_owners(root/'src/main/PAL')
+        page=definition_source(owners['get_mode'].read_text(),'get_mode')
+        window=definition_source(owners['get_tw'].read_text(),'get_tw')
+        builder=definition_source(owners['SetDrawMode'].read_text(),'SetDrawMode')
+        self.assertIsNone(re.search(r'\b(?:asm|__asm__)\s*\(',page+window+builder))
         source=r'''
 #include <assert.h>
 #include <stddef.h>

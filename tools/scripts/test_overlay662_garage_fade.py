@@ -3,6 +3,7 @@
 The GTE command is an opaque stateful test boundary: transfer inputs and output
 stores are checked, while GTE arithmetic, timing, FLAG and IR3 are not emulated.
 """
+from overlay_units import read_c_source, resolve_c_source_path
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import hashlib,json,os,re,struct,subprocess
@@ -11,7 +12,7 @@ from unicorn.mips_const import UC_MIPS_REG_0,UC_MIPS_REG_PC
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN
 from mips_preview_engine import Mips,signed
 ROOT=Path(__file__).resolve().parents[2]
-SOURCE=ROOT/'src/overlays/PAL/662/func_8011DA90.c'
+SOURCE=ROOT/'src/overlays/PAL/garage/func_8011DA90.c'
 CASES=4096
 C=r'''
 #include <assert.h>
@@ -66,7 +67,7 @@ int main(void){unsigned i;unsigned flags[4]={0,2,4,6};
 }
 '''
 def main():
- body=re.sub(r' __asm__\("\$\d+"\)','',SOURCE.read_text())
+ body=re.sub(r' __asm__\("\$\d+"\)','',read_c_source(SOURCE))
  with TemporaryDirectory() as tmp:
   c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(C+body+TAIL)
   subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)
@@ -159,8 +160,8 @@ def main():
   seen_sound.add(sound)
  assert next(native,None) is None and seen_sound=={False,True} and seen_branches=={False,True} and protocols==CASES and seen_sound_mutation=={False,True} and branch_checks==16
  sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
- deps=[SOURCE,Path(__file__).resolve(),ROOT/'tools/scripts/mips_preview_engine.py']+list((ROOT/'include').rglob('*.h'))
- audit=dict(cases=CASES,engine='compiled integer MIPS with opaque COP2 boundary' if elf else 'original integer MIPS with opaque COP2 boundary',source_sha256=sha(SOURCE),test_sha256=sha(__file__),full_host_pointers=True,full_owner_guards=True,sound_calls=sound_total,mutating_sound_calls=mutating_sound_total,regimm_validation_blocks=branch_checks,coprocessor_protocols=protocols,opaque_coprocessor=True,caller_save_hi_lo_poison=True,mips_store_bounds=True,factor_profiles=factors,step_profiles=steps,sanitizers=['undefined','bounds'],dependencies={str(p):sha(p) for p in deps})
+ deps=[resolve_c_source_path(SOURCE),Path(__file__).resolve(),ROOT/'tools/scripts/mips_preview_engine.py']+list((ROOT/'include').rglob('*.h'))
+ audit=dict(cases=CASES,engine='compiled integer MIPS with opaque COP2 boundary' if elf else 'original integer MIPS with opaque COP2 boundary',source_sha256=sha(resolve_c_source_path(SOURCE)),test_sha256=sha(__file__),full_host_pointers=True,full_owner_guards=True,sound_calls=sound_total,mutating_sound_calls=mutating_sound_total,regimm_validation_blocks=branch_checks,coprocessor_protocols=protocols,opaque_coprocessor=True,caller_save_hi_lo_poison=True,mips_store_bounds=True,factor_profiles=factors,step_profiles=steps,sanitizers=['undefined','bounds'],dependencies={str(p):sha(p) for p in deps})
  if elf:audit['elf_sha256']=sha(elf)
  if os.environ.get('RR_AUDIT_JSON'):Path(os.environ['RR_AUDIT_JSON']).write_text(json.dumps(audit,indent=2)+'\n')
  print(f'PASS {CASES} {audit["engine"]}/native cases; full snapshots, live sound service, GTE transfer protocol')

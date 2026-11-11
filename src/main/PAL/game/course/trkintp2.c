@@ -1,3 +1,5 @@
+#include "rr/scene_camera_state.h"
+#include "game/gfx/dispenv.h"
 #include "psyq/libgte/gtemat5.h"
 #include "psyq/libgte/gtemat4.h"
 #include "psyq/libgte/gtemat3.h"
@@ -13,14 +15,6 @@
 
 typedef struct { int x, y, z, w; } V4;
 
-typedef struct { int a, b, c, d; } V;
-
-typedef struct {
-    u8 reserved00[0x32];
-    s16 node32;
-    u8 reserved34[0x44 - 0x34];
-} TrackEntry44;
-
 typedef struct {
     int w0[2];
     V4 pos08;
@@ -33,14 +27,12 @@ extern int PsyqRand();
 extern char PasswordChars[];
 extern char PasswordBytes[];
 extern void DrawSync();
-extern char *TrackCameraNodes;
 
 int ValidateRecordPassword(unsigned char *a0, unsigned char *a1);
 int EncodeRecordPassword();
 int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, int f);
 void LoadTimImage(int *p);
 void LoadTimList(int *p);
-void CarLocalToWorld(char *a, int b, int *c);
 void GetTrackPointAhead(RaceVehicle *vehicle, s32 *output, s32 distance);
 
 int ValidateRecordPassword(unsigned char *a0, unsigned char *a1) {
@@ -161,15 +153,15 @@ void LoadTimList(int *p) {
     }
 }
 
-int FindNearestTrackEntry(char *a0) {
+int FindNearestTrackEntry(RaceVehicle *vehicle) {
     int t2 = 0;
     int t1 = 0x7FFFFFFF;
-    TrackEntry44 *a2 = (TrackEntry44 *)TrackCameraNodes;
+    CamNode44 *a2 = RaceContext.cameraNodes550;
     unsigned short a1 = a2->node32;
     int a3 = 0;
     int a0v, v1, b;
     if (a2->node32 != -1) {
-        a0v = ((RaceVehicle *)a0)->trackNodeF0;
+        a0v = vehicle->trackNodeF0;
         do {
             v1 = (short)a1;
             if (v1 < a0v) v1 = a0v - v1; else v1 = v1 - a0v;
@@ -225,22 +217,21 @@ void InitDemoComCars(char *a0, int *a1) {
     SetGeomScreen(a1[10]);
 }
 
-void CarLocalToWorld(char *a, int b, int *c) {
-    MatrixWords32 m1;
+void CarLocalToWorld(RaceVehicle *vehicle, const Vec3s8 *offset, Vector *output) {
+    MatrixWords32 yaw;
     /* The existing two spare words remain reconstruction debt. */
-    union { MatrixWords32 matrix; s32 storage[10]; } m2;
-    int t[3];
-    RaceVehicle *car = (RaceVehicle *)a;
-    BuildRotMatrixY(&m1, 0x800 - car->ang82);
-    BuildRotMatrixX(&m2.matrix, car->ang80);
-    MulMatrix(&m1, &m2.matrix);
-    BuildRotMatrixZ(&m2.matrix, car->ang84);
-    MulMatrix2(&m1, &m2.matrix);
-    ApplyMatrix(&m2.matrix, (const Vec3s8 *)(b), (Vec3i *)(t));
-    *(V *)c = *(V *)car->pos10;
-    c[0] = c[0] + t[0];
-    c[1] = c[1] + t[1];
-    c[2] = c[2] + t[2];
+    union { MatrixWords32 matrix; s32 storage[10]; } orientation;
+    Vec3i transformed;
+    BuildRotMatrixY(&yaw, 0x800 - vehicle->ang82);
+    BuildRotMatrixX(&orientation.matrix, vehicle->ang80);
+    MulMatrix(&yaw, &orientation.matrix);
+    BuildRotMatrixZ(&orientation.matrix, vehicle->ang84);
+    MulMatrix2(&yaw, &orientation.matrix);
+    ApplyMatrix(&orientation.matrix, offset, &transformed);
+    *output = vehicle->worldPosition10.vector;
+    output->x = (s32)((u32)output->x + transformed.x);
+    output->y = (s32)((u32)output->y + transformed.y);
+    output->z = (s32)((u32)output->z + transformed.z);
 }
 
 void GetTrackPointAhead(RaceVehicle *vehicle, s32 *output, s32 distance) {
@@ -282,8 +273,8 @@ void GetTrackPointAhead(RaceVehicle *vehicle, s32 *output, s32 distance) {
     current = TrackNodes + index;
     next = TrackNodes + neighbour;
     fraction = (distance - vehicle->trackFraction170) & 0x3FF;
-    output[0] = (((((next->x08 - current->x08) * fraction) / 1024) + current->x08) * 4);
-    current_y = current->y10;
-    output[1] = ((((next->y10 - current_y) * fraction) / 1024) + current_y);
-    output[2] = (((((next->z0C - current->z0C) * fraction) / 1024) + current->z0C) * 4);
+    output[0] = (((((next->road.x - current->road.x) * fraction) / 1024) + current->road.x) * 4);
+    current_y = current->road.height;
+    output[1] = ((((next->road.height - current_y) * fraction) / 1024) + current_y);
+    output[2] = (((((next->road.z - current->road.z) * fraction) / 1024) + current->road.z) * 4);
 }

@@ -1,3 +1,5 @@
+#include "rr/emblem_images.h"
+#include "rr/save_slots.h"
 #include "rr/menu_state_types.h"
 #include "rr/work_arena.h"
 #include "rr/load_cursor.h"
@@ -30,10 +32,8 @@ extern int MenuSharedScratchPtr;
 extern short CourseIndex;
 extern struct { short a; short b; } PlayerCourseChoices[];
 extern char *PresetEmblemTimPtr;
-extern char CustomEmblemBuffers[];
-extern unsigned char SelectionRows[][4];
+#include "game/data/selection.h"
 extern int DialogueSceneMode;
-extern MenuSettings2C SelectionState;
 extern int SelectedStoryBranchId;
 extern unsigned char MenuSelectedTeamId;
 extern char SceneOffsetLookupBuf[];
@@ -207,7 +207,7 @@ int LoadAllCarsStep(void) {
     case 3:
         s0 = LoadIndex;
         if (s0 < 0) goto l5;
-        if (RequestCarLoad(SelectionRows[s0][1], SelectionRows[s0][0], SelectionRows[s0][2] % 20, PlayerCourseChoices[s0].a, s0) == 1) {
+        if (RequestCarLoad(SelectionRows.entries[s0].variant, SelectionRows.entries[s0].selection, SelectionRows.entries[s0].parameter % 20, PlayerCourseChoices[s0].a, s0) == 1) {
             LoadState = 4;
         }
         break;
@@ -221,7 +221,7 @@ int LoadAllCarsStep(void) {
             a1 -= 2;
         } else {
             if (a1 == r) {
-                s2 = CustomEmblemBuffers + (s0 & 1) * 0x840;
+                s2 = CustomEmblemBuffers.bytes + (s0 & 1) * sizeof(EmblemTim840);
                 a1 = 0;
             } else {
                 a1 = -1;
@@ -259,7 +259,7 @@ int LoadCarRangeStep(int arg0, int arg1) {
         break;
     case 1:
         arg0 += LoadIndex;
-        if (RequestCarLoad(SelectionRows[arg0][1], SelectionRows[arg0][0], SelectionRows[arg0][2] % 20, PlayerCourseChoices[arg0].a, arg0) == 1) {
+        if (RequestCarLoad(SelectionRows.entries[arg0].variant, SelectionRows.entries[arg0].selection, SelectionRows.entries[arg0].parameter % 20, PlayerCourseChoices[arg0].a, arg0) == 1) {
             LoadState = 2;
         }
         break;
@@ -273,7 +273,7 @@ int LoadCarRangeStep(int arg0, int arg1) {
             a1 -= 2;
         } else {
             if (a1 == r) {
-                q3 = CustomEmblemBuffers + (arg0 & 1) * 0x840;
+                q3 = CustomEmblemBuffers.bytes + (arg0 & 1) * sizeof(EmblemTim840);
                 a1 = 0;
             } else {
                 a1 = -1;
@@ -464,7 +464,7 @@ int LoadDialogueStep(void) {
         Dialogue = (void *)v0;
         v0 += sizeof(MenuTextState);
         LoadDestCursor = v0;
-        if (DialogueSceneMode == 1 && SelectionState.phase17 == 7 && SelectionState.mode1A == 4) {
+        if (DialogueSceneMode == 1 && SelectionState.fields.phase17 == 7 && SelectionState.fields.mode1A == 4) {
             SeqStartTrack(1);
         }
         InitDialogueState(Dialogue);
@@ -474,7 +474,7 @@ int LoadDialogueStep(void) {
         if (DialogueSceneMode == 1) {
             s2 = 0x41;
             s1 = 0x14;
-            s2 = SelectionState.copies[0].bytes[0] * 9 + (SelectionState.phase17 + s1);
+            s2 = SelectionState.fields.copies[0].bytes[0] * 9 + (SelectionState.fields.phase17 + s1);
         } else {
             s2 = 0x41;
             s1 = 4;

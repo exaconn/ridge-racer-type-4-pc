@@ -1,4 +1,5 @@
 """Character grid with live selection/UV state and full native packet cursors."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re
@@ -9,7 +10,7 @@ import unittest
 class CharacterGridTest(unittest.TestCase):
     def test_captured_coordinates_and_live_selection(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_80117F54.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_80117F54.c')
         body = re.sub(r' __asm__\("\$[0-9]+"\)', '', body)
         source = r'''
 #include <assert.h>

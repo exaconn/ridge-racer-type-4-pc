@@ -1,7 +1,8 @@
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess,re
-root=Path(__file__).resolve().parents[2];body=(root/'src/overlays/PAL/662/func_80119898.c').read_text();body=re.sub(r'__asm__\("(?:v0|v1)"\)','',body)
+root=Path(__file__).resolve().parents[2];body=read_c_source(root/'src/overlays/PAL/garage/func_80119898.c');body=re.sub(r'__asm__\("(?:v0|v1)"\)','',body)
 body=body.replace('extern s32 ScreenFrame;','').replace('extern s16 ovl662_emblem_preview_fade;','')
 source=r'''
 #include <assert.h>
@@ -36,12 +37,12 @@ static void service(unsigned id,const u32 *args,u8 *cursor,u32 *head){struct Wor
  effect(w,id);
 }
 s32 rsin(s32 angle){u32 a[12]={(u32)angle};service(1,a,0,0);assert(sineIndex<2);return sineReturns[sineIndex++];}
-struct S32 *EmitPolyFT3(u32 *head,struct S32 *packet,void *x,void *y,void *u,void *v,u16 tp,u16 clut,u16 mode,u16 shade){
- s32 *arrays[4]={x,y,u,v};u32 a[12];for(unsigned i=0;i<4;i++)for(unsigned j=0;j<3;j++)a[3*i+j]=(u32)arrays[i][j];
+GpuPolyFT3Packet *EmitPolyFT3(u32 *head,GpuPolyFT3Packet *packet,const s32 *x,const s32 *y,const s32 *u,const s32 *v,u32 tp,u32 clut,u32 mode,u32 shade){
+ s32 *arrays[4]={(s32*)x,(s32*)y,(s32*)u,(s32*)v};u32 a[12];for(unsigned i=0;i<4;i++)for(unsigned j=0;j<3;j++)a[3*i+j]=(u32)arrays[i][j];
  /* Constant material arguments are separately checked;event payload holds all coordinates. */
  assert(tp==42&&clut==0x1028&&mode==0&&shade==expectedShade);service(2,a,(u8*)packet,head);
  for(unsigned i=0;i<4;i++)for(unsigned j=0;j<3;j++)arrays[i][j]=bits32((u32)arrays[i][j]+0x80000001U+i*17U+j);
- return (struct S32*)((u8*)packet+32);
+ return (GpuPolyFT3Packet*)((u8*)packet+32);
 }
 void *AddTilePrim(u32 *head,void *packet,s32 x,s32 y,s32 w,s32 h,s32 r,s32 g,s32 b){u32 a[12]={(u32)x,(u32)y,(u32)w,(u32)h,(u32)r,(u32)g,(u32)b};service(3,a,packet,head);return (u8*)packet+16;}
 static void reference(s32 mode){
@@ -71,6 +72,6 @@ class FadeImageTest(unittest.TestCase):
  def test_geometry_and_callbacks(self):
   with TemporaryDirectory() as d:
    c=Path(d)/'test.c';exe=Path(d)/'test';c.write_text(source)
-   subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined','-fno-sanitize-recover=all','-I'+str(root/'include'),str(c),'-o',str(exe)],check=True)
+   subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-Wno-return-type','-fsanitize=undefined','-fno-sanitize=return','-fno-sanitize-recover=all','-I'+str(root/'include'),str(c),'-o',str(exe)],check=True)
    subprocess.run([str(exe)],check=True)
 if __name__=="__main__":unittest.main()

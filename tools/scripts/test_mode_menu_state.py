@@ -78,6 +78,7 @@ for event,(ret,name,types) in enumerate(signatures,1):
  functions.append(f'{ret} {name}({params}){{u32 args[10]={{{args}}};service({event},args);'+('return (s32)active.words[4];' if ret=='s32' else '')+'}')
 head=r'''
 #include <assert.h>
+#include "rr/save_slot_types.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -90,7 +91,7 @@ head=r'''
 #include "rr/menu_setup.h"
 #include "rr/frame_environment.h"
 #include "rr/mode_menu_state.h"
-typedef struct {u32 head[4],words[6];u16 half[13];s16 choices[3];char name[24],text[24];MenuSettings2C stored[3],snapshot[3];s32 records[3];BadgeRow1C badges[2][2];u32 root,tail[4];} Core;
+typedef struct {u32 head[4],words[6];u16 half[13];s16 choices[3];char name[24],text[24];SavedMenuSettings stored[3],snapshot[3];s32 records[3];BadgeRow1C badges[2][2];u32 root,tail[4];} Core;
 typedef struct {u32 event,args[10];Core before;} Event;
 static Core active;static BadgeRow1C *badgeRoot;
 static Event expectedEvents[32];static u32 eventCount,eventIndex,caseIndex;
@@ -114,7 +115,7 @@ static void service(u32 event,const u32 args[10]){
 '''
 native=head+macros+'\n'+'\n'.join(functions)+'\n'+Path('tools/scripts/fixtures/views/func_8002B75C.c').read_text()+'\n'+body+r'''
 int main(int argc,char**argv){
- assert(sizeof(Core)==528&&sizeof(Event)==572&&sizeof(MenuSettings2C)==44&&sizeof(BadgeRow1C)==28);assert((uintptr_t)&active>UINT32_MAX);
+ assert(sizeof(Core)==528&&sizeof(Event)==572&&sizeof(SavedMenuSettings)==44&&sizeof(BadgeRow1C)==28);assert((uintptr_t)&active>UINT32_MAX);
  FILE *file=fopen(argv[1],"rb");assert(file);Core before,expected;
  for(caseIndex=0;fread(&before,sizeof(Core),1,file)==1;caseIndex++){
   assert(fread(&expected,sizeof(Core),1,file)==1);assert(fread(&eventCount,4,1,file)==1);assert(eventCount<=32);assert(fread(expectedEvents,sizeof(Event),eventCount,file)==eventCount);

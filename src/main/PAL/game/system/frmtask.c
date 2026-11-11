@@ -1,3 +1,7 @@
+#include "rr/gpu_address.h"
+#include "game/ui/uipart1.h"
+#include "game/sound/cdpos.h"
+#include "game/gfx/drawlist.h"
 /* RODATA 0x800102cc 0x24 */
 #include "types.h"
 #include "rr/frame_storage_types.h"
@@ -24,18 +28,13 @@
 #include "game/sound/cdplay.h"
 
 extern s16 FadeCountdown;
-extern s32 FrmTaskState;
-extern short *ActiveFrameTaskScript;
 extern int MenuReturnSubmodeIndex;
-extern void CdAudioInit(void);
-extern void SetMenuFrameOptions();
-extern void EmitSpriteGrid();
 
 void FrmTaskModeEnter(void);
 void FrmTaskModeUpdate(void);
 
 void FrmTaskModeEnter(void) {
-    FrmTaskState = 0;
+    FrmTaskState = FRAME_TASK_READ_START;
     FadeCountdown = -1;
     ModeGroup = 0;
     ModeIndex = 6;
@@ -44,60 +43,61 @@ void FrmTaskModeEnter(void) {
 
 
 void ResetFrmTaskState(void) {
-    FrmTaskState = 0;
+    FrmTaskState = FRAME_TASK_READ_START;
     FadeCountdown = -1;
 }
 
 void FrmTaskModeUpdate(void) {
-    short *p;
-    short *q;
-    short *r;
-    volatile int *g;
-    int *s_;
-    int *d_;
-    int v;
+    FrameTaskFields *rampState;
+    FrameTaskState *initialState;
+    FrameTaskFields *revealState;
+    FrameTaskState *animationState;
+    GpuScratchPointers *scratch;
+    u32 *previousHead;
+    GpuDmaTag *packetTag;
+    int fileIndex;
 
     switch (FrmTaskState) {
-    case 0:
-        v = GetR4FileIndex(0, 0x15);
-        if (CdFileReadStart(v, LoadCursor)) {
-            FrmTaskState = 1;
+    case FRAME_TASK_READ_START:
+        fileIndex = GetR4FileIndex(0, 0x15);
+        if (CdFileReadStart(fileIndex, LoadCursor)) {
+            FrmTaskState = FRAME_TASK_READ_WAIT;
         }
         return;
-    case 1:
+    case FRAME_TASK_READ_WAIT:
         if (CdFileBytesLoaded()) {
-            FrmTaskState = 2;
+            FrmTaskState = FRAME_TASK_SETUP;
         }
         return;
-    case 2:
+    case FRAME_TASK_SETUP:
         CdAudioInit();
         CdAudioSelectTrack(0, 0x24);
         CdAudioBeginPlay(0);
-        LoadTimList(LoadCursor);
-        FrmTaskState = 7;
-        q = (short *)LoadCursor;
-        ActiveFrameTaskScript = q;
-        LoadCursor = (u8 *)q + 0x10;
-        q[1] = 0;
-        q[2] = 0;
-        q[3] = 0;
-        q[4] = 0;
-        q[5] = 0;
-        q[6] = 8;
-        q[7] = 0;
-        q[0] = 0;
-    case 7:
-        r = ActiveFrameTaskScript;
-        if (r[0] < 0x40) {
-            if (r[0] == 8) {
-                r[4] = 4;
-            } else if (r[0] == 0x20) {
-                r[5] = 4;
+        LoadTimList((s32 *)LoadCursor);
+        FrmTaskState = FRAME_TASK_REVEAL;
+        initialState = (FrameTaskState *)LoadCursor;
+        ActiveFrameTaskScript = initialState;
+        LoadCursor = (u8 *)(initialState + 1);
+        initialState->fields.intensity[0] = 0;
+        initialState->fields.intensity[1] = 0;
+        initialState->fields.intensity[2] = 0;
+        initialState->fields.ramp[0] = 0;
+        initialState->fields.ramp[1] = 0;
+        initialState->fields.ramp[2] = 8;
+        initialState->fields.spriteTick = 0;
+        initialState->fields.frame = 0;
+    case FRAME_TASK_REVEAL:
+        revealState = &ActiveFrameTaskScript->fields;
+        if (revealState->frame < 0x40) {
+            if (revealState->frame == 8) {
+                revealState->ramp[0] = 4;
+            } else if (revealState->frame == 0x20) {
+                revealState->ramp[1] = 4;
             }
-            goto common;
+            break;
         }
-        FrmTaskState = 8;
-    case 8:
+        FrmTaskState = FRAME_TASK_FADE;
+    case FRAME_TASK_FADE:
         SetMenuFrameOptions(1, 1, 0);
         if (FadeCountdown > 0) {
             FadeCountdown--;
@@ -111,31 +111,35 @@ void FrmTaskModeUpdate(void) {
             FadeCountdown = 0x40;
             CdAudioFade(0, 0x40);
         }
-    case 3: case 4: case 5: case 6:
+        break;
     default:
-    common:
-        p = ActiveFrameTaskScript;
-        RampValueToLimit(p + 1, p + 4, 0x80);
-        p = ActiveFrameTaskScript;
-        RampValueToLimit(p + 2, p + 5, 0x80);
-        p = ActiveFrameTaskScript;
-        RampValueToLimit(p + 3, p + 6, 0x80);
-        EmitPresetSprite(ActiveFrameTaskScript[1], 0x2F);
-        EmitPresetSprite(ActiveFrameTaskScript[2], 0x30);
-        p = ActiveFrameTaskScript;
-        EmitSpriteGrid(p[3]);
-        g = (int *)SCRATCHPAD;
-        ((int *)g[0])[1] = 0xE100022A;
-        s_ = (int *)g[1];
-        d_ = (int *)g[0];
-        *d_ = *s_;
-        ((char *)g[0])[3] = 1;
-        *(int *)g[1] = g[0];
-        ((char *)g[1])[3] = 0;
-        *(int *)SCRATCHPAD += 8;
-        UpdateScreenFade(0x1000C);
-        ActiveFrameTaskScript[0]++;
+        break;
     }
+    /* Accumulators wrap through the corresponding unsigned halfword view. */
+    rampState = &ActiveFrameTaskScript->fields;
+    RampValueToLimit((u16 *)&rampState->intensity[0], &rampState->ramp[0], 0x80);
+    rampState = &ActiveFrameTaskScript->fields;
+    RampValueToLimit((u16 *)&rampState->intensity[1], &rampState->ramp[1], 0x80);
+    rampState = &ActiveFrameTaskScript->fields;
+    RampValueToLimit((u16 *)&rampState->intensity[2], &rampState->ramp[2], 0x80);
+    EmitPresetSprite(ActiveFrameTaskScript->fields.intensity[0], 0x2F);
+    EmitPresetSprite(ActiveFrameTaskScript->fields.intensity[1], 0x30);
+    animationState = ActiveFrameTaskScript;
+    EmitSpriteGrid(animationState->fields.intensity[2], &animationState->grid);
+    scratch = (GpuScratchPointers *)SCRATCHPAD;
+    ((GpuCommandPacket *)scratch->cursor)->command = 0xE100022A;
+    previousHead = scratch->order;
+    packetTag = (GpuDmaTag *)scratch->cursor;
+    packetTag->word = *previousHead;
+    ((GpuDmaTag *)scratch->cursor)->bytes.length = 1;
+    {
+        u32 *head = scratch->order;
+        *head = GpuDmaEncodeAddress(scratch->cursor);
+    }
+    ((GpuDmaTag *)scratch->order)->bytes.length = 0;
+    ((GpuScratchPointers *)SCRATCHPAD)->cursor += sizeof(GpuCommandPacket);
+    UpdateScreenFade(0x1000C);
+    ActiveFrameTaskScript->fields.frame++;
 }
 
 

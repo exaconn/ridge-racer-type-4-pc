@@ -1,3 +1,7 @@
+#include "game/ui/uipart1.h"
+#include "game/sound/sndvab.h"
+#include "game/data/savetype.h"
+#include "rr/save_slots.h"
 #include "game/system/pad.h"
 /* RODATA 0x8001160c 0x74 */
 /* Candidate module: menu transitions, 8007BD18..8007BFF4.
@@ -24,24 +28,10 @@
 
 extern BadgeRow1C *BadgeRows;
 
-typedef struct {
-    char b[0x17];
-    signed char b17;
-    char r[0x2C - 0x18];
-} w8c5S;
 
 typedef struct { s16 a, b; } P2;
 
-typedef struct 
-{
-  char b[0x2C];
-} W10_R;
 
-typedef struct 
-{
-  char p[0x10];
-  short chk;
-} W10_H;
 
 extern MenuChoice TeamSelectBannerUvs[];
 extern s32 MenuCursorBlinkColors[];
@@ -59,15 +49,10 @@ extern unsigned short SubmodeState;
 extern short CardMenuOperation;
 extern short CardPromptChoices[];
 extern short CardPromptIndex;
-extern int StepMenuValue();
-extern void PlaySfx();
-extern void ClearScreenOverlayState();
 extern int ovl660_init_menu();
 extern int ovl661_init_preview();
 extern int ovl667_init_car_selection();
 extern int ovl662_init_team_car_layout();
-extern w8c5S SaveSlotSelections[];
-extern w8c5S SaveSlotSnapshots[];
 extern short FadeCountdown;
 extern short ModeIndex;
 extern short LinkState;
@@ -77,7 +62,7 @@ extern int DialogueSceneMode;
 extern short GpSaveSlotCursor;
 extern int GarageExtraDefaultTimes[];
 extern s16 MenuSlideStepVectors[][2];
-extern char *SaveBuffer;
+#include "rr/save_buffer.h"
 extern int MenuSaveBannerTimer;
 extern short MenuSubpageCursor;
 extern short MenuSubpageScroll;
@@ -403,13 +388,13 @@ void StepCardDataTransfer(void)
   int r;
   int t0;
   int t1;
-  W10_R *t2;
+  SavedMenuSettings *t2;
   short a1;
   unsigned v1;
   char *a0;
   int new_var;
   char *a2;
-  W10_H *a3;
+  SavedMenuSettings *a3;
   signed char *e;
   char sp[0x38];
   if (SubmodeState == 0)
@@ -440,10 +425,10 @@ void StepCardDataTransfer(void)
       }
       while (v1 < 0x16U);
       a2 = ((char *) (t1 * 0x2C)) + ((int) SaveBuffer);
-      a3 = (W10_H *) (a2 + 0x1F60);
-      if (a1 == a3->chk)
+      a3 = (SavedMenuSettings *) (a2 + 0x1F60);
+      if (a1 == a3->signedHalves[RR_SAVE_SLOT_CHECKSUM_HALFWORD])
       {
-        *(t2 = SaveSlotSelections + t1) = *((W10_R *) a3);
+        *(t2 = SaveSlotSelections + t1) = *((SavedMenuSettings *) a3);
       }
       else
       {
@@ -521,7 +506,7 @@ int ScanBothCardPortsStep(int a0) {
     case 3:
         for (i = 0x63; i >= 0; i--) {
         }
-        r = CardReadFileAt(CardActivePort, 0, CardTargetFileName, SaveBuffer + 0x1F00, 0x100, 0x300);
+        r = CardReadFileAt(CardActivePort, 0, CardTargetFileName, SaveBuffer + RR_SAVE_SLOT_SCAN_BUFFER_OFFSET, sizeof(CardSlotScanWindow100), RR_SAVE_SLOT_SCAN_FILE_OFFSET);
         if (r == -1) {
             if (MenuSubpageScroll < 3) {
                 MenuSubpageScroll = (unsigned short)MenuSubpageScroll + 1;

@@ -1,4 +1,5 @@
 """Actual72-record sprite lookup and live descriptor/packet/order representations."""
+from overlay_units import read_c_source
 from pathlib import Path
 import struct
 import subprocess
@@ -8,7 +9,7 @@ import unittest
 class GarageSpriteTest(unittest.TestCase):
     def test_lookup_and_live_packet_aliases(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_8011B2D4.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_8011B2D4.c')
         hint='    __asm__("" ::: "memory");\n'
         self.assertEqual(body.count(hint),0) # The emitter no longer needs scheduling metadata.
         blob=(root/'disc/PAL/R4.BIN').read_bytes()

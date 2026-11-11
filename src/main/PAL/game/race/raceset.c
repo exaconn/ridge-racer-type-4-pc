@@ -1,3 +1,4 @@
+#include "rr/save_slots.h"
 #include "game/sound/sndque.h"
 #include "rr/vehicle_table.h"
 #include "rr/race_types.h"
@@ -102,9 +103,9 @@ void UpdateLapTiming(RaceVehicle *arg0) {
                     SoundSetMasterVolume(0, 0x47);
                     if (GameModeType != 1) {
                         msg = 0x13;
-                    } else if (arg0->half1EE <= GpStageRivalRankLimits[SelectionState.phase17 / 2]) {
+                    } else if (arg0->half1EE <= GpStageRivalRankLimits[SelectionState.fields.phase17 / 2]) {
                         msg = 0x13;
-                    } else if (SelectionState.retries08[SelectionState.phase17] > 0) {
+                    } else if (SelectionState.fields.retries08[SelectionState.fields.phase17] > 0) {
                         msg = 0x14;
                     } else {
                         msg = -1;

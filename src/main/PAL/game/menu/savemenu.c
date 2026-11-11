@@ -1,3 +1,4 @@
+#include "rr/save_slots.h"
 /* RODATA 0x80011570 0x18 */
 #include "game/data/cardini.h"
 #include "game/data/savedat.h"
@@ -5,14 +6,8 @@
 #include "game/system/modeinit.h"
 #include "game/menu/savemenu.h"
 #include "rr/bios_devices.h"
-typedef struct {
-    char b[0x4000];
-} Struct4000;
-
-typedef struct {
-    char b[0x2C];
-} Struct2C;
-
+#include "rr/save_buffer.h"
+#include "game/data/savetype.h"
 
 #include "rr/cd_directory_buffer.h"
 extern char CardHeaderTitles[][0x40];
@@ -20,52 +15,48 @@ extern char CardTitleStrings[][0x40];
 extern unsigned char CardSaveStepState;
 extern unsigned char CardSaveIsMainData __asm__("CardSaveStepState+1");
 extern short CardSaveRetryCount __asm__("CardSaveStepState+2");
-extern char CardExtraDataTitleBuf[];
-extern char CardSlotHeaderTitles[][0x80];
-extern Struct4000 *SaveBuffer;
-extern Struct2C SelectionState;
-extern Struct2C SaveSlotSelections[3];
+extern CardHeaderBlock128 CardExtraDataTitleBuf;
+extern CardHeaderBlock128 CardSlotHeaderTitles[3];
 extern short CardTransferMode;
 extern short GpSaveSlotCursor;
 extern char CardTargetFileName[];
 extern short CardMenuOperation;
-extern Struct2C SaveSlotSnapshots[3];
 extern int GarageExtraDefaultTimes[];
 
-int CardSaveStep(short a0, int a1) {
-    int i;
-    int r;
-    Struct4000 *p;
+int CardSaveStep(short initialize, int port) {
+    int index;
+    int status;
+    EmblemSaveData1380 *emblemSave;
 
-    if (a0 > 0) {
+    if (initialize > 0) {
         CardSaveStepState = 0;
     }
     switch (CardSaveStepState) {
     case 0:
         CardSaveRetryCount = 0;
         PsyqBzero(SaveBuffer, 0x1AA8);
-        i = ExtraModeUnlockedFlag != 0;
-        if (a0 == 1) {
+        index = ExtraModeUnlockedFlag != 0;
+        if (initialize == 1) {
             CardSaveIsMainData = 1;
             if (CardTransferMode < 0x10) {
-                BuildCardHeaderStatic(SaveBuffer, CardHeaderTitles[i], 0x250, 0x1FC, 0x254, 0x1D8, CardExtraDataTitleBuf);
+                BuildCardHeaderStatic((CardFileHeader280 *)SaveBuffer, CardHeaderTitles[index], 0x250, 0x1FC, 0x254, 0x1D8, &CardExtraDataTitleBuf);
                 BuildSaveData(CardTransferMode);
             } else if (CardTransferMode & 0x10) {
-                BuildCardHeaderStatic(SaveBuffer, CardTitleStrings[GpSaveSlotCursor], 0x250, 0x1FC, 0x254, 0x1D8, CardSlotHeaderTitles[GpSaveSlotCursor]);
+                BuildCardHeaderStatic((CardFileHeader280 *)SaveBuffer, CardTitleStrings[GpSaveSlotCursor], 0x250, 0x1FC, 0x254, 0x1D8, &CardSlotHeaderTitles[GpSaveSlotCursor]);
                 BuildSaveData(CardTransferMode);
             } else if (CardTransferMode == 0x20) {
-                *SaveBuffer = *(const Struct4000 *)CdDirectoryBuffer;
+                *(CardFileImage4000 *)SaveBuffer = *(const CardFileImage4000 *)CdDirectoryBuffer;
             }
-        } else if (a0 >= 2) {
+        } else if (initialize >= 2) {
             CardSaveIsMainData = 0;
             if (CardTransferMode < 0x10) {
-                BuildCardHeaderStatic(SaveBuffer, CardHeaderTitles[i], 0x250, 0x1FC, 0x254, 0x1D8, CardExtraDataTitleBuf);
+                BuildCardHeaderStatic((CardFileHeader280 *)SaveBuffer, CardHeaderTitles[index], 0x250, 0x1FC, 0x254, 0x1D8, &CardExtraDataTitleBuf);
                 BuildSaveData(CardTransferMode);
             } else if (CardTransferMode & 0x10) {
-                BuildCardHeaderStatic(SaveBuffer, CardTitleStrings[GpSaveSlotCursor], 0x250, 0x1FC, 0x254, 0x1D8, CardSlotHeaderTitles[GpSaveSlotCursor]);
+                BuildCardHeaderStatic((CardFileHeader280 *)SaveBuffer, CardTitleStrings[GpSaveSlotCursor], 0x250, 0x1FC, 0x254, 0x1D8, &CardSlotHeaderTitles[GpSaveSlotCursor]);
                 BuildSaveData(CardTransferMode);
             } else if (CardTransferMode == 0x20) {
-                *SaveBuffer = *(const Struct4000 *)CdDirectoryBuffer;
+                *(CardFileImage4000 *)SaveBuffer = *(const CardFileImage4000 *)CdDirectoryBuffer;
             }
         }
         CardSaveStepState = 1;
@@ -74,14 +65,14 @@ int CardSaveStep(short a0, int a1) {
         CardSaveStepState = 2;
         break;
     case 2:
-        for (i = 0x1D; i >= 0; i--) {
+        for (index = 0x1D; index >= 0; index--) {
         }
         if (CardTransferMode == 0x20) {
-            r = CardWriteFile((short)a1, 0, CardTargetFileName, SaveBuffer, 2, CardSaveIsMainData);
+            status = CardWriteFile((short)port, 0, CardTargetFileName, SaveBuffer, 2, CardSaveIsMainData);
         } else {
-            r = CardWriteFile((short)a1, 0, CardTargetFileName, SaveBuffer, 1, CardSaveIsMainData);
+            status = CardWriteFile((short)port, 0, CardTargetFileName, SaveBuffer, 1, CardSaveIsMainData);
         }
-        if (r == -1) {
+        if (status == -1) {
             if (CardSaveRetryCount < 3) {
                 CardSaveRetryCount = (unsigned short)CardSaveRetryCount + 1;
                 break;
@@ -92,21 +83,21 @@ int CardSaveStep(short a0, int a1) {
         }
         break;
     case 3:
-        i = GetHwCardEvent();
-        if (i != 0) {
-            if (i == 1) {
+        index = GetHwCardEvent();
+        if (index != 0) {
+            if (index == 1) {
                 CardSaveStepState = 4;
                 switch (CardMenuOperation) {
                 case 3:
                     SaveSlotSnapshots[GpSaveSlotCursor] = SelectionState;
-                    for (i = 0; i < 3; i++) {
-                        SaveSlotSelections[i] = SaveSlotSnapshots[i];
+                    for (index = 0; index < 3; index++) {
+                        SaveSlotSelections[index] = SaveSlotSnapshots[index];
                     }
                     break;
                 case 6:
                 case 7:
-                    p = SaveBuffer;
-                    GarageExtraDefaultTimes[GpSaveSlotCursor] = ((int *)p)[0x280 / 4];
+                    emblemSave = (EmblemSaveData1380 *)SaveBuffer;
+                    GarageExtraDefaultTimes[GpSaveSlotCursor] = emblemSave->editFrames280;
                     break;
                 }
             } else {

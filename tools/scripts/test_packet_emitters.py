@@ -1,11 +1,12 @@
 """Actual original/compiled MIPS vs native packet emitter + three real helper bodies."""
 from pathlib import Path
+from c_functions import definition_source, source_owners
 import os,re,sys,subprocess,ctypes as C,struct,json,hashlib
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN,UC_HOOK_CODE
 from unicorn.mips_const import *
-ROOT=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file());os.chdir(ROOT);source=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'tools/scripts/fixtures/views/func_8001FEC0.c';triangle='2071' in str(source);entry=0x8002071C if triangle else 0x8001FEC0
+ROOT=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file());os.chdir(ROOT);source=Path(sys.argv[1]) if len(sys.argv)>1 else source_owners(ROOT/'src/main/PAL')['GameQueueSprite'];triangle='2071' in str(source);entry=0x8002071C if triangle else 0x8001FEC0
 P=Path(os.getenv('RR_TEST_DIR',str(ROOT/'build/native_tests/packet_emitters')));P.mkdir(exist_ok=True,parents=True)
-header='rr/sprite_emit.h';body=source.read_text().split('\n',1)[1];body=re.sub(r' __asm__\("\$\d+"\)','',body)
+header='rr/sprite_emit.h';body=definition_source(source.read_text(),'EmitPolyF3' if triangle else 'GameQueueSprite');body=re.sub(r' __asm__\("\$\d+"\)','',body)
 head=r'''
 #include <stdint.h>
 #include <stddef.h>

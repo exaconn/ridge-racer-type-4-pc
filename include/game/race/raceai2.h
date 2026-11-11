@@ -8,7 +8,8 @@ void FinishRace();
 int ExitOnLinkLost(void);
 int UpdateLinkHandshake(int a0);
 void DrawLinkEntryScreen(s32 mode);
-int LinkExchange(int a0, int a1, int a2, int a3);
+/* Each peer alternates the two real buffers according to LinkHostFlag. */
+int LinkExchange(void *first, void *second, s32 count, s32 bidirectional);
 void LinkWaitModeEnter(void);
 void LinkWaitModeUpdate(void);
 void LinkExchangeModeUpdate(void);

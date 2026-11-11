@@ -2,7 +2,7 @@
 #define RR_OVERLAY662_IMAGE_FADE_H
 #include "rr/badge_rows.h"
 #include "rr/trig.h"
-#include "rr/textured_triangle.h"
+#include "game/gfx/sprefct.h"
 /* Four fullword coordinate/UV arrays;two three-vertex windows share this
  * complete owner. GPU material uses the low16/8 bits of each entry. */
 typedef struct {s32 x[4],y[4],u[4],v[4];} GarageFadeGeometry;
@@ -16,7 +16,7 @@ extern s16 ovl662_emblem_preview_fade;
  * The returned cursor is published once after drawing. Phase advances modulo16
  * by8 in mode1,otherwise4,or saturates128 if the reloaded signed phase>=128.
  * Scratch/context/packet alignment and capacity follow the shared emitters. */
-void ovl662_draw_emblem_preview_fade(s32 mode);
+s32 ovl662_draw_emblem_preview_fade(s32 mode);
 RR_ASSERT_SIZE(GarageFadeGeometry,64);
 RR_ASSERT_OFFSET(GarageFadeGeometry,y,16);
 RR_ASSERT_OFFSET(GarageFadeGeometry,u,32);

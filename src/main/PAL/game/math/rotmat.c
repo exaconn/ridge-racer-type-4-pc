@@ -12,7 +12,6 @@
 
 extern short AtanTable[];
 
-s32 Atan2Table(int a0, int a1);
 
 void BuildRotMatrixZ(MatrixWords32 *matrix, s32 angle) {
     short sine = rsin(angle);

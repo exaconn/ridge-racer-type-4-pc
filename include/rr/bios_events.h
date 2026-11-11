@@ -10,5 +10,6 @@ BiosEventHandle OpenEvent(u32 eventClass,u32 specification,u32 mode,
 s32 EnableEvent(BiosEventHandle handle);
 s32 TestEvent(BiosEventHandle handle);
 s32 FileRead(s32 descriptor,void *buffer,s32 count);
+s32 FileWrite(s32 descriptor,const void *buffer,s32 count);
 s32 FileOpen(const char *name,s32 mode);
 #endif

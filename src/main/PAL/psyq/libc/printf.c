@@ -317,14 +317,15 @@ s32 PsyqSprintf(s8 *dst, const s8 *fmt, ...) {
                 case 'n':
                     {
                         register s32 *a asm("$2"); /* ASM_BARRIER: pin ap reload to v0 */
-                        register u32 flags asm("$3"); /* ASM_BARRIER: pin st flags to v1 */
+                        u32 flags;
                         register u32 is_sh asm("$2"); /* ASM_BARRIER: pin is_short shift to v0 */
                         a = *(s32 **)&ap;
                         flags = *(u32 *)&st;
                         p = (s8 *)*a;
                         a++;
                         *(s32 **)&ap = a;
-                        is_sh = (flags >> 5) & 1;
+                        is_sh = flags >> 5;
+                        is_sh &= 1;
                         if (is_sh) {
                             *(s16 *)p = total;
                         } else {

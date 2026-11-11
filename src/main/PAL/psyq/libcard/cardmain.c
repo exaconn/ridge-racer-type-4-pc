@@ -1,5 +1,5 @@
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* CC1_FLAGS: -mno-split-addresses */
 #include "rr/commands.h"
 #include "rr/serial.h"
 #include "rr_asm.h"
@@ -16,11 +16,8 @@ s32 _cardCmdStep(void) {
         u32 header;
         u32 count;
         CardCommandStatus=4;
-        /* ASM_BARRIER: Capture the request before preparing the state-four temporary. */
-        __asm__("" : : : "$2");
         _cardSelectSlot(slot>>4);
         _cardXferByte(~((CardCommandRequest&15)+0x81));
-        __asm__ __volatile__("" : "+r"(one));
         header=*(u8 *)&CardCommandRequest;
         count=CardReceiveIndex;
         D_801147D8[0]=(header&15)-0x7F;
@@ -76,19 +73,15 @@ final_byte:
         s32 *phase=&CardRxCount;
         u32 tick;
         u32 remaining,index;
-        u32 raw;
         SerialPortRegisters *port;
         CommandWriteCallback writer;
-        tick=CardTxCount;
+        tick=((s32 *)0x800B0000U)[-0x4218/4];
         remaining=CardBytesRemaining;
         CardTxCount=tick+1;
         port=CardCmdSioRegs;
         CardBytesRemaining=remaining-1;
-        raw=port->data;
-        /* ASM_BARRIER: Read the device byte before loading the fresh receive index. */
-        __asm__("" : "+r"(raw) : : "$3", "memory");
+        value=port->data;
         index=*phase;
-        value=raw&255;
         CardRxTrace[index]=value;
         index++;
         /* ASM_BARRIER: Increment the trace index before preparing the fresh writer and argument. */

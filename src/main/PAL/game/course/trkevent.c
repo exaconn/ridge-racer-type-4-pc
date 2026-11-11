@@ -8,11 +8,11 @@ s32 LookupTrackEventPair(s32 key, s32 selection) {
     s32 lower = 0, upper, middle;
     TrackEventPair *entries;
     if (selection == 0) {
-        upper = TrackEventTables->count0;
-        entries = TrackEventTables->table0;
+        upper = RaceContext.lookupTables->pairCount0;
+        entries = RaceContext.lookupTables->pairs0.entries;
     } else {
-        upper = TrackEventTables->count1;
-        entries = TrackEventTables->table1;
+        upper = RaceContext.lookupTables->pairCount1;
+        entries = RaceContext.lookupTables->pairs1.entries;
     }
     while (lower < upper) {
         middle = (lower + upper) / 2;
@@ -51,33 +51,33 @@ notFound:
 }
 
 s32 LookupTrackEventTable0(s32 key) {
-    s32 index = FindTrackEventIndex(RaceContext.lookupTables->table0, RaceContext.lookupTables->count0, key);
-    if (index >= 0) return RaceContext.lookupTables->table0[index].value.word;
+    s32 index = FindTrackEventIndex(RaceContext.lookupTables->table0.entries, RaceContext.lookupTables->count0, key);
+    if (index >= 0) return RaceContext.lookupTables->table0.entries[index].value.word;
     return -1;
 }
 
 s32 LookupTrackEventTable1(s32 key) {
-    s32 index = FindTrackEventIndex(RaceContext.lookupTables->table1, RaceContext.lookupTables->count1, key);
-    if (index >= 0) return RaceContext.lookupTables->table1[index].value.word;
+    s32 index = FindTrackEventIndex(RaceContext.lookupTables->table1.entries, RaceContext.lookupTables->count1, key);
+    if (index >= 0) return RaceContext.lookupTables->table1.entries[index].value.word;
     return -1;
 }
 
 s32 LookupTrackEventTable2(s32 key) {
-    s32 index = FindTrackEventIndex(RaceContext.lookupTables->table2, RaceContext.lookupTables->count2, key);
-    if (index >= 0) return RaceContext.lookupTables->table2[index].value.word;
+    s32 index = FindTrackEventIndex(RaceContext.lookupTables->table2.entries, RaceContext.lookupTables->count2, key);
+    if (index >= 0) return RaceContext.lookupTables->table2.entries[index].value.word;
     return -1;
 }
 
 s32 LookupTrackEventTable3(s32 key) {
-    s32 index = FindTrackEventIndex(RaceContext.lookupTables->table3, RaceContext.lookupTables->count3, key);
-    if (index >= 0) return RaceContext.lookupTables->table3[index].value.half;
+    s32 index = FindTrackEventIndex(RaceContext.lookupTables->table3.entries, RaceContext.lookupTables->count3, key);
+    if (index >= 0) return RaceContext.lookupTables->table3.entries[index].value.half;
     return -1;
 }
 
 s32 LookupTrackEventPair2(s32 key) {
-    LookupTables16 *tables = TrackEventTables;
-    s32 upper = tables->count2;
-    TrackEventPair *entries = tables->table2;
+    TrackEventDirectory *tables = RaceContext.lookupTables;
+    s32 upper = tables->pairCount2;
+    TrackEventPair *entries = tables->pairs2.entries;
     s32 lower = 0, middle;
     while (lower < upper) {
         middle = (lower + upper) / 2;
@@ -90,6 +90,8 @@ s32 LookupTrackEventPair2(s32 key) {
 }
 
 s32 LookupTrackEvent(s32 selection, s32 key) {
+    s32 validSelection = (u32)selection < 7;
+    if (!validSelection) return validSelection;
     switch (selection) {
     case 0: return LookupTrackEventPair(key, 0);
     case 1: return LookupTrackEventPair(key, 1);
@@ -99,4 +101,5 @@ s32 LookupTrackEvent(s32 selection, s32 key) {
     case 5: return LookupTrackEventTable3(key);
     case 6: return LookupTrackEventPair2(key);
     }
+    return 0;
 }

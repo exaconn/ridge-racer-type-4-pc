@@ -1,4 +1,5 @@
 """Serialized packet references, all legal ordering aliases and overlapping origins."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +9,7 @@ import unittest
 class GaragePacketBuildersTest(unittest.TestCase):
     def test_native_packets_and_aliases(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/662/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/garage/func_{a}.c')
                            for a in ('8011B1CC', '8011AD3C', '8011AEC4'))
         bodies = bodies.replace(' __asm__("$3")', '').replace(' __asm__("$10")', '')
         source = r'''

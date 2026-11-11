@@ -1,20 +1,23 @@
 """Scratchpad pointer owner, captured ordering base and real draw-mode closure."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import definition_source, source_owners
 
 class GarageSetupTest(unittest.TestCase):
     def test_captured_order_and_live_cursor_publication(self):
         root=Path(__file__).resolve().parents[2]
-        page=(root/'tools/scripts/fixtures/views/func_800940E0.c').read_text()
-        page=re.sub(r' asm\("\$\d+"\)','',page)
-        window=(root/'tools/scripts/fixtures/views/func_8009424C.c').read_text()
-        builder=(root/'tools/scripts/fixtures/views/func_80093C24.c').read_text()
+        owners=source_owners(root/'src/main/PAL')
+        page=definition_source(owners['get_mode'].read_text(),'get_mode')
+        window=definition_source(owners['get_tw'].read_text(),'get_tw')
+        builder=definition_source(owners['SetDrawMode'].read_text(),'SetDrawMode')
+        self.assertIsNone(re.search(r'\b(?:asm|__asm__)\s*\(',page+window+builder))
         builder=builder.replace('void SetDrawMode(', 'void actual_builder(')
-        mode=(root/'src/overlays/PAL/662/func_8011AC94.c').read_text()
-        setup=(root/'src/overlays/PAL/662/func_8011B400.c').read_text()
+        mode=read_c_source(root/'src/overlays/PAL/garage/func_8011AC94.c')
+        setup=read_c_source(root/'src/overlays/PAL/garage/func_8011B400.c')
         source=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -57,7 +60,8 @@ void SetDrawMode(void *output,s32 display,s32 dither,s32 page,GpuRectangleFields
  *head(step)=0xAB345600U+step;
  change_roots(&world,step);
 }
-u8 *ovl662_emit_draw_area(u32 *ordering,u8 *packet,u32 x,u32 y,u32 width,u32 height){
+u8 *ovl662_emit_draw_area(u32 *ordering,u32 *words,u32 x,u32 y,u32 width,u32 height){
+ u8 *packet=(u8 *)words;
  assert(world.calls==0 && ordering==head(0) && packet==cursor(0));
  assert(x==12 && y==61 && width==296 && height==352);
  record(&world,packet,x,y,width,height,0);

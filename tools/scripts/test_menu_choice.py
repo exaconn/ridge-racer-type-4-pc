@@ -1,4 +1,6 @@
+from selection_fixture_transport import transport as transport_selection
 """Menu choice: mutable helpers, repeated byte records and native buffer publication."""
+from menu_glyph_fixture_transport import transport
 from pathlib import Path
 import re
 import subprocess
@@ -17,6 +19,7 @@ class MenuChoiceTest(unittest.TestCase):
         self.assertEqual(['b4'],re.findall(r'Dialogue->(\w+)',s))
         prefix=r'''
 #include <assert.h>
+#include "rr/save_slot_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -34,13 +37,13 @@ _Static_assert(offsetof(MenuGlyphRow1C,phase18)==24,"phase");
 _Static_assert(sizeof(unsigned long)>=sizeof(void*),"full pointer arithmetic");
 _Static_assert(sizeof(MenuChoice4)==4,"packed choice");
 _Static_assert(_Alignof(MenuChoice4)==1,"byte alignment");
-_Static_assert(sizeof(MenuSettings2C)==44,"settings owner");
-_Static_assert(offsetof(MenuSettings2C,mode1A)==26,"mode");
-_Static_assert(offsetof(MenuSettings2C,copies)==28,"records");
+_Static_assert(sizeof(SavedMenuSettings)==44,"settings owner");
+_Static_assert(offsetof(SavedMenuSettings,fields.mode1A)==26,"mode");
+_Static_assert(offsetof(SavedMenuSettings,fields.copies)==28,"records");
 _Static_assert(sizeof(BadgeRow1C)==28,"control row");
 _Static_assert(offsetof(BadgeRow1C,state10)==16,"state");
 typedef union {uint64_t align;u8 bytes[288];} UiOwner;
-typedef struct {MenuChoice4 choice;MenuSettings2C settings;BadgeRow1C rows[2];UiOwner ui[2];MenuGlyphRow1C slots[4];u8 highlight[2][8];s16 selected;u16 buttons;s32 event,accepted;int rowbank,uibank,hintbank;void *resource,*current;u8 canary[24];} World;
+typedef struct {MenuChoice4 choice;SavedMenuSettings settings;BadgeRow1C rows[2];UiOwner ui[2];MenuGlyphRow1C slots[4];u8 highlight[2][8];s16 selected;u16 buttons;s32 event,accepted;int rowbank,uibank,hintbank;void *resource,*current;u8 canary[24];} World;
 typedef struct {int kind;s32 args[3];World snapshot;} Entry;
 static World actual,expected,*w;
 static Entry entries[8],actual_entries[8];
@@ -160,7 +163,7 @@ int main(void){
         with TemporaryDirectory() as temporary:
             p=Path(temporary)
             source=p/'choice.c'
-            source.write_text(prefix+s+reference)
+            source.write_text(transport_selection(transport(prefix+s+reference,s,'StepResultsMenuChoice','&actual.slots[0]','4',[('emit', 'w==&actual')]),s,'StepResultsMenuChoice','&actual.choice',4,[('emit','w==&actual')]))
             executable=p/'choice'
             subprocess.run(['clang','-std=gnu11','-O2','-fsanitize=undefined',
                             '-fno-sanitize-recover=all','-I'+str(ROOT/'include'),

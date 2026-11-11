@@ -5,10 +5,11 @@ from tempfile import TemporaryDirectory
 import subprocess
 
 root = Path(__file__).resolve().parents[2]
-body = read_c_source(root/'src/overlays/PAL/659/func_801159E8.c')
+body = read_c_source(root/'src/overlays/PAL/grand_prix/func_801159E8.c')
 body = body[body.index('void ovl659_init_preview'):]
 source = r'''
 #include <assert.h>
+#include "rr/save_slot_types.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -20,16 +21,16 @@ source = r'''
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/overlay659_preview_init.h"
 _Static_assert(sizeof(RaceVehicle)==(sizeof(void*)==4?0x320:0x330),"vehicle layout");
-_Static_assert(sizeof(MenuSettings2C)==0x2C,"settings layout");
+_Static_assert(sizeof(SavedMenuSettings)==0x2C,"settings layout");
 _Static_assert(sizeof(UiRow24)==0x24,"UI layout");
 _Static_assert(offsetof(UiRow24,cells)==12,"cell offset");
-_Static_assert(offsetof(MenuSettings2C,phase17)==23,"selection offset");
+_Static_assert(offsetof(SavedMenuSettings,fields.phase17)==23,"selection offset");
 _Static_assert(offsetof(RaceVehicle,position20)==32,"position offset");
 _Static_assert(offsetof(RaceVehicle,rot54)==84,"rotation offset");
 static u8 resources[3][32];
 typedef struct {
  u32 guard[4];s32 frame,tick;s16 selection,mode,scene;u16 phase,enable;
- MenuSettings2C settings;UiRow24 rows[2][7];RaceVehicle vehicles[2];
+ SavedMenuSettings settings;UiRow24 rows[2][7];RaceVehicle vehicles[2];
  s32 scratch[16];void *published;u8 *resource;unsigned root;u32 tail[4];
 } State;
 static State actual,reference,*w;
@@ -62,7 +63,7 @@ static void record(unsigned kind,const s32 *args){assert(kind<10);
 static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
  u32 v=(scenario+17*kind+31*n)*0x9E3779B9U;
  w->frame=word(v);w->tick=word(~v);w->phase=(u16)v;w->selection=half(v>>7);w->mode=half(v);w->enable=(u16)(v>>3);w->scene=half(v>>16);
- w->root=(scenario+n)&1;w->resource=resources[(scenario+n)%3];w->published=resources[(scenario+n+1)%3];w->settings.phase17=byte(scenario+13*n);
+ w->root=(scenario+n)&1;w->resource=resources[(scenario+n)%3];w->published=resources[(scenario+n+1)%3];w->settings.fields.phase17=byte(scenario+13*n);
  for(unsigned i=0;i<2;i++)for(unsigned j=0;j<3;j++)w->vehicles[i].position20.words[j]=word(v+j+i*13);
  for(unsigned i=0;i<2;i++)w->vehicles[i].rot54=word(v+i);
  for(unsigned i=0;i<2;i++)for(unsigned j=0;j<8;j++)w->rows[i][3].cells[j]=(u8)(v+i+j);
@@ -90,8 +91,8 @@ static void expected(void){unsigned phase=w->phase;paths[phase<3?phase:3]++;
    {2,12,144,68,32,0,0,1,0,29},{3,12,368,208,32,0,0,8,4,0},
    {4,116,88,28,32,0,0,1,0,55},{5,116,128,28,32,0,0,1,0,56},
    {6,24,88,68,32,0,0,1,0,83}};
-  for(unsigned i=0;i<7;i++){s32 args[10];memcpy(args,rows[i],40);if(i==3)args[9]=w->settings.phase17;record(4,args);effect(4);}
-  memset(w->rows[w->root][3].cells,0,8);int selected=w->settings.phase17;
+  for(unsigned i=0;i<7;i++){s32 args[10];memcpy(args,rows[i],40);if(i==3)args[9]=w->settings.fields.phase17;record(4,args);effect(4);}
+  memset(w->rows[w->root][3].cells,0,8);int selected=w->settings.fields.phase17;
   if(selected>=0&&selected<8)w->rows[w->root][3].cells[selected]=2;
   w->scratch[6]=512;w->scratch[7]=0;w->scratch[8]=0;w->scratch[2]=0;w->scratch[3]=-416;w->scratch[4]=0;
   memset(w->vehicles[1].position20.words,0,sizeof(w->vehicles[1].position20.words));service(5);
@@ -102,7 +103,7 @@ static void expected(void){unsigned phase=w->phase;paths[phase<3?phase:3]++;
 }
 int main(void){assert(sizeof(void*)==8);for(scenario=0;scenario<65536;scenario++)for(profile=0;profile<8;profile++){
  memset(&actual,0xA6,sizeof(actual));w=&actual;w->phase=profile<6?profile/2:(u16)scenario;
- w->frame=word(scenario*0x1234567U);w->tick=word(~(scenario*0x2345678U));w->settings.phase17=byte(scenario);
+ w->frame=word(scenario*0x1234567U);w->tick=word(~(scenario*0x2345678U));w->settings.fields.phase17=byte(scenario);
  w->root=scenario&1;w->resource=resources[scenario%3];w->published=resources[(scenario+1)%3];
  reference=actual;serial=count=seen=0;referenceRun=1;w=&reference;expected();serial=0;referenceRun=0;w=&actual;ovl659_init_preview();
  assert(count==seen&&!memcmp(&actual,&reference,sizeof(actual)));

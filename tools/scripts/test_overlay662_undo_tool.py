@@ -1,4 +1,5 @@
 """Undo action: complete owners, real backup/hit/audio helpers and fresh native pointers."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re
@@ -8,8 +9,8 @@ import unittest
 class Overlay662UndoToolTest(unittest.TestCase):
     def test_navigation_and_fresh_pointer_pair_swaps(self):
         root=Path(__file__).resolve().parents[2]
-        paths=['src/overlays/PAL/662/func_8011E734.c','src/overlays/PAL/662/func_8011E694.c','src/overlays/PAL/662/func_8011D120.c','tools/scripts/fixtures/views/func_8004F218.c','tools/scripts/fixtures/views/func_8004F24C.c','src/overlays/PAL/662/func_801207C8.c']
-        bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',(root/p).read_text(),flags=re.M) for p in paths)
+        paths=['src/overlays/PAL/garage/func_8011E734.c','src/overlays/PAL/garage/func_8011E694.c','src/overlays/PAL/garage/func_8011D120.c','tools/scripts/fixtures/views/func_8004F218.c','tools/scripts/fixtures/views/func_8004F24C.c','src/overlays/PAL/garage/func_801207C8.c']
+        bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',read_c_source(root/p),flags=re.M) for p in paths)
         bodies=re.sub(r' __asm__\("\$[0-9]+"\)', '', bodies)
         source=r'''
 #include <assert.h>

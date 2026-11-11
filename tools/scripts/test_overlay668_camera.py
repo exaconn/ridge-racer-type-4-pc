@@ -10,7 +10,7 @@ import unittest
 class ReplayCameraTest(unittest.TestCase):
     def test_native_camera(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/668/func_{a}.c')
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/movie_playback/func_{a}.c')
                            for a in ('80115554', '801156FC', '80115850'))
         bodies = re.sub(r'__asm__\("\$3"\)', '', bodies)
         source = r'''

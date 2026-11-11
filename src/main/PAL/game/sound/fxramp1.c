@@ -1,8 +1,8 @@
+#include "game/sound/fxplay.h"
 #include "rr/audio_state_types.h"
 #include "game/sound/fxramp1.h"
 
-extern void SeqSetVolume();
-extern void SeqMuteVolume();
+#include "game/sound/cdmain.h"
 
 void SeqFadeStep(void)
 {
@@ -25,9 +25,9 @@ void SeqFadeStep(void)
                 v += 0xFFF;
             }
             v = (v >> 12) + from;
-            SeqSetVolume((short)v, &SoundState, from);
+            SeqSetVolume((short)v);
             return;
         }
-        SeqMuteVolume(d, &SoundState);
+        SeqMuteVolume();
     }
 }

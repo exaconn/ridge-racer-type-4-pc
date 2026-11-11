@@ -2,6 +2,7 @@
 #define RR_GAME_DATA_CDFILE2_H
 
 #include "rr/car_render_types.h"
+#include "game/data/resinit.h"
 #include "rr/model_table.h"
 
 extern CarSlotBufferC8 CarSlotBuffers[16];
@@ -9,7 +10,6 @@ extern CarSlotBufferC8 CarSlotBuffers[16];
 /* Captures the raw depth shift and current render flags in scratchpad; resets
  * the two RGB/command templates and the viewport to (0,0,320,256). */
 void SetupRenderer(s32 shift);
-void ResetCarSlotBuffers(void);
 void AllocCarSlotBuffers(const CarModelHeader *model, s32 carIndex);
 s32 CdFileStep(void);
 s32 CdFileReadStart(s32 a0, void *a1);

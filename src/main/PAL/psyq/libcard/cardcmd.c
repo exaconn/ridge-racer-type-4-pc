@@ -7,10 +7,8 @@ extern s32 SysDeqIntRP(s32,void *);
 s32 _cardSioHandler(void) {
     s32 result;
     InterruptRegisters *registers;
-    s32 *page;
     u32 count=CardTxCount+1U;
-    page=(s32 *)0x800B0000U;
-    page[-0x4218/4]=count;
+    CardTxCount=count;
     result=_cardCmdStep();
     registers=I_STAT_Card;
     registers->pending=~0x80U;
@@ -31,7 +29,6 @@ s32 _cardSioHandler(void) {
                 /* ASM_BARRIER: Retain argument preparation and retry load before status store. */
                 __asm__ volatile("" : "+r"(flag) : "r"(retry));
                 CardCommandStatus=0x41;
-                flag=1;
                 if(retry!=0) {
                     _cardCmdReset(CardCommandRequest);
                     CardCommandStatus=2;
@@ -39,19 +36,20 @@ s32 _cardSioHandler(void) {
                     /* ASM_BARRIER: Finish retry bookkeeping before preparing the event argument again. */
                     __asm__("" : : : "$4", "memory");
                     flag=1;
+                } else {
+                    flag=1;
                 }
                 event=CardIrqQueueEntryPtr;
-                /* Ordinary write view preserves the original jump-delay store. */
-                *(u16 *)&CardSio0Regs->control=0;
+                /* Stop the SIO transfer through the actual hardware register. */
+                CardSio0Regs->control=0;
             } else {
                 event=CardIrqQueueEntryPtr;
-                /* Ordinary write view preserves the original jump-delay store. */
-                *(u16 *)&CardSio0Regs->control=0;
+                /* Stop the SIO transfer through the actual hardware register. */
+                CardSio0Regs->control=0;
                 CardCommandStatus=0x21;
             }
         }
-        page=(s32 *)0x800B0000U;
-        page[-0x4218/4]=0;
+        CardTxCount=0;
         SysDeqIntRP(flag,event);
     }
     return 0;

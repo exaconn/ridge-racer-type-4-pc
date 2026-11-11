@@ -16,6 +16,7 @@ s32 SetGraphDebug(s32 enabled);
  * after restoring interrupts, when it is empty and DMA is idle; the pending
  * flag is cleared before entry, so user code may register/rearm another pass. */
 GpuCompletionCallback DrawSyncCallback(GpuCompletionCallback callback);
+void DrawSync(s32 mode);
 void ClearImage(GpuRectangle *rectangle, s32 red, s32 green, s32 blue);
 void ClearImage2(GpuRectangle *rectangle, s32 red, s32 green, s32 blue);
 void LoadImage(GpuRectangle *rectangle, const void *pixels);

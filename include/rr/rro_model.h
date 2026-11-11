@@ -11,10 +11,7 @@ enum {RRO_VECTOR_STRIDE = sizeof(Vec3s8)};
 /* The RRO emitters stage four vertices, one normal and four projected XY
  * pairs here. SetGteObjectTransform uses the same scratch region first;
  * its output is consumed before the emission fields replace it. */
-typedef union {
-    s32 word;
-    Vec2s xy;
-} RroScreenPosition;
+typedef ScreenPosition RroScreenPosition;
 
 typedef struct {
     const Vec3s8 *vertices00;

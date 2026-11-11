@@ -75,7 +75,7 @@ void PlanComCarCornerTurn(RaceVehicle *a0) {
         }
         if (!fp) {
             s4 = s1;
-            s3 += TrackNodes[s4].segmentLength1C;
+            s3 += TrackNodes[s4].road.segmentLength;
             s1 = s4 - 1;
             if (s1 < 0) {
                 s1 += TrackNodeCount;
@@ -138,7 +138,7 @@ int FindTrackNodeBehind(int a0, int a1) {
         do {
             a0--;
             if (a0 < 0) a0 += n;
-            a1 -= p[a0].segmentLength1C;
+            a1 -= p[a0].road.segmentLength;
         } while (a1 > 0);
     }
     return a0;

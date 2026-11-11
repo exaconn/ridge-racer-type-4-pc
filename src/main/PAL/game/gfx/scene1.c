@@ -1,3 +1,4 @@
+#include "game/gfx/gtepoly1.h"
 #include "game/math/rotmat.h"
 #include "psyq/libgte/gtemat5.h"
 #include "psyq/libgte/gtemat4.h"
@@ -27,18 +28,13 @@
 
 
 
-extern s32 SceneOverlayEnabled;
 extern GpuRectangleFields CarCameraSpringStiffness[];
 extern GpuRectangleFields CarCameraPitchOffsets[][4];
-extern int SetModelTexturePage();
 extern int ReplayCamBankWeights[];
 extern int DrawSubOtFlag;
 extern short SelectedMakerIndex;
 extern int ScaleMatrix();
 
-void InitSceneOverlayState(void);
-void SetSceneOverlayColor(int a0, u8 a1, u8 a2, u8 a3);
-void SetSceneOverlayEnabled(s32 arg0);
 void EmitSceneOverlaySprites(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4);
 
 void InitSceneOverlayState(void) {
@@ -51,15 +47,15 @@ void InitSceneOverlayState(void) {
     RaceContext.overlayColorE4[2] = 0x90;
 }
 
-void SetSceneOverlayColor(int a0, u8 a1, u8 a2, u8 a3) {
-    RaceContext.overlayModeDC = a0;
-    RaceContext.overlayColorE4[0] = a1;
-    RaceContext.overlayColorE4[1] = a2;
-    RaceContext.overlayColorE4[2] = a3;
+void SetSceneOverlayColor(s32 mode, s32 red, s32 green, s32 blue) {
+    RaceContext.overlayModeDC = mode;
+    RaceContext.overlayColorE4[0] = red;
+    RaceContext.overlayColorE4[1] = green;
+    RaceContext.overlayColorE4[2] = blue;
 }
 
-void SetSceneOverlayEnabled(s32 arg0) {
-    SceneOverlayEnabled = arg0;
+void SetSceneOverlayEnabled(s32 enabled) {
+    RaceContext.overlayEnabledD4 = enabled;
 }
 
 void EmitSceneOverlaySprites(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
@@ -190,13 +186,13 @@ void InitCameraState(int mode, int flags)
         RaceContext.camera24C->mirrorA4 = 1;
     }
     camera = RaceContext.camera24C;
-    ShowcaseCamDepthCurve[0].a = *(int *)&camera->extentA0 * 4;
-    distance = *(int *)&camera->extentA0 - 4;
+    ShowcaseCamDepthCurve[0].a = camera->extentA0 * 4;
+    distance = camera->extentA0 - 4;
     distance = distance - (CarBoundsTable[0]->unk08 + (PlayerCars[0].halfSpan10E / 2));
-    *(int *)&camera->distance100 = distance;
+    camera->distance100 = distance;
     RaceContext.camera24C->mode13C = mode;
     RaceContext.camera24C->mode140 = flags;
-    SetModelTexturePage(0x19, distance, &RaceContext, camera);
+    SetModelTexturePage(0x19);
     DrawSubOtFlag = 0;
 }
 

@@ -10,11 +10,12 @@ import unittest
 class StandingsTextSetupTest(unittest.TestCase):
     def test_native_setup_and_live_phase_changes(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/overlays/PAL/659/func_801150CC.c')
+        body = read_c_source(root / 'src/overlays/PAL/grand_prix/func_801150CC.c')
         body = re.sub(r'^extern[^\n]*\n', '', body, flags=re.M)
         reset = read_c_source(root / 'tools/scripts/fixtures/views/func_800402F4.c')
         source = r'''
 #include <assert.h>
+#include "rr/save_slot_types.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -25,7 +26,7 @@ class StandingsTextSetupTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/menu_text_rows.h"
 #include "rr/menu_choice.h"
-struct State {u32 guard[4];MenuSettings2C settings;MenuTextRow60 rows[48];
+struct State {u32 guard[4];SavedMenuSettings settings;MenuTextRow60 rows[48];
  MenuTextRow60 *published;s32 count,labels[34],local,frame;s16 flag,mode;u32 tail[4];};
 static struct World {struct State s;unsigned calls;struct {s32 service,a[5];u32 hash;} event[32];} actual,expected,initial,*w;
 static unsigned scenario,mutation;
@@ -42,7 +43,7 @@ static s32 word(u32 value){s32 result;memcpy(&result,&value,4);return result;}
 static void effect(unsigned n){
  unsigned i;u32 value=scenario*0x9e3779b9U+n*47U;
  static const s16 modes[]={4,-32768,3,32767,5,-1,0,4};
- w->s.settings.mode1A=modes[(scenario+n)%8];w->s.settings.phase17=(s8)(scenario+n*53);
+ w->s.settings.fields.mode1A=modes[(scenario+n)%8];w->s.settings.fields.phase17=(s8)(scenario+n*53);
  w->s.count=(scenario+n)%49;w->s.local=word(value);w->s.frame=word(~value);
  w->s.flag=(s16)value;w->s.mode=(s16)~value;
  for(i=0;i<34;i++)w->s.labels[i]=word(value+i*0x1234567U);
@@ -73,10 +74,10 @@ static void reference(void){
  /* Normalize the expected published pointer to the actual allocation. Its
   * full native value is part of every following service-state snapshot. */
  w->s.published=actual.s.rows;PsyqBzero(w->s.rows,bytes);
- w->s.flag=0;w->s.mode=2;offset=w->s.settings.mode1A==4?0:11;
+ w->s.flag=0;w->s.mode=2;offset=w->s.settings.fields.mode1A==4?0:11;
  for(i=0;i<11;i++){
   s32 index=(s32)i+offset;
-  if(w->s.settings.phase17>=4 && i==4 && offset==0)index=22;
+  if(w->s.settings.fields.phase17>=4 && i==4 && offset==0)index=22;
   SetMenuTextRow(i,i,0,0,w->s.labels[index]);
  }
  for(i=0;i<11;i++)SetMenuTextRow(i+33,i,2,0,w->s.labels[i+23]);

@@ -108,6 +108,15 @@ typedef union {
 /* RGB bytes and command byte shared by CPU templates and GTE output words. */
 typedef struct {u8 r,g,b,code;} GpuColorCommand;
 typedef union {u32 word;GpuColorCommand bytes;} GpuColorWord;
+/* Shared eight-byte prefix of GPU drawing primitives. Setters need only this
+ * real header; coordinates and texture data belong to their packet owners. */
+typedef struct {
+    GpuDmaTag tag;
+    GpuColorWord color;
+} GpuPrimitiveHeader;
+RR_ASSERT_SIZE(GpuPrimitiveHeader,8);
+RR_ASSERT_OFFSET(GpuPrimitiveHeader,color,4);
+
 RR_ASSERT_SIZE(GpuColorCommand, 4);
 RR_ASSERT_OFFSET(GpuColorCommand, code, 3);
 RR_ASSERT_SIZE(GpuColorWord, 4);
@@ -137,6 +146,28 @@ RR_ASSERT_OFFSET(GpuEnvMapBlock, body08, 8);
 RR_ASSERT_SIZE(GpuEnvMapEmission, 120);
 RR_ASSERT_OFFSET(GpuEnvMapEmission, reflected38, 56);
 RR_ASSERT_OFFSET(GpuEnvMapEmission, restore70, 112);
+
+/* Flat textured triangle: command, three XY/UV pairs, CLUT and texture page. */
+typedef struct {
+    GpuDmaTag tag;
+    u8 r, g, b, code;
+    s16 x0, y0;
+    u8 u0, v0;
+    u16 clut;
+    s16 x1, y1;
+    u8 u1, v1;
+    u16 tpage;
+    s16 x2, y2;
+    u8 u2, v2;
+    u16 reserved1E;
+} GpuPolyFT3Packet;
+RR_ASSERT_SIZE(GpuPolyFT3Packet, 32);
+RR_ASSERT_OFFSET(GpuPolyFT3Packet, x0, 8);
+RR_ASSERT_OFFSET(GpuPolyFT3Packet, u0, 12);
+RR_ASSERT_OFFSET(GpuPolyFT3Packet, clut, 14);
+RR_ASSERT_OFFSET(GpuPolyFT3Packet, tpage, 22);
+RR_ASSERT_OFFSET(GpuPolyFT3Packet, x2, 24);
+RR_ASSERT_OFFSET(GpuPolyFT3Packet, reserved1E, 30);
 
 typedef struct {GpuDmaTag tag;u32 command[2];} GpuDrawModePacket;
 typedef struct {GpuDmaTag tag;u32 command;} GpuCommandPacket;
@@ -172,6 +203,34 @@ RR_ASSERT_SIZE(GpuTilePacket,16);
 RR_ASSERT_OFFSET(GpuTilePacket,r,4);
 RR_ASSERT_OFFSET(GpuTilePacket,x,8);
 RR_ASSERT_OFFSET(GpuTilePacket,w,12);
+
+/* Whole sprite/tile owners expose the same packet through packed GPU words
+ * and the coordinate/color fields used by CPU-side primitive builders. */
+typedef struct {
+    GpuDmaTag tag;
+    GpuColorWord color;
+    u32 position, uv, size;
+} GpuSpriteCommandWords;
+typedef union {SpritePacket fields;GpuSpriteCommandWords words;GpuPrimitiveHeader header;} GpuSpriteCommand;
+typedef struct {
+    GpuDmaTag tag;
+    GpuColorWord color;
+    u32 position, size;
+} GpuTileCommandWords;
+typedef union {GpuTilePacket fields;GpuTileCommandWords words;GpuPrimitiveHeader header;} GpuTileCommand;
+RR_ASSERT_SIZE(GpuSpriteCommand,20);
+RR_ASSERT_SIZE(GpuSpriteCommandWords,20);
+RR_ASSERT_OFFSET(GpuSpriteCommand,words,0);
+RR_ASSERT_OFFSET(GpuSpriteCommandWords,position,8);
+RR_ASSERT_OFFSET(GpuSpriteCommandWords,uv,12);
+RR_ASSERT_OFFSET(GpuSpriteCommandWords,size,16);
+RR_ASSERT_SIZE(GpuTileCommand,16);
+RR_ASSERT_SIZE(GpuTileCommandWords,16);
+RR_ASSERT_OFFSET(GpuTileCommand,words,0);
+RR_ASSERT_OFFSET(GpuTileCommand,header,0);
+RR_ASSERT_OFFSET(GpuSpriteCommand,header,0);
+RR_ASSERT_OFFSET(GpuTileCommandWords,position,8);
+RR_ASSERT_OFFSET(GpuTileCommandWords,size,12);
 
 /* Flat triangle: three packed signed16 X/Y pairs in wire words. */
 typedef struct {

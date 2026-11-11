@@ -2,8 +2,8 @@
 
 GTE geometry services are mutable adapters. SDK helpers and AddPrim execute their
 current bodies on native complete owners and original/linked MIPS. Native DMA
-regions retain actual pointers above 4 GiB. Only AddPrim's existing mask-register
-annotation is removed for the host; the viewport requires no such adaptation.
+regions retain actual pointers above 4 GiB. AddPrim's actual body is included
+literally; a test symbol binding names it native_link for boundary observation.
 """
 import ctypes as C
 from pathlib import Path
@@ -177,13 +177,14 @@ class ViewportDrawAreaTest(unittest.TestCase):
         body=lambda name:definition_source(owners[name].read_text(),name)
         viewport=body('SetupViewport')
         if re.search(r'\b(?:asm|__asm__)\s*\(',viewport):raise AssertionError('Viewport still needs host-only asm removal')
-        link,pins=re.subn(r'\s+asm\("\$6"\)','',body('AddPrim'))
-        if pins!=1:raise AssertionError(('review changed AddPrim constraint',pins))
+        link=body('AddPrim')
+        if re.search(r'\b(?:asm|__asm__)\s*\(',link):raise AssertionError('AddPrim still needs host-only asm removal')
         source=(PREFIX.replace('RR_STATE',str(STATE))+
                 body('get_cs').replace('u32 get_cs(','static u32 native_cs(',1)+
                 body('get_ce').replace('u32 get_ce(','static u32 native_ce(',1)+
                 body('SetDrawArea').replace('void SetDrawArea(','static void native_area(',1)+
-                link.replace('void AddPrim(','static void native_link(',1)+viewport+TAIL)
+                '\n#define AddPrim native_link\n'+link+'\n#undef AddPrim\n'+viewport+TAIL)
+        if source.count(link)!=1:raise AssertionError('Actual AddPrim body must remain literal')
         cls.temporary=TemporaryDirectory();cls.addClassCleanup(cls.temporary.cleanup)
         directory=Path(cls.temporary.name);c=directory/'native.c';library=directory/'native.dylib';c.write_text(source)
         built=subprocess.run(['cc','-std=c11','-O2','-shared','-fPIC','-Wall','-Wextra','-Werror',

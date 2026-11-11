@@ -1,7 +1,8 @@
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re,subprocess
-body=Path('src/overlays/PAL/662/func_80118A30.c').read_text();body=re.sub(r'^extern .*\n','',body,flags=re.M)
+body=read_c_source(Path('src/overlays/PAL/garage/func_80118A30.c'));body=re.sub(r'^extern .*\n','',body,flags=re.M)
 copy=Path('tools/scripts/fixtures/views/func_8002B75C.c').read_text().replace('CopyStringClearTail','actual_tail_copy')
 source=r'''
 #include <assert.h>

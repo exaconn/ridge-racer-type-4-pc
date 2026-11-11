@@ -1,4 +1,5 @@
-/* CC1_FLAGS: -mno-split-addresses */
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "psyq/libpad/padintr.h"
 #include "rr/channels.h"
 #include "psyq/libpad/padenab.h"
@@ -8,36 +9,30 @@ void _padSetVsyncParam();
 
 int PadEnableCom(int a0) {
     int s1;
-    /* ASM_BARRIER: pins p to s2 to match original register allocation */
-    register int *p __asm__("$18");
-    int *q;
-    int t1, t2;
     s1 = (PadLastChannel * 2) | (PadFirstChannel == 0);
-    if (s1 != a0) {
-        PadComActive = 0;
-        if (a0 & 1) {
-            p = PadPortTimeoutCounts;
-            t1 = *p;
-            PadFirstChannel = 0;
-            if (t1 >= 0x96) {
-                PadResetChannelFn(PadChannelRecords);
-            }
-            *p = 0;
-        } else {
-            PadFirstChannel = 1;
-        }
-        if (a0 & 2) {
-            q = PadPortTimeoutCounts+1;
-            PadLastChannel = 1;
-            if (*q >= 0x96) {
-                PadResetChannelFn(PadChannelRecords + 1);
-            }
-            *q = 0;
-        } else {
-            PadLastChannel = 0;
-        }
-        PadComActive = 1;
+    if (s1 == a0) {
+        return s1;
     }
+    PadComActive = 0;
+    if (a0 & 1) {
+        PadFirstChannel = 0;
+        if (PadPortTimeoutCounts[0] >= 0x96) {
+            PadResetChannelFn(PadChannelRecords);
+        }
+        PadPortTimeoutCounts[0] = 0;
+    } else {
+        PadFirstChannel = 1;
+    }
+    if (a0 & 2) {
+        PadLastChannel = 1;
+        if (PadPortTimeoutCounts[1] >= 0x96) {
+            PadResetChannelFn(PadChannelRecords + 1);
+        }
+        PadPortTimeoutCounts[1] = 0;
+    } else {
+        PadLastChannel = 0;
+    }
+    PadComActive = 1;
     return s1;
 }
 

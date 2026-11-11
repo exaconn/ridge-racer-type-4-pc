@@ -72,7 +72,7 @@ int ScanCurveAhead(char *a0, int a1, int *a2, int *a3, int *a4) {
             s0 -= 1;
             s1 = r0;
             if (s0 < 0) s0 += TrackNodeCount;
-            s2 -= TrackNodes[s0].segmentLength1C;
+            s2 -= TrackNodes[s0].road.segmentLength;
         } while (s2 > 0);
     }
     *a2 = s5 << 12;

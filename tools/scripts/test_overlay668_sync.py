@@ -12,7 +12,7 @@ class OverlaySyncTest(unittest.TestCase):
         cls.temp = TemporaryDirectory()
         cls.addClassCleanup(cls.temp.cleanup)
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/overlays/PAL/668/func_8011535C.c')
+        body = read_c_source(root / 'src/overlays/PAL/movie_playback/func_8011535C.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

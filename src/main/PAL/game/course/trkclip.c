@@ -12,7 +12,7 @@ typedef struct {
 void GetTrackSegmentAndYaw(int node, int yaw, short *output)
 {
     int segment = node / 5;
-    int relativeYaw = 0x800 - TrackNodes[node].heading12;
+    int relativeYaw = 0x800 - TrackNodes[node].road.heading;
     relativeYaw = ((u32)yaw - relativeYaw) & 0xFFF;
     output[1] = relativeYaw;
     output[0] = segment;
@@ -41,10 +41,10 @@ s32 FindTrackNode(s32 *pos, s32 startIdx, s32 maxIter) {
         next = (idx + 1) % TrackNodeCount;
         p = &TrackNodes[idx];
         q = &TrackNodes[next];
-        w78 = p->x08;
-        w80 = p->z0C;
-        sp.h4 = sp.h8 = (u16)q->x08 - (u16)w78;
-        sp.h6 = sp.ha = (u16)q->z0C - (u16)w80;
+        w78 = p->road.x;
+        w80 = p->road.z;
+        sp.h4 = sp.h8 = (u16)q->road.x - (u16)w78;
+        sp.h6 = sp.ha = (u16)q->road.z - (u16)w80;
         sp.h0 = (u16)px - (u16)w78;
         sp.h2 = (u16)pz - (u16)w80;
         sp.h4 += (u16)q->rightOffsetX00;

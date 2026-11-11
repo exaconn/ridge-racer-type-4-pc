@@ -1,0 +1,227 @@
+{
+  "index": 667,
+  "name": "serial_link",
+  "units": [
+    {
+      "source": "src/overlays/PAL/serial_link/sio.c",
+      "address": 2148616492
+    },
+    {
+      "source": "src/overlays/PAL/serial_link/race.c",
+      "address": 2148619528
+    },
+    {
+      "source": "src/overlays/PAL/serial_link/car_selection.c",
+      "address": 2148622760
+    },
+    {
+      "source": "src/overlays/PAL/serial_link/course_menu.c",
+      "address": 2148630248
+    },
+    {
+      "source": "src/overlays/PAL/serial_link/results.c",
+      "address": 2148632116
+    }
+  ],
+  "functions": [
+    {
+      "address": 2148616492,
+      "size": 36,
+      "symbol": "ovl667_check_sio_timeout",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148616528,
+      "size": 56,
+      "symbol": "ovl667_reset_sio_ports",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148616584,
+      "size": 184,
+      "symbol": "ovl667_open_sio_events",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148616768,
+      "size": 184,
+      "symbol": "ovl667_close_sio_session",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148616952,
+      "size": 536,
+      "symbol": "ovl667_init_sio_session",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148617488,
+      "size": 32,
+      "symbol": "ovl667_on_sio_error_event",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148617520,
+      "size": 260,
+      "symbol": "ovl667_send_race_packet",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148617780,
+      "size": 532,
+      "symbol": "ovl667_poll_race_packet",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148618312,
+      "size": 16,
+      "symbol": "ovl667_get_sio_error_count",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148618328,
+      "size": 16,
+      "symbol": "ovl667_get_sio_status_flag",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148618344,
+      "size": 376,
+      "symbol": "ovl667_receive_peer_inputs",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148618720,
+      "size": 528,
+      "symbol": "ovl667_transmit_local_inputs",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148619248,
+      "size": 164,
+      "symbol": "ovl667_abort_on_link_timeout",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148619412,
+      "size": 116,
+      "symbol": "ovl667_sync_link_display",
+      "source": "src/overlays/PAL/serial_link/sio.c"
+    },
+    {
+      "address": 2148619528,
+      "size": 216,
+      "symbol": "ovl667_update_checkpoint",
+      "source": "src/overlays/PAL/serial_link/race.c"
+    },
+    {
+      "address": 2148619744,
+      "size": 96,
+      "symbol": "ovl667_exit_race",
+      "source": "src/overlays/PAL/serial_link/race.c"
+    },
+    {
+      "address": 2148619840,
+      "size": 2920,
+      "symbol": "ovl667_update_race",
+      "source": "src/overlays/PAL/serial_link/race.c"
+    },
+    {
+      "address": 2148622760,
+      "size": 1904,
+      "symbol": "ovl667_init_car_selection",
+      "source": "src/overlays/PAL/serial_link/car_selection.c"
+    },
+    {
+      "address": 2148624664,
+      "size": 668,
+      "symbol": "ovl667_init_session_menus",
+      "source": "src/overlays/PAL/serial_link/car_selection.c"
+    },
+    {
+      "address": 2148625332,
+      "size": 356,
+      "symbol": "ovl667_reset_preview_selection",
+      "source": "src/overlays/PAL/serial_link/car_selection.c"
+    },
+    {
+      "address": 2148625688,
+      "size": 4560,
+      "symbol": "ovl667_update_car_selection",
+      "source": "src/overlays/PAL/serial_link/car_selection.c"
+    },
+    {
+      "address": 2148630248,
+      "size": 16,
+      "symbol": "ovl667_select_scene",
+      "source": "src/overlays/PAL/serial_link/course_menu.c"
+    },
+    {
+      "address": 2148630264,
+      "size": 176,
+      "symbol": "ovl667_init_course_menu",
+      "source": "src/overlays/PAL/serial_link/course_menu.c"
+    },
+    {
+      "address": 2148630440,
+      "size": 1676,
+      "symbol": "ovl667_update_course_menu",
+      "source": "src/overlays/PAL/serial_link/course_menu.c"
+    },
+    {
+      "address": 2148632116,
+      "size": 424,
+      "symbol": "ovl667_init_results",
+      "source": "src/overlays/PAL/serial_link/results.c"
+    },
+    {
+      "address": 2148632540,
+      "size": 128,
+      "symbol": "ovl667_update_retry_choice",
+      "source": "src/overlays/PAL/serial_link/results.c"
+    },
+    {
+      "address": 2148632668,
+      "size": 1444,
+      "symbol": "ovl667_update_results",
+      "source": "src/overlays/PAL/serial_link/results.c"
+    }
+  ],
+  "globals": {
+    "ovl667_sio_device_name": 2148616316,
+    "ovl667_default_player_names": 2148634112,
+    "ovl667_group_option_counts": 2148634128,
+    "ovl667_group_slot_kinds": 2148634132,
+    "ovl667_group_ui_rows": 2148634140,
+    "ovl667_result_labels": 2148634156,
+    "ovl667_camera_rotations": 2148634248,
+    "ovl667_camera_positions": 2148634280,
+    "ovl667_sync_retry_state": 2148634312,
+    "ovl667_pause_packet_slot": 2148634316,
+    "ovl667_peer_race_state": 2148634320,
+    "ovl667_link_shutdown_stage": 2148634324,
+    "ovl667_sio_read_event": 2148634328,
+    "ovl667_sio_error_event": 2148634332,
+    "ovl667_sio_error_count": 2148634336,
+    "ovl667_sio_status_flag": 2148634340,
+    "ovl667_read_pending_flag": 2148634344,
+    "ovl667_pending_pause_bits": 2148634348,
+    "ovl667_remote_pause_bits": 2148634349,
+    "ovl667_local_pause_bits": 2148634350,
+    "ovl667_checksum_error_flag": 2148634351,
+    "ovl667_remote_error_code": 2148634352,
+    "ovl667_rx_idle_flag": 2148634356,
+    "ovl667_rx_packet_count": 2148634360,
+    "ovl667_rx_miss_count": 2148634364,
+    "ovl667_tx_packet_count": 2148634368,
+    "ovl667_tx_miss_count": 2148634372,
+    "ovl667_rx_slot_index": 2148634376,
+    "ovl667_tx_slot_index": 2148634377,
+    "ovl667_tx_stage": 2148634380,
+    "ovl667_rx_staging_packet": 2148634384,
+    "ovl667_rx_packet_ring": 2148634400,
+    "ovl667_tx_staging_packet": 2148634496,
+    "ovl667_consumed_slot_index": 2148634508,
+    "ovl667_active_slot_index": 2148634509
+  }
+}

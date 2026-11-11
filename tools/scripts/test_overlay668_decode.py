@@ -13,7 +13,7 @@ class OverlayDecodeTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         path = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/668/func_{name}.c')
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/movie_playback/func_{name}.c')
                            .replace('#include "rr/overlay668_decode.h"', '')
                            for name in ('80116298', '801162CC', '80116358', '801163F0', '80116534'))
         import re

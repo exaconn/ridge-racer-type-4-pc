@@ -1,4 +1,5 @@
 """Color-channel slider/digits with actual sprite emitter and ROM records."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re
@@ -13,8 +14,8 @@ class Overlay662ColorChannelTest(unittest.TestCase):
         rows=[struct.unpack_from('<iHHBBHiI',blob,sector*2048+0x80126260-0x80114878+20*i) for i in range(72)]
         self.assertEqual(sorted(row[6] for row in rows),list(range(72)))
         data='static const GarageSpriteRecord original[72]={\n'+',\n'.join('{'+','.join(map(str,r))+'}' for r in rows)+'\n};\n'
-        child=(root/'src/overlays/PAL/662/func_8011B2D4.c').read_text().replace('    __asm__("" ::: "memory");\n','')
-        body=(root/'src/overlays/PAL/662/func_8011C00C.c').read_text()
+        child=read_c_source(root/'src/overlays/PAL/garage/func_8011B2D4.c').replace('    __asm__("" ::: "memory");\n','')
+        body=read_c_source(root/'src/overlays/PAL/garage/func_8011C00C.c')
         body=re.sub(r' __asm__\("\$[0-9]+"\)','',body)
         body=body.replace('    __asm__("" : "+r"(tensSprite));\n','')
         source=r'''

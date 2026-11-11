@@ -1,4 +1,5 @@
 """Garage reset over actual shared state and signed-halfword/word union owner."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -8,7 +9,7 @@ import unittest
 class OverlayResetTest(unittest.TestCase):
     def test_partial_and_full_reset(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_8011A788.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_8011A788.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

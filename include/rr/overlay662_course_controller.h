@@ -15,7 +15,7 @@
 #include "rr/preview_rgb.h"
 #include "rr/frame_storage_types.h"
 extern CourseChoice4 CourseChoiceTable[2][9];
-extern SelectionRows32 SelectionRows;
+#include "game/data/selection.h"
 #include "rr/menu_arena_state.h"
 extern u8 *ImageRows;
 extern s32 ModeFrame,ActivePlayerIndex;

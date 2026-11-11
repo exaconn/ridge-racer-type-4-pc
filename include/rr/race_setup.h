@@ -1,5 +1,6 @@
 #ifndef RR_RACE_SETUP_H
 #define RR_RACE_SETUP_H
+#include "game/ui/hudmap2.h"
 #include "game/car/carstat.h"
 #include "game/data/cdfile2.h"
 #include "rr/race_types.h"
@@ -11,7 +12,6 @@ void InitHudNumberTargets(s32);
 void ResetLensFlareState(void);
 void PadRumbleStart(s32);
 void StopAllSoundAndReset(void);
-void SelectCourseBgmTrack(void);
 void BuildCameraMatrices(void);
 void InitRearViewMirrorState(void);
 void ClearTrackObjectStates(s32);

@@ -1,5 +1,6 @@
 """Actual sprite grid with a byte-level oracle and live native pointer aliases."""
 from pathlib import Path
+from c_functions import definition_source, source_owners
 import re
 import subprocess
 from tempfile import TemporaryDirectory
@@ -16,14 +17,12 @@ class AnimatedSpriteGridTest(unittest.TestCase):
         def header(name):
             text=(ROOT/'include/rr'/name).read_text()
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-        body=(ROOT/'tools/scripts/fixtures/views/func_8001E1F0.c').read_text()
+        owner=source_owners(ROOT/'src/main/PAL')['EmitSpriteGrid']
+        body=definition_source(owner.read_text(),'EmitSpriteGrid')
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         body=re.sub(r',?\s*"\$\d+"','',body)
-        assert body.count('(GpuScratchPointers*)0x1F800000U')==2
-        assert body.count('*(u8**)0x1F800000U')==1
-        body=body.replace('(GpuScratchPointers*)0x1F800000U','&actual.scratch')
-        body=body.replace('*(u8**)0x1F800000U','actual.scratch.cursor')
+        # The actual body binds hardware through SCRATCHPAD below.
         code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -42,6 +41,7 @@ typedef struct {
     u8 suffix[64];
 } World;
 static World actual __attribute__((aligned(65536))),expected;
+#define SCRATCHPAD (&actual.scratch)
 ''' + body + r'''
 static u8 *locate(const void *address,size_t size) {
     uintptr_t begin=(uintptr_t)&actual,position=(uintptr_t)address;

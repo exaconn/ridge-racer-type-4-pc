@@ -1,3 +1,6 @@
+#include "game/ui/uidraw.h"
+#include "game/sound/sndvab.h"
+#include "rr/save_slots.h"
 #include "rr/menu_text_state.h"
 #include "rr/menu_grid.h"
 #include "rr/ui.h"
@@ -9,9 +12,7 @@
 #include "rr/badge_rows.h"
 #include "game/menu/mnrows.h"
 
-extern void PlaySfx();
 extern int MenuStepDirection;
-extern MenuSettings2C SelectionState;
 extern short SelectedTeamIndex;
 extern int ModeFrame;
 extern short ModeIndex;
@@ -19,13 +20,12 @@ extern unsigned short MenuSelectedCarSlot;
 extern int MenuReturnSubmodeIndex;
 extern short ModeGroup;
 extern short SubmodeState;
-extern MenuGlyphRow1C *GlyphRows;
 
 void StepModeSelectChoice(void) {
     int s0;
     u8 *q;
     MenuSettings2C *r;
-    int t = SelectionRows[0];
+    int t = SelectionRows.bytes[0];
     SelectedTeamIndex = t;
     ((u8 *)UiRows)[t + 0xC] = 0;
     if ((MenuSelectedCarSlot & 0x2000) && SelectedTeamIndex < 3) {
@@ -44,10 +44,10 @@ void StepModeSelectChoice(void) {
     } else if (SelectedTeamIndex >= 4) {
         SelectedTeamIndex = 3;
     }
-    SelectionRows[0] = SelectedTeamIndex;
+    SelectionRows.bytes[0] = SelectedTeamIndex;
     Dialogue->b4 = (unsigned char)SelectedTeamIndex + 0x22;
     GlyphRows[SelectedTeamIndex].control02 = -6;
-    GlyphRows[SelectedTeamIndex].flags00 = 0;
+    GlyphRows[SelectedTeamIndex].frameIndex00 = 0;
     UiRows->byte16 = SelectedTeamIndex;
 skip_step:;
     q = UiRows->cells;
@@ -58,9 +58,9 @@ skip_step:;
             PlaySfx(1);
             ModeFrame = 0;
             ResetScreenCounters();
-            r = &SelectionState;
+            r = &SelectionState.fields;
             r->mode1A = 1;
-            r->copies[0].bytes[0] = SelectionRows[0];
+            r->copies[0].bytes[0] = SelectionRows.bytes[0];
             BadgeRows->state10 = 4;
             UiRows->byte14 = s0;
             ModeGroup = 1;

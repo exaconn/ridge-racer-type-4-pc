@@ -30,6 +30,7 @@ PREFIX=r'''
 #include <stddef.h>
 #include <string.h>
 #include "rr/audio_state_types.h"
+#include "rr/scene_camera_state.h"
 #include "rr/sequencer_init.h"
 #include "game/data/trkld8.h"
 #include "psyq/libspu/s_i.h"
@@ -39,7 +40,7 @@ PREFIX=r'''
 #include "game/sound/cdpos.h"
 static struct {u8 before[16];AudioState value;u8 after[16];} owner;
 #define SoundState owner.value
-static struct {u8 before[16];u8 value[0x57C];u8 after[16];} context;
+static struct {u8 before[16];SceneRaceContext value;u8 after[16];} context;
 #define RaceContext context.value
 SequenceChannel *_ss_score[32];
 u32 _snd_openflag;
@@ -67,7 +68,7 @@ void PsyqBzero(void *buffer,s32 size){
   assert(buffer==&SoundState&&size==sizeof(SoundState));
   event(6,0,0xA8D0,0);
  }else{
-  assert(clears==2&&buffer==RaceContext&&size==sizeof(context.value));
+  assert(clears==2&&buffer==&RaceContext&&size==sizeof(context.value));
   event(6,1,0x57C,0);
  }
  memset(buffer,0,(size_t)size);
@@ -90,7 +91,7 @@ void run_case(unsigned number,u32 flags,u32 *out){
  scenario=number;count=clears=0;memset(trace,0,sizeof(trace));
  memset(&owner,0xA7,sizeof(owner));memset(&context,0xA7,sizeof(context));
  memset(&SoundState,(u8)(number*29U),sizeof(SoundState));
- memset(RaceContext,(u8)(number*31U),sizeof(context.value));
+ memset(&RaceContext,(u8)(number*31U),sizeof(context.value));
  memset(_ss_score,0,sizeof(_ss_score));
  for(i=0;i<2;i++){
   SequenceChannel *r=&SoundState.sequences[i];
@@ -113,7 +114,7 @@ void run_case(unsigned number,u32 flags,u32 *out){
  expected.streamBanks[0].table=stream_table;
  expected.streamBanks[1].table=AUDIO_STREAM_TABLE_UNAVAILABLE;
  assert(!memcmp(&SoundState,&expected,sizeof(expected)));
- for(i=0;i<sizeof(context.value);i++)assert(!context.value[i]);
+ for(i=0;i<sizeof(context.value);i++)assert(!((const u8*)&context.value)[i]);
  for(i=0;i<16;i++)assert(owner.before[i]==0xA7&&owner.after[i]==0xA7&&context.before[i]==0xA7&&context.after[i]==0xA7);
  memcpy(out,trace,sizeof(trace));
 }

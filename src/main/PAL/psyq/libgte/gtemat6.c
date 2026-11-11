@@ -1,4 +1,5 @@
 #include "types.h"
+#include "rr/cpu_md_leaf.h"
 
 int *ScaleMatrix(int *a0_in, int *a1) {
     /* ASM_BARRIER: keep first argument pointer in $a0 ($4) */
@@ -15,14 +16,6 @@ int *ScaleMatrix(int *a0_in, int *a1) {
     register int t4 __asm__("$12");
     /* ASM_BARRIER: PsyQ hand-coded register allocation */
     register int t5 __asm__("$13");
-    /* ASM_BARRIER: bind 64-bit multiply output directly to HI/LO pair ($64/$65) */
-    union {
-        u64 d;
-        struct {
-            s32 hi;
-            s32 lo;
-        } w;
-    } hilo __asm__("hi");
 
     t3 = a1[0];
     t4 = a1[1];
@@ -35,19 +28,13 @@ int *ScaleMatrix(int *a0_in, int *a1) {
     /* ASM_BARRIER: preserve explicit andi 0xFFFF before sign-extend shifts */
     __asm__ volatile("" : "+r"(t1));
     t1 = (t1 << 16) >> 16;
-    hilo.d = (u64)(u32)t1 * (u32)t3;
-    t1 = hilo.w.lo;
-    /* ASM_BARRIER: order mflo before sra 12 */
-    __asm__ volatile("" : "+r"(t1));
+    RR_MD_MULT_U(t1, t3);
+    RR_MD_LO(t1);
     t1 >>= 12;
     t1 &= 0xFFFF;
     t2 = t0 >> 16;
-    /* ASM_BARRIER: order sra 16 before multu */
-    __asm__ volatile("" : "+r"(t2));
-    hilo.d = (u64)(u32)t2 * (u32)t4;
-    t2 = hilo.w.lo;
-    /* ASM_BARRIER: order mflo before sra 12 */
-    __asm__ volatile("" : "+r"(t2));
+    RR_MD_MULT_U(t2, t4);
+    RR_MD_LO(t2);
     t2 >>= 12;
     t2 <<= 16;
     t1 |= t2;
@@ -60,19 +47,13 @@ int *ScaleMatrix(int *a0_in, int *a1) {
     /* ASM_BARRIER: preserve explicit andi 0xFFFF before sign-extend shifts */
     __asm__ volatile("" : "+r"(t1));
     t1 = (t1 << 16) >> 16;
-    hilo.d = (u64)(u32)t1 * (u32)t5;
-    t1 = hilo.w.lo;
-    /* ASM_BARRIER: order mflo before sra 12 */
-    __asm__ volatile("" : "+r"(t1));
+    RR_MD_MULT_U(t1, t5);
+    RR_MD_LO(t1);
     t1 >>= 12;
     t1 &= 0xFFFF;
     t2 = t0 >> 16;
-    /* ASM_BARRIER: order sra 16 before multu */
-    __asm__ volatile("" : "+r"(t2));
-    hilo.d = (u64)(u32)t2 * (u32)t3;
-    t2 = hilo.w.lo;
-    /* ASM_BARRIER: order mflo before sra 12 */
-    __asm__ volatile("" : "+r"(t2));
+    RR_MD_MULT_U(t2, t3);
+    RR_MD_LO(t2);
     t2 >>= 12;
     t2 <<= 16;
     t1 |= t2;
@@ -85,19 +66,13 @@ int *ScaleMatrix(int *a0_in, int *a1) {
     /* ASM_BARRIER: preserve explicit andi 0xFFFF before sign-extend shifts */
     __asm__ volatile("" : "+r"(t1));
     t1 = (t1 << 16) >> 16;
-    hilo.d = (u64)(u32)t1 * (u32)t4;
-    t1 = hilo.w.lo;
-    /* ASM_BARRIER: order mflo before sra 12 */
-    __asm__ volatile("" : "+r"(t1));
+    RR_MD_MULT_U(t1, t4);
+    RR_MD_LO(t1);
     t1 >>= 12;
     t1 &= 0xFFFF;
     t2 = t0 >> 16;
-    /* ASM_BARRIER: order sra 16 before multu */
-    __asm__ volatile("" : "+r"(t2));
-    hilo.d = (u64)(u32)t2 * (u32)t5;
-    t2 = hilo.w.lo;
-    /* ASM_BARRIER: order mflo before sra 12 */
-    __asm__ volatile("" : "+r"(t2));
+    RR_MD_MULT_U(t2, t5);
+    RR_MD_LO(t2);
     t2 >>= 12;
     t2 <<= 16;
     t1 |= t2;
@@ -110,19 +85,13 @@ int *ScaleMatrix(int *a0_in, int *a1) {
     /* ASM_BARRIER: preserve explicit andi 0xFFFF before sign-extend shifts */
     __asm__ volatile("" : "+r"(t1));
     t1 = (t1 << 16) >> 16;
-    hilo.d = (u64)(u32)t1 * (u32)t3;
-    t1 = hilo.w.lo;
-    /* ASM_BARRIER: order mflo before sra 12 */
-    __asm__ volatile("" : "+r"(t1));
+    RR_MD_MULT_U(t1, t3);
+    RR_MD_LO(t1);
     t1 >>= 12;
     t1 &= 0xFFFF;
     t2 = t0 >> 16;
-    /* ASM_BARRIER: order sra 16 before multu */
-    __asm__ volatile("" : "+r"(t2));
-    hilo.d = (u64)(u32)t2 * (u32)t4;
-    t2 = hilo.w.lo;
-    /* ASM_BARRIER: order mflo before sra 12 */
-    __asm__ volatile("" : "+r"(t2));
+    RR_MD_MULT_U(t2, t4);
+    RR_MD_LO(t2);
     t2 >>= 12;
     t2 <<= 16;
     t1 |= t2;
@@ -137,10 +106,8 @@ int *ScaleMatrix(int *a0_in, int *a1) {
     /* ASM_BARRIER: preserve explicit andi 0xFFFF before sign-extend shifts */
     __asm__ volatile("" : "+r"(t1));
     t1 = (t1 << 16) >> 16;
-    hilo.d = (u64)(u32)t1 * (u32)t5;
-    t1 = hilo.w.lo;
-    /* ASM_BARRIER: order mflo before sra 12 */
-    __asm__ volatile("" : "+r"(t1));
+    RR_MD_MULT_U(t1, t5);
+    RR_MD_LO(t1);
     t1 >>= 12;
     a0[4] = t1;
     /* ASM_BARRIER: order final store before return value copy in delay slot */

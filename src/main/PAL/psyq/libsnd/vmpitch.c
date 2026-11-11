@@ -95,8 +95,6 @@ u32 _spu_pitch2note(s32 first,s32 second,u32 pitch) {
    /* ASM_BARRIER: Finish the note bits before masking the independent fine bits. */
    __asm__("" : "+r"(result), "+r"(first));
    first&=0x7E;
-   /* ASM_BARRIER: Retain unmasked search values until the final result merge. */
-   __asm__("" : : "r"(top),"r"(note),"r"(fine));
    return result|first;
   }
  }
@@ -130,15 +128,15 @@ s32 SsUtChangePitch(s32 raw_input, s32 bank, s32 program, s32 group, s32 unused,
     bank_page=(u8*)0x80110000U;
     /* ASM_BARRIER: retain the actual PAL bank-field page for indexed addressing. */
     __asm__("" : "+r"(bank_page));
-    selected_bank=*(s16*)(bank_page+offset-0x6E0);
+    selected_bank=((ChannelControlRow36 *)(bank_page+offset-0x6F8))->match18;
     if (selected_bank != (s16)bank) return -1;
     program_page=(u8*)0x80110000U;
     /* ASM_BARRIER: retain the actual PAL program-field page for indexed addressing. */
     __asm__("" : "+r"(program_page));
-    selected_program=*(s16*)(program_page+offset-0x6E4);
+    selected_program=((ChannelControlRow36 *)(program_page+offset-0x6F8))->match14;
     if (selected_program != (s16)program) return -1;
     group_page=(u8*)0x80110000U;
-if (*(s16*)(group_page+offset-0x6EA) != (s16)group) return -1;
+if (((ChannelControlRow36 *)(group_page+offset-0x6F8))->group0E != (s16)group) return -1;
     _SsVmVSetUp(selected_bank, selected_program);
     pitch_first=first;
     state = D_8011010C.fields08;

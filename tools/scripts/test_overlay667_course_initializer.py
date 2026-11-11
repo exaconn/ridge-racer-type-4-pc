@@ -1,10 +1,11 @@
+from selection_fixture_transport import transport as transport_selection
 from pathlib import Path
 from overlay_units import read_c_source
 import re,subprocess,sys
 root=Path(__file__).resolve().parents[2]
 import os
 os.chdir(root)
-p=Path('build/goal_50/parallel667_init');source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/667/func_80116918.c')
+p=Path('build/goal_50/parallel667_init');source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/serial_link/func_80116918.c')
 s=read_c_source(source);body=re.sub(r' __asm__\("\$\d+"\)','',s)
 fields={'LinkPlayerWinCounts':'h0','LinkCarChoiceIndex':'h1','LinkCarChoiceGroup':'h2','SelectionRows':'choices','LinkCarChoiceTable':'records','CourseChoiceTable':'courses','LinkPlayerNames':'names','LinkEntryState':'pairs','NumLaps':'players','ActivePlayerIndex':'base','LinkAvailableCourseCount':'count','CourseIndex':'course','SelectedCourseChoice':'menu','LinkHostFlag':'flag','ModeIndex':'scene','LinkMenuSyncPhase':'small','LinkClientRoleState':'pairflag','ModeGroup':'enabled','SubmodeState':'phase'}
 head='''#include <stdint.h>
@@ -30,6 +31,6 @@ macros=''.join('#define '+k+' w->'+v+'\n' for k,v in fields.items())
 oracle='''static void oracle(void){SetDispMask(0);SetupDrawDispEnvs(0,0,0,2);UpdateLinkHandshake(1);ClearScreenOverlayState();for(int i=0;i<2;i++)w->h0[i]=w->h1[i]=w->h2[i]=0;for(int i=0;i<4;i++){w->h0[i]=0;((u8*)&w->choices)[i*4+3]=0;}w->course=w->menu=0;w->players=3;w->base=2*(1-w->flag);for(int i=0;i<18;i++){memcpy(((u8*)&w->records)+i*4,&w->courses[i/9][i%9],4);memcpy(((u8*)&w->records)+(18+i)*4,&w->courses[0][i%9],4);}for(int i=0;i<2;i++)CopyStringClearTail(w->names[w->base+i],ovl667_default_player_names[w->base+i]);ovl667_init_car_selection(2*(1-w->flag));UnpackChoiceGlyph((s8*)&w->choices+w->base*4,w->courses[0][0].glyph);UnpackChoiceGlyph((s8*)&w->choices+(w->base+1)*4,w->courses[0][0].glyph);w->count=8;SeqStartTrack(0);w->enabled=1;w->scene=60;w->phase=0;w->small=0;w->pairflag=w->pairs[w->base/2][1]==1?2:0;SetMenuFrameOptions(0,1,1);}
 int main(void){for(u32 n=0;n<131072;n++){rng=n+1;for(unsigned i=0;i<sizeof(a);i++)((u8*)&a)[i]=next()>>24;a.flag=n&1;a.base=(n&2);for(int i=0;i<4;i++){a.names[i][11]=0;ovl667_default_player_names[i]=str[i];}b=a;w=&a;step=0;checking=0;rng=n+29;ovl667_init_session_menus();int count=step;for(int i=0;i<4;i++)ovl667_default_player_names[i]=str[i];w=&b;step=0;checking=1;rng=n+29;oracle();assert(step==count);assert(!memcmp(&a,&b,sizeof(a)));}puts("131072 cases passed");}
 '''
-(p/'native.c').write_text(head+copy+decode+helpers+macros+body+oracle)
+(p/'native.c').write_text(transport_selection(head+copy+decode+helpers+macros+body+oracle,body,'ovl667_init_session_menus','&a.choices',32,[('hit','w==&a'),('UnpackChoiceGlyph','w==&a')]))
 subprocess.run(['cc','-O2','-Wall','-Wextra','-Iinclude',str(p/'native.c'),'-o',str(p/'native')],check=True)
 subprocess.run([str(p/'native')],check=True)

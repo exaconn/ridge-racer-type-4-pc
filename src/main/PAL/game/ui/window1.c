@@ -6,7 +6,7 @@
 #include "psyq/libgpu/settrans.h"
 #include "rr/race_setup.h"
 #include "rr/hud_number.h"
-#include "rr/draw_environment.h"
+#include "psyq/libgpu/gpudisp.h"
 #include "rr/overlay662_draw_area.h"
 #include "rr/animated_glyph.h"
 #include "game/ui/badge1.h"

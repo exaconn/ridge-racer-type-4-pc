@@ -26,10 +26,10 @@ typedef struct
 extern K CarInputs[];
 
 s32 FindTrackNodeUnbounded(s32 *pos, s32 startIdx) {
-    SP *g = (SP *)SCRATCH_CAR_WORK;
+    CarTrackWork *g = (CarTrackWork *)SCRATCH_CAR_WORK;
     s32 a, n, t, x;
     s32 r;
-    /* ASM_BARRIER: keep g->s150[0] load in $v0 across g->cnt increment */
+    /* ASM_BARRIER: keep g->wheelState150.trackNodes[0] load in $v0 across g->w38 increment */
     register s32 u __asm__("$2");
     TrackSample3C *p, *q;
     s32 junk[2];
@@ -40,64 +40,64 @@ s32 FindTrackNodeUnbounded(s32 *pos, s32 startIdx) {
     /* ASM_BARRIER: GTE operand temps live in $t2/$t3/$t4 in the original PsyQ-style sequence */
     register s32 r3 __asm__("$12");
 
-    g->cnt = 0;
-    g->t110[0].a = pos[0];
-    g->t110[0].c = pos[2];
-    g->s150[0] = startIdx;
-    g->s150[1] = TrackNodeCount;
+    g->w38 = 0;
+    g->positions110[0].x = pos[0];
+    g->positions110[0].z = pos[2];
+    g->wheelState150.trackNodes[0] = startIdx;
+    g->wheelState150.trackNodes[1] = TrackNodeCount;
     for (;;) {
-        g->w34 = (g->s150[0] + 1) % TrackNodeCount;
+        g->w34 = (g->wheelState150.trackNodes[0] + 1) % TrackNodeCount;
         a = g->w34;
-        p = &TrackNodes[g->s150[0]];
+        p = &TrackNodes[g->wheelState150.trackNodes[0]];
         /* ASM_BARRIER: boost p reference weight so local-alloc assigns $a2 to p and $a3 to q */
         __asm__("" : "+r"(p));
-        g->w78 = p->x08;
-        g->w80 = p->z0C;
+        g->originX78 = p->road.x;
+        g->originZ80 = p->road.z;
         q = &TrackNodes[a];
-        g->h74 = g->h70 = (u16)q->x08 - (u16)g->w78;
-        g->h76 = g->h72 = (u16)q->z0C - (u16)g->w80;
-        g->h64 = (u16)g->t110[0].a - (u16)g->w78;
-        g->h66 = (u16)g->t110[0].c - (u16)g->w80;
-        g->h70 += (u16)q->rightOffsetX00;
-        g->h72 += (u16)q->rightOffsetZ02;
-        g->h74 += (u16)q->leftOffsetX04;
-        g->h76 += (u16)q->leftOffsetZ06;
-        g->h68 = (u16)p->rightOffsetX00;
-        /* ASM_BARRIER: keep r3 load from g->h64 after g->h68 store */
+        g->nextLeft74.halves.x = g->nextRight70.halves.x = (u16)q->road.x - (u16)g->originX78;
+        g->nextLeft74.halves.z = g->nextRight70.halves.z = (u16)q->road.z - (u16)g->originZ80;
+        g->queryPoint64.halves.x = (u16)g->positions110[0].x - (u16)g->originX78;
+        g->queryPoint64.halves.z = (u16)g->positions110[0].z - (u16)g->originZ80;
+        g->nextRight70.halves.x += (u16)q->rightOffsetX00;
+        g->nextRight70.halves.z += (u16)q->rightOffsetZ02;
+        g->nextLeft74.halves.x += (u16)q->leftOffsetX04;
+        g->nextLeft74.halves.z += (u16)q->leftOffsetZ06;
+        g->rightEdge68.halves.x = (u16)p->rightOffsetX00;
+        /* ASM_BARRIER: keep r3 load from g->queryPoint64.halves.x after g->rightEdge68.halves.x store */
         __asm__ ("" : : : "memory");
-        g->h6a = (u16)p->rightOffsetZ02;
-        g->h6c = (u16)p->leftOffsetX04;
-        g->h6e = (u16)p->leftOffsetZ06;
-        r3 = *(s32 *)&g->h64;
-        r1 = *(s32 *)&g->h68;
-        r2 = *(s32 *)&g->h6c;
-        RR_GTE_NCLIP3(r1, r2, r3, &g->r3c);
-        r1 = *(s32 *)&g->h74;
-        r2 = *(s32 *)&g->h70;
-        r3 = *(s32 *)&g->h64;
-        RR_GTE_NCLIP3(r1, r2, r3, &g->r40);
-        if (g->r3c >= 0 && g->r40 >= 0) {
+        g->rightEdge68.halves.z = (u16)p->rightOffsetZ02;
+        g->leftEdge6C.halves.x = (u16)p->leftOffsetX04;
+        g->leftEdge6C.halves.z = (u16)p->leftOffsetZ06;
+        r3 = g->queryPoint64.word;
+        r1 = g->rightEdge68.word;
+        r2 = g->leftEdge6C.word;
+        RR_GTE_NCLIP3(r1, r2, r3, &g->w3C);
+        r1 = g->nextLeft74.word;
+        r2 = g->nextRight70.word;
+        r3 = g->queryPoint64.word;
+        RR_GTE_NCLIP3(r1, r2, r3, &g->w40);
+        if (g->w3C >= 0 && g->w40 >= 0) {
             break;
         }
-        n = g->cnt + 1;
-        u = *(u16 *)&g->s150[0];
-        /* ASM_BARRIER: schedule g->cnt + 1 before sign-extending g->s150[0] */
+        n = g->w38 + 1;
+        u = (u16)g->wheelState150.trackNodes[0];
+        /* ASM_BARRIER: schedule g->w38 + 1 before sign-extending g->wheelState150.trackNodes[0] */
         __asm__("" : "+r"(u) : "r"(n));
         x = (s16)u;
-        g->cnt = n;
+        g->w38 = n;
         x = (n & 1) ? x + n : x - n;
-        t = g->s150[1];
-        a = g->s150[0] = x;
+        t = g->wheelState150.trackNodes[1];
+        a = g->wheelState150.trackNodes[0] = x;
         if (a >= 0) {
-            g->s150[0] = a % t;
+            g->wheelState150.trackNodes[0] = a % t;
         } else {
             r = (t + a) % t;
-            /* ASM_BARRIER: keep modulo result in $v0 before storing to g->s150[0] */
+            /* ASM_BARRIER: keep modulo result in $v0 before storing to g->wheelState150.trackNodes[0] */
             __asm__("" : "+r"(r));
-            g->s150[0] = r;
+            g->wheelState150.trackNodes[0] = r;
         }
     }
-    return g->s150[0];
+    return g->wheelState150.trackNodes[0];
 }
 
 
@@ -148,7 +148,7 @@ void UpdateCarTrackNode(RaceVehicle *p)
             {
               j = n + x;
             }
-            p->first += new_var[j].segmentLength1C;
+            p->first += new_var[j].road.segmentLength;
           }
 
           break;
@@ -157,7 +157,7 @@ void UpdateCarTrackNode(RaceVehicle *p)
         {
           for (k = 1; s >= k; k++)
           {
-            p->first -= new_var[(p->trackNodeF0 + k) % n].segmentLength1C;
+            p->first -= new_var[(p->trackNodeF0 + k) % n].road.segmentLength;
           }
 
           break;
@@ -190,7 +190,7 @@ void UpdateCarTrackNode(RaceVehicle *p)
       {
         for (k = 0; k < s; k++)
         {
-          p->first += base[(p->trackNodeF0 + k) % n].segmentLength1C;
+          p->first += base[(p->trackNodeF0 + k) % n].road.segmentLength;
         }
 
         break;
@@ -207,7 +207,7 @@ void UpdateCarTrackNode(RaceVehicle *p)
           {
             j = n + x;
           }
-          p->first -= base[j].segmentLength1C;
+          p->first -= base[j].road.segmentLength;
         }
 
         if (n)

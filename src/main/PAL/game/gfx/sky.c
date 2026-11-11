@@ -223,7 +223,6 @@ extern short *CourseSkyKeyframePtrs[];
 extern short *CourseSceneryRangePtrs[];
 extern char SkyDefaultRotMatrix[];
 extern int SetGeomOffset();
-extern int SetDrawArea();
 
 SkyTri *SkyEmitTriFT3(SkyTri *a0, SkyCtx *a1, int a2);
 SkyQuad17528 *SkyEmitQuadG4(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2);
@@ -1162,7 +1161,7 @@ void SetupSkyLightMatrices(char *a0, unsigned short *a1_in)
 }
 
 void RenderSkyToRect(int a0, int a1, short *a2, int a3) {
-    short sp10[4];
+    GpuRectangleFields rectangle;
     int c;
     register int *p __asm__("$4"); /* ASM_BARRIER: pin temp reg to match original allocation */
     int k;
@@ -1187,14 +1186,14 @@ void RenderSkyToRect(int a0, int a1, short *a2, int a3) {
         LNK(5, 0x10);
         GS->cur = GS->cur + 6;
     }
-    sp10[2] = 0x140;
-    sp10[0] = 0;
-    sp10[1] = 0;
-    sp10[3] = 0x1E0;
-    SetDrawArea(GS->cur, sp10);
+    rectangle.w = 0x140;
+    rectangle.x = 0;
+    rectangle.y = 0;
+    rectangle.h = 0x1E0;
+    SetDrawArea(GS->cur, &rectangle);
     LNK(2, 0x10);
     GS->cur = GS->cur + 3;
-    SetDrawOffset(GS->cur, sp10);
+    SetDrawOffset(GS->cur, &rectangle);
     LNK(2, 0x10);
     GS->cur = GS->cur + 3;
     SetGeomOffset((short)(unsigned short)a2[2] / 2, (short)(unsigned short)a2[3] / 2);
@@ -1236,16 +1235,16 @@ void RenderSkyToRect(int a0, int a1, short *a2, int a3) {
     ((char *)GS->cur)[3] = 3;
     GS->ot[700].word = GS->cur;
     GS->ot[700].b.len = 0;
-    sp10[0] = 0x1C0;
-    sp10[1] = 0;
+    rectangle.x = 0x1C0;
+    rectangle.y = 0;
     p = GS->cur + 4;
     GS->cur = p;
-    sp10[2] = a2[2];
-    sp10[3] = a2[3];
-    SetDrawArea(p, sp10);
+    rectangle.w = a2[2];
+    rectangle.h = a2[3];
+    SetDrawArea(p, &rectangle);
     LNK(2, 0xAF0);
     GS->cur = GS->cur + 3;
-    SetDrawOffset(GS->cur, sp10);
+    SetDrawOffset(GS->cur, &rectangle);
     LNK(2, 0xAF0);
     GS->cur = GS->cur + 3;
 }

@@ -1,5 +1,6 @@
 #ifndef RR_MENU_OVERLAY_RUNTIME_H
 #define RR_MENU_OVERLAY_RUNTIME_H
+#include "rr/save_slots.h"
 #include "game/system/pad.h"
 #include "game/sound/sndque.h"
 #include "game/gfx/fontdraw.h"
@@ -48,7 +49,6 @@ extern s16 MenuCursor;
 extern s32 RaceIntroCameraState;
 extern MenuGridPoint PlayerCourseChoices[4];
 extern s8 ScreenFadeState;
-extern MenuSettings2C SelectionState;
 extern s16 ReverseCourse;
 extern TimeRecord16 RaceRecords[2][8][5];
 extern FrameStorage DrawBuffers[2];
@@ -79,8 +79,8 @@ extern s16 GameModeType;
 extern u8 *MenuSharedScratchPtr;
 extern UiRow24 *UiRows;
 extern u16 SubmodeState;
-extern MenuGlyphRow1C *GlyphRows;
-extern CurrentSelection SelectionRows;
+#include "game/ui/uidraw.h"
+#include "game/data/selection.h"
 extern s32 RaceState;
 extern TimeRecord16 LapRecords[2][8][5];
 extern MenuTextRow60 *MenuTextRows;
@@ -163,7 +163,7 @@ void DrawCourseInfoPanel(s32, s32);
 void DrawCourseMapPreview(s32, s32);
 void UpdateRaceIntroCamera(RaceVehicle *, s32);
 void SetupMenuCarCamera(s32);
-void UpdateRaceChaseCamera(void *);
+
 void PlayStartCountdownVoice(s32);
 void UpdatePauseMenu(s32);
 void ApplyPauseMenuChoice(s32);

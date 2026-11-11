@@ -1,11 +1,12 @@
 """Preview dragging: paired grabs, signed halfword wrap and two hit services."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess,unittest
 class PreviewDragTest(unittest.TestCase):
  def test_grab_and_coordinate_oracle(self):
   root=Path(__file__).resolve().parents[2]
-  body=(root/'src/overlays/PAL/662/func_801246E4.c').read_text()
+  body=read_c_source(root/'src/overlays/PAL/garage/func_801246E4.c')
   source=r'''
 #include <assert.h>
 #include <stddef.h>

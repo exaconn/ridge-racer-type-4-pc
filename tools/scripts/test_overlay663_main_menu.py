@@ -3,7 +3,7 @@ from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
-body=read_c_source(Path('src/overlays/PAL/663/func_80114B98.c'));body=body[body.index('void ovl663_update_menu'):]
+body=read_c_source(Path('src/overlays/PAL/records/func_80114B98.c'));body=body[body.index('void ovl663_update_menu'):]
 source=r'''
 #include <assert.h>
 #include "game/system/pad.h"

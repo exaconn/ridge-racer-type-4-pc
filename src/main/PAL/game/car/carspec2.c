@@ -1,3 +1,4 @@
+#include "rr/scene_camera_state.h"
 #include "game/sound/sndque.h"
 #include "rr/overlay661_init.h"
 #include "rr/audio_state_types.h"
@@ -19,7 +20,6 @@ typedef struct {
 extern T CarSpecControlPool[];
 extern CurvePt RubberBandCurve[];
 extern short BonusCarUnlockMask;
-extern RaceStandingsTable *RaceStandings;
 extern int ReplayState;
 extern int RaceState;
 
@@ -42,16 +42,9 @@ void AverageCarSpec(int x, int y, int z) {
     tx->d = (ty->d + tz->d) / 2;
 }
 
-typedef struct {
-    s32 a[2];
-    s32 b[2];
-    s32 unk10[2];
-    RaceStandingEntry0C entries18[8];
-} RaceStandingsArrayView;
-
 int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
     int s1 = 0;
-    RaceStandingsArrayView *s2 = (RaceStandingsArrayView *)RaceStandings;
+    RaceStandingsTable *s2 = RaceContext.standings;
     RaceVehicleControl *t0 = &a0->control;
     int d;
     int i;
@@ -61,17 +54,17 @@ int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
     int v1;
     int v0;
 
-    if (s2->b[a1] >= RubberBandCurve[0].x) {
+    if (s2->playerDistance[a1] >= RubberBandCurve[0].x) {
         for (i = 1; i < 7; i++) {
-            if (s2->b[a1] < RubberBandCurve[i].x) {
+            if (s2->playerDistance[a1] < RubberBandCurve[i].x) {
                 break;
             }
         }
         if (i < 4) {
-            d = s2->b[a1] - RubberBandCurve[i].x;
+            d = s2->playerDistance[a1] - RubberBandCurve[i].x;
             lo = ((RubberBandCurve[i].y - RubberBandCurve[i - 1].y) * d) / (RubberBandCurve[i].x - RubberBandCurve[i - 1].x);
             s1 = RubberBandCurve[i].y + lo;
-            d = t0->lateralSpeed58 - s2->a[a1];
+            d = t0->lateralSpeed58 - s2->playerSpeed[a1];
             if (d < 0) {
                 d = 0;
             }
@@ -92,7 +85,7 @@ int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
         } else if (i < 7) {
             int lo2;
             int denom;
-            d = s2->b[a1] - RubberBandCurve[i].x;
+            d = s2->playerDistance[a1] - RubberBandCurve[i].x;
             denom = RubberBandCurve[i].x - RubberBandCurve[i - 1].x;
             lo2 = ((RubberBandCurve[i].y - RubberBandCurve[i - 1].y) * d) / denom;
             /* Note: extend denom past div so local_alloc does not combine denom with lo2 */
@@ -102,13 +95,13 @@ int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
             s1 += 0x800;
         }
         if (GameModeType == 1 || GameModeType == 6) {
-            if (RaceStandings->entries18[0].unk00 == 0 && RaceStandings->entries18[1].unk00 == (s16)a0->flags1E4 && s2->b[a1] > BonusCarUnlockMask) {
+            if (RaceContext.standings->entries18[0].unk00 == 0 && RaceContext.standings->entries18[1].unk00 == (s16)a0->flags1E4 && s2->playerDistance[a1] > BonusCarUnlockMask) {
                 s1 = 0xC00;
             }
         }
     }
     if (ReplayState != 2 && RaceState < 4) {
-        if (s2->b[a1] < 0x7D0) {
+        if (s2->playerDistance[a1] < 0x7D0) {
             if (SoundState.unk1A0C[((s16)a0->flags1E4 & 0xF) - 1] == 0) {
                 if (SoundState.unk1A28 == 0) {
                     v0 = PsyqRand() & 1;
@@ -120,13 +113,13 @@ int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
                 SoundState.unk1A28 = 0x4B;
             }
         }
-        if (s2->b[a1] >= 0x1771) {
+        if (s2->playerDistance[a1] >= 0x1771) {
             if (SoundState.unk1A0C[((s16)a0->flags1E4 & 0xF) - 1] != 0) {
                 SoundState.unk1A0C[((s16)a0->flags1E4 & 0xF) - 1] = 0;
             }
         }
-        if (RaceStandings->entries18[0].unk00 == (s16)a0->flags1E4 && RaceStandings->entries18[1].unk00 == 0) {
-            if (s2->b[a1] >= -0x5DB) {
+        if (RaceContext.standings->entries18[0].unk00 == (s16)a0->flags1E4 && RaceContext.standings->entries18[1].unk00 == 0) {
+            if (s2->playerDistance[a1] >= -0x5DB) {
                 if (SoundState.unk1A08 == 0) {
                     if (SoundState.unk1A28 == 0) {
                         v0 = PsyqRand() & 1;
@@ -137,7 +130,7 @@ int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
                     SoundState.unk1A28 = 0x4B;
                 }
             }
-            if (s2->b[a1] < -0x1388) {
+            if (s2->playerDistance[a1] < -0x1388) {
                 if (SoundState.unk1A08 != 0) {
                     SoundState.unk1A08 = 0;
                 }

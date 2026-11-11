@@ -25,6 +25,7 @@ PREFIX = r'''
 #include "game/ui/hudmap.h"
 #include "game/ui/uipart1.h"
 #include "game/car/carsetup.h"
+#include "game/data/resinit.h"
 #include "game/car/aipath.h"
 #include "game/car/carparam.h"
 #include "game/car/carsteer.h"
@@ -85,9 +86,10 @@ int GetMappedPadButtons(int player) {
     if(scenario&16)RaceState=states[(scenario>>8)&7];
     return scenario%3==0?0:scenario%3==1?0x10000:-1;
 }
-/* Capture the ignored incoming word at this service boundary. The real
- * ResetCarSlotBuffers has no parameters; its caller's extra word is old debt. */
-void ResetCarSlotBuffers(int incomingWord) {event(8,(u32)incomingWord,0);}
+/* Preserve the existing flag payload from its complete vehicle owner. The
+ * reset service has no arguments; MIPS additionally checks that its incoming
+ * register still agrees with this already-published flag value. */
+void ResetCarSlotBuffers(void) {event(8,(u32)selected->flags1E4,0);}
 void UpdateCarSteering(RaceVehicle *v) {assert(v==selected);event(9,0,0);change(v,9);}
 void IntegrateCarMotion(RaceVehicle *v) {assert(v==selected);event(10,0,0);change(v,10);}
 void UpdateCarTrackNode(RaceVehicle *v) {assert(v==selected);event(11,0,0);change(v,11);}
@@ -252,6 +254,8 @@ def main():
                     elif 6 <= kind <= 8:a = cpu.r[4]
                     else:a = 0
                     if kind == 6:assert cpu.r[5] == cpu.r[6] == 0
+                    if kind == 8:
+                        assert a == int.from_bytes(read(vehicles[index]+0x1E4, 2), 'little')
                     entry = struct.pack('<III', kind, a, 0)+snapshot()
                     assert entry == expected[event*EVENT_SIZE:(event+1)*EVENT_SIZE], (version, case, kind)
                     event += 1

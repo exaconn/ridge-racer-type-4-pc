@@ -9,7 +9,7 @@ import unittest
 class PlaybackInitTest(unittest.TestCase):
     def test_captured_allocation_and_fresh_resource(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/overlays/PAL/668/func_801149E8.c')
+        body = read_c_source(root / 'src/overlays/PAL/movie_playback/func_801149E8.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

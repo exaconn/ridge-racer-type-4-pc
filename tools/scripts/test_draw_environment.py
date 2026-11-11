@@ -72,7 +72,7 @@ static u32 emit(int kind,int a,int b,int c){
 u32 get_cs(s32 x,s32 y){return emit(0,x,y,0);}
 u32 get_ce(s32 x,s32 y){return emit(1,x,y,0);}
 u32 get_ofs(s32 x,s32 y){return emit(2,x,y,0);}
-s32 get_mode(s32 a,s32 b,s32 c){return (s32)emit(3,a,b,c);}
+u32 get_mode(s32 a,s32 b,s32 c){return emit(3,a,b,c);}
 u32 get_tw(GpuRectangleFields *p){assert(p==&w->env.draw00.window);u32 value=real_window(p);emit(4,12,0,0);return value;}
 static int narrow(unsigned v){v&=65535;return v<32768?(int)v:(int)v-65536;}
 static u16 read16(unsigned offset){u16 x;memcpy(&x,(u8*)&w->env+offset,2);return x;}

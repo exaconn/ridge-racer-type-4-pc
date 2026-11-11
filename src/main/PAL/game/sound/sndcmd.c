@@ -1,3 +1,5 @@
+#include "rr/scene_camera_state.h"
+#include "game/gfx/scene1.h"
 /* RODATA 0x80011108 0x10 */
 #include "types.h"
 #include "rr/audio_loop.h"
@@ -14,19 +16,7 @@
 #include "rr/audio_bank_setup.h"
 #include "game/sound/sndslot.h"
 
-extern void InitSceneOverlayState(void);
-extern void SetSceneOverlayColor();
-extern void SetSceneOverlayEnabled(s32 arg0);
 extern int MaskBitSetting;
-extern struct {
-    char p0[0x1C];
-    s32 x1C;
-    char p1[0x28];
-    s32 x48;
-    s32 x4C;
-    char p2[0x38C];
-    s32 x3DC;
-} RaceContext;
 
 void SoundQueueUpdate(void)
 {
@@ -116,15 +106,15 @@ void SoundInitForRace(void) {
     InitSceneOverlayState();
     MaskBitSetting = 1;
     SetSceneOverlayColor(0, 0x90, 0x90, 0x90);
-    SetSceneOverlayEnabled(RaceContext.x3DC);
+    SetSceneOverlayEnabled(RaceContext.overlayToggle3DC);
     SlotsStartForRace();
     SoundState.slots38[0].levels20.halves.level = 0x52;
     SoundState.slots38[1].levels20.halves.level = 0x52;
     SoundState.slots38[2].levels20.halves.level = 0x4E;
     SoundState.slots38[3].levels20.halves.level = 0x4E;
-    RaceContext.x4C = -1;
-    RaceContext.x1C = 1;
-    RaceContext.x48 = 0;
+    RaceContext.cameraNodeIndex4C = -1;
+    RaceContext.cameraNodeChanged1C = 1;
+    RaceContext.cameraNodeFrames48 = 0;
 }
 
 void StopAllSoundAndReset(void) {

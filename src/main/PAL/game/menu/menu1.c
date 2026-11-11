@@ -1,3 +1,6 @@
+#include "game/ui/uipart1.h"
+#include "game/sound/sndvab.h"
+#include "rr/save_slots.h"
 #include "rr/work_arena.h"
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
@@ -23,20 +26,15 @@
 #include "rr/badge_rows.h"
 #include "game/menu/mnrows.h"
 
-extern void ClearScreenOverlayState();
-extern int SetMenuFrameOptions();
 extern unsigned short FadeCountdown;
 extern int VSyncThreshold;
 extern short MenuCursor;
 extern int ModeFrame;
-extern MenuSettings2C SaveSlotSelections[];
 extern short ModeIndex;
 extern short ModeGroup;
 extern unsigned short SubmodeState;
 extern int DrawUiRow();
 extern short CardMenuOperation;
-extern int StepMenuValue();
-extern void PlaySfx();
 extern short MenuFrameState;
 #include "rr/menu_arena_base.h"
 
@@ -49,7 +47,7 @@ void CarStandingsModeEnter(void);
 void GpMenuModeEnter(void) {
     int a0, a1;
     short v;
-    MenuSettings2C *p;
+    SavedMenuSettings *p;
     SetDispMask(0);
     SetupDrawDispEnvs(0, 0, 0, 3);
     ModeFrame = 0;
@@ -57,8 +55,8 @@ void GpMenuModeEnter(void) {
     FadeCountdown = 0;
     MenuCursor = 1;
     VSyncThreshold = 0x80;
-    SelectionState[0x17] = -1;
-    SelectionState[0x19] = 9;
+    SelectionState.signedBytes[0x17] = -1;
+    SelectionState.signedBytes[0x19] = 9;
     ResetRankEntries();
     ClearScreenOverlayState();
     a1 = 0;
@@ -66,7 +64,7 @@ void GpMenuModeEnter(void) {
     p = SaveSlotSelections;
     do {
         a0++;
-        if (p->phase17 > 0) goto T;
+        if (p->fields.phase17 > 0) goto T;
         p++;
     } while (a0 < 3);
     J:

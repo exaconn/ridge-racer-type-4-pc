@@ -3,6 +3,11 @@
 
 #include "rr/geometry.h"
 #include "rr/lighting_types.h"
+#include "rr/track_lookup_types.h"
+
+struct CamNode44;
+struct TrackLightPreset8;
+struct RaceStandingsTable;
 
 /* A word-component position followed by the SDK short-angle vector. */
 typedef struct {
@@ -45,21 +50,48 @@ typedef struct {
     s32 reserved144[7];
 } SceneCameraState160;
 
+/* Written by race-audio setup, then consumed by the staged bank loader and
+ * slot starter. All four words are configuration, not independent globals. */
 typedef struct {
-    s32 reserved00[0x60 / 4];
+    s32 sfxVabId;
+    s32 carVariants[2];
+    s32 comBank;
+} RaceSoundConfig;
+RR_ASSERT_SIZE(RaceSoundConfig, 0x10);
+RR_ASSERT_OFFSET(RaceSoundConfig, carVariants, 4);
+RR_ASSERT_OFFSET(RaceSoundConfig, comBank, 0xC);
+
+typedef struct {
+    s32 reserved00[5];
+    s32 playerCount14;
+    s32 reserved18;
+    s32 cameraNodeChanged1C;
+    VectorWords16 cameraFollowPosition20;
+    Vec3s8 cameraFollowOffset30;
+    s32 cameraDistanceSpan38, cameraNearDistance3C;
+    s32 cameraPreviousDistance40, cameraLimitReached44;
+    s32 cameraNodeFrames48, cameraNodeIndex4C;
+    u32 reserved50[4];
     SceneCameraView24 view60;
     s32 reserved84[(0xD4 - 0x84) / 4];
     s32 overlayEnabledD4, overlayStyleD8, overlayModeDC, overlayBlendE0;
     u8 overlayColorE4[4];
-    s32 reservedE8;
+    struct RaceStandingsTable *standings;
     SceneCameraState160 cameraEC;
     SceneCameraState160 *camera24C;
     s32 reserved250[99];
     s32 overlayToggle3DC;
-    u8 reserved3E0[0x560 - 0x3E0];
+    u8 reserved3E0[0x550 - 0x3E0];
+    struct CamNode44 *cameraNodes550;
+    u8 *workspace554;
+    struct TrackLightPreset8 *lightPresets558;
+    u8 *workspace55C;
     /* The legacy mesh API still accepts this slot as an integer. Its pointer
      * migration belongs with DrawMeshPrimList and the reflection packet path. */
     s32 model560;
+    char *soundPayload564;
+    TrackEventDirectory *lookupTables;
+    RaceSoundConfig sound;
 } SceneRaceContext;
 
 RR_ASSERT_SIZE(SceneCameraPose18, 0x18);
@@ -77,15 +109,29 @@ RR_ASSERT_OFFSET(SceneCameraState160, distance100, 0x100);
 RR_ASSERT_OFFSET(SceneCameraState160, position110, 0x110);
 RR_ASSERT_OFFSET(SceneCameraState160, rotation120, 0x120);
 RR_ASSERT_OFFSET(SceneCameraState160, tracks138, 0x138);
+RR_ASSERT_OFFSET(SceneRaceContext, playerCount14, 0x14);
+RR_ASSERT_OFFSET(SceneRaceContext, standings, 0xE8);
+RR_ASSERT_OFFSET(SceneRaceContext, cameraNodeChanged1C, 0x1C);
+RR_ASSERT_OFFSET(SceneRaceContext, cameraFollowPosition20, 0x20);
+RR_ASSERT_OFFSET(SceneRaceContext, cameraFollowOffset30, 0x30);
+RR_ASSERT_OFFSET(SceneRaceContext, cameraDistanceSpan38, 0x38);
+RR_ASSERT_OFFSET(SceneRaceContext, cameraNodeIndex4C, 0x4C);
 RR_ASSERT_OFFSET(SceneRaceContext, view60, 0x60);
 #ifdef __mips__
 RR_ASSERT_SIZE(SceneCameraState160, 0x160);
 RR_ASSERT_OFFSET(SceneCameraState160, mode13C, 0x13C);
 RR_ASSERT_OFFSET(SceneRaceContext, cameraEC, 0xEC);
-RR_ASSERT_SIZE(SceneRaceContext, 0x564);
+RR_ASSERT_SIZE(SceneRaceContext, 0x57C);
 RR_ASSERT_OFFSET(SceneRaceContext, camera24C, 0x24C);
 RR_ASSERT_OFFSET(SceneRaceContext, overlayToggle3DC, 0x3DC);
+RR_ASSERT_OFFSET(SceneRaceContext, cameraNodes550, 0x550);
+RR_ASSERT_OFFSET(SceneRaceContext, workspace554, 0x554);
+RR_ASSERT_OFFSET(SceneRaceContext, lightPresets558, 0x558);
+RR_ASSERT_OFFSET(SceneRaceContext, workspace55C, 0x55C);
 RR_ASSERT_OFFSET(SceneRaceContext, model560, 0x560);
+RR_ASSERT_OFFSET(SceneRaceContext, soundPayload564, 0x564);
+RR_ASSERT_OFFSET(SceneRaceContext, lookupTables, 0x568);
+RR_ASSERT_OFFSET(SceneRaceContext, sound, 0x56C);
 #endif
 
 #endif

@@ -1,3 +1,4 @@
+from selection_fixture_transport import transport as transport_selection
 """Real course screens and glyph/count helpers; simulated scene services."""
 from overlay_units import read_c_source
 from pathlib import Path
@@ -147,7 +148,7 @@ int main(void){
 '''
         with TemporaryDirectory() as directory:
             p = Path(directory)
-            (p / 'test.c').write_text(source)
+            (p / 'test.c').write_text(transport_selection(source,bodies,None,'&actual.s.selection',32,[('event','w==&actual')]))
             subprocess.run(['cc', '-std=gnu11', '-O2', '-fsanitize=undefined',
                             '-fno-sanitize-recover=all', '-I', str(root / 'include'),
                             str(p / 'test.c'), '-o', str(p / 'test')], check=True)

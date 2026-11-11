@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 import subprocess,re,sys
 import os
 os.chdir(Path(__file__).resolve().parents[2])
-p=Path('build/goal_50/parallel666_preview');body=read_c_source(Path(sys.argv[1] if len(sys.argv)>1 else Path('src/overlays/PAL/666/func_80115C5C.c')));body=body[body.index('void ovl666_update_preview'):];body=re.sub(r' __asm__\("\$\d+"\)', '', body)
+p=Path('build/goal_50/parallel666_preview');body=read_c_source(Path(sys.argv[1] if len(sys.argv)>1 else Path('src/overlays/PAL/extra_trial/func_80115C5C.c')));body=body[body.index('void ovl666_update_preview'):];body=re.sub(r' __asm__\("\$\d+"\)', '', body)
 encode=read_c_source(Path('tools/scripts/fixtures/views/func_8003708C.c')).replace('PackChoiceGlyph','actual_encode');decode=read_c_source(Path('tools/scripts/fixtures/views/func_80037040.c')).replace('UnpackChoiceGlyph','actual_decode')
 src=r'''
 #include <stdint.h>

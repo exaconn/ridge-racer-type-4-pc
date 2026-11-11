@@ -7,7 +7,6 @@
 
 extern AudioState SoundState;
 extern s16 GameModeType;
-extern s32 VoiceVolumeScale; /* Alias of SoundState.master08. */
 s32 SsUtSetVVol(s32 voice,s32 left,s32 right);
 /* Voice uses signed low16. Volume products wrap in32 bits before arithmetic
  * shifting and narrowing to signed16, including full-width master values. */

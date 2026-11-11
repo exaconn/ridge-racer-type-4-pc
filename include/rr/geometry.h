@@ -9,6 +9,11 @@ typedef struct {
     s16 x, y;
 } Vec2s;
 
+/* GPU/GTE screen coordinates have signed halfword and packed-word views. */
+typedef union {s32 word; Vec2s xy;} ScreenPosition;
+RR_ASSERT_SIZE(ScreenPosition, 4);
+
+
 typedef struct {s16 x, y, z, pad06;} Vec3sFields8;
 /* Two word-aligned GTE input words, including the unused high Z halfword. */
 typedef union {

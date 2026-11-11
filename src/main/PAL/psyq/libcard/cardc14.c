@@ -77,11 +77,6 @@ s32 _cardCmd58Begin(s32 request, u32 *first, u32 *second) {
     active = 2;
     CardCmdResultPtrA = first;
     CardCmdResultPtrB = second;
-    {
-        s32 *base;
-        /* PAL RAM mapping: base[-0x421C / 4] is CardCommandStatus. */
-        base = (s32 *)0x800B0000U;
-        base[-0x421C / 4] = active;
-    }
+    CardCommandStatus = active;
     return result;
 }

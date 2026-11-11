@@ -1,4 +1,5 @@
 """Screen initializer retains full arena pointers and fresh callback effects."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re
@@ -8,7 +9,7 @@ import unittest
 class Overlay662ScreenInitTest(unittest.TestCase):
     def test_real_reset_and_mutating_setup(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/662/func_80118ED8.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/garage/func_80118ED8.c')
         reset=re.sub(r'^extern[^\n]*;\n','',(root/'tools/scripts/fixtures/legacy/func_8003A198.c').read_text(),flags=re.M)
         source=r'''
 #include <assert.h>

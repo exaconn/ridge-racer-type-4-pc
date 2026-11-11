@@ -14,7 +14,7 @@ extern s16 ovl661_finish_ranks[2];
 extern s16 ComDifficultyLevel;
 extern u16 SubmodeState;
 extern MenuSelectionWord32 NumCars;
-extern SelectionRows32 SelectionRows;
+#include "game/data/selection.h"
 #include "rr/menu_arena_state.h"
 extern u8 ovl661_difficulty_parameters[4];
 void SetModelTexturePage(s32);

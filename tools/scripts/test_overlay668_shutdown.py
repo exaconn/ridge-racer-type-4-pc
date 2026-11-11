@@ -11,9 +11,9 @@ class OverlayShutdownTest(unittest.TestCase):
     def test_shutdown_order_callbacks_ports_and_state(self):
         root = Path(__file__).resolve().parents[2]
         paths = ['tools/scripts/fixtures/legacy/func_8008B3C4.c',
-                 'src/overlays/PAL/668/func_80116534.c',
+                 'src/overlays/PAL/movie_playback/func_80116534.c',
                  'tools/scripts/fixtures/legacy/func_8008F564.c',
-                 'src/overlays/PAL/668/func_80114DF4.c']
+                 'src/overlays/PAL/movie_playback/func_80114DF4.c']
         bodies = '\n'.join(re.sub(r'^extern[^\n]*;\n', '', read_c_source(root / p), flags=re.M)
                            for p in paths)
         source = r'''

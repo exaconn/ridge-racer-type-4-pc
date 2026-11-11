@@ -1,4 +1,5 @@
 """Complete action records, callback mutations and pointer-preserving table setup."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -8,7 +9,7 @@ import unittest
 class GarageActionLoopTest(unittest.TestCase):
     def test_setup_dispatch_and_rendering(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/662/func_8011E36C.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/garage/func_8011E36C.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

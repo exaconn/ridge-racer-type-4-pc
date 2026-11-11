@@ -1,11 +1,13 @@
 """Available-car initializer with actual glyph codecs and service snapshots."""
+from overlay_units import read_c_source
+from selection_fixture_transport import transport as transport_selection
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess,unittest
 class AvailableCarsTest(unittest.TestCase):
  def test_progress_and_live_records(self):
   root=Path(__file__).resolve().parents[2]
-  body=(root/'src/overlays/PAL/662/func_80116960.c').read_text()
+  body=read_c_source(root/'src/overlays/PAL/garage/func_80116960.c')
   codecs=(root/'tools/scripts/fixtures/views/func_80037040.c').read_text().replace('UnpackChoiceGlyph','actual_decode')+'\n'+(root/'tools/scripts/fixtures/views/func_8003708C.c').read_text().replace('PackChoiceGlyph','actual_encode')
   code=r'''
 #include <assert.h>
@@ -108,7 +110,7 @@ int main(void){assert(sizeof(void*)==8&&(uintptr_t)resources>UINT32_MAX);memset(
 }
 '''
   with TemporaryDirectory() as d:
-   c=Path(d)/'test.c';exe=Path(d)/'test';c.write_text(code)
+   c=Path(d)/'test.c';exe=Path(d)/'test';c.write_text(transport_selection(code,body,None,'&world.choice',4,[('service', '!reference_run'), ('UnpackChoiceGlyph', '!reference_run')]))
    subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined','-fno-sanitize-recover=all','-I'+str(root/'include'),str(c),'-o',str(exe)],check=True)
    subprocess.run([str(exe)],check=True)
 if __name__=='__main__':unittest.main()

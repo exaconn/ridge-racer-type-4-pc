@@ -2,8 +2,8 @@
 #include "rr/gpu.h"
 #include "psyq/libgpu/primatt6.h"
 
-void SetLineF2(void *arg0) {
-    PolyG4Packet *p = arg0;
-    p->len = 3;
-    p->code = 0x40;
+void SetLineF2(void *packet) {
+    GpuPrimitiveHeader *header = packet;
+    header->tag.bytes.length = 3;
+    header->color.bytes.code = 0x40;
 }

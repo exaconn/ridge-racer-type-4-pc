@@ -9,10 +9,6 @@
 #include "rr/menu_overlay_runtime.h"
 #include "game/gfx/gfxotag.h"
 
-extern void DrawFontString(s32, s32, const char *, s32, s32);
-extern void DrawGlyphList(s16 *, s32, s32);
-extern void EmitIconSpriteRow120(s32, u8);
-extern void EmitIconSpriteRow128(s32, u8);
 extern const char StrOpeningIn[];
 extern const char StrOpeningBacktick[];
 extern const char StrOpeningApostrophe[];
@@ -103,11 +99,11 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
         DrawGlyphList(OpeningTimeGlyphLists[s2], sp18[1], 0);
         DrawGlyphList(OpeningStageGlyphLists[s2], sp18[2], 0);
         DrawGlyphListSloped(OpeningAttemptGlyphLists[OpeningAttemptIndex], sp18[2], 0);
-        EmitIconSpriteRow128(0, sp18[3]);
-        DrawFontString(0x9A, 0xA0, StrOpeningIn, sp18[4], 0);
+        EmitIconSpriteRow128(0, (u8)(sp18[3]));
+        DrawFontString(0x9A, 0xA0, (const u8 *)(StrOpeningIn), sp18[4], 0);
         s0_1 = DrawFontStringCentered(0x60, 0xB0, CourseNames + CourseIndex * 0x18, sp18[4], 0) / 2;
-        DrawFontString(0x9A - s0_1, 0xB0, StrOpeningBacktick, sp18[4], 0);
-        DrawFontString(0xA2 + s0_1, 0xB0, StrOpeningApostrophe, sp18[4], 0);
+        DrawFontString(0x9A - s0_1, 0xB0, (const u8 *)(StrOpeningBacktick), sp18[4], 0);
+        DrawFontString(0xA2 + s0_1, 0xB0, (const u8 *)(StrOpeningApostrophe), sp18[4], 0);
         AddSetTexpagePrim(0);
 
         if (sp18[5] >= 0x80) {
@@ -143,13 +139,13 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
         AddBrightnessSprite(HudSpeedUnitSprites, 0x3C, 0xC8, sp18[5]);
         AddBrightnessSprite(HudSpeedUnitSprites + 4, 0xFC, 0xC8, sp18[5]);
         AddBrightnessSprite(HudSpeedUnitSprites + 8, 0x4C, 0xC8, sp18[5]);
-        PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.track28A4);
-        DrawFontString(0x5A, 0xC8, sp30, sp18[5], 0);
+        PsyqSprintf((s8 *)sp30, (const s8 *)StrFmtTwoDigitsOpening, SoundState.track28A4);
+        DrawFontString(0x5A, 0xC8, (const u8 *)(sp30), sp18[5], 0);
         AddBrightnessSprite(HudSpeedUnitSprites + 0xC, 0x6C, 0xC8, sp18[5]);
         if (SoundState.track28A4 <= 0) {
-            DrawFontString(0x78, 0xC8, StrRandomPlay, sp18[5], 0);
+            DrawFontString(0x78, 0xC8, (const u8 *)(StrRandomPlay), sp18[5], 0);
         } else {
-            DrawFontString(0x78, 0xC8, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5), sp18[5], 0);
+            DrawFontString(0x78, 0xC8, (const u8 *)(CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5)), sp18[5], 0);
         }
         AddSetTexpagePrim(0);
         return s4;
@@ -209,16 +205,16 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
             AddLineF2Prim(sp50, sp58, 1, 0);
         }
 
-        DrawFontString(0x9A, 0x48, StrOpeningIn, sp18[2], 0);
+        DrawFontString(0x9A, 0x48, (const u8 *)(StrOpeningIn), sp18[2], 0);
         s0_2 = DrawFontStringCentered(0x60, 0x58, CourseNames + CourseIndex * 0x18, sp18[2], 0) / 2;
-        DrawFontString(0x9A - s0_2, 0x58, StrOpeningBacktick, sp18[2], 0);
-        DrawFontString(0xA2 + s0_2, 0x58, StrOpeningApostrophe, sp18[2], 0);
+        DrawFontString(0x9A - s0_2, 0x58, (const u8 *)(StrOpeningBacktick), sp18[2], 0);
+        DrawFontString(0xA2 + s0_2, 0x58, (const u8 *)(StrOpeningApostrophe), sp18[2], 0);
         AddSetTexpagePrim(0);
 
         if (s2 < 3) {
-            EmitIconSpriteRow120(1, sp18[3]);
+            EmitIconSpriteRow120(1, (u8)(sp18[3]));
         } else {
-            EmitIconSpriteRow120(s2 - 1, sp18[3]);
+            EmitIconSpriteRow120(s2 - 1, (u8)(sp18[3]));
         }
 
         if (OpeningBgmSelectState >= 0) {
@@ -245,19 +241,19 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
             AddBrightnessSprite(HudSpeedUnitSprites, 0x3C, 0xC8, sp18[5]);
             AddBrightnessSprite(HudSpeedUnitSprites + 4, 0xFC, 0xC8, sp18[5]);
             AddBrightnessSprite(HudSpeedUnitSprites + 8, 0x4C, 0xC8, sp18[5]);
-            PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.track28A4);
-            DrawFontString(0x5A, 0xC8, sp30, sp18[5], 0);
+            PsyqSprintf((s8 *)sp30, (const s8 *)StrFmtTwoDigitsOpening, SoundState.track28A4);
+            DrawFontString(0x5A, 0xC8, (const u8 *)(sp30), sp18[5], 0);
             AddBrightnessSprite(HudSpeedUnitSprites + 0xC, 0x6C, 0xC8, sp18[5]);
             if (SoundState.track28A4 > 0) {
-                DrawFontString(0x78, 0xC8, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5), sp18[5], 0);
+                DrawFontString(0x78, 0xC8, (const u8 *)(CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5)), sp18[5], 0);
             } else {
-                DrawFontString(0x78, 0xC8, StrRandomPlay, sp18[5], 0);
+                DrawFontString(0x78, 0xC8, (const u8 *)(StrRandomPlay), sp18[5], 0);
             }
         } else {
             s0_3 = 0x88 - DrawFontStringCenteredOffset(0x14, 0xC8, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5), sp18[5], 0) / 2;
             AddBrightnessSprite(HudViewModeIconUvs, s0_3, 0xC8, sp18[5]);
-            PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.track28A4);
-            DrawFontString(s0_3 + 0xE, 0xC8, sp30, sp18[5], 0);
+            PsyqSprintf((s8 *)sp30, (const s8 *)StrFmtTwoDigitsOpening, SoundState.track28A4);
+            DrawFontString(s0_3 + 0xE, 0xC8, (const u8 *)(sp30), sp18[5], 0);
             AddBrightnessSprite(HudViewModeIconUvs + 4, s0_3 + 0x20, 0xC8, sp18[5]);
             if (sp18[5] >= 0x80 && MenuReturnSubmodeIndex != 0) {
                 s4 = 1;

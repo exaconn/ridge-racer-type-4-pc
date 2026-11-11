@@ -1,6 +1,6 @@
 """Actual panning body versus independent arithmetic and helper snapshots."""
 from pathlib import Path
-import re
+from c_functions import definition_source, source_owners
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
@@ -10,10 +10,9 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class AudioPanTest(unittest.TestCase):
     def test_actual_body_with_full_width_inputs_and_mutating_helpers(self):
-        source = (ROOT / 'tools/scripts/fixtures/views/func_8004EF04.c').read_text()
-        source = re.sub(r'^#include.*\n', '', source, flags=re.M)
-        source = re.sub(r' asm\("\$\d+"\)', '', source)
-        source = re.sub(r'__asm__\(""[^;]*;', ';', source)
+        owner = source_owners(ROOT/'src/main/PAL')['TriggerSfx']
+        source = definition_source(owner.read_text(), 'TriggerSfx')
+        self.assertNotIn('asm', source, 'Actual panning body needs no native rewrite')
         prefix = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -93,13 +92,70 @@ int main(void){
  assert(modes[0]&&modes[1]);puts("131072 native panning cases passed");
 }
 '''
-        # Compile the public body directly, stripping only register constraints
-        # and empty compiler hints. All pointers retain native width.
+        # Preserve the original World, model, PRNG and all 131072 cases. The gain and bank
+        # lvalues cross into the real complete native owner.
+        native_gain = r'''
+static struct {u32 before[4];AudioState value;u32 after[4];} native_audio;
+static AudioState native_baseline;
+static u8 pointer_targets[14];
+static int native_active,native_initialized;
+#define SoundState native_audio.value
+static void native_guard(void){
+ AudioState observed;memcpy(&observed,&SoundState,sizeof(observed));
+ observed.gain18=native_baseline.gain18;
+ for(unsigned i=0;i<3;i++){unsigned bank=i<2?i:7;observed.banks24.ids[bank]=native_baseline.banks24.ids[bank];}
+ assert(!memcmp(&observed,&native_baseline,sizeof(observed)));
+ for(unsigned i=0;i<4;i++)assert(native_audio.before[i]==0xA7A7A7A7U&&native_audio.after[i]==0xA7A7A7A7U);
+}
+static void native_import(void){
+ native_guard();SoundState.gain18=w->gain;
+ for(unsigned i=0;i<3;i++){unsigned bank=i<2?i:7;SoundState.banks24.ids[bank]=(s16)w->banks[i];}
+}
+static void native_export(void){
+ native_guard();w->gain=SoundState.gain18;
+ for(unsigned i=0;i<3;i++){unsigned bank=i<2?i:7;w->banks[i]=(u16)SoundState.banks24.ids[bank];}
+}
+static void native_initialize(void){
+ if(native_initialized)return;
+ memset(&native_audio,0xA7,sizeof(native_audio));
+ assert(sizeof(void*)==8&&(uintptr_t)&SoundState>UINT32_MAX&&(uintptr_t)pointer_targets>UINT32_MAX);
+ for(unsigned i=0;i<2;i++){
+  SoundState.streamBanks[i].table=pointer_targets+i;SoundState.seqAddr2858[i]=pointer_targets+12+i;
+  SequenceChannel *c=&SoundState.sequences[i];
+  c->c0=pointer_targets+2+i*5;c->c4=pointer_targets+3+i*5;c->c8=pointer_targets+4+i*5;
+  c->cC=pointer_targets+5+i*5;c->p10=pointer_targets+6+i*5;
+ }
+ memcpy(&native_baseline,&SoundState,sizeof(native_baseline));native_initialized=1;
+}
+static void run_actual_pan(s32 program,s32 level,s32 pan,s32 pitch,s32 voice);
+'''
+        native_emit = r'''
+static s32 native_emit(int kind,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h){
+ if(native_active)native_export();
+ s32 result=emit(kind,a,b,c,d,e,f,g,h);
+ if(native_active)native_import();return result;
+}
+'''
+        native_entry = r'''
+static void run_actual_pan(s32 program,s32 level,s32 pan,s32 pitch,s32 voice){
+ native_initialize();native_import();native_active=1;
+ TriggerSfx(program,level,pan,pitch,voice);
+ native_export();native_active=0;
+}
+'''
+        prefix = '#include "rr/audio_state_types.h"\n'+prefix
+        prefix = prefix.replace('static int count;\n', 'static int count;\n'+native_gain)
+        start = prefix.index('s32 SsUtKeyOn(')
+        end = prefix.index('static int narrow(', start)
+        mocks = prefix[start:end].replace('return emit(', 'return native_emit(')
+        prefix = prefix[:start]+native_emit+mocks+prefix[end:]
+        prefix = prefix.replace('  TriggerSfx(program,level,pan,pitch,voice);',
+                                '  run_actual_pan(program,level,pan,pitch,voice);')
         with TemporaryDirectory() as directory:
             c = Path(directory) / 'pan.c'
             exe = Path(directory) / 'pan'
-            c.write_text(prefix + source)
-            subprocess.run(['cc', '-std=gnu11', '-O2', '-fsanitize=undefined',
+            c.write_text(prefix + source + native_entry)
+            subprocess.run(['cc', '-std=gnu11', '-O2', '-Wall', '-Wextra', '-Werror', '-fsanitize=undefined,bounds',
                             '-fno-sanitize-recover=all', '-I', str(ROOT / 'include'),
                             str(c), '-o', str(exe)], check=True, capture_output=True, text=True)
             result = subprocess.run([str(exe)], check=True, capture_output=True, text=True)

@@ -14,7 +14,7 @@ from overlay_units import read_c_source, resolve_c_source_path
 root=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file())
 os.chdir(root)
 P=Path(os.environ.get('RR_TEST_DIR','build/tests/overlay661_frame_controller'));P.mkdir(parents=True,exist_ok=True)
-source=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/overlays/PAL/661/func_80114B00.c'
+source=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/overlays/PAL/versus/func_80114B00.c'
 resolved=resolve_c_source_path(source)
 body=read_c_source(source)
 if body.startswith('#include'):body=body.split('\n',1)[1]

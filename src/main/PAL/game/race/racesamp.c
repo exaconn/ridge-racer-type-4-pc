@@ -64,26 +64,26 @@ void DrawSelectionIconGrid(int arg0) {
     int a1;
     int b;
     unsigned char *t7 = ReplayCameraViewWeights;
-    unsigned char (*q)[4] = SelectionRows;
-    unsigned char *p = q[arg0];
-    v[0] = t7[p[1]];
-    v[1] = RaceCarStatParam1[p[1]];
+    SelectionRow *q = SelectionRows.entries;
+    SelectionRow *p = &q[arg0];
+    v[0] = t7[p->variant];
+    v[1] = RaceCarStatParam1[p->variant];
     v[2] = CarRecordPtrs[arg0]->handling1C8.steeringMode0A > 0 ? 0x18 : 0x19;
-    v[3] = RaceCarStatParam3[p[0]];
-    v[4] = RaceCarStatParam4[p[0]];
-    v[5] = RaceCarStatParam5[p[0]];
+    v[3] = RaceCarStatParam3[p->selection];
+    v[4] = RaceCarStatParam4[p->selection];
+    v[5] = RaceCarStatParam5[p->selection];
     v[6] = CarRecordPtrs[arg0]->stage1F3 + 0x14;
-    b = p[3];
+    b = p->option;
     v[7] = b + 0x1A;
     v[8] = b + 0x1C;
-    if (p[2] == 0x27) {
+    if (p->parameter == 0x27) {
         v[5] = 0x1E;
         v[4] = 0x1E;
         v[3] = 0x1E;
         v[1] = 0x1E;
         v[0] = 0x1E;
     }
-    if (p[3] == 2) {
+    if (p->option == 2) {
         v[8] = 0x1E;
         v[7] = 0x1E;
     }
@@ -182,9 +182,9 @@ void PlaceCarOnGrid(RaceVehicle *p, int arg1) {
     if (GameModeType == 0 && ReverseCourse == 1) {
         p->trackNodeF0 = *TrackStartNode;
         t = TrackNodeCount - 5;
-        p->position20.vector.x = TrackNodes[(p->trackNodeF0 + t) % TrackNodeCount].x08;
+        p->position20.vector.x = TrackNodes[(p->trackNodeF0 + t) % TrackNodeCount].road.x;
         p->position20.vector.y = 0;
-        p->position20.vector.z = TrackNodes[(p->trackNodeF0 + t) % TrackNodeCount].z0C;
+        p->position20.vector.z = TrackNodes[(p->trackNodeF0 + t) % TrackNodeCount].road.z;
     } else {
         p->position20.vector.x = RaceContext.p53C->pos[arg1].x;
         p->position20.vector.y = 0;
@@ -197,7 +197,7 @@ void PlaceCarOnGrid(RaceVehicle *p, int arg1) {
     p->trackNodeF0 = FindTrackNode(&p->position20.vector.x, p->trackNodeF0, TrackNodeCount + 1);
     p->wheelNodesF8[0] = p->wheelNodesF8[1] = p->wheelNodesF8[2] = p->wheelNodesF8[3] = p->trackNodeF0;
     p->rot50 = 0;
-    p->rot54 = ((0x800 - TrackNodes[p->trackNodeF0].heading12) - (ReverseCourse << 11)) & 0xFFF;
+    p->rot54 = ((0x800 - TrackNodes[p->trackNodeF0].road.heading) - (ReverseCourse << 11)) & 0xFFF;
     p->rot58 = 0;
     p->renderAngleZ1AE = 0;
     p->heading1D4 = p->prevHeading1D6 = p->rot54;

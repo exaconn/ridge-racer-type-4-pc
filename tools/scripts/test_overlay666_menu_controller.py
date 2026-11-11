@@ -1,4 +1,5 @@
 """Guarded native oracle for the overlay666 menu controller."""
+from menu_glyph_fixture_transport import transport
 from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -6,7 +7,7 @@ import re
 import subprocess
 
 root = Path(__file__).resolve().parents[2]
-body = read_c_source(root/'src/overlays/PAL/666/func_80114CCC.c')
+body = read_c_source(root/'src/overlays/PAL/extra_trial/func_80114CCC.c')
 body = body[body.index('void ovl666_update_menu'):]
 body = re.sub(r' __asm__\("\$\d+"\)', '', body)
 source = r'''
@@ -126,6 +127,6 @@ int main(void){assert(sizeof(void*)==8);for(scenario=0;scenario<65536;scenario++
 }
 '''
 with TemporaryDirectory() as d:
-    c=Path(d)/'test.c';exe=Path(d)/'test';c.write_text(source)
+    c=Path(d)/'test.c';exe=Path(d)/'test';c.write_text(transport(source,body,'ovl666_update_menu','&actual.glyphs[0][0]','8',[('record', 'w==&actual'), ('effect', 'w==&actual')]))
     subprocess.run(['cc','-std=gnu11','-O2','-funsigned-char','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I'+str(root/'include'),str(c),'-o',str(exe)],check=True)
     subprocess.run([str(exe)],check=True)

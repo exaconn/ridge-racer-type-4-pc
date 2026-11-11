@@ -6,7 +6,8 @@
 /* Full resident audio owner: func8004EC28 clears0xA8D0 bytes from this base.
  * Four620-byte slots start38. CD status/control occupies265C..26F8.
  * The TOC address is28C8+bank*2048+entry*8; sixteen256-entry banks endA8C8.
- * CdAudioRequestState is the request26B4 alias, not a separate allocation. */
+ * CdAudioRequestState is the request26B4 alias, not a separate allocation.
+ * SoundPaused is the muted04 alias; pause/resume share the same field. */
 typedef struct { s32 position,other04; } AudioTocEntry8;
 typedef struct { s32 keys[9], values[9]; } AudioCurve48;
 typedef struct { u16 coarse, fine; } AudioPitch4;
@@ -77,6 +78,11 @@ typedef struct {
     s32 bank00, voice04, mode08, prev0C, pitch10, vol14, slot18;
 } AudioPlayerVoice1C;
 typedef struct {
+    s32 program00, reserved04, gain08;
+} AudioPlayerVoiceParameters;
+RR_ASSERT_SIZE(AudioPlayerVoiceParameters,12);
+RR_ASSERT_OFFSET(AudioPlayerVoiceParameters,gain08,8);
+typedef struct {
     s32 enabled00, active04;
     AudioSpatial4 bank08, voice0C;
     s16 vol10[2];
@@ -120,7 +126,7 @@ typedef struct {
     u16 chVolL19BC[2],chVolR19C0[2];
     s32 chActive19C4;
     AudioSpatial4 chProg19C8;
-    s32 unk19CC;
+    s32 sequenceVariant19CC;
     SoundSequenceState sequence19D0;
     u16 left19F8,right19FA;
     u32 pitch19FC;
@@ -157,11 +163,13 @@ typedef struct {
     s32 reservedA8C8,bankA8CC;
 } AudioState;
 RR_ASSERT_SIZE(AudioState,((0xA8D0+AUDIO_SEQUENCE_DELTA+__alignof__(AudioState)-1)&~(__alignof__(AudioState)-1)));
+RR_ASSERT_OFFSET(AudioState,muted04,4);
 RR_ASSERT_OFFSET(AudioState,banks24,0x24);
 RR_ASSERT_OFFSET(AudioState,slots38,0x38);
 RR_ASSERT_OFFSET(AudioState,streamBanks,AUDIO_BANKS_OFFSET);
 RR_ASSERT_OFFSET(AudioState,sequences,AUDIO_ROWS_OFFSET);
 RR_ASSERT_OFFSET(AudioState,seqAddr2858,AUDIO_SEQUENCE_DATA_OFFSET);
+RR_ASSERT_OFFSET(AudioState,sequenceVariant19CC,0x19CC);
 RR_ASSERT_OFFSET(AudioState,sequence19D0,0x19D0);
 RR_ASSERT_OFFSET(AudioState,left19F8,0x19F8);
 RR_ASSERT_OFFSET(AudioState,track28A4,0x28A4+AUDIO_SEQUENCE_DELTA);
@@ -174,6 +182,4 @@ RR_ASSERT_OFFSET(AudioState,rate26F4,0x26F4+AUDIO_CD_DELTA);
 RR_ASSERT_OFFSET(AudioState,toc28C8,0x28C8+AUDIO_SEQUENCE_DELTA);
 RR_ASSERT_OFFSET(AudioState,bankA8CC,0xA8CC+AUDIO_SEQUENCE_DELTA);
 extern AudioState SoundState;
-/* Alias of slots38 in SoundState; never a separate allocation. */
-extern AudioSlot620 SoundSlots[4];
 #endif

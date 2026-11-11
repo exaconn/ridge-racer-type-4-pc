@@ -348,6 +348,11 @@ static unsigned short autodrive_mask(void) {
 
     if (!autodrive || RaceState < 2 || RaceState > 3)
         return 0;
+    /* Only in the race update modes (RaceState is stale in menus after a
+     * replay): VS 1/38, GP 1/47, TA 1/53, link 1/26, Extra trial 1/82. */
+    if (ModeGroup != 1 || (ModeIndex != 26 && ModeIndex != 38 && ModeIndex != 47 &&
+                           ModeIndex != 53 && ModeIndex != 82))
+        return 0;
     /* RR4_AUTODRIVE_REPLAY=file: drive from a RR4_AUTODRIVE_LOG instead. */
     {
         static unsigned short *replay;

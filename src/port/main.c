@@ -26,7 +26,16 @@
  *                      list of name[:size] (size 1, 2 or 4 bytes, default 4,
  *                      signed), e.g. "TitleSceneStage:2,FadeCountdown:2".
  *                      name+offset reads a member at a byte offset (decimal
- *                      or 0x hex) into the object, e.g. "SoundState+9904". */
+ *                      or 0x hex) into the object, e.g. "SoundState+9904".
+ *   RR4_AUTODRIVE=1    test driver for whole races: while a race runs
+ *                      (RaceState 2..3) pad 1 holds accelerate (cross) and
+ *                      steers left/right towards the course centre line
+ *                      from the player car's track heading and lateral
+ *                      offset. Combines with RR4_PAD_SCRIPT. With
+ *                      RR4_AUTODRIVE_LOG=file it writes one line
+ *                      "ModeFrame mask" per VSync it drives, which
+ *                      tools/port/duckstation.py replays on the reference
+ *                      (same ModeFrame -> same buttons) for comparison. */
 
 #include <psyz.h>
 #include <psyz/cd.h>
@@ -169,8 +178,42 @@ static void parse_pad_script(const char *script) {
     }
 }
 
+/* RR4_AUTODRIVE: decided from PS1-layout fields of PlayerCars[0] (offsets
+ * below the host-only control block are those of the original). */
+extern unsigned char PlayerCars[];
+extern int RaceState;
+extern int ModeFrame;
+static int autodrive;
+static FILE *autodrive_log;
+
+static unsigned short autodrive_mask(void) {
+    short lateral, track, heading;
+    int error;
+    unsigned short mask;
+
+    if (!autodrive || RaceState < 2 || RaceState > 3)
+        return 0;
+    lateral = *(const short *)(PlayerCars + 0x172);
+    track = *(const short *)(PlayerCars + 0x1EC);
+    heading = (short)*(const int *)(PlayerCars + 0x54);
+    error = lateral / 4;
+    if (error > 256)
+        error = 256;
+    if (error < -256)
+        error = -256;
+    error = ((track - error - heading + 0x800) & 0xFFF) - 0x800;
+    mask = 0x0040; /* cross: accelerate */
+    if (error > 24)
+        mask |= 0x2000; /* right */
+    else if (error < -24)
+        mask |= 0x8000; /* left */
+    if (autodrive_log)
+        fprintf(autodrive_log, "%d %u\n", ModeFrame, mask);
+    return mask;
+}
+
 static void apply_pad_port(int port, long vsync) {
-    unsigned short mask = 0;
+    unsigned short mask = port == 0 ? autodrive_mask() : 0;
     for (int i = 0; i < pad_script_len; i++) {
         if (pad_script[i].port == port && vsync >= pad_script[i].first &&
             vsync < pad_script[i].first + pad_script[i].count)
@@ -295,6 +338,9 @@ int main(int argc, char **argv) {
         trace_every = trace ? strtol(trace, NULL, 10) : 0;
         parse_watch(getenv("RR4_WATCH"));
         parse_pad_script(getenv("RR4_PAD_SCRIPT"));
+        autodrive = getenv("RR4_AUTODRIVE") && atoi(getenv("RR4_AUTODRIVE"));
+        if (autodrive && getenv("RR4_AUTODRIVE_LOG"))
+            autodrive_log = fopen(getenv("RR4_AUTODRIVE_LOG"), "w");
         for (const char *l = getenv("RR4_CAPTURE_AT"); l && *l && capture_at_len < 64;) {
             char *end;
             capture_at[capture_at_len++] = strtol(l, &end, 10);

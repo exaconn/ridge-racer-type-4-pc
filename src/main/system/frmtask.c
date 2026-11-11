@@ -180,7 +180,12 @@ void MainLoop(void) {
         DrawSync(0);
         threshold=VSyncThreshold;
         do {} while (VSync(1)<threshold);
-        VSync(0);
+        if (HostFrameFields > 1) {
+            VSync(HostFrameFields);
+        } else {
+            VSync(0);
+        }
+        HostFrameFields = 1;
         PutDispEnv(&CurrentDrawBuf->buffer.environment00.display5C);
         PutDrawEnv(&CurrentDrawBuf->buffer.environment00.draw00);
         DrawOTag(&CurrentDrawBuf->buffer.ordering70.tags[703]);
@@ -192,5 +197,6 @@ void MainLoop(void) {
 
 /* Initial values of the globals this module owns. */
 u32 FrameCounter;
+s32 HostFrameFields = 1;
 FrameTaskState *ActiveFrameTaskScript;
 s32 FrmTaskState;

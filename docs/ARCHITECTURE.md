@@ -58,7 +58,9 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
    - Provides `libgpu`, `libgte`, `libspu`, `libetc`, `libpad`, `libcd`,
      `libpress` (MDEC) and SDL3 window/audio/input integration.
    - **Rasterizers:** at 1x the CPU rasterizer draws; higher internal
-     resolutions (and `RR4_RASTERIZER=gpu`) use the SDL GPU rasterizer. Both
+     resolutions, the Escape menu enhancements (geometry correction,
+     dithering off, texture filtering, antialiasing) and
+     `RR4_RASTERIZER=gpu` use the SDL GPU rasterizer. Both
      follow the PS1 GPU bit for bit at 1x (checked with GPUDUMP frames
      replayed in DuckStation): fill rule, 12.12 attribute stepping, line
      stepping, dithering, blending, mask bit, CLUT cache, texture windows,
@@ -70,6 +72,12 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      steps inside polygons (each still dithered per VRAM pixel). Sprites,
      rectangles, lines, fills and transfers cover whole blocks; read-backs
      and texture sampling use the native VRAM, which is the 1x result.
+   - **Geometry correction:** the renderers store every projected vertex
+     through `RR_GTE_STORE_SXY` / `RR_SXY_COPY` (`include/rr_asm.h`), so
+     PsyZ finds the precise projection of each packet vertex by its address
+     and draws it at subpixel precision with perspective-correct texturing
+     (PGXP-like); the main loop starts a new generation of them per frame
+     (`Psyz_PgxpNextFrame`). With the option off the packets are unchanged.
 
 ## Repository layout
 

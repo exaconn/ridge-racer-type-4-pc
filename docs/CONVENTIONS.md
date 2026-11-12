@@ -46,6 +46,14 @@ Any remaining inline MIPS is translated the same way: `lwc2/mtc2` write a data
 register, `swc2/mfc2` read one, `ctc2/cfc2` access control registers and a
 `.word 0x4Axxxxxx` command becomes `Psyz_GteCommand(word & 0x1FFFFFF)`.
 
+Projected screen words (SXY0..SXYP) carry PsyZ's precise vertex (subpixel
+x/y and depth, drawn by the geometry correction option) by the address they
+are stored at. Store them with `RR_GTE_STORE_SXY` (or an `rr_asm.h` swc2
+macro), load a stored word back into the GTE with `RR_GTE_LOAD_SXY`, and copy
+one to a cache or a packet with `RR_SXY_COPY` from the location it was stored
+to, not from a by-value local. A plain store still writes the same word, but
+that vertex is drawn snapped to whole pixels with affine texturing.
+
 ### Scratchpad
 
 `SCRATCHPAD` is the host buffer `RrScratchpad` (1 KB, `include/scratchpad.h`).

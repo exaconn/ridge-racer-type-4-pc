@@ -95,15 +95,15 @@ static const MeshQuadGT4 *DrawMeshQuadGT4(const MeshQuadGT4 *p, MeshQuadWork *s)
         if (s->winding > 0) {
             RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, verts + (p->v3 << 3));
             RTPS();
-            t1->xy0 = s->sxy[0];
-            t1->xy1 = s->sxy[1];
+            RR_SXY_COPY(t1->xy0, s->sxy[0]);
+            RR_SXY_COPY(t1->xy1, s->sxy[1]);
             RR_GTE_SWC2_AT(14, 0, &s->sxy3);
             AVSZ4();
             RR_GTE14_SWC2_OTZ(&s->depth);
             s->depth >>= sh;
             if (s->depth < 0x1C1) {
-                t1->xy2 = s->sxy[2];
-                t1->xy3 = s->sxy3;
+                RR_SXY_COPY(t1->xy2, s->sxy[2]);
+                RR_SXY_COPY(t1->xy3, s->sxy3);
                 t1->uvClut0C = p->uvClut18;
                 t1->uvTpage18 = p->uvTpage1C;
                 t1->uv2 = p->uv2;
@@ -136,15 +136,15 @@ static const MeshQuadG4 *DrawMeshQuadG4(const MeshQuadG4 *p, MeshQuadWork *s) {
         if (s->winding > 0) {
             RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, verts + (p->v3 << 3));
             RTPS();
-            t1->xy0 = s->sxy[0];
-            t1->xy1 = s->sxy[1];
+            RR_SXY_COPY(t1->xy0, s->sxy[0]);
+            RR_SXY_COPY(t1->xy1, s->sxy[1]);
             RR_GTE_SWC2_AT(14, 0, &s->sxy3);
             AVSZ4();
             RR_GTE14_SWC2_OTZ(&s->depth);
             s->depth >>= sh;
             if (s->depth < 0x1C1) {
-                t1->xy2 = s->sxy[2];
-                t1->xy3 = s->sxy3;
+                RR_SXY_COPY(t1->xy2, s->sxy[2]);
+                RR_SXY_COPY(t1->xy3, s->sxy3);
                 t1->color14 = p->color10;
                 t1->color1C = p->color14;
                 RR_GPU_ADD_PRIM(MeshQuadOrderEntry(s, (s8)p->otBias19), t1, 8);
@@ -171,8 +171,8 @@ static const MeshQuadF4 *DrawMeshQuadF4(const MeshQuadF4 *p, MeshQuadWork *s) {
         RR_GTE14_SWC2_SXYZ(s->sxy);
         RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, verts + (p->v3 << 3));
         RTPS();
-        t1->xy0 = s->sxy[0];
-        t1->xy1 = s->sxy[1];
+        RR_SXY_COPY(t1->xy0, s->sxy[0]);
+        RR_SXY_COPY(t1->xy1, s->sxy[1]);
         NCLIP();
         RR_GTE_SWC2_AT(14, 0, &s->sxy3);
         RR_GTE_SWC2_AT(24, 0, &s->winding2);
@@ -181,8 +181,8 @@ static const MeshQuadF4 *DrawMeshQuadF4(const MeshQuadF4 *p, MeshQuadWork *s) {
             RR_GTE14_SWC2_OTZ(&s->depth);
             s->depth >>= sh;
             if (s->depth < 0x1C1) {
-                t1->xy2 = s->sxy[2];
-                t1->xy3 = s->sxy3;
+                RR_SXY_COPY(t1->xy2, s->sxy[2]);
+                RR_SXY_COPY(t1->xy3, s->sxy3);
                 RR_GPU_ADD_PRIM(MeshQuadOrderEntry(s, (s8)p->otBias0D), t1, 5);
                 t1++;
             }

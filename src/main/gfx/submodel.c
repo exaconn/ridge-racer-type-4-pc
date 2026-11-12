@@ -195,10 +195,10 @@ static u8 *EmitPolyF4(const RroSceneScratchPrefix *scene, u8 *packet, const u32 
 {
     PolyF4Packet *p = (PolyF4Packet *)packet;
     (void)scene;
-    p->xy0 = sxy[0];
-    p->xy1 = sxy[1];
-    p->xy2 = sxy[2];
-    p->xy3 = sxy[3];
+    RR_SXY_COPY(p->xy0, sxy[0]);
+    RR_SXY_COPY(p->xy1, sxy[1]);
+    RR_SXY_COPY(p->xy2, sxy[2]);
+    RR_SXY_COPY(p->xy3, sxy[3]);
     p->colorCode04 = (s32)face[2];
     RR_GPU_ADD_PRIM(ot + FaceBias(face, 0xD), p, 5);
     return (u8 *)(p + 1);
@@ -210,10 +210,10 @@ static u8 *EmitPolyFT4Raw(const RroSceneScratchPrefix *scene, u8 *packet, const 
                           const s32 sxy[4], GpuDmaTag *ot)
 {
     GpuPolyFT4 *p = (GpuPolyFT4 *)packet;
-    p->words.xy0 = sxy[0];
-    p->words.xy1 = sxy[1];
-    p->words.xy2 = sxy[2];
-    p->words.xy3 = sxy[3];
+    RR_SXY_COPY(p->words.xy0, sxy[0]);
+    RR_SXY_COPY(p->words.xy1, sxy[1]);
+    RR_SXY_COPY(p->words.xy2, sxy[2]);
+    RR_SXY_COPY(p->words.xy3, sxy[3]);
     p->fields.code = 0x2D;
     p->words.uv0 = (s32)(face[2] + (u32)scene->draw74.draw.counter);
     p->words.uv1 = (s32)face[3];
@@ -231,10 +231,10 @@ static u8 *EmitPolyG4(const RroSceneScratchPrefix *scene, u8 *packet, const u32 
 {
     PolyG4WordPacket *p = (PolyG4WordPacket *)packet;
     const Vec3s8 *fourth;
-    p->xy0 = sxy[0];
-    p->xy1 = sxy[1];
-    p->xy2 = sxy[2];
-    p->xy3 = sxy[3];
+    RR_SXY_COPY(p->xy0, sxy[0]);
+    RR_SXY_COPY(p->xy1, sxy[1]);
+    RR_SXY_COPY(p->xy2, sxy[2]);
+    RR_SXY_COPY(p->xy3, sxy[3]);
     RroLoadFaceNormals(scene, face, 2, &fourth);
     gte_mtc2(GTE_RGBC, (s32)face[4]);
     if (RroLightingMode == 0) {
@@ -267,10 +267,10 @@ static u8 *EmitPolyGT4(const RroSceneScratchPrefix *scene, u8 *packet, const u32
 {
     PolyGT4WordPacket *p = (PolyGT4WordPacket *)packet;
     const Vec3s8 *fourth;
-    p->xy0 = sxy[0];
-    p->xy1 = sxy[1];
-    p->xy2 = sxy[2];
-    p->xy3 = sxy[3];
+    RR_SXY_COPY(p->xy0, sxy[0]);
+    RR_SXY_COPY(p->xy1, sxy[1]);
+    RR_SXY_COPY(p->xy2, sxy[2]);
+    RR_SXY_COPY(p->xy3, sxy[3]);
     RroLoadFaceNormals(scene, face, 2, &fourth);
     gte_mtc2(GTE_RGBC, 0x3C808080);
     if (RroLightingMode == 0) {
@@ -313,10 +313,10 @@ static u8 *EmitPolyF4Fog(const RroSceneScratchPrefix *scene, u8 *packet, const u
 {
     PolyF4Packet *p = (PolyF4Packet *)packet;
     (void)scene;
-    p->xy0 = sxy[0];
-    p->xy1 = sxy[1];
-    p->xy2 = sxy[2];
-    p->xy3 = sxy[3];
+    RR_SXY_COPY(p->xy0, sxy[0]);
+    RR_SXY_COPY(p->xy1, sxy[1]);
+    RR_SXY_COPY(p->xy2, sxy[2]);
+    RR_SXY_COPY(p->xy3, sxy[3]);
     gte_mtc2(GTE_RGBC, (s32)face[2]);
     gte_cmd(GTE_DPCS);
     RR_GPU_ADD_PRIM(ot + FaceBias(face, 0xD), p, 5);
@@ -330,10 +330,10 @@ static u8 *EmitPolyFT4Fog(const RroSceneScratchPrefix *scene, u8 *packet, const 
 {
     GpuPolyFT4 *p = (GpuPolyFT4 *)packet;
     (void)scene;
-    p->words.xy0 = sxy[0];
-    p->words.xy1 = sxy[1];
-    p->words.xy2 = sxy[2];
-    p->words.xy3 = sxy[3];
+    RR_SXY_COPY(p->words.xy0, sxy[0]);
+    RR_SXY_COPY(p->words.xy1, sxy[1]);
+    RR_SXY_COPY(p->words.xy2, sxy[2]);
+    RR_SXY_COPY(p->words.xy3, sxy[3]);
     gte_mtc2(GTE_RGBC, (s32)RroFogColorFT4);
     gte_cmd(GTE_DPCS);
     p->words.uv0 = (s32)face[2];
@@ -353,10 +353,10 @@ static u8 *EmitPolyG4Fog(const RroSceneScratchPrefix *scene, u8 *packet, const u
 {
     PolyG4WordPacket *p = (PolyG4WordPacket *)packet;
     const Vec3s8 *fourth;
-    p->xy0 = sxy[0];
-    p->xy1 = sxy[1];
-    p->xy2 = sxy[2];
-    p->xy3 = sxy[3];
+    RR_SXY_COPY(p->xy0, sxy[0]);
+    RR_SXY_COPY(p->xy1, sxy[1]);
+    RR_SXY_COPY(p->xy2, sxy[2]);
+    RR_SXY_COPY(p->xy3, sxy[3]);
     RroLoadFaceNormals(scene, face, 2, &fourth);
     gte_mtc2(GTE_RGBC, (s32)face[4]);
     if (RroLightingMode == 0) {
@@ -391,10 +391,10 @@ static u8 *EmitPolyGT4Fog(const RroSceneScratchPrefix *scene, u8 *packet, const 
 {
     PolyGT4WordPacket *p = (PolyGT4WordPacket *)packet;
     const Vec3s8 *fourth;
-    p->xy0 = sxy[0];
-    p->xy1 = sxy[1];
-    p->xy2 = sxy[2];
-    p->xy3 = sxy[3];
+    RR_SXY_COPY(p->xy0, sxy[0]);
+    RR_SXY_COPY(p->xy1, sxy[1]);
+    RR_SXY_COPY(p->xy2, sxy[2]);
+    RR_SXY_COPY(p->xy3, sxy[3]);
     RroLoadFaceNormals(scene, face, 2, &fourth);
     gte_mtc2(GTE_RGBC, (s32)RroFogColorGT4);
     if (RroLightingMode == 0) {
@@ -471,9 +471,9 @@ static void SubmitModelFaceList(RroSceneScratchPrefix *scene, u32 header, int tw
         } else if (scene->renderFlags64 != 0 && staleV0 >= 0) {
             goto next;
         }
-        sxy[0] = gte_mfc2(GTE_SXY0);
-        sxy[1] = gte_mfc2(GTE_SXY1);
-        sxy[2] = gte_mfc2(GTE_SXY2);
+        RR_GTE_STORE_SXY(GTE_SXY0, &sxy[0]);
+        RR_GTE_STORE_SXY(GTE_SXY1, &sxy[1]);
+        RR_GTE_STORE_SXY(GTE_SXY2, &sxy[2]);
         gte_ldv(0, &vertices[words[1] >> 16]);
         gte_cmd(GTE_RTPS);
         if (twoTri) {
@@ -481,7 +481,7 @@ static void SubmitModelFaceList(RroSceneScratchPrefix *scene, u32 header, int tw
             gte_cmd(GTE_NCLIP);
             if (!(area > 0) && !(gte_mfc2(GTE_MAC0) < 0)) goto next;
         }
-        sxy[3] = gte_mfc2(GTE_SXY2);
+        RR_GTE_STORE_SXY(GTE_SXY2, &sxy[3]);
         gte_cmd(GTE_AVSZ4);
         depth = gte_mfc2(GTE_OTZ);
         if (ScreenQuadOutsideX(scene, sxy)) goto next;
@@ -607,9 +607,9 @@ static const u32 *TransformCourseModel(RroSceneScratchPrefix *scene, s32 modelIn
         gte_ldv(1, &v[i + 1]);
         gte_ldv(2, &v[i + 2]);
         gte_cmd(GTE_RTPT);
-        CourseProjectedXY[i] = gte_mfc2(GTE_SXY0);
-        CourseProjectedXY[i + 1] = gte_mfc2(GTE_SXY1);
-        CourseProjectedXY[i + 2] = gte_mfc2(GTE_SXY2);
+        RR_GTE_STORE_SXY(GTE_SXY0, &CourseProjectedXY[i]);
+        RR_GTE_STORE_SXY(GTE_SXY1, &CourseProjectedXY[i + 1]);
+        RR_GTE_STORE_SXY(GTE_SXY2, &CourseProjectedXY[i + 2]);
         CourseProjectedDepth[i] = (s16)((u32)gte_mfc2(GTE_SZ1) >> shift);
         CourseProjectedDepth[i + 1] = (s16)((u32)gte_mfc2(GTE_SZ2) >> shift);
         CourseProjectedDepth[i + 2] = (s16)((u32)gte_mfc2(GTE_SZ3) >> shift);
@@ -627,16 +627,16 @@ static s32 CourseFaceVisible(const RroSceneScratchPrefix *scene, const u32 *face
     u32 i0 = face[0] & 0xFFFF, i1 = face[0] >> 16;
     u32 i2 = face[1] & 0xFFFF, i3 = face[1] >> 16;
     s32 area, depth;
-    gte_mtc2(GTE_SXY0, CourseProjectedXY[i0]);
-    gte_mtc2(GTE_SXY1, CourseProjectedXY[i1]);
-    gte_mtc2(GTE_SXY2, CourseProjectedXY[i2]);
+    RR_GTE_LOAD_SXY(GTE_SXY0, &CourseProjectedXY[i0]);
+    RR_GTE_LOAD_SXY(GTE_SXY1, &CourseProjectedXY[i1]);
+    RR_GTE_LOAD_SXY(GTE_SXY2, &CourseProjectedXY[i2]);
     gte_cmd(GTE_NCLIP);
     area = gte_mfc2(GTE_MAC0);
     if (scene->renderFlags64 == 0 ? area <= 0 : area >= 0) return -1;
-    sxy[0] = gte_mfc2(GTE_SXY0);
-    sxy[1] = gte_mfc2(GTE_SXY1);
-    sxy[2] = gte_mfc2(GTE_SXY2);
-    sxy[3] = CourseProjectedXY[i3];
+    RR_GTE_STORE_SXY(GTE_SXY0, &sxy[0]);
+    RR_GTE_STORE_SXY(GTE_SXY1, &sxy[1]);
+    RR_GTE_STORE_SXY(GTE_SXY2, &sxy[2]);
+    RR_SXY_COPY(sxy[3], CourseProjectedXY[i3]);
     depth = CourseProjectedDepth[i3] + CourseProjectedDepth[i0];
     if (ScreenQuadOutsideY(scene, sxy) || ScreenQuadOutsideX(scene, sxy)) return -1;
     depth >>= 3;
@@ -661,10 +661,10 @@ static void CourseEmitF4(RroSceneScratchPrefix *scene, u32 count, int fog)
         s32 depth = CourseFaceVisible(scene, face, sxy);
         if (depth >= 0) {
             PolyF4Packet *p = (PolyF4Packet *)packet;
-            p->xy0 = sxy[0];
-            p->xy1 = sxy[1];
-            p->xy2 = sxy[2];
-            p->xy3 = sxy[3];
+            RR_SXY_COPY(p->xy0, sxy[0]);
+            RR_SXY_COPY(p->xy1, sxy[1]);
+            RR_SXY_COPY(p->xy2, sxy[2]);
+            RR_SXY_COPY(p->xy3, sxy[3]);
             if (fog) {
                 CourseFogFromFourthVertex(face);
                 gte_mtc2(GTE_RGBC, (s32)face[2]);
@@ -692,10 +692,10 @@ static void CourseEmitFT4(RroSceneScratchPrefix *scene, u32 count, int fog)
         s32 depth = CourseFaceVisible(scene, face, sxy);
         if (depth >= 0) {
             GpuPolyFT4 *p = (GpuPolyFT4 *)packet;
-            p->words.xy0 = sxy[0];
-            p->words.xy1 = sxy[1];
-            p->words.xy2 = sxy[2];
-            p->words.xy3 = sxy[3];
+            RR_SXY_COPY(p->words.xy0, sxy[0]);
+            RR_SXY_COPY(p->words.xy1, sxy[1]);
+            RR_SXY_COPY(p->words.xy2, sxy[2]);
+            RR_SXY_COPY(p->words.xy3, sxy[3]);
             if (fog) {
                 CourseFogFromFourthVertex(face);
                 gte_mtc2(GTE_RGBC, (s32)face[2]);
@@ -733,10 +733,10 @@ static u8 *CourseEmitTextureWindow(u8 *packet, GpuDmaTag *ot, u32 command)
 static u8 *CourseEmitWholeQuad(const CourseQuad *q, u8 *packet)
 {
     GpuPolyFT4 *p = (GpuPolyFT4 *)packet;
-    p->words.xy0 = q->sxy[0];
-    p->words.xy1 = q->sxy[1];
-    p->words.xy2 = q->sxy[2];
-    p->words.xy3 = q->sxy[3];
+    RR_SXY_COPY(p->words.xy0, q->sxy[0]);
+    RR_SXY_COPY(p->words.xy1, q->sxy[1]);
+    RR_SXY_COPY(p->words.xy2, q->sxy[2]);
+    RR_SXY_COPY(p->words.xy3, q->sxy[3]);
     p->words.uv0 = (s32)CourseQuadUVWord(q, 0, q->clut);
     p->words.uv1 = (s32)CourseQuadUVWord(q, 1, q->tpage);
     p->fields.u2 = q->uv[2][0];
@@ -836,8 +836,8 @@ static u8 *CourseEmitSubdividedQuad(const RroSceneScratchPrefix *scene, CourseQu
         gte_cmd(GTE_RTPT);
         colUV[0] = (u16)(prevLeftUV[0] | (prevLeftUV[1] << 8));
         colUV[1] = (u16)(newLeftUV[0] | (newLeftUV[1] << 8));
-        q->sxy[0] = gte_mfc2(GTE_SXY0);
-        q->sxy[1] = gte_mfc2(GTE_SXY1);
+        RR_GTE_STORE_SXY(GTE_SXY0, &q->sxy[0]);
+        RR_GTE_STORE_SXY(GTE_SXY1, &q->sxy[1]);
         s = 0x1000;
         do {
             s32 x, y, z, visible;
@@ -888,35 +888,35 @@ static u8 *CourseEmitSubdividedQuad(const RroSceneScratchPrefix *scene, CourseQu
                 p->fields.u3 = (u8)uvNew;
                 p->fields.v3 = (u8)(uvNew >> 8);
                 gte_cmd(GTE_RTPT);
-                q->sxy[2] = gte_mfc2(GTE_SXY0);
-                q->sxy[3] = gte_mfc2(GTE_SXY1);
+                RR_GTE_STORE_SXY(GTE_SXY0, &q->sxy[2]);
+                RR_GTE_STORE_SXY(GTE_SXY1, &q->sxy[3]);
                 /* Facing of (current prev-row, current new-row, previous
                  * new-row), else of (current prev-row, previous prev-row,
                  * previous new-row). */
-                gte_mtc2(GTE_SXY0, q->sxy[2]);
-                gte_mtc2(GTE_SXY1, q->sxy[3]);
-                gte_mtc2(GTE_SXY2, q->sxy[1]);
+                RR_GTE_LOAD_SXY(GTE_SXY0, &q->sxy[2]);
+                RR_GTE_LOAD_SXY(GTE_SXY1, &q->sxy[3]);
+                RR_GTE_LOAD_SXY(GTE_SXY2, &q->sxy[1]);
                 gte_cmd(GTE_NCLIP);
                 visible = gte_mfc2(GTE_MAC0);
                 if (scene->renderFlags64 == 0) visible = -visible;
                 if (visible <= 0) {
-                    gte_mtc2(GTE_SXY1, q->sxy[0]);
+                    RR_GTE_LOAD_SXY(GTE_SXY1, &q->sxy[0]);
                     gte_cmd(GTE_NCLIP);
                     visible = gte_mfc2(GTE_MAC0);
-                    gte_mtc2(GTE_SXY1, q->sxy[3]);
+                    RR_GTE_LOAD_SXY(GTE_SXY1, &q->sxy[3]);
                     if (scene->renderFlags64 != 0) visible = -visible;
                 }
                 if (visible > 0 && !ScreenQuadOutsideX(scene, q->sxy) && !ScreenQuadOutsideY(scene, q->sxy)) {
-                    p->words.xy0 = q->sxy[0];
-                    p->words.xy2 = q->sxy[1];
+                    RR_SXY_COPY(p->words.xy0, q->sxy[0]);
+                    RR_SXY_COPY(p->words.xy2, q->sxy[1]);
                     p->words.color04 = (s32)q->color;
                     RR_GPU_ADD_PRIM(q->ot, p, 9);
-                    p->words.xy1 = q->sxy[2];
-                    p->words.xy3 = q->sxy[3];
+                    RR_SXY_COPY(p->words.xy1, q->sxy[2]);
+                    RR_SXY_COPY(p->words.xy3, q->sxy[3]);
                     packet = (u8 *)(p + 1);
                 }
-                q->sxy[0] = q->sxy[2];
-                q->sxy[1] = q->sxy[3];
+                RR_SXY_COPY(q->sxy[0], q->sxy[2]);
+                RR_SXY_COPY(q->sxy[1], q->sxy[3]);
             }
         } while (s != 0);
     } while (t != 0);
@@ -1082,8 +1082,8 @@ static s32 HorizonLodSelect(void) { return ((const s16 *)RrScratchpad)[0x5E / 2]
 static void HorizonLineF2(s32 xy0, s32 xy1)
 {
     LineF2Words *p = (LineF2Words *)Horizon.cursor;
-    p->xy0 = xy0;
-    p->xy1 = xy1;
+    RR_SXY_COPY(p->xy0, xy0);
+    RR_SXY_COPY(p->xy1, xy1);
     p->color = (Horizon.lineColor & 0xFFFFFF) | 0x40000000;
     RR_GPU_ADD_PRIM(Horizon.ot + 20, p, 3);
     Horizon.cursor = (u8 *)(p + 1);
@@ -1092,9 +1092,9 @@ static void HorizonLineF2(s32 xy0, s32 xy1)
 static void HorizonLineF3(s32 xy0, s32 xy1, s32 xy2)
 {
     LineF3Words *p = (LineF3Words *)Horizon.cursor;
-    p->xy0 = xy0;
-    p->xy1 = xy1;
-    p->xy2 = xy2;
+    RR_SXY_COPY(p->xy0, xy0);
+    RR_SXY_COPY(p->xy1, xy1);
+    RR_SXY_COPY(p->xy2, xy2);
     p->color = (Horizon.lineColor & 0xFFFFFF) | 0x48000000;
     p->terminator = GPU_LINE_TERMINATOR;
     RR_GPU_ADD_PRIM(Horizon.ot + 20, p, 5);
@@ -1104,10 +1104,10 @@ static void HorizonLineF3(s32 xy0, s32 xy1, s32 xy2)
 static void HorizonLineF4(s32 xy0, s32 xy1, s32 xy2, s32 xy3)
 {
     LineF4Words *p = (LineF4Words *)Horizon.cursor;
-    p->xy0 = xy0;
-    p->xy1 = xy1;
-    p->xy2 = xy2;
-    p->xy3 = xy3;
+    RR_SXY_COPY(p->xy0, xy0);
+    RR_SXY_COPY(p->xy1, xy1);
+    RR_SXY_COPY(p->xy2, xy2);
+    RR_SXY_COPY(p->xy3, xy3);
     p->color = (Horizon.lineColor & 0xFFFFFF) | 0x4C000000;
     p->terminator = GPU_LINE_TERMINATOR;
     RR_GPU_ADD_PRIM(Horizon.ot + 20, p, 6);
@@ -1152,9 +1152,9 @@ static void HorizonProjectRow(HorizonVertex *row, int last)
         gte_mtc2(GTE_VXY2, row[i + 2].w.xy);
         gte_mtc2(GTE_VZ2, row[i + 2].f.z);
         gte_cmd(GTE_RTPT);
-        row[i].w.xy = gte_mfc2(GTE_SXY0);
-        row[i + 1].w.xy = gte_mfc2(GTE_SXY1);
-        row[i + 2].w.xy = gte_mfc2(GTE_SXY2);
+        RR_GTE_STORE_SXY(GTE_SXY0, &row[i].w.xy);
+        RR_GTE_STORE_SXY(GTE_SXY1, &row[i + 1].w.xy);
+        RR_GTE_STORE_SXY(GTE_SXY2, &row[i + 2].w.xy);
         row[i].f.z = (s16)gte_mfc2(GTE_SZ1);
         row[i + 1].f.z = (s16)gte_mfc2(GTE_SZ2);
         row[i + 2].f.z = (s16)gte_mfc2(GTE_SZ3);
@@ -1258,24 +1258,24 @@ static void HorizonEmitLitGrid(s32 levelU, s32 levelV, const u32 uv[4])
         for (j = 0; j < last; j++) {
             const HorizonVertex *p0 = &prev[j], *p1 = &cur[j], *p2 = &prev[j + 1], *p3 = &cur[j + 1];
             s32 a, b, mirror;
-            gte_mtc2(GTE_SXY0, p0->w.xy);
-            gte_mtc2(GTE_SXY1, p1->w.xy);
-            gte_mtc2(GTE_SXY2, p2->w.xy);
+            RR_GTE_LOAD_SXY(GTE_SXY0, &p0->w.xy);
+            RR_GTE_LOAD_SXY(GTE_SXY1, &p1->w.xy);
+            RR_GTE_LOAD_SXY(GTE_SXY2, &p2->w.xy);
             gte_cmd(GTE_NCLIP);
             if (QuadOutsideViewport(scene, ScreenX(p0->w.xy), ScreenX(p1->w.xy), ScreenX(p2->w.xy), ScreenX(p3->w.xy),
                                     ScreenY(p0->w.xy), ScreenY(p1->w.xy), ScreenY(p2->w.xy), ScreenY(p3->w.xy)))
                 continue;
             a = gte_mfc2(GTE_MAC0);
-            gte_mtc2(GTE_SXY0, p3->w.xy);
+            RR_GTE_LOAD_SXY(GTE_SXY0, &p3->w.xy);
             gte_cmd(GTE_NCLIP);
             b = gte_mfc2(GTE_MAC0);
             mirror = 0 < scene->renderFlags64;
             if (((0 < a) ^ mirror) | ((b < 0) ^ mirror)) {
                 PolyGT4WordPacket *p = (PolyGT4WordPacket *)Horizon.cursor;
-                p->xy0 = p0->w.xy;
-                p->xy1 = p1->w.xy;
-                p->xy2 = p2->w.xy;
-                p->xy3 = p3->w.xy;
+                RR_SXY_COPY(p->xy0, p0->w.xy);
+                RR_SXY_COPY(p->xy1, p1->w.xy);
+                RR_SXY_COPY(p->xy2, p2->w.xy);
+                RR_SXY_COPY(p->xy3, p3->w.xy);
                 p->uvClut0C = (s32)(((u32)Horizon.clut << 16) | p0->w.uv);
                 p->uvTpage18 = (s32)(((u32)Horizon.tpage << 16) | p1->w.uv);
                 p->uv2 = p2->w.uv;
@@ -1346,9 +1346,9 @@ static void HorizonPassLitTiles(const VisibleCourseViews *views)
             HorizonSetCorner(2, tile->xy2, tile->z2z3 & 0xFFFF, tile->color[2]);
             HorizonSetCorner(3, tile->xy3, tile->z2z3 >> 16, tile->color[3]);
             gte_cmd(GTE_RTPT);
-            Horizon.sxy[0] = gte_mfc2(GTE_SXY0);
-            Horizon.sxy[1] = gte_mfc2(GTE_SXY1);
-            Horizon.sxy[2] = gte_mfc2(GTE_SXY2);
+            RR_GTE_STORE_SXY(GTE_SXY0, &Horizon.sxy[0]);
+            RR_GTE_STORE_SXY(GTE_SXY1, &Horizon.sxy[1]);
+            RR_GTE_STORE_SXY(GTE_SXY2, &Horizon.sxy[2]);
             flagsGte = (u32)gte_cfc2(GTE_FLAG);
             gte_cmd(GTE_NCLIP);
             area0 = gte_mfc2(GTE_MAC0);
@@ -1357,7 +1357,7 @@ static void HorizonPassLitTiles(const VisibleCourseViews *views)
             gte_cmd(GTE_RTPS);
             Horizon.otBias = tile->flags24 >> 8;
             Horizon.lineColor = tile->lineColor2C;
-            Horizon.sxy[3] = gte_mfc2(GTE_SXY2);
+            RR_GTE_STORE_SXY(GTE_SXY2, &Horizon.sxy[3]);
             flagsGte |= (u32)gte_cfc2(GTE_FLAG);
             gte_cmd(GTE_NCLIP);
             Horizon.lineFlags = (flagsGte >> 31) | ((tile->lineColor2C >> 31) << 1);
@@ -1408,10 +1408,10 @@ static void HorizonPassLitTiles(const VisibleCourseViews *views)
                 p->words.uv1 = (s32)uvs[1];
                 p->words.uv2 = (s32)(((u32)p->words.uv2 & 0xFFFF0000) | uvs[2]);
                 p->words.uv3 = (s32)(((u32)p->words.uv3 & 0xFFFF0000) | uvs[3]);
-                p->words.xy0 = Horizon.sxy[0];
-                p->words.xy1 = Horizon.sxy[1];
-                p->words.xy2 = Horizon.sxy[2];
-                p->words.xy3 = Horizon.sxy[3];
+                RR_SXY_COPY(p->words.xy0, Horizon.sxy[0]);
+                RR_SXY_COPY(p->words.xy1, Horizon.sxy[1]);
+                RR_SXY_COPY(p->words.xy2, Horizon.sxy[2]);
+                RR_SXY_COPY(p->words.xy3, Horizon.sxy[3]);
                 p->words.color04 = (s32)Horizon.corner[0].w.color;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
                 Horizon.cursor = (u8 *)(p + 1);
@@ -1425,10 +1425,10 @@ static void HorizonPassLitTiles(const VisibleCourseViews *views)
                 p->uvTpage18 = (s32)uvs[1];
                 p->uv2 = (u16)uvs[2];
                 p->uv3 = (u16)uvs[3];
-                p->xy0 = Horizon.sxy[0];
-                p->xy1 = Horizon.sxy[1];
-                p->xy2 = Horizon.sxy[2];
-                p->xy3 = Horizon.sxy[3];
+                RR_SXY_COPY(p->xy0, Horizon.sxy[0]);
+                RR_SXY_COPY(p->xy1, Horizon.sxy[1]);
+                RR_SXY_COPY(p->xy2, Horizon.sxy[2]);
+                RR_SXY_COPY(p->xy3, Horizon.sxy[3]);
                 p->color04 = (s32)Horizon.corner[0].w.color;
                 p->color10 = (s32)Horizon.corner[1].w.color;
                 p->color1C = (s32)Horizon.corner[2].w.color;
@@ -1513,9 +1513,9 @@ static int HorizonProjectTile(const HorizonSectionTile *t, HorizonTileState *st)
     gte_mtc2(GTE_VZ2, (s32)t->z[2]);
     gte_cmd(GTE_RTPT);
     Horizon.otBias = (s32)(t->flags >> 8);
-    Horizon.sxy[0] = gte_mfc2(GTE_SXY0);
-    Horizon.sxy[1] = gte_mfc2(GTE_SXY1);
-    Horizon.sxy[2] = gte_mfc2(GTE_SXY2);
+    RR_GTE_STORE_SXY(GTE_SXY0, &Horizon.sxy[0]);
+    RR_GTE_STORE_SXY(GTE_SXY1, &Horizon.sxy[1]);
+    RR_GTE_STORE_SXY(GTE_SXY2, &Horizon.sxy[2]);
     flagsGte = (u32)gte_cfc2(GTE_FLAG);
     gte_cmd(GTE_NCLIP);
     Horizon.lineColor = t->lineColor;
@@ -1523,7 +1523,7 @@ static int HorizonProjectTile(const HorizonSectionTile *t, HorizonTileState *st)
     gte_mtc2(GTE_VXY0, t->xy[3]);
     gte_mtc2(GTE_VZ0, (s32)t->z[3]);
     gte_cmd(GTE_RTPS);
-    Horizon.sxy[3] = gte_mfc2(GTE_SXY2);
+    RR_GTE_STORE_SXY(GTE_SXY2, &Horizon.sxy[3]);
     flagsGte |= (u32)gte_cfc2(GTE_FLAG);
     gte_cmd(GTE_NCLIP);
     Horizon.lineFlags = (flagsGte >> 31) | ((t->lineColor >> 31) << 1);
@@ -1599,10 +1599,10 @@ static void HorizonEmitTileFT4(const u32 uvs[4], u32 color, int windowed, u32 wi
     p->fields.v2 = (u8)(uvs[2] >> 8);
     p->fields.u3 = (u8)uvs[3];
     p->fields.v3 = (u8)(uvs[3] >> 8);
-    p->words.xy0 = Horizon.sxy[0];
-    p->words.xy1 = Horizon.sxy[1];
-    p->words.xy2 = Horizon.sxy[2];
-    p->words.xy3 = Horizon.sxy[3];
+    RR_SXY_COPY(p->words.xy0, Horizon.sxy[0]);
+    RR_SXY_COPY(p->words.xy1, Horizon.sxy[1]);
+    RR_SXY_COPY(p->words.xy2, Horizon.sxy[2]);
+    RR_SXY_COPY(p->words.xy3, Horizon.sxy[3]);
     p->words.color04 = (s32)color;
     RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
     Horizon.cursor = (u8 *)(p + 1);
@@ -1619,10 +1619,10 @@ static void HorizonEmitTileGT4(const u32 uvs[4], const u32 colors[4], int window
     p->uvTpage18 = (s32)uvs[1];
     p->uv2 = (u16)uvs[2];
     p->uv3 = (u16)uvs[3];
-    p->xy0 = Horizon.sxy[0];
-    p->xy1 = Horizon.sxy[1];
-    p->xy2 = Horizon.sxy[2];
-    p->xy3 = Horizon.sxy[3];
+    RR_SXY_COPY(p->xy0, Horizon.sxy[0]);
+    RR_SXY_COPY(p->xy1, Horizon.sxy[1]);
+    RR_SXY_COPY(p->xy2, Horizon.sxy[2]);
+    RR_SXY_COPY(p->xy3, Horizon.sxy[3]);
     p->color04 = (s32)colors[0];
     p->color10 = (s32)colors[1];
     p->color1C = (s32)colors[2];
@@ -1719,24 +1719,24 @@ static void HorizonEmitFlatGrid(s32 levelU, s32 levelV, const u32 uv[4])
         for (j = 0; j < last; j++) {
             const HorizonVertex *p0 = &prev[j], *p1 = &cur[j], *p2 = &prev[j + 1], *p3 = &cur[j + 1];
             s32 a, b, mirror;
-            gte_mtc2(GTE_SXY0, p0->w.xy);
-            gte_mtc2(GTE_SXY1, p1->w.xy);
-            gte_mtc2(GTE_SXY2, p2->w.xy);
+            RR_GTE_LOAD_SXY(GTE_SXY0, &p0->w.xy);
+            RR_GTE_LOAD_SXY(GTE_SXY1, &p1->w.xy);
+            RR_GTE_LOAD_SXY(GTE_SXY2, &p2->w.xy);
             gte_cmd(GTE_NCLIP);
             if (QuadOutsideViewport(scene, ScreenX(p0->w.xy), ScreenX(p1->w.xy), ScreenX(p2->w.xy), ScreenX(p3->w.xy),
                                     ScreenY(p0->w.xy), ScreenY(p1->w.xy), ScreenY(p2->w.xy), ScreenY(p3->w.xy)))
                 continue;
             a = gte_mfc2(GTE_MAC0);
-            gte_mtc2(GTE_SXY0, p3->w.xy);
+            RR_GTE_LOAD_SXY(GTE_SXY0, &p3->w.xy);
             gte_cmd(GTE_NCLIP);
             b = gte_mfc2(GTE_MAC0);
             mirror = 0 < scene->renderFlags64;
             if (((0 < a) ^ mirror) | ((b < 0) ^ mirror)) {
                 GpuPolyFT4 *p = (GpuPolyFT4 *)Horizon.cursor;
-                p->words.xy0 = p0->w.xy;
-                p->words.xy1 = p1->w.xy;
-                p->words.xy2 = p2->w.xy;
-                p->words.xy3 = p3->w.xy;
+                RR_SXY_COPY(p->words.xy0, p0->w.xy);
+                RR_SXY_COPY(p->words.xy1, p1->w.xy);
+                RR_SXY_COPY(p->words.xy2, p2->w.xy);
+                RR_SXY_COPY(p->words.xy3, p3->w.xy);
                 p->words.uv0 = (s32)(((u32)Horizon.clut << 16) | p0->w.uv);
                 p->words.uv1 = (s32)(((u32)Horizon.tpage << 16) | p1->w.uv);
                 p->fields.u2 = (u8)p2->w.uv;
@@ -1979,9 +1979,9 @@ static int HorizonTileProject6(s32 xy0, u32 z0z1, s32 xy1, s32 xy2, u32 z2z3, s3
     HorizonSetCorner(2, xy2, z2z3 & 0xFFFF, Horizon.corner[2].w.color);
     HorizonSetCorner(3, xy3, z2z3 >> 16, Horizon.corner[3].w.color);
     gte_cmd(GTE_RTPT);
-    Horizon.sxy[0] = gte_mfc2(GTE_SXY0);
-    Horizon.sxy[1] = gte_mfc2(GTE_SXY1);
-    Horizon.sxy[2] = gte_mfc2(GTE_SXY2);
+    RR_GTE_STORE_SXY(GTE_SXY0, &Horizon.sxy[0]);
+    RR_GTE_STORE_SXY(GTE_SXY1, &Horizon.sxy[1]);
+    RR_GTE_STORE_SXY(GTE_SXY2, &Horizon.sxy[2]);
     flagsGte = (u32)gte_cfc2(GTE_FLAG);
     gte_cmd(GTE_NCLIP);
     area0 = gte_mfc2(GTE_MAC0);
@@ -1990,7 +1990,7 @@ static int HorizonTileProject6(s32 xy0, u32 z0z1, s32 xy1, s32 xy2, u32 z2z3, s3
     gte_cmd(GTE_RTPS);
     Horizon.otBias = flags24 >> 8;
     Horizon.lineColor = lineColor;
-    Horizon.sxy[3] = gte_mfc2(GTE_SXY2);
+    RR_GTE_STORE_SXY(GTE_SXY2, &Horizon.sxy[3]);
     flagsGte |= (u32)gte_cfc2(GTE_FLAG);
     gte_cmd(GTE_NCLIP);
     Horizon.lineFlags = (flagsGte >> 31) | ((lineColor >> 31) << 1);
@@ -2060,10 +2060,10 @@ static void HorizonEmitPlainFT4(const u32 uvs[4], u32 color)
     p->fields.v2 = (u8)(uvs[2] >> 8);
     p->fields.u3 = (u8)uvs[3];
     p->fields.v3 = (u8)(uvs[3] >> 8);
-    p->words.xy0 = Horizon.sxy[0];
-    p->words.xy1 = Horizon.sxy[1];
-    p->words.xy2 = Horizon.sxy[2];
-    p->words.xy3 = Horizon.sxy[3];
+    RR_SXY_COPY(p->words.xy0, Horizon.sxy[0]);
+    RR_SXY_COPY(p->words.xy1, Horizon.sxy[1]);
+    RR_SXY_COPY(p->words.xy2, Horizon.sxy[2]);
+    RR_SXY_COPY(p->words.xy3, Horizon.sxy[3]);
     p->words.color04 = (s32)color;
     RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
     Horizon.cursor = (u8 *)(p + 1);
@@ -2076,10 +2076,10 @@ static void HorizonEmitPlainGT4(const u32 uvs[4], const u32 color[4])
     p->uvTpage18 = (s32)uvs[1];
     p->uv2 = (u16)uvs[2];
     p->uv3 = (u16)uvs[3];
-    p->xy0 = Horizon.sxy[0];
-    p->xy1 = Horizon.sxy[1];
-    p->xy2 = Horizon.sxy[2];
-    p->xy3 = Horizon.sxy[3];
+    RR_SXY_COPY(p->xy0, Horizon.sxy[0]);
+    RR_SXY_COPY(p->xy1, Horizon.sxy[1]);
+    RR_SXY_COPY(p->xy2, Horizon.sxy[2]);
+    RR_SXY_COPY(p->xy3, Horizon.sxy[3]);
     p->color04 = (s32)color[0];
     p->color10 = (s32)color[1];
     p->color1C = (s32)color[2];
@@ -2322,14 +2322,14 @@ static void HorizonEmitBillboards(const VisibleCourseViews *views, int section, 
             gte_mtc2(GTE_VXY2, b->xy2);
             gte_mtc2(GTE_VZ2, b->z2);
             gte_cmd(GTE_RTPT);
-            Horizon.sxy[0] = gte_mfc2(GTE_SXY0);
+            RR_GTE_STORE_SXY(GTE_SXY0, &Horizon.sxy[0]);
             if ((u32)gte_cfc2(GTE_FLAG) >> 31) continue;
-            Horizon.sxy[1] = gte_mfc2(GTE_SXY1);
-            Horizon.sxy[2] = gte_mfc2(GTE_SXY2);
+            RR_GTE_STORE_SXY(GTE_SXY1, &Horizon.sxy[1]);
+            RR_GTE_STORE_SXY(GTE_SXY2, &Horizon.sxy[2]);
             gte_mtc2(GTE_VXY0, b->xy3);
             gte_mtc2(GTE_VZ0, b->z3);
             gte_cmd(GTE_RTPS);
-            Horizon.sxy[3] = gte_mfc2(GTE_SXY2);
+            RR_GTE_STORE_SXY(GTE_SXY2, &Horizon.sxy[3]);
             if ((u32)gte_cfc2(GTE_FLAG) >> 31) continue;
             gte_cmd(GTE_AVSZ4);
             /* QuadOffscreenTestVerts0/1 */
@@ -2485,9 +2485,9 @@ static int HorizonTriVisible(const HorizonTriVertex *a, const HorizonTriVertex *
                              const HorizonTriVertex *c)
 {
     s32 area;
-    gte_mtc2(GTE_SXY0, a->sxy);
-    gte_mtc2(GTE_SXY1, b->sxy);
-    gte_mtc2(GTE_SXY2, c->sxy);
+    RR_GTE_LOAD_SXY(GTE_SXY0, &a->sxy);
+    RR_GTE_LOAD_SXY(GTE_SXY1, &b->sxy);
+    RR_GTE_LOAD_SXY(GTE_SXY2, &c->sxy);
     gte_cmd(GTE_NCLIP);
     if (HorizonTriOutside(a, b, c)) return 0;
     area = gte_mfc2(GTE_MAC0);
@@ -2502,9 +2502,9 @@ static void HorizonTriEmitGT3(const HorizonTriVertex *a, const HorizonTriVertex 
     p->uvClut = ((u32)Horizon.clut << 16) | a->uv;
     p->uvTpage = ((u32)Horizon.tpage << 16) | b->uv;
     p->uv2 = c->uv;
-    p->xy0 = a->sxy;
-    p->xy1 = b->sxy;
-    p->xy2 = c->sxy;
+    RR_SXY_COPY(p->xy0, a->sxy);
+    RR_SXY_COPY(p->xy1, b->sxy);
+    RR_SXY_COPY(p->xy2, c->sxy);
     p->color0 = (s32)a->color;
     p->color1 = (s32)b->color;
     p->color2 = (s32)c->color;
@@ -2559,9 +2559,9 @@ static void HorizonTriSplit(const HorizonTriVertex *a, const HorizonTriVertex *b
     gte_mtc2(GTE_VXY2, (s32)(((u32)(u16)m[2].x) | ((u32)(u16)m[2].y << 16)));
     gte_mtc2(GTE_VZ2, m[2].z);
     gte_cmd(GTE_RTPT);
-    m[0].sxy = gte_mfc2(GTE_SXY0);
-    m[1].sxy = gte_mfc2(GTE_SXY1);
-    m[2].sxy = gte_mfc2(GTE_SXY2);
+    RR_GTE_STORE_SXY(GTE_SXY0, &m[0].sxy);
+    RR_GTE_STORE_SXY(GTE_SXY1, &m[1].sxy);
+    RR_GTE_STORE_SXY(GTE_SXY2, &m[2].sxy);
     m[0].sz = gte_mfc2(GTE_SZ1);
     m[1].sz = gte_mfc2(GTE_SZ2);
     m[2].sz = gte_mfc2(GTE_SZ3);
@@ -2671,9 +2671,9 @@ static void HorizonPassTris(const VisibleCourseViews *views, int section,
                 v[i].uv = 0;
                 v[i].color = t->color[i];
             }
-            v[0].sxy = gte_mfc2(GTE_SXY0);
-            v[1].sxy = gte_mfc2(GTE_SXY1);
-            v[2].sxy = gte_mfc2(GTE_SXY2);
+            RR_GTE_STORE_SXY(GTE_SXY0, &v[0].sxy);
+            RR_GTE_STORE_SXY(GTE_SXY1, &v[1].sxy);
+            RR_GTE_STORE_SXY(GTE_SXY2, &v[2].sxy);
             flagsGte = (u32)gte_cfc2(GTE_FLAG);
             gte_cmd(GTE_NCLIP);
             area = gte_mfc2(GTE_MAC0);
@@ -2733,9 +2733,9 @@ static void HorizonPassTris(const VisibleCourseViews *views, int section,
                 p->uvClut = uv0;
                 p->uvTpage = uv1;
                 p->uv2 = (u16)uv2;
-                p->xy0 = v[0].sxy;
-                p->xy1 = v[1].sxy;
-                p->xy2 = v[2].sxy;
+                RR_SXY_COPY(p->xy0, v[0].sxy);
+                RR_SXY_COPY(p->xy1, v[1].sxy);
+                RR_SXY_COPY(p->xy2, v[2].sxy);
                 if (windowed) {
                     GpuDrawModePacket *set = (GpuDrawModePacket *)(p + 1);
                     (void)CourseEmitTextureWindow((u8 *)reset, Horizon.ot, 0xE2000000);
@@ -2762,9 +2762,9 @@ static void HorizonPassTris(const VisibleCourseViews *views, int section,
                 p->uvClut = uv0;
                 p->uvTpage = uv1;
                 p->uv2 = (u16)uv2;
-                p->xy0 = v[0].sxy;
-                p->xy1 = v[1].sxy;
-                p->xy2 = v[2].sxy;
+                RR_SXY_COPY(p->xy0, v[0].sxy);
+                RR_SXY_COPY(p->xy1, v[1].sxy);
+                RR_SXY_COPY(p->xy2, v[2].sxy);
                 p->color0 = rgb[0];
                 p->color1 = rgb[1];
                 p->color2 = rgb[2];
@@ -2891,9 +2891,9 @@ static void HorizonC8InterpRow(HorizonVertex *row, int last, s32 step)
             gte_mtc2(GTE_VXY2, row[i + 2].w.xy);
             gte_mtc2(GTE_VZ2, row[i + 2].f.z);
             gte_cmd(GTE_RTPT);
-            sxy0 = gte_mfc2(GTE_SXY0);
-            sxy1 = gte_mfc2(GTE_SXY1);
-            sxy2 = gte_mfc2(GTE_SXY2);
+            RR_GTE_STORE_SXY(GTE_SXY0, &sxy0);
+            RR_GTE_STORE_SXY(GTE_SXY1, &sxy1);
+            RR_GTE_STORE_SXY(GTE_SXY2, &sxy2);
             sz1 = gte_mfc2(GTE_SZ1);
             sz2 = gte_mfc2(GTE_SZ2);
             sz3 = gte_mfc2(GTE_SZ3);
@@ -2967,10 +2967,10 @@ static void HorizonC8Grid(s32 levelU, s32 levelV, const u32 uv[4])
                 continue;
             if (Horizon.lineFlags & 8) {
                 PolyGT4WordPacket *p = (PolyGT4WordPacket *)Horizon.cursor;
-                p->xy0 = p0->w.xy;
-                p->xy1 = p1->w.xy;
-                p->xy2 = p2->w.xy;
-                p->xy3 = p3->w.xy;
+                RR_SXY_COPY(p->xy0, p0->w.xy);
+                RR_SXY_COPY(p->xy1, p1->w.xy);
+                RR_SXY_COPY(p->xy2, p2->w.xy);
+                RR_SXY_COPY(p->xy3, p3->w.xy);
                 p->uvClut0C = (s32)(((u32)Horizon.clut << 16) | p0->w.uv);
                 p->uvTpage18 = (s32)(((u32)Horizon.tpage << 16) | p1->w.uv);
                 p->uv2 = p2->w.uv;
@@ -2983,10 +2983,10 @@ static void HorizonC8Grid(s32 levelU, s32 levelV, const u32 uv[4])
                 Horizon.cursor = (u8 *)(p + 1);
             } else {
                 PolyF4Packet *p = (PolyF4Packet *)Horizon.cursor;
-                p->xy0 = p0->w.xy;
-                p->xy1 = p1->w.xy;
-                p->xy2 = p2->w.xy;
-                p->xy3 = p3->w.xy;
+                RR_SXY_COPY(p->xy0, p0->w.xy);
+                RR_SXY_COPY(p->xy1, p1->w.xy);
+                RR_SXY_COPY(p->xy2, p2->w.xy);
+                RR_SXY_COPY(p->xy3, p3->w.xy);
                 p->colorCode04 = 0x28000000;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 5);
                 Horizon.cursor = (u8 *)(p + 1);
@@ -3063,9 +3063,9 @@ static void HorizonC8Pass(const VisibleCourseViews *views, int section, u32 stri
             Horizon.corner[0].w.color = w[11];
             Horizon.lineColor = w[10];
             Horizon.otBias = (s32)(flags24 >> 8);
-            Horizon.sxy[0] = gte_mfc2(GTE_SXY0);
-            Horizon.sxy[1] = gte_mfc2(GTE_SXY1);
-            Horizon.sxy[2] = gte_mfc2(GTE_SXY2);
+            RR_GTE_STORE_SXY(GTE_SXY0, &Horizon.sxy[0]);
+            RR_GTE_STORE_SXY(GTE_SXY1, &Horizon.sxy[1]);
+            RR_GTE_STORE_SXY(GTE_SXY2, &Horizon.sxy[2]);
             flagsGte = (u32)gte_cfc2(GTE_FLAG);
             gte_cmd(GTE_NCLIP);
             area0 = gte_mfc2(GTE_MAC0);
@@ -3076,7 +3076,7 @@ static void HorizonC8Pass(const VisibleCourseViews *views, int section, u32 stri
             uvs[1] = w[7];
             uvs[2] = w[8] & 0xFFFF;
             uvs[3] = w[8] >> 16;
-            Horizon.sxy[3] = gte_mfc2(GTE_SXY2);
+            RR_GTE_STORE_SXY(GTE_SXY2, &Horizon.sxy[3]);
             flagsGte |= (u32)gte_cfc2(GTE_FLAG);
             gte_cmd(GTE_NCLIP);
             Horizon.lineFlags = (flagsGte >> 31) | ((w[10] >> 31) << 1);
@@ -3119,9 +3119,9 @@ static void HorizonC8Pass(const VisibleCourseViews *views, int section, u32 stri
                     HorizonC8LoadCameraMatrix();
                     continue;
                 }
-                alt[0] = gte_mfc2(GTE_SXY0);
-                alt[1] = gte_mfc2(GTE_SXY1);
-                alt[2] = gte_mfc2(GTE_SXY2);
+                RR_GTE_STORE_SXY(GTE_SXY0, &alt[0]);
+                RR_GTE_STORE_SXY(GTE_SXY1, &alt[1]);
+                RR_GTE_STORE_SXY(GTE_SXY2, &alt[2]);
                 gte_cmd(GTE_NCLIP);
                 altArea0 = gte_mfc2(GTE_MAC0);
                 gte_mtc2(GTE_VXY0, Horizon.corner[3].w.xy);
@@ -3132,7 +3132,7 @@ static void HorizonC8Pass(const VisibleCourseViews *views, int section, u32 stri
                     continue;
                 }
                 Horizon.ot = RenderOrderBase() + depth + Horizon.otBias;
-                alt[3] = gte_mfc2(GTE_SXY2);
+                RR_GTE_STORE_SXY(GTE_SXY2, &alt[3]);
                 gte_cmd(GTE_NCLIP);
                 altArea1 = gte_mfc2(GTE_MAC0);
                 gte_cmd(GTE_AVSZ4);
@@ -3196,10 +3196,10 @@ static void HorizonC8Pass(const VisibleCourseViews *views, int section, u32 stri
                 p->uvTpage18 = (s32)uvs[1];
                 p->uv2 = (u16)uvs[2];
                 p->uv3 = (u16)uvs[3];
-                p->xy0 = Horizon.sxy[0];
-                p->xy1 = Horizon.sxy[1];
-                p->xy2 = Horizon.sxy[2];
-                p->xy3 = Horizon.sxy[3];
+                RR_SXY_COPY(p->xy0, Horizon.sxy[0]);
+                RR_SXY_COPY(p->xy1, Horizon.sxy[1]);
+                RR_SXY_COPY(p->xy2, Horizon.sxy[2]);
+                RR_SXY_COPY(p->xy3, Horizon.sxy[3]);
                 p->color04 = (s32)Horizon.corner[0].w.color;
                 p->color10 = (s32)Horizon.corner[1].w.color;
                 p->color1C = (s32)Horizon.corner[2].w.color;
@@ -3209,10 +3209,10 @@ static void HorizonC8Pass(const VisibleCourseViews *views, int section, u32 stri
                 if (windowed) HorizonC8State(0xE2000000, w[12]);
             } else {
                 PolyF4Packet *p = (PolyF4Packet *)Horizon.cursor;
-                p->xy0 = Horizon.sxy[0];
-                p->xy1 = Horizon.sxy[1];
-                p->xy2 = Horizon.sxy[2];
-                p->xy3 = Horizon.sxy[3];
+                RR_SXY_COPY(p->xy0, Horizon.sxy[0]);
+                RR_SXY_COPY(p->xy1, Horizon.sxy[1]);
+                RR_SXY_COPY(p->xy2, Horizon.sxy[2]);
+                RR_SXY_COPY(p->xy3, Horizon.sxy[3]);
                 p->colorCode04 = 0x28000000;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 5);
                 Horizon.cursor = (u8 *)(p + 1);
@@ -3315,10 +3315,10 @@ static void HorizonC7WholeFT4(const u32 uvs[4], s32 color)
     p->fields.v2 = (u8)(uvs[2] >> 8);
     p->fields.u3 = (u8)uvs[3];
     p->fields.v3 = (u8)(uvs[3] >> 8);
-    p->words.xy0 = Horizon.sxy[0];
-    p->words.xy1 = Horizon.sxy[1];
-    p->words.xy2 = Horizon.sxy[2];
-    p->words.xy3 = Horizon.sxy[3];
+    RR_SXY_COPY(p->words.xy0, Horizon.sxy[0]);
+    RR_SXY_COPY(p->words.xy1, Horizon.sxy[1]);
+    RR_SXY_COPY(p->words.xy2, Horizon.sxy[2]);
+    RR_SXY_COPY(p->words.xy3, Horizon.sxy[3]);
     p->words.color04 = color;
     RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
     Horizon.cursor = (u8 *)(p + 1);
@@ -3347,9 +3347,9 @@ static int HorizonC7Front(const s32 pos[4], const u32 zw[2], u32 tileFlags, s32 
     HorizonSetCorner(2, pos[2], zw[1] & 0xFFFF, Horizon.corner[2].w.color);
     HorizonSetCorner(3, pos[3], zw[1] >> 16, Horizon.corner[3].w.color);
     gte_cmd(GTE_RTPT);
-    Horizon.sxy[0] = gte_mfc2(GTE_SXY0);
-    Horizon.sxy[1] = gte_mfc2(GTE_SXY1);
-    Horizon.sxy[2] = gte_mfc2(GTE_SXY2);
+    RR_GTE_STORE_SXY(GTE_SXY0, &Horizon.sxy[0]);
+    RR_GTE_STORE_SXY(GTE_SXY1, &Horizon.sxy[1]);
+    RR_GTE_STORE_SXY(GTE_SXY2, &Horizon.sxy[2]);
     flagsGte = (u32)gte_cfc2(GTE_FLAG);
     gte_cmd(GTE_NCLIP);
     area0 = gte_mfc2(GTE_MAC0);
@@ -3358,7 +3358,7 @@ static int HorizonC7Front(const s32 pos[4], const u32 zw[2], u32 tileFlags, s32 
     gte_cmd(GTE_RTPS);
     Horizon.otBias = tileFlags >> 8;
     Horizon.lineColor = lineColor;
-    Horizon.sxy[3] = gte_mfc2(GTE_SXY2);
+    RR_GTE_STORE_SXY(GTE_SXY2, &Horizon.sxy[3]);
     flagsGte |= (u32)gte_cfc2(GTE_FLAG);
     gte_cmd(GTE_NCLIP);
     Horizon.lineFlags = (flagsGte >> 31) | ((lineColor >> 31) << 1);
@@ -3480,10 +3480,10 @@ static void HorizonPassNormalTiles(const VisibleCourseViews *views, int section,
                 p->uvTpage18 = (s32)uvs[1];
                 p->uv2 = (u16)uvs[2];
                 p->uv3 = (u16)uvs[3];
-                p->xy0 = Horizon.sxy[0];
-                p->xy1 = Horizon.sxy[1];
-                p->xy2 = Horizon.sxy[2];
-                p->xy3 = Horizon.sxy[3];
+                RR_SXY_COPY(p->xy0, Horizon.sxy[0]);
+                RR_SXY_COPY(p->xy1, Horizon.sxy[1]);
+                RR_SXY_COPY(p->xy2, Horizon.sxy[2]);
+                RR_SXY_COPY(p->xy3, Horizon.sxy[3]);
                 p->color04 = gte_mfc2(GTE_RGB0);
                 p->color10 = gte_mfc2(GTE_RGB1);
                 p->color1C = gte_mfc2(GTE_RGB2);
@@ -3572,24 +3572,24 @@ static void HorizonEmitFlatGridC7(s32 levelU, s32 levelV, const u32 uv[4])
         for (j = 0; j < last; j++) {
             const HorizonVertex *p0 = &prev[j], *p1 = &cur[j], *p2 = &prev[j + 1], *p3 = &cur[j + 1];
             s32 a, b, mirror;
-            gte_mtc2(GTE_SXY0, p0->w.xy);
-            gte_mtc2(GTE_SXY1, p1->w.xy);
-            gte_mtc2(GTE_SXY2, p2->w.xy);
+            RR_GTE_LOAD_SXY(GTE_SXY0, &p0->w.xy);
+            RR_GTE_LOAD_SXY(GTE_SXY1, &p1->w.xy);
+            RR_GTE_LOAD_SXY(GTE_SXY2, &p2->w.xy);
             gte_cmd(GTE_NCLIP);
             if (QuadOutsideViewport(scene, ScreenX(p0->w.xy), ScreenX(p1->w.xy), ScreenX(p2->w.xy), ScreenX(p3->w.xy),
                                     ScreenY(p0->w.xy), ScreenY(p1->w.xy), ScreenY(p2->w.xy), ScreenY(p3->w.xy)))
                 continue;
             a = gte_mfc2(GTE_MAC0);
-            gte_mtc2(GTE_SXY0, p3->w.xy);
+            RR_GTE_LOAD_SXY(GTE_SXY0, &p3->w.xy);
             gte_cmd(GTE_NCLIP);
             b = gte_mfc2(GTE_MAC0);
             mirror = 0 < scene->renderFlags64;
             if (((0 < a) ^ mirror) | ((b < 0) ^ mirror)) {
                 GpuPolyFT4 *p = (GpuPolyFT4 *)Horizon.cursor;
-                p->words.xy0 = p0->w.xy;
-                p->words.xy1 = p1->w.xy;
-                p->words.xy2 = p2->w.xy;
-                p->words.xy3 = p3->w.xy;
+                RR_SXY_COPY(p->words.xy0, p0->w.xy);
+                RR_SXY_COPY(p->words.xy1, p1->w.xy);
+                RR_SXY_COPY(p->words.xy2, p2->w.xy);
+                RR_SXY_COPY(p->words.xy3, p3->w.xy);
                 p->words.uv0 = (s32)(((u32)Horizon.clut << 16) | p0->w.uv);
                 p->words.uv1 = (s32)(((u32)Horizon.tpage << 16) | p1->w.uv);
                 p->fields.u2 = (u8)p2->w.uv;
@@ -3791,9 +3791,9 @@ AnimatedLinePacket *EmitAnimatedTrackLines(AnimatedTrackScratch *scratch,
         gte_mtc2(GTE_VXY2, headXY[2]);
         gte_mtc2(GTE_VZ2, headZ[2]);
         gte_cmd(GTE_RTPT);
-        cursor[0].xy0 = gte_mfc2(GTE_SXY0);
-        cursor[1].xy0 = gte_mfc2(GTE_SXY1);
-        cursor[2].xy0 = gte_mfc2(GTE_SXY2);
+        RR_GTE_STORE_SXY(GTE_SXY0, &cursor[0].xy0);
+        RR_GTE_STORE_SXY(GTE_SXY1, &cursor[1].xy0);
+        RR_GTE_STORE_SXY(GTE_SXY2, &cursor[2].xy0);
         gte_mtc2(GTE_VXY0, tailXY[0]);
         gte_mtc2(GTE_VZ0, tailZ[0]);
         gte_mtc2(GTE_VXY1, tailXY[1]);
@@ -3805,9 +3805,9 @@ AnimatedLinePacket *EmitAnimatedTrackLines(AnimatedTrackScratch *scratch,
             cursor[k].color0.word = color0;
             cursor[k].color1.word = color1;
         }
-        cursor[0].xy1 = gte_mfc2(GTE_SXY0);
-        cursor[1].xy1 = gte_mfc2(GTE_SXY1);
-        cursor[2].xy1 = gte_mfc2(GTE_SXY2);
+        RR_GTE_STORE_SXY(GTE_SXY0, &cursor[0].xy1);
+        RR_GTE_STORE_SXY(GTE_SXY1, &cursor[1].xy1);
+        RR_GTE_STORE_SXY(GTE_SXY2, &cursor[2].xy1);
         remaining -= 3;
         cursor += 3;
         if (remaining <= 0) break;

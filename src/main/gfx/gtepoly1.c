@@ -103,10 +103,10 @@ const u32 *EmitRroRawTexturedQuads(const u32 *commands, RroRenderWork *work, s32
     RroStageQuad(work, &quad->vertices);
     while (count-- > 0) {
         if (RroProjectStagedQuad(work, &quad[1].vertices, depthShift)) {
-            packet->words.xy0 = work->projected50[0].word;
-            packet->words.xy1 = work->projected50[1].word;
-            packet->words.xy2 = work->projected50[2].word;
-            packet->words.xy3 = work->projected50[3].word;
+            RR_SXY_COPY(packet->words.xy0, work->projected50[0].word);
+            RR_SXY_COPY(packet->words.xy1, work->projected50[1].word);
+            RR_SXY_COPY(packet->words.xy2, work->projected50[2].word);
+            RR_SXY_COPY(packet->words.xy3, work->projected50[3].word);
             if (RroQuadOnScreen(work->projected50, 0x200)) {
                 packet->words.color04 = 0x2F000000;
                 packet->words.uv0 = quad->uv08;
@@ -191,10 +191,14 @@ const u32 *EmitRroEnvMapQuads(const u32 *commands, RroRenderWork *work, s32 coun
     while (count-- > 0) {
         GpuEnvMapEmission *e = (GpuEnvMapEmission *)cursor;
         if (RroProjectStagedQuad(work, &quad[1].vertices, depthShift)) {
-            e->primary.body.xy0 = e->reflected.body.xy0 = work->projected50[0].word;
-            e->primary.body.xy1 = e->reflected.body.xy1 = work->projected50[1].word;
-            e->primary.body.xy2 = e->reflected.body.xy2 = work->projected50[2].word;
-            e->primary.body.xy3 = e->reflected.body.xy3 = work->projected50[3].word;
+            RR_SXY_COPY(e->primary.body.xy0, work->projected50[0].word);
+            RR_SXY_COPY(e->reflected.body.xy0, work->projected50[0].word);
+            RR_SXY_COPY(e->primary.body.xy1, work->projected50[1].word);
+            RR_SXY_COPY(e->reflected.body.xy1, work->projected50[1].word);
+            RR_SXY_COPY(e->primary.body.xy2, work->projected50[2].word);
+            RR_SXY_COPY(e->reflected.body.xy2, work->projected50[2].word);
+            RR_SXY_COPY(e->primary.body.xy3, work->projected50[3].word);
+            RR_SXY_COPY(e->reflected.body.xy3, work->projected50[3].word);
             if (RroQuadOnScreen(work->projected50, 0x200)) {
                 const Vec3s8 *normals = RroScene.workNormals;
                 GpuDmaTag *head;
@@ -436,10 +440,10 @@ void EmitCarShadowQuads(const RroEffectMesh *mesh, RroEffectWork *work) {
 
     packet = (GpuPolyFT4 *)RR_GPU_SCRATCH->cursor;
     RR_GPU_ADD_PRIM(RR_GPU_SCRATCH->order + 0x80 + depth + quad->orderingBias19, packet, 9);
-    packet->words.xy0 = work->projection188.shadow.xy[0];
-    packet->words.xy1 = work->projection188.shadow.xy[1];
-    packet->words.xy2 = work->projection188.shadow.xy[2];
-    packet->words.xy3 = work->projection188.shadow.xy[3];
+    RR_SXY_COPY(packet->words.xy0, work->projection188.shadow.xy[0]);
+    RR_SXY_COPY(packet->words.xy1, work->projection188.shadow.xy[1]);
+    RR_SXY_COPY(packet->words.xy2, work->projection188.shadow.xy[2]);
+    RR_SXY_COPY(packet->words.xy3, work->projection188.shadow.xy[3]);
     packet->words.color04 = work->colors15C.palette.rgb160[4];
     packet->fields.code = 0x2E;
     packet->words.uv0 = quad->uv0C;
@@ -494,7 +498,7 @@ void EmitCarBodyQuads(const RroEffectMesh *mesh, RroEffectWork *work) {
                     RR_GPU_ADD_PRIM(ordering + depth, packet, 10);
                     for (i = 0; i < 4; i++) {
                         packet->vertices[i].color = work->colors15C.palette.rgb160[quad->colors[i]];
-                        packet->vertices[i].xy = projected[quad->vertices[i]].sxy;
+                        RR_SXY_COPY(packet->vertices[i].xy, projected[quad->vertices[i]].sxy);
                     }
                     packet->drawMode04 = RRO_DRAW_MODE;
                     packet->nop = RR_GPU_MERGED_PRIM_NOP;
@@ -561,7 +565,6 @@ void DrawGlowFan(CarSlotBufferC8 *slot, RroEffectWork *work) {
     s32 *projected;
     int remaining;
     u32 color;
-    s32 centerXY;
     RroGlowPacket *packet;
     GpuDmaTag *head;
 
@@ -595,18 +598,17 @@ void DrawGlowFan(CarSlotBufferC8 *slot, RroEffectWork *work) {
     projected = work->projection188.fan.xy + 3;
     color = slot->color08;
     color = (color << 8) | (color | 0x32000000);
-    centerXY = work->projection188.fan.xy[2];
     packet = (RroGlowPacket *)RR_GPU_SCRATCH->cursor;
     head = RR_GPU_SCRATCH->order + 0x69 + depth;
     for (remaining = 0x10; remaining > 0; remaining--) {
         packet->drawMode04 = RRO_DRAW_MODE;
         packet->nop = RR_GPU_MERGED_PRIM_NOP;
         packet->centerColor08 = color;
-        packet->centerXY0C = centerXY;
+        RR_SXY_COPY(packet->centerXY0C, work->projection188.fan.xy[2]);
         packet->firstColor10 = 0;
-        packet->firstXY14 = projected[0];
+        RR_SXY_COPY(packet->firstXY14, projected[0]);
         packet->secondColor18 = 0;
-        packet->secondXY1C = projected[1];
+        RR_SXY_COPY(packet->secondXY1C, projected[1]);
         projected++;
         RR_GPU_ADD_PRIM(head, packet, 8);
         packet++;
@@ -630,14 +632,13 @@ const RroTexturedQuadPrefix *EmitProjectedQuadsFT4(const RroTexturedQuadPrefix *
         s32 xy0 = vertices[i0].sxy;
         s32 xy1 = vertices[i1].sxy;
         s32 xy2 = vertices[i2].sxy;
-        s32 xy3 = vertices[i3].sxy;
         s32 depth;
 
         RR_GTE_NCLIP_SXY3(xy0, xy1, xy2);
-        packet->words.xy0 = xy0;
-        packet->words.xy1 = xy1;
-        packet->words.xy2 = xy2;
-        packet->words.xy3 = xy3;
+        RR_SXY_COPY(packet->words.xy0, vertices[i0].sxy);
+        RR_SXY_COPY(packet->words.xy1, vertices[i1].sxy);
+        RR_SXY_COPY(packet->words.xy2, vertices[i2].sxy);
+        RR_SXY_COPY(packet->words.xy3, vertices[i3].sxy);
         depth = (s32)((u32)vertices[i0].sz + vertices[i1].sz + vertices[i2].sz + vertices[i3].sz);
         RR_GTE14_SWC2_MAC0(&work->firstArea74);
         if ((work->firstArea74 ^ winding) > 0 && depth > 0) {
@@ -681,9 +682,9 @@ void EmitProjectedLitTrisGT3(const RroTrailPanelCommand *command, s32 count, Rro
             s32 y0, y1, y2, y3, y4, y5;
 
             RR_GTE14_NCLIP();
-            packet[0].words.xy1 = sxy0;
-            packet[1].words.xy1 = sxy1;
-            packet[2].words.xy1 = sxy2;
+            RR_SXY_COPY(packet[0].words.xy1, base[command->outer[0]].sxy);
+            RR_SXY_COPY(packet[1].words.xy1, base[command->outer[1]].sxy);
+            RR_SXY_COPY(packet[2].words.xy1, base[command->outer[2]].sxy);
             x0 = (s16)(base[command->outer[0]].sxy);
             x1 = (s16)(base[command->outer[1]].sxy);
             x2 = (s16)(base[command->outer[2]].sxy);
@@ -702,16 +703,14 @@ void EmitProjectedLitTrisGT3(const RroTrailPanelCommand *command, s32 count, Rro
                     y5 = (s16)(alternate[command->outer[2]].sxy >> 16);
                     if ((y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0 || y4 >= 0 || y5 >= 0) &&
                         (y0 < 0x100 || y1 < 0x100 || y2 < 0x100 || y3 < 0x100 || y4 < 0x100 || y5 < 0x100)) {
-                        s32 baseCenter = base[command->center].sxy;
-                        s32 alternateCenter = alternate[command->center].sxy;
                         GpuDmaTag *head = work->ordering6C + work->depth70 + command->orderingBias09;
                         GpuCommandPacket *mode;
                         int i;
 
                         for (i = 0; i < 3; i++) {
-                            packet[i].words.xy3 = alternate[command->outer[i]].sxy;
-                            packet[i].words.xy0 = baseCenter;
-                            packet[i].words.xy2 = alternateCenter;
+                            RR_SXY_COPY(packet[i].words.xy3, alternate[command->outer[i]].sxy);
+                            RR_SXY_COPY(packet[i].words.xy0, base[command->center].sxy);
+                            RR_SXY_COPY(packet[i].words.xy2, alternate[command->center].sxy);
                             packet[i].words.color04 = primaryColor;
                             packet[i].words.color0C = 0;
                             packet[i].words.color14 = secondaryColor;
@@ -773,25 +772,24 @@ const RroGlowPointCommand *EmitProjectedLitQuadsGT4(const RroGlowPointCommand *i
         GpuDmaTag *head = projection->ordering;
         if (head) {
             const Vec3s8 *ring = SpotlightConeRingOuter;
-            s32 center = projection->centerXY;
             s32 previous;
             s32 color = work->colors15C.palette.rgb160[0];
             GpuCommandPacket *mode;
 
             RR_GTE_SETTR(&projection->translation);
             RR_GTE_RTPS_LDV(ring);
-            RR_GTE_MFC2(previous, 14);
+            RR_GTE_STORE_SXY(14, &previous);
             for (remaining = 8; remaining > 0; remaining--) {
                 ring++;
                 RR_GTE_RTPS_LDV(ring);
-                packet->xy0 = center;
-                packet->xy1 = previous;
+                RR_SXY_COPY(packet->xy0, projection->centerXY);
+                RR_SXY_COPY(packet->xy1, previous);
                 packet->color0 = color;
                 packet->color1 = 0;
                 packet->color2 = 0;
                 RR_GPU_ADD_PRIM(head, packet, 6);
-                RR_GTE_MFC2_SXY2_NOP(previous);
-                packet->xy2 = previous;
+                RR_GTE_STORE_SXY(14, &previous);
+                RR_SXY_COPY(packet->xy2, previous);
                 packet++;
             }
             mode = (GpuCommandPacket *)packet;

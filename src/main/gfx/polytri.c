@@ -11,6 +11,7 @@
 #include "rr/gpu.h"
 #include "rr/gpu_scratch_types.h"
 #include "rr/rro_model.h"
+#include "rr_asm.h"
 /* GTE staging at scratchpad+0x7C: projected XY words and short vectors. */
 typedef struct {
     s32 unk00[0x78 / 4];
@@ -75,9 +76,9 @@ void EmitSemiTransG3List(SemiTransTri38 *a0, int a1, int a2) {
             if (a2 == 2) {
                 otz = 0x1BF;
             }
-            pkt->xy0 = sp->sxy0;
-            pkt->xy1 = sp->sxy1;
-            pkt->xy2 = sp->sxy2;
+            RR_SXY_COPY(pkt->xy0, sp->sxy0);
+            RR_SXY_COPY(pkt->xy1, sp->sxy1);
+            RR_SXY_COPY(pkt->xy2, sp->sxy2);
             pkt->color0 = (*(s32 *)&a0->c0 & 0xFFFFFF) | 0x32000000;
             pkt->color1 = *(s32 *)&a0->c1;
             pkt->color2 = *(s32 *)&a0->c2;
@@ -121,10 +122,10 @@ void EmitSemiTransG4List(SemiTransQuad48 *a0, int a1, int a2) {
             if (a2 == 2) {
                 otz = 0x1BF;
             }
-            pkt->sxy0 = sp->sxy0;
-            pkt->sxy1 = sp->sxy1;
-            pkt->sxy2 = sp->sxy2;
-            pkt->sxy3 = sp->sxy3;
+            RR_SXY_COPY(pkt->sxy0, sp->sxy0);
+            RR_SXY_COPY(pkt->sxy1, sp->sxy1);
+            RR_SXY_COPY(pkt->sxy2, sp->sxy2);
+            RR_SXY_COPY(pkt->sxy3, sp->sxy3);
             pkt->c0 = (*(s32 *)&a0->c0 & 0xFFFFFF) | 0x3A000000;
             pkt->c1 = *(s32 *)&a0->c1;
             pkt->c2 = *(s32 *)&a0->c2;

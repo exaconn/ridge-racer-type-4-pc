@@ -324,12 +324,9 @@ u8 *EmitSpotlightConePolys(s32 a0) {
         RR_GTE_RTPT_NOP2();
         RR_GTE_SWC2_SXY_3P(&g->sxy[0], &g->sxy[2], &g->sxy[4]);
         p->code = 0x33;
-        p->x0 = g->sxy[0];
-        p->y0 = g->sxy[1];
-        p->x1 = g->sxy[2];
-        p->y1 = g->sxy[3];
-        p->x2 = g->sxy[4];
-        p->y2 = g->sxy[5];
+        RrSxyCopy(&p->x0, &g->sxy[0]);
+        RrSxyCopy(&p->x1, &g->sxy[2]);
+        RrSxyCopy(&p->x2, &g->sxy[4]);
         p->r0 = g->c0[0];
         p->g0 = g->c0[1];
         p->b0 = g->c0[2];

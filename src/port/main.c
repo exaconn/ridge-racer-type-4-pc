@@ -96,6 +96,12 @@
  *                      PSYZ_HEADLESS=gpu the captured frames grow with it.
  *   RR4_SETTINGS_SCRIPT=s  drive the Escape menu in a headless run: s is a
  *                      comma list of key@present (see settings_overlay.h).
+ *   RR4_GRAPHICS=l     graphics options for this run, as the Escape menu
+ *                      sets them: a comma list of geometry (geometry
+ *                      correction), nodither (dithering off), aa
+ *                      (antialiasing), filter (texture filtering) and square
+ *                      (square pixels). With PSYZ_HEADLESS=gpu the captures
+ *                      show them.
  *
  * Interactive runs (no PSYZ_HEADLESS) read the preferences file
  * (src/port/preferences.c) and apply it, and Escape opens the settings menu
@@ -806,8 +812,23 @@ int main(int argc, char **argv) {
         SettingsOverlayInstall(&prefs, mounted);
     if (getenv("RR4_INTERNAL_RES") && *getenv("RR4_INTERNAL_RES")) {
         unsigned scale = (unsigned)strtoul(getenv("RR4_INTERNAL_RES"), NULL, 10);
-        if (Psyz_VideoSetInternalResolution(scale) == 0 && interactive)
+        /* The settings menu applies the preferences again (headless with
+         * RR4_SETTINGS_SCRIPT too): keep this scale there. */
+        if (Psyz_VideoSetInternalResolution(scale) == 0)
             prefs.scale = scale;
+    }
+    if (getenv("RR4_GRAPHICS") && *getenv("RR4_GRAPHICS")) {
+        const char *l = getenv("RR4_GRAPHICS");
+        prefs.geometry_correction = strstr(l, "geometry") != NULL;
+        prefs.disable_dithering = strstr(l, "nodither") != NULL;
+        prefs.antialiasing = strstr(l, "aa") != NULL;
+        prefs.texture_filtering = strstr(l, "filter") != NULL;
+        prefs.square_pixels = strstr(l, "square") != NULL;
+        Psyz_VideoSetGeometryCorrection(prefs.geometry_correction);
+        Psyz_VideoSetDitheringMode(prefs.disable_dithering ? PSYZ_DITHER_OFF : PSYZ_DITHER_AUTO);
+        Psyz_VideoSetAntialiasing(prefs.antialiasing);
+        Psyz_VideoSetModelFiltering(prefs.texture_filtering);
+        Psyz_VideoSetAspectMode(prefs.square_pixels ? PSYZ_ASPECT_SQUARE : PSYZ_ASPECT_DISPLAY);
     }
     {
         const char *limit = getenv("RR4_FRAME_LIMIT");

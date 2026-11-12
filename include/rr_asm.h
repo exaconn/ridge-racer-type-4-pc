@@ -1,6 +1,7 @@
 #ifndef RR_ASM_H
 #define RR_ASM_H
 #include <stdint.h>
+#include <string.h>
 #include "types.h"
 /* PsyZ GTE register file and command endpoints (psyz/gte.h); declared here
  * so game modules keep their own PsyQ libgte prototypes. */
@@ -9,6 +10,53 @@ void Psyz_GteDataWrite(unsigned reg, unsigned int value);
 unsigned int Psyz_GteCtrlRead(unsigned reg);
 void Psyz_GteCtrlWrite(unsigned reg, unsigned int value);
 void Psyz_GteCommand(unsigned int cmd);
+/* Screen XY words carry PsyZ's precise projection of their vertex (subpixel
+ * x/y and depth, drawn by the geometry correction option) by the address
+ * they are stored at. Every store of SXY0..SXYP to memory, every load of a
+ * stored word back into them and every copy of a projected word to another
+ * place (a cache, a packet) goes through these helpers; a plain store leaves
+ * the vertex snapped to whole pixels. Without geometry correction they are
+ * ordinary loads, stores and copies. */
+void Psyz_GteStoreSxyTo(unsigned reg, void *dst);
+void Psyz_GteLoadSxyFrom(unsigned reg, const void *src);
+void Psyz_GteCopyPgxpSxy(const void *src, const void *dst, unsigned int sxy);
+/* Precise vertices belong to the game frame that projected them: the main
+ * loop starts a new generation before it builds the next ordering table.
+ * Library stores: libgte RotTransPers / RotAverage outputs carry them too. */
+void Psyz_PgxpNextFrame(void);
+void Psyz_GteSetPgxpLibraryStores(int enabled);
+/* swc2 / lwc2 of any data register. */
+static inline void RrGteSwc2(unsigned reg, void *dst)
+{
+    if (reg - 12u <= 3u) {
+        Psyz_GteStoreSxyTo(reg, dst);
+    } else {
+        u32 value = Psyz_GteDataRead(reg);
+        memcpy(dst, &value, 4);
+    }
+}
+static inline void RrGteLwc2(unsigned reg, const void *src)
+{
+    if (reg - 12u <= 3u) {
+        Psyz_GteLoadSxyFrom(reg, src);
+    } else {
+        u32 value;
+        memcpy(&value, src, 4);
+        Psyz_GteDataWrite(reg, value);
+    }
+}
+/* *dst = *src for a 32-bit screen XY word. */
+static inline void RrSxyCopy(void *dst, const void *src)
+{
+    u32 value;
+    memcpy(&value, src, 4);
+    memcpy(dst, &value, 4);
+    Psyz_GteCopyPgxpSxy(src, dst, value);
+}
+/* lvalue forms: RR_SXY_COPY(p->xy0, cache[i]); RR_GTE_STORE_SXY(12, &sxy[0]). */
+#define RR_SXY_COPY(dst, src) RrSxyCopy(&(dst), &(src))
+#define RR_GTE_STORE_SXY(reg, dst) Psyz_GteStoreSxyTo((reg), (dst))
+#define RR_GTE_LOAD_SXY(reg, src) Psyz_GteLoadSxyFrom((reg), (src))
 /* GTE (COP2) transfers and commands of the original hand-written sequences,
  * expressed in portable C over the PsyZ GTE. Register numbers and operation
  * order are those of the original; MIPS temporaries are block locals.
@@ -67,7 +115,7 @@ void Psyz_GteCommand(unsigned int cmd);
 #define RR_GTE14_LWC2_V1(p) do { Psyz_GteDataWrite(2, *(u32 *)((u8 *)(uintptr_t)((p)) + (0))); Psyz_GteDataWrite(3, *(u32 *)((u8 *)(uintptr_t)((p)) + (4))); } while (0)
 #define RR_GTE_RTPT_LDV2(p) do { Psyz_GteDataWrite(4, *(u32 *)((u8 *)(uintptr_t)((p)) + (0))); Psyz_GteDataWrite(5, *(u32 *)((u8 *)(uintptr_t)((p)) + (4))); Psyz_GteCommand(0x0280030); } while (0)
 #define RR_GTE14_SWC2_SZ3(p) do { *(u32 *)((u8 *)(uintptr_t)((p)) + (0)) = Psyz_GteDataRead(19); } while (0)
-#define RR_GTE14_SWC2_SXY1(p) do { *(u32 *)((u8 *)(uintptr_t)((p)) + (0)) = Psyz_GteDataRead(13); } while (0)
+#define RR_GTE14_SWC2_SXY1(p) do { RrGteSwc2(13, (u8 *)(uintptr_t)(p) + (0)); } while (0)
 /* RR_GTE_MVMVA_LDV0(p): load vector V0 (VXY0/VZ0) from 3 shorts at p and run MVMVA sf=1 mx=rot v=V0 cv=none lm=0; RR_GTE_STORE_IR(p): store IR1..IR3 ($9-$11) to p. */
 #define RR_GTE_MVMVA_LDV0(p) do { do { Psyz_GteDataWrite(0, *(u32 *)((u8 *)(uintptr_t)((p)) + (0))); Psyz_GteDataWrite(1, *(u32 *)((u8 *)(uintptr_t)((p)) + (4))); } while (0); do {  } while (0); do { Psyz_GteCommand(0x0080012); } while (0); } while (0)
 #define RR_GTE_STORE_IR(p) do { *(u32 *)((u8 *)(uintptr_t)((p)) + (0)) = Psyz_GteDataRead(9); *(u32 *)((u8 *)(uintptr_t)((p)) + (4)) = Psyz_GteDataRead(10); *(u32 *)((u8 *)(uintptr_t)((p)) + (8)) = Psyz_GteDataRead(11); } while (0)
@@ -92,11 +140,11 @@ void Psyz_GteCommand(unsigned int cmd);
 #define RR_GTE_SETBK_P(p) do { u32 rr_r12 = 0, rr_r13 = 0, rr_r14 = 0; (void)rr_r12; (void)rr_r13; (void)rr_r14; rr_r12 = *(u32 *)((u8 *)(uintptr_t)((p)) + (0)); rr_r13 = *(u32 *)((u8 *)(uintptr_t)((p)) + (4)); rr_r14 = *(u32 *)((u8 *)(uintptr_t)((p)) + (8)); Psyz_GteCtrlWrite(13, (u32)rr_r12); Psyz_GteCtrlWrite(14, (u32)rr_r13); Psyz_GteCtrlWrite(15, (u32)rr_r14); } while (0)
 #define RR_GTE_RTPT_LDV(a, b, c) do { do { Psyz_GteDataWrite(0, *(u32 *)((u8 *)(uintptr_t)((a)) + (0))); Psyz_GteDataWrite(1, *(u32 *)((u8 *)(uintptr_t)((a)) + (4))); Psyz_GteDataWrite(2, *(u32 *)((u8 *)(uintptr_t)((b)) + (0))); Psyz_GteDataWrite(3, *(u32 *)((u8 *)(uintptr_t)((b)) + (4))); Psyz_GteDataWrite(4, *(u32 *)((u8 *)(uintptr_t)((c)) + (0))); Psyz_GteDataWrite(5, *(u32 *)((u8 *)(uintptr_t)((c)) + (4))); } while (0); do {  } while (0); do { Psyz_GteCommand(0x0280030); } while (0); } while (0)
 #define RR_GTE_RTPS_LDV(p) { do { Psyz_GteDataWrite(0, *(u32 *)((u8 *)(uintptr_t)((p)) + (0))); Psyz_GteDataWrite(1, *(u32 *)((u8 *)(uintptr_t)((p)) + (4))); } while (0); do {  } while (0); do { Psyz_GteCommand(0x0180001); } while (0); }
-#define RR_GTE_SWC2_SXYZ(p) do { *(u32 *)((u8 *)(uintptr_t)((p)) + (0)) = Psyz_GteDataRead(12); *(u32 *)((u8 *)(uintptr_t)((p)) + (4)) = Psyz_GteDataRead(13); *(u32 *)((u8 *)(uintptr_t)((p)) + (8)) = Psyz_GteDataRead(14); } while (0)
-#define RR_GTE_SWC2_SXY2(p) do { *(u32 *)((u8 *)(uintptr_t)((p)) + (0)) = Psyz_GteDataRead(14); } while (0)
+#define RR_GTE_SWC2_SXYZ(p) do { RrGteSwc2(12, (u8 *)(uintptr_t)(p) + (0)); RrGteSwc2(13, (u8 *)(uintptr_t)(p) + (4)); RrGteSwc2(14, (u8 *)(uintptr_t)(p) + (8)); } while (0)
+#define RR_GTE_SWC2_SXY2(p) do { RrGteSwc2(14, (u8 *)(uintptr_t)(p) + (0)); } while (0)
 /* Store three projected XY words in a POLY_G3 packet, then read those same
  * GTE registers for the CPU viewport test. */
-#define RR_GTE_STORE_READ_SXY3(p, x0, x1, x2) do { *(u32 *)((u8 *)(uintptr_t)((p)) + (8)) = Psyz_GteDataRead(12); *(u32 *)((u8 *)(uintptr_t)((p)) + (16)) = Psyz_GteDataRead(13); *(u32 *)((u8 *)(uintptr_t)((p)) + (24)) = Psyz_GteDataRead(14); (x0) = Psyz_GteDataRead(12); (x1) = Psyz_GteDataRead(13); (x2) = Psyz_GteDataRead(14); } while (0)
+#define RR_GTE_STORE_READ_SXY3(p, x0, x1, x2) do { RrGteSwc2(12, (u8 *)(uintptr_t)(p) + (8)); RrGteSwc2(13, (u8 *)(uintptr_t)(p) + (16)); RrGteSwc2(14, (u8 *)(uintptr_t)(p) + (24)); (x0) = Psyz_GteDataRead(12); (x1) = Psyz_GteDataRead(13); (x2) = Psyz_GteDataRead(14); } while (0)
 /* DrawTrackScenery: RR_GTE_CLRTR(): TR = 0; RR_GTE_MTC2_IR1(x): mtc2 $9; RR_GTE_CTC2_FCR(x): ctc2 $21; RR_GTE_SWC2_IR1(p): swc2 $9. */
 #define RR_GTE_CLRTR() do { Psyz_GteCtrlWrite(5, (u32)0u); Psyz_GteCtrlWrite(6, (u32)0u); Psyz_GteCtrlWrite(7, (u32)0u); } while (0)
 #define RR_GTE_MTC2_IR1(x) do { Psyz_GteDataWrite(9, (u32)(x)); } while (0)
@@ -116,8 +164,8 @@ void Psyz_GteCommand(unsigned int cmd);
 #define RR_GTE14_AVSZ4() do { Psyz_GteCommand(0x168002E); } while (0)
 #define RR_GTE14_SWC2_MAC0(p) do { *(u32 *)((u8 *)(uintptr_t)((p)) + (0)) = Psyz_GteDataRead(24); } while (0)
 #define RR_GTE14_SWC2_OTZ(p) do { *(u32 *)((u8 *)(uintptr_t)((p)) + (0)) = Psyz_GteDataRead(7); } while (0)
-#define RR_GTE14_SWC2_SXYZ(p) do { *(u32 *)((u8 *)(uintptr_t)((p)) + (0)) = Psyz_GteDataRead(12); *(u32 *)((u8 *)(uintptr_t)((p)) + (4)) = Psyz_GteDataRead(13); *(u32 *)((u8 *)(uintptr_t)((p)) + (8)) = Psyz_GteDataRead(14); } while (0)
-#define RR_GTE14_SWC2_SXY2(p) do { *(u32 *)((u8 *)(uintptr_t)((p)) + (0)) = Psyz_GteDataRead(14); } while (0)
+#define RR_GTE14_SWC2_SXYZ(p) do { RrGteSwc2(12, (u8 *)(uintptr_t)(p) + (0)); RrGteSwc2(13, (u8 *)(uintptr_t)(p) + (4)); RrGteSwc2(14, (u8 *)(uintptr_t)(p) + (8)); } while (0)
+#define RR_GTE14_SWC2_SXY2(p) do { RrGteSwc2(14, (u8 *)(uintptr_t)(p) + (0)); } while (0)
 #define RR_GTE14_LIGHT0() do { Psyz_GteCommand(0x04A6412); Psyz_GteCommand(0x0A80428); Psyz_GteCommand(0x0A80428); Psyz_GteCommand(0x138041C); } while (0)
 #define RR_GTE14_LIGHT1() do { Psyz_GteCommand(0x04AE412); Psyz_GteCommand(0x0A80428); Psyz_GteCommand(0x0A80428); Psyz_GteCommand(0x138041C); } while (0)
 #define RR_GTE14_LIGHT2() do { Psyz_GteCommand(0x04B6412); Psyz_GteCommand(0x0A80428); Psyz_GteCommand(0x0A80428); Psyz_GteCommand(0x138041C); } while (0)
@@ -165,19 +213,19 @@ void Psyz_GteCommand(unsigned int cmd);
 #define RR_GTE_CFC2(out, reg) do { (out) = Psyz_GteCtrlRead(reg); } while (0)
 #define RR_GTE_MTC2(val, reg) do { Psyz_GteDataWrite(reg, (u32)(val)); } while (0)
 #define RR_GTE_MFC2(out, reg) do { (out) = Psyz_GteDataRead(reg); } while (0)
-#define RR_GTE_LWC2_AT(reg, off, base) do { Psyz_GteDataWrite(reg, *(u32 *)((u8 *)(uintptr_t)((base)) + (off))); } while (0)
+#define RR_GTE_LWC2_AT(reg, off, base) do { RrGteLwc2(reg, (u8 *)(uintptr_t)(base) + (off)); } while (0)
 /* RR_GTE_LWC2_SP read stack-passed PsyQ arguments; the host uses PsyZ libgte instead. */
-#define RR_GTE_SWC2_AT(reg, off, base) do { *(u32 *)((u8 *)(uintptr_t)((base)) + (off)) = Psyz_GteDataRead(reg); } while (0)
-#define RR_GTE_SWC2_AT_MEM(reg, off, base) do { *(u32 *)((u8 *)(uintptr_t)((base)) + (off)) = Psyz_GteDataRead(reg); } while (0)
+#define RR_GTE_SWC2_AT(reg, off, base) do { RrGteSwc2(reg, (u8 *)(uintptr_t)(base) + (off)); } while (0)
+#define RR_GTE_SWC2_AT_MEM(reg, off, base) do { RrGteSwc2(reg, (u8 *)(uintptr_t)(base) + (off)); } while (0)
 #define RR_GTE_CMD_1NOP(op) Psyz_GteCommand((u32)(op) & 0x1FFFFFFu)
 #define RR_GTE_CMD_2NOP(op) Psyz_GteCommand((u32)(op) & 0x1FFFFFFu)
-#define RR_GTE_LWC2_PAIR_AT(r0, off0, r1, off1, base) do { Psyz_GteDataWrite(r0, *(u32 *)((u8 *)(uintptr_t)((base)) + (off0))); Psyz_GteDataWrite(r1, *(u32 *)((u8 *)(uintptr_t)((base)) + (off1))); } while (0)
-#define RR_GTE_SWC2_PAIR_AT(r0, off0, r1, off1, base) do { *(u32 *)((u8 *)(uintptr_t)((base)) + (off0)) = Psyz_GteDataRead(r0); *(u32 *)((u8 *)(uintptr_t)((base)) + (off1)) = Psyz_GteDataRead(r1); } while (0)
-#define RR_GTE_SWC2_TRIPLE_AT(r0, off0, r1, off1, r2, off2, base) do { *(u32 *)((u8 *)(uintptr_t)((base)) + (off0)) = Psyz_GteDataRead(r0); *(u32 *)((u8 *)(uintptr_t)((base)) + (off1)) = Psyz_GteDataRead(r1); *(u32 *)((u8 *)(uintptr_t)((base)) + (off2)) = Psyz_GteDataRead(r2); } while (0)
+#define RR_GTE_LWC2_PAIR_AT(r0, off0, r1, off1, base) do { RrGteLwc2(r0, (u8 *)(uintptr_t)(base) + (off0)); RrGteLwc2(r1, (u8 *)(uintptr_t)(base) + (off1)); } while (0)
+#define RR_GTE_SWC2_PAIR_AT(r0, off0, r1, off1, base) do { RrGteSwc2(r0, (u8 *)(uintptr_t)(base) + (off0)); RrGteSwc2(r1, (u8 *)(uintptr_t)(base) + (off1)); } while (0)
+#define RR_GTE_SWC2_TRIPLE_AT(r0, off0, r1, off1, r2, off2, base) do { RrGteSwc2(r0, (u8 *)(uintptr_t)(base) + (off0)); RrGteSwc2(r1, (u8 *)(uintptr_t)(base) + (off1)); RrGteSwc2(r2, (u8 *)(uintptr_t)(base) + (off2)); } while (0)
 #define RR_GTE_LWC2_V012_3P(v0, v1, v2) do { Psyz_GteDataWrite(0, *(u32 *)((u8 *)(uintptr_t)((v0)) + (0))); Psyz_GteDataWrite(1, *(u32 *)((u8 *)(uintptr_t)((v0)) + (4))); Psyz_GteDataWrite(2, *(u32 *)((u8 *)(uintptr_t)((v1)) + (0))); Psyz_GteDataWrite(3, *(u32 *)((u8 *)(uintptr_t)((v1)) + (4))); Psyz_GteDataWrite(4, *(u32 *)((u8 *)(uintptr_t)((v2)) + (0))); Psyz_GteDataWrite(5, *(u32 *)((u8 *)(uintptr_t)((v2)) + (4))); } while (0)
 
 /* gtepoly1.c GTE helpers. */
-#define GTE_STORE_SXY_SZ(p) do { *(u32 *)((u8 *)(uintptr_t)((p)) + (0)) = Psyz_GteDataRead(12); *(u32 *)((u8 *)(uintptr_t)((p)) + (4)) = Psyz_GteDataRead(17); *(u32 *)((u8 *)(uintptr_t)((p)) + (8)) = Psyz_GteDataRead(13); *(u32 *)((u8 *)(uintptr_t)((p)) + (12)) = Psyz_GteDataRead(18); *(u32 *)((u8 *)(uintptr_t)((p)) + (16)) = Psyz_GteDataRead(14); *(u32 *)((u8 *)(uintptr_t)((p)) + (20)) = Psyz_GteDataRead(19); } while (0)
+#define GTE_STORE_SXY_SZ(p) do { RrGteSwc2(12, (u8 *)(uintptr_t)(p) + (0)); *(u32 *)((u8 *)(uintptr_t)((p)) + (4)) = Psyz_GteDataRead(17); RrGteSwc2(13, (u8 *)(uintptr_t)(p) + (8)); *(u32 *)((u8 *)(uintptr_t)((p)) + (12)) = Psyz_GteDataRead(18); RrGteSwc2(14, (u8 *)(uintptr_t)(p) + (16)); *(u32 *)((u8 *)(uintptr_t)((p)) + (20)) = Psyz_GteDataRead(19); } while (0)
 #define GTE_SETROT_AND_SAVE(src, dst) do { u32 rr_r12 = 0, rr_r13 = 0; (void)rr_r12; (void)rr_r13; rr_r12 = *(u32 *)((u8 *)(uintptr_t)((src)) + (0)); rr_r13 = *(u32 *)((u8 *)(uintptr_t)((src)) + (4)); Psyz_GteCtrlWrite(0, (u32)rr_r12); Psyz_GteCtrlWrite(1, (u32)rr_r13); *(u32 *)((u8 *)(uintptr_t)((dst)) + (0)) = (u32)rr_r12; *(u32 *)((u8 *)(uintptr_t)((dst)) + (4)) = (u32)rr_r13; rr_r12 = *(u32 *)((u8 *)(uintptr_t)((src)) + (8)); rr_r13 = *(u32 *)((u8 *)(uintptr_t)((src)) + (12)); Psyz_GteCtrlWrite(2, (u32)rr_r12); Psyz_GteCtrlWrite(3, (u32)rr_r13); *(u32 *)((u8 *)(uintptr_t)((dst)) + (8)) = (u32)rr_r12; rr_r12 = *(u32 *)((u8 *)(uintptr_t)((src)) + (16)); *(u32 *)((u8 *)(uintptr_t)((dst)) + (12)) = (u32)rr_r13; Psyz_GteCtrlWrite(4, (u32)rr_r12); *(u32 *)((u8 *)(uintptr_t)((dst)) + (16)) = (u32)rr_r12; } while (0)
 #define GTE_CTC2_27(val) do { Psyz_GteCtrlWrite(27, (u32)(val)); } while (0)
 #define GTE_CTC2_28(val) do { Psyz_GteCtrlWrite(28, (u32)(val)); } while (0)
@@ -191,7 +239,7 @@ void Psyz_GteCommand(unsigned int cmd);
 #define RR_GTE_MFC2_SXY2_NOP(out) do { (out) = Psyz_GteDataRead(14); } while (0)
 
 /* ring.c GTE helper: RTPT projects the inner endpoint twice; the last two SXY stores share a slot. */
-#define RING_STORE_SXY_PAIR(outer, inner) do { *(u32 *)((u8 *)(uintptr_t)((outer)) + (0)) = Psyz_GteDataRead(12); *(u32 *)((u8 *)(uintptr_t)((inner)) + (0)) = Psyz_GteDataRead(13); *(u32 *)((u8 *)(uintptr_t)((inner)) + (0)) = Psyz_GteDataRead(14); } while (0)
+#define RING_STORE_SXY_PAIR(outer, inner) do { RrGteSwc2(12, (u8 *)(uintptr_t)(outer) + (0)); RrGteSwc2(13, (u8 *)(uintptr_t)(inner) + (0)); RrGteSwc2(14, (u8 *)(uintptr_t)(inner) + (0)); } while (0)
 
 /* sky.c GTE helpers. */
 #define RR_GTE_LOAD_SKY_TRI_VERTS(a1) do { u32 rr_r13 = 0, rr_r14 = 0, rr_r15 = 0; (void)rr_r13; (void)rr_r14; (void)rr_r15; rr_r13 = *(u32 *)((u8 *)(uintptr_t)((a1)) + (0x18)); rr_r14 = *(u32 *)((u8 *)(uintptr_t)((a1)) + (0x1C)); rr_r15 = *(u32 *)((u8 *)(uintptr_t)((a1)) + (0x20)); Psyz_GteDataWrite(0, *(u32 *)((u8 *)(uintptr_t)(rr_r13) + (0))); Psyz_GteDataWrite(1, *(u32 *)((u8 *)(uintptr_t)(rr_r13) + (4))); Psyz_GteDataWrite(2, *(u32 *)((u8 *)(uintptr_t)(rr_r14) + (0))); Psyz_GteDataWrite(3, *(u32 *)((u8 *)(uintptr_t)(rr_r14) + (4))); Psyz_GteDataWrite(4, *(u32 *)((u8 *)(uintptr_t)(rr_r15) + (0))); Psyz_GteDataWrite(5, *(u32 *)((u8 *)(uintptr_t)(rr_r15) + (4))); } while (0)
@@ -206,7 +254,7 @@ void Psyz_GteCommand(unsigned int cmd);
 #define RR_GTE_INTPL_TRACK_TABLE(v0, v1, a1, a2, a3, t2) do { Psyz_GteDataWrite(8, (u32)(a3)); Psyz_GteCtrlWrite(21, (u32)(v0)); Psyz_GteCtrlWrite(22, (u32)(a1)); Psyz_GteDataWrite(9, (u32)(a2)); Psyz_GteDataWrite(10, (u32)(v1)); Psyz_GteCommand(0x0980011); Psyz_GteDataWrite(8, (u32)(t2)); (v1) = Psyz_GteDataRead(10); Psyz_GteCtrlWrite(21, (u32)(v1)); Psyz_GteCommand(0x0980011); (v1) = Psyz_GteDataRead(9); Psyz_GteDataWrite(8, (u32)(v1)); } while (0)
 #define RR_GTE_MTC2_IR123_INTPL(a0, t1, t2) do { Psyz_GteDataWrite(9, (u32)(a0)); Psyz_GteDataWrite(10, (u32)(t1)); Psyz_GteDataWrite(11, (u32)(t2)); Psyz_GteCommand(0x0980011); } while (0)
 #define RR_GTE_BK_FROM_IR() do { u32 rr_r12 = 0, rr_r13 = 0, rr_r14 = 0; (void)rr_r12; (void)rr_r13; (void)rr_r14; rr_r12 = Psyz_GteDataRead(9); rr_r13 = Psyz_GteDataRead(10); rr_r14 = Psyz_GteDataRead(11); Psyz_GteCtrlWrite(13, (u32)rr_r12); Psyz_GteCtrlWrite(14, (u32)rr_r13); Psyz_GteCtrlWrite(15, (u32)rr_r14); } while (0)
-#define RR_GTE_SWC2_SXY_3P(p0, p1, p2) do { *(u32 *)((u8 *)(uintptr_t)((p0)) + (0)) = Psyz_GteDataRead(12); *(u32 *)((u8 *)(uintptr_t)((p1)) + (0)) = Psyz_GteDataRead(13); *(u32 *)((u8 *)(uintptr_t)((p2)) + (0)) = Psyz_GteDataRead(14); } while (0)
+#define RR_GTE_SWC2_SXY_3P(p0, p1, p2) do { RrGteSwc2(12, (u8 *)(uintptr_t)(p0) + (0)); RrGteSwc2(13, (u8 *)(uintptr_t)(p1) + (0)); RrGteSwc2(14, (u8 *)(uintptr_t)(p2) + (0)); } while (0)
 
 /* poly1.c GTE helper: save far colour (control regs $21-$23) to three words. */
 #define RR_GTE_SAVE_FC(p0, p1, p2) do { u32 rr_r8 = 0, rr_r9 = 0, rr_r10 = 0; (void)rr_r8; (void)rr_r9; (void)rr_r10; rr_r8 = Psyz_GteCtrlRead(21); rr_r9 = Psyz_GteCtrlRead(22); rr_r10 = Psyz_GteCtrlRead(23); *(u32 *)((u8 *)(uintptr_t)((p0)) + (0)) = (u32)rr_r8; *(u32 *)((u8 *)(uintptr_t)((p1)) + (0)) = (u32)rr_r9; *(u32 *)((u8 *)(uintptr_t)((p2)) + (0)) = (u32)rr_r10; } while (0)

@@ -271,9 +271,9 @@ static SkyTri *SkyEmitTriFT3(SkyTri *a0, SkyCtx *a1, int a2) {
         RR_GTE14_SWC2_OTZ(&a1->otz);
         if (a1->otz > 0) {
             RR_GTE_SWC2_SXYZ(&a1->u.w.sxy0);
-            pkt->xy0 = a1->u.w.sxy0;
-            pkt->xy1 = a1->u.w.sxy1;
-            pkt->xy2 = a1->u.w.sxy2;
+            RR_SXY_COPY(pkt->xy0, a1->u.w.sxy0);
+            RR_SXY_COPY(pkt->xy1, a1->u.w.sxy1);
+            RR_SXY_COPY(pkt->xy2, a1->u.w.sxy2);
             v0 = a1->u.s.sx0;
             v1 = a1->u.s.sx1;
             a3 = a1->u.s.sx2;
@@ -331,9 +331,9 @@ static SkyQuad17528 *SkyEmitQuadG4(SkyQuad17528 *a0, SkyCtx *a1, int a2) {
             RR_GTE_SWC2_SXYZ(&a1->u.w.sxy0);
             RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, &a1->v3_0);
             RR_GTE14_RTPS();
-            pkt->xy0 = a1->u.w.sxy0;
-            pkt->xy1 = a1->u.w.sxy1;
-            pkt->xy2 = a1->u.w.sxy2;
+            RR_SXY_COPY(pkt->xy0, a1->u.w.sxy0);
+            RR_SXY_COPY(pkt->xy1, a1->u.w.sxy1);
+            RR_SXY_COPY(pkt->xy2, a1->u.w.sxy2);
             RR_GTE_SWC2_SXY2(&a1->u.w.sxy3);
             RR_GTE_SWC2_SXY2(&pkt->xy3);
             v1 = a1->u.s.sx0;
@@ -387,9 +387,9 @@ static SkyQuad177E4 *SkyEmitQuadFT4(SkyQuad177E4 *a0, SkyCtx *a1, int a2) {
             pkt->uv1 = a0->uv1;
             pkt->uv2 = a3;
             pkt->uv3 = a3 >> 16;
-            pkt->xy0 = a1->u.w.sxy0;
-            pkt->xy1 = a1->u.w.sxy1;
-            pkt->xy2 = a1->u.w.sxy2;
+            RR_SXY_COPY(pkt->xy0, a1->u.w.sxy0);
+            RR_SXY_COPY(pkt->xy1, a1->u.w.sxy1);
+            RR_SXY_COPY(pkt->xy2, a1->u.w.sxy2);
             RR_GTE_SWC2_SXY2(&a1->u.w.sxy3);
             RR_GTE_SWC2_SXY2(&pkt->xy3);
             v1 = a1->u.s.sx0;
@@ -448,9 +448,9 @@ static SkyTri17A90 *EmitSkyDepthCuedGT3(SkyTri17A90 *a0, SkyCtx *a1, int a2) {
         RR_GTE14_SWC2_OTZ(&a1->otz);
         if (a1->otz > 0) {
             RR_GTE_SWC2_SXYZ(&a1->u.w.sxy0);
-            pkt->xy0 = a1->u.w.sxy0;
-            pkt->xy1 = a1->u.w.sxy1;
-            pkt->xy2 = a1->u.w.sxy2;
+            RR_SXY_COPY(pkt->xy0, a1->u.w.sxy0);
+            RR_SXY_COPY(pkt->xy1, a1->u.w.sxy1);
+            RR_SXY_COPY(pkt->xy2, a1->u.w.sxy2);
             v0 = a1->u.s.sx0;
             v1 = a1->u.s.sx1;
             a3 = a1->u.s.sx2;
@@ -592,9 +592,9 @@ static SkyLitTri14 *SkyEmitLitTriG3(SkyLitTri14 *a0, SkyLitCtx *a1) {
 
         if (a1->mac0EC > 0) {
             RR_GTE14_SWC2_SXYZ(&a1->sxy140.w.sxy0);
-            pkt->xy0 = a1->sxy140.w.sxy0;
-            pkt->xy1 = a1->sxy140.w.sxy1;
-            pkt->xy2 = a1->sxy140.w.sxy2;
+            RR_SXY_COPY(pkt->xy0, a1->sxy140.w.sxy0);
+            RR_SXY_COPY(pkt->xy1, a1->sxy140.w.sxy1);
+            RR_SXY_COPY(pkt->xy2, a1->sxy140.w.sxy2);
             RR_GTE_OP(0x4B58002D);
 
             if (SkyLitOnScreen3(a1)) {
@@ -649,16 +649,16 @@ static SkyLitQuad18 *SkyEmitLitTexQuadGT4(SkyLitQuad18 *a0, SkyLitCtx *a1) {
         RR_GTE14_SWC2_MAC0(&a1->mac0EC);
         RR_GTE14_SWC2_SXYZ(&a1->sxy140.w.sxy0);
         RR_GTE_RTPS_LDV(verts + (a0->v3 << 3));
-        pkt->xy0 = a1->sxy140.w.sxy0;
-        pkt->xy1 = a1->sxy140.w.sxy1;
-        pkt->xy2 = a1->sxy140.w.sxy2;
+        RR_SXY_COPY(pkt->xy0, a1->sxy140.w.sxy0);
+        RR_SXY_COPY(pkt->xy1, a1->sxy140.w.sxy1);
+        RR_SXY_COPY(pkt->xy2, a1->sxy140.w.sxy2);
         RR_GTE14_NCLIP();
         RR_GTE14_SWC2_SXY2(&a1->sxy140.w.sxy3);
         RR_GTE14_SWC2_MAC0(&a1->mac0F0);
 
         if (a1->mac0EC > 0 || a1->mac0F0 < 0) {
             RR_GTE14_AVSZ4();
-            pkt->xy3 = a1->sxy140.w.sxy3;
+            RR_SXY_COPY(pkt->xy3, a1->sxy140.w.sxy3);
 
             if (SkyLitOnScreen4(a1)) {
                 int z;
@@ -723,10 +723,10 @@ static SkyLitQuad18 *SkyEmitLitQuadG4(SkyLitQuad18 *a0, SkyLitCtx *a1) {
             RR_GTE14_SWC2_MAC0(&a1->mac0F0);
             if (a1->mac0EC > 0 || a1->mac0F0 < 0) {
                 RR_GTE14_SWC2_SXY2(&a1->sxy140.w.sxy3);
-                pkt->xy0 = a1->sxy140.w.sxy0;
-                pkt->xy1 = a1->sxy140.w.sxy1;
-                pkt->xy2 = a1->sxy140.w.sxy2;
-                pkt->xy3 = a1->sxy140.w.sxy3;
+                RR_SXY_COPY(pkt->xy0, a1->sxy140.w.sxy0);
+                RR_SXY_COPY(pkt->xy1, a1->sxy140.w.sxy1);
+                RR_SXY_COPY(pkt->xy2, a1->sxy140.w.sxy2);
+                RR_SXY_COPY(pkt->xy3, a1->sxy140.w.sxy3);
                 if (SkyLitOnScreen4(a1)) {
                     int z = a1->otzE8 >> shift;
                     if (z > 0 && z < 0x1C0) {
@@ -779,10 +779,10 @@ static SkyLitTexQuad24 *EmitSkyLitGT4(SkyLitTexQuad24 *a0, SkyLitCtx *a1) {
             RR_GTE14_SWC2_MAC0(&a1->mac0F0);
             if (a1->mac0EC > 0 || a1->mac0F0 < 0) {
                 RR_GTE14_SWC2_SXY2(&a1->sxy140.w.sxy3);
-                pkt->xy0 = a1->sxy140.w.sxy0;
-                pkt->xy1 = a1->sxy140.w.sxy1;
-                pkt->xy2 = a1->sxy140.w.sxy2;
-                pkt->xy3 = a1->sxy140.w.sxy3;
+                RR_SXY_COPY(pkt->xy0, a1->sxy140.w.sxy0);
+                RR_SXY_COPY(pkt->xy1, a1->sxy140.w.sxy1);
+                RR_SXY_COPY(pkt->xy2, a1->sxy140.w.sxy2);
+                RR_SXY_COPY(pkt->xy3, a1->sxy140.w.sxy3);
                 if (SkyLitOnScreen4(a1)) {
                     pkt->uv0 = a0->uv0;
                     pkt->uv1 = a0->uv1;
@@ -832,10 +832,10 @@ static SkyLitTexQuad24 *SkyEmitSpecTexQuadGT4(SkyLitTexQuad24 *a0, SkyLitCtx *a1
             RR_GTE14_SWC2_MAC0(&a1->mac0F0);
             if (a1->mac0EC > 0 || a1->mac0F0 < 0) {
                 RR_GTE14_SWC2_SXY2(&a1->sxy140.w.sxy3);
-                pkt->xy0 = a1->sxy140.w.sxy0;
-                pkt->xy1 = a1->sxy140.w.sxy1;
-                pkt->xy2 = a1->sxy140.w.sxy2;
-                pkt->xy3 = a1->sxy140.w.sxy3;
+                RR_SXY_COPY(pkt->xy0, a1->sxy140.w.sxy0);
+                RR_SXY_COPY(pkt->xy1, a1->sxy140.w.sxy1);
+                RR_SXY_COPY(pkt->xy2, a1->sxy140.w.sxy2);
+                RR_SXY_COPY(pkt->xy3, a1->sxy140.w.sxy3);
                 if (SkyLitOnScreen4(a1)) {
                     int z;
                     pkt->uv0 = a0->uv0;

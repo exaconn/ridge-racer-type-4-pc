@@ -349,12 +349,12 @@ void DrawTrackObjectBillboard(int modelIndex) {
                 word1 = work->projected34[1].word;
                 word3 = work->projected34[2].word;
                 word0 = TileFadeColorTable[(ScreenFrame - (phaseOffset = quad->flashPhase18 - 0x40)) & 0x3F];
-                packet->words.xy0 = word2;
-                packet->words.xy1 = word1;
-                packet->words.xy2 = word3;
+                RrSxyCopy(&packet->words.xy0, &work->projected34[0].word);
+                RrSxyCopy(&packet->words.xy1, &work->projected34[1].word);
+                RrSxyCopy(&packet->words.xy2, &work->projected34[2].word);
                 packet->words.color04 = word0;
                 RR_GTE_SWC2_SXY2(&work->projected34[3].word);
-                packet->words.xy3 = work->projected34[3].word;
+                RR_SXY_COPY(packet->words.xy3, work->projected34[3].word);
                 {
                     int x0 = work->projected34[0].xy.x;
                     int x1 = work->projected34[1].xy.x;
@@ -426,15 +426,15 @@ void DrawTrackObjectFlashQuads(int modelIndex) {
             word2 = work->projected24[0].word;
             word0 = work->projected24[1].word;
             word1 = work->projected24[2].word;
-            packet->words.xy0 = word2;
-            packet->words.xy1 = word0;
-            packet->words.xy2 = word1;
+            RrSxyCopy(&packet->words.xy0, &work->projected24[0].word);
+            RrSxyCopy(&packet->words.xy1, &work->projected24[1].word);
+            RrSxyCopy(&packet->words.xy2, &work->projected24[2].word);
             packet->words.color04 = word3;
             RR_GTE14_NOP2();
             RR_GTE14_AVSZ4();
             RR_GTE_SWC2_SXY2(&work->projected24[3].word);
             RR_GTE14_SWC2_OTZ(&work->depth1C);
-            packet->words.xy3 = work->projected24[3].word;
+            RR_SXY_COPY(packet->words.xy3, work->projected24[3].word);
             {
                 int otz = work->depth1C;
                 if (otz > 0) {
@@ -488,9 +488,9 @@ u8 *EmitModelTrisGT3(const TrackObjectLitWork *work, GpuDmaTag *head, u8 *packet
         x0 = Psyz_GteDataRead(12);
         x1 = Psyz_GteDataRead(13);
         x2 = Psyz_GteDataRead(14);
-        packet->xy0 = x0;
-        packet->xy1 = x1;
-        packet->xy2 = x2;
+        RR_GTE_STORE_SXY(12, &packet->xy0);
+        RR_GTE_STORE_SXY(13, &packet->xy1);
+        RR_GTE_STORE_SXY(14, &packet->xy2);
         y0 = x0 >> 16;
         y1 = x1 >> 16;
         y2 = x2 >> 16;

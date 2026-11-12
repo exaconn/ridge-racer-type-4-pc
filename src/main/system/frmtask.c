@@ -4,6 +4,7 @@
 #include "game/gfx/drawlist.h"
 /* RODATA 0x800102cc 0x24 */
 #include "types.h"
+#include "rr_asm.h"
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
 #include "scratchpad.h"
@@ -155,7 +156,11 @@ void MainLoop(void) {
     ModeIndex=1;
     SubmodeState=0;
     FrameCounter=0;
+    Psyz_GteSetPgxpLibraryStores(1);
     for (;;) {
+        /* The previous frame's ordering table went to the GPU (DrawOTag
+         * below, which copies its precise vertices along). */
+        Psyz_PgxpNextFrame();
         {
             s32 length=0x2C0;
             FrameStorage *frames;

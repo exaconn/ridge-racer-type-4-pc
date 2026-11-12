@@ -110,10 +110,10 @@ void DrawMenuGridMesh(s32 arg0, GpuDmaTag *arg1, s32 arg2) {
         pkt->code = 0x3C;
         s2 = s1 + s5;
         v1 = s2 + cols_total;
-        *(s32 *)&pkt->x0 = sxy_buf[s2];
-        *(s32 *)&pkt->x1 = sxy_buf[s2 + 1];
-        *(s32 *)&pkt->x2 = sxy_buf[v1];
-        *(s32 *)&pkt->x3 = sxy_buf[v1 + 1];
+        RrSxyCopy(&pkt->x0, &sxy_buf[s2]);
+        RrSxyCopy(&pkt->x1, &sxy_buf[s2 + 1]);
+        RrSxyCopy(&pkt->x2, &sxy_buf[v1]);
+        RrSxyCopy(&pkt->x3, &sxy_buf[v1 + 1]);
 
         pkt->u0 = pkt->u2 = MenuGridRecords[arg0].u30 + MenuGridRecords[arg0].du32 * s6;
         pkt->u1 = pkt->u3 = pkt->u0 + MenuGridRecords[arg0].du32;

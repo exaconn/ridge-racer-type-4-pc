@@ -85,21 +85,17 @@ void DrawRing(s32 *position, s32 radius)
     RING_STORE_SXY_PAIR(&scratch->geometry.screen[2], &scratch->geometry.screen[3]);
     packet->tag.length = 5;
     packet->code = 0x28;
-    packet->xy[0][0] = scratch->geometry.screen[0].x;
-    packet->xy[0][1] = scratch->geometry.screen[0].y;
-    packet->xy[1][0] = scratch->geometry.screen[1].x;
-    packet->xy[1][1] = scratch->geometry.screen[1].y;
-    packet->xy[2][0] = scratch->geometry.screen[2].x;
-    packet->xy[2][1] = scratch->geometry.screen[2].y;
-    packet->xy[3][0] = scratch->geometry.screen[3].x;
-    packet->xy[3][1] = scratch->geometry.screen[3].y;
+    RrSxyCopy(packet->xy[0], &scratch->geometry.screen[0]);
+    RrSxyCopy(packet->xy[1], &scratch->geometry.screen[1]);
+    RrSxyCopy(packet->xy[2], &scratch->geometry.screen[2]);
+    RrSxyCopy(packet->xy[3], &scratch->geometry.screen[3]);
     segment++;
     packet->red = scratch->geometry.red;
     packet->green = scratch->geometry.green;
     packet->blue = scratch->geometry.blue;
     RR_GPU_LINK(head, packet);
-    scratch->geometry.screen[0] = scratch->geometry.screen[2];
-    scratch->geometry.screen[1] = scratch->geometry.screen[3];
+    RrSxyCopy(&scratch->geometry.screen[0], &scratch->geometry.screen[2]);
+    RrSxyCopy(&scratch->geometry.screen[1], &scratch->geometry.screen[3]);
     packet++;
   }
   while (segment < 33);

@@ -151,15 +151,12 @@ void DrawTrackObjectModel(int modelIndex, int flashing) {
                 } else {
                     word0 = FlashingLightColorTable[0];
                 }
-                word2 = work->projected58[0].word;
-                word1 = work->projected58[1].word;
-                word3 = work->projected58[2].word;
                 packetCursor->words.color04 = word0;
-                packetCursor->words.xy0 = word2;
-                packetCursor->words.xy1 = word1;
-                packetCursor->words.xy2 = word3;
+                RR_SXY_COPY(packetCursor->words.xy0, work->projected58[0].word);
+                RR_SXY_COPY(packetCursor->words.xy1, work->projected58[1].word);
+                RR_SXY_COPY(packetCursor->words.xy2, work->projected58[2].word);
                 RR_GTE_SWC2_SXY2(&work->projected58[3]);
-                packetCursor->words.xy3 = work->projected58[3].word;
+                RR_SXY_COPY(packetCursor->words.xy3, work->projected58[3].word);
                 {
                     int x0 = work->projected58[0].xy.x;
                     int x1 = work->projected58[1].xy.x;

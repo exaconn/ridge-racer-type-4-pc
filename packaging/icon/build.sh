@@ -1,28 +1,22 @@
 #!/bin/sh
-# Regenerate the application icons from ridge-racer-type-4.svg:
-#   packaging/icon/ridge-racer-type-4.png        1024x1024 source PNG
+# Regenerate the application icons from the 1024x1024 source PNG:
+#   packaging/icon/ridge-racer-type-4.png        source (alpha outside the badge)
 #   packaging/macos/RidgeRacerType4.icns         macOS bundle icon (iconutil)
 #   packaging/windows/ridge-racer-type-4.ico     Windows executable icon
-# Requires rsvg-convert (librsvg), iconutil (macOS) and ImageMagick (magick).
+# Requires sips and iconutil (macOS) and ImageMagick (magick).
 set -eu
 cd "$(dirname "$0")/../.."
-svg=packaging/icon/ridge-racer-type-4.svg
+src=packaging/icon/ridge-racer-type-4.png
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
-
-rsvg-convert -w 1024 -h 1024 "$svg" -o packaging/icon/ridge-racer-type-4.png
 
 iconset="$tmp/RidgeRacerType4.iconset"
 mkdir "$iconset"
 for size in 16 32 128 256 512; do
-    rsvg-convert -w $size -h $size "$svg" -o "$iconset/icon_${size}x${size}.png"
-    rsvg-convert -w $((size * 2)) -h $((size * 2)) "$svg" -o "$iconset/icon_${size}x${size}@2x.png"
+    sips -z $size $size "$src" --out "$iconset/icon_${size}x${size}.png" > /dev/null
+    sips -z $((size * 2)) $((size * 2)) "$src" --out "$iconset/icon_${size}x${size}@2x.png" > /dev/null
 done
 iconutil -c icns "$iconset" -o packaging/macos/RidgeRacerType4.icns
 
-for size in 16 24 32 48 64 128 256; do
-    rsvg-convert -w $size -h $size "$svg" -o "$tmp/ico_$size.png"
-done
-magick "$tmp"/ico_16.png "$tmp"/ico_24.png "$tmp"/ico_32.png "$tmp"/ico_48.png \
-    "$tmp"/ico_64.png "$tmp"/ico_128.png "$tmp"/ico_256.png \
+magick "$src" -define icon:auto-resize=256,128,64,48,32,24,16 \
     packaging/windows/ridge-racer-type-4.ico

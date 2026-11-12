@@ -20,7 +20,9 @@
  *                      Both match the PS1 GPU pixel for pixel; at Nx the
  *                      GPU rasterizer's first pixel of every NxN block is
  *                      the 1x pixel.
- *   RR4_TRACE=n        print the mode state every n VSyncs
+ *   RR4_TRACE=n        print the mode state every n VSyncs (with
+ *                      PSYZ_FRAME_LOG also "t ms", the host time of
+ *                      the log's present_ms column)
  *   RR4_PAD_SCRIPT=s   test input: hold pad buttons over VSync ranges.
  *                      s is a comma list of [2:]button@vsync[+frames]
  *                      (default 4 frames), e.g. "start@400,cross@900+6,
@@ -159,6 +161,7 @@ extern unsigned short SubmodeState;
 extern unsigned int FrameCounter;
 
 static long trace_every;
+static int frame_log; /* PSYZ_FRAME_LOG is set */
 
 /* Address of a global for RR4_WATCH / RR4_POKE. The executable exports its
  * symbols on macOS; on Linux and Windows only a build configured with
@@ -711,6 +714,11 @@ static void host_vsync(void) {
         fprintf(stderr, "vsync %ld frame %u mode %u/%d sub %u", frame_count,
                 FrameCounter, ModeGroup, ModeIndex, SubmodeState);
         print_watches();
+        /* host time on the clock of PSYZ_FRAME_LOG's present_ms */
+        if (frame_log)
+            fprintf(stderr, " t %.3f",
+                    (double)SDL_GetPerformanceCounter() * 1000.0 /
+                        (double)SDL_GetPerformanceFrequency());
         fputc('\n', stderr);
     }
     if ((frame_limit > 0 && frame_count >= frame_limit) || Psyz_QuitRequested())
@@ -845,6 +853,7 @@ int main(int argc, char **argv) {
         const char *trace = getenv("RR4_TRACE");
         frame_limit = limit ? strtol(limit, NULL, 10) : 0;
         trace_every = trace ? strtol(trace, NULL, 10) : 0;
+        frame_log = SDL_getenv("PSYZ_FRAME_LOG") != NULL;
         parse_watch(getenv("RR4_WATCH"));
         parse_pad_script(getenv("RR4_PAD_SCRIPT"));
         parse_poke(getenv("RR4_POKE"));

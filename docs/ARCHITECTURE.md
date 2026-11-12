@@ -72,6 +72,10 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      steps inside polygons (each still dithered per VRAM pixel). Sprites,
      rectangles, lines, fills and transfers cover whole blocks; read-backs
      and texture sampling use the native VRAM, which is the 1x result.
+     Semi-transparent primitives blend in the shader with their destination
+     pixel: on Apple GPUs (Metal) read from the colour attachment
+     (framebuffer fetch), elsewhere from a copy of the target made before
+     the primitive (`PSYZ_GPU_FETCH=0` forces the copies on Metal).
    - **Geometry correction:** the renderers store every projected vertex
      through `RR_GTE_STORE_SXY` / `RR_SXY_COPY` (`include/rr_asm.h`), so
      PsyZ finds the precise projection of each packet vertex by its address

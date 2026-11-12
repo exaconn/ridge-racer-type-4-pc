@@ -42,9 +42,15 @@ class DuckStation:
             except OSError:
                 time.sleep(0.1)
         self.g.settimeout(10)
+        for s in (self.ai, self.g):
+            s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     def cmd(self, line):
+        # While the emulator is paused, regtest blocks up to 100 ms in its GDB
+        # poll before it services the control port: a GDB read right after the
+        # command wakes it (about 20 times faster per command).
         self.ai.sendall((line + '\n').encode())
+        self._gsend('m80000000,4')
         return self.aif.readline().decode().strip()
 
     def advance(self, n):
@@ -76,6 +82,7 @@ class DuckStation:
         two at 5 bits (value >> 3 recovers c from either), or compare VRAM:
         `vram <path>` here, RR4_GPU_DUMP_AT in the port (GPUDUMP replay)."""
         self.ai.sendall(b'screenshot\n')
+        self._gsend('m80000000,4')
         hdr = self.aif.readline().decode().split()
         if hdr[0] != 'SCREENSHOT':
             raise RuntimeError(hdr)

@@ -98,9 +98,6 @@ jobs:
   windows:
     runs-on: windows-2022
     timeout-minutes: 60
-    # The game code still assumes LP64 (long holds a pointer); the Windows
-    # build is experimental until it is LLP64-clean, so it does not gate.
-    continue-on-error: true
     defaults:
       run:
         shell: msys2 {0}
@@ -126,20 +123,27 @@ jobs:
       - name: Configure
         run: >-
           cmake -S . -B build/release -G Ninja -DCMAKE_BUILD_TYPE=Release
-          -DBUILD_TESTING=ON -DCMAKE_EXE_LINKER_FLAGS="-static -static-libgcc"
-      - name: Build the settings test
-        run: cmake --build build/release --target rr4_settings_test --parallel 4
+          -DBUILD_TESTING=ON
+      - name: Build
+        run: cmake --build build/release --parallel 4
       - name: Unit tests (no game data)
         run: ctest --test-dir build/release --output-on-failure --no-tests=error
-      - name: Build the game
-        run: cmake --build build/release --parallel 4
       - name: Package (unsigned)
         run: |
           set -euo pipefail
           package="Ridge-Racer-Type-4-${VERSION}-windows-x86_64-experimental"
           mkdir -p "dist/${package}"
           cp build/release/ridge-racer-type-4-pc.exe "dist/${package}/"
+          strip "dist/${package}/ridge-racer-type-4-pc.exe"
           packaging/stage.sh "dist/${package}" build/release
+          # Everything but Windows system DLLs is linked statically.
+          objdump -p "dist/${package}/ridge-racer-type-4-pc.exe" | grep 'DLL Name'
+          if objdump -p "dist/${package}/ridge-racer-type-4-pc.exe" | grep 'DLL Name' \
+              | grep -viE 'DLL Name: (api-ms-win-|kernel32|user32|gdi32|shell32|ole32|oleaut32|advapi32|imm32|winmm|version|setupapi|cfgmgr32|hid|dinput8|xinput|dxgi|d3d|dwmapi|uxtheme|shcore|comdlg32|winspool|ws2_32|bcrypt|ntdll|msvcrt|ucrtbase)'; then
+            echo "unexpected DLL dependency" >&2
+            exit 1
+          fi
+          objdump -h "dist/${package}/ridge-racer-type-4-pc.exe" | grep -q '\.rsrc'
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: validation-windows-x86_64

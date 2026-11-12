@@ -31,6 +31,13 @@ Every file must compile with the root CMake flags:
 -fno-strict-aliasing -fwrapv`. Silencing a diagnostic with a cast that
 truncates a pointer is not a fix.
 
+The game also builds for 64-bit Windows, where `long` is 32 bits (LLP64).
+`tools/port/check.sh` compiles every file a second time for the Clang
+MinGW-w64 target with `-Wshorten-64-to-32 -Wformat` (CI runs it on Linux);
+install `mingw-w64` (Homebrew) to run it locally. Never keep a pointer or a
+host size in `long` / `unsigned long`; SDK prototypes keep `long` only where
+PsyZ declares `long`, and PsyZ `u_long` (pointer width) is `PsyqULong`.
+
 ### GTE
 
 `include/rr_asm.h` expresses the original COP2 sequences in C over the PsyZ

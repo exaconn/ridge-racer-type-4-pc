@@ -59,7 +59,7 @@ jobs:
       - name: Configure
         run: >-
           cmake -S . -B build/release -G Ninja -DCMAKE_BUILD_TYPE=Release
-          -DBUILD_TESTING=ON -DCMAKE_EXE_LINKER_FLAGS="-static -static-libgcc"
+          -DBUILD_TESTING=ON
       - name: Build
         run: cmake --build build/release --parallel 4
       - name: Unit tests (no game data)

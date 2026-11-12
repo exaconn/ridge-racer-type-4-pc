@@ -139,9 +139,10 @@ PSYZ_HEADLESS=1 SDL_AUDIODRIVER=dummy RR4_FRAME_LIMIT=300 \
 
 ## Notes
 
-- The Windows build is experimental. The game code still assumes LP64
-  (`long` holds a pointer), so it does not compile for 64-bit Windows yet;
-  the Windows workflow fails until that is fixed, and release validation does
-  not gate on it. Leave the Windows link out of the notes until it builds.
+- The Windows build is experimental (MSYS2 UCRT64 GCC, LLP64). The
+  executable links the GCC runtime statically and depends only on Windows
+  system DLLs and the UCRT; the workflows check its imports and icon
+  resource. It is built and tested (settings test, startup without a disc)
+  but not yet played in CI; say so in the notes.
 - Linux builds use GCC (PsyZ relies on implicit declarations Clang rejects).
 - Never attach game data, disc images, memory cards or SDK files.

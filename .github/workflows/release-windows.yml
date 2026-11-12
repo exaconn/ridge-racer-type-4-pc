@@ -79,8 +79,8 @@ jobs:
             exit 1
           fi
           (cd dist && zip -qr "${package}.zip" "${package}")
-          unzip -l "dist/${package}.zip" | grep -q "${package}/ridge-racer-type-4-pc.exe$"
-          unzip -l "dist/${package}.zip" | grep -q "${package}/source-commit.txt$"
+          unzip -l "dist/${package}.zip" > package-list.txt && grep -q "${package}/ridge-racer-type-4-pc.exe$" package-list.txt
+          grep -q "${package}/source-commit.txt$" package-list.txt
           sha256sum "dist/${package}.zip"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:

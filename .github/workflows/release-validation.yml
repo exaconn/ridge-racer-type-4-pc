@@ -143,7 +143,7 @@ jobs:
             echo "unexpected DLL dependency" >&2
             exit 1
           fi
-          objdump -h "dist/${package}/ridge-racer-type-4-pc.exe" | grep -q '\.rsrc'
+          objdump -h "dist/${package}/ridge-racer-type-4-pc.exe" > package-sections.txt && grep -q '\.rsrc' package-sections.txt
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: validation-windows-x86_64

@@ -14,7 +14,8 @@ struct GpuDmaTag;
  * (Psyz_VideoSetWidescreenSqueeze 0), so the buffer holds exactly the 16:9
  * view at square pixels, without stretching it. Frames without such a view
  * (menus, 2D screens) are drawn and shown exactly as with the option off
- * (Psyz_VideoSetWidescreenNative).
+ * (Psyz_VideoSetWidescreenNative), at the display aspect rather than square
+ * pixels (Psyz_VideoSetWidescreenNativeAspect, port/preferences.c).
  *
  * With the option off every value here is the original one (margin 0). */
 

@@ -102,7 +102,11 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      holds exactly the 455.1-pixel 16:9 view at square pixels (squeeze
      45/64, margin 68, HUD shift 67), so nothing is stretched. Every other frame is marked
      `Psyz_VideoSetWidescreenNative`: drawn and shown exactly as in Classic
-     4:3 (menu captures are bit-identical). In Classic 4:3 every value is
+     4:3. The 16:9 view's square pixels come from `PSYZ_ASPECT_SQUARE`, so
+     those frames (and 24-bit movies) are presented at the display aspect
+     instead (`Psyz_VideoSetWidescreenNativeAspect(PSYZ_ASPECT_DISPLAY)`):
+     same picture aspect and scale as Classic, with bars at the sides of a
+     16:9 window, and bit-identical captures. In Classic 4:3 every value is
      the original one.
 
    - **Frame interpolation:** a race frame takes two fields (25 fps PAL);

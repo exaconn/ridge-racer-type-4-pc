@@ -477,25 +477,28 @@ int Rr4PrefsSave(const Rr4Prefs *prefs) { return Rr4PrefsSaveFile(prefs, s_path)
 
 void Rr4ApplyWidescreen(int enabled) {
     /* The squeeze fits the display mode, so the buffer holds exactly the
-     * 16:9 view at square pixels (rr/widescreen.h). Switched on: the buffers
+     * 16:9 view at square pixels (rr/widescreen.h). Frames shown without it
+     * (menus, 2D screens, movies) keep the display aspect, presented exactly
+     * as in Classic 4:3 with bars at the sides. Switched on: the buffers
      * drawn so far (RR4's display buffers start at rows 0 and 256,
      * system/frmenv.c) are shown as drawn, 4:3, until the game marks its
-     * next frames (camera/viewcam.c WideCommitFrame). */
+     * next frames (camera/viewcam.c WideCommitFrame). Without widescreen
+     * support everything stays Classic. */
     Psyz_VideoSetWidescreenSqueeze(0.0f);
+    Psyz_VideoSetWidescreenNativeAspect(PSYZ_ASPECT_DISPLAY);
     if (enabled && !Psyz_VideoGetWidescreen() && Psyz_VideoSetWidescreen(1) == 0) {
         Psyz_VideoSetWidescreenNative(0);
         Psyz_VideoSetWidescreenNative(256);
     } else if (!enabled) {
         Psyz_VideoSetWidescreen(0);
     }
+    Psyz_VideoSetAspectMode(Psyz_VideoGetWidescreen() ? PSYZ_ASPECT_SQUARE : PSYZ_ASPECT_DISPLAY);
 }
 
 void Rr4PrefsApply(const Rr4Prefs *p, int window_ready) {
     static const PsyzVsyncMode kVsync[] = {PSYZ_VSYNC_AUTO, PSYZ_VSYNC_ON, PSYZ_VSYNC_OFF};
 
     Psyz_VideoSetInternalResolution(p->scale >= 1 ? p->scale : 1);
-    Psyz_VideoSetAspectMode(p->aspect_ratio == RR4_ASPECT_WIDESCREEN ? PSYZ_ASPECT_SQUARE
-                                                                     : PSYZ_ASPECT_DISPLAY);
     Psyz_VideoSetDitheringMode(p->disable_dithering ? PSYZ_DITHER_OFF : PSYZ_DITHER_AUTO);
     Psyz_VideoSetAntialiasing(p->antialiasing != 0);
     Psyz_VideoSetModelFiltering(p->texture_filtering != 0);

@@ -20,11 +20,15 @@ struct GpuDmaTag;
  *   - a key from the renderer: the face or tile record in the loaded model
  *     data, the level of detail and the piece of a subdivided tile.
  *
- * PsyZ draws a tagged packet at the midpoint of its two poses when the
- * previous frame drew the same identity with the same texture coordinates;
- * anything else (a new tile, a level-of-detail change, untagged HUD and 2D
- * packets) keeps its own pose. A camera cut (InterpCameraCut, and a jump of
- * the view's camera between frames) drops the pairs of that frame.
+ * PsyZ draws a tagged packet at the midpoint of its two poses (in view
+ * space) when the previous frame drew the same identity with the same
+ * texture coordinates; an identity the previous frame drew and this one
+ * leaves out is drawn there as a ghost continuing its motion, and a new
+ * identity where ghosts go is left out of the midpoint. Anything else (a
+ * newly visible tile, untagged HUD and 2D packets) keeps its own pose. A
+ * camera cut (InterpCameraCut, and a jump of the view's camera between
+ * frames) drops the pairs of that frame, and PsyZ then shows the frame
+ * before for the midpoint's field.
  *
  * With the option off InterpObject stays 0 and nothing is tagged. */
 

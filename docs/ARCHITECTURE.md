@@ -132,8 +132,19 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      Other midpoint-only geometry pairs only with a pose the frame before
      drew. A camera jump (`InterpViewCamera`) or a mode
      change starts new identities, also for the level-of-detail history
-     (`InterpViewGeneration`). Off, nothing is tagged and every value is the
-     original one.
+     (`InterpViewGeneration`). PsyZ places a paired vertex at the projection
+     of the midpoint of its two view-space positions (the screen positions
+     weighted by their PGXP depths), so subdivided pieces stay on their
+     neighbours' edges and near geometry moves as the camera does. An
+     identity the frame before drew and this frame leaves out (a tile
+     leaving the drawn range, a model switching to another representation,
+     a culled object) is drawn into the midpoint as a ghost: its last
+     primitive continues its motion, right after the primitive drawn before
+     it in that frame; a new identity where ghosts go stays out of the
+     midpoint. A midpoint that is no plausible in-between (most identities
+     new: a cut; or much of the picture without a pose in the frame before)
+     is not shown: the frame before stays for that field. Off, nothing is
+     tagged and every value is the original one.
 
    - **Video timing (PAL / NTSC):** the PAL release is the NTSC game with
      every value that counts frames converted to 25 frames a second: frame

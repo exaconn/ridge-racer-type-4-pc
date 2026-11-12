@@ -7,11 +7,15 @@
  *   RR4_CAPTURE=file   write the displayed frame as a PPM when exiting
  *   RR4_VRAM=file      write the whole VRAM as a PPM when exiting
  *   RR4_CAPTURE_AT=l   also write the displayed frame at each VSync of the
- *                      comma list l, as <RR4_CAPTURE or "capture">.<vsync>.ppm
+ *                      comma list l, as <RR4_CAPTURE or "capture">.<vsync>.ppm;
+ *                      an entry a-b/s is every s-th VSync from a to b
  *   RR4_CAPTURE_MID=1  with frame interpolation, also write the midpoint
  *                      drawn for the displayed buffer (the in-between of the
  *                      frame shown and the one before it) at each of those
- *                      VSyncs, as <...>.<vsync>.mid.ppm.
+ *                      VSyncs, as <...>.<vsync>.mid.ppm. When no midpoint
+ *                      was presented in the two fields before the VSync
+ *                      (the frame before stayed on screen), an empty
+ *                      <...>.<vsync>.held marks it.
  *   RR4_GPU_DUMP_AT=l  record the GPU commands of the frame after each
  *                      VSync of the comma list l (to the next VSync) as
  *                      <RR4_GPU_DUMP or "gpudump">.<vsync>.psxgpu, a GPUDUMP
@@ -670,12 +674,19 @@ static void host_exit(void) {
     exit(0);
 }
 
-static long capture_at[64];
+/* RR4_CAPTURE_AT entries: VSyncs first..last, every step-th. */
+static struct {
+    long first, last, step;
+} capture_at[64];
 static int capture_at_len;
 
 static void capture_at_vsync(long vsync) {
+    /* midpoints presented by each of the last VSyncs */
+    static unsigned long long presented[4];
+    presented[vsync & 3] = Psyz_GpuGetInterpolatedPresentCount();
     for (int i = 0; i < capture_at_len; i++) {
-        if (capture_at[i] == vsync) {
+        if (vsync >= capture_at[i].first && vsync <= capture_at[i].last &&
+            (vsync - capture_at[i].first) % capture_at[i].step == 0) {
             const char *base = path_env("RR4_CAPTURE");
             char path[512];
             int w, h;
@@ -686,6 +697,13 @@ static void capture_at_vsync(long vsync) {
                 snprintf(path, sizeof(path), "%s.%ld.mid.ppm", base && *base ? base : "capture", vsync);
                 if (mid)
                     write_ppm(path, mid, w, h);
+                if (mid && presented[vsync & 3] == presented[(vsync - 2) & 3]) {
+                    FILE *held;
+                    snprintf(path, sizeof(path), "%s.%ld.held", base && *base ? base : "capture", vsync);
+                    held = Psyz_FileOpen(path, "w");
+                    if (held)
+                        fclose(held);
+                }
             }
         }
     }
@@ -893,7 +911,14 @@ int main(int argc, char **argv) {
         }
         for (const char *l = getenv("RR4_CAPTURE_AT"); l && *l && capture_at_len < 64;) {
             char *end;
-            capture_at[capture_at_len++] = strtol(l, &end, 10);
+            long first = strtol(l, &end, 10), last = first, step = 1;
+            if (*end == '-')
+                last = strtol(end + 1, &end, 10);
+            if (*end == '/')
+                step = strtol(end + 1, &end, 10);
+            capture_at[capture_at_len].first = first;
+            capture_at[capture_at_len].last = last;
+            capture_at[capture_at_len++].step = step > 0 ? step : 1;
             l = *end == ',' ? end + 1 : NULL;
         }
     }

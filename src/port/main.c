@@ -733,16 +733,23 @@ static void finish_audio_capture(void) {
 
 static void host_exit(void) {
     const char *path;
+    unsigned char *rgb;
     int w, h;
 
     finish_audio_capture();
 
+    /* the frame first, then its size: argument evaluation order is
+     * unspecified (GCC on x86-64 reads w and h before the call) */
     path = path_env("RR4_CAPTURE");
-    if (path && *path)
-        write_ppm(path, Psyz_VideoAllocRenderedFrame(&w, &h), w, h);
+    if (path && *path) {
+        rgb = Psyz_VideoAllocRenderedFrame(&w, &h);
+        write_ppm(path, rgb, w, h);
+    }
     path = path_env("RR4_VRAM");
-    if (path && *path)
-        write_ppm(path, Psyz_VideoAllocVramDump(&w, &h), w, h);
+    if (path && *path) {
+        rgb = Psyz_VideoAllocVramDump(&w, &h);
+        write_ppm(path, rgb, w, h);
+    }
     fprintf(stderr, "ridge-racer-type-4-pc: exit after %ld vsyncs\n", frame_count);
     exit(0);
 }
@@ -764,7 +771,8 @@ static void capture_at_vsync(long vsync) {
             char path[512];
             int w, h;
             snprintf(path, sizeof(path), "%s.%ld.ppm", base && *base ? base : "capture", vsync);
-            write_ppm(path, Psyz_VideoAllocRenderedFrame(&w, &h), w, h);
+            unsigned char *rgb = Psyz_VideoAllocRenderedFrame(&w, &h);
+            write_ppm(path, rgb, w, h);
             if (getenv("RR4_CAPTURE_MID") && *getenv("RR4_CAPTURE_MID") == '1') {
                 unsigned char *mid = Psyz_VideoAllocMidpointFrame(&w, &h);
                 snprintf(path, sizeof(path), "%s.%ld.mid.ppm", base && *base ? base : "capture", vsync);

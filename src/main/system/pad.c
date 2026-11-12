@@ -16,7 +16,7 @@ extern s32 PadPortConnectionFlags[2];
 extern s32 PadMotorActuatorCmd[2];
 extern s16 TwistRangeLimits[4];
 extern s16 PadRangeLimits[6];
-extern s32 WheelDeadzoneTable[8];
+extern s32 WheelDeadzoneTable[4];
 extern s32 PadDeadzoneTable[4];
 extern s16 PadDigitalSteerSpeed;
 int abs(int);

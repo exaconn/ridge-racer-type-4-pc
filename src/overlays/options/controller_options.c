@@ -70,7 +70,7 @@ extern const StrokeStep4 *ovl665_callout_paths_type3[8][5];
 extern s32 ovl665_controller_row_counts[];
 extern s32 ovl665_controller_model_scales[];
 extern u8 ovl665_twist_needle_color[];
-extern u8 ovl665_screen_arrow_uv_rects[], ovl665_controller_arrow_uv_rect[];
+extern UiUvRect ovl665_screen_arrow_uv_rects[2];
 extern s16 TwistRangeLimits[];
 extern s16 PadRangeLimits[];
 extern s32 WheelDeadzoneTable[];
@@ -264,10 +264,10 @@ void ovl665_update_controller_options(s32 player) {
                 ovl665_draw_callout_strokes(ovl665_callout_paths_type0[Options.pulse[player].buttonLayout00], ST.fade24);
                 cursor = SCRATCH->cursor;
                 if (Options.pulse[player].buttonLayout00 > 0) {
-                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 280, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 280, &ovl665_screen_arrow_uv_rects[0], 0x7F38, 255);
                 }
                 if (Options.pulse[player].buttonLayout00 < 7) {
-                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 280, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 280, &ovl665_screen_arrow_uv_rects[1], 0x7F38, 255);
                 }
                 SCRATCH->cursor = cursor;
                 break;
@@ -299,10 +299,10 @@ void ovl665_update_controller_options(s32 player) {
                 ovl665_draw_callout_strokes(ovl665_callout_paths_type1[Options.pad[player].buttonLayout0C], ST.fade24);
                 cursor = SCRATCH->cursor;
                 if (Options.pad[player].buttonLayout0C > 0) {
-                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 280, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 280, &ovl665_screen_arrow_uv_rects[0], 0x7F38, 255);
                 }
                 if (Options.pad[player].buttonLayout0C < 7) {
-                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 280, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+                    cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 280, &ovl665_screen_arrow_uv_rects[1], 0x7F38, 255);
                 }
                 SCRATCH->cursor = cursor;
                 break;
@@ -339,10 +339,10 @@ void ovl665_update_controller_options(s32 player) {
                     ovl665_draw_callout_strokes(ovl665_callout_paths_type2[Options.pulse[player].buttonLayout00], ST.fade24);
                     cursor = SCRATCH->cursor;
                     if (Options.pulse[player].buttonLayout00 > 0) {
-                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 280, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 280, &ovl665_screen_arrow_uv_rects[0], 0x7F38, 255);
                     }
                     if (Options.pulse[player].buttonLayout00 < 7) {
-                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 280, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 280, &ovl665_screen_arrow_uv_rects[1], 0x7F38, 255);
                     }
                     SCRATCH->cursor = cursor;
                 } else {
@@ -375,10 +375,10 @@ void ovl665_update_controller_options(s32 player) {
                     ovl665_draw_callout_strokes(ovl665_callout_paths_type3[Options.wheel[player].buttonLayout03], ST.fade24);
                     cursor = SCRATCH->cursor;
                     if (Options.wheel[player].buttonLayout03 > 0) {
-                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 280, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 280, &ovl665_screen_arrow_uv_rects[0], 0x7F38, 255);
                     }
                     if (Options.wheel[player].buttonLayout03 < 7) {
-                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 280, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+                        cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 280, &ovl665_screen_arrow_uv_rects[1], 0x7F38, 255);
                     }
                     SCRATCH->cursor = cursor;
                 }
@@ -490,10 +490,10 @@ void ovl665_update_controller_options(s32 player) {
             }
             cursor = SCRATCH->cursor;
             if (Options.pad[player].deadzone08 > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, &ovl665_screen_arrow_uv_rects[0], 0x7F38, 255);
             }
             if (Options.pad[player].deadzone08 < 3) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, &ovl665_screen_arrow_uv_rects[1], 0x7F38, 255);
             }
             SCRATCH->cursor = cursor;
             break;
@@ -519,10 +519,10 @@ void ovl665_update_controller_options(s32 player) {
             }
             cursor = SCRATCH->cursor;
             if (Options.pad[player].range0A > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, &ovl665_screen_arrow_uv_rects[0], 0x7F38, 255);
             }
             if (Options.pad[player].range0A < 3) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, &ovl665_screen_arrow_uv_rects[1], 0x7F38, 255);
             }
             SCRATCH->cursor = cursor;
             break;
@@ -587,10 +587,10 @@ void ovl665_update_controller_options(s32 player) {
             }
             cursor = SCRATCH->cursor;
             if (Options.wheel[player].deadzone00 > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, &ovl665_screen_arrow_uv_rects[0], 0x7F38, 255);
             }
             if (Options.wheel[player].deadzone00 < 3) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, &ovl665_screen_arrow_uv_rects[1], 0x7F38, 255);
             }
             SCRATCH->cursor = cursor;
             break;
@@ -615,10 +615,10 @@ void ovl665_update_controller_options(s32 player) {
             }
             cursor = SCRATCH->cursor;
             if (Options.wheel[player].range01 > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, &ovl665_screen_arrow_uv_rects[0], 0x7F38, 255);
             }
             if (Options.wheel[player].range01 < 4) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, &ovl665_screen_arrow_uv_rects[1], 0x7F38, 255);
             }
             SCRATCH->cursor = cursor;
             break;
@@ -644,10 +644,10 @@ void ovl665_update_controller_options(s32 player) {
             }
             cursor = SCRATCH->cursor;
             if (Options.wheel[player].rumble02 > 0) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, ovl665_screen_arrow_uv_rects, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 56, 182, &ovl665_screen_arrow_uv_rects[0], 0x7F38, 255);
             }
             if (Options.wheel[player].rumble02 < 2) {
-                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, ovl665_controller_arrow_uv_rect, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], cursor, 254, 182, &ovl665_screen_arrow_uv_rects[1], 0x7F38, 255);
             }
             SCRATCH->cursor = cursor;
             break;
@@ -677,8 +677,9 @@ void ovl665_update_controller_options(s32 player) {
 }
 
 /* Initial values of the overlay globals this module owns. */
-u8 ovl665_screen_arrow_uv_rects[4] = {0xE8, 0x58, 8, 0x10};
-u8 ovl665_controller_arrow_uv_rect[4] = {0xF0, 0x58, 8, 0x10};
+/* Left and right arrows: screen adjust draws both as one two-rect table,
+ * the controller screens the left one ([0]) and the right one ([1]). */
+UiUvRect ovl665_screen_arrow_uv_rects[2] = {{.u = 0xE8, .v = 0x58, .w = 8, .h = 0x10}, {.u = 0xF0, .v = 0x58, .w = 8, .h = 0x10}};
 Ovl665Colour4 ovl665_controller_colors_type0[8][5] = {{{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}, {{.b = 0x6D}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}, {{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6F}, {.b = 0x6E}}, {{.b = 0x6D}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}, {.b = 0x6F}, {.b = 0x6E}}, {{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}, {{.b = 0x6D}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}, {{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6F}, {.b = 0x6E}}, {{.b = 0x6D}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}, {.b = 0x6F}, {.b = 0x6E}}};
 Ovl665Colour4 ovl665_controller_colors_type1[8][5] = {{{.a = 1, .b = 0x16}, {.a = 1, .b = 0x17}, {.b = 0x6D}, {.b = 0x6E}, {.b = 0x6F}}, {{.a = 1, .b = 0x16}, {.a = 1, .b = 0x17}, {.b = 0x6D}, {.b = 0x6F}, {.b = 0x6E}}, {{.a = 1, .b = 0x17}, {.b = 0x6E}, {.b = 0x6F}, {.a = 1, .b = 0x16}, {.b = 0x6D}}, {{.a = 1, .b = 0x17}, {.b = 0x6E}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6F}}, {{.a = 1, .b = 0x17}, {.b = 0x6E}, {.b = 0x6F}, {.a = 1, .b = 0x16}, {.b = 0x6D}}, {{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}, {{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6F}, {.b = 0x6E}}, {{.a = 1, .b = 0x17}, {.b = 0x6F}, {.a = 1, .b = 0x16}, {.b = 0x6D}, {.b = 0x6E}}};
 Ovl665Colour4 ovl665_controller_colors_type2[8][5] = {{{.b = 0x6E}, {.a = 1, .b = 0x17}, {.b = 0x6F}, {.a = 1, .b = 0x16}, {.b = 0x6D}}, {{.b = 0x6E}, {.b = 0x6D}, {.b = 0x6F}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}}, {{.a = 1, .b = 0x17}, {.b = 0x6E}, {.b = 0x6F}, {.a = 1, .b = 0x16}, {.b = 0x6D}}, {{.b = 0x6E}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}, {.b = 0x6F}, {.b = 0x6D}}, {{.b = 0x6E}, {.b = 0x6F}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.a = 1, .b = 0x17}}, {{.b = 0x6D}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}, {{.b = 0x6D}, {.b = 0x6E}, {.b = 0x6F}, {.a = 1, .b = 0x17}, {.a = 1, .b = 0x16}}, {{.a = 1, .b = 0x17}, {.b = 0x6D}, {.a = 1, .b = 0x16}, {.b = 0x6E}, {.b = 0x6F}}};
@@ -705,7 +706,6 @@ static const OverlayStateRegion ovl665_controller_options_regions[] = {
     RR_OVERLAY_STATE(ovl665_callout_steps_type0),
     RR_OVERLAY_STATE(ovl665_callout_steps_type1),
     RR_OVERLAY_STATE(ovl665_callout_steps_type2),
-    RR_OVERLAY_STATE(ovl665_controller_arrow_uv_rect),
     RR_OVERLAY_STATE(ovl665_controller_camera_poses),
     RR_OVERLAY_STATE(ovl665_controller_colors_type0),
     RR_OVERLAY_STATE(ovl665_controller_colors_type1),

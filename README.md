@@ -1,10 +1,16 @@
 # Ridge Racer Type 4
 
+[![Discord](https://img.shields.io/badge/Discord-Join%20Server-5865F2?logo=discord&logoColor=white)](https://discord.gg/hbGvPbFguk)
+
 <img src="packaging/icon/ridge-racer-type-4.png" alt="" width="128" align="right">
 
 A native PC port of *Ridge Racer Type 4*, built from the original game code
 with [our PsyZ fork](https://github.com/khasinski/parasite-eve-psyz). It runs
 on macOS, Linux and Windows. This is an early alpha.
+
+## Discord
+
+Join the [Discord server](https://discord.gg/hbGvPbFguk) for release updates and bug reports.
 
 ## Play
 

@@ -138,7 +138,7 @@ void DrawMenuFrame(int arg0) {
     R4 *r;
     int s2;
     unsigned short *pc;
-    int col1, col2, col3;
+    int col2, col3;
 
     s7 = 0x80;
     if (MenuFrameState.b6 != arg0) {
@@ -242,7 +242,7 @@ void DrawMenuFrame(int arg0) {
 
     a1 = AddTileSemiTransPrim(
         &CurrentDrawBuf->buffer.ordering70.tags[0], a1, 8, 0x38, 0x130, 2,
-        col1 = *pc, col1, col1
+        *pc, *pc, *pc
     );
     a1 = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, sp40);
     a1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.tags[0], a1, MenuFrameState.s10, MenuFrameState.s12, MenuFrameState.s14, MenuFrameState.s16);

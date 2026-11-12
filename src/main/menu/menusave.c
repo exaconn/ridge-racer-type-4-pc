@@ -16,7 +16,6 @@ void UpdateSaveProgress(void) {
     u8 sp10[4];
     s32 old_count;
     s32 i, k;
-    MenuSettings2C *settings;
     s32 glyph;
     s32 j;
     s32 found;
@@ -31,9 +30,8 @@ void UpdateSaveProgress(void) {
     MARK_PROGRESS(SelectionState.fields.copies[0]);
     SaveProgress.history6C[3] = *(SelectionRow *)&SelectionState.fields.copies[0];
     do {
-        settings = (MenuSettings2C *)((u8 *)&SelectionState.fields + i * 4);
-        MARK_PROGRESS(settings->copies[1]);
-        SaveProgress.history6C[i] = *(SelectionRow *)&settings->copies[1];
+        MARK_PROGRESS(SelectionState.fields.copies[1 + i]);
+        SaveProgress.history6C[i] = *(SelectionRow *)&SelectionState.fields.copies[1 + i];
         i++;
     } while (i < 3);
 

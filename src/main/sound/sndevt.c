@@ -64,7 +64,7 @@ void SoundFindNearestCars(s32 arg0) {
     s32 i;
     s32 dist;
     RaceVehicle *car;
-    RaceVehicleControl *sub;
+    const RaceVehicleControl *sub;
 
     prev_idx[0] = SoundState.rec18EC[0].carIndex04;
     prev_idx[1] = SoundState.rec18EC[1].carIndex04;
@@ -142,12 +142,12 @@ void SoundFindNearestCars(s32 arg0) {
         }
     }
 
-    sub = &ComCars[min_idx[0]].control;
+    sub = &SoundComCar(min_idx[0])->control;
     if (sub->dynamics94.steering.mode00 != 0) {
         SetPlayerVoice(1, sub->dynamics94.steering.range2C, sub->dynamics94.steering.gain30, 1);
         SoundState.playerVoices195C[1].slot18 = slot[0] + 2;
     } else {
-        sub = &ComCars[min_idx[1]].control;
+        sub = &SoundComCar(min_idx[1])->control;
         if (sub->dynamics94.steering.mode00 != 0) {
             SetPlayerVoice(1, sub->dynamics94.steering.range2C, sub->dynamics94.steering.gain30, 1);
             SoundState.playerVoices195C[1].slot18 = slot[1] + 2;
@@ -157,11 +157,26 @@ void SoundFindNearestCars(s32 arg0) {
     }
 }
 
+/* A listener record with no car holds index -1 and the original still reads
+ * that "car" (ComCars[-1] / PlayerCars[-1]). On the PS1 ComCars[-1] is the
+ * never-written tail of the dialogue table buffer (zero); PlayerCars[-1]
+ * holds libgpu state words. Nothing is applied from such a record (the
+ * slot update skips index -1), so read a zeroed vehicle. */
+static const RaceVehicle SoundNoCar;
+
+static const RaceVehicle *SoundCar(RaceVehicle *cars, s32 index) {
+    return index < 0 ? &SoundNoCar : &cars[index];
+}
+
+const RaceVehicle *SoundComCar(s32 index) {
+    return SoundCar(ComCars, index);
+}
+
 void SoundCalcCarParams(s32 idx) {
     SoundGteScratch f;
     AudioState *B = &SoundState;
     AudioState *B2, *B3;
-    RaceVehicle *e;
+    const RaceVehicle *e;
     s32 rx, ry, rz;
     s32 mode, a, c, t, ang, prev, t2;
     s32 s2;
@@ -170,13 +185,13 @@ void SoundCalcCarParams(s32 idx) {
     mode = B->rec18EC[idx].mode00;
     switch (mode) {
     case 0:
-        e = &PlayerCars[B->rec18EC[idx].carIndex04];
+        e = SoundCar(PlayerCars, B->rec18EC[idx].carIndex04);
         f.d[0] = (e->position20.vector.x - B->pos18C4[0]) / 16;
         f.d[1] = (e->position20.vector.y - B->pos18C4[1]) / 16;
         f.d[2] = (e->position20.vector.z - B->pos18C4[2]) / 16;
         break;
     case 1:
-        e = &ComCars[B->rec18EC[idx].carIndex04];
+        e = SoundComCar(B->rec18EC[idx].carIndex04);
         f.d[0] = (e->position20.vector.x - B->pos18C4[0]) / 16;
         f.d[1] = (e->position20.vector.y - B->pos18C4[1]) / 16;
         f.d[2] = (e->position20.vector.z - B->pos18C4[2]) / 16;
@@ -231,17 +246,17 @@ void SoundCalcCarParams(s32 idx) {
 }
 
 void UpdateCarSpatialAudio(int arg0) {
-    int k = arg0 * 3;
     int t = arg0 + 2;
     AudioState *b;
     AudioState *s;
     SoundCalcCarParams(t);
     b = &SoundState;
-    s = (AudioState *)((char *)b + (((k << 4) + arg0) << 5));
-    s->slots38[0].filter30 = b->rec18EC[t].deltaDist10;
-    s->slots38[0].pan24 = b->rec18EC[t].pan14;
-    s->slots38[0].levels20.halves.gain = b->rec18EC[t].vol16;
-    s->slots38[0].spatial2C.word = b->rec18EC[t].depth18;
+    s = b;
+    /* The original addresses slot arg0 as SoundState + arg0 * 0x620. */
+    s->slots38[arg0].filter30 = b->rec18EC[t].deltaDist10;
+    s->slots38[arg0].pan24 = b->rec18EC[t].pan14;
+    s->slots38[arg0].levels20.halves.gain = b->rec18EC[t].vol16;
+    s->slots38[arg0].spatial2C.word = b->rec18EC[t].depth18;
 }
 
 /* Initial values of the globals this module owns. */

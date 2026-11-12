@@ -12,8 +12,6 @@ void ApplyRubberBandSpec(RaceVehicle *a0) {
     int a, b;
     int lo;
     int tt;
-    short *a1;
-    short *a2;
     int k;
     int w;
     int v1;
@@ -35,15 +33,11 @@ void ApplyRubberBandSpec(RaceVehicle *a0) {
             lo = (b << 10) / __builtin_abs(s3->divisor11C);
             k = 1;
             if (s0 < lo) s0 = lo;
-            a2 = (short *)s2 + 1;
-            a1 = (short *)s3 + 1;
             do {
                 v1 = s2->ratios08[0];
-                tt = ((RaceSpecEntry30 *)a2)->ratios08[0];
-                ((RaceVehicleControl *)a1)->gearRatios100[0] = ((((v1 - tt) * s0) / 1024) + tt) * 4;
-                a2++;
+                tt = s2->ratios08[k];
+                s3->gearRatios100[k] = ((((v1 - tt) * s0) / 1024) + tt) * 4;
                 k++;
-                a1++;
             } while (k < 6);
             v1 = s2->altSpeed28;
             w = s2->baseSpeed00;

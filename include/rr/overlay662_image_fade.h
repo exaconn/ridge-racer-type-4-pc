@@ -16,7 +16,7 @@ extern s16 ovl662_emblem_preview_fade;
  * The returned cursor is published once after drawing. Phase advances modulo16
  * by8 in mode1,otherwise4,or saturates128 if the reloaded signed phase>=128.
  * Scratch/context/packet alignment and capacity follow the shared emitters. */
-s32 ovl662_draw_emblem_preview_fade(s32 mode);
+void ovl662_draw_emblem_preview_fade(s32 mode);
 RR_ASSERT_SIZE(GarageFadeGeometry,64);
 RR_ASSERT_OFFSET(GarageFadeGeometry,y,16);
 RR_ASSERT_OFFSET(GarageFadeGeometry,u,32);

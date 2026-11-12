@@ -11,14 +11,14 @@
 void SoundUpdateComSlots(void) {
     int i;
     for (i = 0; i < 2; i++) {
-        AudioState *c = (AudioState *)((char *)&SoundState + i * 0x1C);
-        RaceVehicle *r = &ComCars[c->rec18EC[0].carIndex04];
+        AudioListenerRecord1C *c = &SoundState.rec18EC[i];
+        const RaceVehicle *r = SoundComCar(c->carIndex04);
         SoundCalcCarParams(i);
-        if (c->rec18EC[0].carIndex04 != -1) {
-            SoundState.slots38[i + 2].filter30 = c->rec18EC[0].deltaDist10;
-            SoundState.slots38[i + 2].pan24 = c->rec18EC[0].pan14;
-            SoundState.slots38[i + 2].levels20.halves.gain = c->rec18EC[0].vol16;
-            SoundState.slots38[i + 2].spatial2C.word = c->rec18EC[0].depth18;
+        if (c->carIndex04 != -1) {
+            SoundState.slots38[i + 2].filter30 = c->deltaDist10;
+            SoundState.slots38[i + 2].pan24 = c->pan14;
+            SoundState.slots38[i + 2].levels20.halves.gain = c->vol16;
+            SoundState.slots38[i + 2].spatial2C.word = c->depth18;
             SlotSetLevelProgram(r->control.engine54.halves.rpm, (u16)r->control.engine54.halves.accelerating, i + 2);
         }
     }

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "types.h"
 #include "rr/audio_bank_setup.h"
 #include "rr/runtime_settings.h"
@@ -102,16 +103,29 @@ void UpdateSoundSlot(int slotIndex) {
     }
 }
 
+/* A curve is keys[9] then values[9]. Past the last key the original reads
+ * keys[9] / values[9]: the first value of this curve and the first key of the
+ * next one (the program payload has no host pointers, so it keeps the PS1
+ * layout); read those words from the payload instead of indexing past the
+ * arrays. */
+static s32 SlotCurveWord(const AudioProgramData *data, int curve, int word) {
+    s32 value;
+    memcpy(&value, (const char *)data + (curve * 18 + word) * sizeof(s32), sizeof(value));
+    return value;
+}
+
 int SlotInterpCurve(int curveIndex, int position, int programGroup, int slotIndex) {
+    const AudioProgramData *data = &SoundState.slots38[slotIndex].programData3C;
+    int curve = programGroup * 10 + curveIndex;
     int upperIndex, lowerIndex, lowerValue, upperValue, lowerKey, upperKey;
     for (upperIndex = 1; upperIndex < 9; upperIndex++) {
-        if (position < SoundState.slots38[slotIndex].programData3C.curves[programGroup][curveIndex].keys[upperIndex]) break;
+        if (position < data->curves[programGroup][curveIndex].keys[upperIndex]) break;
     }
     lowerIndex = upperIndex - 1;
-    lowerValue = SoundState.slots38[slotIndex].programData3C.curves[programGroup][curveIndex].values[lowerIndex];
-    upperValue = SoundState.slots38[slotIndex].programData3C.curves[programGroup][curveIndex].values[upperIndex];
-    lowerKey = SoundState.slots38[slotIndex].programData3C.curves[programGroup][curveIndex].keys[lowerIndex];
-    upperKey = SoundState.slots38[slotIndex].programData3C.curves[programGroup][curveIndex].keys[upperIndex];
+    lowerValue = SlotCurveWord(data, curve, 9 + lowerIndex);
+    upperValue = SlotCurveWord(data, curve, 9 + upperIndex);
+    lowerKey = SlotCurveWord(data, curve, lowerIndex);
+    upperKey = SlotCurveWord(data, curve, upperIndex);
     return (upperValue - lowerValue) * (position - lowerKey) / (upperKey - lowerKey) + lowerValue;
 }
 

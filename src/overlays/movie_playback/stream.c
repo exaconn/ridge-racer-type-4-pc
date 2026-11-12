@@ -45,7 +45,7 @@ void ovl668_init_stream_playback(void)
 
     SetDispMask(0);
     SetupDrawDispEnvs(0, 0, 0, 5);
-    state = MenuArenaBase;
+    state = RR_ARENA_ALIGN(MenuArenaBase, StrPlaybackState);
     LoadCursor = state;
     RaceContext.streamStateB8 = state;
     LoadCursor = (u8 *)state + sizeof(*state);

@@ -409,7 +409,8 @@ void ResolveCarCollisions(RaceVehicle *arg0) {
                             } else {
                                 s32 v1;
                                 s32 r0;
-                                v1 = cars[0]->footprint110.fields.corners[dy[0]].y;
+                                /* dy[0] is 4 when no edge matched: pair 4 is heading10/heading12, as on the PS1 */
+                                v1 = cars[0]->footprint110.pairs[dy[0]].y;
                                 r0 = ry[0];
                                 dx[0] = __builtin_abs(ry[1] - r0);
                                 dx[1] = __builtin_abs(v1 - r0);

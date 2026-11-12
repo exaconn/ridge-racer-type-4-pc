@@ -1,3 +1,4 @@
+#include <string.h>
 #include "rr/save_slots.h"
 #include "rr/menu_selection.h"
 #include "game/race/ranking.h"
@@ -31,6 +32,38 @@ extern s32 SplitIndex;
 extern s16 LapVoicePending;
 extern s32 SplitDistances[3];
 extern unsigned short GameTypeSceneIds[];
+
+/* After the finish the split check keeps running with SplitIndex 3 and up
+ * (the lap counter no longer resets it). The PS1 then reads the words that
+ * follow each 3-word array: SplitDistances[3] is an unused zero word
+ * (0x8010C14C), [4] the first word of FractionText; SplitTimes[3] is
+ * SplitIndex, [4] an unused zero word; BestSplitTimes[3] is LatchedSplitIndex
+ * with a zero upper half, [4] LatchedSplitTime. Read those instead of past the
+ * host arrays. Farther words are not used: the check stops where FractionText
+ * (or a past-the-end distance) exceeds the finished distance, and nothing
+ * reads the latched split values before the next race resets them. */
+extern char FractionText[];
+static s32 SplitDistanceWord(s32 index) {
+    s32 word;
+    if ((u32)index < 3) return SplitDistances[index];
+    if (index == 3) return 0;
+    if (index == 4) {
+        memcpy(&word, FractionText, sizeof(word));
+        return word;
+    }
+    return 0x7FFFFFFF;
+}
+
+static s32 SplitTimeWord(s32 index) {
+    if ((u32)index < 3) return SplitTimes[index];
+    return index == 3 ? SplitIndex : 0;
+}
+
+static s32 BestSplitTimeWord(s32 index) {
+    if ((u32)index < 3) return BestSplitTimes[index];
+    if (index == 3) return (u16)LatchedSplitIndex;
+    return index == 4 ? LatchedSplitTime : 0;
+}
 
 void UpdateLapTiming(RaceVehicle *arg0);
 
@@ -150,12 +183,12 @@ void UpdateLapTiming(RaceVehicle *arg0) {
         }
     } else {
 check_split:
-        if (SplitDistances[SplitIndex] + TrackLength * (s0->dynamics94.steering.count22 - 1) <= arg0->second + arg0->first) {
+        if (SplitDistanceWord(SplitIndex) + TrackLength * (s0->dynamics94.steering.count22 - 1) <= arg0->second + arg0->first) {
             if (GameModeType == 0) {
                 SplitDeltaTimer = 0x3C;
                 LatchedSplitIndex = SplitIndex;
-                LatchedSplitTime = SplitTimes[SplitIndex];
-                LatchedBestSplitTime = BestSplitTimes[SplitIndex];
+                LatchedSplitTime = SplitTimeWord(SplitIndex);
+                LatchedBestSplitTime = BestSplitTimeWord(SplitIndex);
                 SplitIndex += 1;
             }
         }

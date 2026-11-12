@@ -7,7 +7,7 @@
 #include "game/system/pad.h"
 #include "rr/overlay662_palette_controller.h"
 
-s32 ovl662_draw_emblem_preview_fade(s32 mode) {
+void ovl662_draw_emblem_preview_fade(s32 mode) {
  GarageFadeGeometry quad;
  s32 amount=ovl662_emblem_preview_fade;
  s32 high,low,uv;

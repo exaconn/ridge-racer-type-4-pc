@@ -199,8 +199,8 @@ void InitIntroSceneLights(void) {
     IntroSceneState *scene;
     int i;
 
-    IntroSceneStatePtr = LoadCursor;
-    LoadCursor = (u8 *)LoadCursor + sizeof(*IntroSceneStatePtr);
+    IntroSceneStatePtr = RR_ARENA_ALIGN(LoadCursor, IntroSceneState);
+    LoadCursor = (u8 *)IntroSceneStatePtr + sizeof(*IntroSceneStatePtr);
     SetupRenderer(1);
     sp18.rect = MenuGridSkyVramRect;
     ClearImage2(&sp18, 0, 0, 0);

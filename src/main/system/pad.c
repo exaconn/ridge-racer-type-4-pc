@@ -40,7 +40,7 @@ void PadUpdate(void) {
             PadActuatorInitStage[i] = 1;
             PadMotorActuatorCmd[i] = 0x22;
             PadPortConnectionFlags[i] |= 0x10;
-        } else if (PadMotorActuatorCmd != NULL) {
+        } else { /* the original tests the array itself: always true */
             PadMotorActuatorCmd[i]--;
             if (ports[i]->type01 == 0x23) {
                 u16 btn = ~((ports[i]->data02 << 8) | ports[i]->data03);

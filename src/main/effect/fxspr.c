@@ -26,7 +26,6 @@ void DrawIntroRippleSprites(void)
   int ax;
   int ay;
   int w;
-  int new_var;
   void *p;
   GpuCommandPacket *mode;
   x = (RaceContext.fade3E0.f440 / 4) + (rsin(FrameCounter * 128U) / 128);
@@ -50,7 +49,7 @@ void DrawIntroRippleSprites(void)
     {
       ax = (j / 2) + 0x9E;
       ay = ((j % 2) << 1) + 0xE4;
-      p = AddTextSprites(&CurrentDrawBuf->buffer.ordering70.tags[10], p, ax - SparkParticleInitVel[RaceContext.fade3E0.f438], h[i] + ay, HudPauseMenuItemCounts[RaceContext.fade3E0.f438], 0x7F38, new_var = 1, (l[i] << new_var) | new_var);
+      p = AddTextSprites(&CurrentDrawBuf->buffer.ordering70.tags[10], p, ax - SparkParticleInitVel[RaceContext.fade3E0.f438], h[i] + ay, HudPauseMenuItemCounts[RaceContext.fade3E0.f438], 0x7F38, 1, (l[i] << 1) | 1);
     }
 
   }

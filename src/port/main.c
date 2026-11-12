@@ -87,6 +87,13 @@
  *   PSYZ_HEADLESS runs default to PSYZ_AUDIO_CLOCK=video: unpaced fields
  *                      would otherwise race the wall-clock sequencer tick
  *                      (PSYZ_AUDIO_CLOCK=wall keeps the host clock).
+ *   PSYZ_FRAME_STATS=1 log percentiles of the present interval, host work,
+ *                      present call and render passes every 500 presents
+ *                      (=n every n); PSYZ_FRAME_LOG=file one line per
+ *                      present. PSYZ_HEADLESS=gpu PSYZ_HEADLESS_PACED=1
+ *                      PSYZ_AUDIO_CLOCK=wall measures the windowed timing
+ *                      path (frame limiter, real-time clock) without a
+ *                      window.
  *   PSYZ_CD_TIMING=instant  drop the CD drive's mechanical timing (seeks,
  *                      pauses, 150 sectors/s) for instant loading; the
  *                      default is the PS1's timing. PSYZ_CD_TRACE=1 prints
@@ -99,8 +106,9 @@
  *   RR4_GRAPHICS=l     graphics options for this run, as the Escape menu
  *                      sets them: a comma list of geometry (geometry
  *                      correction), nodither (dithering off), aa
- *                      (antialiasing), filter (texture filtering) and square
- *                      (square pixels). With PSYZ_HEADLESS=gpu the captures
+ *                      (antialiasing), filter (texture filtering), square
+ *                      (square pixels) and interpolation (frame
+ *                      interpolation). With PSYZ_HEADLESS=gpu the captures
  *                      show them.
  *
  * Interactive runs (no PSYZ_HEADLESS) read the preferences file
@@ -824,11 +832,13 @@ int main(int argc, char **argv) {
         prefs.antialiasing = strstr(l, "aa") != NULL;
         prefs.texture_filtering = strstr(l, "filter") != NULL;
         prefs.square_pixels = strstr(l, "square") != NULL;
+        prefs.frame_interpolation = strstr(l, "interpolation") != NULL;
         Psyz_VideoSetGeometryCorrection(prefs.geometry_correction);
         Psyz_VideoSetDitheringMode(prefs.disable_dithering ? PSYZ_DITHER_OFF : PSYZ_DITHER_AUTO);
         Psyz_VideoSetAntialiasing(prefs.antialiasing);
         Psyz_VideoSetModelFiltering(prefs.texture_filtering);
         Psyz_VideoSetAspectMode(prefs.square_pixels ? PSYZ_ASPECT_SQUARE : PSYZ_ASPECT_DISPLAY);
+        Psyz_GpuSetFrameInterpolation(prefs.frame_interpolation);
     }
     {
         const char *limit = getenv("RR4_FRAME_LIMIT");

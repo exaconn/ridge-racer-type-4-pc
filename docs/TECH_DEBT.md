@@ -62,16 +62,13 @@ not been reproduced.
 ## 3. Fidelity gaps against the console
 
 These are measured against the modified DuckStation (`tools/port/duckstation.py`).
-Game logic and 1x rendering already match; what remains is timing:
+Game logic and 1x rendering already match, and every one-pad scenario (attract, all menus with and without a save, garage, emblem editor, Time Attack, Extra Trial, the full Grand Prix) enters each mode on DuckStation's field with the same FrameCounter and rand. What remains:
 
 | ID | Where | Gap |
 | --- | --- | --- |
-| F1 | Versus (2 pads) | Drifts 2–6 fields. The libpad interrupt is costed for one pad, and the measured StGetNext poll cost also includes interrupt time. |
-| F2 | Menus with a save on the card | Mode 1/71 starts 1 field early. |
-| F3 | Extra Trial | The race load is 1 field short; FrameCounter matches. |
-| F4 | Mode 1/3 after a skipped movie | 1 field early, back in step at 1/35. The CD Pause takes 94.6 ms in the port vs 99.15 ms on DuckStation, because the sector phase differs. |
+| F1 | Versus (2 pads) | After the movie skip the title frame starts one field late, and the offset stays −1 from then on; FrameCounter is one off from mode 1/57, so the VS race seed differs. The pause frame ends late in its field for an unknown reason. Reference runs with two pads need `DSLEAD=0` in the DuckStation script. |
 | F5 | Memory card | DuckStation shifts its port alternation once in the splash polling loop (around field 727). This has no visible effect, but the rule is unknown. |
-| F6 | Audio | Sequenced title and menu music starts 343 samples (7.8 ms) early, probably from the phase of the sequencer timer. Race XA music starts about 35 ms early; this is a weak match that needs confirming. |
+| F6 | Audio | Sequenced title and menu music starts 343 samples (7.5 ms) early. The port's 60 Hz sequencer ticks run 0.375 field ahead, a phase the console sets during its own BIOS boot and exe load, which the port does not model; the only fix found so far would be a fitted start offset. Race XA music starts about 35 ms early; this is a weak match that needs confirming. |
 | F7 | CD seeks | DuckStation adds seeded 0.5–1 ms jitter to each seek; the port uses a fixed 0.75 ms. |
 | F8 | JogCon | The motor-command echo in the pad packet arrives 1–2 fields earlier than on DuckStation. This changes the force-feedback pattern slightly, but not steering. |
 | F9 | NTSC mode | The NTSC switch is the PAL game at 60 Hz, not the Japanese release. The splash length, display-on frame and the PAL full-screen clear stay PAL by design (`docs/ARCHITECTURE.md`). |

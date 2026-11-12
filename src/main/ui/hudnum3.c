@@ -1,3 +1,4 @@
+#include "rr/widescreen.h"
 #include "scratchpad.h"
 #include "rr/hud_number.h"
 #include "rr/sprite_emit.h"
@@ -14,7 +15,7 @@ void DrawHudNumber5(s32 value_arg,s32 index) {
     NumberTarget *target=&HudNumberTargets[index];
     GpuDmaTag *ordering=target->heads[DrawBufIndex];
     u8 *cursor=RR_GPU_SCRATCH->cursor;
-    s32 x=target->x;
+    s32 x=WIDE_HUD_RIGHT(target->x);
     s32 y=target->y;
     s32 digit_hundreds=hundreds-thousands*10;
     s32 digit_tens=tens-hundreds*10;

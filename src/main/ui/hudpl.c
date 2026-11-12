@@ -1,3 +1,4 @@
+#include "rr/widescreen.h"
 #include "scratchpad.h"
 #include "rr/menu_selection.h"
 #include "rr/frame_storage_types.h"
@@ -22,7 +23,7 @@ void DrawLapCounter(int a0, int a1) {
     i = 0;
     do {
         buf = HudPlayerLabelGlyphs[i];
-        a = AddSpritePrim(s4, a, 0xEC + i * 0x38, s5, &buf, 0x7EF8, 0);
+        a = AddSpritePrim(s4, a, WIDE_HUD_RIGHT(0xEC + i * 0x38), s5, &buf, 0x7EF8, 0);
         i++;
     } while (i < 2);
     buf = HudPlayerLabelGlyphs[2];
@@ -37,7 +38,7 @@ void DrawLapCounter(int a0, int a1) {
         if (i == 1) {
             buf.u = NumLaps * 0xC;
         }
-        a = AddSpritePrim(s4, a, 0x118 + i * 0x14, s5, &buf, 0x7EF8, 0);
+        a = AddSpritePrim(s4, a, WIDE_HUD_RIGHT(0x118 + i * 0x14), s5, &buf, 0x7EF8, 0);
         i++;
     } while (i < 2);
     RR_GPU_SCRATCH->cursor = AddDrawModePrim(s4, a, 0x25);

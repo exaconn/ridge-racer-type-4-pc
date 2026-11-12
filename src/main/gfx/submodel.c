@@ -9,6 +9,7 @@
  * the scratch words become the named fields of the static work records below,
  * while scene configuration is read from RroSceneScratchPrefix by name. GTE
  * command order, register usage and packet contents follow the original. */
+#include "rr/widescreen.h"
 #include <stddef.h>
 #include "types.h"
 #include "rr_asm.h"
@@ -73,12 +74,14 @@ static inline s32 ScreenX(s32 xy) { return (s16)xy; }
 static inline s32 ScreenY(s32 xy) { return xy >> 16; }
 
 /* True when all four points lie beyond one edge of the scene viewport; the
- * viewport rectangle stores the minimum in x/y and the maximum in w/h. */
+ * viewport rectangle stores the minimum in x/y and the maximum in w/h.
+ * Widescreen reaches WideMarginX past both sides of a full-width view. */
 static int QuadOutsideViewportX(const RroSceneScratchPrefix *scene, s32 x0, s32 x1, s32 x2, s32 x3)
 {
     const GpuRectangleFields *vp = &scene->viewport6C.rect;
-    if (vp->w < x0 && vp->w < x1 && vp->w < x2 && vp->w < x3) return 1;
-    return x0 < vp->x && x1 < vp->x && x2 < vp->x && x3 < vp->x;
+    const s32 left = vp->x - WideMarginX, right = vp->w + WideMarginX;
+    if (right < x0 && right < x1 && right < x2 && right < x3) return 1;
+    return x0 < left && x1 < left && x2 < left && x3 < left;
 }
 
 static int QuadOutsideViewportY(const RroSceneScratchPrefix *scene, s32 y0, s32 y1, s32 y2, s32 y3)

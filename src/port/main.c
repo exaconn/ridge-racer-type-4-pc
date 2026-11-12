@@ -109,9 +109,9 @@
  *                      sets them: a comma list of geometry (geometry
  *                      correction), nodither (dithering off), aa
  *                      (antialiasing), filter (texture filtering), square
- *                      (square pixels) and interpolation (frame
- *                      interpolation). With PSYZ_HEADLESS=gpu the captures
- *                      show them.
+ *                      (square pixels), interpolation (frame
+ *                      interpolation) and wide (16:9 widescreen). With
+ *                      PSYZ_HEADLESS=gpu the captures show them.
  *
  * Interactive runs (no PSYZ_HEADLESS) read the preferences file
  * (src/port/preferences.c) and apply it, and Escape opens the settings menu
@@ -841,12 +841,14 @@ int main(int argc, char **argv) {
         prefs.texture_filtering = strstr(l, "filter") != NULL;
         prefs.square_pixels = strstr(l, "square") != NULL;
         prefs.frame_interpolation = strstr(l, "interpolation") != NULL;
+        prefs.widescreen = strstr(l, "wide") != NULL;
         Psyz_VideoSetGeometryCorrection(prefs.geometry_correction);
         Psyz_VideoSetDitheringMode(prefs.disable_dithering ? PSYZ_DITHER_OFF : PSYZ_DITHER_AUTO);
         Psyz_VideoSetAntialiasing(prefs.antialiasing);
         Psyz_VideoSetModelFiltering(prefs.texture_filtering);
         Psyz_VideoSetAspectMode(prefs.square_pixels ? PSYZ_ASPECT_SQUARE : PSYZ_ASPECT_DISPLAY);
         Psyz_GpuSetFrameInterpolation(prefs.frame_interpolation);
+        Psyz_VideoSetWidescreen(prefs.widescreen);
     }
     {
         const char *limit = getenv("RR4_FRAME_LIMIT");

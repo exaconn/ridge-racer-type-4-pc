@@ -1,3 +1,4 @@
+#include "rr/widescreen.h"
 #include "game/system/pad.h"
 #include "scratchpad.h"
 #include "rr/frame_storage_types.h"
@@ -46,7 +47,7 @@ void DrawRaceMinimap(s32 arg0) {
                 u16 clut=(temp_hi<<6)+0x1A16;
                 s32 yNumerator=temp_a0->position20.words[2]; s32 xNumerator=temp_a0->position20.words[0];
                 s32 xValue;
-                xValue=xNumerator/1150+4;
+                xValue=WIDE_HUD_LEFT(xNumerator/1150+4);
                 yBase=var_s4+242;
                 var_v0=yBase-yNumerator/1150;
                 var_a1 = AddSpritePrim(var_s3, var_a1, xValue, var_v0-4, glyph, clut, 0);
@@ -56,7 +57,7 @@ void DrawRaceMinimap(s32 arg0) {
     }
     var_s0_2 = 0;
     if ((arg0 + 1) > 0) {
-        s16 originX = 8;
+        s16 originX = (s16)WIDE_HUD_LEFT(8);
         do {
             s32 x = originX;
             var_v0 = var_s4 + 0x3E;

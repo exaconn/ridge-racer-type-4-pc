@@ -1,3 +1,4 @@
+#include "rr/widescreen.h"
 #include "game/system/pad.h"
 #include "rr/save_slots.h"
 #include "game/ui/uipart1.h"
@@ -360,8 +361,8 @@ void DrawTrackObjectBillboard(int modelIndex) {
                     int x1 = work->projected34[1].xy.x;
                     int x2 = work->projected34[2].xy.x;
                     int x3 = work->projected34[3].xy.x;
-                    if ((x0 >= 0 || x1 >= 0 || x2 >= 0 || x3 >= 0) &&
-                        (x0 < 0x140 || x1 < 0x140 || x2 < 0x140 || x3 < 0x140)) {
+                    if ((x0 >= WIDE_SCREEN_LEFT || x1 >= WIDE_SCREEN_LEFT || x2 >= WIDE_SCREEN_LEFT || x3 >= WIDE_SCREEN_LEFT) &&
+                        (x0 < WIDE_SCREEN_RIGHT || x1 < WIDE_SCREEN_RIGHT || x2 < WIDE_SCREEN_RIGHT || x3 < WIDE_SCREEN_RIGHT)) {
                         int y0 = work->projected34[0].xy.y;
                         int y1 = work->projected34[1].xy.y;
                         int y2 = work->projected34[2].xy.y;
@@ -445,8 +446,8 @@ void DrawTrackObjectFlashQuads(int modelIndex) {
                         int x1 = work->projected24[1].xy.x;
                         int x2 = work->projected24[2].xy.x;
                         int x3 = work->projected24[3].xy.x;
-                        if ((x0 >= 0 || x1 >= 0 || x2 >= 0 || x3 >= 0) &&
-                            (x0 < 0x140 || x1 < 0x140 || x2 < 0x140 || x3 < 0x140)) {
+                        if ((x0 >= WIDE_SCREEN_LEFT || x1 >= WIDE_SCREEN_LEFT || x2 >= WIDE_SCREEN_LEFT || x3 >= WIDE_SCREEN_LEFT) &&
+                            (x0 < WIDE_SCREEN_RIGHT || x1 < WIDE_SCREEN_RIGHT || x2 < WIDE_SCREEN_RIGHT || x3 < WIDE_SCREEN_RIGHT)) {
                             int y0 = work->projected24[0].xy.y;
                             int y1 = work->projected24[1].xy.y;
                             int y2 = work->projected24[2].xy.y;
@@ -499,8 +500,8 @@ u8 *EmitModelTrisGT3(const TrackObjectLitWork *work, GpuDmaTag *head, u8 *packet
             x0 = (s16)x0;
             x1 = (s16)x1;
             x2 = (s16)x2;
-            if ((x0 >= 0 || x1 >= 0 || x2 >= 0) &&
-                (x0 < 0x140 || x1 < 0x140 || x2 < 0x140)) {
+            if ((x0 >= WIDE_SCREEN_LEFT || x1 >= WIDE_SCREEN_LEFT || x2 >= WIDE_SCREEN_LEFT) &&
+                (x0 < WIDE_SCREEN_RIGHT || x1 < WIDE_SCREEN_RIGHT || x2 < WIDE_SCREEN_RIGHT)) {
                 RR_GPU_ADD_PRIM(head, packet, 6);
                 packet++;
             }

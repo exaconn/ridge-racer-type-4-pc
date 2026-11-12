@@ -39,6 +39,7 @@ typedef struct Rr4Prefs {
     int texture_filtering;
     int geometry_correction;
     int frame_interpolation;
+    int widescreen; /* 16:9, more picture to the sides in races */
     /* [audio] */
     unsigned volume; /* 0..100 */
     int mute;

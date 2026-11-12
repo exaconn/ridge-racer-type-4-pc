@@ -183,6 +183,8 @@ static int ParseValue(Rr4Prefs *p, const char *section, const char *key, char *v
             return ParseFlag(value, &p->geometry_correction);
         if (!strcmp(key, "frame_interpolation"))
             return ParseFlag(value, &p->frame_interpolation);
+        if (!strcmp(key, "widescreen"))
+            return ParseFlag(value, &p->widescreen);
         return 1;
     }
     if (!strcmp(section, "audio")) {
@@ -299,7 +301,8 @@ int Rr4PrefsSaveFile(const Rr4Prefs *p, const char *path) {
             "antialiasing = %s\n"
             "texture_filtering = %s\n"
             "geometry_correction = %s\n"
-            "frame_interpolation = %s\n\n"
+            "frame_interpolation = %s\n"
+            "widescreen = %s\n\n"
             "[audio]\n"
             "volume = %u\n"
             "mute = %s\n\n"
@@ -310,7 +313,7 @@ int Rr4PrefsSaveFile(const Rr4Prefs *p, const char *path) {
             Bool(p->square_pixels), Bool(p->disable_dithering),
             Bool(p->antialiasing), Bool(p->texture_filtering),
             Bool(p->geometry_correction), Bool(p->frame_interpolation),
-            p->volume, Bool(p->mute));
+            Bool(p->widescreen), p->volume, Bool(p->mute));
     WriteString(file, p->disc);
     fputs("\n\n# SDL scancodes\n[keyboard]\n", file);
     for (int i = 0; i < RR4_PREFS_BUTTONS; i++)
@@ -455,6 +458,7 @@ void Rr4PrefsApply(const Rr4Prefs *p, int window_ready) {
     Psyz_VideoSetModelFiltering(p->texture_filtering != 0);
     Psyz_VideoSetGeometryCorrection(p->geometry_correction != 0);
     Psyz_GpuSetFrameInterpolation(p->frame_interpolation != 0);
+    Psyz_VideoSetWidescreen(p->widescreen != 0);
     if (Psyz_VideoGetVsyncMode() != kVsync[p->vsync >= 0 && p->vsync <= 2 ? p->vsync : 0])
         Psyz_VideoSetVsyncMode(kVsync[p->vsync >= 0 && p->vsync <= 2 ? p->vsync : 0]);
     Psyz_AudioSetOutputVolume(p->mute ? 0 : (p->volume <= 100 ? p->volume : 100));

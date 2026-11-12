@@ -1,3 +1,4 @@
+#include "rr/widescreen.h"
 #include "types.h"
 #include "rr/player_cars.h"
 #include "rr/save_slots.h"
@@ -27,7 +28,7 @@ void DrawHudDigitMod10(s32 arg0, s32 arg1) {
     NumberTarget *target = &HudNumberTargets[arg1];
     GpuDmaTag *ordering = target->heads[DrawBufIndex];
     void *cursor;
-    cursor = EmitHudGlyph12Alt(ordering, RR_GPU_SCRATCH->cursor, target->digit.x, target->digit.y, arg0 % 10, 0x7EFB);
+    cursor = EmitHudGlyph12Alt(ordering, RR_GPU_SCRATCH->cursor, (s16)WIDE_HUD_RIGHT(target->digit.x), target->digit.y, arg0 % 10, 0x7EFB);
     RR_GPU_SCRATCH->cursor = AddDrawModePrim(ordering, cursor, 5);
 }
 

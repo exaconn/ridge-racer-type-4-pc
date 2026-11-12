@@ -1,3 +1,4 @@
+#include "rr/widescreen.h"
 #include "game/sound/sndque.h"
 #include "rr/frame_storage_types.h"
 #include "rr/gpu_scratch_types.h"
@@ -46,12 +47,12 @@ void DrawRaceOverlaySprites(s32 a0)
                 s2 = SplitIndex;
             }
         }
-        DrawRaceTime(0x14, 0x1C, s3, 0x7EF8, 0);
-        DrawRaceTime(0x14, 0x26, s4, 0x7EF8, 0);
+        DrawRaceTime(WIDE_HUD_LEFT(0x14), 0x1C, s3, 0x7EF8, 0);
+        DrawRaceTime(WIDE_HUD_LEFT(0x14), 0x26, s4, 0x7EF8, 0);
         p = (SpritePacket *)RR_GPU_SCRATCH->cursor;
         p->tag.length = 4;
         p->code = 0x64;
-        p->x = 0xA;
+        p->x = (s16)WIDE_HUD_LEFT(0xA);
         p->y = 0x26;
         p->w = 0xC;
         p->h = 0xC;

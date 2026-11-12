@@ -24,6 +24,8 @@
 #include "rr/gpu_scratch_types.h"
 #include "rr/gpu.h"
 #include "game/data/globals.h"
+#include "rr/textured_panel.h"
+#include <psyz/video.h>
 
 
 
@@ -61,6 +63,35 @@ void SetSceneOverlayEnabled(s32 enabled) {
     RaceContext.overlayEnabledD4 = enabled;
 }
 
+/* Widescreen: PsyZ keeps the display buffers squeezed (rr/widescreen.h),
+ * so the copy of the other buffer is drawn across the whole squeezed buffer
+ * instead: a textured quad from where buffer column first lands to where
+ * column first + w does reads every column into itself. */
+static s16 WideBufferColumnX(s32 column) {
+    s32 x = (column - 0xA0) * 4;
+    return (s16)(0xA0 + (x < 0 ? -((-x + 1) / 3) : (x + 1) / 3));
+}
+
+static u8 *EmitWideSceneOverlayQuad(u8 *cursor, const SpritePacket *sprite, u16 tpage) {
+    PolyFT4Packet *q = (PolyFT4Packet *)cursor;
+    s16 x0 = WideBufferColumnX(sprite->x), x1 = WideBufferColumnX(sprite->x + sprite->w);
+    u8 u0 = sprite->u, u1 = (u8)(sprite->u + sprite->w - 1);
+    u8 v0 = sprite->v, v1 = (u8)(sprite->v + sprite->h - 1);
+
+    q->r = sprite->r;
+    q->g = sprite->g;
+    q->b = sprite->b;
+    q->code = (u8)(0x2C | (sprite->code & 3));
+    q->x0 = x0; q->y0 = sprite->y; q->u0 = u0; q->v0 = v0;
+    q->x1 = x1; q->y1 = sprite->y; q->u1 = u1; q->v1 = v0;
+    q->x2 = x0; q->y2 = (s16)(sprite->y + sprite->h); q->u2 = u0; q->v2 = v1;
+    q->x3 = x1; q->y3 = (s16)(sprite->y + sprite->h); q->u3 = u1; q->v3 = v1;
+    q->clut = sprite->clut;
+    q->tpage = tpage;
+    q->tag.length = (sizeof(PolyFT4Packet) - sizeof(GpuDmaTag)) / 4;
+    return (u8 *)(q + 1);
+}
+
 void EmitSceneOverlaySprites(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
     s32 i;
     GpuRectangleFields *uv;
@@ -95,12 +126,20 @@ void EmitSceneOverlaySprites(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
         uv = &CarCameraPitchOffsets[a0][i];
         s2->u = uv->x;
         s2->v = uv->y;
-        RR_GPU_LINK(ordering, s2);
-        page = (GpuCommandPacket *)(s2 + 1);
-        s0 = (GpuDrawModePacket *)(page + 1);
-        page->tag.length = 1;
         y = uv->h;
         x = uv->w;
+        if (Psyz_VideoGetWidescreen() && s2->w > 0 && s2->h > 0) {
+            u8 *quad = (u8 *)(s2 + 1);
+            u8 *end = EmitWideSceneOverlayQuad(quad, s2,
+                (u16)(((a3 & 3) << 5) | 0x100 | ((s16)((y & 0x100) >> 4)) | ((x & 0x3FF) >> 6) | ((s16)(y & 0x200) << 2)));
+            RR_GPU_LINK(ordering, quad);
+            page = (GpuCommandPacket *)end;
+        } else {
+            RR_GPU_LINK(ordering, s2);
+            page = (GpuCommandPacket *)(s2 + 1);
+        }
+        s0 = (GpuDrawModePacket *)(page + 1);
+        page->tag.length = 1;
         page->command = 0xE1000200 | (((a3 & 3) << 5) | 0x100 | ((s16)((y & 0x100) >> 4)) | ((x & 0x3FF) >> 6) | ((s16)(y & 0x200) << 2));
         RR_GPU_LINK(ordering, page);
         RR_GPU_SCRATCH->cursor = (u8 *)s0;

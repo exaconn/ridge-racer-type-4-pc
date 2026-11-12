@@ -1,3 +1,4 @@
+#include "rr/widescreen.h"
 #include "types.h"
 #include "scratchpad.h"
 #include "game/gfx/model.h"
@@ -67,6 +68,32 @@ void InitCourseViewState(void) {
     } while (i >= 0);
 }
 
+/* Widescreen: also the records of the neighbouring octant's list
+ * (GetWideNeighbourViewTable) that the list does not have, after its own,
+ * as UpdateVisibleViewRecords adds the extra records. */
+static void AddWideNeighbourViews(int player) {
+    static u8 listed[0x10000 / 8];
+    const CourseViewIndices *own = TrackCourseViewIndices;
+    const CourseViewIndices *more = GetWideNeighbourViewTable(player);
+    u32 count = PrimaryVisibleViews.objects.count;
+    u32 i;
+
+    for (i = 0; i < count; i++)
+        listed[own->indices[i] >> 3] |= (u8)(1u << (own->indices[i] & 7));
+    for (i = 0; i < more->count && i < 0x100 && count < COURSE_VISIBLE_CAPACITY; i++) {
+        u16 index = more->indices[i];
+        if (listed[index >> 3] & (1u << (index & 7)))
+            continue;
+        listed[index >> 3] |= (u8)(1u << (index & 7));
+        PrimaryVisibleViews.objects.records[count++] = &RelFileViewRecords[index];
+    }
+    for (i = 0; i < count; i++) {
+        size_t index = (size_t)(PrimaryVisibleViews.objects.records[i] - RelFileViewRecords);
+        listed[index >> 3] = 0;
+    }
+    PrimaryVisibleViews.objects.count = count;
+}
+
 void BuildViewSegmentObjectList(int player) {
     /* The serialized cursor passes its word count before halfword indices. */
     u32 *source;
@@ -86,6 +113,8 @@ void BuildViewSegmentObjectList(int player) {
             i++;
         } while (i < PrimaryVisibleViews.stream[0].count);
     }
+    if (WideMarginX)
+        AddWideNeighbourViews(player);
 }
 
 void UpdateVisibleViewRecords(void) {

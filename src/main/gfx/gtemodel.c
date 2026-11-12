@@ -1,3 +1,4 @@
+#include "rr/widescreen.h"
 #include "psyq/libgte/rotmat.h"
 #include "game/gfx/drawlist.h"
 #include "game/gfx/tilerect.h"
@@ -162,8 +163,8 @@ void DrawTrackObjectModel(int modelIndex, int flashing) {
                     int x1 = work->projected58[1].xy.x;
                     int x2 = work->projected58[2].xy.x;
                     int x3 = work->projected58[3].xy.x;
-                    if ((x0 >= 0 || x1 >= 0 || x2 >= 0 || x3 >= 0) &&
-                        (x0 < 0x140 || x1 < 0x140 || x2 < 0x140 || x3 < 0x140)) {
+                    if ((x0 >= WIDE_SCREEN_LEFT || x1 >= WIDE_SCREEN_LEFT || x2 >= WIDE_SCREEN_LEFT || x3 >= WIDE_SCREEN_LEFT) &&
+                        (x0 < WIDE_SCREEN_RIGHT || x1 < WIDE_SCREEN_RIGHT || x2 < WIDE_SCREEN_RIGHT || x3 < WIDE_SCREEN_RIGHT)) {
                         int y0 = work->projected58[0].xy.y;
                         int y1 = work->projected58[1].xy.y;
                         int y2 = work->projected58[2].xy.y;

@@ -1,3 +1,4 @@
+#include "rr/widescreen.h"
 #include "rr/race_frame_scratch.h"
 #include "game/car/carstat.h"
 #include "rr/runtime_settings.h"
@@ -344,7 +345,7 @@ void ReplayModeUpdate(void) {
         }
     }
     if (rsin((ReplayFrame << 7) & 0xF80) > 0) {
-        RR_GPU_SCRATCH->cursor = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, 0x10, 0x10, 0x4C, 0xC, 0x64, 0xC0, 5, 0x7FF8, 0, 0x80);
+        RR_GPU_SCRATCH->cursor = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.tags[0], RR_GPU_SCRATCH->cursor, WIDE_HUD_LEFT(0x10), 0x10, 0x4C, 0xC, 0x64, 0xC0, 5, 0x7FF8, 0, 0x80);
     }
     for (i = 0; i < NumCars; i++) {
         if ((s16)CarTable[i]->flags1E4 >= 0x10) {

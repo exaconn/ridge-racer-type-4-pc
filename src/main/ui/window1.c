@@ -1,4 +1,5 @@
 /* RODATA 0x800103c0 0x1c */
+#include "rr/widescreen.h"
 #include "scratchpad.h"
 #include "rr/frame_storage_types.h"
 #include "rr/gpu.h"
@@ -17,6 +18,9 @@
 extern HudSpriteDef14 BadgeRowPresetTableA[];
 extern HudSpriteDef14 BadgeRowPresetTableB[];
 extern HudSpriteDef14 Rect16RowDefaultPresets[];
+
+/* The prebuilt race HUD sprites' own x (widescreen moves them per frame). */
+static s16 HudSpriteBaseX[12];
 
 void InitHudSpritePacket(SpritePacket *a0, const HudSpriteDef14 *a1) {
     a0->tag.length = 4;
@@ -68,6 +72,7 @@ void InitRaceHudPackets(int a0)
         for (j = 0; j < 2; j++) {
             sprites = DrawBuffers[j].buffer.hudSprites;
             InitHudSpritePacket(&sprites[i], &tab[i]);
+            HudSpriteBaseX[i] = tab[i].x00;
             /* Chain each sprite after its predecessor. */
             if (i != 0) RR_GPU_LINK(&sprites[i - 1].tag, &sprites[i]);
         }
@@ -104,6 +109,10 @@ void SubmitRaceHudPackets(int a0) {
     }
     /* Splice the prebuilt chain hudSprites[0..a1-1] in at the head. */
     sprites = CurrentDrawBuf->buffer.hudSprites;
+    /* Widescreen: the labels on the left move to the 16:9 view's left edge,
+     * the others to its right edge. */
+    for (int i = 0; i < a1; i++)
+        sprites[i].x = (s16)(HudSpriteBaseX[i] + WideHudShift(HudSpriteBaseX[i] < 0xA0 ? -1 : 1));
     sprites[a1 - 1].tag.address = s0->address;
     s0->address = (uintptr_t)&sprites[0];
     s1 = AddDrawModePrim(s0, (GpuDrawModePacket *)RR_GPU_SCRATCH->cursor, 5);

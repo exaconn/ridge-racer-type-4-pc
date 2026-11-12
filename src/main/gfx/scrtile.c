@@ -5,11 +5,14 @@
 #include "psyq/libgpu/settrans.h"
 #include "rr/sprite_emit.h"
 #include "rr/animated_glyph.h"
+#include "rr/widescreen.h"
+#include <psyz/video.h>
 void AddScreenFadeTiles(GpuDmaTag *ordering,s32 intensity,u32 mode) {
     GpuTilePacket *tile;
     s32 index;
     s32 column;
     GpuRectangleFields *rectangle;
+    s32 margin=Psyz_VideoGetWidescreen()?WIDE_MARGIN:0;
     if(intensity<0)intensity=0;
     else if(intensity>=256)intensity=255;
     tile=(GpuTilePacket *)RR_GPU_SCRATCH->cursor;
@@ -19,8 +22,9 @@ void AddScreenFadeTiles(GpuDmaTag *ordering,s32 intensity,u32 mode) {
         SetSemiTrans(tile,1);
         column=index&1;
         rectangle=&CurrentDrawBuf->buffer.environment00.draw00.clip;
-        tile->x=column*160;
-        tile->w=160;
+        /* Widescreen: the outer columns cover the squeezed buffer's sides. */
+        tile->x=column*160-(column?0:margin);
+        tile->w=160+margin;
         tile->y=(rectangle->h/2)*(index/2);
         tile->r=intensity;tile->g=intensity;tile->b=intensity;
         tile->h=rectangle->h/2;

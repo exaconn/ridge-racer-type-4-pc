@@ -38,7 +38,7 @@ static void TestDefaults(void) {
     const Rr4Prefs *d = Rr4PrefsDefaults();
     CHECK(d->scale == 1);
     CHECK(d->volume == 100);
-    CHECK(!d->mute && !d->fullscreen && !d->frame_interpolation);
+    CHECK(!d->mute && !d->fullscreen && !d->frame_interpolation && !d->widescreen);
     CHECK(d->vsync == RR4_VSYNC_AUTO);
     for (int i = 0; i < RR4_PREFS_BUTTONS; i++) {
         CHECK(d->keys[i] == Psyz_GetKeyboardBinding_SDL3((unsigned)i));
@@ -213,6 +213,7 @@ static void TestPrefsFile(const char *dir) {
     p.vsync = RR4_VSYNC_ON;
     p.square_pixels = 1;
     p.antialiasing = 1;
+    p.widescreen = 1;
     p.volume = 35;
     p.mute = 1;
     p.keys[BTN_UP] = SDL_SCANCODE_I;

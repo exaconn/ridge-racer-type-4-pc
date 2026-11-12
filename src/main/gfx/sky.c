@@ -1,4 +1,5 @@
 /* RODATA 0x800100e4 0x20 */
+#include "rr/widescreen.h"
 #include "scratchpad.h"
 #include "rr_asm.h"
 #include "rr/gpu.h"
@@ -277,8 +278,8 @@ static SkyTri *SkyEmitTriFT3(SkyTri *a0, SkyCtx *a1, int a2) {
             v0 = a1->u.s.sx0;
             v1 = a1->u.s.sx1;
             a3 = a1->u.s.sx2;
-            if ((v0 >= 0 || v1 >= 0 || a3 >= 0) &&
-                (v0 < 0x140 || v1 < 0x140 || a3 < 0x140)) {
+            if ((v0 >= WIDE_SCREEN_LEFT || v1 >= WIDE_SCREEN_LEFT || a3 >= WIDE_SCREEN_LEFT) &&
+                (v0 < WIDE_SCREEN_RIGHT || v1 < WIDE_SCREEN_RIGHT || a3 < WIDE_SCREEN_RIGHT)) {
                 v0 = a1->u.s.sy0;
                 v1 = a1->u.s.sy1;
                 a3 = a1->u.s.sy2;
@@ -340,8 +341,8 @@ static SkyQuad17528 *SkyEmitQuadG4(SkyQuad17528 *a0, SkyCtx *a1, int a2) {
             t0 = a1->u.s.sx1;
             a3 = a1->u.s.sx2;
             t1 = a1->u.s.sx3;
-            if ((v1 >= 0 || t0 >= 0 || a3 >= 0 || t1 >= 0) &&
-                (v1 < 0x140 || t0 < 0x140 || a3 < 0x140 || t1 < 0x140)) {
+            if ((v1 >= WIDE_SCREEN_LEFT || t0 >= WIDE_SCREEN_LEFT || a3 >= WIDE_SCREEN_LEFT || t1 >= WIDE_SCREEN_LEFT) &&
+                (v1 < WIDE_SCREEN_RIGHT || t0 < WIDE_SCREEN_RIGHT || a3 < WIDE_SCREEN_RIGHT || t1 < WIDE_SCREEN_RIGHT)) {
                 v1 = a1->u.s.sy0;
                 t0 = a1->u.s.sy1;
                 a3 = a1->u.s.sy2;
@@ -396,8 +397,8 @@ static SkyQuad177E4 *SkyEmitQuadFT4(SkyQuad177E4 *a0, SkyCtx *a1, int a2) {
             t0 = a1->u.s.sx1;
             a3 = a1->u.s.sx2;
             t1 = a1->u.s.sx3;
-            if ((v1 >= 0 || t0 >= 0 || a3 >= 0 || t1 >= 0) &&
-                (v1 < 0x140 || t0 < 0x140 || a3 < 0x140 || t1 < 0x140)) {
+            if ((v1 >= WIDE_SCREEN_LEFT || t0 >= WIDE_SCREEN_LEFT || a3 >= WIDE_SCREEN_LEFT || t1 >= WIDE_SCREEN_LEFT) &&
+                (v1 < WIDE_SCREEN_RIGHT || t0 < WIDE_SCREEN_RIGHT || a3 < WIDE_SCREEN_RIGHT || t1 < WIDE_SCREEN_RIGHT)) {
                 v1 = a1->u.s.sy0;
                 t0 = a1->u.s.sy1;
                 a3 = a1->u.s.sy2;
@@ -454,8 +455,8 @@ static SkyTri17A90 *EmitSkyDepthCuedGT3(SkyTri17A90 *a0, SkyCtx *a1, int a2) {
             v0 = a1->u.s.sx0;
             v1 = a1->u.s.sx1;
             a3 = a1->u.s.sx2;
-            if ((v0 >= 0 || v1 >= 0 || a3 >= 0) &&
-                (v0 < 0x140 || v1 < 0x140 || a3 < 0x140)) {
+            if ((v0 >= WIDE_SCREEN_LEFT || v1 >= WIDE_SCREEN_LEFT || a3 >= WIDE_SCREEN_LEFT) &&
+                (v0 < WIDE_SCREEN_RIGHT || v1 < WIDE_SCREEN_RIGHT || a3 < WIDE_SCREEN_RIGHT)) {
                 v0 = a1->u.s.sy0;
                 v1 = a1->u.s.sy1;
                 a3 = a1->u.s.sy2;

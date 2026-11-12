@@ -1,3 +1,4 @@
+#include "rr/widescreen.h"
 #include "game/camera/campath.h"
 #include "rr/frame_storage_types.h"
 #include "game/camera/camrun.h"
@@ -626,11 +627,11 @@ void DrawLapTimeList(int a0) {
             }
             v = LapTimes[i];
             y = i * 10 + 0x2C;
-            DrawRaceTime(0xF0, y, v, s3, 0);
+            DrawRaceTime(WIDE_HUD_RIGHT(0xF0), y, v, s3, 0);
             p = (SpritePacket *)RR_GPU_SCRATCH->cursor;
             p->tag.length = 4;
             p->code = 0x64;
-            p->x = 0xE7;
+            p->x = (s16)WIDE_HUD_RIGHT(0xE7);
             p->y = y;
             p->u = i * 12 + 12;
             p->v = 0xA8;
@@ -644,7 +645,7 @@ void DrawLapTimeList(int a0) {
             i++;
         } while (i < NumLaps);
     }
-    DrawRaceTime(0xF0, 0x1C, BestLapTime, s3, 0);
+    DrawRaceTime(WIDE_HUD_RIGHT(0xF0), 0x1C, BestLapTime, s3, 0);
 }
 
 char *FormatFrameTimeMMSS(int a) {
@@ -673,7 +674,7 @@ void DrawTimeRemaining(int a)
     int i = a < 0x5DC;
     int t = StepProgressBarWidths[i];
     int s = (NumLaps - 3) * 10 + 0x50;
-    DrawDigitString8(&CurrentDrawBuf->buffer.ordering70.tags[0], 0x111, s, r, t);
+    DrawDigitString8(&CurrentDrawBuf->buffer.ordering70.tags[0], WIDE_HUD_RIGHT(0x111), s, r, t);
     p->y = s;
 }
 
@@ -692,7 +693,7 @@ void DrawTimeRemainingForPlayer(int a, int b)
     r = FormatFrameTimeMMSS(a);
     i = a < 0x5DC;
     t = StepProgressBarWidths[i];
-    DrawDigitString8(q, 0x111, p->y, r, t);
+    DrawDigitString8(q, WIDE_HUD_RIGHT(0x111), p->y, r, t);
 }
 
 char *FormatMillisecondsTime(int t)

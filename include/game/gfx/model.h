@@ -10,6 +10,7 @@
 int GetViewTrackSegment(const ProjectionView32 *view, s32 player);
 s32 YawToOctant(const ProjectionView32 *view);
 CourseViewIndices *GetSegmentViewTable(s32 player);
+CourseViewIndices *GetWideNeighbourViewTable(s32 player);
 void InitTimTemplate(EmblemTimImage840 *image);
 void RelocateModelTable(RroModelTableWire *table);
 extern RroModelBank *ModelBankTable[];

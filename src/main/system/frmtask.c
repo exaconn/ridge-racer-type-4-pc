@@ -9,6 +9,7 @@
 #include "rr/load_cursor.h"
 #include "scratchpad.h"
 #include "rr/frame_loop.h"
+#include "rr/widescreen.h"
 #include "rr/gpu_scratch_types.h"
 #include "game/data/cdfile2.h"
 #include "game/system/frmenv.h"
@@ -181,6 +182,7 @@ void MainLoop(void) {
         ClearOTagR(CurrentDrawBuf->buffer.secondaryOrderingB70.tags,0x2C0);
         CdFileStep();
         SoundUpdate();
+        WideBeginFrame();
         ModeFuncTable[ModeGroup][ModeIndex]();
         DrawSync(0);
         threshold=VSyncThreshold;
@@ -188,6 +190,10 @@ void MainLoop(void) {
         VSync(0);
         PutDispEnv(&CurrentDrawBuf->buffer.environment00.display5C);
         PutDrawEnv(&CurrentDrawBuf->buffer.environment00.draw00);
+        WideCommitFrame(CurrentDrawBuf->buffer.environment00.draw00.clip.y,
+                        CurrentDrawBuf->buffer.environment00.draw00.clip.w,
+                        &CurrentDrawBuf->buffer.ordering70.tags[703],
+                        DrawSubOtFlag ? &CurrentDrawBuf->buffer.secondaryOrderingB70.tags[703] : NULL);
         DrawOTag(&CurrentDrawBuf->buffer.ordering70.tags[703]);
         if(DrawSubOtFlag) DrawOTag(&CurrentDrawBuf->buffer.secondaryOrderingB70.tags[703]);
         PadUpdate();

@@ -1,3 +1,4 @@
+#include "rr/widescreen.h"
 #include <string.h>
 #include "rr/frame_storage_types.h"
 #include "rr/gpu.h"
@@ -65,8 +66,8 @@ static void RroStageQuad(RroRenderWork *work, const RroQuadIndices *indices) {
 static int RroQuadOnScreen(const RroScreenPosition *p, s32 yLimit) {
     s32 x0 = p[0].xy.x, x1 = p[1].xy.x, x2 = p[2].xy.x, x3 = p[3].xy.x;
     s32 y0 = p[0].xy.y, y1 = p[1].xy.y, y2 = p[2].xy.y, y3 = p[3].xy.y;
-    if (!(x0 >= 0 || x1 >= 0 || x2 >= 0 || x3 >= 0)) return 0;
-    if (!(x0 < 0x140 || x1 < 0x140 || x2 < 0x140 || x3 < 0x140)) return 0;
+    if (!(x0 >= WIDE_SCREEN_LEFT || x1 >= WIDE_SCREEN_LEFT || x2 >= WIDE_SCREEN_LEFT || x3 >= WIDE_SCREEN_LEFT)) return 0;
+    if (!(x0 < WIDE_SCREEN_RIGHT || x1 < WIDE_SCREEN_RIGHT || x2 < WIDE_SCREEN_RIGHT || x3 < WIDE_SCREEN_RIGHT)) return 0;
     if (!(y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0)) return 0;
     return y0 < yLimit || y1 < yLimit || y2 < yLimit || y3 < yLimit;
 }
@@ -693,8 +694,8 @@ void EmitProjectedLitTrisGT3(const RroTrailPanelCommand *command, s32 count, Rro
             x5 = (s16)(alternate[command->outer[2]].sxy);
             RR_GTE14_SWC2_MAC0(&work->firstArea74);
             if ((work->firstArea74 ^ winding) > 0) {
-                if ((x0 >= 0 || x1 >= 0 || x2 >= 0 || x3 >= 0 || x4 >= 0 || x5 >= 0) &&
-                    (x0 < 0x140 || x1 < 0x140 || x2 < 0x140 || x3 < 0x140 || x4 < 0x140 || x5 < 0x140)) {
+                if ((x0 >= WIDE_SCREEN_LEFT || x1 >= WIDE_SCREEN_LEFT || x2 >= WIDE_SCREEN_LEFT || x3 >= WIDE_SCREEN_LEFT || x4 >= WIDE_SCREEN_LEFT || x5 >= WIDE_SCREEN_LEFT) &&
+                    (x0 < WIDE_SCREEN_RIGHT || x1 < WIDE_SCREEN_RIGHT || x2 < WIDE_SCREEN_RIGHT || x3 < WIDE_SCREEN_RIGHT || x4 < WIDE_SCREEN_RIGHT || x5 < WIDE_SCREEN_RIGHT)) {
                     y0 = (s16)(base[command->outer[0]].sxy >> 16);
                     y1 = (s16)(base[command->outer[1]].sxy >> 16);
                     y2 = (s16)(base[command->outer[2]].sxy >> 16);

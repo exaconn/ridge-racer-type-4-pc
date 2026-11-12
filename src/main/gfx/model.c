@@ -56,6 +56,17 @@ CourseViewIndices *GetSegmentViewTable(s32 player) {
     return (CourseViewIndices *)RelFileSegmentView(segment * 8 + YawToOctant(view));
 }
 
+/* Widescreen: each octant's list is made for the 4:3 view cone around the
+ * octant's yaw. The wider cone of a camera off the octant's centre also
+ * reaches into the list of the next octant on that side. */
+CourseViewIndices *GetWideNeighbourViewTable(s32 player) {
+    const ProjectionView32 *view = &G->view.projection.pose08;
+    s32 yaw = view->angles10.xyz.y & 0xFFF;
+    s32 offset = ((yaw + 0x100) & 0x1FF) - 0x100; /* from the octant's centre */
+    s32 octant = (YawToOctant(view) + (offset < 0 ? 7 : 1)) & 7;
+    return (CourseViewIndices *)RelFileSegmentView(GetViewTrackSegment(view, player) * 8 + octant);
+}
+
 void SetFogNearFar(s32 a0, s32 a1, s32 a2) {
     double d2, d0, d1, d6, t0, d4, d2_out;
     s32 r0, r1;

@@ -24,6 +24,8 @@
 #include "psyq/libgpu/gpudisp.h"
 #include "game/camera/viewcam.h"
 #include "rr/animated_glyph.h"
+#include "rr/widescreen.h"
+#include <psyz/video.h>
 /* PsyZ libgte ScaleMatrix(MATRIX *, VECTOR *); MatrixWords32 shares MATRIX. */
 extern MatrixWords32 *ScaleMatrix(MatrixWords32 *matrix, s32 *scale);
 
@@ -112,6 +114,7 @@ void SetupPlayerView(int player) {
     /* Lead car's angles (rot50..58) and position words. */
     SetupHorizonViewTransform(&PlayerCars[0].rot50, PlayerCars[0].position20.words);
     SetupViewMatrix();
+    WideCourseView();
     SubmitCourseHorizon(RrScratchpad, ActiveVisibleViews, CourseIndex);
 }
 
@@ -121,6 +124,7 @@ void RenderPlayerCourseView(int player) {
     ApplySegmentVisibilityMask();
     SetupViewLighting();
     SetupViewMatrix();
+    WideCourseView();
     SubmitCourseHorizon(RrScratchpad, ActiveVisibleViews, CourseIndex);
 }
 
@@ -228,10 +232,134 @@ void SetupViewport(s32 viewport) {
     } else {
         RR_GPU_SCRATCH->order = &CurrentDrawBuf->buffer.ordering70.tags[0];
     }
+    WideSetupViewport(viewport);
     SetDrawArea(packet, rectangle);
     AddPrim(&RR_GPU_SCRATCH->order[703], packet);
     packet += sizeof(GpuDrawModePacket);
     RR_GPU_SCRATCH->cursor = packet;
+}
+
+/* Widescreen (rr/widescreen.h). The culling reaches past the sides of a
+ * full-width scene viewport (the race view 0, the split screen halves 2 and
+ * 3, and the 512-line menu view 6, whose frames stay 4:3); not the mirror
+ * (1) or the half-width views (4, 5). The drawing area stays the screen's
+ * width, which PsyZ keeps as the whole squeezed buffer. Like the viewport,
+ * the margin lasts until the next SetupViewport (a time attack race sets
+ * its view up only when paused); WideBeginFrame follows the option. */
+static s32 WideViewThisFrame, WideViewLastFrame, WideHudThisFrame;
+
+static void WideUpdateMargin(void) {
+    const GpuRectangleFields *rect = &((RroSceneScratchPrefix *)SCRATCHPAD)->viewport6C.rect;
+
+    WideMarginX = Psyz_VideoGetWidescreen() && rect->x == 0 && rect->w == 0x140 ? WIDE_MARGIN : 0;
+}
+
+void WideSetupViewport(s32 viewport) {
+    (void)viewport;
+    WideUpdateMargin();
+}
+
+void WideBeginFrame(void) {
+    WideUpdateMargin();
+}
+
+void WideCourseView(void) {
+    if (WideMarginX)
+        WideViewThisFrame = 1;
+}
+
+/* As far as the 16:9 view reaches past the screen (29 pixels at the PAL
+ * display aspect, 53 with square pixels), so edge elements keep their
+ * original distance from the view's edges. */
+s32 WideHudShift(s32 side) {
+    s32 margin;
+
+    if (!side || !(WideViewThisFrame || WideViewLastFrame))
+        return 0;
+    margin = Psyz_VideoGetWidescreenViewMargin();
+    if (margin <= 0)
+        return 0;
+    WideHudThisFrame = 1;
+    return side < 0 ? -margin : margin;
+}
+
+/* Packed GP0 words of one shape command: polygons, lines (a polyline to its
+ * terminator) and rectangles; 0 for anything else. */
+static s32 WideShapeWords(const u32 *w, s32 left) {
+    u32 code = w[0] >> 24;
+
+    if (code >= 0x20 && code < 0x40) {
+        s32 n = (code & 8) ? 4 : 3;
+        return 1 + n * (1 + ((code >> 2) & 1)) + ((code & 0x10) ? n - 1 : 0);
+    }
+    if (code >= 0x40 && code < 0x60) {
+        s32 i = (code & 0x10) ? 4 : 3;
+        if (!(code & 8))
+            return i;
+        for (i = 2; i < left && (w[i] & 0xF000F000u) != 0x50005000u; i++)
+            ;
+        return i + 1;
+    }
+    if (code >= 0x60 && code < 0x80)
+        return 2 + ((code >> 2) & 1) + (((code >> 3) & 3) == 0);
+    return 0;
+}
+
+/* A frame with nothing but untextured shapes that together span the
+ * screen's width (a flash or fade between race and replay), or nothing at
+ * all: it looks the same at either aspect, so it keeps the last one. */
+static s32 WideBlankFrame(const GpuDmaTag *tag) {
+    s32 minX = 0x7FFF, maxX = -0x8000, packets = 0, any = 0;
+
+    while (tag->address != RR_GPU_END_LINK && ++packets < 0x10000) {
+        tag = (const GpuDmaTag *)tag->address;
+        if (tag->length == 0 || ((const u32 *)(tag + 1))[0] >> 24 < 0x20 ||
+            ((const u32 *)(tag + 1))[0] >> 24 >= 0x80)
+            continue; /* ordering entry or state packet (u_long words) */
+        for (const u32 *w = (const u32 *)(tag + 1), *end = w + tag->length; w < end;) {
+            s32 n = WideShapeWords(w, (s32)(end - w)), code = (s32)(w[0] >> 24), step;
+            if (n == 0) {
+                w++;
+                continue;
+            }
+            if (code < 0x40 ? (code & 4) : (code >= 0x60 && (code & 4)))
+                return 0;
+            /* vertex words: every word after the colour whose low half is x */
+            step = code < 0x60 && (code & 0x10) ? 2 : 1;
+            for (s32 i = 1; i < n; i += step) {
+                s32 x = (s16)(w[i] & 0xFFFF);
+                if (code >= 0x40 && code < 0x60 && (w[i] & 0xF000F000u) == 0x50005000u)
+                    break;
+                minX = x < minX ? x : minX;
+                maxX = x > maxX ? x : maxX;
+                if (code >= 0x60) {
+                    s32 size = (code >> 3) & 3;
+                    s32 wide = size == 0 ? (s16)(w[2] & 0xFFFF) : size == 1 ? 1 : size == 2 ? 8 : 16;
+                    maxX = x + wide > maxX ? x + wide : maxX;
+                    break;
+                }
+            }
+            any = 1;
+            w += n;
+        }
+    }
+    return !any || (minX <= 0 && maxX >= 0x140);
+}
+
+void WideCommitFrame(s32 bufferY, s32 width, const GpuDmaTag *ordering, const GpuDmaTag *secondary) {
+    static s32 presentedWide;
+    s32 wide = WideViewThisFrame || WideHudThisFrame;
+
+    if (Psyz_VideoGetWidescreen()) {
+        if (!wide && presentedWide && WideBlankFrame(ordering) && (!secondary || WideBlankFrame(secondary)))
+            wide = 1;
+        Psyz_VideoSetWidescreenPicture(bufferY, wide ? -WIDE_MARGIN : 0,
+                                       wide ? width + WIDE_MARGIN : width);
+    }
+    presentedWide = wide;
+    WideViewLastFrame = WideViewThisFrame;
+    WideViewThisFrame = 0;
+    WideHudThisFrame = 0;
 }
 
 int GetViewTrackNode(const s32 *position, s32 player) {
@@ -251,6 +379,7 @@ u16 CourseSelectLabelPosX[8] = {0x140, 0xDE, 0x140, 0x140, 0xA0, 0x140, 0x140};
 s16 CourseSelectLabelPosY[8] = {256, 28, 128, 256, 256, 256, 512};
 GpuRectangleFields CourseSelectPreviewUvs[2][7] = {{{.w = 320, .h = 256}, {.x = 98, .y = 18, .w = 124, .h = 28}, {.w = 320, .h = 128}, {.y = 128, .w = 320, .h = 128}, {.w = 160, .h = 256}, {.x = 160, .w = 160, .h = 256}, {.w = 320, .h = 512}}, {{.y = 256, .w = 320, .h = 256}, {.x = 98, .y = 274, .w = 124, .h = 28}, {.y = 256, .w = 320, .h = 128}, {.y = 384, .w = 320, .h = 128}, {.y = 256, .w = 160, .h = 256}, {.x = 160, .y = 256, .w = 160, .h = 256}, {.w = 320, .h = 512}}};
 int BackColorR;
+s32 WideMarginX;
 s32 ActiveViewportIndex;
 int FarColorB;
 int FarColorG;

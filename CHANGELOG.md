@@ -30,8 +30,8 @@ First public build of the native port. It is an early alpha: expect bugs.
 ### Known limitations
 
 - Serial link (two-console) play is not supported.
-- Texture filtering, geometry correction and frame interpolation are
-  experimental and off by default; higher internal resolutions use the GPU
+- 16:9 widescreen, texture filtering, geometry correction and frame
+  interpolation are experimental and off by default; higher internal resolutions use the GPU
   rasterizer and are not bit-exact.
 - Only the European (PAL) release is supported; other regions and CHD images
   are not.

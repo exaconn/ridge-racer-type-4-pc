@@ -1,4 +1,5 @@
 /* RODATA 0x800103e0 0x1c */
+#include "rr/widescreen.h"
 #include "types.h"
 #include "rr/frame_storage_types.h"
 #include "scratchpad.h"
@@ -72,6 +73,7 @@ void DrawViewportBorderFrames(int a0) {
         preset = GlyphRowDefaultPresets;
         for (s3 = 0; s3 < s5; s3++) {
             InitHudSpritePacket(s0, &preset[s3]);
+            s0->x = (s16)WIDE_HUD_RIGHT(s0->x);
             RR_GPU_LINK(s2, s0);
             s0++;
         }
@@ -82,6 +84,7 @@ void DrawViewportBorderFrames(int a0) {
             InitHudSpritePacket(s0, &preset[s3]);
             /* Original compares against 3, which this branch never sees. */
             if (a0 == 3) s0->y -= 0x80;
+            s0->x = (s16)WIDE_HUD_RIGHT(s0->x);
             RR_GPU_LINK(s2, s0);
             s0++;
         }
@@ -119,7 +122,7 @@ void DrawHudRotatingQuad(s32 phase,s32 index) {
     corner=UiBoxCornerOffsets;
     target=&HudNumberTargets[index];
     packet=(HudQuadEmission *)RR_GPU_SCRATCH->cursor;
-    x=(u16)target->x;y=(u16)target->y;
+    x=(u16)WIDE_HUD_RIGHT(target->x);y=(u16)target->y;
     head=target->heads[DrawBufIndex];
     packet->r=0xB0;packet->g=0xB0;packet->b=0;
     for(i=0;i<4;i++,corner++) {
@@ -169,7 +172,7 @@ void *EmitHudGlyph12Alt(GpuDmaTag *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg
 void DrawHudNumber3(int a0, int a1)
 {
     NumberTarget *target = &HudNumberTargets[a1];
-    short x = target->number3.x;
+    short x = (short)WIDE_HUD_RIGHT(target->number3.x);
     short y = target->number3.y;
     GpuDmaTag *s1 = target->heads[DrawBufIndex];
     int h, tn, on;

@@ -742,13 +742,66 @@ static u8 *CourseEmitTextureWindow(u8 *packet, GpuDmaTag *ot, u32 command)
     return (u8 *)(p + 1);
 }
 
+/* Frame interpolation (rr/frame_interp.h): the subdivision levels each tile
+ * or face record (key) was drawn with in the frame before, per view. When
+ * they change (the level of detail follows the distance), the midpoint
+ * draws the grid at the previous levels, which pair with the last frame, and
+ * the frame's own grid is left out of it. Across a camera cut nothing pairs,
+ * so the frame's grid is drawn as it is. */
+typedef struct {
+    uintptr_t key;
+    u32 frame, generation;
+    u8 view, levelU, levelV;
+} InterpLodEntry;
+static InterpLodEntry InterpLods[8192];
+
+static int InterpLodChanged(uintptr_t key, s32 levelU, s32 levelV, s32 *previousU, s32 *previousV)
+{
+    const u8 view = (u8)ActiveViewportIndex;
+    const u32 generation = InterpViewGeneration();
+    uintptr_t h = key;
+    InterpLodEntry *e;
+    int changed = 0;
+    unsigned i;
+
+    if (!InterpObject)
+        return 0;
+    h = (h >> 4) ^ (h >> 17) ^ view * 0x9E37u;
+    for (i = 0; i < 8; i++) {
+        e = &InterpLods[(h + i) & 8191];
+        if ((e->key == key && e->view == view) || e->frame + 1 < FrameCounter)
+            break;
+    }
+    if (i == 8)
+        e = &InterpLods[h & 8191];
+    if (e->key == key && e->view == view && e->frame + 1 == FrameCounter && e->generation == generation &&
+        (e->levelU != (u8)levelU || e->levelV != (u8)levelV)) {
+        *previousU = e->levelU;
+        *previousV = e->levelV;
+        changed = 1;
+    }
+    if (e->key != key || e->view != view || e->frame != FrameCounter) {
+        e->key = key;
+        e->view = view;
+        e->frame = FrameCounter;
+        e->generation = generation;
+        e->levelU = (u8)levelU;
+        e->levelV = (u8)levelV;
+    }
+    return changed;
+}
+
 /* Frame interpolation (rr/frame_interp.h): the face record of the quad
  * being subdivided and its piece (0 whole, else the grid cell with the
  * levels). Scrolled coordinates pair whatever their texture. */
 static const u32 *CourseInterpFace;
 static u32 CourseInterpPiece;
-#define COURSE_TAG(p) \
-    INTERP_TAG_SHAPE((const GpuDmaTag *)(const void *)(p) + 1, CourseInterpFace, CourseInterpPiece, INTERP_ANY_TEXTURE)
+/* INTERP_MIDPOINT_ONLY / INTERP_FRAME_ONLY across a level-of-detail change
+ * (CourseEmitSubdividedGrid) */
+static unsigned CourseInterpFlags;
+#define COURSE_TAG(p)                                                                         \
+    INTERP_TAG_SHAPE((const GpuDmaTag *)(const void *)(p) + 1, CourseInterpFace, CourseInterpPiece, \
+                     INTERP_ANY_TEXTURE | CourseInterpFlags)
 
 /* .L80060528: a quad that needs no subdivision. */
 static u8 *CourseEmitWholeQuad(const CourseQuad *q, u8 *packet)
@@ -952,6 +1005,31 @@ static u8 *CourseEmitSubdividedQuad(const RroSceneScratchPrefix *scene, CourseQu
     return packet;
 }
 
+/* CourseEmitSubdividedQuad; while interpolating, across a change of the
+ * face's levels also its grid at the previous levels into the midpoint (see
+ * InterpLodChanged). The quad's projected corners are kept for the second
+ * grid. */
+static u8 *CourseEmitSubdividedGrid(const RroSceneScratchPrefix *scene, CourseQuad *q,
+                                    u8 *packet, s32 levelU, s32 levelV)
+{
+    const uintptr_t key = (uintptr_t)CourseInterpFace ^ ((uintptr_t)InterpObject << 3) ^ InterpInstance * 0x9E3779B1u;
+    s32 previousU, previousV, corners[4];
+    int i;
+
+    if (!InterpLodChanged(key, levelU, levelV, &previousU, &previousV))
+        return CourseEmitSubdividedQuad(scene, q, packet, levelU, levelV);
+    for (i = 0; i < 4; i++)
+        RR_SXY_COPY(corners[i], q->sxy[i]);
+    CourseInterpFlags = INTERP_MIDPOINT_ONLY;
+    packet = CourseEmitSubdividedQuad(scene, q, packet, previousU, previousV);
+    for (i = 0; i < 4; i++)
+        RR_SXY_COPY(q->sxy[i], corners[i]);
+    CourseInterpFlags = INTERP_FRAME_ONLY;
+    packet = CourseEmitSubdividedQuad(scene, q, packet, levelU, levelV);
+    CourseInterpFlags = 0;
+    return packet;
+}
+
 enum { COURSE_QUAD_PLAIN, COURSE_QUAD_FOG, COURSE_QUAD_SCROLL, COURSE_QUAD_SCROLL_FOG };
 
 /* 8005FF78 / 8006088C / func_80060B10 / 80060BB8: subdivided textured quads,
@@ -998,7 +1076,7 @@ static void CourseEmitSubdivided(RroSceneScratchPrefix *scene, u32 count, int va
                 q->color = face[2];
             }
             CourseInterpFace = face;
-            packet = CourseEmitSubdividedQuad(scene, q, packet, levelU, levelV);
+            packet = CourseEmitSubdividedGrid(scene, q, packet, levelU, levelV);
             packet = CourseEmitTextureWindow(packet, q->ot, face[7]);
         }
         face += 8;
@@ -1140,49 +1218,11 @@ static void HorizonInterpSetPiece(u32 piece)
     HorizonInterpLine = 0;
 }
 
-/* The subdivision levels each tile record was drawn with in the frame
- * before, per view. When they change (the level of detail follows the
- * distance), the midpoint draws the grid at the previous levels, which pair
- * with the last frame, and the frame's own grid is left out of it. */
-typedef struct {
-    const void *record;
-    u32 frame;
-    u8 view, levelU, levelV;
-} HorizonLodEntry;
-static HorizonLodEntry HorizonLods[8192];
-
 static int HorizonInterpLodChanged(s32 levelU, s32 levelV, s32 *previousU, s32 *previousV)
 {
-    const u8 view = (u8)ActiveViewportIndex;
-    uintptr_t h = (uintptr_t)HorizonInterpRecord;
-    HorizonLodEntry *e;
-    int changed = 0;
-    unsigned i;
-
-    if (!InterpObject || (HorizonInterpFlags & INTERP_MIDPOINT_ONLY))
+    if (HorizonInterpFlags & INTERP_MIDPOINT_ONLY)
         return 0;
-    h = (h >> 4) ^ (h >> 17) ^ view * 0x9E37u;
-    for (i = 0; i < 8; i++) {
-        e = &HorizonLods[(h + i) & 8191];
-        if ((e->record == HorizonInterpRecord && e->view == view) || e->frame + 1 < FrameCounter)
-            break;
-    }
-    if (i == 8)
-        e = &HorizonLods[h & 8191];
-    if (e->record == HorizonInterpRecord && e->view == view && e->frame + 1 == FrameCounter &&
-        (e->levelU != (u8)levelU || e->levelV != (u8)levelV)) {
-        *previousU = e->levelU;
-        *previousV = e->levelV;
-        changed = 1;
-    }
-    if (e->record != HorizonInterpRecord || e->view != view || e->frame != FrameCounter) {
-        e->record = HorizonInterpRecord;
-        e->view = view;
-        e->frame = FrameCounter;
-        e->levelU = (u8)levelU;
-        e->levelV = (u8)levelV;
-    }
-    return changed;
+    return InterpLodChanged((uintptr_t)HorizonInterpRecord, levelU, levelV, previousU, previousV);
 }
 
 /* Draw a tile's grid; across a level-of-detail change also its previous

@@ -121,11 +121,15 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      packet pairs with the same identity in the previous frame; untagged
      packets (HUD, 2D) keep their pose. Culling reaches past the view while
      interpolating (`InterpMargin`), tiles nearer than the projection plane
-     and the previous level of detail of a re-subdivided tile are drawn into
-     the midpoint only, the new level into the frame only, and the midpoint
-     target starts as the previous frame so nothing uncovered shows an older
-     picture. A camera jump (`InterpViewCamera`) or a mode change starts new
-     identities. Off, nothing is tagged and every value is the original one.
+     and the previous level of detail of a re-subdivided tile or course model
+     face are drawn into the midpoint only, the new level into the frame
+     only, and the midpoint target starts as the previous frame so nothing
+     uncovered shows an older picture. Midpoint-only geometry pairs only with
+     a pose the frame before drew (a tile skipped as too near in both frames
+     is not a projection). A camera jump (`InterpViewCamera`) or a mode
+     change starts new identities, also for the level-of-detail history
+     (`InterpViewGeneration`). Off, nothing is tagged and every value is the
+     original one.
 
    - **Video timing (PAL / NTSC):** the PAL release is the NTSC game with
      every value that counts frames converted to 25 frames a second: frame

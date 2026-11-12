@@ -250,9 +250,14 @@ _Static_assert(INTERP_ANY_TEXTURE == PSYZ_INTERP_ANY_TEXTURE, "PsyZ tag flag");
 _Static_assert(INTERP_MIDPOINT_ONLY == PSYZ_INTERP_MIDPOINT_ONLY, "PsyZ tag flag");
 _Static_assert(INTERP_FRAME_ONLY == PSYZ_INTERP_FRAME_ONLY, "PsyZ tag flag");
 
+u32 InterpViewGeneration(void) {
+    u32 view = (u32)ActiveViewportIndex & 7;
+    return InterpEpoch + InterpViewEpoch[view == 1 ? 0 : view];
+}
+
 void InterpTagShape(const void *shape, uintptr_t key, u32 piece, unsigned flags) {
     u32 view = (u32)ActiveViewportIndex & 7;
-    u32 epoch = InterpEpoch + InterpViewEpoch[view == 1 ? 0 : view];
+    u32 epoch = InterpViewGeneration();
     u64 id = InterpMix((u64)key ^ InterpMix((u64)InterpInstance));
     id = InterpMix(id ^ ((u64)InterpObject << 32 | piece));
     id = InterpMix(id ^ ((u64)epoch << 8 | view));

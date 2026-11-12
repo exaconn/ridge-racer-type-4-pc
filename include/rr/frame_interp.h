@@ -94,6 +94,9 @@ void InterpTagShape(const void *shape, uintptr_t key, u32 piece, unsigned flags)
 #define INTERP_TAG(packet, key, piece)                                            \
     INTERP_TAG_SHAPE((const GpuDmaTag *)(const void *)(packet) + 1, key, piece, 0)
 
+/* The generation of identities of the view being drawn (ActiveViewportIndex):
+ * it changes with every cut of that view. */
+u32 InterpViewGeneration(void);
 /* The camera cut to another shot this frame: nothing pairs with the last. */
 void InterpCameraCut(void);
 /* A view's camera (world position, 12-bit angles) for this frame: a jump

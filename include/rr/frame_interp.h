@@ -23,12 +23,13 @@ struct GpuDmaTag;
  * PsyZ draws a tagged packet at the midpoint of its two poses (in view
  * space) when the previous frame drew the same identity with the same
  * texture coordinates; an identity the previous frame drew and this one
- * leaves out is drawn there as a ghost continuing its motion, and a new
- * identity where ghosts go is left out of the midpoint. Anything else (a
- * newly visible tile, untagged HUD and 2D packets) keeps its own pose. A
- * camera cut (InterpCameraCut, and a jump of the view's camera between
- * frames) drops the pairs of that frame, and PsyZ then shows the frame
- * before for the midpoint's field.
+ * leaves out is drawn there as a ghost, and a new identity where ghosts go
+ * is left out of the midpoint. A ghost and a newly visible tagged packet
+ * move as the paired geometry next to them does; untagged HUD and 2D
+ * packets keep their own pose. A camera cut (InterpCameraCut, and a jump of
+ * the view's camera between frames) drops the pairs of that frame, and
+ * PsyZ then shows the frame before for the midpoint's field, as it does for
+ * a midpoint showing a hole or the background through a gap.
  *
  * With the option off InterpObject stays 0 and nothing is tagged. */
 

@@ -138,13 +138,23 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      neighbours' edges and near geometry moves as the camera does. An
      identity the frame before drew and this frame leaves out (a tile
      leaving the drawn range, a model switching to another representation,
-     a culled object) is drawn into the midpoint as a ghost: its last
-     primitive continues its motion, right after the primitive drawn before
-     it in that frame; a new identity where ghosts go stays out of the
-     midpoint. A midpoint that is no plausible in-between (most identities
-     new: a cut; or much of the picture without a pose in the frame before)
-     is not shown: the frame before stays for that field. Off, nothing is
-     tagged and every value is the original one.
+     a culled object) is drawn into the midpoint as a ghost, right after
+     the primitive drawn before it in that frame; a new identity where
+     ghosts go stays out of the midpoint. Geometry with one pose only (a
+     ghost, a tile passing under the camera, a newly visible face) moves as
+     the paired vertices next to it at a like depth did, joined to them
+     where it shares their vertex: its own continued motion does not know
+     how the view moved this frame (a camera jolt against a wall), and a
+     new face's pose in this frame is not where its neighbours are in the
+     midpoint. A triangle the GPU skips for its size in this frame (it
+     passes close to the view) that the frame before drew is still drawn
+     into the midpoint. A midpoint that is no plausible in-between (most
+     identities new: a cut; much of the picture without a pose in the frame
+     before; or an area where it shows something much farther than both
+     frames show there, a hole or the background through a gap, measured on
+     coarse depth grids of the opaque primitives) is not shown: the frame
+     before stays for that field. Off, nothing is tagged and every value is
+     the original one.
 
    - **Video timing (PAL / NTSC):** the PAL release is the NTSC game with
      every value that counts frames converted to 25 frames a second: frame

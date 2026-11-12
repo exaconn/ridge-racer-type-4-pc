@@ -2,7 +2,7 @@
 #include "rr/sequence_queue.h"
 #include <stdint.h>
 
-static __inline__ void ResetQueuedSoundPlayback(AudioState *state, s32 restart) {
+static inline void ResetQueuedSoundPlayback(AudioState *state, s32 restart) {
     state->sequence19D0.readIndex = 0;
     state->sequence19D0.unknown0C = 0;
     state->sequence19D0.startImmediately = restart;

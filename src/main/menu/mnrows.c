@@ -125,14 +125,14 @@ void InitMenuArenas(void) {
   MenuArenas.second = CdDirectoryBuffer + arenaOffset;
   LoadCursor = MenuArenas.second;
   DebugPrintStub(StrCdReadPtrFmt, LoadCursor);
-  LoadCursor = LoadCursor + AllocBadgeRows(LoadCursor);
-  LoadCursor = LoadCursor + AllocRect16Rows(LoadCursor);
-  LoadCursor = LoadCursor + AllocGlyphRows(LoadCursor);
-  LoadCursor = LoadCursor + AllocImageRows(LoadCursor);
-  LoadCursor = LoadCursor + AllocUiRows(LoadCursor);
+  LoadCursor = (u8 *)LoadCursor + AllocBadgeRows(LoadCursor);
+  LoadCursor = (u8 *)LoadCursor + AllocRect16Rows(LoadCursor);
+  LoadCursor = (u8 *)LoadCursor + AllocGlyphRows(LoadCursor);
+  LoadCursor = (u8 *)LoadCursor + AllocImageRows(LoadCursor);
+  LoadCursor = (u8 *)LoadCursor + AllocUiRows(LoadCursor);
   MenuBaseLoadCursor = LoadCursor;
-  MenuArenas.second = LoadCursor + 0x19000;
-  LoadCursor = LoadCursor + 0x19000;
+  MenuArenas.second = (u8 *)LoadCursor + 0x19000;
+  LoadCursor = (u8 *)LoadCursor + 0x19000;
 }
 
 void InitMenuScript(void) {

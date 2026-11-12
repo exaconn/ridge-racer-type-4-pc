@@ -506,7 +506,7 @@ void UpdateComCarOvertake(RaceVehicle *p)
   }
 }
 
-static __inline__ s32 extend_track_edge(s32 edge, s32 width, s32 extension)
+static inline s32 extend_track_edge(s32 edge, s32 width, s32 extension)
 {
     return edge * (width + extension) / width;
 }

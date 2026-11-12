@@ -47,7 +47,7 @@ typedef struct PadChannel {
     ChannelOutput15 output54;
     u8 metadata63[PAD_ACT_INFO_BYTES
         + PAD_MAX_COMBINATIONS*(sizeof(ChannelCombEntry8)-PAD_COMB_WIRE_BYTES)
-        + (__alignof__(ChannelCombEntry8)-4)];
+        + (_Alignof(ChannelCombEntry8)-4)];
     u8 modeCountE3,argumentE4,padE5;
     u16 pending;
     u8 responseE8,entry_countE9,combCountEA,scanIndexEB;

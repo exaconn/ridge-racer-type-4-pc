@@ -7,10 +7,10 @@
  * packet length. Ordering heads clear that byte. These are wire addresses,
  * not native pointers. The first payload byte follows the four-byte tag. */
 #if defined(mips)
-static __inline__ u32 GpuDmaEncodeAddress(const void *pointer) {
+static inline u32 GpuDmaEncodeAddress(const void *pointer) {
     return (uintptr_t)pointer;
 }
-static __inline__ u8 GpuDmaReadPayloadByte(u32 address) {
+static inline u8 GpuDmaReadPayloadByte(u32 address) {
     return ((const u8 *)(uintptr_t)address)[4];
 }
 #else

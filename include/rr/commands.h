@@ -55,7 +55,7 @@ s32 _cardSectorRx(s32 value);
 /* Command 101 response: handshake, then two words assembled high byte first. */
 s32 _cardGetIdRx(s32 value);
 
-static __inline__ s32 rr_command_begin(s32 request) {
+static inline s32 rr_command_begin(s32 request) {
     if (!(CardCommandStatus & 1)) return 0;
     CardReceiveIndex = 0;
     CardRxCount = 0;

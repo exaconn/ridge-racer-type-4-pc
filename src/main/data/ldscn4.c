@@ -43,7 +43,7 @@ int LoadAttractTimStep(void) {
         t = CdFileBytesLoaded();
         if (t != 0) {
             OverlayModuleBind(GetR4FileIndex(1, 10));
-            LoadCursor += t;
+            LoadCursor = (u8 *)LoadCursor + (t);
             LoadState = 5;
             MenuArenaBase = LoadCursor;
             RaceLoadReset();

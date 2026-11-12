@@ -111,7 +111,7 @@ int LoadModeMenuAssetsStep(void) {
     case 2:
         v = CdFileBytesLoaded();
         if (v) {
-            LoadCursor += v;
+            LoadCursor = (u8 *)LoadCursor + (v);
             OverlayModuleBind(GetR4FileIndex(1, LoadIndex + 0xB));
             LoadState = 3;
     case 3:
@@ -144,7 +144,7 @@ int LoadOpeningMovieTimStep(void) {
             u8 *t;
             OverlayModuleBind(GetR4FileIndex(1, LoadIndex + 1));
             LoadState = 3;
-            t = LoadCursor + v;
+            t = (u8 *)LoadCursor + v;
             LoadCursor = t;
             MenuArenaBase = t;
     case 3:
@@ -444,7 +444,7 @@ int LoadGlyphRowsStep(void) {
         if (v) {
             SetGlyphRowImageBase(LoadCursor, 0);
             LoadState = 3;
-            LoadCursor += v;
+            LoadCursor = (u8 *)LoadCursor + (v);
         }
         break;
     case 3:
@@ -669,7 +669,7 @@ int LoadSplashAssetsStep(void) {
         t = CdFileBytesLoaded();
         if (t != 0) {
             OverlayModuleBind(GetR4FileIndex(1, 10));
-            LoadCursor += t;
+            LoadCursor = (u8 *)LoadCursor + (t);
             LoadState = 6;
             MenuArenaBase = LoadCursor;
             case 6:

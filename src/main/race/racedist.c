@@ -64,7 +64,7 @@ void UpdateRaceStandings(void) {
     }
 }
 
-static __inline__ s32 WrappingMagnitude(s32 value) {
+static inline s32 WrappingMagnitude(s32 value) {
     return value < 0 ? (s32)(0U - value) : value;
 }
 

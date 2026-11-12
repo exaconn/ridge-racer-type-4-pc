@@ -192,7 +192,7 @@ void TileRectSceneModeUpdate(void) {
             return;
         }
         SkyCommandListPtr = (u8 *)LoadCursor; /* sky records stay wire offsets (sky.c) */
-        TileRectScene = (S_8010BF70 *)(LoadCursor += s1);
+        TileRectScene = (S_8010BF70 *)(LoadCursor = (u8 *)LoadCursor + s1);
         LoadCursor = (char *)TileRectScene + 0x4C;
         SetupRenderer(3);
         TileRectScene->unk20 = TileRectDefaultAngles;

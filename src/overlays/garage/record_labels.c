@@ -111,7 +111,7 @@ void *ovl662_draw_maker_car_count_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
         arg1 = AddSpritePrim(arg0, arg1, x, y, &UiFontGlyphs[ovl662_maker_count_glyphs[i]], 0x7FF8, 0);
         t1 = i | 1;
         t1 &= 1;
-        arg1 += t1 - 1;
+        arg1 = (u8 *)arg1 + (t1 - 1);
         x += UiFontGlyphs[ovl662_maker_count_glyphs[i]].w + 2;
     }
     return AddDrawModePrim(arg0, arg1, 56);
@@ -154,7 +154,7 @@ void *ovl662_draw_emblem_index_label(GpuDmaTag *arg0, void *arg1, s32 arg2) {
         arg1 = AddSpritePrim(arg0, arg1, x, y, &UiFontGlyphs[ovl662_emblem_index_glyphs[i]], 0x7FF8, 0);
         t1 = x | 1;
         t1 &= 1;
-        arg1 += t1 - 1;
+        arg1 = (u8 *)arg1 + (t1 - 1);
         x += UiFontGlyphs[ovl662_emblem_index_glyphs[i]].w + 2;
     }
     return AddDrawModePrim(arg0, arg1, 56);

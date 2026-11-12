@@ -67,9 +67,9 @@ typedef struct {
 /* The original API distinguishes an unavailable table from a null address. */
 #define AUDIO_STREAM_TABLE_UNAVAILABLE ((u8 *)(intptr_t)-1)
 enum {
-    AUDIO_BANKS_OFFSET = (0x2634+__alignof__(AudioStreamBank)-1)&~(__alignof__(AudioStreamBank)-1),
+    AUDIO_BANKS_OFFSET = (0x2634+_Alignof(AudioStreamBank)-1)&~(_Alignof(AudioStreamBank)-1),
     AUDIO_CD_DELTA = AUDIO_BANKS_OFFSET+2*sizeof(AudioStreamBank)-0x2644,
-    AUDIO_ROWS_OFFSET = (0x26F8+AUDIO_CD_DELTA+__alignof__(SequenceChannel)-1)&~(__alignof__(SequenceChannel)-1),
+    AUDIO_ROWS_OFFSET = (0x26F8+AUDIO_CD_DELTA+_Alignof(SequenceChannel)-1)&~(_Alignof(SequenceChannel)-1),
     AUDIO_SEQUENCE_DATA_OFFSET = AUDIO_ROWS_OFFSET+2*sizeof(SequenceChannel),
     AUDIO_SEQUENCE_DELTA = AUDIO_SEQUENCE_DATA_OFFSET+2*sizeof(u8 *)-0x2860
 };
@@ -191,7 +191,7 @@ typedef struct {
     u8 reserved28B0[24];AudioTocEntry8 toc28C8[16][256];
     s32 reservedA8C8,bankA8CC;
 } AudioState;
-RR_ASSERT_SIZE(AudioState,((0xA8D0+AUDIO_SEQUENCE_DELTA+__alignof__(AudioState)-1)&~(__alignof__(AudioState)-1)));
+RR_ASSERT_SIZE(AudioState,((0xA8D0+AUDIO_SEQUENCE_DELTA+_Alignof(AudioState)-1)&~(_Alignof(AudioState)-1)));
 RR_ASSERT_OFFSET(AudioState,muted04,4);
 RR_ASSERT_OFFSET(AudioState,banks24,0x24);
 RR_ASSERT_OFFSET(AudioState,slots38,0x38);

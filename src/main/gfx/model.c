@@ -19,7 +19,7 @@
 #include "psyq/libgpu/gpuenv.h"
 #include <stdlib.h>
 
-static __inline__ const u8 *RroModelBankAddress(const RroModelBank *bank,u32 relative) {
+static inline const u8 *RroModelBankAddress(const RroModelBank *bank,u32 relative) {
     return RrWireAddress(bank, relative);
 }
 

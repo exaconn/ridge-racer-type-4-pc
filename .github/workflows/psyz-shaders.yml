@@ -44,6 +44,9 @@ jobs:
             vim
             mingw-w64-ucrt-x86_64-glslang
             mingw-w64-ucrt-x86_64-spirv-cross
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
       - name: Fetch PsyZ and SDL
         shell: bash
         run: |

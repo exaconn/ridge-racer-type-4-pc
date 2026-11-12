@@ -1184,6 +1184,12 @@ static const void *HorizonInterpRecord;
 static u32 HorizonInterpPiece, HorizonInterpLine;
 static unsigned HorizonInterpFlags;
 
+/* The tile being drawn has a corner nearer than the projection plane
+ * (HorizonInterpFacing). */
+static int HorizonInterpNear;
+/* Flags of a grid piece's packets (HorizonInterpPieceKept). */
+static unsigned HorizonInterpPieceFlags;
+
 static void HorizonInterpTile(const void *record, size_t size)
 {
     const u32 *w = (const u32 *)record;
@@ -1197,6 +1203,7 @@ static void HorizonInterpTile(const void *record, size_t size)
     HorizonInterpPiece = 0;
     HorizonInterpLine = 0;
     HorizonInterpFlags = 0;
+    HorizonInterpNear = 0;
 }
 
 /* A tile entirely nearer than the projection plane, which the frame leaves
@@ -1209,6 +1216,43 @@ static int HorizonNearTileSkipped(void)
         return 1;
     HorizonInterpFlags = INTERP_MIDPOINT_ONLY;
     return 0;
+}
+
+/* The facing test of a tile just projected (front: it faces the view; the
+ * depths of its corners are in SZ0..SZ3, or SZ1..SZ3 for a triangle).
+ * Nonzero keeps the tile. A tile passing under or beside the camera has a
+ * corner nearer than the projection plane and its projection is no pose:
+ * the facing test drops it although the frame before drew it, and the rows
+ * it covered were left uncovered in the midpoint (a dark band along the
+ * bottom of chase and low replay views). While interpolating such a tile is
+ * drawn into the midpoint only, where PsyZ continues its last motion, and
+ * so are the grid pieces of a near tile that face away. */
+static int HorizonInterpFacing(int front, int corners)
+{
+    if (!InterpObject)
+        return front;
+    HorizonInterpNear = !((corners == 3 || 0x122 < gte_mfc2(GTE_SZ0)) && 0x122 < gte_mfc2(GTE_SZ1) &&
+                          0x122 < gte_mfc2(GTE_SZ2) && 0x122 < gte_mfc2(GTE_SZ3));
+    if (front)
+        return 1;
+    if (!HorizonInterpNear)
+        return 0;
+    HorizonInterpFlags |= INTERP_MIDPOINT_ONLY;
+    return 1;
+}
+
+/* The facing test of a grid piece: nonzero keeps it, as midpoint-only
+ * geometry when it faces away in a near tile (HorizonInterpFacing). Sets
+ * HorizonInterpPieceFlags for HORIZON_TAG_PIECE. */
+static int HorizonInterpPieceKept(int front)
+{
+    HorizonInterpPieceFlags = HorizonInterpFlags;
+    if (front)
+        return 1;
+    if (!InterpObject || !HorizonInterpNear)
+        return 0;
+    HorizonInterpPieceFlags |= INTERP_MIDPOINT_ONLY;
+    return 1;
 }
 
 /* The piece the following packets belong to; outlines count from it. */
@@ -1248,6 +1292,8 @@ static u32 HorizonInterpCell(s32 levelU, s32 levelV, s32 t, int j)
     return 1u + ((u32)(levelU & 31) << 27 | (u32)(levelV & 7) << 24 | (u32)(t & 0x1FFF) << 8 | (u32)j);
 }
 
+#define HORIZON_TAG_PIECE(p) \
+    INTERP_TAG_SHAPE((const GpuDmaTag *)(const void *)(p) + 1, HorizonInterpRecord, HorizonInterpPiece, HorizonInterpPieceFlags)
 #define HORIZON_TAG(p) \
     INTERP_TAG_SHAPE((const GpuDmaTag *)(const void *)(p) + 1, HorizonInterpRecord, HorizonInterpPiece, HorizonInterpFlags)
 /* Outlines: their count after the piece they follow; the tile's line flags
@@ -1463,7 +1509,7 @@ static void HorizonEmitLitGridLevels(s32 levelU, s32 levelV, const u32 uv[4])
             gte_cmd(GTE_NCLIP);
             b = gte_mfc2(GTE_MAC0);
             mirror = 0 < scene->renderFlags64;
-            if (((0 < a) ^ mirror) | ((b < 0) ^ mirror)) {
+            if (HorizonInterpPieceKept(((0 < a) ^ mirror) | ((b < 0) ^ mirror))) {
                 PolyGT4WordPacket *p = (PolyGT4WordPacket *)Horizon.cursor;
                 RR_SXY_COPY(p->xy0, p0->w.xy);
                 RR_SXY_COPY(p->xy1, p1->w.xy);
@@ -1478,7 +1524,7 @@ static void HorizonEmitLitGridLevels(s32 levelU, s32 levelV, const u32 uv[4])
                 p->color1C = (s32)p2->w.color;
                 p->color28 = (s32)p3->w.color;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 12);
-                HORIZON_TAG(p);
+                HORIZON_TAG_PIECE(p);
                 Horizon.cursor = (u8 *)(p + 1);
             }
         }
@@ -1559,7 +1605,7 @@ static void HorizonPassLitTiles(const VisibleCourseViews *views)
             area1 = gte_mfc2(GTE_MAC0);
             gte_cmd(GTE_AVSZ4);
             mirror = 0 < scene->renderFlags64;
-            if (!(((0 < area0) ^ mirror) | ((area1 < 0) ^ mirror))) continue;
+            if (!HorizonInterpFacing(((0 < area0) ^ mirror) | ((area1 < 0) ^ mirror), 4)) continue;
             for (lod = 0; lod < 4; lod++) {
                 x[lod] = ScreenX(Horizon.sxy[lod]);
                 y[lod] = ScreenY(Horizon.sxy[lod]);
@@ -1727,7 +1773,7 @@ static int HorizonProjectTile(const HorizonSectionTile *t, HorizonTileState *st)
     area1 = gte_mfc2(GTE_MAC0);
     gte_cmd(GTE_AVSZ4);
     mirror = 0 < scene->renderFlags64;
-    if (!(((0 < area0) ^ mirror) | ((area1 < 0) ^ mirror))) return 0;
+    if (!HorizonInterpFacing(((0 < area0) ^ mirror) | ((area1 < 0) ^ mirror), 4)) return 0;
     {
         s32 x[4], y[4];
         for (i = 0; i < 4; i++) {
@@ -1932,7 +1978,7 @@ static void HorizonEmitFlatGridLevels(s32 levelU, s32 levelV, const u32 uv[4])
             gte_cmd(GTE_NCLIP);
             b = gte_mfc2(GTE_MAC0);
             mirror = 0 < scene->renderFlags64;
-            if (((0 < a) ^ mirror) | ((b < 0) ^ mirror)) {
+            if (HorizonInterpPieceKept(((0 < a) ^ mirror) | ((b < 0) ^ mirror))) {
                 GpuPolyFT4 *p = (GpuPolyFT4 *)Horizon.cursor;
                 RR_SXY_COPY(p->words.xy0, p0->w.xy);
                 RR_SXY_COPY(p->words.xy1, p1->w.xy);
@@ -1946,7 +1992,7 @@ static void HorizonEmitFlatGridLevels(s32 levelU, s32 levelV, const u32 uv[4])
                 p->fields.v3 = (u8)(p3->w.uv >> 8);
                 p->words.color04 = (s32)c[0].w.color;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
-                HORIZON_TAG(p);
+                HORIZON_TAG_PIECE(p);
                 Horizon.cursor = (u8 *)(p + 1);
             }
         }
@@ -2201,7 +2247,7 @@ static int HorizonTileProject6(s32 xy0, u32 z0z1, s32 xy1, s32 xy2, u32 z2z3, s3
     area1 = gte_mfc2(GTE_MAC0);
     gte_cmd(GTE_AVSZ4);
     mirror = 0 < Horizon.scene->renderFlags64;
-    return ((0 < area0) ^ mirror) | ((area1 < 0) ^ mirror);
+    return HorizonInterpFacing(((0 < area0) ^ mirror) | ((area1 < 0) ^ mirror), 4);
 }
 
 typedef struct {
@@ -2895,7 +2941,7 @@ static void HorizonPassTris(const VisibleCourseViews *views, int section,
             area = gte_mfc2(GTE_MAC0);
             mirror = 0 < scene->renderFlags64;
             gte_cmd(GTE_AVSZ3);
-            if (!((0 < area) ^ mirror)) continue;
+            if (!HorizonInterpFacing((0 < area) ^ mirror, 3)) continue;
             Horizon.otBias = (s32)(flags16 >> 8);
             otz = gte_mfc2(GTE_OTZ);
             far = HorizonFarDepth() < otz;
@@ -3308,7 +3354,7 @@ static void HorizonC8Pass(const VisibleCourseViews *views, int section, u32 stri
             mirror = 0 < scene->renderFlags64;
             area1 = gte_mfc2(GTE_MAC0);
             gte_cmd(GTE_AVSZ4);
-            if (!(((0 < area0) ^ mirror) | ((area1 < 0) ^ mirror))) continue;
+            if (!HorizonInterpFacing(((0 < area0) ^ mirror) | ((area1 < 0) ^ mirror), 4)) continue;
             offscreen = QuadOutsideViewport(scene,
                 ScreenX(Horizon.sxy[0]), ScreenX(Horizon.sxy[1]), ScreenX(Horizon.sxy[2]), ScreenX(Horizon.sxy[3]),
                 ScreenY(Horizon.sxy[0]), ScreenY(Horizon.sxy[1]), ScreenY(Horizon.sxy[2]), ScreenY(Horizon.sxy[3]));
@@ -3593,7 +3639,7 @@ static int HorizonC7Front(const s32 pos[4], const u32 zw[2], u32 tileFlags, s32 
     area1 = gte_mfc2(GTE_MAC0);
     gte_cmd(GTE_AVSZ4);
     mirror = 0 < scene->renderFlags64;
-    if (!(((0 < area0) ^ mirror) | ((area1 < 0) ^ mirror))) return 0;
+    if (!HorizonInterpFacing(((0 < area0) ^ mirror) | ((area1 < 0) ^ mirror), 4)) return 0;
     {
         s32 x[4], y[4];
         for (i = 0; i < 4; i++) {
@@ -3816,7 +3862,7 @@ static void HorizonEmitFlatGridC7Levels(s32 levelU, s32 levelV, const u32 uv[4])
             gte_cmd(GTE_NCLIP);
             b = gte_mfc2(GTE_MAC0);
             mirror = 0 < scene->renderFlags64;
-            if (((0 < a) ^ mirror) | ((b < 0) ^ mirror)) {
+            if (HorizonInterpPieceKept(((0 < a) ^ mirror) | ((b < 0) ^ mirror))) {
                 GpuPolyFT4 *p = (GpuPolyFT4 *)Horizon.cursor;
                 RR_SXY_COPY(p->words.xy0, p0->w.xy);
                 RR_SXY_COPY(p->words.xy1, p1->w.xy);
@@ -3830,7 +3876,7 @@ static void HorizonEmitFlatGridC7Levels(s32 levelU, s32 levelV, const u32 uv[4])
                 p->fields.v3 = (u8)(p3->w.uv >> 8);
                 p->words.color04 = (s32)c[0].w.color;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
-                HORIZON_TAG(p);
+                HORIZON_TAG_PIECE(p);
                 Horizon.cursor = (u8 *)(p + 1);
             }
         }

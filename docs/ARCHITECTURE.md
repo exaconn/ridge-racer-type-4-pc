@@ -124,9 +124,12 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      and the previous level of detail of a re-subdivided tile or course model
      face are drawn into the midpoint only, the new level into the frame
      only, and the midpoint target starts as the previous frame so nothing
-     uncovered shows an older picture. Midpoint-only geometry pairs only with
-     a pose the frame before drew (a tile skipped as too near in both frames
-     is not a projection). A camera jump (`InterpViewCamera`) or a mode
+     uncovered shows an older picture. Tiles (and grid pieces of near tiles)
+     that the facing test drops while a corner is nearer than the projection
+     plane are passing under the camera and are drawn into the midpoint only
+     too. Midpoint-only geometry is never averaged with its pose in the
+     frame, which is no projection: PsyZ continues the last motion of the
+     pose the frame before drew. A camera jump (`InterpViewCamera`) or a mode
      change starts new identities, also for the level-of-detail history
      (`InterpViewGeneration`). Off, nothing is tagged and every value is the
      original one.

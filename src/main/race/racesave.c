@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "rr/widescreen.h"
 #include "rr/race_frame_scratch.h"
 #include "game/car/carstat.h"
@@ -284,20 +285,20 @@ void CheckRaceFinish(RaceVehicle *vehicle) {
                 if (RaceState < 4) {
                     if (FadeCountdown == -1) {
                         RaceState = 4;
-                        FadeCountdown = 0x4B;
-                        SoundSetMasterVolume(0, 0x47);
+                        FadeCountdown = RR_PAL_NTSC(0x4B, 0x5A);
+                        SoundSetMasterVolume(0, RR_PAL_NTSC(0x47, 0x56));
                     }
                 }
             }
         }
     }
-    if (ReplayFrame >= ReplayLength - 0x4B && FadeCountdown == -1) {
-        FadeCountdown = 0x25;
-        SoundSetMasterVolume(0, 0x21);
+    if (ReplayFrame >= ReplayLength - RR_PAL_NTSC(0x4B, 0x5A) && FadeCountdown == -1) {
+        FadeCountdown = RR_PAL_NTSC(0x25, 0x2D);
+        SoundSetMasterVolume(0, RR_PAL_NTSC(0x21, 0x29));
     } else if (MenuReturnSubmodeIndex != 0) {
         if (FadeCountdown == -1) {
-            FadeCountdown = 0x25;
-            SoundSetMasterVolume(0, 0x21);
+            FadeCountdown = RR_PAL_NTSC(0x25, 0x2D);
+            SoundSetMasterVolume(0, RR_PAL_NTSC(0x21, 0x29));
         }
     }
 }
@@ -324,8 +325,8 @@ void ReplayModeUpdate(void) {
     int i;
     short t;
     ModeFrame += 1;
-    if (ReplayFrame < 0x1A) {
-        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x19 - ReplayFrame) * 10, 0x25);
+    if (ReplayFrame < RR_PAL_NTSC(0x1A, 0x1F)) {
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (RR_PAL_NTSC(0x19, 0x1E) - ReplayFrame) * 10, 0x25);
         if (ReplayFrame == 10) {
             CdAudioBeginPlay(0);
         }
@@ -340,8 +341,8 @@ void ReplayModeUpdate(void) {
         }
         t = (unsigned short)FadeCountdown - 1;
         FadeCountdown = t;
-        if (t < 0x19) {
-            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x19 - t) * 10, 0x45);
+        if (t < RR_PAL_NTSC(0x19, 0x1E)) {
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (RR_PAL_NTSC(0x19, 0x1E) - t) * 10, 0x45);
         }
     }
     if (rsin((ReplayFrame << 7) & 0xF80) > 0) {
@@ -371,7 +372,7 @@ void ReplayModeUpdate(void) {
     SetupPlayerView(0);
     DrawTrackObjects(0);
     DrawTrackSceneryForPlayer(0);
-    if (ReplayFrame >= 0x19) {
+    if (ReplayFrame >= RR_PAL_NTSC(0x19, 0x1E)) {
         QueueDrawStp();
     }
     SlotSetLevelProgram(PlayerDisplayRpm[0], PlayerThrottleLoad[0], 0);

@@ -1,4 +1,5 @@
 #include "rr/widescreen.h"
+#include "rr/video_timing.h"
 #include "game/camera/campath.h"
 #include "rr/frame_storage_types.h"
 #include "game/camera/camrun.h"
@@ -493,7 +494,15 @@ write_value:
 
 int FramesToMilliseconds(int a, int b)
 {
-    int q = a / 25;
+    int q;
+    if (VideoTimingNtsc) {
+        /* NTSC release: 30 frames a second, 100/3 ms a frame. */
+        q = a / 30;
+        a -= q * 30;
+        a = a * 100 / 3 + b;
+        return q * 1000 + a;
+    }
+    q = a / 25;
     a -= q * 25;
     a = a * 40 + b;
     return q * 1000 + a;
@@ -650,7 +659,7 @@ void DrawLapTimeList(int a0) {
 
 char *FormatFrameTimeMMSS(int a) {
     if (a >= 0) {
-        int s = a / 25;
+        int s = a / RR_PAL_NTSC(25, 30);
         int m = s / 60;
         int r = s % 60;
         TimeTextMMSS[0] = m / 10 + 0x30;
@@ -671,7 +680,7 @@ void DrawTimeRemaining(int a)
     /* HUD sprite 5 carries the time-remaining row's Y. */
     SpritePacket *p = &CurrentDrawBuf->buffer.hudSprites[5];
     char *r = FormatFrameTimeMMSS(a);
-    int i = a < 0x5DC;
+    int i = a < RR_PAL_NTSC(0x5DC, 0x708); /* the last minute */
     int t = StepProgressBarWidths[i];
     int s = (NumLaps - 3) * 10 + 0x50;
     DrawDigitString8(&CurrentDrawBuf->buffer.ordering70.tags[0], WIDE_HUD_RIGHT(0x111), s, r, t);
@@ -691,7 +700,7 @@ void DrawTimeRemainingForPlayer(int a, int b)
         q = &CurrentDrawBuf->buffer.secondaryOrderingB70.tags[0];
     }
     r = FormatFrameTimeMMSS(a);
-    i = a < 0x5DC;
+    i = a < RR_PAL_NTSC(0x5DC, 0x708);
     t = StepProgressBarWidths[i];
     DrawDigitString8(q, WIDE_HUD_RIGHT(0x111), p->y, r, t);
 }

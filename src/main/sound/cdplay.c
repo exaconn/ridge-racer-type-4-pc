@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "types.h"
 #include "game/sound/cdplay.h"
 #include "rr/audio_cd_controller.h"
@@ -7,6 +8,13 @@
 #include "game/demo/opening.h"
 #include "psyq/libc/rand.h"
 
+
+/* The NTSC release's frame counts (timing[0]) of the 24 timed tracks
+ * (rr/video_timing.h); the rest of each triple is the same. */
+enum { CD_TRACK_TIMED_NTSC = 24 };
+static const s32 CdTrackFramesNtsc[CD_TRACK_TIMED_NTSC] = {
+    1071, 1241, 1090, 1352, 1636, 1323, 1250, 1250, 1250, 1058, 1267, 1250,
+    1176, 1417, 1125, 1250, 1176, 1417, 1125, 1250, 1176, 1417, 1125, 1250};
 
 void CdAudioSelectTrack(int bank, int track) {
     AudioState *state = &SoundState;
@@ -27,7 +35,7 @@ void CdAudioSelectTrack(int bank, int track) {
         { const s32 *base = CdTrackTables.timing[0]; timing = base + track * 3; }
         state->reserved26EC = 0;
         state->base26F0 = 0;
-        state->reserved26E0 = timing[0];
+        state->reserved26E0 = VideoTimingNtsc && (unsigned)track < CD_TRACK_TIMED_NTSC ? CdTrackFramesNtsc[track] : timing[0];
         state->rate26F4 = timing[1];
         end = state->end2690;
         offset = timing[2];

@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "rr/race_setup.h"
 #include "game/car/carparam.h"
 
@@ -125,10 +126,10 @@ void SetupRace(void)
     RacePaused = 0;
     PauseCursor = 0;
     RaceStartWipeY = 0x80;
-    RaceTimeRemaining = 0x3A98;
+    RaceTimeRemaining = RR_PAL_NTSC(0x3A98, 0x4650); /* 10 minutes */
     if ((GameModeType != 1) && (GameModeType != 6))
     {
-        RaceTimeRemaining = 0xAFC8;
+        RaceTimeRemaining = RR_PAL_NTSC(0xAFC8, 0xD2F0); /* 30 minutes */
     }
     VSyncThreshold = 0x180;
     ClearTrackObjectStates(0);

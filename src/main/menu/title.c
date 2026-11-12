@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "game/system/pad.h"
 #include "game/sound/cdstart.h"
 #include "rr/player_cars.h"
@@ -66,7 +67,7 @@ void AttractDemoRaceUpdate(void) {
     SetupDrawDispEnvs(0, 0, 0, 1);
     SelectCourseBgmTrack();
     CdAudioBeginPlay(0);
-    RaceContext.attract4BC.idleTimer20 = 0xFA;
+    RaceContext.attract4BC.idleTimer20 = RR_PAL_NTSC(0xFA, 0x12C);
     for (i = 0; i < 7; i++)
     {
       if (AttractCarTeams[i & 3] < 2)
@@ -100,9 +101,9 @@ void AttractDemoRaceUpdate(void) {
   MaskBitSetting = (one = 1);
   RaceContext.attract4BC.frame00 = RaceContext.attract4BC.frame00 + one;
   RaceContext.attract4BC.cameraTimer08 = RaceContext.attract4BC.cameraTimer08 + one;
-  if (RaceContext.attract4BC.frame00 >= 0x1771)
+  if (RaceContext.attract4BC.frame00 >= RR_PAL_NTSC(0x1771, 0x1C21))
   {
-    RaceContext.attract4BC.frame00 = 0x1770;
+    RaceContext.attract4BC.frame00 = RR_PAL_NTSC(0x1770, 0x1C20);
   }
   if (RaceContext.attract4BC.mode0C == 0)
   {
@@ -116,16 +117,16 @@ void AttractDemoRaceUpdate(void) {
   {
     if (FadeCountdown == 0)
     {
-      if (RaceContext.attract4BC.frame00 >= 0x1A)
+      if (RaceContext.attract4BC.frame00 >= RR_PAL_NTSC(0x1A, 0x1F))
       {
-        RaceContext.attract4BC.frame00 = 0xBB8;
+        RaceContext.attract4BC.frame00 = RR_PAL_NTSC(0xBB8, 0xE10);
         RaceContext.attract4BC.exitStage10 = one;
       }
     }
   }
   if (RaceContext.attract4BC.mode0C == 0)
   {
-    if (RaceContext.attract4BC.frame00 == 0xBB8)
+    if (RaceContext.attract4BC.frame00 == RR_PAL_NTSC(0xBB8, 0xE10))
     {
       FadeCountdown = 0x40;
       SoundSetMasterVolume(0, 0x3C);
@@ -250,7 +251,7 @@ void AttractDemoRaceUpdate(void) {
     PlayerCars[0].trackNodeF0 = ComCars[0].trackNodeF0; /* TitleDemoTrackNode */
     InitDemoComCars(ComCars, RaceContext.attract4BC.camera30);
   }
-  if (RaceContext.attract4BC.cameraTimer08 >= 0x178)
+  if (RaceContext.attract4BC.cameraTimer08 >= RR_PAL_NTSC(0x178, 0x1C3))
   {
     if (RaceContext.cameraNodeChanged1C != 0)
     {
@@ -305,9 +306,9 @@ void AttractDemoRaceUpdate(void) {
     }
   }
   else
-    if (RaceContext.attract4BC.frame00 < 0x1A)
+    if (RaceContext.attract4BC.frame00 < RR_PAL_NTSC(0x1A, 0x1F))
   {
-    AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (0x19 - RaceContext.attract4BC.frame00) * 8, 0x45);
+    AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.tags[0], (RR_PAL_NTSC(0x19, 0x1E) - RaceContext.attract4BC.frame00) * 8, 0x45);
   }
   if (RaceContext.attract4BC.mode0C == 1)
   {
@@ -332,13 +333,13 @@ void AttractDemoRaceUpdate(void) {
       }
       if (old != SoundState.track28A4)
       {
-        RaceContext.attract4BC.trackDelay18 = 0x1D;
+        RaceContext.attract4BC.trackDelay18 = RR_PAL_NTSC(0x1D, 0x22);
         if (PollCdAudioStatus() >= 0)
         {
           if (RaceContext.attract4BC.cdFadeTimer14 == 0)
           {
-            CdAudioFade(0, 0x11);
-            RaceContext.attract4BC.cdFadeTimer14 = 0x19;
+            CdAudioFade(0, RR_PAL_NTSC(0x11, 0x16));
+            RaceContext.attract4BC.cdFadeTimer14 = RR_PAL_NTSC(0x19, 0x1E);
           }
         }
       }
@@ -360,9 +361,9 @@ void AttractDemoRaceUpdate(void) {
                 SoundState.track28A4 = 1;
               }
             }
-            CdAudioFade(0, 0x11);
-            RaceContext.attract4BC.cdFadeTimer14 = 0x19;
-            RaceContext.attract4BC.trackDelay18 = 0x1D;
+            CdAudioFade(0, RR_PAL_NTSC(0x11, 0x16));
+            RaceContext.attract4BC.cdFadeTimer14 = RR_PAL_NTSC(0x19, 0x1E);
+            RaceContext.attract4BC.trackDelay18 = RR_PAL_NTSC(0x1D, 0x22);
           }
         }
       }
@@ -385,7 +386,7 @@ void AttractDemoRaceUpdate(void) {
           {
             CdAudioBeginPlay(1);
           }
-          RaceContext.attract4BC.idleTimer20 = 0xFA;
+          RaceContext.attract4BC.idleTimer20 = RR_PAL_NTSC(0xFA, 0x12C);
         }
       }
       if (TitleStartPressedFlag != 0)

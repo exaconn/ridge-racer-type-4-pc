@@ -6,6 +6,7 @@
 #include "rr/badge_rows.h"
 #include "rr/overlay662_time.h"
 #include "rr/string_tail_copy.h"
+#include "rr/video_timing.h"
 
 extern u8 ovl662_extra_record_col_dx[4];
 extern u8 ovl662_extra_record_row_dy[4];
@@ -326,7 +327,8 @@ void *ovl662_draw_extra_record_row(GpuDmaTag *ord, void *cur, s32 row)
 
 u8 *ovl662_format_record_time(s32 value){
  if(value>=0){
-  s32 seconds=value/3000;
+  /* Editing time in frames (50 or 60 a second): minutes, then hours. */
+  s32 seconds=value/RR_PAL_NTSC(3000, 3600);
   s32 minutes=seconds/60;
   seconds%=60;
   ovl662_record_time_str_buf[0]=minutes/10+'0';

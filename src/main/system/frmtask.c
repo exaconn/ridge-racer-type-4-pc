@@ -10,6 +10,7 @@
 #include "scratchpad.h"
 #include "rr/frame_loop.h"
 #include "rr/widescreen.h"
+#include "rr/video_timing.h"
 #include "rr/frame_interp.h"
 #include <psyz/gpu.h>
 #include <stdlib.h>
@@ -146,12 +147,16 @@ void FrmTaskModeUpdate(void) {
 }
 
 
+/* rr/video_timing.h: chosen by the host before MainLoop. */
+int VideoTimingNtsc;
+
 void MainLoop(void) {
     s32 threshold;
     u32 bank;
     FrameStorage *frame;
     MainLoopStartupHook();
-    SetVideoMode(1);
+    /* MODE_PAL; the NTSC release sets MODE_NTSC (in SystemInit). */
+    SetVideoMode(RR_PAL_NTSC(1, 0));
     ResetCallback();
     SystemInit();
     VSyncThreshold=128;

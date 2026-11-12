@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "game/system/pad.h"
 #include "types.h"
 #include "scratchpad.h"
@@ -25,7 +26,15 @@ extern u32 HudRecordCrownSprites[];
 s32 UpdateRaceOpeningOverlay(s32 arg0);
 void EmitProjectedMarkerSprt(int a0, int a1, int a2);
 
+/* NTSC timing: the frames each banner element starts fading in at (the
+ * NTSC release's HudRecordCrownSprites; its HudSplitSignSprites is the same
+ * list without the 60, an element the PAL banner adds). */
+static const u32 OpeningElementStartsNtsc[6] = {6, 60, 120, 180, 240, 300};
+
 s32 UpdateRaceOpeningOverlay(s32 arg0) {
+    /* Frames of a second (25, NTSC release: 30). */
+    const s32 rate = RR_PAL_NTSC(25, 30);
+    const u32 *starts;
     s32 sp18[6];
     char sp30[16];
     s16 sp40[4];
@@ -44,20 +53,21 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
     if (arg0 < 0) {
         arg0 = 0;
     }
-    if (arg0 >= 0x1C3) {
-        s4 = ++OpeningSlideTimer >= 0x4C;
-        if (arg0 >= 0xA8D) {
+    if (arg0 >= RR_PAL_NTSC(0x1C3, 0x21D)) {
+        s4 = ++OpeningSlideTimer >= RR_PAL_NTSC(0x4C, 0x5B);
+        if (arg0 >= RR_PAL_NTSC(0xA8D, 0xCA9)) {
             s4 = 1;
         }
-        arg0 = 0x1C2;
+        arg0 = RR_PAL_NTSC(0x1C2, 0x21C);
     }
 
     if (s2 < 8) {
+        starts = VideoTimingNtsc ? OpeningElementStartsNtsc : HudSplitSignSprites;
         for (i = 0; i < 6; i++) {
-            if (HudSplitSignSprites[i] < arg0) {
-                sp18[i] = arg0 - HudSplitSignSprites[i];
-                if (sp18[i] < 0x19) {
-                    sp18[i] = (sp18[i] * 0x80) / 25;
+            if (starts[i] < arg0) {
+                sp18[i] = arg0 - starts[i];
+                if (sp18[i] < rate) {
+                    sp18[i] = (sp18[i] * 0x80) / rate;
                 } else {
                     sp18[i] = 0x80;
                 }
@@ -65,7 +75,7 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
                 sp18[i] = 0;
             }
             if (OpeningFadeTimer >= 0) {
-                sp18[i] = (OpeningFadeTimer * 0x80) / 100;
+                sp18[i] = (OpeningFadeTimer * 0x80) / RR_PAL_NTSC(100, 120);
                 if (OpeningFadeTimer > 0) {
                     OpeningFadeTimer--;
                 } else {
@@ -152,18 +162,19 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
         AddSetTexpagePrim(0);
         return s4;
     } else {
+        starts = VideoTimingNtsc ? OpeningElementStartsNtsc : HudRecordCrownSprites;
         for (i = 0; i < 6; i++) {
-            if (HudRecordCrownSprites[i] < arg0) {
-                sp18[i] = arg0 - HudRecordCrownSprites[i];
+            if (starts[i] < arg0) {
+                sp18[i] = arg0 - starts[i];
                 if (i != 0) {
-                    if (sp18[i] < 0x19) {
-                        sp18[i] = (sp18[i] * 0x80) / 25;
+                    if (sp18[i] < rate) {
+                        sp18[i] = (sp18[i] * 0x80) / rate;
                     } else {
                         sp18[i] = 0x80;
                     }
                 } else {
-                    if (sp18[0] < 0xC) {
-                        sp18[0] = (sp18[0] * 0x80) / 12;
+                    if (sp18[0] < RR_PAL_NTSC(0xC, 0xF)) {
+                        sp18[0] = (sp18[0] * 0x80) / RR_PAL_NTSC(12, 15);
                     } else {
                         sp18[0] = 0x80;
                     }
@@ -172,7 +183,7 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
                 sp18[i] = 0;
             }
             if (OpeningFadeTimer >= 0) {
-                sp18[i] = (OpeningFadeTimer * 0x80) / 100;
+                sp18[i] = (OpeningFadeTimer * 0x80) / RR_PAL_NTSC(100, 120);
                 if (OpeningFadeTimer > 0) {
                     OpeningFadeTimer--;
                 } else {
@@ -268,7 +279,7 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
 }
 
 void StartOpeningFadeOut(void) {
-    OpeningFadeTimer = 0x64;
+    OpeningFadeTimer = RR_PAL_NTSC(0x64, 0x78);
 }
 
 void EmitProjectedMarkerSprt(int a0, int a1, int a2)

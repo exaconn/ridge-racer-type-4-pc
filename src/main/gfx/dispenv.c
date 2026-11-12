@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "rr/scene_camera_state.h"
 #include "game/course/trkintp2.h"
 #include "game/gfx/scene1.h"
@@ -110,7 +111,8 @@ void RotateNegZByEulerZYX(unsigned short *a, int b, int *c) {
 }
 
 short LerpAngleWrap4096(CamNode44 *p, int t) {
-    int n = p->fovDuration24 * 5;
+    /* Durations in units of 5 frames (NTSC release: 6). */
+    int n = p->fovDuration24 * RR_PAL_NTSC(5, 6);
     int v;
     if (n > 0 && t < n) {
         v = (p->fovEnd22 - p->fovStart20) * t / n + p->fovStart20;

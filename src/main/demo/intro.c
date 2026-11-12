@@ -1,4 +1,5 @@
 /* RODATA 0x80011270 0x2c */
+#include "rr/video_timing.h"
 #include "rr/cpu_time.h"
 #include "types.h"
 #include "rr/frame_storage_types.h"
@@ -27,6 +28,8 @@ struct Entry {
 };
 
 extern struct Entry IntroTimeline[];
+extern const struct Entry IntroTimelineNtsc[];
+#define INTRO_TIMELINE RR_PAL_NTSC(IntroTimeline, IntroTimelineNtsc)
 #include "rr/cd_directory_buffer.h"
 extern s16 SubmodeState;
 
@@ -44,9 +47,9 @@ int IntroScriptStep(void) {
     int ret = 0;
 
     cmd = -1;
-    for (i = 0; IntroTimeline[i].frame >= 0; i++) {
-        if (IntroTimeline[i].frame == RaceContext.fade3E0.f3E4) {
-            cmd = IntroTimeline[i].cmd;
+    for (i = 0; INTRO_TIMELINE[i].frame >= 0; i++) {
+        if (INTRO_TIMELINE[i].frame == RaceContext.fade3E0.f3E4) {
+            cmd = INTRO_TIMELINE[i].cmd;
             break;
         }
     }
@@ -244,13 +247,13 @@ int IntroScriptStep(void) {
     }
 
     RaceContext.fade3E0.f3E4++;
-    if (RaceContext.fade3E0.f3E4 > 3000) {
-        RaceContext.fade3E0.f3E4 = 3000;
+    if (RaceContext.fade3E0.f3E4 > RR_PAL_NTSC(3000, 3600)) {
+        RaceContext.fade3E0.f3E4 = RR_PAL_NTSC(3000, 3600);
     }
 
     if (RaceContext.fade3E0.f41C == 1) {
         RaceContext.fade3E0.f424++;
-        if (RaceContext.fade3E0.f424 >= 1000) {
+        if (RaceContext.fade3E0.f424 >= RR_PAL_NTSC(1000, 1200)) {
             if (RaceContext.fade3E0.f3E0 == 0) {
                 RaceContext.fade3E0.f408 = 2;
                 RaceContext.fade3E0.f3E0 = 1;
@@ -291,3 +294,5 @@ void IntroInit(void) {
 
 /* Initial values of the globals this module owns. */
 struct Entry IntroTimeline[11] = {{.cmd = 9}, {.frame = 50}, {.frame = 149, .cmd = 10}, {.frame = 150, .cmd = 2}, {.frame = 250, .cmd = 1}, {.frame = 251, .cmd = 4}, {.frame = 300, .cmd = 3}, {.frame = 330, .cmd = 6}, {.frame = 350, .cmd = 7}, {.frame = 380, .cmd = 8}, {.frame = -1}};
+/* The NTSC release's frames (rr/video_timing.h). */
+const struct Entry IntroTimelineNtsc[11] = {{.cmd = 9}, {.frame = 60}, {.frame = 179, .cmd = 10}, {.frame = 180, .cmd = 2}, {.frame = 300, .cmd = 1}, {.frame = 301, .cmd = 4}, {.frame = 360, .cmd = 3}, {.frame = 390, .cmd = 6}, {.frame = 420, .cmd = 7}, {.frame = 450, .cmd = 8}, {.frame = -1}};

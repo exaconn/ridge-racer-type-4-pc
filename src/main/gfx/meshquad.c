@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "game/system/pad.h"
 #include "game/car/carbound.h"
 #include "rr_asm.h"
@@ -55,17 +56,17 @@ int StepCarShowcaseScene(int a0)
   DrawGarageFloorReflection();
   RaceContext.camera24C->frame104 = RaceContext.camera24C->frame104 + 1U;
   RaceContext.camera24C->phase108 = RaceContext.camera24C->phase108 + 1U;
-  if (RaceContext.camera24C->frame104 >= 0x322)
+  if (RaceContext.camera24C->frame104 >= RR_PAL_NTSC(0x322, 0x3C2))
   {
-    RaceContext.camera24C->frame104 = 0x321;
+    RaceContext.camera24C->frame104 = RR_PAL_NTSC(0x321, 0x3C1);
   }
-  if (RaceContext.camera24C->phase108 >= 0x516)
+  if (RaceContext.camera24C->phase108 >= RR_PAL_NTSC(0x516, 0x61A))
   {
-    RaceContext.camera24C->phase108 = 0x515;
+    RaceContext.camera24C->phase108 = RR_PAL_NTSC(0x515, 0x619);
   }
   if (Pad0Buttons & 0x800)
   {
-    if (RaceContext.camera24C->frame104 >= 0x33)
+    if (RaceContext.camera24C->frame104 >= RR_PAL_NTSC(0x33, 0x3D))
     {
       s1 = 1;
     }

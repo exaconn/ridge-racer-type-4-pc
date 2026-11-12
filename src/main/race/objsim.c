@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "rr/projection_state.h"
 #include "rr/player_cars.h"
 #include "rr/menu_selection.h"
@@ -295,7 +296,7 @@ void UpdateTrackObjects(void) {
                                     ObjSimJetTrackNode = 0x36;
                                     ObjSimCopterTrackNode = 0x35;
                                     ObjSimTrainTrackNode = 0x20;
-                                    if (ModeFrame == 0xAF) {
+                                    if (ModeFrame == RR_PAL_NTSC(0xAF, 0xD2)) {
                                         if (TrackObjectStates[i].f8 != 4) {
                                             TrackObjectStates[i].f24 = -1;
                                         }

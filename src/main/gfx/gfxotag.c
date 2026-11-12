@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "game/system/pad.h"
 #include "rr/audio_state_types.h"
 #include "rr/save_slots.h"
@@ -152,7 +153,7 @@ int FindCameraTrackTrigger(RaceVehicle *a0, int a1, int a2) {
     s0 = -1;
     s2 = ((Elem28 (*)[16])RaceContext.workspace554)[a2];
     for (i = 1; i < 0x10; i++) {
-        if (s2[i].f24 * 5 >= a1) {
+        if (s2[i].f24 * RR_PAL_NTSC(5, 6) >= a1) {
             s0 = i;
             s3 = s0 - 1;
             break;
@@ -165,8 +166,9 @@ int FindCameraTrackTrigger(RaceVehicle *a0, int a1, int a2) {
         ResetCarSlotBuffers();
         RaceContext.opening88.triggerA4 = s3;
     }
-    t1 = (s2[s0].f24 - s2[s3].f24) * 5;
-    t2 = a1 - s2[s3].f24 * 5;
+    /* Key times in units of 5 frames (NTSC release: 6). */
+    t1 = (s2[s0].f24 - s2[s3].f24) * RR_PAL_NTSC(5, 6);
+    t2 = a1 - s2[s3].f24 * RR_PAL_NTSC(5, 6);
     if (s2[s3].f18 == 0) {
         sp20.x = a0->worldPosition10.words[0];
         sp20.y = a0->worldPosition10.words[1];
@@ -257,7 +259,7 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
     }
     gB = &RaceContext;
     s0 = gB->opening88.frame88;
-    if (s0 < 0xC) {
+    if (s0 < RR_PAL_NTSC(0xC, 0xF)) {
         if (s0 == 1) {
             StartOpeningFadeOut();
             if (gB->opening88.mode94 == s0) {
@@ -271,11 +273,11 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
         {
             int x, d;
             x = RaceContext.opening88.frame88 << 8;
-            d = x / 12;
+            d = x / RR_PAL_NTSC(12, 15);
             s0 = 0x100;
             s0 -= d;
         }
-        UpdateRaceOpeningOverlay(0x1C2);
+        UpdateRaceOpeningOverlay(RR_PAL_NTSC(0x1C2, 0x21C));
         pk = (GpuTilePacket *)RR_GPU_SCRATCH->cursor;
         pk->code = 0x62;
         pk->r = s0;
@@ -309,7 +311,7 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
             } while (s0 < 0x10);
             gF = &RaceContext;
             gF->opening88.mode94 = 1;
-            gF->opening88.endFrame98 = gF->opening88.endFrame98 * 5;
+            gF->opening88.endFrame98 = gF->opening88.endFrame98 * RR_PAL_NTSC(5, 6);
         } else {
             gC->opening88.mode94 = 2;
         }
@@ -319,17 +321,17 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
     case 1:
         FindCameraTrackTrigger(arg0, gD->opening88.frame88, SelectedTeamIndex);
         if (Pad0Buttons & 0x800) {
-            if (gD->opening88.frame88 >= 0x1A) {
+            if (gD->opening88.frame88 >= RR_PAL_NTSC(0x1A, 0x1F)) {
                 if (gD->opening88.fadeActive90 == 0) {
-                    gD->opening88.endFrame98 = gD->opening88.frame88 + 0x19;
+                    gD->opening88.endFrame98 = gD->opening88.frame88 + RR_PAL_NTSC(0x19, 0x1E);
                 }
             }
         }
         gS = &RaceContext;
-        if ((gS->opening88.endFrame98 - gS->opening88.frame88) < 0x1A) {
+        if ((gS->opening88.endFrame98 - gS->opening88.frame88) < RR_PAL_NTSC(0x1A, 0x1F)) {
             if (gS->opening88.fadeActive90 == 0) {
                 gS->opening88.fadeActive90 = 1;
-                CdAudioFade(0, 8);
+                CdAudioFade(0, RR_PAL_NTSC(8, 10));
             }
         }
         gT = &RaceContext;
@@ -343,7 +345,7 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
 
     case 2:
         gD->opening88.frame88++;
-        if (gD->opening88.frame88 >= 0x49) {
+        if (gD->opening88.frame88 >= RR_PAL_NTSC(0x49, 0x58)) {
             gD->opening88.done9C = 1;
             arg0->flags1E4 = arg0->flags1E4 | 0x100;
         }
@@ -354,9 +356,11 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
             CarLocalToWorld(arg0, &RaceContext.cameraFollowOffset30, &RaceContext.view60.pose00.position00.vector);
             RaceContext.view60.pose00.rotation10.z = 0;
             RaceContext.view60.projection20 = 0x1D6;
-            RaceContext.view60.pose00.rotation10.x = ((RaceContext.opening88.frame88 * 0x190) / 73) - 0x280;
-            v = (RaceContext.view60.pose00.rotation10.y = (-(RaceContext.opening88.frame88 * 0xB00) / 73) + 0x600);
-            RaceContext.view60.distance1C = (-(RaceContext.opening88.frame88 << 9) / 73) + 0x400;
+            /* A 73-frame swing (NTSC release: 88 frames). */
+            const int swing = RR_PAL_NTSC(73, 88);
+            RaceContext.view60.pose00.rotation10.x = ((RaceContext.opening88.frame88 * 0x190) / swing) - 0x280;
+            v = (RaceContext.view60.pose00.rotation10.y = (-(RaceContext.opening88.frame88 * 0xB00) / swing) + 0x600);
+            RaceContext.view60.distance1C = (-(RaceContext.opening88.frame88 << 9) / swing) + 0x400;
             if (((short)v) < (-0x400)) {
                 RaceContext.view60.pose00.rotation10.y = -0x400;
             }
@@ -373,7 +377,7 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
         }
         ApplyCameraState(&RaceContext.view60);
         g2 = &RaceContext;
-        if (g2->opening88.frame88 >= 0x33) {
+        if (g2->opening88.frame88 >= RR_PAL_NTSC(0x33, 0x3D)) {
             g2->opening88.fadeActive90 = 1;
         }
         break;

@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "game/system/pad.h"
 #include "game/ui/uipart1.h"
 #include "rr/menu_frame_state.h"
@@ -61,6 +62,7 @@ extern int DialogueSceneMode;
 extern short SubmodeState;
 /* Music positions (G->s46) at which the intro scene advances a page. */
 extern short DrawListDefaultVerts[];
+extern short DrawListDefaultVertsNtsc[];
 #include "rr/cd_directory_buffer.h"
 extern const Vec3s8 TitleModelZeroAngles;
 extern const VectorWords16 TitleModelPosLayer0A;
@@ -210,7 +212,7 @@ case 0x4:
     G->s48 = 0x80;
     G->s9C = 0x1000;
     G->s4A = 0;
-    G->p40 = DrawListDefaultVerts;
+    G->p40 = RR_PAL_NTSC(DrawListDefaultVerts, DrawListDefaultVertsNtsc);
     G->s46 = 0;
     G->s44 = 0;
 case 0x5:
@@ -220,24 +222,25 @@ case 0x5:
     if (G->s9C > 0) {
         G->s9C = (s16) ((u16) G->s9C - 0x100);
     }
-    if (((u16) G->s46 - 0xA0) < 0xAAU) {
+    /* Title intro cues by frame (NTSC release: its own frames). */
+    if (((u16) G->s46 - (u32)RR_PAL_NTSC(0xA0, 0xE4)) < (u32)RR_PAL_NTSC(0xAA, 0xED)) {
         sp1 = (int *)SCRATCHPAD;
         sp1[2] = sp1[2] + 3;
     }
     temp_a0 = G->s46;
-    if (temp_a0 == 0xB0) {
+    if (temp_a0 == RR_PAL_NTSC(0xB0, 0xD4)) {
         G->s76 = 4;
-    } else if (temp_a0 == 0xA0) {
+    } else if (temp_a0 == RR_PAL_NTSC(0xA0, 0xE4)) {
         G->s8A = 0x80;
         G->s8C = 0x80;
         G->s8E = 0x80;
-    } else if (temp_a0 == 0x15E) {
+    } else if (temp_a0 == RR_PAL_NTSC(0x15E, 0x1A4)) {
         H->half02 = 1;
-    } else if (temp_a0 == 0x129) {
+    } else if (temp_a0 == RR_PAL_NTSC(0x129, 0x1B0)) {
         G->s8A = -0x80;
         G->s8C = -0x80;
         G->s8E = -0x80;
-    } else if (temp_a0 == 0x175) {
+    } else if (temp_a0 == RR_PAL_NTSC(0x175, 0x1C0)) {
         G->s74 = -4;
         G->s76 = -4;
     }
@@ -1055,6 +1058,8 @@ void EmitSpriteGrid(u32 intensity, SpriteGridClock *state) {
 /* Initial values of the globals this module owns. */
 const Vec3s8 TitleModelZeroAngles;
 short DrawListDefaultVerts[18] = {602, 785, 969, 1152, 1335, 1608, 1975, 2350, 2556, 2881, 3177, 3563, 3725, 3887, 4050, 4275, 4558, 0};
+/* The NTSC release's cue frames (rr/video_timing.h). */
+short DrawListDefaultVertsNtsc[18] = {723, 943, 1163, 1383, 1603, 1930, 2371, 2820, 3068, 3458, 3813, 4276, 4470, 4665, 4860, 5130, 5470, 0};
 const VectorWords16 TitleModelPosLayer0A = {.vector = {.x = -896}};
 const VectorWords16 TitleModelPosLayer0B = {.vector = {.x = -224}};
 const VectorWords16 TitleModelPosLayer1 = {.vector = {.x = 672}};

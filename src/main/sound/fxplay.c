@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "game/sound/fxplay.h"
 #include "types.h"
 #include "rr/audio_state_types.h"
@@ -13,6 +14,7 @@
 
 typedef struct { s32 a, b, c; } ReplayCamTargetDist;
 extern ReplayCamTargetDist ReplayCamTargetDistTable[];
+extern const s32 ReplayCamTargetDistNtscFrames[];
 #include "psyq/libspu/smalloc2.h"
 
 void SeqStartTrack(int a0);
@@ -31,7 +33,7 @@ void SeqStartTrack(int a0) {
         SsSeqPlay((s16)SoundState.seqHandle2864, 1, 0);
         SeqSetVolume((s16)arr[a0]);
         PsyqBzero(&SoundState.seqTick286C, 0x1C);
-        SoundState.seqTempo287C = ReplayCamTargetDistTable[a0].a;
+        SoundState.seqTempo287C = RR_PAL_NTSC(ReplayCamTargetDistTable[a0].a, ReplayCamTargetDistNtscFrames[a0]);
         RestartMotionSequence();
     }
 }
@@ -50,3 +52,5 @@ void SeqMusicResume(void) {
 
 /* Initial values of the globals this module owns. */
 ReplayCamTargetDist ReplayCamTargetDistTable[2] = {{.a = 842, .b = 17800}, {.a = 1271, .b = 11800}};
+/* The NTSC release's frame counts (.a) of the two sequences (rr/video_timing.h). */
+const s32 ReplayCamTargetDistNtscFrames[2] = {1011, 1525};

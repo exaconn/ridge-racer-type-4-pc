@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "rr/projection_state.h"
 #include "game/menu/menu8.h"
 #include "game/sound/sndvab.h"
@@ -177,13 +178,18 @@ void DrawStartCountdown(GpuDmaTag *ordering, s32 frame) {
     s32 intensity;
     void *cursor;
 
-    if (RaceState != 0 && (s32)(frame - 0x4BU) < 0xAF) {
-        tick = frame % 25;
-        phase = (frame - 0x4B) / 25;
+    /* Seven phases of a second from frame 75 (NTSC release: of 30 frames
+     * from frame 90). */
+    const s32 rate = RR_PAL_NTSC(25, 30);
+    const s32 start = RR_PAL_NTSC(0x4B, 0x5A);
+
+    if (RaceState != 0 && (s32)(frame - (u32)start) < rate * 7) {
+        tick = frame % rate;
+        phase = (frame - start) / rate;
         if ((&CurrentDrawBuf->buffer.ordering70.tags[0]) == ordering) {
             top = 0;
             if (phase == 6) {
-                top = -(tick * 128) / 25;
+                top = -(tick * 128) / rate;
             }
         } else {
             RR_GPU_SCRATCH->cursor = AddDrawAreaPrim(ordering, RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x100);
@@ -191,7 +197,7 @@ void DrawStartCountdown(GpuDmaTag *ordering, s32 frame) {
         }
         cursor = AddDrawModePrim(ordering, (GpuDrawModePacket *)RR_GPU_SCRATCH->cursor, 5);
         if (phase == 1) {
-            intensity = ((tick * 64) / 25) + 0x40;
+            intensity = ((tick * 64) / rate) + 0x40;
         } else if (phase >= 4) {
             intensity = 0xA4;
             if (phase >= 5) {
@@ -213,7 +219,7 @@ void DrawStartCountdown(GpuDmaTag *ordering, s32 frame) {
                 for (index = 0; index < 0x10;) {
                     s32 b, c;
 
-                    if (index > tick - 7) {
+                    if (index > tick - RR_PAL_NTSC(7, 12)) {
                         break;
                     }
                     b = index & 1;
@@ -259,7 +265,7 @@ void DrawStartCountdown(GpuDmaTag *ordering, s32 frame) {
                 glyph = PauseMenuLabelUvs[5];
                 for (index = 0; index < 3; index++) {
                     if (index == 0) {
-                        glyph.u += ((tick * 9) / 25) * 12;
+                        glyph.u += ((tick * 9) / rate) * 12;
                     } else if (index == 1) {
                         glyph.u = PauseMenuLabelUvs[5].u + phase * 0x18;
                     } else {
@@ -284,7 +290,7 @@ void DrawStartCountdown(GpuDmaTag *ordering, s32 frame) {
         if (ordering == &CurrentDrawBuf->buffer.secondaryOrderingB70.tags[0]) {
             s32 y;
             if (phase == 6) {
-                intensity = ((0x19 - tick) * 0x18) / 25;
+                intensity = ((rate - tick) * 0x18) / rate;
             } else {
                 intensity = 0x18;
             }
@@ -295,43 +301,44 @@ void DrawStartCountdown(GpuDmaTag *ordering, s32 frame) {
 }
 
 void PlayStartCountdownVoice(int a0) {
-    if (RaceState != 0 && a0 < 0x115) {
-        if (a0 == 0xC3) {
+    /* Countdown frames of each voice cue: PAL 25 a second, NTSC 30. */
+    if (RaceState != 0 && a0 < RR_PAL_NTSC(0x115, 0x14C)) {
+        if (a0 == RR_PAL_NTSC(0xC3, 0xE6)) {
             FadeCountdown = 0x1E;
         }
-        if (a0 == 0x65) {
+        if (a0 == RR_PAL_NTSC(0x65, 0x79)) {
             if (!(RaceVoiceFlags & 1)) {
                 SoundQueueEnqueue(0, 0);
                 RaceVoiceFlags |= 1;
                 return;
             }
         }
-        if (a0 == 0x7E) {
+        if (a0 == RR_PAL_NTSC(0x7E, 0x97)) {
             if (!(RaceVoiceFlags & 2)) {
                 SoundQueueEnqueue(1, 0);
                 RaceVoiceFlags |= 2;
                 return;
             }
         }
-        if (a0 == 0x97) {
+        if (a0 == RR_PAL_NTSC(0x97, 0xB5)) {
             SoundQueueEnqueue(2, 0);
             return;
         }
-        if (a0 == 0xB0) {
+        if (a0 == RR_PAL_NTSC(0xB0, 0xD3)) {
             if (!(RaceVoiceFlags & 4)) {
                 SoundQueueEnqueue(3, 0);
                 RaceVoiceFlags |= 4;
                 return;
             }
         }
-        if (a0 == 0xE2) {
+        if (a0 == RR_PAL_NTSC(0xE2, 0x10F)) {
             if (!(RaceVoiceFlags & 8)) {
                 SoundQueueEnqueue(0x17, 0);
                 RaceVoiceFlags |= 8;
                 return;
             }
         }
-        if (a0 == 0x114) {
+        if (a0 == RR_PAL_NTSC(0x114, 0x14B)) {
             if (!(RaceVoiceFlags & 0x10)) {
                 SoundQueueEnqueue(0x18, 0);
                 RaceVoiceFlags |= 0x10;

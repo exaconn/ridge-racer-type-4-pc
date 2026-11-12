@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "rr/scene_camera_state.h"
 #include "types.h"
 #include "game/gfx/fadesel.h"
@@ -23,7 +24,7 @@ void SelectDemoFadePreset(int a0)
         break;
     }
     RaceContext.fade3E0.f3F4 = 1;
-    RaceContext.fade3E0.f3E4 = 0xBB8;
+    RaceContext.fade3E0.f3E4 = RR_PAL_NTSC(0xBB8, 0xE10); /* 2 minutes */
     RaceContext.fade3E0.f41C = 2;
 }
 

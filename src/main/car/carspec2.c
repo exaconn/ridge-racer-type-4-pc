@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "rr/scene_camera_state.h"
 #include "game/sound/sndque.h"
 #include "rr/overlay661_init.h"
@@ -93,7 +94,7 @@ int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
                     SoundQueueEnqueue(lo, 0);
                 }
                 SoundState.unk1A0C[((s16)a0->flags1E4 & 0xF) - 1] = 1;
-                SoundState.unk1A28 = 0x4B;
+                SoundState.unk1A28 = RR_PAL_NTSC(0x4B, 0x5A);
             }
         }
         if (s2->playerDistance[a1] >= 0x1771) {
@@ -110,7 +111,7 @@ int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
                         SoundQueueEnqueue(v0 + 0xB, 0);
                     }
                     SoundState.unk1A08 = 1;
-                    SoundState.unk1A28 = 0x4B;
+                    SoundState.unk1A28 = RR_PAL_NTSC(0x4B, 0x5A);
                 }
             }
             if (s2->playerDistance[a1] < -0x1388) {

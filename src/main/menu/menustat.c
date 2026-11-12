@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "game/system/pad.h"
 #include "game/sound/cdpos.h"
 #include "rr/save_slots.h"
@@ -53,8 +54,8 @@ void CarStandingsModeUpdate(void) {
                 SetRaceLoadCursor(LoadCursor);
                 SubmodeState = 3;
             }
-        } else if (ModeFrame >= 0x96) {
-            if (MenuReturnSubmodeIndex != 0 || ModeFrame >= 0x177) {
+        } else if (ModeFrame >= RR_PAL_NTSC(0x96, 0xB4)) {
+            if (MenuReturnSubmodeIndex != 0 || ModeFrame >= RR_PAL_NTSC(0x177, 0x1C2)) {
                 SubmodeState = 1;
             }
         }
@@ -67,7 +68,7 @@ void CarStandingsModeUpdate(void) {
         if (LoadMenuCarStep(SelectionRows.bytes[0], SelectionRows.bytes[1])) SubmodeState = 4;
         break;
     case 4:
-        if (MenuReturnSubmodeIndex != 0 || ModeFrame >= 0x177) {
+        if (MenuReturnSubmodeIndex != 0 || ModeFrame >= RR_PAL_NTSC(0x177, 0x1C2)) {
             CdAudioInit();
             CdAudioSelectTrack(0, 1);
             SubmodeState = 1;

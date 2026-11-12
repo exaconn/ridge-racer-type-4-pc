@@ -40,6 +40,7 @@
 #include "game/race/objdraw.h"
 #include "rr/driver_control.h"
 #include "rr/race_setup.h"
+#include "rr/video_timing.h"
 
 extern s32 TrackLength;
 extern s32 RaceState;
@@ -59,8 +60,8 @@ void ovl667_update_checkpoint(RaceVehicle *arg0) {
                 if (RaceState < 4) {
                     TotalRaceTime = 1;
                     RaceState = 4;
-                    FadeCountdown = 75;
-                    SoundSetMasterVolume(0, 71);
+                    FadeCountdown = RR_PAL_NTSC(75, 90);
+                    SoundSetMasterVolume(0, RR_PAL_NTSC(71, 86));
                     SoundQueueEnqueue(19, 1);
                 }
             }
@@ -156,11 +157,11 @@ void ovl667_update_race(void) {
     }
     ovl667_receive_peer_inputs();
 
-    if (ModeFrame >= 75 && RaceState == 0) {
+    if (ModeFrame >= RR_PAL_NTSC(75, 90) && RaceState == 0) {
         RaceState = 1;
         SlotsStartForRace();
     } else if (RaceState == 1) {
-        if (ModeFrame >= 176) {
+        if (ModeFrame >= RR_PAL_NTSC(176, 211)) {
             for (i = 0; i < 4; i++) {
                 UpdateCarStartLineSteering(CarTable[i]);
             }
@@ -173,8 +174,8 @@ void ovl667_update_race(void) {
         if (TotalRaceTime == -1) {
             fade = 69;
         }
-        if (FadeCountdown < 25) {
-            AddScreenFadeTiles(frame, (25 - FadeCountdown) * 10, fade);
+        if (FadeCountdown < RR_PAL_NTSC(25, 30)) {
+            AddScreenFadeTiles(frame, (RR_PAL_NTSC(25, 30) - FadeCountdown) * 10, fade);
             SCRATCH->cursor = AddDrawAreaPrim(frame, SCRATCH->cursor, 0, 0, 320, 256);
         }
         if (FadeCountdown <= 0) {
@@ -189,8 +190,8 @@ void ovl667_update_race(void) {
         } else {
             FadeCountdown--;
         }
-    } else if (ModeFrame >= 51 && RaceState == 0) {
-        AddScreenFadeTiles(frame, (ModeFrame - 50) * 10, 37);
+    } else if (ModeFrame >= RR_PAL_NTSC(51, 61) && RaceState == 0) {
+        AddScreenFadeTiles(frame, (ModeFrame - RR_PAL_NTSC(50, 60)) * 10, 37);
         SCRATCH->cursor = AddDrawAreaPrim(frame, SCRATCH->cursor, 0, 0, 320, 256);
     }
 
@@ -232,8 +233,8 @@ void ovl667_update_race(void) {
             if ((RaceState - 2) < 2U) {
                 if (--RaceTimeRemaining <= 0) {
                     RaceState = 5;
-                    FadeCountdown = 75;
-                    SoundSetMasterVolume(0, 33);
+                    FadeCountdown = RR_PAL_NTSC(75, 90);
+                    SoundSetMasterVolume(0, RR_PAL_NTSC(33, 41));
                 }
             }
             StepRaceFrame(4);
@@ -306,7 +307,7 @@ void ovl667_update_race(void) {
             RR_667_FRAME_SCRATCH->rotation18 = ovl667_camera_rotations[i];
             RR_667_FRAME_SCRATCH->position08 = ovl667_camera_positions[i];
             SetupViewport(split + i);
-            if (RaceState == 0 && ModeFrame < 75) {
+            if (RaceState == 0 && ModeFrame < RR_PAL_NTSC(75, 90)) {
                 UpdateRaceIntroCamera(&PlayerCars[i], ModeFrame);
             } else {
                 UpdateRaceChaseCamera(&PlayerCars[i]);

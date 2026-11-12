@@ -4,6 +4,7 @@
 #include "rr/overlay661_checkpoint.h"
 #include "rr/overlay661_race_controller.h"
 #include "rr/frame_storage_types.h"
+#include "rr/video_timing.h"
 
 extern s32 RaceVoiceFlags;
 
@@ -25,8 +26,8 @@ void ovl661_update_checkpoint(RaceVehicle *vehicle) {
                 if (RaceState < 4) {
                     LapVoicePending = -1;
                     RaceState = 4;
-                    FadeCountdown = 75;
-                    SoundSetMasterVolume(0, 33);
+                    FadeCountdown = RR_PAL_NTSC(75, 90);
+                    SoundSetMasterVolume(0, RR_PAL_NTSC(33, 41));
                     TotalRaceTime = 0;
                     SoundQueueEnqueue(19, 1);
                 }
@@ -127,7 +128,7 @@ block_7:
             RR_661_FRAME_SCRATCH->rotation18 = ovl661_camera_rotations[var_s2];
             RR_661_FRAME_SCRATCH->position08 = ovl661_camera_positions[var_s2];
             SetupViewport(var_s2 + 2);
-            if (RaceState == 0 && ModeFrame < 75U) {
+            if (RaceState == 0 && ModeFrame < RR_PAL_NTSC(75U, 90U)) {
                 UpdateRaceIntroCamera(&PlayerCars[var_s2], ModeFrame);
             } else {
                 UpdateRaceChaseCamera(&PlayerCars[var_s2]);
@@ -150,11 +151,11 @@ block_7:
         RaceTimeRemaining = temp_v0_3;
         if (temp_v0_3 <= 0) {
             RaceState = 5;
-            FadeCountdown = 0x4B;
-            SoundSetMasterVolume(0,0x21);
+            FadeCountdown = RR_PAL_NTSC(0x4B, 0x5A);
+            SoundSetMasterVolume(0,RR_PAL_NTSC(0x21, 0x29));
         }
     }
-    if ((ModeFrame >= 0x4BU) && (RaceState == 0)) {
+    if ((ModeFrame >= RR_PAL_NTSC(0x4BU, 0x5AU)) && (RaceState == 0)) {
         RaceState = 1;
         SlotsStartForRace();
         SetModelTexturePage(-1);
@@ -163,7 +164,7 @@ block_7:
         DrawBuffers[0].environment.draw00.background = 0;
     } else {
         if (RaceState==1) {
-            if (ModeFrame >= 0xB0U) {
+            if (ModeFrame >= RR_PAL_NTSC(0xB0U, 0xD3U)) {
                 UpdateCarStartLineSteering(&PlayerCars[0]);
                 UpdateCarStartLineSteering(&PlayerCars[1]);
                 CdAudioBeginPlay(1);
@@ -174,8 +175,8 @@ block_7:
             if (TotalRaceTime == -1) {
                 var_a2 = 0x45;
             }
-            if (FadeCountdown < 0x19) {
-                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.tags, (0x19 - FadeCountdown) * 0xA, var_a2);
+            if (FadeCountdown < RR_PAL_NTSC(0x19, 0x1E)) {
+                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.tags, (RR_PAL_NTSC(0x19, 0x1E) - FadeCountdown) * 0xA, var_a2);
                 RR_GPU_SCRATCH->cursor = AddDrawAreaPrim(CurrentDrawBuf->buffer.secondaryOrderingB70.tags, RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x100);
             }
             if (FadeCountdown <= 0) {
@@ -192,10 +193,10 @@ block_7:
                 FadeCountdown = (u16) FadeCountdown - 1;
             }
         } else if (RaceState==0) {
-            if (ModeFrame >= 51U) {
-                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.tags,(ModeFrame-50U)*10U,37);
-            } else if (ModeFrame < 25U) {
-                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.tags,(25U-ModeFrame)*10U,69);
+            if (ModeFrame >= RR_PAL_NTSC(51U, 61U)) {
+                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.tags,(ModeFrame-RR_PAL_NTSC(50U, 60U))*10U,37);
+            } else if (ModeFrame < RR_PAL_NTSC(25U, 30U)) {
+                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.tags,(RR_PAL_NTSC(25U, 30U)-ModeFrame)*10U,69);
             }
             RR_GPU_SCRATCH->cursor = AddDrawAreaPrim(CurrentDrawBuf->buffer.secondaryOrderingB70.tags, RR_GPU_SCRATCH->cursor, 0, 0, 0x140, 0x100);
         }
@@ -240,7 +241,7 @@ block_7:
         RR_661_FRAME_SCRATCH->rotation18 = ovl661_camera_rotations[var_s2];
         RR_661_FRAME_SCRATCH->position08 = ovl661_camera_positions[var_s2];
         SetupViewport(var_s2 + 2);
-        if (RaceState == 0 && ModeFrame < 75U) {
+        if (RaceState == 0 && ModeFrame < RR_PAL_NTSC(75U, 90U)) {
             UpdateRaceIntroCamera(&PlayerCars[var_s2], ModeFrame);
         } else {
             UpdateRaceChaseCamera(&PlayerCars[var_s2]);

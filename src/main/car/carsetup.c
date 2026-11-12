@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "game/data/resinit.h"
 #include "psyq/libgte/rotmat.h"
 #include "game/data/bankrec.h"
@@ -81,7 +82,7 @@ void InitPlayerCar(RaceVehicle *vehicle, s32 recordIndex, s32 gridIndex)
     control->previewSample84.halves.high = 1;
     control->record18 = record;
     control->holdFlag48 = 4;
-    control->steeringThreshold2A = 100;
+    control->steeringThreshold2A = RR_PAL_NTSC(100, 120); /* 4 seconds */
     i = 0;
     if (record->lastGear00 >= 0) {
         do {

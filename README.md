@@ -47,6 +47,13 @@ while it is open. Tabs (`Tab`/`PgUp`/`PgDn`, gamepad shoulders):
   sides (the 4:3 picture is unchanged, the HUD moves to the edges), while
   menus and other screens are drawn exactly as in Classic 4:3. Races are
   sharpest at 4x or 8x.
+  *Video timing* is PAL 50 Hz (the original: races at 25 frames a second)
+  or NTSC 60 Hz: 59.82 Hz fields and races at 30 frames a second, with the
+  timers, durations and time conversions of the NTSC release, so the game
+  runs as fast as it does in NTSC countries (the PAL release keeps the
+  NTSC physics per frame, so its cars cover 5/6 of the distance a second).
+  The PAL picture, text and content stay; the choice applies from the next
+  start.
 - **Controls** — every keyboard and gamepad binding with its default; `Enter`
   rebinds (a binding already in use is swapped), `Backspace` restores the
   default.
@@ -93,7 +100,8 @@ write the displayed frame / VRAM as PPM on exit and `RR4_TRACE=n` prints the
 game's mode state every `n` VSyncs. Headless runs never read or write
 preferences and never show a dialog; `RR4_INTERNAL_RES=n` sets the
 resolution for one run (`PSYZ_HEADLESS=gpu` keeps the real GPU renderer, so
-captures are `n` times larger) and `RR4_SETTINGS_SCRIPT` drives the Escape
+captures are `n` times larger), `RR4_VIDEO=ntsc` (or `pal`) chooses the
+video timing for the run and `RR4_SETTINGS_SCRIPT` drives the Escape
 menu (see `src/port/settings_overlay.h`).
 `RR4_WATCH` (print globals with the trace) and `RR4_POKE` (set them) look the
 game's globals up by name in the executable: macOS builds export them, Linux

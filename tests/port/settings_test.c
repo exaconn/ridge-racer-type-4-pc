@@ -41,6 +41,7 @@ static void TestDefaults(void) {
     CHECK(!d->mute && !d->fullscreen && !d->frame_interpolation &&
           d->aspect_ratio == RR4_ASPECT_CLASSIC);
     CHECK(d->vsync == RR4_VSYNC_AUTO);
+    CHECK(d->video_timing == RR4_VIDEO_PAL);
     for (int i = 0; i < RR4_PREFS_BUTTONS; i++) {
         CHECK(d->keys[i] == Psyz_GetKeyboardBinding_SDL3((unsigned)i));
         CHECK(d->buttons[i] == Psyz_GetGamepadBinding_SDL3((unsigned)i));
@@ -65,6 +66,12 @@ static void TestGraphicsPage(void) {
     Do(&m, SETTINGS_DOWN, 1);
     Do(&m, SETTINGS_RIGHT, 2);
     CHECK(m.prefs.vsync == RR4_VSYNC_OFF);
+    /* Video timing: used from the next start, the status says so. */
+    Do(&m, SETTINGS_DOWN, 1);
+    Do(&m, SETTINGS_RIGHT, 1);
+    CHECK(m.prefs.video_timing == RR4_VIDEO_NTSC);
+    CHECK(strstr(SettingsModelHelp(&m), "next start") != NULL);
+    Do(&m, SETTINGS_UP, 1);
     /* Up from the first row wraps to Quit game. */
     Do(&m, SETTINGS_UP, 3);
     CHECK(m.row == SettingsRowCount(&m) - 1);
@@ -76,7 +83,8 @@ static void TestGraphicsPage(void) {
     /* Restore page defaults. */
     SettingsModelSelect(&m, SettingsContentRows(&m));
     Do(&m, SETTINGS_ACTIVATE, 1);
-    CHECK(m.prefs.scale == 1 && !m.prefs.fullscreen && m.prefs.vsync == RR4_VSYNC_AUTO);
+    CHECK(m.prefs.scale == 1 && !m.prefs.fullscreen && m.prefs.vsync == RR4_VSYNC_AUTO &&
+          m.prefs.video_timing == RR4_VIDEO_PAL);
     CHECK(m.open);
     /* Back closes. */
     Do(&m, SETTINGS_BACK, 1);
@@ -214,6 +222,7 @@ static void TestPrefsFile(const char *dir) {
     p.vsync = RR4_VSYNC_ON;
     p.antialiasing = 1;
     p.aspect_ratio = RR4_ASPECT_WIDESCREEN;
+    p.video_timing = RR4_VIDEO_NTSC;
     p.volume = 35;
     p.mute = 1;
     p.keys[BTN_UP] = SDL_SCANCODE_I;

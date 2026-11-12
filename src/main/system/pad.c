@@ -1,4 +1,5 @@
 #include "types.h"
+#include "rr/video_timing.h"
 #include "rr/runtime_settings.h"
 #include "game/system/pad.h"
 #include "rr/race_setup.h"
@@ -169,15 +170,16 @@ void PadUpdate(void) {
                 } else {
                     states[i]->idleTick58 += 2;
                 }
-                if (states[i]->idleTick58 >= 0xBB9) {
-                    states[i]->idleTick58 = 0xBB8;
+                if (states[i]->idleTick58 >= RR_PAL_NTSC(0xBB9, 0xE11)) {
+                    states[i]->idleTick58 = RR_PAL_NTSC(0xBB8, 0xE10);
                 }
             } else {
                 states[i]->idleTick58 = 0;
             }
-            if (states[i]->idleTick58 >= 0xBB8) {
+            /* Idle for 120 s (NTSC release: 3600 frames), warned 110 s. */
+            if (states[i]->idleTick58 >= RR_PAL_NTSC(0xBB8, 0xE10)) {
                 states[i]->idleStage54 = 2;
-            } else if (states[i]->idleTick58 >= 0xABF) {
+            } else if (states[i]->idleTick58 >= RR_PAL_NTSC(0xABF, 0xCE5)) {
                 states[i]->idleStage54 = 1;
             }
             break;

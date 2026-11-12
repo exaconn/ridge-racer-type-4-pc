@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "rr/scene_camera_state.h"
 #include "game/gfx/fadeset.h"
 #include "game/sound/sndvab.h"
@@ -32,7 +33,7 @@ void ResetDemoFadeState(void) {
     RaceContext.fade3E0.f416 = 0x10;
     RaceContext.fade3E0.f418 = 1;
     RaceContext.fade3E0.f414 = 1;
-    RaceContext.fade3E0.f3E4 = 0xBB8;
+    RaceContext.fade3E0.f3E4 = RR_PAL_NTSC(0xBB8, 0xE10); /* 2 minutes */
     x = RaceContext.fade3E0.f430;
     RaceContext.fade3E0.f424 = 0;
     RaceContext.fade3E0.f41C = 1;

@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "types.h"
 #include "game/car/carspec2.h"
 #include "rr/player_cars.h"
@@ -66,7 +67,8 @@ void InitComCars(s32 count) {
         sub->factor11E = spec->factor26;
         sub->altSpeed120 = spec->altSpeed28;
         sub->steeringEnabled124 = spec->steering2C;
-        sub->laneCooldown40 = (i * 25 + 50) / 2;
+        /* NTSC release: 30 + 15 frames a car. */
+        sub->laneCooldown40 = VideoTimingNtsc ? i * 15 + 30 : (i * 25 + 50) / 2;
         sub->metric12A = 0;
         car++;
     }

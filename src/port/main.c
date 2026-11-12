@@ -155,6 +155,7 @@
 #include <unistd.h>
 #endif
 #include "game/system/pad.h"
+#include "rr/video_timing.h"
 #include "preferences.h"
 #include "settings_overlay.h"
 
@@ -895,6 +896,17 @@ int main(int argc, char **argv) {
             capture_at[capture_at_len++] = strtol(l, &end, 10);
             l = *end == ',' ? end + 1 : NULL;
         }
+    }
+    {
+        /* Video timing for the whole run (rr/video_timing.h): the
+         * preference, or RR4_VIDEO=pal / ntsc (also headless). NTSC keeps
+         * the PAL release's 256-line picture whole at NTSC field timing. */
+        const char *video = getenv("RR4_VIDEO");
+        int ntsc = prefs.video_timing == RR4_VIDEO_NTSC;
+        if (video && *video)
+            ntsc = !strcmp(video, "ntsc");
+        VideoTimingNtsc = ntsc;
+        Psyz_GpuSetNtscPalPicture(ntsc);
     }
     chained_vsync = Psyz_SetVSyncCb(host_vsync);
     MainLoop();

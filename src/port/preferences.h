@@ -32,6 +32,11 @@ typedef enum Rr4AspectPref {
     RR4_ASPECT_WIDESCREEN = 1, /* square pixels; races 16:9, the rest 4:3 */
 } Rr4AspectPref;
 
+typedef enum Rr4VideoTimingPref {
+    RR4_VIDEO_PAL = 0,  /* the PAL release: 49.75 Hz fields, races at 25 fps */
+    RR4_VIDEO_NTSC = 1, /* the NTSC release's timing: 59.82 Hz, races at 30 fps */
+} Rr4VideoTimingPref;
+
 typedef struct Rr4Prefs {
     /* [graphics] */
     unsigned scale; /* internal resolution: 1, 2, 4, 6 or 8 */
@@ -44,6 +49,7 @@ typedef struct Rr4Prefs {
     int geometry_correction;
     int frame_interpolation;
     int aspect_ratio; /* Rr4AspectPref */
+    int video_timing; /* Rr4VideoTimingPref, used from the next start */
     /* [audio] */
     unsigned volume; /* 0..100 */
     int mute;

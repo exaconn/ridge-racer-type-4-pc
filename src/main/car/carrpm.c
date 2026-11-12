@@ -1,6 +1,7 @@
 #include "rr/vehicle_rpm.h"
 #include "rr/cpu_md_leaf.h"
 #include "rr_asm.h"
+#include "rr/video_timing.h"
 void UpdateEngineRpm(RaceVehicle *vehicle) {
     RaceVehicle *body=(RaceVehicle *)vehicle;
     RaceVehicleControl *control=&body->control;
@@ -42,6 +43,8 @@ void UpdateEngineRpm(RaceVehicle *vehicle) {
                     v1=0x51EB851F;a0=control->engine54.halves.rpm;
                     a1-=a0;v0=(a1*24U);RR_MD_MULT_S(v0,v1);
                     v0>>=31;RR_MD_HI(high);v1=(high>>3)-v0;
+                    /* NTSC release: the RPM closes 1/30 of the gap a frame. */
+                    if(VideoTimingNtsc)v1=(a1*29)/30;
                 }
                 a1 = v1 + a0;
                 v0 = __builtin_abs(control->steering8C);

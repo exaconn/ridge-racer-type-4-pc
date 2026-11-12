@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "game/race/racegrid.h"
 #include "rr/frame_loop.h"
 #include "game/data/resinit.h"
@@ -98,7 +99,7 @@ void UpdateRaceCamera(int arg0, void *arg1) {
     a1 = RaceContext.cameraNodeFrames48 + 1;
     RaceContext.cameraNodeFrames48 = a1;
     if (a0 != RaceContext.cameraNodeIndex4C) {
-        if (GameModeType == 5 || a1 >= 0x1A) {
+        if (GameModeType == 5 || a1 >= RR_PAL_NTSC(0x1A, 0x1F)) {
             RaceContext.cameraNodeChanged1C = 1;
             RaceContext.cameraNodeIndex4C = a0;
             RaceContext.cameraNodeFrames48 = 0;

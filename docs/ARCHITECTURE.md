@@ -120,6 +120,21 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      picture. A camera jump (`InterpViewCamera`) or a mode change starts new
      identities. Off, nothing is tagged and every value is the original one.
 
+   - **Video timing (PAL / NTSC):** the PAL release is the NTSC game with
+     every value that counts frames converted to 25 frames a second: frame
+     counts to 5/6 (countdown, fades, timers, attract and intro scripts,
+     camera keys, credits, music cue frames), frames-to-time conversions
+     `/25` instead of `/30`, per-frame rates (engine RPM smoothing). Physics,
+     AI and car data are the NTSC per-frame values. `include/rr/video_timing.h`
+     (`VideoTimingNtsc`, `RR_PAL_NTSC(pal, ntsc)`) keeps the PAL value and
+     adds, at each such place, the value of the NTSC release (SLPS-01800,
+     compared function by function with the PAL executable and overlays).
+     NTSC timing runs `SetVideoMode(MODE_NTSC)`: 263-line fields at 59.82
+     Hz, races at 30 frames a second, and the PAL picture (256 lines,
+     layout, text) is kept whole with `Psyz_GpuSetNtscPalPicture`. The
+     choice is made at startup (preference or `RR4_VIDEO`); with PAL every
+     value is the original one.
+
 ## Repository layout
 
 | Path | Contents |

@@ -3,6 +3,10 @@
 #include "game/system/pad.h"
 #include "rr/overlay668_replay_controller.h"
 #include "rr/frame_storage_types.h"
+#include "rr/video_timing.h"
+
+/* Remainder of the NTSC-timing credit scroll, in sixths of a unit. */
+static s32 ovl668_credit_scroll_sixths;
 
 void ovl668_init_epilogue_credits(void) {
     s32 i;
@@ -45,6 +49,7 @@ void ovl668_init_epilogue_credits(void) {
     SetSceneOverlayEnabled(1);
     MaskBitSetting = 1;
     EpilogueCreditScrollY = 16000;
+    ovl668_credit_scroll_sixths = 0;
     EpilogueCreditScrollStep = ovl668_credit_scroll_speeds[(Options.storyBranch3C * 4U + SelectedTeamIndex)];
 }
 
@@ -71,7 +76,11 @@ EpilogueCameraWork78 *ctx;
     case 5:                                        
         var_a0 = -1;
         for(var_s0=0;ovl668_epilogue_events[var_s0].key>=0;var_s0++){
-          if(ovl668_epilogue_events[var_s0].key==RaceContext.work444.epilogue.state44C){var_a0=ovl668_epilogue_events[var_s0].action;break;}
+          /* Frames at 25 a second; the NTSC release's table holds 6/5 of
+           * each (100, 1800 -> 120, 2160 frames at 30 a second). */
+          s32 key = ovl668_epilogue_events[var_s0].key;
+          if (VideoTimingNtsc) key = key * 6 / 5;
+          if(key==RaceContext.work444.epilogue.state44C){var_a0=ovl668_epilogue_events[var_s0].action;break;}
         }
         switch (var_a0) {                          
         case 0:                                    
@@ -122,13 +131,22 @@ EpilogueCameraWork78 *ctx;
         if (temp_v1 != 0) {
             if (temp_v1 == 1) {
                 var_s0 = 0;
-                EpilogueCreditScrollY = (u32)EpilogueCreditScrollY - EpilogueCreditScrollStep;
+                if (VideoTimingNtsc) {
+                    /* The scrolling credits are the PAL release's own: at 30
+                     * frames a second they move 5/6 of the step a frame, so
+                     * they keep their place in the music and end with it. */
+                    ovl668_credit_scroll_sixths += EpilogueCreditScrollStep * 5;
+                    EpilogueCreditScrollY = (u32)EpilogueCreditScrollY - ovl668_credit_scroll_sixths / 6;
+                    ovl668_credit_scroll_sixths %= 6;
+                } else {
+                    EpilogueCreditScrollY = (u32)EpilogueCreditScrollY - EpilogueCreditScrollStep;
+                }
                 for(;var_s0<62;var_s0++)ovl668_draw_credit_band(var_s0,160);
             }
         }
         if ((PlayerControllers[0].edges08.fields.pressed & 0x800) && (RaceContext.work444.epilogue.mode4A8 == 0)) {
             RaceContext.work444.epilogue.mode4A8 = 2;
-            CdAudioFade(0, 0x15);
+            CdAudioFade(0, RR_PAL_NTSC(0x15, 0x1A));
         }
         SetupPlayerView(0);
         DrawTrackSceneryForPlayer(0);
@@ -148,7 +166,8 @@ s32 ovl668_credit_scroll_speeds[20] = {28, 21, 24, 28, 31, 25, 28, 31, 30, 23, 3
 /* Writable state of this unit; ovl668_reset_module restores it. */
 static const OverlayStateRegion ovl668_epilogue_credits_regions[] = {
     RR_OVERLAY_STATE(ovl668_credit_scroll_speeds),
-    RR_OVERLAY_STATE(ovl668_epilogue_events)};
+    RR_OVERLAY_STATE(ovl668_epilogue_events),
+    RR_OVERLAY_STATE(ovl668_credit_scroll_sixths)};
 const OverlayStateTable ovl668_epilogue_credits_state = {ovl668_epilogue_credits_regions, sizeof(ovl668_epilogue_credits_regions) / sizeof(ovl668_epilogue_credits_regions[0])};
 
 /* Initial values of the globals this module owns. */

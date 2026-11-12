@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "game/system/pad.h"
 #include "game/sound/sndvab.h"
 #include "rr/save_progress.h"
@@ -214,7 +215,8 @@ void TitleMenuUpdate(void)
             InitBadgeRow(0, 0x10, 0x1B6, 0x40, 0x22, 0, 0xF00);
             BadgeRows->half02 = 1;
         }
-        if (ScreenFrame >= 0x2EEU)
+        /* 30 s to the attract demo (NTSC release: 900 frames). */
+        if (ScreenFrame >= (u32)RR_PAL_NTSC(0x2EE, 0x384))
             SubmodeState = 5;
         return;
     case 2:
@@ -231,7 +233,7 @@ void TitleMenuUpdate(void)
         }
         if (s0b != MenuCursor)
             ScreenFrame = 0;
-        if (ScreenFrame >= 0xBB8U)
+        if (ScreenFrame >= (u32)RR_PAL_NTSC(0xBB8, 0xE10))
             SubmodeState = 5;
         DrawModeSelectRows();
         UpdateBadgeRowAnim(0);

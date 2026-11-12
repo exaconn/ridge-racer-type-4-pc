@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "rr/save_slots.h"
 #include "rr/menu_selection.h"
 #include "rr/menu_frame_state.h"
@@ -105,13 +106,14 @@ void DrawLinkEntryScreen(s32 mode) {
             }
             row++;
         } while (row<2);
-        row=RaceTimeRemaining/50;
+        row=RaceTimeRemaining/RR_PAL_NTSC(50, 60);
         text[0]=row/10+48;
         text[1]=row%10+48;
         DrawBigFontString(44,244,text);
         DrawBigFontString(32,244,SecondsUntilCloseText);
-        remaining=(500U-RaceTimeRemaining);
-        DrawBigFontString(((s32)(remaining * 0x100U)/500)+32,224,StrLinkProgressBarGlyph);
+        /* The 20 s entry window (NTSC release: 600 frames). */
+        remaining=((u32)RR_PAL_NTSC(500, 600)-RaceTimeRemaining);
+        DrawBigFontString(((s32)(remaining * 0x100U)/RR_PAL_NTSC(500, 600))+32,224,StrLinkProgressBarGlyph);
     }
 }
 
@@ -146,7 +148,7 @@ void LinkWaitModeEnter(void) {
     LinkEntryState[1][0] = 1;
     LinkEntryState[1][1] = 0;
     ClearScreenOverlayState();
-    RaceTimeRemaining = 0x1F4;
+    RaceTimeRemaining = RR_PAL_NTSC(0x1F4, 0x258); /* 20 seconds */
     ModeFrame = 0;
     VSyncThreshold = 0x80;
     SubmodeState = 0;
@@ -249,7 +251,7 @@ void LinkErrorModeUpdate(void) {
       g->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.tags[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.tags[0], new_var, 0x78, 0x100, StrLinkError, 0x7F38, 0, 1), 0x78, 0x114, PressStartStr, 0x7F38, 0, 1), 0, 0, 0x140, 0x200, 0x80, 0, 0), 0x5E);
       if (MenuReturnSubmodeIndex == 0)
     {
-      if (ModeFrame < 0xFBU)
+      if (ModeFrame < RR_PAL_NTSC(0xFBU, 0x12DU))
       {
         return;
       }
@@ -302,7 +304,7 @@ void LinkBattleEndModeUpdate(void)
       RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.tags[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.tags[0], new_var, 0x78, 0x100, StrLinkBattleEnd, 0x7F38, 0, 1), 0x78, 0x114, PressStartText, 0x7F38, 0, 1), 0x3E);
       if (MenuReturnSubmodeIndex == 0)
     {
-      if (ModeFrame < 0xFBU)
+      if (ModeFrame < RR_PAL_NTSC(0xFBU, 0x12DU))
       {
         return;
       }
@@ -399,7 +401,7 @@ void PostRaceScreenModeUpdate(void) {
 
     ModeFrame += 1;
     UpdateScreenFade(1);
-    if ((ModeFrame >= 0x1C2U || MenuReturnSubmodeIndex != 0) && LinkCommTimeoutTimer <= 0) {
+    if ((ModeFrame >= RR_PAL_NTSC(0x1C2U, 0x21CU) || MenuReturnSubmodeIndex != 0) && LinkCommTimeoutTimer <= 0) {
         LinkCommTimeoutTimer += 1;
         ModeFrame = 0;
         return;

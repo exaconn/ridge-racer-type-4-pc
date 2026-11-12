@@ -5,6 +5,7 @@
 #include "rr/overlay659.h"
 #include "rr/frame_storage_types.h"
 #include "rr/scene_camera_state.h"
+#include "rr/video_timing.h"
 
 void ovl659_exit_race(void) {
     SetupRaceAndSceneId();
@@ -64,35 +65,35 @@ void ovl659_update_race(void) {
         if ((RaceTimeRemaining = RaceTimeRemaining - 1U) <= 0) {
             RaceState = 5;
             PlayerCars[0].half1EE = 9;
-            FadeCountdown = 37;
+            FadeCountdown = RR_PAL_NTSC(37, 45);
             RankEntries[0].score00 = (0U - TrackLength);
-            SoundSetMasterVolume(0, 33);
+            SoundSetMasterVolume(0, RR_PAL_NTSC(33, 41));
         }
     }
 
     if (RaceContext.opening88.done9C != 0 && RaceState == 0) {
-        ScreenFrame = 75;
-        ModeFrame = 75;
+        ScreenFrame = RR_PAL_NTSC(75, 90);
+        ModeFrame = RR_PAL_NTSC(75, 90);
         SlotsStartForRace();
         RaceState = 1;
         PlayerCars[0].flags1E4 |= 0x100;
         ResetCarSlotBuffers();
         SetModelTexturePage(-1);
     } else if (RaceState == 1) {
-        if (ModeFrame >= 176U) {
+        if (ModeFrame >= RR_PAL_NTSC(176U, 211U)) {
             UpdateCarStartLineSteering(PlayerCars);
             RaceState = 2;
             CdAudioBeginPlay(1);
         }
     } else if (RaceState >= 4) {
         s32 a2;
-        if (FadeCountdown < 25) {
+        if (FadeCountdown < RR_PAL_NTSC(25, 30)) {
             if (CarTable[0]->half1EE <= ovl659_finish_rank_limits[SelectionState.fields.phase17 >> 1]) {
                 a2 = 37;
             } else {
                 a2 = 69;
             }
-            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (25 - FadeCountdown) * 10, a2);
+            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.tags[0], (RR_PAL_NTSC(25, 30) - FadeCountdown) * 10, a2);
         }
         if (FadeCountdown <= 0) {
             SelectionState.fields.result19 = PlayerCars[0].half1EE;

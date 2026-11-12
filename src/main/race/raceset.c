@@ -14,6 +14,7 @@
 #include "game/race/racesave.h"
 #include "game/sound/sndctrl.h"
 #include "game/race/racesetp.h"
+#include "rr/video_timing.h"
 
 extern u8 GpStageRivalRankLimits[];
 extern s16 FadeCountdown;
@@ -49,7 +50,9 @@ void UpdateLapTiming(RaceVehicle *arg0) {
             }
             LapTimes[s0->dynamics94.steering.count22 - 1] = FramesToMilliseconds(
                 LapFrameCounts[s0->dynamics94.steering.count22 - 1],
-                PsyqRand() % 40
+                /* The milliseconds within the frame: 40 a frame (NTSC
+                 * release: rand & 31 of its 33). */
+                VideoTimingNtsc ? PsyqRand() & 31 : PsyqRand() % 40
             );
             if (LapTimes[s0->dynamics94.steering.count22 - 1] > 0x927BE) {
                 LapTimes[s0->dynamics94.steering.count22 - 1] = 0x927BF;
@@ -95,8 +98,8 @@ void UpdateLapTiming(RaceVehicle *arg0) {
                 if (RaceState < 4) {
                     LapVoicePending = -1;
                     RaceState = 4;
-                    FadeCountdown = 0x4B;
-                    SoundSetMasterVolume(0, 0x47);
+                    FadeCountdown = RR_PAL_NTSC(0x4B, 0x5A);
+                    SoundSetMasterVolume(0, RR_PAL_NTSC(0x47, 0x56));
                     if (GameModeType != 1) {
                         msg = 0x13;
                     } else if (arg0->half1EE <= GpStageRivalRankLimits[SelectionState.fields.phase17 / 2]) {

@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "psyq/libgte/rotmat.h"
 #include "psyq/libgte/gtemat5.h"
 #include "rr/frame_storage_types.h"
@@ -52,7 +53,7 @@ int StepCarShowcasePhysics(RaceVehicle *vehicle, int time, int track, int *segme
 
     keys = RaceContext.camera24C->tracks138[track];
     for (i = 1; i < 0x18; i++) {
-        s32 keyTime = keys[i].time24 * 10U;
+        s32 keyTime = keys[i].time24 * (u32)RR_PAL_NTSC(10, 12);
         if (keyTime >= time) {
             endKey = i;
             startKey = i - 1;
@@ -87,14 +88,15 @@ int StepCarShowcasePhysics(RaceVehicle *vehicle, int time, int track, int *segme
     if (startKey != RaceContext.camera24C->segment10C) {
         RaceContext.camera24C->segment10C = startKey;
         if (keys[startKey].restart28 != 0) {
-            RaceContext.camera24C->phase108 = keys[startKey].restart28 * 10U;
+            RaceContext.camera24C->phase108 = keys[startKey].restart28 * (u32)RR_PAL_NTSC(10, 12);
         }
     }
 
     UpdateCarShowcaseCamera(RaceContext.camera24C->phase108);
 
-    duration = (keys[endKey].time24 - (u32)keys[startKey].time24) * 10U;
-    elapsed = time - keys[startKey].time24 * 10U;
+    /* Key times in units of 10 frames (NTSC release: 12). */
+    duration = (keys[endKey].time24 - (u32)keys[startKey].time24) * (u32)RR_PAL_NTSC(10, 12);
+    elapsed = time - keys[startKey].time24 * (u32)RR_PAL_NTSC(10, 12);
 
     if (keys[startKey].view00.absolute18 == 0) {
         startPosition.xyz.x = vehicle->position20.vector.x * 4U;

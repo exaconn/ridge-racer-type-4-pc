@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "game/car/carbound.h"
 #include "rr/rro_model.h"
 #include "game/gfx/model.h"
@@ -90,8 +91,11 @@ void DrawGarageFloorReflection(void)
     RR_GPU_SCRATCH->order = &CurrentDrawBuf->buffer.ordering70.tags[0];
 }
 
+/* Curve keys count units of 10 frames (NTSC release: 12 frames). */
+#define CURVE_KEY_FRAMES RR_PAL_NTSC(10, 12)
+
 s32 FindCurveSegment(PairS16 *p, s32 a1) {
-    int t = a1 / 10;
+    int t = a1 / CURVE_KEY_FRAMES;
     int i = 0;
     while (p[i].b >= 0) {
         if (t < p[i].b) break;
@@ -105,7 +109,7 @@ s32 InterpCurveLinear(PairS16 *t, s32 idx, s32 x) {
     if (idx == 0) return t[0].a;
     p = &t[idx];
     if (p->b < 0) return p->a;
-    return (p->a - p[-1].a) * (x - p[-1].b * 10) / ((p->b - p[-1].b) * 10) + p[-1].a;
+    return (p->a - p[-1].a) * (x - p[-1].b * CURVE_KEY_FRAMES) / ((p->b - p[-1].b) * CURVE_KEY_FRAMES) + p[-1].a;
 }
 
 s32 InterpCurveEase(s32 a0)
@@ -134,8 +138,8 @@ s32 InterpCurveEase(s32 a0)
   v1 = p[-1];
   a3 = p[0];
   a1 = p[1] - v1;
-  a1 = a1 * 10;
-  d = a0 - (v1 * 10);
+  a1 = a1 * CURVE_KEY_FRAMES;
+  d = a0 - (v1 * CURVE_KEY_FRAMES);
   a2 = a3 - p[-2];
   h = a1 >> 1;
   if (d < h)

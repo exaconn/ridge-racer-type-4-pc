@@ -15,13 +15,14 @@ typedef struct ChoiceSetting {
     int (*get)(const Rr4Prefs *p);
     void (*set)(Rr4Prefs *p, int index);
     int clamp; /* stops at the ends instead of wrapping (volume) */
+    int next_start; /* takes effect when the game starts again */
 } ChoiceSetting;
 
 #define ACCESSORS(Name, read, write)                               \
     static int Get##Name(const Rr4Prefs *p) { return (read); }     \
     static void Set##Name(Rr4Prefs *p, int i) { write; }
 #define SETTING(label, help, names, Name) \
-    {label, help, COUNT_OF(names), names, Get##Name, Set##Name, 0}
+    {label, help, COUNT_OF(names), names, Get##Name, Set##Name, 0, 0}
 
 static const char *const kSwitchNames[] = {"Off", "On"};
 
@@ -41,6 +42,10 @@ ACCESSORS(Fullscreen, p->fullscreen ? 1 + (p->fullscreen_field_rate != 0) : 0,
 
 static const char *const kVsyncNames[] = {"Auto", "On", "Off (limiter)"};
 ACCESSORS(Vsync, p->vsync >= 0 && p->vsync <= 2 ? p->vsync : 0, p->vsync = i)
+
+static const char *const kVideoTimingNames[] = {"PAL 50 Hz (original)", "NTSC 60 Hz"};
+ACCESSORS(VideoTiming, p->video_timing == RR4_VIDEO_NTSC,
+          p->video_timing = i ? RR4_VIDEO_NTSC : RR4_VIDEO_PAL)
 
 static const char *const kAspectNames[] = {"Classic 4:3", "Widescreen 16:9"};
 ACCESSORS(Aspect, p->aspect_ratio == RR4_ASPECT_WIDESCREEN,
@@ -63,10 +68,12 @@ ACCESSORS(Interpolation, p->frame_interpolation != 0, p->frame_interpolation = i
 static const ChoiceSetting kGraphics[] = {
     SETTING("Internal resolution", "Renders 3D at a multiple of the PlayStation resolution. Higher values cost GPU time.",
             kScaleNames, Scale),
-    SETTING("Display mode", "Window or fullscreen (F4). Fullscreen 50 Hz sets a display that has the mode (most 120 Hz ones) to the game's own rate for the smoothest motion.",
+    SETTING("Display mode", "Window or fullscreen (F4). Fullscreen 50 Hz sets a display that has the mode (most 120 Hz ones) to the game's own rate (60 Hz with NTSC video timing) for the smoothest motion.",
             kWindowNames, Fullscreen),
-    SETTING("VSync", "Auto uses display sync on 60 Hz screens. Off paces 50 Hz PAL frames with a limiter.",
+    SETTING("VSync", "Auto uses display sync on 60 Hz screens. Off paces the game's fields (50 Hz PAL, 60 Hz NTSC) with a limiter.",
             kVsyncNames, Vsync),
+    {"Video timing", "PAL: this release, races at 25 fps. NTSC: 60 Hz fields and the NTSC release's timing, races at 30 fps and faster. Used from the next start.",
+     COUNT_OF(kVideoTimingNames), kVideoTimingNames, GetVideoTiming, SetVideoTiming, 0, 1},
     SETTING("Aspect ratio", "Classic 4:3 matches a TV. Widescreen 16:9 shows more of the race to the sides; menus stay 4:3.",
             kAspectNames, Aspect),
     SETTING("Dithering", "Original: PlayStation 15-bit colour, dithered on shaded polygons. Off: smooth full-colour shading.",
@@ -90,7 +97,7 @@ ACCESSORS(Mute, p->mute != 0, p->mute = i)
 
 static const ChoiceSetting kAudio[] = {
     {"Master volume", "Overall volume of music, voices and sound effects. Music and effect levels are in the game's own options.",
-     COUNT_OF(kVolumeNames), kVolumeNames, GetVolume, SetVolume, 1},
+     COUNT_OF(kVolumeNames), kVolumeNames, GetVolume, SetVolume, 1, 0},
     SETTING("Mute", "Silence all output without losing the volume setting.", kSwitchNames, Mute),
 };
 
@@ -226,6 +233,7 @@ static void ResetPage(SettingsModel *m) {
         p->fullscreen = d->fullscreen;
         p->fullscreen_field_rate = d->fullscreen_field_rate;
         p->vsync = d->vsync;
+        p->video_timing = d->video_timing;
         p->aspect_ratio = d->aspect_ratio;
         p->disable_dithering = d->disable_dithering;
         p->antialiasing = d->antialiasing;
@@ -279,6 +287,8 @@ static void StepChoice(SettingsModel *m, int row, int direction) {
         return;
     s->set(&m->prefs, next);
     m->status[0] = '\0';
+    if (s->next_start)
+        snprintf(m->status, sizeof(m->status), "%s: %s from the next start.", s->label, s->names[next]);
     Changed(m);
 }
 

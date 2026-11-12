@@ -171,6 +171,18 @@ static int ParseValue(Rr4Prefs *p, const char *section, const char *key, char *v
             return ParseFlag(value, &p->fullscreen);
         if (!strcmp(key, "fullscreen_field_rate"))
             return ParseFlag(value, &p->fullscreen_field_rate);
+        if (!strcmp(key, "video_timing")) {
+            char mode[16];
+            if (!ParseString(value, mode, sizeof(mode)))
+                return 0;
+            if (!strcmp(mode, "pal"))
+                p->video_timing = RR4_VIDEO_PAL;
+            else if (!strcmp(mode, "ntsc"))
+                p->video_timing = RR4_VIDEO_NTSC;
+            else
+                return 0;
+            return 1;
+        }
         if (!strcmp(key, "aspect_ratio")) {
             char mode[16];
             if (!ParseString(value, mode, sizeof(mode)))
@@ -309,6 +321,7 @@ int Rr4PrefsSaveFile(const Rr4Prefs *p, const char *path) {
             "fullscreen = %s\n"
             "fullscreen_field_rate = %s\n"
             "vsync = \"%s\"\n"
+            "video_timing = \"%s\"\n"
             "aspect_ratio = \"%s\"\n"
             "disable_dithering = %s\n"
             "antialiasing = %s\n"
@@ -322,6 +335,7 @@ int Rr4PrefsSaveFile(const Rr4Prefs *p, const char *path) {
             "image = ",
             p->scale, Bool(p->fullscreen), Bool(p->fullscreen_field_rate),
             kVsync[p->vsync >= 0 && p->vsync <= 2 ? p->vsync : 0],
+            p->video_timing == RR4_VIDEO_NTSC ? "ntsc" : "pal",
             p->aspect_ratio == RR4_ASPECT_WIDESCREEN ? "widescreen" : "classic",
             Bool(p->disable_dithering),
             Bool(p->antialiasing), Bool(p->texture_filtering),

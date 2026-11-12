@@ -2,6 +2,7 @@
 #include "game/car/carparam.h"
 #include "rr/overlay660.h"
 #include "rr/frame_storage_types.h"
+#include "rr/video_timing.h"
 
 void ovl660_check_reverse_run(RaceVehicle *player){
  RaceVehicleControl *control=&player->control;
@@ -9,7 +10,7 @@ void ovl660_check_reverse_run(RaceVehicle *player){
   s32 allow=0;
   if(control->dynamics94.steering.count22<=0)allow=player->half1EA!=ReverseCourse;
   else if(player->first<=(s32)(0U-TrackLength))allow=1;
-  if(allow==1){RaceState=5;FadeCountdown=75;SoundSetMasterVolume(0,71);}
+  if(allow==1){RaceState=5;FadeCountdown=RR_PAL_NTSC(75, 90);SoundSetMasterVolume(0,RR_PAL_NTSC(71, 86));}
  }
 }
 
@@ -74,24 +75,24 @@ update_pause_timer:
         return;
     }
     ScreenFrame = (ScreenFrame + 1U);
-    if (ModeFrame >= 75U && RaceState == 0) {
+    if (ModeFrame >= RR_PAL_NTSC(75U, 90U) && RaceState == 0) {
         SlotsStartForRace();
         RaceState=1;
         ResetCarSlotBuffers();
         SetModelTexturePage(-1);
     } else if (RaceState == 1) {
-            if (ModeFrame >= 0xB0U) {
+            if (ModeFrame >= RR_PAL_NTSC(0xB0U, 0xD3U)) {
                 UpdateCarStartLineSteering(PlayerCars);
                 RaceState = 2;
                 CdAudioBeginPlay(1);
             }
     } else if (RaceState >= 4) {
-            if (FadeCountdown < 0x19) {
+            if (FadeCountdown < RR_PAL_NTSC(0x19, 0x1E)) {
                 fadeFlags = 0x45;
                 if (RaceState == 4) {
                     fadeFlags = 0x25;
                 }
-                AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (0x19 - FadeCountdown) * 0xA, fadeFlags);
+                AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (RR_PAL_NTSC(0x19, 0x1E) - FadeCountdown) * 0xA, fadeFlags);
             }
             if (FadeCountdown <= 0) {
                 if (RaceState == 4) {
@@ -105,12 +106,12 @@ update_pause_timer:
                 FadeCountdown = (u16) FadeCountdown - 1;
             }
     } else if (RaceState == 0) {
-            if (ModeFrame >= 0x33U) {
-                AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (ModeFrame - 0x32U) * 0xAU, 0x25);
+            if (ModeFrame >= RR_PAL_NTSC(0x33U, 0x3DU)) {
+                AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (ModeFrame - RR_PAL_NTSC(0x32U, 0x3CU)) * 0xAU, 0x25);
                 DrawBuffers[1].environment.draw00.background = 0;
                 DrawBuffers[0].environment.draw00.background = 0;
-            } else if (ModeFrame < 0x19U) {
-                AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (0x19U - ModeFrame) * 0xAU, 0x45);
+            } else if (ModeFrame < RR_PAL_NTSC(0x19U, 0x1EU)) {
+                AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.tags, (RR_PAL_NTSC(0x19U, 0x1EU) - ModeFrame) * 0xAU, 0x45);
                 DrawBuffers[1].environment.draw00.background = 1;
                 DrawBuffers[0].environment.draw00.background = 1;
             }
@@ -137,7 +138,7 @@ update_pause_timer:
     }
     StepRaceFrame(GameModeType);
     UpdateTrackObjects(0);
-    if (RaceState == 0 && ModeFrame < 0x4BU) {
+    if (RaceState == 0 && ModeFrame < RR_PAL_NTSC(0x4BU, 0x5AU)) {
         UpdateRaceIntroCamera(PlayerCars, ModeFrame);
     } else {
         UpdateRaceChaseCamera(PlayerCars);

@@ -1,3 +1,4 @@
+#include "rr/video_timing.h"
 #include "rr/runtime_settings.h"
 #include "rr/vehicle_table.h"
 #include "rr/menu_selection.h"
@@ -159,7 +160,9 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
   int i;
   int k;
   short *s5;
-  if (a1 >= 0x4B)
+  /* A 75-frame orbit (NTSC release: 90 frames). */
+  const int frames = RR_PAL_NTSC(75, 90);
+  if (a1 >= frames)
   {
     return;
   }
@@ -182,7 +185,7 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
   }
   else
   {
-    s0 = (a1 << 11) / 75;
+    s0 = (a1 << 11) / frames;
     v0 = rsin(s0);
     s5 = RaceLapSplitFlags;
     if (v0 < 0)
@@ -196,7 +199,7 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
       v0 += 0xFFF;
     }
     s5[2] = v0 >> 12;
-    s5[1] = ((a1 << 8) / 75) - 0x200;
+    s5[1] = ((a1 << 8) / frames) - 0x200;
   }
   BuildRotMatrixY(&m20, 0x800 - a0->rot54);
   BuildRotMatrixX(&m40, a0->rot50);
@@ -227,12 +230,12 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
   v0 = Atan2Table(sp10[1], v0 >> 6);
   g->angles10.words[0] = 0x400 - v0;
   g->angles10.words[2] = 0;
-  if (a1 < 0x49)
+  if (a1 < frames - 2)
   {
     return;
   }
   a0->flags1E4 |= 0x100;
-  if ((a1 == 0x49) && (a0 == PlayerCars))
+  if ((a1 == frames - 2) && (a0 == PlayerCars))
   {
     for (i = 0; i < 2; i++)
     {

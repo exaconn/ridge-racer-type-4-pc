@@ -16,8 +16,10 @@
  *                      RR4_GPU_DUMP_LEN=n records n VSyncs instead of one
  *                      (frames that take more than one field).
  *   RR4_RASTERIZER=gpu draw with PsyZ's GPU rasterizer at 1x as well; by
- *                      default 1x frames are drawn by the CPU rasterizer,
- *                      which matches the PS1 GPU pixel for pixel.
+ *                      default 1x frames are drawn by the CPU rasterizer.
+ *                      Both match the PS1 GPU pixel for pixel; at Nx the
+ *                      GPU rasterizer's first pixel of every NxN block is
+ *                      the 1x pixel.
  *   RR4_TRACE=n        print the mode state every n VSyncs
  *   RR4_PAD_SCRIPT=s   test input: hold pad buttons over VSync ranges.
  *                      s is a comma list of [2:]button@vsync[+frames]
@@ -744,8 +746,10 @@ int main(int argc, char **argv) {
     snprintf(mounted, sizeof(mounted), "%s", cue);
     /* At 1x without GPU-only enhancements the CPU rasterizer draws the
      * frames bit-exactly as the PS1 GPU; higher internal resolutions and the
-     * enhancements use the GPU rasterizer. RR4_RASTERIZER=gpu forces the GPU
-     * rasterizer at 1x too (for comparisons). */
+     * enhancements use the GPU rasterizer, which samples the same PS1 rules
+     * at every target pixel (its native VRAM is the 1x result).
+     * RR4_RASTERIZER=gpu forces the GPU rasterizer at 1x too (for
+     * comparisons). */
     Psyz_VideoSetNativeRasterizer(!(getenv("RR4_RASTERIZER") &&
                                     !strcmp(getenv("RR4_RASTERIZER"), "gpu")));
     if (interactive)

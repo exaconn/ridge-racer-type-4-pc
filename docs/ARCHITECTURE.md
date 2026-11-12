@@ -57,6 +57,19 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
 3. **PsyZ runtime (`third_party/psyz/`):**
    - Provides `libgpu`, `libgte`, `libspu`, `libetc`, `libpad`, `libcd`,
      `libpress` (MDEC) and SDL3 window/audio/input integration.
+   - **Rasterizers:** at 1x the CPU rasterizer draws; higher internal
+     resolutions (and `RR4_RASTERIZER=gpu`) use the SDL GPU rasterizer. Both
+     follow the PS1 GPU bit for bit at 1x (checked with GPUDUMP frames
+     replayed in DuckStation): fill rule, 12.12 attribute stepping, line
+     stepping, dithering, blending, mask bit, CLUT cache, texture windows,
+     wrapping and culling. At Nx the GPU rasterizer evaluates the same rules
+     at the target pixel (i, j) as the PS1 sample (i / N, j / N), so the first
+     pixel of every NxN block equals the 1x pixel (`psyz/tests`:
+     `sdl_gpu_rasterizer_matches_cpu_rasterizer_at_every_scale`). Only the
+     other pixels of a block add detail: polygon edges and the UV/colour
+     steps inside polygons (each still dithered per VRAM pixel). Sprites,
+     rectangles, lines, fills and transfers cover whole blocks; read-backs
+     and texture sampling use the native VRAM, which is the 1x result.
 
 ## Repository layout
 

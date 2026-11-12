@@ -21,6 +21,7 @@
 #include "rr/trig.h"
 #include "game/ui/badgespr.h"
 #include "game/ui/uidraw.h"
+#include "rr/overlay665_audio_options.h"
 
 typedef struct { unsigned short s[6]; unsigned char b0, b1, reserved[2]; } ImagePreset10;
 
@@ -34,8 +35,6 @@ extern s8 UiTimeTextScratch[];
 extern s16 ComDifficultyLevel;
 extern s16 ReverseCourse;
 extern s16 SelectedMakerIndex;
-extern s32 TimeAttackBestTotalTimes;
-extern s32 TimeAttackBestLapTimes;
 extern ImagePreset10 PreviewImageRowPresets[];
 
 
@@ -251,10 +250,13 @@ s32 DrawUiRow(s32 arg0) {
     case 11:
         s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4, s7 + 8, &SaveSlotStatusUvs[0], 0x7FF8, 0);
         s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4 + 0x44, s7 + 8, &SaveSlotStatusUvs[1], 0x7FF8, 0);
+        /* The PS1 reads the words at 0x80119754 / 0x80119758, in the overlay
+         * window: the options overlay's saved music and effect volumes (the
+         * only rows of type 10 / 11 are its volume sliders). */
         if (s6 == 10) {
-            s0 = TimeAttackBestTotalTimes;
+            s0 = ovl665_saved_bgm_volume;
         } else {
-            s0 = TimeAttackBestLapTimes;
+            s0 = ovl665_saved_sfx_volume;
         }
         for (s1 = 0; s1 < s0; s1++) {
             s3 = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.tags[0], s3, s4 + 0x12 + s1 * 3, s7 + 8, 2, 0x10, 0xFF, 0xFF, 0xFF);
@@ -489,5 +491,3 @@ s8 UiTimeTextScratch[4] = {0, 0, 8, 16};
 int ImageRowCount;
 ImageRow20 *ImageRows;
 UiRow24 *UiRows;
-s32 TimeAttackBestTotalTimes;
-s32 TimeAttackBestLapTimes;

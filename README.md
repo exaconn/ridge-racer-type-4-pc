@@ -28,7 +28,13 @@ Start the game and choose the CUE file, or pass it on the command line:
 
 **Keys:** arrows steer, `X` Cross, `Z` Square, `D` Circle, `S` Triangle,
 `Q`/`R` L1/R1, `W`/`E` L2/R2, `Enter` Start, `Backspace` Select, `F4`
-fullscreen. A gamepad works as player 1.
+fullscreen. A gamepad works as player 1, a second one as player 2.
+
+For analog steering choose the controller each pad emulates under
+**Escape > Controls**: the original digital pad (default), a DualShock (the
+left stick steers), a neGcon (the left stick twists, the right and left
+triggers press I and II) or a JogCon (the left stick turns the dial). The
+game's own Options then show and calibrate that controller.
 
 **Escape** opens the settings: resolution up to 8x, fullscreen, Classic 4:3
 or Widescreen 16:9, PAL or NTSC timing, frame interpolation, geometry

@@ -11,6 +11,12 @@ Pad 2 (VS battle): DuckStation(pad2=True) connects a digital pad in port 2
 (REGTEST_PAD2=1); drive it with press(name, port=2) / buttons(port=2, ...).
 poke(addr, bytes) writes PS1 RAM through the GDB 'M' packet.
 
+Other controllers: DuckStation(pad1_type='NeGcon') (or 'AnalogController',
+'JogCon'; REGTEST_PAD1_TYPE / REGTEST_PAD2_TYPE) and bind(port, {index:
+value}) with that controller's bind indices (its buttons, then its half
+axes; e.g. NeGcon 9 = steering right, 10 = I), as RR4_PAD_TYPE /
+RR4_PAD_SCRIPT axis steps in the port.
+
 Environment: RR4_DUCKSTATION (regtest binary), RR4_DISC (CUE path).
 """
 import socket, subprocess, time, os, struct, sys
@@ -20,10 +26,14 @@ CUE = os.environ.get('RR4_DISC') or os.path.expanduser('~/Projects/ridge-racer-t
 
 
 class DuckStation:
-    def __init__(self, ai=47011, gdb=47012, log=None, pad2=False):
+    def __init__(self, ai=47011, gdb=47012, log=None, pad2=False, pad1_type=None, pad2_type=None):
         env = dict(os.environ, SDL_AUDIODRIVER='dummy')
         if pad2:
             env['REGTEST_PAD2'] = '1'
+        if pad1_type:
+            env['REGTEST_PAD1_TYPE'] = pad1_type
+        if pad2_type:
+            env['REGTEST_PAD2_TYPE'] = pad2_type
         self.p = subprocess.Popen([DS, '-ai-port', str(ai), '-gdb', str(gdb), '-start-paused', '-frames', '10000000',
                                    '--', CUE], stdout=log or subprocess.DEVNULL,
                                   stderr=subprocess.STDOUT, env=env, cwd=os.path.dirname(DS))
@@ -64,6 +74,10 @@ class DuckStation:
     def buttons(self, port=1, **kw):
         verb = 'buttons2' if port == 2 else 'buttons'
         return self.cmd(verb + ' ' + ' '.join(f'{k}={v}' for k, v in kw.items()))
+
+    def bind(self, values, port=1):
+        verb = 'bind2' if port == 2 else 'bind'
+        return self.cmd(verb + ' ' + ' '.join(f'{k}={v}' for k, v in sorted(values.items())))
 
     def release(self, port=1):
         return self.cmd('release2' if port == 2 else 'release')

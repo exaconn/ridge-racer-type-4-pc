@@ -4,6 +4,7 @@
 #include <psyz.h>
 #include <psyz/audio.h>
 #include <psyz/gpu.h>
+#include <psyz/input.h>
 #include <psyz/overlay_sdl3.h>
 #include <psyz/video.h>
 
@@ -32,6 +33,32 @@ const char *Rr4PrefsButtonLabel(int button) {
     return button >= 0 && button < RR4_PREFS_BUTTONS ? kButtonLabels[button] : "";
 }
 
+static const char *const kAxisKeys[RR4_AXES] = {"steering", "throttle", "brake"};
+
+/* ---- controller types ---- */
+
+static const struct {
+    const char *key, *label;
+    int kind;
+} kPadTypes[RR4_PAD_TYPES] = {
+    {"digital", "Digital pad", PSYZ_CTRL_DIGITAL_PAD},
+    {"dualshock", "DualShock", PSYZ_CTRL_ANALOG_PAD},
+    {"negcon", "neGcon", PSYZ_CTRL_NEGCON},
+    {"jogcon", "JogCon", PSYZ_CTRL_JOGCON},
+};
+
+static int ValidPadType(int type) { return type >= 0 && type < RR4_PAD_TYPES ? type : RR4_PAD_DIGITAL; }
+int Rr4PadTypeKind(int type) { return kPadTypes[ValidPadType(type)].kind; }
+const char *Rr4PadTypeKey(int type) { return kPadTypes[ValidPadType(type)].key; }
+const char *Rr4PadTypeLabel(int type) { return kPadTypes[ValidPadType(type)].label; }
+
+int Rr4PadTypeFromKind(int kind) {
+    for (int i = 0; i < RR4_PAD_TYPES; i++)
+        if (kPadTypes[i].kind == kind)
+            return i;
+    return RR4_PAD_DIGITAL;
+}
+
 /* ---- defaults ---- */
 
 static Rr4Prefs s_defaults;
@@ -44,6 +71,13 @@ void Rr4PrefsCaptureDefaults(void) {
     s_defaults.scale = 1;
     s_defaults.vsync = RR4_VSYNC_AUTO;
     s_defaults.volume = 100;
+    s_defaults.force_feedback = 1;
+    for (int i = 0; i < RR4_AXES; i++) {
+        s_defaults.axes[i].saturation = 1.0f;
+        s_defaults.axes[i].scaling = 1.0f;
+    }
+    /* A stick's short throw for the neGcon's twist, as in the Rage Racer port. */
+    s_defaults.axes[RR4_AXIS_STEERING].linearity = 0.5f;
     for (int i = 0; i < RR4_PREFS_BUTTONS; i++) {
         s_defaults.keys[i] = Psyz_GetKeyboardBinding_SDL3((unsigned)i);
         s_defaults.buttons[i] = Psyz_GetGamepadBinding_SDL3((unsigned)i);
@@ -125,6 +159,19 @@ static int ParseInt(char *value, int *out) {
     if (errno || end == value || (*end && *end != '#') || parsed < 0 || parsed > INT_MAX)
         return 0;
     *out = (int)parsed;
+    return 1;
+}
+
+static int ParseFloat(char *value, float *out, float low, float high) {
+    char *end = NULL;
+    float parsed;
+
+    errno = 0;
+    parsed = strtof(value, &end);
+    end = Trim(end);
+    if (errno || end == value || (*end && *end != '#') || !(parsed >= low && parsed <= high))
+        return 0;
+    *out = parsed;
     return 1;
 }
 
@@ -221,6 +268,38 @@ static int ParseValue(Rr4Prefs *p, const char *section, const char *key, char *v
         }
         if (!strcmp(key, "mute"))
             return ParseFlag(value, &p->mute);
+        return 1;
+    }
+    if (!strcmp(section, "input")) {
+        if (!strcmp(key, "controller_1") || !strcmp(key, "controller_2")) {
+            char name[16];
+            if (!ParseString(value, name, sizeof(name)))
+                return 0;
+            for (int i = 0; i < RR4_PAD_TYPES; i++) {
+                if (!strcmp(name, kPadTypes[i].key)) {
+                    p->pad_type[key[11] - '1'] = i;
+                    return 1;
+                }
+            }
+            return 0;
+        }
+        if (!strcmp(key, "force_feedback"))
+            return ParseFlag(value, &p->force_feedback);
+        for (int i = 0; i < RR4_AXES; i++) {
+            size_t n = strlen(kAxisKeys[i]);
+            Rr4AxisPref *a = &p->axes[i];
+            if (strncmp(key, kAxisKeys[i], n) || key[n] != '_')
+                continue;
+            /* DuckStation's ranges for the neGcon axis modifiers. */
+            if (!strcmp(key + n + 1, "deadzone"))
+                return ParseFloat(value, &a->deadzone, 0.0f, 0.99f);
+            if (!strcmp(key + n + 1, "saturation"))
+                return ParseFloat(value, &a->saturation, 0.01f, 1.0f);
+            if (!strcmp(key + n + 1, "linearity"))
+                return ParseFloat(value, &a->linearity, -2.0f, 2.0f);
+            if (!strcmp(key + n + 1, "scaling"))
+                return ParseFloat(value, &a->scaling, 0.01f, 10.0f);
+        }
         return 1;
     }
     if (!strcmp(section, "keyboard") || !strcmp(section, "controller")) {
@@ -331,8 +410,13 @@ int Rr4PrefsSaveFile(const Rr4Prefs *p, const char *path) {
             "[audio]\n"
             "volume = %u\n"
             "mute = %s\n\n"
-            "[disc]\n"
-            "image = ",
+            "# controller_1 / controller_2: digital, dualshock, negcon or jogcon.\n"
+            "# The axes shape the left stick (neGcon twist, JogCon dial) and the\n"
+            "# right / left trigger (neGcon I / II) as DuckStation's modifiers.\n"
+            "[input]\n"
+            "controller_1 = \"%s\"\n"
+            "controller_2 = \"%s\"\n"
+            "force_feedback = %s\n",
             p->scale, Bool(p->fullscreen), Bool(p->fullscreen_field_rate),
             kVsync[p->vsync >= 0 && p->vsync <= 2 ? p->vsync : 0],
             p->video_timing == RR4_VIDEO_NTSC ? "ntsc" : "pal",
@@ -340,7 +424,13 @@ int Rr4PrefsSaveFile(const Rr4Prefs *p, const char *path) {
             Bool(p->disable_dithering),
             Bool(p->antialiasing), Bool(p->texture_filtering),
             Bool(p->geometry_correction), Bool(p->frame_interpolation),
-            p->volume, Bool(p->mute));
+            p->volume, Bool(p->mute), Rr4PadTypeKey(p->pad_type[0]), Rr4PadTypeKey(p->pad_type[1]),
+            Bool(p->force_feedback));
+    for (int i = 0; i < RR4_AXES; i++)
+        fprintf(file, "%s_deadzone = %g\n%s_saturation = %g\n%s_linearity = %g\n%s_scaling = %g\n",
+                kAxisKeys[i], p->axes[i].deadzone, kAxisKeys[i], p->axes[i].saturation, kAxisKeys[i],
+                p->axes[i].linearity, kAxisKeys[i], p->axes[i].scaling);
+    fputs("\n[disc]\nimage = ", file);
     WriteString(file, p->disc);
     fputs("\n\n# SDL scancodes\n[keyboard]\n", file);
     for (int i = 0; i < RR4_PREFS_BUTTONS; i++)
@@ -512,6 +602,22 @@ void Rr4PrefsApply(const Rr4Prefs *p, int window_ready) {
         Psyz_SetKeyboardBinding_SDL3((unsigned)i, (SDL_Scancode)p->keys[i]);
         Psyz_SetGamepadBinding_SDL3((unsigned)i, p->buttons[i]);
     }
+    for (int port = 0; port < 2; port++)
+        if (Psyz_PadsSetKind(port, 0, PSYZ_CTRL_QUERY_KIND) != Rr4PadTypeKind(p->pad_type[port]))
+            Psyz_PadsSetKind(port, 0, (PsyzControllerKind)Rr4PadTypeKind(p->pad_type[port]));
+    for (int i = 0; i < RR4_AXES; i++) {
+        /* The game reads 0x6A above the calibrated rest as fully pressed
+         * (system/pad.c), so the triggers' full travel reports that. */
+        PsyzAxisResponse r = {p->axes[i].deadzone, p->axes[i].saturation, p->axes[i].linearity,
+                              p->axes[i].scaling, 0x6A};
+        Psyz_PadsSetAxisResponse((PsyzPadAxis)(PSYZ_PAD_AXIS_STEERING + i), &r);
+    }
+    {
+        /* neGcon L only follows L1's binding: fully pressed. */
+        PsyzAxisResponse l = {0.0f, 1.0f, 0.0f, 1.0f, 0x6A};
+        Psyz_PadsSetAxisResponse(PSYZ_PAD_AXIS_L, &l);
+    }
+    Psyz_SetRumble_SDL3(p->force_feedback ? 100 : 0);
     Psyz_VideoSetFullscreenFieldRate(p->fullscreen_field_rate != 0);
     if (window_ready)
         Psyz_SetFullscreen_SDL3(p->fullscreen != 0);

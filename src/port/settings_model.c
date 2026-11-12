@@ -101,6 +101,45 @@ static const ChoiceSetting kAudio[] = {
     SETTING("Mute", "Silence all output without losing the volume setting.", kSwitchNames, Mute),
 };
 
+/* Controls: the controller each port emulates and how the host's analog
+ * inputs drive it (the Rage Racer port's choices), then the bindings. */
+static int Pad1Type(const Rr4Prefs *p) { return p->pad_type[0]; }
+static void SetPad1Type(Rr4Prefs *p, int i) { p->pad_type[0] = i; }
+static int Pad2Type(const Rr4Prefs *p) { return p->pad_type[1]; }
+static void SetPad2Type(Rr4Prefs *p, int i) { p->pad_type[1] = i; }
+static const char *const kPadTypeNames[RR4_PAD_TYPES] = {"Digital pad", "DualShock", "neGcon", "JogCon"};
+
+static const float kLinearity[] = {0.0f, 0.5f, 1.0f, 1.5f, 2.0f};
+static const char *const kLinearityNames[] = {"0 (linear)", "0.5", "1.0", "1.5", "2.0"};
+static int NearestLinearity(float v) {
+    int best = 0;
+    for (int i = 1; i < COUNT_OF(kLinearity); i++) {
+        float d = kLinearity[i] - v, b = kLinearity[best] - v;
+        if (d * d < b * b)
+            best = i;
+    }
+    return best;
+}
+ACCESSORS(Linearity, NearestLinearity(p->axes[RR4_AXIS_STEERING].linearity),
+          p->axes[RR4_AXIS_STEERING].linearity = kLinearity[i])
+ACCESSORS(ForceFeedback, p->force_feedback != 0, p->force_feedback = i)
+
+static const ChoiceSetting kControls[] = {
+    {"Pad 1 controller", "Digital pad: the original pad. DualShock: the left stick steers. neGcon: the stick twists, right / left trigger press I / II. JogCon: the stick turns the dial.",
+     COUNT_OF(kPadTypeNames), kPadTypeNames, Pad1Type, SetPad1Type, 0, 0},
+    {"Pad 2 controller", "The second gamepad, as for pad 1. The game's own controller options set it up further.",
+     COUNT_OF(kPadTypeNames), kPadTypeNames, Pad2Type, SetPad2Type, 0, 0},
+    SETTING("Steering linearity", "neGcon twist and JogCon dial from the left stick: higher values steer more gently around the centre. 0 is linear.",
+            kLinearityNames, Linearity),
+    SETTING("Force feedback", "Gamepad rumble for the DualShock's and the JogCon's motors (the game's vibration option).",
+            kSwitchNames, ForceFeedback),
+};
+
+enum {
+    CONTROL_ROW_DEVICE = COUNT_OF(kControls), /* Keyboard / Controller list */
+    CONTROL_ROW_BINDINGS,                     /* first binding row */
+};
+
 /* Controls rows after the device row, in the order a racer reads them. */
 static const int kControlOrder[RR4_PREFS_BUTTONS] = {
     12 /* Up */, 14 /* Down */, 15 /* Left */, 13 /* Right */,
@@ -129,6 +168,10 @@ static const ChoiceSetting *PageChoices(int page, int *count) {
         *count = COUNT_OF(kAudio);
         return kAudio;
     }
+    if (page == SETTINGS_PAGE_CONTROLS) {
+        *count = COUNT_OF(kControls);
+        return kControls;
+    }
     *count = 0;
     return NULL;
 }
@@ -137,7 +180,7 @@ int SettingsContentRows(const SettingsModel *m) {
     int count;
     switch (m->page) {
     case SETTINGS_PAGE_CONTROLS:
-        return 1 + RR4_PREFS_BUTTONS;
+        return CONTROL_ROW_BINDINGS + RR4_PREFS_BUTTONS;
     case SETTINGS_PAGE_DISC:
         return DISC_ROWS;
     default:
@@ -244,6 +287,9 @@ static void ResetPage(SettingsModel *m) {
     case SETTINGS_PAGE_CONTROLS:
         memcpy(DeviceBindings(p, m->device), DeviceBindings((Rr4Prefs *)d, m->device),
                sizeof(p->keys));
+        memcpy(p->pad_type, d->pad_type, sizeof(p->pad_type));
+        p->force_feedback = d->force_feedback;
+        memcpy(p->axes, d->axes, sizeof(p->axes));
         break;
     case SETTINGS_PAGE_AUDIO:
         p->volume = d->volume;
@@ -310,7 +356,9 @@ static void Activate(SettingsModel *m) {
     }
     switch (m->page) {
     case SETTINGS_PAGE_CONTROLS:
-        if (m->row == 0) {
+        if (m->row < CONTROL_ROW_DEVICE) {
+            StepChoice(m, m->row, 1);
+        } else if (m->row == CONTROL_ROW_DEVICE) {
             m->device = !m->device;
             m->dirty = 1;
         } else {
@@ -336,7 +384,9 @@ static void Step(SettingsModel *m, int direction) {
     if (m->row >= SettingsContentRows(m))
         return;
     if (m->page == SETTINGS_PAGE_CONTROLS) {
-        if (m->row == 0) {
+        if (m->row < CONTROL_ROW_DEVICE) {
+            StepChoice(m, m->row, direction);
+        } else if (m->row == CONTROL_ROW_DEVICE) {
             m->device = !m->device;
             m->dirty = 1;
         }
@@ -354,9 +404,10 @@ static void ClearBinding(SettingsModel *m) {
     int button, *bindings;
     const int *defaults;
 
-    if (m->page != SETTINGS_PAGE_CONTROLS || m->row < 1 || m->row > RR4_PREFS_BUTTONS)
+    if (m->page != SETTINGS_PAGE_CONTROLS || m->row < CONTROL_ROW_BINDINGS ||
+        m->row >= CONTROL_ROW_BINDINGS + RR4_PREFS_BUTTONS)
         return;
-    button = kControlOrder[m->row - 1];
+    button = kControlOrder[m->row - CONTROL_ROW_BINDINGS];
     bindings = DeviceBindings(&m->prefs, m->device);
     defaults = DeviceBindings((Rr4Prefs *)Rr4PrefsDefaults(), m->device);
     if (bindings[button] == defaults[button])
@@ -419,9 +470,9 @@ static int Capture(SettingsModel *m, int device, int binding) {
     int button, *bindings, previous;
 
     if (!m->open || !m->capturing || m->device != device || m->page != SETTINGS_PAGE_CONTROLS ||
-        m->row < 1 || m->row > RR4_PREFS_BUTTONS)
+        m->row < CONTROL_ROW_BINDINGS || m->row >= CONTROL_ROW_BINDINGS + RR4_PREFS_BUTTONS)
         return 0;
-    button = kControlOrder[m->row - 1];
+    button = kControlOrder[m->row - CONTROL_ROW_BINDINGS];
     bindings = DeviceBindings(&m->prefs, device);
     previous = bindings[button];
     m->capturing = 0;
@@ -503,7 +554,7 @@ void SettingsModelRow(const SettingsModel *m, int row, SettingsRowView *v) {
         if (row == content) {
             v->label = "Restore page defaults";
             v->help = m->page == SETTINGS_PAGE_CONTROLS
-                          ? "Restore the default bindings of the listed device."
+                          ? "Restore the controllers and the default bindings of the listed device."
                           : m->page == SETTINGS_PAGE_DISC ? "Forget the saved image; the next start asks for one."
                                                           : "Restore this page's settings only.";
         } else if (row == content + 1) {
@@ -518,13 +569,21 @@ void SettingsModelRow(const SettingsModel *m, int row, SettingsRowView *v) {
     }
     switch (m->page) {
     case SETTINGS_PAGE_CONTROLS:
-        if (row == 0) {
+        if (row < CONTROL_ROW_DEVICE) {
+            int index = kControls[row].get(&m->prefs);
+            if (index < 0 || index >= kControls[row].count)
+                index = 0;
+            v->kind = 1;
+            v->label = kControls[row].label;
+            v->value = kControls[row].names[index];
+            v->help = kControls[row].help;
+        } else if (row == CONTROL_ROW_DEVICE) {
             v->kind = 1;
             v->label = "Input device";
             v->value = m->device == SETTINGS_DEVICE_CONTROLLER ? "Controller" : "Keyboard";
             v->help = "Choose whose bindings are listed. Pad 1 reads both.";
         } else {
-            int button = kControlOrder[row - 1];
+            int button = kControlOrder[row - CONTROL_ROW_BINDINGS];
             int keyboard = m->device == SETTINGS_DEVICE_KEYBOARD;
             const Rr4Prefs *d = Rr4PrefsDefaults();
             int binding = keyboard ? m->prefs.keys[button] : m->prefs.buttons[button];
@@ -671,8 +730,8 @@ void SettingsModelPointer(SettingsModel *m, float x, float y, int click) {
         SettingsModelSelect(m, row);
         if (!click)
             return;
-        if (row < SettingsContentRows(m) && m->page != SETTINGS_PAGE_CONTROLS &&
-            m->page != SETTINGS_PAGE_DISC)
+        if (row < SettingsContentRows(m) && m->page != SETTINGS_PAGE_DISC &&
+            (m->page != SETTINGS_PAGE_CONTROLS || row < CONTROL_ROW_DEVICE))
             Step(m, x < SettingsValueCentre() ? -1 : 1);
         else
             Activate(m);

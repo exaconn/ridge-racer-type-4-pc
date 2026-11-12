@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- **Escape > Controls** chooses the controller each pad emulates: digital pad
+  (default, as before), DualShock (analog left stick steering), neGcon
+  (stick twist, analog I/II from the triggers) or JogCon (stick turns the
+  dial). The game recognises them as on the console, including its
+  controller setup and neGcon calibration screens. Steering linearity and
+  gamepad rumble for the DualShock's and JogCon's motors are in the same
+  page; dead zone, saturation, linearity and scaling of the steering,
+  throttle and brake axes are in the `[input]` section of the preferences
+  (DuckStation's neGcon terms).
+
 ## 0.1
 
 First public build of the native port. It is an early alpha: expect bugs.

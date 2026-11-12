@@ -37,6 +37,32 @@ typedef enum Rr4VideoTimingPref {
     RR4_VIDEO_NTSC = 1, /* the NTSC release's timing: 59.82 Hz, races at 30 fps */
 } Rr4VideoTimingPref;
 
+/* What each controller port emulates (PsyZ PsyzControllerKind). The PAL
+ * release reads all four: the digital pad, the DUAL SHOCK in analog mode
+ * (left stick steers), the neGcon (twist steers, analog I / II / L) and the
+ * JogCon (dial steers, force feedback). */
+typedef enum Rr4PadType {
+    RR4_PAD_DIGITAL = 0,
+    RR4_PAD_DUALSHOCK = 1,
+    RR4_PAD_NEGCON = 2,
+    RR4_PAD_JOGCON = 3,
+    RR4_PAD_TYPES
+} Rr4PadType;
+
+/* Host axis response for an emulated analog input, DuckStation's terms:
+ * dead zone and saturation as fractions of the travel, the travelled part
+ * raised to e^linearity (0 linear), then times scaling. */
+typedef struct Rr4AxisPref {
+    float deadzone, saturation, linearity, scaling;
+} Rr4AxisPref;
+
+enum {
+    RR4_AXIS_STEERING = 0, /* neGcon twist / JogCon dial from the left stick */
+    RR4_AXIS_THROTTLE = 1, /* neGcon I from the right trigger */
+    RR4_AXIS_BRAKE = 2,    /* neGcon II from the left trigger */
+    RR4_AXES = 3,
+};
+
 typedef struct Rr4Prefs {
     /* [graphics] */
     unsigned scale; /* internal resolution: 1, 2, 4, 6 or 8 */
@@ -53,6 +79,10 @@ typedef struct Rr4Prefs {
     /* [audio] */
     unsigned volume; /* 0..100 */
     int mute;
+    /* [input] */
+    int pad_type[2];  /* Rr4PadType of pad 1 and pad 2 */
+    int force_feedback; /* gamepad rumble for the game's motors */
+    Rr4AxisPref axes[RR4_AXES];
     /* [disc] */
     char disc[RR4_PREFS_PATH_MAX];
     /* [keyboard] SDL scancodes, [controller] SDL gamepad buttons (plus
@@ -91,6 +121,12 @@ const char *Rr4PrefsPath(void);
 /* Applies prefs to PsyZ. Window-dependent options (fullscreen) only take
  * effect when window_ready is non-zero. */
 void Rr4PrefsApply(const Rr4Prefs *prefs, int window_ready);
+
+/* Controller types: PsyZ kind, TOML name ("digital" ...), display name. */
+int Rr4PadTypeKind(int type);
+int Rr4PadTypeFromKind(int kind);
+const char *Rr4PadTypeKey(int type);
+const char *Rr4PadTypeLabel(int type);
 
 /* Human-readable binding names, never NULL. */
 const char *Rr4PrefsKeyName(int scancode);

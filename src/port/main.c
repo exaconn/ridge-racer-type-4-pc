@@ -54,6 +54,17 @@
  *                      it), and a %p suffix repeats the step every p VSyncs,
  *                      e.g. "circle@m1/12:60+4%154" (dialogue) or
  *                      "start@m1/22:120" (skip a replay).
+ *                      Analog steps name=value@... hold a host axis for the
+ *                      same ranges, as the Escape menu's controller types
+ *                      read it (other times it rests): lx ly rx ry (the
+ *                      DUAL SHOCK sticks, -1..1, 0 centre), steer (neGcon
+ *                      twist / JogCon dial, -1..1) and i ii l (neGcon I, II,
+ *                      L, 0..1), e.g. "steer=0.5@m1/53:100+200,i=1@m1/53:0+400".
+ *                      Values go through PsyZ's frame builder with its
+ *                      default (DuckStation) responses.
+ *   RR4_PAD_TYPE=l     controller types for pad 1[,pad 2]: digital (default),
+ *                      dualshock, negcon or jogcon, e.g. "negcon" or
+ *                      "digital,dualshock".
  *   RR4_WATCH=list     with RR4_TRACE, also print globals by name: a comma
  *                      list of name[:size] (size 1, 2 or 4 bytes, default 4,
  *                      signed), e.g. "TitleSceneStage:2,FadeCountdown:2".
@@ -429,8 +440,12 @@ static PsyzVSyncCb chained_vsync;
 
 /* RR4_PAD_SCRIPT: masks use the game's button word,
  * ~((PadPorts[].data02 << 8) | data03). */
+enum { PAD_AXIS_NONE = -1, PAD_AXIS_LX, PAD_AXIS_LY, PAD_AXIS_RX, PAD_AXIS_RY,
+       PAD_AXIS_STEER, PAD_AXIS_I, PAD_AXIS_II, PAD_AXIS_L, PAD_AXES };
 typedef struct {
     unsigned short mask;
+    int axis; /* PAD_AXIS_*, mask 0 */
+    float value;
     int port, mode;
     long first, count, period;
 } PadScriptStep;
@@ -456,6 +471,14 @@ static unsigned short pad_button_mask(const char *name, size_t len) {
     return 0;
 }
 
+static int pad_axis(const char *name, size_t len) {
+    static const char *const names[PAD_AXES] = {"lx", "ly", "rx", "ry", "steer", "i", "ii", "l"};
+    for (int i = 0; i < PAD_AXES; i++)
+        if (strlen(names[i]) == len && !strncmp(names[i], name, len))
+            return i;
+    return PAD_AXIS_NONE;
+}
+
 static void parse_pad_script(const char *script) {
     while (script && *script && pad_script_len < (int)(sizeof(pad_script) / sizeof(pad_script[0]))) {
         const char *at = strchr(script, '@');
@@ -472,11 +495,16 @@ static void parse_pad_script(const char *script) {
         } else if (script[0] == '1' && script[1] == ':') {
             script += 2;
         }
-        step.mask = pad_button_mask(script, (size_t)(at - script));
+        {
+            const char *eq = memchr(script, '=', (size_t)(at - script));
+            step.axis = eq ? pad_axis(script, (size_t)(eq - script)) : PAD_AXIS_NONE;
+            step.value = eq ? strtof(eq + 1, NULL) : 0.0f;
+            step.mask = eq ? 0 : pad_button_mask(script, (size_t)(at - script));
+        }
         step.first = parse_anchor(at + 1, &end, &step.mode);
         step.count = *end == '+' ? strtol(end + 1, &end, 10) : 4;
         step.period = *end == '%' ? strtol(end + 1, &end, 10) : 0;
-        if (step.mask) {
+        if (step.mask || step.axis != PAD_AXIS_NONE) {
             pad_script[pad_script_len++] = step;
             pad_script_ports[step.port] = 1;
         }
@@ -551,36 +579,81 @@ static unsigned short autodrive_mask(void) {
     return mask;
 }
 
+/* A stick position -1..1 as the host's SDL axis reaches the frame. */
+static unsigned char pad_stick_byte(float v) {
+    int axis = (int)(v * 32767.0f);
+    int u;
+    if (axis < -32768)
+        axis = -32768;
+    if (axis > 32767)
+        axis = 32767;
+    u = (axis + 32768) >> 8;
+    return (unsigned char)(u > 0xFF ? 0xFF : u);
+}
+
 static void apply_pad_port(int port, long vsync) {
     unsigned short mask = port == 0 ? autodrive_mask() : 0;
+    float axes[PAD_AXES] = {0};
+    int moved = 0;
     for (int i = 0; i < pad_script_len; i++) {
         long t = anchor_time(pad_script[i].mode, vsync) - pad_script[i].first;
         if (pad_script[i].port != port || t < 0)
             continue;
         if (pad_script[i].period > 0)
             t %= pad_script[i].period;
-        if (t < pad_script[i].count)
+        if (t < pad_script[i].count) {
             mask |= pad_script[i].mask;
+            if (pad_script[i].axis != PAD_AXIS_NONE) {
+                axes[pad_script[i].axis] = pad_script[i].value;
+                moved = 1;
+            }
+        }
     }
     /* Any script keeps pad 1 connected; pad 2 only when a step names it. */
     int scripted = port == 0 ? pad_script_len > 0 : pad_script_ports[1];
-    if (!mask && (!scripted || PadPorts[port].status00 == 0))
+    if (!mask && !moved && (!scripted || PadPorts[port].status00 == 0))
         return;
-    /* A scripted run always has a digital pad in each scripted port:
-     * between presses an idle pad stays connected, as on the console,
-     * instead of the host's disconnected port (the game re-detects the
-     * controller type after every reconnect and ignores input meanwhile).
-     * The frame also goes to PsyZ so that libpad (PadGetState) sees the
-     * same pad until the next VSync. */
+    /* A scripted run always has a controller of the port's type (RR4_PAD_TYPE,
+     * a digital pad by default) in each scripted port: between presses an
+     * idle controller stays connected, as on the console, instead of the
+     * host's disconnected port (the game re-detects the controller type
+     * after every reconnect and ignores input meanwhile). The frame also
+     * goes to PsyZ so that libpad (PadGetState) sees the same controller
+     * until the next VSync. */
     {
-        char frame[4];
-        frame[0] = 0;
-        frame[1] = 0x41; /* digital pad */
-        frame[2] = (char)~(mask >> 8);
-        frame[3] = (char)~mask;
+        char frame[PSYZ_PAD_BUF_LEN];
+        PsyzPadInput in = {0};
+        PsyzControllerKind kind = Psyz_PadsSetKind(port, 0, PSYZ_CTRL_QUERY_KIND);
+        if (kind == PSYZ_CTRL_DISCONNECTED)
+            kind = PSYZ_CTRL_DIGITAL_PAD;
+        in.buttons = mask;
+        in.left_x = pad_stick_byte(axes[PAD_AXIS_LX]);
+        in.left_y = pad_stick_byte(axes[PAD_AXIS_LY]);
+        in.right_x = pad_stick_byte(axes[PAD_AXIS_RX]);
+        in.right_y = pad_stick_byte(axes[PAD_AXIS_RY]);
+        in.steering = axes[PAD_AXIS_STEER];
+        in.pedal[0] = axes[PAD_AXIS_I];
+        in.pedal[1] = axes[PAD_AXIS_II];
+        in.pedal[2] = axes[PAD_AXIS_L];
+        if (Psyz_PadsBuildFrame(port, kind, &in, frame) != 0)
+            return;
         Psyz_PadsSet(port, frame, sizeof(frame));
         memcpy(&PadPorts[port], frame, sizeof(frame));
     }
+}
+
+/* RR4_PAD_TYPE / the Escape menu's controller types. */
+static PsyzControllerKind pad_kind_named(const char *name, size_t len) {
+    static const struct {
+        const char *name;
+        PsyzControllerKind kind;
+    } kinds[] = {{"digital", PSYZ_CTRL_DIGITAL_PAD}, {"dualshock", PSYZ_CTRL_ANALOG_PAD},
+                 {"negcon", PSYZ_CTRL_NEGCON}, {"jogcon", PSYZ_CTRL_JOGCON}};
+    for (size_t i = 0; i < sizeof(kinds) / sizeof(kinds[0]); i++)
+        if (strlen(kinds[i].name) == len && !strncmp(kinds[i].name, name, len))
+            return kinds[i].kind;
+    fprintf(stderr, "RR4_PAD_TYPE: unknown controller \"%.*s\"\n", (int)len, name);
+    return PSYZ_CTRL_DIGITAL_PAD;
 }
 
 static void apply_pad_script(long vsync) {
@@ -898,6 +971,17 @@ int main(int argc, char **argv) {
         frame_log = SDL_getenv("PSYZ_FRAME_LOG") != NULL;
         parse_watch(getenv("RR4_WATCH"));
         parse_pad_script(getenv("RR4_PAD_SCRIPT"));
+        for (const char *l = getenv("RR4_PAD_TYPE"); l && *l;) {
+            static int port;
+            const char *comma = strchr(l, ',');
+            size_t len = comma ? (size_t)(comma - l) : strlen(l);
+            if (port < 2) {
+                prefs.pad_type[port] = Rr4PadTypeFromKind(pad_kind_named(l, len));
+                Psyz_PadsSetKind(port, 0, Rr4PadTypeKind(prefs.pad_type[port]));
+                port++;
+            }
+            l = comma ? comma + 1 : NULL;
+        }
         parse_poke(getenv("RR4_POKE"));
         if (path_env("RR4_AUDIO_CAPTURE") && *path_env("RR4_AUDIO_CAPTURE"))
             start_audio_capture(path_env("RR4_AUDIO_CAPTURE"));

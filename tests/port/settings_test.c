@@ -28,6 +28,8 @@ static int failures;
     } while (0)
 
 enum { BTN_L2 = 0, BTN_CROSS = 6, BTN_UP = 12 };
+/* Controls page: four controller rows, the device row, the bindings. */
+enum { CONTROLS_DEVICE = 4, CONTROLS_BINDINGS = 5 };
 
 static void Do(SettingsModel *m, SettingsAction a, int times) {
     while (times-- > 0)
@@ -42,6 +44,11 @@ static void TestDefaults(void) {
           d->aspect_ratio == RR4_ASPECT_CLASSIC);
     CHECK(d->vsync == RR4_VSYNC_AUTO);
     CHECK(d->video_timing == RR4_VIDEO_PAL);
+    CHECK(d->pad_type[0] == RR4_PAD_DIGITAL && d->pad_type[1] == RR4_PAD_DIGITAL);
+    CHECK(d->force_feedback == 1);
+    CHECK(d->axes[RR4_AXIS_STEERING].linearity == 0.5f && d->axes[RR4_AXIS_THROTTLE].linearity == 0.0f);
+    for (int i = 0; i < RR4_AXES; i++)
+        CHECK(d->axes[i].deadzone == 0.0f && d->axes[i].saturation == 1.0f && d->axes[i].scaling == 1.0f);
     for (int i = 0; i < RR4_PREFS_BUTTONS; i++) {
         CHECK(d->keys[i] == Psyz_GetKeyboardBinding_SDL3((unsigned)i));
         CHECK(d->buttons[i] == Psyz_GetGamepadBinding_SDL3((unsigned)i));
@@ -99,7 +106,34 @@ static void TestControlsPage(void) {
     SettingsModelOpen(&m, d, NULL);
     Do(&m, SETTINGS_PAGE_NEXT, 1);
     CHECK(m.page == SETTINGS_PAGE_CONTROLS);
-    CHECK(SettingsContentRows(&m) == 1 + RR4_PREFS_BUTTONS);
+    CHECK(SettingsContentRows(&m) == CONTROLS_BINDINGS + RR4_PREFS_BUTTONS);
+    /* Controller types: digital by default, left / right cycles. */
+    SettingsModelRow(&m, 0, &v);
+    CHECK(v.kind == 1 && !strcmp(v.label, "Pad 1 controller") && !strcmp(v.value, "Digital pad"));
+    Do(&m, SETTINGS_RIGHT, 2);
+    CHECK(m.prefs.pad_type[0] == RR4_PAD_NEGCON);
+    Do(&m, SETTINGS_LEFT, 3);
+    CHECK(m.prefs.pad_type[0] == RR4_PAD_JOGCON);
+    SettingsModelRow(&m, 0, &v);
+    CHECK(!strcmp(v.value, "JogCon"));
+    Do(&m, SETTINGS_DOWN, 1);
+    Do(&m, SETTINGS_ACTIVATE, 1); /* Enter steps a choice */
+    CHECK(m.prefs.pad_type[1] == RR4_PAD_DUALSHOCK);
+    Do(&m, SETTINGS_DOWN, 1);
+    SettingsModelRow(&m, m.row, &v);
+    CHECK(!strcmp(v.label, "Steering linearity") && !strcmp(v.value, "0.5"));
+    Do(&m, SETTINGS_LEFT, 1);
+    CHECK(m.prefs.axes[RR4_AXIS_STEERING].linearity == 0.0f);
+    Do(&m, SETTINGS_DOWN, 1);
+    Do(&m, SETTINGS_LEFT, 1);
+    CHECK(!m.prefs.force_feedback);
+    CHECK(SettingsModelTakeChanged(&m));
+    /* Restore page defaults also restores the controllers. */
+    SettingsModelSelect(&m, SettingsContentRows(&m));
+    Do(&m, SETTINGS_ACTIVATE, 1);
+    CHECK(m.prefs.pad_type[0] == RR4_PAD_DIGITAL && m.prefs.pad_type[1] == RR4_PAD_DIGITAL);
+    CHECK(m.prefs.force_feedback && m.prefs.axes[RR4_AXIS_STEERING].linearity == 0.5f);
+    SettingsModelSelect(&m, CONTROLS_DEVICE);
     Do(&m, SETTINGS_DOWN, 1); /* Up binding */
     SettingsModelRow(&m, m.row, &v);
     CHECK(v.kind == 2 && !strcmp(v.label, "Up"));
@@ -109,7 +143,7 @@ static void TestControlsPage(void) {
     /* Navigation is ignored while capturing; gamepad input for the keyboard
      * list too. */
     Do(&m, SETTINGS_DOWN, 1);
-    CHECK(m.row == 1 && m.capturing);
+    CHECK(m.row == CONTROLS_BINDINGS && m.capturing);
     CHECK(SettingsModelCaptureButton(&m, SDL_GAMEPAD_BUTTON_SOUTH) == 0);
     /* Escape cancels the capture, not the menu. */
     Do(&m, SETTINGS_BACK, 1);
@@ -128,20 +162,20 @@ static void TestControlsPage(void) {
     CHECK(m.prefs.keys[BTN_UP] == d->keys[BTN_UP]);
     CHECK(m.prefs.keys[BTN_L2] == d->keys[BTN_L2]);
     /* Controller list: bind Cross (row 5) to the right trigger. */
-    SettingsModelSelect(&m, 0);
+    SettingsModelSelect(&m, CONTROLS_DEVICE);
     Do(&m, SETTINGS_RIGHT, 1);
     CHECK(m.device == SETTINGS_DEVICE_CONTROLLER);
-    SettingsModelSelect(&m, 5);
-    SettingsModelRow(&m, 5, &v);
+    SettingsModelSelect(&m, CONTROLS_BINDINGS + 4);
+    SettingsModelRow(&m, CONTROLS_BINDINGS + 4, &v);
     CHECK(!strcmp(v.label, "Cross"));
     Do(&m, SETTINGS_ACTIVATE, 1);
     CHECK(SettingsModelCaptureKey(&m, SDL_SCANCODE_A) == 0);
     CHECK(SettingsModelCaptureButton(&m, SDL_GAMEPAD_BUTTON_COUNT + 1) == 1);
     CHECK(m.prefs.buttons[BTN_CROSS] == SDL_GAMEPAD_BUTTON_COUNT + 1);
-    SettingsModelRow(&m, 5, &v);
+    SettingsModelRow(&m, CONTROLS_BINDINGS + 4, &v);
     CHECK(!strcmp(v.value, "Right trigger"));
     /* Scrolling keeps the selection visible. */
-    SettingsModelSelect(&m, RR4_PREFS_BUTTONS);
+    SettingsModelSelect(&m, CONTROLS_BINDINGS + RR4_PREFS_BUTTONS - 1);
     CHECK(SettingsRowTop(&m, m.row) >= 0.0f);
     CHECK(SettingsRowTop(&m, 0) < 0.0f);
     /* Restore page defaults resets the listed device only. */
@@ -227,6 +261,13 @@ static void TestPrefsFile(const char *dir) {
     p.mute = 1;
     p.keys[BTN_UP] = SDL_SCANCODE_I;
     p.buttons[BTN_CROSS] = SDL_GAMEPAD_BUTTON_COUNT;
+    p.pad_type[0] = RR4_PAD_NEGCON;
+    p.pad_type[1] = RR4_PAD_JOGCON;
+    p.force_feedback = 0;
+    p.axes[RR4_AXIS_STEERING].deadzone = 0.1f;
+    p.axes[RR4_AXIS_STEERING].linearity = -1.25f;
+    p.axes[RR4_AXIS_THROTTLE].saturation = 0.8f;
+    p.axes[RR4_AXIS_BRAKE].scaling = 2.5f;
     snprintf(p.disc, sizeof(p.disc), "%s", "/games/rr4 \"PAL\"/Ridge Racer Type 4.cue");
     CHECK(Rr4PrefsSaveFile(&p, path));
     CHECK(Rr4PrefsLoadFile(&q, path));
@@ -249,6 +290,24 @@ static void TestPrefsFile(const char *dir) {
     CHECK(q.keys[BTN_UP] == Rr4PrefsDefaults()->keys[BTN_UP]); /* Escape refused */
     CHECK(q.keys[BTN_CROSS] == 7);
     CHECK(!Rr4PrefsLoadFile(&q, "/nonexistent/rr4.toml"));
+
+    /* [input]: unknown controllers and out-of-range axes are skipped. */
+    snprintf(path, sizeof(path), "%s/input.toml", dir);
+    f = fopen(path, "w");
+    CHECK(f != NULL);
+    if (f) {
+        fputs("[input]\ncontroller_1 = \"dualshock\"\ncontroller_2 = \"wheel\"\n"
+              "force_feedback = false\nsteering_deadzone = 1.5\nsteering_linearity = 1\n"
+              "throttle_saturation = 0.9\nbrake_scaling = abc\n",
+              f);
+        fclose(f);
+    }
+    q = *Rr4PrefsDefaults();
+    CHECK(Rr4PrefsLoadFile(&q, path));
+    CHECK(q.pad_type[0] == RR4_PAD_DUALSHOCK && q.pad_type[1] == RR4_PAD_DIGITAL);
+    CHECK(!q.force_feedback);
+    CHECK(q.axes[RR4_AXIS_STEERING].deadzone == 0.0f && q.axes[RR4_AXIS_STEERING].linearity == 1.0f);
+    CHECK(q.axes[RR4_AXIS_THROTTLE].saturation == 0.9f && q.axes[RR4_AXIS_BRAKE].scaling == 1.0f);
 
     /* Earlier aspect keys: square pixels alone is classic, widescreen 16:9. */
     snprintf(path, sizeof(path), "%s/aspect.toml", dir);
@@ -297,8 +356,18 @@ static void TestApply(void) {
     p.volume = 40;
     p.keys[BTN_UP] = SDL_SCANCODE_I;
     p.buttons[BTN_CROSS] = SDL_GAMEPAD_BUTTON_COUNT + 1;
+    p.pad_type[0] = RR4_PAD_NEGCON;
+    p.axes[RR4_AXIS_THROTTLE].deadzone = 0.25f;
     Rr4PrefsApply(&p, 0);
     CHECK(Psyz_AudioGetOutputVolume() == 40);
+    CHECK(Psyz_PadsSetKind(0, 0, PSYZ_CTRL_QUERY_KIND) == PSYZ_CTRL_NEGCON);
+    CHECK(Psyz_PadsSetKind(1, 0, PSYZ_CTRL_QUERY_KIND) == PSYZ_CTRL_DIGITAL_PAD);
+    {
+        PsyzAxisResponse r;
+        CHECK(Psyz_PadsGetAxisResponse(PSYZ_PAD_AXIS_I, &r) == 0);
+        CHECK(r.deadzone == 0.25f && r.full == 0x6A);
+        CHECK(Psyz_PadsGetAxisResponse(PSYZ_PAD_AXIS_STEERING, &r) == 0 && r.linearity == 0.5f);
+    }
     CHECK(Psyz_GetKeyboardBinding_SDL3(BTN_UP) == SDL_SCANCODE_I);
     CHECK(Psyz_GetGamepadBinding_SDL3(BTN_CROSS) == SDL_GAMEPAD_BUTTON_COUNT + 1);
     p.mute = 1;
@@ -306,6 +375,7 @@ static void TestApply(void) {
     CHECK(Psyz_AudioGetOutputVolume() == 0);
     Rr4PrefsApply(Rr4PrefsDefaults(), 0);
     CHECK(Psyz_AudioGetOutputVolume() == 100);
+    CHECK(Psyz_PadsSetKind(0, 0, PSYZ_CTRL_QUERY_KIND) == PSYZ_CTRL_DIGITAL_PAD);
     CHECK(Psyz_GetKeyboardBinding_SDL3(BTN_UP) == Rr4PrefsDefaults()->keys[BTN_UP]);
 }
 
@@ -321,7 +391,7 @@ static void TestRaster(const char *dir) {
         size_t opaque = 0;
         SettingsModelSwitchPage(&m, page);
         if (page == SETTINGS_PAGE_CONTROLS) {
-            SettingsModelSelect(&m, 2);
+            SettingsModelSelect(&m, CONTROLS_BINDINGS + 1);
             SettingsModelDo(&m, SETTINGS_ACTIVATE); /* shows the capture state */
         }
         SettingsComputeLayout(&m, 1280, 960, &layout);

@@ -6,7 +6,7 @@ the same name as the tag; a fifth sums them:
 
 | Workflow | Runner | Package |
 | --- | --- | --- |
-| `release-macos.yml` | `macos-14` (arm64) | `Ridge-Racer-Type-4-<version>-macos-arm64.zip` (signed, notarized, stapled app) |
+| `release-macos.yml` | `macos-15` (arm64) | `Ridge-Racer-Type-4-<version>-macos-arm64.zip` (signed, notarized, stapled app) |
 | `release-linux.yml` | `ubuntu-24.04`, `ubuntu-24.04-arm` | `Ridge-Racer-Type-4-<version>-linux-x86_64.tar.gz`, `...-linux-arm64.tar.gz` |
 | `release-windows.yml` | `windows-2022` (MSYS2 UCRT64) | `Ridge-Racer-Type-4-<version>-windows-x86_64-experimental.zip` |
 | `release-checksums.yml` | after each of the above | `SHA256SUMS` over every attached package |

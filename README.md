@@ -64,7 +64,8 @@ On macOS, `-DRR4_MACOS_BUNDLE=ON` builds `Ridge Racer Type 4.app`.
 
 For development, testing and releases, see [contributing](CONTRIBUTING.md),
 [architecture](docs/ARCHITECTURE.md), [conventions](docs/CONVENTIONS.md) and
-[releasing](docs/RELEASING.md). Test and diagnostic options are listed at the
+[releasing](docs/RELEASING.md); known bugs and debt are tracked in
+[technical debt](docs/TECH_DEBT.md). Test and diagnostic options are listed at the
 top of `src/port/main.c`.
 
 This repository contains source only. Disc images and proprietary SDK files

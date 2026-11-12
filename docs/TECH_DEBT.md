@@ -1,0 +1,118 @@
+# Technical debt and known risks
+
+This is the register of known bugs, likely bugs, fidelity gaps and technical
+debt in the port and its PsyZ fork. It was compiled on 2026-11-12 from a
+read-only audit of `src/main`, `src/overlays`, `include`, `src/port`, `tools`,
+CI and `third_party/psyz`, plus the open items left by the DuckStation
+comparison work.
+
+Each entry has an ID, a severity and a location, and says how to fix it. When
+you fix something, delete its entry in the same commit. When you find a bug,
+check whether the same pattern occurs elsewhere and record that too.
+
+Severity:
+
+- **High**: can visibly break the game, lose data or stop it from starting
+  for some players.
+- **Medium**: wrong behaviour in a narrow case, undefined behaviour that
+  happens to work today, or debt that is actively hiding bugs.
+- **Low**: cleanup, robustness or a diagnostic-only problem.
+
+Entries marked *(speculative)* are plausible from reading the code but have
+not been reproduced.
+
+## 1. Bugs in the game modules
+
+| ID | Sev | Where | Problem | Fix |
+| --- | --- | --- | --- | --- |
+| G1 | High | `src/main/car/carlane.c:28` | `PsyqBzero(car, 0x2260)` clears 11 × 0x320 bytes, the PS1 size of `ComCars`. On the host `RaceVehicle` holds pointers and is 0x330 bytes, so the last 176 bytes of `ComCars[10]` are never cleared. | `PsyqBzero(ComCars, sizeof ComCars)`. Then look for other `PsyqBzero`/`memset`/`memcpy` calls with literal PS1 sizes on structs that contain pointers (see D3). |
+| G2 | Medium | `include/rr/overlay667_packet.h:24` and `src/overlays/serial_link/race.c:107,364` | `ovl667_pending_pause_bits` is declared `s32` but defined `u8`. `serial_link/sio.c:138` therefore reads 4 bytes from a 1-byte object; `sio.c:72` works around this with a byte cast. | Declare it `u8` in the header and remove the cast. |
+| G3 | Medium | `src/overlays/options/controller_options.c:18-39,55,698`; `include/rr/overlay665_menu.h:12`, `overlay665_visual.h:13` | `ovl665_options_state` is defined as `Ovl665CarState` but declared as `Overlay665VisualState`. Both are 0xA0 bytes today, but nothing asserts it. | Use one type, or a view with `_Static_assert(sizeof == 0xA0)`. |
+| G4 | Medium | `src/overlays/garage/editor_lifecycle.c:72-77,100-101,109-110` | The code writes the 32-bit half of a pointer union (`lc.addr`) and reads the 64-bit `lc.raw`. This is harmless only because the next statement overwrites `LoadCursor`. | Remove the decomp `(x|1)&x` sequences and assign the pointers directly. The same noise in `editor_sliders.c:349-368,413-432,600-614` is harmless, but should go too. |
+| G5 | Medium | 81 unprototyped `()` declarations in 54 files, e.g. `src/main/menu/menutra21.c:53-56`, `menuicon.c:17-18`, `menutran.c:15`, `gfx/sky.c:210` | Local K&R declarations hide signature mismatches: `int` vs `void` return values, and `int` passed where PsyZ expects `long`. On LP64 the upper bits of a `long` argument are unspecified, so negative values can break. | Include the real headers, delete the local prototypes, and build with `-Werror=strict-prototypes`. |
+| G6 | Medium | `src/main/ui/uiwin.c:169` | `x = (s8)(++x) % n` modifies `frameIndex00` twice without a sequence point. This is undefined behaviour, and the result can differ by compiler. | `x = (s8)((x + 1) % n)`. |
+| G7 | Medium *(speculative)* | `src/overlays/garage/editor_paint.c:126-152` | The emblem flood fill allows 8188 levels of real recursion, a limit fitted to the PS1 stack. That needs about 0.5–0.8 MB, close to the 1 MB default main-thread stack on Windows. | Use an explicit stack array of the same depth, keeping the cut-off. |
+| G8 | Low *(speculative)* | `src/main/menu/menu13.c:118-124`; `car/carwheel.c:480-489`; `menu/mnlist.c:378-405` | The port drops the PS1 store to address 7 through a null `Dialogue`. Two separate copies of low-RAM bytes 0..11 still return the kernel value 0x27 there. After the Grand Prix intro the console would read 0, so reads of unloaded car slots may differ. | Keep one shared PS1 low-RAM image that the emulated null stores write into. |
+| G9 | Low | `src/main/menu/mnlist.c:402-404`; `car/carsetup.c:80-84` | `const` is cast away on `CarRecordUnloaded`, and the pointers escape into `RaceVehicleControl`. No write was found, but any write would fault. | Make the table and the users consistently `const` or not. |
+| G10 | Low | `src/main/car/carwheel.c:451-453` | The frame-interpolation identity of a car is derived from its host address. It depends on ASLR and can collide. | Use the `ComCars`/`PlayerCars` index. |
+| G11 | Low | `include/rr/scene_camera_types.h:147-151` | Stores that went to low RAM on the PS1 before `InitMotionController` now land in the live `presentation250`. | Confirm that the init resets every field these stores touch. |
+| G12 | Low | `src/overlays/versus/course_menu.c:92,139`; `serial_link/course_menu.c:102,131` | Rows are addressed with PS1 byte strides (`i*36 + 648`, `+0x288`). This is correct only because `UiRow24` contains no pointers. | `&UiRows[i + 18]`. |
+| G13 | Low *(speculative)* | `OverlayStateRestore` (`src/main/system/modeinit.c`); `src/main/data/savedat.c:97-98` | The pristine image of an overlay's state is captured on its first bind. Resident code writes `ovl661_car_choices`/`ovl661_player_names` from card loads, so those values become the reset values if they are written before that bind. | Capture all overlay images at startup. |
+
+## 2. Bugs in the host layer, tooling and PsyZ
+
+| ID | Sev | Where | Problem | Fix |
+| --- | --- | --- | --- | --- |
+| H1 | High | `third_party/psyz/decomp/src/libspu/spu.c:229-237` | `spu_dma_start` ends the previous transfer by hand but leaves its timed `spu_dma_end` posted. The old deadline then ends the new transfer early, so `_spu_DmaDone` runs too soon. | `Psyz_KernelCancel(spu_dma_end)` before posting, as `libpress.c:53` and `libcard.c:425` already do. Check every other `Psyz_KernelPostAt` user for the same pattern. |
+| H2 | High | PsyZ `CMakeLists.txt:262-300`, `sdl3_gpu.c:2247-2275,2341-2346` | The renderer is chosen at compile time: Vulkan only on Linux, D3D12 only on Windows. If the GPU device cannot be created, the game does not start, with no dialog. `GpuFail` also quits on the first GPU error. | First, an error dialog naming the missing API. Then a runtime fallback to the software rasterizer, presented through an SDL renderer, or to GL. See P5. |
+| H3 | High | `src/port/main.c` (startup); `settings_model.c:523` | Nothing checks which disc is mounted. A USA or Japanese image loads the wrong assets, which looks like broken textures. This is the most likely cause of the 0.1 texture reports. | After the mount, read `SYSTEM.CNF` and require `SCES_017.06`; refuse other discs with a dialog. Do the same when a disc is chosen in the settings. |
+| H4 | Medium | `src/port/main.c:894` vs `:907-909` | `disc_path()` calls `SDL_getenv`, so SDL caches the environment before `set_env("PSYZ_AUDIO_CLOCK","video")`. Headless runs that pass the disc in `RR4_DISC` instead of argv get a video-clocked kernel but wall-clocked audio. | Set the variables before any SDL call, or also call `SDL_SetEnvironmentVariable`. |
+| H5 | Medium | `src/port/main.c:918-934` | If the saved disc path exists but does not mount, every launch fails with a message on stderr only. Finder and Explorer users are locked out until they edit the TOML. The path is also saved before anyone checks that it mounts. | On failure: show a message box, clear `prefs.disc` and ask again. Save the path only after a successful mount. |
+| H6 | Medium | `src/port/main.c:862-879` | `bu00`/`bu10` are relative to the working directory, except on macOS when that is `/`. Starting the game from another directory silently uses a different memory card, or fails to save. | Keep the cards in a fixed data directory next to the preferences. |
+| H7 | Medium | PsyZ `kernel.c:634,645-655` | The timed-event queue holds 8 entries and drops overflow with only a warning. A dropped `spu_dma_end` or card completion hangs `Psyz_SpuDmaWait`, or a card event never arrives. | Make the queue larger, keep one slot per callback, and assert on overflow. |
+| H8 | Low | PsyZ `kernel.c:263-277`, `libapi.c:384-390` | `Psyz_SpendCycles` converts to `unsigned` ns, which wraps above about 4.29 s. The BIOS byte-loop model deliberately passes `UINT32_MAX`, so a large bzero or memcpy gets far too little time. | Use `uint64_t` ns. |
+| H9 | Low | PsyZ `libgpu.c:245-249` | A failed `malloc` in the wrapped Load/StoreImage loop returns silently with the upload half done, and the loop allocates on every call. | Use a static scratch buffer and log failures. |
+| H10 | Low | PsyZ `sdl3_audio.c:57-77` | The audio capture callback runs with the SPU mutex held. It deadlocks if the callback calls back into PsyZ. | Copy the samples out and call the callback after unlocking. |
+| H11 | Low | `src/port/settings_overlay.c:65-69,713-728` | Closing the settings panel while the native file dialog is open leaves its callback live. A later dialog can then accept the stale path, and two dialogs can be open at once. | Use a generation counter on the dialog state. |
+| H12 | Low | `src/port/main.c:546-554` | `RR4_AUTODRIVE_REPLAY` does not check `calloc`, so a failed allocation dereferences NULL. | Check the result. |
+| H13 | Low | `src/port/main.c:957-964` | `RR4_GRAPHICS` matches options with `strstr`, so `aa` matches any token that contains it. Unnamed options are reset even in interactive runs. | Split on commas and compare exactly. |
+| H14 | Low | `src/port/preferences.c:384-449,503,526,545-563` | The save does not `fsync` before the rename. Settings are merged from up to four files, so a stray TOML in the working directory leaks into the user file. A UTF-8 BOM drops the first section, lines longer than 4351 characters are split, and directory creation results are ignored. | `fflush`+`fsync`. Load one file, chosen by documented precedence. Strip the BOM and check errors. |
+| H15 | Low | `tools/port/mcd.py:40-45,85` | A corrupt memory-card block chain loops forever, and `export` writes files named from card data without sanitising them. | Add a cycle and range guard, and sanitise the names. |
+
+## 3. Fidelity gaps against the console
+
+These are measured against the modified DuckStation (`tools/port/duckstation.py`).
+Game logic and 1x rendering already match; what remains is timing:
+
+| ID | Where | Gap |
+| --- | --- | --- |
+| F1 | Versus (2 pads) | Drifts 2–6 fields. The libpad interrupt is costed for one pad, and the measured StGetNext poll cost also includes interrupt time. |
+| F2 | Menus with a save on the card | Mode 1/71 starts 1 field early. |
+| F3 | Extra Trial | The race load is 1 field short; FrameCounter matches. |
+| F4 | Mode 1/3 after a skipped movie | 1 field early, back in step at 1/35. The CD Pause takes 94.6 ms in the port vs 99.15 ms on DuckStation, because the sector phase differs. |
+| F5 | Memory card | DuckStation shifts its port alternation once in the splash polling loop (around field 727). This has no visible effect, but the rule is unknown. |
+| F6 | Audio | Sequenced title and menu music starts 343 samples (7.8 ms) early, probably from the phase of the sequencer timer. Race XA music starts about 35 ms early; this is a weak match that needs confirming. |
+| F7 | CD seeks | DuckStation adds seeded 0.5–1 ms jitter to each seek; the port uses a fixed 0.75 ms. |
+| F8 | JogCon | The motor-command echo in the pad packet arrives 1–2 fields earlier than on DuckStation. This changes the force-feedback pattern slightly, but not steering. |
+| F9 | NTSC mode | The NTSC switch is the PAL game at 60 Hz, not the Japanese release. The splash length, display-on frame and the PAL full-screen clear stay PAL by design (`docs/ARCHITECTURE.md`). |
+| F10 | Frame interpolation | Thin 1–2 px T-junction seams from the game's own geometry stay visible for one field (sky crack at race frame 6702, wall top at 4048, finer subdivided walls in close in-car shots); the exposure check is too coarse to see them. Fast attract camera sweeps (frame 2736) score 6–7.6% unexplained pixels. The GP and Extra Trial replays have not been scanned. Cuts, level-of-detail switches, near-plane crossings and newly visible faces are handled by holding the previous frame or by snapping to paired neighbours, not by a true midpoint. The fixed tables in `sdl3_gpu.c` evict silently under heavy load *(speculative)*. The scan tool's held-frame marker sits one row off, so its statistics read worse than reality. |
+| F11 | Widescreen | The squeeze also applies to native VRAM. StoreImage/MoveImage read-backs of the display buffers therefore see squeezed pixels, and 1x loses horizontal resolution. The double buffers are found by a VRAM layout rule. Widescreen exists only on SDL_GPU. |
+
+## 4. Structural debt
+
+| ID | Sev | Where | Debt | Fix |
+| --- | --- | --- | --- | --- |
+| D1 | Medium | headers and `.c` externs across `src/main`, `src/overlays` | 1264 scattered `extern` declarations; 25 symbols have different types in different files, 19 of them only signedness. Worst: `SubmodeState` (19 `s16` / 18 `u16`), `ModeGroup` (24/10), `FadeCountdown` (29/4, with a `-1` sentinel), `ModeIndex`, `ModeFrame`, `LoadState`, `VBLANK_MINUS`. Array shapes also differ: `ovl661_player_names` `[24]` vs `[2][12]`, and `PadDefaultButtonPresets`. This is undefined behaviour across translation units and will break under LTO. | One owner header per global; delete the local externs, starting with these 25. |
+| D2 | Medium | `include/rr/layout.h:19-28`, `tools/port/check.sh` | `RR_ASSERT_SIZE`/`RR_ASSERT_OFFSET` are no-ops on 64-bit, and no 32-bit layout build runs. That is how G1 went unnoticed. | Add an `-m32` (or i386 target) layout-check compile to `check.sh` and CI. |
+| D3 | Medium | game code | Literal PS1 sizes and strides (G1, G12) survive where structs gained pointers. | Grep for hex size literals passed to `PsyqBzero`/`memcpy`/`memset`/`PsyqMemcpy`, and for `+ 0x…` pointer arithmetic. |
+| D4 | Medium | `tools/port/sweep_layout.py`, `sweep_layout_allow.txt` | The aliasing and truncation sweep needs the decomp tree and an unpinned libclang, so it does not run in `check.sh` or CI. The 19 allow entries (11 `TRUNC`, the `SharedWorkArena` overrun absorbed from the original game, the `SpotlightConeRingOuter` pad read) are not re-checked. The generator for the "Initial values of the globals this module owns" blocks is no longer in the repo. | Pin the requirements, document `LIBCLANG`, and run the sweep in CI. Restore or document the globals generator. |
+| D5 | Medium | `src/port/main.c` | About 1030 lines, of which about 600 are test hooks (watch, poke, pad script, autodrive, capture, GPU dump) that ship in release builds. `RR4_POKE` writes arbitrary memory. Number parsing is not validated (`:267,390,575,951,977-978`). `RR4_EXPORT_SYMBOLS` does nothing on MSVC, and release builds are stripped. | Move the hooks to `src/port/diagnostics.c` behind `RR4_DIAGNOSTICS` (off for releases), with one init and one per-VSync call from `main.c`; make the parsers testable. |
+| D6 | Medium | 21 `RR_CPU_CYCLES` sites in the game, two `Psyz_SpendTime` sites (`movie_playback/stream.c:215-221,285`, which also declares `Psyz_SpendTime` locally), and about 20 constants in PsyZ (`libcd.c:1492-1493`, `libpress.c:28`, `ut_ako.c:37`, `sscall.c:62`, `vs_vh.c:39`, `vs_vtb.c:10`, `spu.c:203`, `s_crwa.c:11`, `s_itc.c:16`, `libcard.c:114-116`, `libapi.c:329-331,376-381`, `libetc.c:16,191`, `libcomb.c:19`) | PS1 CPU time costs fitted against DuckStation and scattered through the code. Several were fitted with GDB breakpoints set, which slows DuckStation's CPU by about 1%, so those values are biased. `sndslot.c:42` says "outside races" but applies always. | Collect them in one table each, for example a PsyZ `timing_profile.h`, recording the run each value was fitted from; refit the ones fitted with breakpoints. |
+| D7 | High | PsyZ `platform/dialogue_font_*.h`, `duck_models.h:30` (absolute `/mnt/usb0/parasite-eve-data/…` path), `duck_xxhash.h`, `pe-ps5-render-buffer.h`, `cpu-raster2x.h`, `movie_cleanup/`, `sdl3_gpu.c:2286-2330,2749,5083,5275`, `libcd.c:2155`, `psyz_spu.c` (`PE_NATIVE_STATE_*`), `include/psyz/state_gpu.h:11` | The fork carries Parasite Eve and PS5 code in the generic backend. A PE glyph check (`tpage==5 && clut==0x089c`) runs on every sprite RR4 draws. | Remove it from the RR4 fork, or put it behind a build option. |
+| D8 | Medium | PsyZ history | The fork has 108 non-merge commits (+51.5k/−4.4k lines) since upstream 6d9c573, with Parasite Eve, PE2 and Crash branches mixed in. Timing hooks are woven into the decomp `libsnd`/`libspu`/`libgpu` sources under `#ifdef __psyz`, and the public headers grew (`video.h` +319). Rebasing on upstream is expensive. | Keep RR4 changes in topic commits. Upstream generic pieces (drive model, libcard, controller types) separately. Write down the upstream base. |
+| D9 | Medium | PsyZ `sdl3_gpu.c` (6.6k lines) | The frame-interpolation code is dense, with 21 lines over 200 characters, and the hand-tuned thresholds (`:706,719-729,329-333`) and ten `PSYZ_INTERP_*` knobs are undocumented. | Split the interpolation into its own file and document the thresholds. |
+| D10 | Low | PsyZ statics: `libcd.c:1617`, `kernel.c:264`, `spu.c:205`, and 26 cached `getenv` knobs | State that no `*Init` resets, and environment variables read once. | Add a central `Psyz_Reset*`, and document which knobs are read once. |
+| D11 | Low | `include/rr_asm.h:89-101` | 12 of the 13 GTE `.word` string macros are unused. `RR_NOP_DEP*` are empty. The macros pun through `*(u32 *)` on unaligned data. | Delete the unused ones; turn the rest into `static inline` with `memcpy`. |
+| D12 | Low | `include/rr/selection_initializer.h:29-31` and five other headers | `RR_PROJECTION_SCRATCH` is defined in six places, one of them as the absolute PS1 address `0x1F800000`; which one wins depends on include order. | One definition in `scratchpad.h`. |
+| D13 | Low | game code | 478 uses of 168 `D_80xxxxxx` names and 44 `unk*` fields; worst in `sound/sndque.c`, `demo/opening.c`, `ui/hudmap2.c`, `menu/mnpulse.c`, `menu/mnrows.c`. | Rename as the code is understood. |
+| D14 | Low | `src/overlays/*` | About 50 resident globals are defined in overlay files (`PlayerCars`, `Options`, `RaceRecords`, …) and are deliberately not reset with the overlay. | Move them to `src/main`. |
+| D15 | Low | `drawlist.c:74` (~950 lines), `objdraw.c:65` (690), `ovl665_update_controller_options` (547), `gtepoly1.c:840` (473); duplication between overlays (`serial_link/car_selection.c` vs `versus/preview.c` ~200 lines, `time_attack/preview.c` vs `extra_trial/preview.c` ~137, `grand_prix/race.c` vs `extra_trial/race.c` ~110) | Long functions and copied code. The copies exist in the original game; under the porting contract this is a reading aid, not a merge target. | Leave them as they are; split a function only when it is being fixed anyway. |
+| D16 | Low | `include/rr/memory.h:14` | `_copy_memcard_patch` is declared but never defined. | Delete it. |
+| D17 | Low | `docs/PC_PORT_PLAN.md`, `docs/RELEASING.md:147`, `CMakeLists.txt:97` | Stale text: all the port plan milestones are done, Linux no longer needs GCC, and `main.c` does enter `MainLoop`. | Update or delete it. |
+
+## 5. Tests, CI and releases
+
+| ID | Sev | Where | Debt | Fix |
+| --- | --- | --- | --- | --- |
+| P1 | High | `tools/port/duckstation.py:24`, `~/Projects/duckstation-pe2-reference` | Every "matches DuckStation" result depends on an uncommitted local working tree of DuckStation (regtest additions: PAD2 and pad types, axis binds, CARD1=none, audio dump, SPU trace, VRAM out) on top of upstream `2c527f4f2`, with no fork remote. `duckstation.py` also defaults to home paths and fixed ports, and leaves the emulator running when a connect fails. | Commit the changes to a fork branch, or keep `tools/port/duckstation-regtest.patch` with its base commit. |
+| P2 | Medium | CI | No game-level test runs in CI, because they need a disc. The parsers in `main.c`, mount failures and disc validation are not covered. | Unit-test the parsers. Add a synthetic `SYSTEM.CNF` image like `host_files_test`. Keep a local `tools/port/regress.sh` for disc runs. |
+| P3 | Medium | `.github/workflows/release-*.yml:39` | A manual `workflow_dispatch` builds the tag's source with main's current workflow and `stage.sh`. | Dispatch the run on the tag itself, or pin the staging script to the tag. |
+| P4 | Medium | `release-macos.yml:65,145`, `release-checksums.yml:10-15` | Without `MACOS_*` secrets the macOS build is only ad-hoc signed, yet any re-run uploads it with `--clobber` over the locally notarized zip. Checksums also run after failed builds. | Skip the upload when the secrets are missing; check `workflow_run.conclusion`. |
+| P5 | Medium | PsyZ `sdl3_gl.c:895-910,1653-1668`, `sdl3_software.c` | Interpolation and widescreen are stubs on GL and missing in the software backend, so a fallback (H2) would silently lose them. | Grey out the options the active backend lacks. |
+| P6 | Medium | PsyZ `shaders/check_shaders.cmake:9-15` | Only the current platform's shader format is hash-checked, so macOS can commit stale DXIL/SPIR-V. The movie_blur, movie_cleanup and FSR1 shaders are not checked at all. | Check all formats in one CI job, and include every shader. |
+| P7 | Medium | `packaging/stage.sh:27` | `source-commit.txt` has no dirty flag and no PsyZ commit, so a local package can claim a clean commit. | Use `git describe --dirty`, and add the submodule commit. |
+| P8 | Low | `gpu-backends.yml:84,155,216` | The CPU-rasterizer GPU tests run with `continue-on-error`, which hides future failures as well. | Keep an explicit list of known failures instead. |
+| P9 | Low | PsyZ `test_libgpu.c:1165,2438`, `test_events.c:1144-1158` | `presentation_crop_is_stable_across_field_buffers` creates its own GPU device and asserts instead of skipping. `move_image_internal_res` depends on the headless mode. `card_file_read_takes_a_turn_per_frame` counts loop turns rather than blanks, so it is flaky on loaded runners. Many tests restore global state only on success. | Skip when there is no device. Measure `VSync(-1)` deltas. Restore state in teardown. |
+| P10 | Low | PsyZ `sdl3_gpu.c:1835-1855` | Framebuffer-fetch support is probed on the system default Metal device, not SDL's, which can differ on multi-GPU Macs *(speculative)*. The copy path on Metal is not tested in CI. | Probe SDL's device, and run the macOS tests with `PSYZ_GPU_FETCH=0` too. |
+| P11 | Low | `pc.yml:101-102`, `tools/port/check.sh:16-20`, `tools/port/sweep_layout.py:23-25` | The MinGW job runs a filtered PsyZ suite. `check.sh` uses clang-only flags but defaults `CC=cc`, so with gcc every file fails. The sweep defaults to a macOS libclang path. | Run the full suite; default `CC` to clang; document `LIBCLANG`. |
+| P12 | Medium | PsyZ test suite | Results depend on the run mode and the machine: the same tree has given 414–420 passed / 0 failed on Metal and 349/70 (`SDL_VIDEODRIVER=offscreen`) or 346/73 (`PSYZ_HEADLESS=gpu`) when other headless runs were active; the failing GPU tests read back all-black images. Until this is understood, a red local run says little. | Find what makes the GPU read-backs black, and make the Makefile's run mode the only documented one. |

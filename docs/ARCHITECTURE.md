@@ -196,6 +196,14 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      per frame; the interlace field flips at line 0 and the displayed field
      is latched at the vblank, as in DuckStation's CRTC, so every other
      VSync(0) in 480-line interlace returns late on the console's fields.
+     Busy waits that DuckStation measures with interrupts in them are fitted
+     as CPU time with the interrupts on top (StGetNext), so a second pad's
+     libpad exchange (4.8k clocks a vblank) lengthens them; DrawOTag waits
+     for the list DMA over the table's empty head (61 clocks a node).
+     Still open: with two pads (VS) the title after a skipped movie starts
+     a field late, and the sound sequencer's timer runs 7.5 ms (0.375
+     field) ahead of DuckStation's, whose phase comes from the console's
+     boot before the game.
 
 ## Repository layout
 

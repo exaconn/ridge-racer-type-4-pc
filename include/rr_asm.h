@@ -25,6 +25,11 @@ void Psyz_GteCopyPgxpSxy(const void *src, const void *dst, unsigned int sxy);
  * Library stores: libgte RotTransPers / RotAverage outputs carry them too. */
 void Psyz_PgxpNextFrame(void);
 void Psyz_GteSetPgxpLibraryStores(int enabled);
+/* With geometry correction, NCLIP (back-face and sliver culling) takes the
+ * facing of the precise vertices in SXY0..SXY2, and a vertex projected right
+ * after INTPL interpolated it keeps the exact interpolated position. */
+void Psyz_GteSetPgxpNclip(int enabled);
+void Psyz_GteSetPgxpIntpl(int enabled);
 /* swc2 / lwc2 of any data register. */
 static inline void RrGteSwc2(unsigned reg, void *dst)
 {

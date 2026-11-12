@@ -158,6 +158,8 @@ void MainLoop(void) {
     SubmodeState=0;
     FrameCounter=0;
     Psyz_GteSetPgxpLibraryStores(1);
+    Psyz_GteSetPgxpNclip(1);
+    Psyz_GteSetPgxpIntpl(1);
     for (;;) {
         /* The previous frame's ordering table went to the GPU (DrawOTag
          * below, which copies its precise vertices along). */

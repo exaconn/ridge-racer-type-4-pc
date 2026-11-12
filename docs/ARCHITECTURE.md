@@ -81,7 +81,16 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      PsyZ finds the precise projection of each packet vertex by its address
      and draws it at subpixel precision with perspective-correct texturing
      (PGXP-like); the main loop starts a new generation of them per frame
-     (`Psyz_PgxpNextFrame`). With the option off the packets are unchanged.
+     (`Psyz_PgxpNextFrame`). Culling follows the precise vertices too: NCLIP
+     takes their facing (`Psyz_GteSetPgxpNclip`), so the far road's strips
+     that snap to zero height are drawn instead of opening gaps, and a vertex
+     the course renderer subdivides with INTPL keeps its exact position
+     (`Psyz_GteSetPgxpIntpl`), so it stays on the edge of a less subdivided
+     neighbour tile instead of leaving a hairline crack. With the option off
+     the packets are unchanged: at Nx the original whole-pixel vertices
+     leave the T-junction cracks between differently subdivided course tiles
+     that fall between the PS1's samples at 1x (as in DuckStation upscaling
+     without PGXP); geometry correction is the watertight mode.
    - **Widescreen 16:9 (hor+, square pixels):** the projection is
      unchanged; a full-width race view (`include/rr/widescreen.h`, set up in
      `camera/viewcam.c`) culls `WIDE_MARGIN` pixels past both screen sides,

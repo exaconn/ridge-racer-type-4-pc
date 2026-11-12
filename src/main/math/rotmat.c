@@ -10,6 +10,7 @@
 #include "rr/menu_overlay_runtime.h"
 #include "game/math/rotmat.h"
 #include "game/data/globals.h"
+#include "rr/frame_interp.h"
 
 extern short AtanTable[];
 
@@ -103,6 +104,7 @@ void BuildCameraMatrices(void) {
     RearViewMirrorMatrix.halves[1] = -RearViewMirrorMatrix.halves[1];
     RearViewMirrorMatrix.halves[2] = -RearViewMirrorMatrix.halves[2];
     SetRotMatrix((int *)SCRATCH_ROT_MATRIX);
+    InterpViewCamera(ActiveViewportIndex, view->pose08.position00.words, view->pose08.angles10.words);
 }
 
 void BuildRotMatrixAngles(int *a0) {

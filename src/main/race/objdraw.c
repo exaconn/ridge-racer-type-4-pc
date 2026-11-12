@@ -1,3 +1,4 @@
+#include "rr/frame_interp.h"
 #include "psyq/libgte/rotmat.h"
 #include "rr/player_cars.h"
 #include "rr/menu_selection.h"
@@ -84,10 +85,12 @@ void DrawTrackObjects(s32 arg0) {
     s32 dist;
     s32 pan;
     s32 q;
+    u32 interp;
 
     PsyqMemset(&sp98, 0, 8);
     s3 = (s32 *)((u8 *)SCRATCHPAD + sizeof(RroSceneScratchPrefix));
     scene = (RroSceneScratchPrefix *)SCRATCHPAD;
+    interp = InterpBegin(INTERP_OBJECT, 0);
     for (i = 0; i < TrackObjectCount; i++) {
         if (TrackObjectStates[i].f24 != 1) {
             continue;
@@ -95,6 +98,7 @@ void DrawTrackObjects(s32 arg0) {
         if (arg0 == 2 && (TrackObjectDefs[i].f4 / 10) != 1) {
             continue;
         }
+        InterpSet(INTERP_OBJECT, (u32)i);
 
         switch (TrackObjectDefs[i].f4 % 10) {
         case 0:
@@ -747,6 +751,7 @@ void DrawTrackObjects(s32 arg0) {
             break;
         }
     }
+    InterpEnd(interp);
 }
 
 void BuildObjectMatrix(int unused, const s16 *p, MatrixWords32 *out, int flag) {

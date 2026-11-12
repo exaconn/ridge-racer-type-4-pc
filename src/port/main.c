@@ -8,6 +8,10 @@
  *   RR4_VRAM=file      write the whole VRAM as a PPM when exiting
  *   RR4_CAPTURE_AT=l   also write the displayed frame at each VSync of the
  *                      comma list l, as <RR4_CAPTURE or "capture">.<vsync>.ppm
+ *   RR4_CAPTURE_MID=1  with frame interpolation, also write the midpoint
+ *                      drawn for the displayed buffer (the in-between of the
+ *                      frame shown and the one before it) at each of those
+ *                      VSyncs, as <...>.<vsync>.mid.ppm.
  *   RR4_GPU_DUMP_AT=l  record the GPU commands of the frame after each
  *                      VSync of the comma list l (to the next VSync) as
  *                      <RR4_GPU_DUMP or "gpudump">.<vsync>.psxgpu, a GPUDUMP
@@ -22,7 +26,11 @@
  *                      the 1x pixel.
  *   RR4_TRACE=n        print the mode state every n VSyncs (with
  *                      PSYZ_FRAME_LOG also "t ms", the host time of
- *                      the log's present_ms column)
+ *                      the log's present_ms column; with frame
+ *                      interpolation "interp p/t/m mid n": the last
+ *                      frame's primitives, those tagged for
+ *                      interpolation, those paired with the frame
+ *                      before, and the midpoints presented so far)
  *   RR4_PAD_SCRIPT=s   test input: hold pad buttons over VSync ranges.
  *                      s is a comma list of [2:]button@vsync[+frames]
  *                      (default 4 frames), e.g. "start@400,cross@900+6,
@@ -672,6 +680,12 @@ static void capture_at_vsync(long vsync) {
             int w, h;
             snprintf(path, sizeof(path), "%s.%ld.ppm", base && *base ? base : "capture", vsync);
             write_ppm(path, Psyz_VideoAllocRenderedFrame(&w, &h), w, h);
+            if (getenv("RR4_CAPTURE_MID") && *getenv("RR4_CAPTURE_MID") == '1') {
+                unsigned char *mid = Psyz_VideoAllocMidpointFrame(&w, &h);
+                snprintf(path, sizeof(path), "%s.%ld.mid.ppm", base && *base ? base : "capture", vsync);
+                if (mid)
+                    write_ppm(path, mid, w, h);
+            }
         }
     }
 }
@@ -715,6 +729,12 @@ static void host_vsync(void) {
         fprintf(stderr, "vsync %ld frame %u mode %u/%d sub %u", frame_count,
                 FrameCounter, ModeGroup, ModeIndex, SubmodeState);
         print_watches();
+        if (Psyz_GpuGetFrameInterpolation()) {
+            unsigned prims, tagged, paired;
+            Psyz_GpuGetInterpolationStats(&prims, &tagged, &paired);
+            fprintf(stderr, " interp %u/%u/%u mid %llu", prims, tagged, paired,
+                    Psyz_GpuGetInterpolatedPresentCount());
+        }
         /* host time on the clock of PSYZ_FRAME_LOG's present_ms */
         if (frame_log)
             fprintf(stderr, " t %.3f",

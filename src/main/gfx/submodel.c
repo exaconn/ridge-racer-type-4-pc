@@ -10,6 +10,9 @@
  * while scene configuration is read from RroSceneScratchPrefix by name. GTE
  * command order, register usage and packet contents follow the original. */
 #include "rr/widescreen.h"
+#include "rr/frame_interp.h"
+#include "game/data/globals.h"
+#include "rr/frame_loop.h"
 #include <stddef.h>
 #include "types.h"
 #include "rr_asm.h"
@@ -75,11 +78,13 @@ static inline s32 ScreenY(s32 xy) { return xy >> 16; }
 
 /* True when all four points lie beyond one edge of the scene viewport; the
  * viewport rectangle stores the minimum in x/y and the maximum in w/h.
- * Widescreen reaches WideMarginX past both sides of a full-width view. */
+ * Widescreen reaches WideMarginX past both sides of a full-width view, frame
+ * interpolation InterpMargin past every edge. */
 static int QuadOutsideViewportX(const RroSceneScratchPrefix *scene, s32 x0, s32 x1, s32 x2, s32 x3)
 {
     const GpuRectangleFields *vp = &scene->viewport6C.rect;
-    const s32 left = vp->x - WideMarginX, right = vp->w + WideMarginX;
+    const s32 margin = WideMarginX + InterpMargin();
+    const s32 left = vp->x - margin, right = vp->w + margin;
     if (right < x0 && right < x1 && right < x2 && right < x3) return 1;
     return x0 < left && x1 < left && x2 < left && x3 < left;
 }
@@ -87,8 +92,9 @@ static int QuadOutsideViewportX(const RroSceneScratchPrefix *scene, s32 x0, s32 
 static int QuadOutsideViewportY(const RroSceneScratchPrefix *scene, s32 y0, s32 y1, s32 y2, s32 y3)
 {
     const GpuRectangleFields *vp = &scene->viewport6C.rect;
-    if (vp->h < y0 && vp->h < y1 && vp->h < y2 && vp->h < y3) return 1;
-    return y0 < vp->y && y1 < vp->y && y2 < vp->y && y3 < vp->y;
+    const s32 top = vp->y - InterpMargin(), bottom = vp->h + InterpMargin();
+    if (bottom < y0 && bottom < y1 && bottom < y2 && bottom < y3) return 1;
+    return y0 < top && y1 < top && y2 < top && y3 < top;
 }
 
 /* QuadOffscreenTest0..13: x0..x3 then y0..y3, as the copies take them in
@@ -493,6 +499,7 @@ static void SubmitModelFaceList(RroSceneScratchPrefix *scene, u32 header, int tw
         depth >>= depthShift & 31;
         staleV0 = (u32)(depth - 1) < 0x1BF;
         if (!staleV0) goto next;
+        INTERP_TAG(packet, face, 0);
         packet = kind->emit(scene, packet, words, sxy, ot + depth);
         /* The emitters leave a nonnegative value in that register. */
         staleV0 = 0;
@@ -677,6 +684,7 @@ static void CourseEmitF4(RroSceneScratchPrefix *scene, u32 count, int fog)
                 p->colorCode04 = (s32)face[2];
             }
             RR_GPU_ADD_PRIM(RenderOrderBase() + depth + FaceBias(face, 0xD), p, 5);
+            INTERP_TAG(p, face, 0);
             packet = (u8 *)(p + 1);
         }
         face += 4;
@@ -713,6 +721,8 @@ static void CourseEmitFT4(RroSceneScratchPrefix *scene, u32 count, int fog)
             p->fields.u3 = (u8)(face[5] >> 16);
             p->fields.v3 = (u8)(face[5] >> 24);
             RR_GPU_ADD_PRIM(RenderOrderBase() + depth + FaceBias(face, 0x19), p, 9);
+            /* the scene counter scrolls the texture */
+            INTERP_TAG_SHAPE((const GpuDmaTag *)p + 1, face, 0, INTERP_ANY_TEXTURE);
             if (fog) p->words.color04 = gte_mfc2(GTE_RGB2);
             packet = (u8 *)(p + 1);
         }
@@ -732,6 +742,14 @@ static u8 *CourseEmitTextureWindow(u8 *packet, GpuDmaTag *ot, u32 command)
     return (u8 *)(p + 1);
 }
 
+/* Frame interpolation (rr/frame_interp.h): the face record of the quad
+ * being subdivided and its piece (0 whole, else the grid cell with the
+ * levels). Scrolled coordinates pair whatever their texture. */
+static const u32 *CourseInterpFace;
+static u32 CourseInterpPiece;
+#define COURSE_TAG(p) \
+    INTERP_TAG_SHAPE((const GpuDmaTag *)(const void *)(p) + 1, CourseInterpFace, CourseInterpPiece, INTERP_ANY_TEXTURE)
+
 /* .L80060528: a quad that needs no subdivision. */
 static u8 *CourseEmitWholeQuad(const CourseQuad *q, u8 *packet)
 {
@@ -748,6 +766,8 @@ static u8 *CourseEmitWholeQuad(const CourseQuad *q, u8 *packet)
     p->fields.v3 = q->uv[3][1];
     p->words.color04 = (s32)q->color;
     RR_GPU_ADD_PRIM(q->ot, p, 9);
+    CourseInterpPiece = 0;
+    COURSE_TAG(p);
     return (u8 *)(p + 1);
 }
 
@@ -914,6 +934,9 @@ static u8 *CourseEmitSubdividedQuad(const RroSceneScratchPrefix *scene, CourseQu
                     RR_SXY_COPY(p->words.xy2, q->sxy[1]);
                     p->words.color04 = (s32)q->color;
                     RR_GPU_ADD_PRIM(q->ot, p, 9);
+                    CourseInterpPiece = 1u + ((u32)(levelU & 31) << 27 | (u32)(levelV & 31) << 22 |
+                                              (u32)(t & 0x1FFF) << 8 | (u32)(s >> 4 & 0xFF));
+                    COURSE_TAG(p);
                     RR_SXY_COPY(p->words.xy1, q->sxy[2]);
                     RR_SXY_COPY(p->words.xy3, q->sxy[3]);
                     packet = (u8 *)(p + 1);
@@ -974,6 +997,7 @@ static void CourseEmitSubdivided(RroSceneScratchPrefix *scene, u32 count, int va
             } else {
                 q->color = face[2];
             }
+            CourseInterpFace = face;
             packet = CourseEmitSubdividedQuad(scene, q, packet, levelU, levelV);
             packet = CourseEmitTextureWindow(packet, q->ot, face[7]);
         }
@@ -1073,6 +1097,127 @@ typedef struct {
 } HorizonWork;
 static HorizonWork Horizon;
 
+/* Frame interpolation (rr/frame_interp.h): the identity of a packet is the
+ * tile it draws (the contents of its record: the view segments list copies
+ * of the same tile in different records), its piece (0 the whole tile; a grid cell or a split
+ * triangle, with the tile's subdivision levels, which change with the level
+ * of detail) and, for outlines, their count within the tile. */
+static const void *HorizonInterpRecord;
+static u32 HorizonInterpPiece, HorizonInterpLine;
+static unsigned HorizonInterpFlags;
+
+static void HorizonInterpTile(const void *record, size_t size)
+{
+    const u32 *w = (const u32 *)record;
+    u64 h = 0x9E3779B97F4A7C15ULL;
+    size_t i;
+    if (!InterpObject)
+        return;
+    for (i = 0; i < size / 4; i++)
+        h = (h ^ w[i]) * 0x100000001B3ULL;
+    HorizonInterpRecord = (const void *)(uintptr_t)h;
+    HorizonInterpPiece = 0;
+    HorizonInterpLine = 0;
+    HorizonInterpFlags = 0;
+}
+
+/* A tile entirely nearer than the projection plane, which the frame leaves
+ * out: returns nonzero to skip it. While interpolating it is drawn into the
+ * midpoint only, where the near rows it covered last frame are still on
+ * screen. */
+static int HorizonNearTileSkipped(void)
+{
+    if (!InterpObject)
+        return 1;
+    HorizonInterpFlags = INTERP_MIDPOINT_ONLY;
+    return 0;
+}
+
+/* The piece the following packets belong to; outlines count from it. */
+static void HorizonInterpSetPiece(u32 piece)
+{
+    HorizonInterpPiece = piece;
+    HorizonInterpLine = 0;
+}
+
+/* The subdivision levels each tile record was drawn with in the frame
+ * before, per view. When they change (the level of detail follows the
+ * distance), the midpoint draws the grid at the previous levels, which pair
+ * with the last frame, and the frame's own grid is left out of it. */
+typedef struct {
+    const void *record;
+    u32 frame;
+    u8 view, levelU, levelV;
+} HorizonLodEntry;
+static HorizonLodEntry HorizonLods[8192];
+
+static int HorizonInterpLodChanged(s32 levelU, s32 levelV, s32 *previousU, s32 *previousV)
+{
+    const u8 view = (u8)ActiveViewportIndex;
+    uintptr_t h = (uintptr_t)HorizonInterpRecord;
+    HorizonLodEntry *e;
+    int changed = 0;
+    unsigned i;
+
+    if (!InterpObject || (HorizonInterpFlags & INTERP_MIDPOINT_ONLY))
+        return 0;
+    h = (h >> 4) ^ (h >> 17) ^ view * 0x9E37u;
+    for (i = 0; i < 8; i++) {
+        e = &HorizonLods[(h + i) & 8191];
+        if ((e->record == HorizonInterpRecord && e->view == view) || e->frame + 1 < FrameCounter)
+            break;
+    }
+    if (i == 8)
+        e = &HorizonLods[h & 8191];
+    if (e->record == HorizonInterpRecord && e->view == view && e->frame + 1 == FrameCounter &&
+        (e->levelU != (u8)levelU || e->levelV != (u8)levelV)) {
+        *previousU = e->levelU;
+        *previousV = e->levelV;
+        changed = 1;
+    }
+    if (e->record != HorizonInterpRecord || e->view != view || e->frame != FrameCounter) {
+        e->record = HorizonInterpRecord;
+        e->view = view;
+        e->frame = FrameCounter;
+        e->levelU = (u8)levelU;
+        e->levelV = (u8)levelV;
+    }
+    return changed;
+}
+
+/* Draw a tile's grid; across a level-of-detail change also its previous
+ * grid into the midpoint (see HorizonInterpLodChanged). */
+#define HORIZON_GRID(grid, levelU, levelV, ...)                                       \
+    do {                                                                              \
+        s32 previousU_, previousV_;                                                   \
+        if (HorizonInterpLodChanged((levelU), (levelV), &previousU_, &previousV_)) {  \
+            const unsigned flags_ = HorizonInterpFlags;                               \
+            HorizonInterpFlags = flags_ | INTERP_MIDPOINT_ONLY;                       \
+            grid(previousU_, previousV_, __VA_ARGS__);                                \
+            HorizonInterpFlags = flags_ | INTERP_FRAME_ONLY;                          \
+            grid((levelU), (levelV), __VA_ARGS__);                                    \
+            HorizonInterpFlags = flags_;                                              \
+        } else {                                                                      \
+            grid((levelU), (levelV), __VA_ARGS__);                                    \
+        }                                                                             \
+    } while (0)
+
+/* Grid cell j of the row at interpolation factor t, for the given levels. */
+static u32 HorizonInterpCell(s32 levelU, s32 levelV, s32 t, int j)
+{
+    return 1u + ((u32)(levelU & 31) << 27 | (u32)(levelV & 7) << 24 | (u32)(t & 0x1FFF) << 8 | (u32)j);
+}
+
+#define HORIZON_TAG(p) \
+    INTERP_TAG_SHAPE((const GpuDmaTag *)(const void *)(p) + 1, HorizonInterpRecord, HorizonInterpPiece, HorizonInterpFlags)
+/* Outlines: their count after the piece they follow; the tile's line flags
+ * (a GTE error drops two of them) are part of it. */
+#define HORIZON_TAG_LINE(p)                                                                     \
+    INTERP_TAG_SHAPE((const GpuDmaTag *)(const void *)(p) + 1,                                 \
+                     (uintptr_t)HorizonInterpRecord ^ (uintptr_t)((u64)HorizonInterpPiece << 32), \
+                     0x80000000u | (Horizon.lineFlags & 0xFF) << 16 | (HorizonInterpLine++ & 0xFFFF), \
+                     HorizonInterpFlags)
+
 /* Scalar scene halfwords at their PS1 scratch offsets (written through raw
  * halfword views, e.g. ApplySegmentVisibilityMask/RenderMirrorCourseView):
  * 0x5C is the depth beyond which tiles are drawn flat, 0x5E selects the
@@ -1089,6 +1234,7 @@ static void HorizonLineF2(s32 xy0, s32 xy1)
     RR_SXY_COPY(p->xy1, xy1);
     p->color = (Horizon.lineColor & 0xFFFFFF) | 0x40000000;
     RR_GPU_ADD_PRIM(Horizon.ot + 20, p, 3);
+    HORIZON_TAG_LINE(p);
     Horizon.cursor = (u8 *)(p + 1);
 }
 
@@ -1101,6 +1247,7 @@ static void HorizonLineF3(s32 xy0, s32 xy1, s32 xy2)
     p->color = (Horizon.lineColor & 0xFFFFFF) | 0x48000000;
     p->terminator = GPU_LINE_TERMINATOR;
     RR_GPU_ADD_PRIM(Horizon.ot + 20, p, 5);
+    HORIZON_TAG_LINE(p);
     Horizon.cursor = (u8 *)(p + 1);
 }
 
@@ -1114,6 +1261,7 @@ static void HorizonLineF4(s32 xy0, s32 xy1, s32 xy2, s32 xy3)
     p->color = (Horizon.lineColor & 0xFFFFFF) | 0x4C000000;
     p->terminator = GPU_LINE_TERMINATOR;
     RR_GPU_ADD_PRIM(Horizon.ot + 20, p, 6);
+    HORIZON_TAG_LINE(p);
     Horizon.cursor = (u8 *)(p + 1);
 }
 
@@ -1201,7 +1349,7 @@ static void HorizonSetCorner(int c, s32 xy, u32 z, u32 color)
  * (1 << levelV) x (0x1000 >> levelU) textured Gouraud pieces between the four
  * corners, with optional outline polylines. uv are the tile's four texture
  * words; the clut and tpage halves are Horizon.clut/tpage. */
-static void HorizonEmitLitGrid(s32 levelU, s32 levelV, const u32 uv[4])
+static void HorizonEmitLitGridLevels(s32 levelU, s32 levelV, const u32 uv[4])
 {
     HorizonVertex *cur = Horizon.rows[0], *prev = Horizon.rows[1];
     HorizonVertex *c = Horizon.corner;
@@ -1215,6 +1363,7 @@ static void HorizonEmitLitGrid(s32 levelU, s32 levelV, const u32 uv[4])
     if ((levelV & 31) > 4) levelV = 4;
     stepCols = (s32)(0x1000u >> levelV);
     last = 1 << levelV;
+    HorizonInterpSetPiece(HorizonInterpCell(levelU, levelV, 0x1FFF, 0xFF));
 
     c[0].w.uv = (u16)uv[0];
     c[1].w.uv = (u16)uv[1];
@@ -1259,6 +1408,7 @@ static void HorizonEmitLitGrid(s32 levelU, s32 levelV, const u32 uv[4])
             if (t == 0) HorizonLineStrip(cur, last);
         }
         for (j = 0; j < last; j++) {
+            HorizonInterpSetPiece(HorizonInterpCell(levelU, levelV, t, j));
             const HorizonVertex *p0 = &prev[j], *p1 = &cur[j], *p2 = &prev[j + 1], *p3 = &cur[j + 1];
             s32 a, b, mirror;
             RR_GTE_LOAD_SXY(GTE_SXY0, &p0->w.xy);
@@ -1288,6 +1438,7 @@ static void HorizonEmitLitGrid(s32 levelU, s32 levelV, const u32 uv[4])
                 p->color1C = (s32)p2->w.color;
                 p->color28 = (s32)p3->w.color;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 12);
+                HORIZON_TAG(p);
                 Horizon.cursor = (u8 *)(p + 1);
             }
         }
@@ -1334,6 +1485,7 @@ static void HorizonPassLitTiles(const VisibleCourseViews *views)
         const HorizonTile *tile = (const HorizonTile *)RelFileSection00 + range->first;
         u32 n;
         for (n = range->count; n != 0; n--, tile++) {
+            HorizonInterpTile(tile, sizeof(*tile));
             s32 x[4], y[4];
             s32 area0, area1, otz, depth, lod, mirror, offscreen;
             s32 far, halve, levelU = 0, levelV = 0, subdivide = 0;
@@ -1378,7 +1530,7 @@ static void HorizonPassLitTiles(const VisibleCourseViews *views)
             depth = otz >> (scene->depthShift60 & 31);
             if ((u32)depth >= 0x1C0) continue;
             if (depth == 0 && !(0x122 < gte_mfc2(GTE_SZ0) || 0x122 < gte_mfc2(GTE_SZ1) ||
-                                0x122 < gte_mfc2(GTE_SZ2) || 0x122 < gte_mfc2(GTE_SZ3)))
+                                0x122 < gte_mfc2(GTE_SZ2) || 0x122 < gte_mfc2(GTE_SZ3)) && HorizonNearTileSkipped())
                 continue;
             lod = HorizonLod(otz);
             halve = far & tile->flags24 & 1;
@@ -1417,11 +1569,12 @@ static void HorizonPassLitTiles(const VisibleCourseViews *views)
                 RR_SXY_COPY(p->words.xy3, Horizon.sxy[3]);
                 p->words.color04 = (s32)Horizon.corner[0].w.color;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
+                HORIZON_TAG(p);
                 Horizon.cursor = (u8 *)(p + 1);
             } else if (subdivide) {
                 Horizon.clut = (u16)(tile->uv[0] >> 16);
                 Horizon.tpage = (u16)(tile->uv[1] >> 16);
-                HorizonEmitLitGrid(levelU, levelV, uvs);
+                HORIZON_GRID(HorizonEmitLitGridLevels, levelU, levelV, uvs);
             } else {
                 PolyGT4WordPacket *p = (PolyGT4WordPacket *)Horizon.cursor;
                 p->uvClut0C = (s32)uvs[0];
@@ -1437,6 +1590,7 @@ static void HorizonPassLitTiles(const VisibleCourseViews *views)
                 p->color1C = (s32)Horizon.corner[2].w.color;
                 p->color28 = (s32)Horizon.corner[3].w.color;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 12);
+                HORIZON_TAG(p);
                 Horizon.cursor = (u8 *)(p + 1);
             }
         }
@@ -1553,7 +1707,7 @@ static int HorizonProjectTile(const HorizonSectionTile *t, HorizonTileState *st)
     st->depth = otz >> (scene->depthShift60 & 31);
     if ((u32)st->depth >= 0x1C0) return 0;
     if (st->depth == 0 && !(0x122 < gte_mfc2(GTE_SZ0) || 0x122 < gte_mfc2(GTE_SZ1) ||
-                            0x122 < gte_mfc2(GTE_SZ2) || 0x122 < gte_mfc2(GTE_SZ3)))
+                            0x122 < gte_mfc2(GTE_SZ2) || 0x122 < gte_mfc2(GTE_SZ3)) && HorizonNearTileSkipped())
         return 0;
     lod = HorizonLod(otz);
     st->halve = st->far & (s32)(t->flags & 1);
@@ -1608,6 +1762,7 @@ static void HorizonEmitTileFT4(const u32 uvs[4], u32 color, int windowed, u32 wi
     RR_SXY_COPY(p->words.xy3, Horizon.sxy[3]);
     p->words.color04 = (s32)color;
     RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
+    HORIZON_TAG(p);
     Horizon.cursor = (u8 *)(p + 1);
     if (windowed) HorizonEmitState(Horizon.ot, 0xE2000000, window);
 }
@@ -1631,6 +1786,7 @@ static void HorizonEmitTileGT4(const u32 uvs[4], const u32 colors[4], int window
     p->color1C = (s32)colors[2];
     p->color28 = (s32)colors[3];
     RR_GPU_ADD_PRIM(Horizon.ot, p, 12);
+    HORIZON_TAG(p);
     Horizon.cursor = (u8 *)(p + 1);
     if (windowed) HorizonEmitState(Horizon.ot, 0xE2000000, window);
 }
@@ -1670,7 +1826,7 @@ static void HorizonFlatRowEnd(HorizonVertex *e, const HorizonVertex *a, const Ho
 /* func_80062C60 (identical copies func_80063780, EmitQuadLinesG9): grid of
  * FT4 pieces in corner 0's colour. Contract as HorizonEmitLitGrid; the grid
  * rows keep their previous colour words. */
-static void HorizonEmitFlatGrid(s32 levelU, s32 levelV, const u32 uv[4])
+static void HorizonEmitFlatGridLevels(s32 levelU, s32 levelV, const u32 uv[4])
 {
     HorizonVertex *cur = Horizon.rows[0], *prev = Horizon.rows[1];
     HorizonVertex *c = Horizon.corner;
@@ -1683,6 +1839,7 @@ static void HorizonEmitFlatGrid(s32 levelU, s32 levelV, const u32 uv[4])
     if ((levelV & 31) > 4) levelV = 4;
     stepCols = (s32)(0x1000u >> levelV);
     last = 1 << levelV;
+    HorizonInterpSetPiece(HorizonInterpCell(levelU, levelV, 0x1FFF, 0xFF));
 
     c[0].w.uv = (u16)uv[0];
     c[1].w.uv = (u16)uv[1];
@@ -1720,6 +1877,7 @@ static void HorizonEmitFlatGrid(s32 levelU, s32 levelV, const u32 uv[4])
             if (t == 0) HorizonLineStrip(cur, last);
         }
         for (j = 0; j < last; j++) {
+            HorizonInterpSetPiece(HorizonInterpCell(levelU, levelV, t, j));
             const HorizonVertex *p0 = &prev[j], *p1 = &cur[j], *p2 = &prev[j + 1], *p3 = &cur[j + 1];
             s32 a, b, mirror;
             RR_GTE_LOAD_SXY(GTE_SXY0, &p0->w.xy);
@@ -1748,6 +1906,7 @@ static void HorizonEmitFlatGrid(s32 levelU, s32 levelV, const u32 uv[4])
                 p->fields.v3 = (u8)(p3->w.uv >> 8);
                 p->words.color04 = (s32)c[0].w.color;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
+                HORIZON_TAG(p);
                 Horizon.cursor = (u8 *)(p + 1);
             }
         }
@@ -1773,6 +1932,7 @@ static void HorizonLitSection(const VisibleCourseViews *views, int section, cons
         const u8 *record = base + (size_t)range->first * stride;
         u32 n;
         for (n = range->count; n != 0; n--, record += stride) {
+            HorizonInterpTile(record, stride);
             const u32 *w = (const u32 *)record;
             HorizonSectionTile t;
             HorizonTileState st;
@@ -1822,7 +1982,7 @@ static void HorizonLitSection(const VisibleCourseViews *views, int section, cons
                     Horizon.corner[2].w.color = (u32)gte_mfc2(GTE_RGB1);
                     Horizon.corner[3].w.color = (u32)gte_mfc2(GTE_RGB2);
                 }
-                HorizonEmitLitGrid(st.levelU, st.levelV, uvs);
+                HORIZON_GRID(HorizonEmitLitGridLevels, st.levelU, st.levelV, uvs);
                 if (fogged) {
                     gte_ctc2(GTE_FC_R, Horizon.savedFarColor[0]);
                     gte_ctc2(GTE_FC_G, Horizon.savedFarColor[1]);
@@ -1880,6 +2040,7 @@ static void HorizonFlatSection(const VisibleCourseViews *views, int section, con
         const u8 *record = base + (size_t)range->first * stride;
         u32 n;
         for (n = range->count; n != 0; n--, record += stride) {
+            HorizonInterpTile(record, stride);
             const u32 *w = (const u32 *)record;
             const u32 *attr = lit ? w + 8 : w + 6;
             HorizonSectionTile t;
@@ -1914,7 +2075,7 @@ static void HorizonFlatSection(const VisibleCourseViews *views, int section, con
                 }
                 if (windowed) HorizonEmitState(Horizon.ot, 0xE2000000, 0);
                 if (lit) Horizon.lineColor = (u32)gte_mfc2(GTE_RGB2);
-                HorizonEmitFlatGrid(st.levelU, st.levelV, uvs);
+                HORIZON_GRID(HorizonEmitFlatGridLevels, st.levelU, st.levelV, uvs);
                 if (windowed) HorizonEmitState(Horizon.ot, t.window, 0);
                 continue;
             }
@@ -2020,7 +2181,7 @@ static int HorizonTileClassify6(u32 flags24, s16 levels26, HorizonTileClass6 *c)
     depth = otz >> (scene->depthShift60 & 31);
     if ((u32)depth >= 0x1C0) return 0;
     if (depth == 0 && !(0x122 < gte_mfc2(GTE_SZ0) || 0x122 < gte_mfc2(GTE_SZ1) ||
-                        0x122 < gte_mfc2(GTE_SZ2) || 0x122 < gte_mfc2(GTE_SZ3)))
+                        0x122 < gte_mfc2(GTE_SZ2) || 0x122 < gte_mfc2(GTE_SZ3)) && HorizonNearTileSkipped())
         return 0;
     lod = HorizonLod(otz);
     c->halve = c->far & flags24 & 1;
@@ -2069,6 +2230,7 @@ static void HorizonEmitPlainFT4(const u32 uvs[4], u32 color)
     RR_SXY_COPY(p->words.xy3, Horizon.sxy[3]);
     p->words.color04 = (s32)color;
     RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
+    HORIZON_TAG(p);
     Horizon.cursor = (u8 *)(p + 1);
 }
 
@@ -2088,6 +2250,7 @@ static void HorizonEmitPlainGT4(const u32 uvs[4], const u32 color[4])
     p->color1C = (s32)color[2];
     p->color28 = (s32)color[3];
     RR_GPU_ADD_PRIM(Horizon.ot, p, 12);
+    HORIZON_TAG(p);
     Horizon.cursor = (u8 *)(p + 1);
 }
 
@@ -2095,7 +2258,7 @@ static void HorizonEmitPlainGT4(const u32 uvs[4], const u32 color[4])
  * restore of the saved far colour. */
 static void HorizonEmitFlatGrid6(s32 levelU, s32 levelV, const u32 uv[4], int restoreFarColor)
 {
-    HorizonEmitFlatGrid(levelU, levelV, uv);
+    HORIZON_GRID(HorizonEmitFlatGridLevels, levelU, levelV, uv);
     if (restoreFarColor) HorizonRestoreFarColor();
 }
 
@@ -2122,6 +2285,7 @@ static void HorizonPass5(const VisibleCourseViews *views)
         const HorizonWindowTile5 *rec = (const HorizonWindowTile5 *)RelFileSection05 + range->first;
         u32 n;
         for (n = range->count; n != 0; n--, rec++) {
+            HorizonInterpTile(rec, sizeof(*rec));
             const HorizonTile *tile = &rec->tile;
             HorizonTileClass6 c;
             u32 uvs[4], colors[4];
@@ -2165,7 +2329,7 @@ static void HorizonPass5(const VisibleCourseViews *views)
                 Horizon.corner[2].w.color = (u32)gte_mfc2(GTE_RGB1);
                 Horizon.corner[3].w.color = (u32)gte_mfc2(GTE_RGB2);
                 /* EmitQuadLinesG5 = EmitQuadLinesG0 + far-colour restore. */
-                HorizonEmitLitGrid(c.levelU, c.levelV, uvs);
+                HORIZON_GRID(HorizonEmitLitGridLevels, c.levelU, c.levelV, uvs);
                 HorizonRestoreFarColor();
                 HorizonEmitDrawMode(rec->window40, 0);
             } else {
@@ -2205,6 +2369,7 @@ _Static_assert(sizeof(HorizonFlatWindowTile7) == 0x34, "section 7 tile");
 /* Shared body of func_80065420 (window == NULL) and func_80065ED8. */
 static void HorizonFlatTile(const HorizonFlatTile6 *tile, const u32 *window)
 {
+    HorizonInterpTile(tile, sizeof(*tile));
     HorizonTileClass6 c;
     u32 uvs[4];
     Horizon.corner[0].w.color = tile->color2C;
@@ -2309,6 +2474,7 @@ static void HorizonEmitBillboards(const VisibleCourseViews *views, int section, 
         const HorizonBillboard8 *b = (const HorizonBillboard8 *)table + range->first;
         u32 n;
         for (n = range->count; n != 0; n--, b++) {
+            HorizonInterpTile(b, sizeof(*b));
             s32 otz, depth, bias, halve;
             u32 uvs[4];
             gte_mtc2(GTE_VXY0, b->originXY28);
@@ -2512,6 +2678,7 @@ static void HorizonTriEmitGT3(const HorizonTriVertex *a, const HorizonTriVertex 
     p->color1 = (s32)b->color;
     p->color2 = (s32)c->color;
     RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
+    HORIZON_TAG(p);
     Horizon.cursor = (u8 *)(p + 1);
 }
 
@@ -2522,10 +2689,11 @@ static void HorizonTriEmitGT3(const HorizonTriVertex *a, const HorizonTriVertex 
  * 2: c-a); at the last split level each child's outer half-edges are drawn
  * as three-point polylines whose first two points coincide. */
 static void HorizonTriSplit(const HorizonTriVertex *a, const HorizonTriVertex *b,
-                            const HorizonTriVertex *c, int levels, int depth, u32 edges)
+                            const HorizonTriVertex *c, int levels, int depth, u32 edges, u32 path)
 {
     HorizonTriVertex *m;
     int lines;
+    HorizonInterpSetPiece(path); /* the triangle's place in the split */
     if (levels == 0) {
         HorizonTriEmitGT3(a, b, c);
         return;
@@ -2570,28 +2738,31 @@ static void HorizonTriSplit(const HorizonTriVertex *a, const HorizonTriVertex *b
     m[2].sz = gte_mfc2(GTE_SZ3);
 
     if (HorizonTriVisible(a, &m[0], &m[2])) {
-        HorizonTriSplit(a, &m[0], &m[2], levels - 1, depth + 1, edges & 5);
+        HorizonTriSplit(a, &m[0], &m[2], levels - 1, depth + 1, edges & 5, path * 4 + 0);
+        HorizonInterpSetPiece(0x40000000u | (path * 4 + 0));
         if (lines) {
             if (edges & 1) HorizonLineF3(a->sxy, a->sxy, m[0].sxy);
             if (edges & 4) HorizonLineF3(a->sxy, m[2].sxy, m[2].sxy);
         }
     }
     if (HorizonTriVisible(&m[2], &m[1], c)) {
-        HorizonTriSplit(&m[2], &m[1], c, levels - 1, depth + 1, edges & 6);
+        HorizonTriSplit(&m[2], &m[1], c, levels - 1, depth + 1, edges & 6, path * 4 + 1);
+        HorizonInterpSetPiece(0x40000000u | (path * 4 + 1));
         if (lines) {
             if (edges & 2) HorizonLineF3(c->sxy, m[1].sxy, m[1].sxy);
             if (edges & 4) HorizonLineF3(c->sxy, c->sxy, m[2].sxy);
         }
     }
     if (HorizonTriVisible(&m[0], b, &m[1])) {
-        HorizonTriSplit(&m[0], b, &m[1], levels - 1, depth + 1, edges & 3);
+        HorizonTriSplit(&m[0], b, &m[1], levels - 1, depth + 1, edges & 3, path * 4 + 2);
+        HorizonInterpSetPiece(0x40000000u | (path * 4 + 2));
         if (lines) {
             if (edges & 1) HorizonLineF3(b->sxy, m[0].sxy, m[0].sxy);
             if (edges & 2) HorizonLineF3(b->sxy, b->sxy, m[1].sxy);
         }
     }
     if (HorizonTriVisible(&m[2], &m[0], &m[1]))
-        HorizonTriSplit(&m[2], &m[0], &m[1], levels - 1, depth + 1, 0);
+        HorizonTriSplit(&m[2], &m[0], &m[1], levels - 1, depth + 1, 0, path * 4 + 3);
 }
 
 /* func_8006794C / func_800685A0: split the tile triangle (HorizonTriArena[0])
@@ -2606,7 +2777,8 @@ static void HorizonTriSplitTile(u32 uv0, u32 uv1, u32 uv2, int levels)
     v[0].uv = (u16)uv0;
     v[1].uv = (u16)uv1;
     v[2].uv = (u16)uv2;
-    HorizonTriSplit(&v[0], &v[1], &v[2], levels, 0, levels == 1 ? 0 : 7);
+    HorizonTriSplit(&v[0], &v[1], &v[2], levels, 0, levels == 1 ? 0 : 7, (u32)levels + 1);
+    HorizonInterpSetPiece(0x40000000u | ((u32)levels + 1));
     if (!(Horizon.lineFlags & 2)) {
         if (levels != 1) {
             HorizonLineF4(v[0].sxy, v[1].sxy, v[2].sxy, v[0].sxy);
@@ -2647,6 +2819,7 @@ static void HorizonPassTris(const VisibleCourseViews *views, int section,
         const u8 *record = records + (size_t)range->first * stride;
         u32 n;
         for (n = range->count; n != 0; n--, record += stride) {
+            HorizonInterpTile(record, stride);
             const HorizonTriTile *t = (const HorizonTriTile *)record;
             u32 window = windowed ? ((const HorizonTriTileWindowed *)record)->textureWindow34 : 0;
             HorizonTriVertex *v = HorizonTriArena[0];
@@ -2708,7 +2881,7 @@ static void HorizonPassTris(const VisibleCourseViews *views, int section,
             depth = otz >> (scene->depthShift60 & 31);
             if ((u32)depth >= 0x1C0) continue;
             if (depth == 0 && !(0x122 < gte_mfc2(GTE_SZ1) || 0x122 < gte_mfc2(GTE_SZ2) ||
-                                0x122 < gte_mfc2(GTE_SZ3)))
+                                0x122 < gte_mfc2(GTE_SZ3)) && HorizonNearTileSkipped())
                 continue;
             lod = HorizonLod(otz);
             if (far) {
@@ -2743,10 +2916,12 @@ static void HorizonPassTris(const VisibleCourseViews *views, int section,
                     GpuDrawModePacket *set = (GpuDrawModePacket *)(p + 1);
                     (void)CourseEmitTextureWindow((u8 *)reset, Horizon.ot, 0xE2000000);
                     RR_GPU_ADD_PRIM(Horizon.ot, p, 7);
+                    HORIZON_TAG(p);
                     HorizonTriWindowOpen(set, window);
                     Horizon.cursor = (u8 *)(set + 1);
                 } else {
                     RR_GPU_ADD_PRIM(Horizon.ot, p, 7);
+                    HORIZON_TAG(p);
                     Horizon.cursor = (u8 *)(p + 1);
                 }
             } else if (levels != 0) {
@@ -2775,10 +2950,12 @@ static void HorizonPassTris(const VisibleCourseViews *views, int section,
                     GpuDrawModePacket *set = (GpuDrawModePacket *)(p + 1);
                     (void)CourseEmitTextureWindow((u8 *)reset, Horizon.ot, 0xE2000000);
                     RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
+                    HORIZON_TAG(p);
                     HorizonTriWindowOpen(set, window);
                     Horizon.cursor = (u8 *)(set + 1);
                 } else {
                     RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
+                    HORIZON_TAG(p);
                     Horizon.cursor = (u8 *)(p + 1);
                 }
             }
@@ -2922,7 +3099,7 @@ static void HorizonC8CopyCorner(HorizonVertex *dst, const HorizonVertex *src)
 /* func_80069134 / func_8006A108: a (0x1000 >> levelU) x (1 << levelV) grid
  * between the corners without back-face culling: glow-lit GT4 pieces when
  * lineFlags bit 3 is set, otherwise black flat F4 pieces. */
-static void HorizonC8Grid(s32 levelU, s32 levelV, const u32 uv[4])
+static void HorizonC8GridLevels(s32 levelU, s32 levelV, const u32 uv[4])
 {
     HorizonVertex *cur = Horizon.rows[0], *prev = Horizon.rows[1];
     HorizonVertex *c = Horizon.corner;
@@ -2935,6 +3112,7 @@ static void HorizonC8Grid(s32 levelU, s32 levelV, const u32 uv[4])
     if ((levelV & 31) > 4) levelV = 4;
     stepCols = (s32)(0x1000u >> levelV);
     last = 1 << levelV;
+    HorizonInterpSetPiece(HorizonInterpCell(levelU, levelV, 0x1FFF, 0xFF));
 
     c[0].w.uv = (u16)uv[0];
     c[1].w.uv = (u16)uv[1];
@@ -2964,6 +3142,7 @@ static void HorizonC8Grid(s32 levelU, s32 levelV, const u32 uv[4])
         cur[last].w.uv = (u16)HorizonDpcs((s16)c[3].w.uv, c[2].f.u << 4, c[2].f.v << 4, c[2].f.z);
         HorizonC8InterpRow(cur, last, stepCols);
         for (j = 0; j < last; j++) {
+            HorizonInterpSetPiece(HorizonInterpCell(levelU, levelV, t, j));
             const HorizonVertex *p0 = &prev[j], *p1 = &cur[j], *p2 = &prev[j + 1], *p3 = &cur[j + 1];
             if (QuadOutsideViewport(scene, ScreenX(p0->w.xy), ScreenX(p1->w.xy), ScreenX(p2->w.xy), ScreenX(p3->w.xy),
                                     ScreenY(p0->w.xy), ScreenY(p1->w.xy), ScreenY(p2->w.xy), ScreenY(p3->w.xy)))
@@ -2983,6 +3162,7 @@ static void HorizonC8Grid(s32 levelU, s32 levelV, const u32 uv[4])
                 p->color1C = (s32)p2->w.color;
                 p->color28 = (s32)p3->w.color;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 12);
+                HORIZON_TAG(p);
                 Horizon.cursor = (u8 *)(p + 1);
             } else {
                 PolyF4Packet *p = (PolyF4Packet *)Horizon.cursor;
@@ -2992,6 +3172,7 @@ static void HorizonC8Grid(s32 levelU, s32 levelV, const u32 uv[4])
                 RR_SXY_COPY(p->xy3, p3->w.xy);
                 p->colorCode04 = 0x28000000;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 5);
+                HORIZON_TAG(p);
                 Horizon.cursor = (u8 *)(p + 1);
             }
         }
@@ -3037,6 +3218,7 @@ static void HorizonC8Pass(const VisibleCourseViews *views, int section, u32 stri
         u32 viewFlag = (viewMask >> (view & 31)) & 1;
         u32 n;
         for (n = range->count; n != 0; n--, rec += stride) {
+            HorizonInterpTile(rec, stride);
             const u32 *w = (const u32 *)rec;
             u32 flags24 = ((const u16 *)rec)[0x24 / 2];
             s16 levels26 = ((const s16 *)rec)[0x26 / 2];
@@ -3095,7 +3277,7 @@ static void HorizonC8Pass(const VisibleCourseViews *views, int section, u32 stri
             depth = otz >> (scene->depthShift60 & 31);
             if ((u32)depth >= 0x1C0) continue;
             if (depth == 0 && !(0x122 < gte_mfc2(GTE_SZ0) || 0x122 < gte_mfc2(GTE_SZ1) ||
-                                0x122 < gte_mfc2(GTE_SZ2) || 0x122 < gte_mfc2(GTE_SZ3)))
+                                0x122 < gte_mfc2(GTE_SZ2) || 0x122 < gte_mfc2(GTE_SZ3)) && HorizonNearTileSkipped())
                 continue;
             lod = HorizonC8Lod(otz);
             if (viewFlag) {
@@ -3187,7 +3369,7 @@ static void HorizonC8Pass(const VisibleCourseViews *views, int section, u32 stri
                 Horizon.clut = (u16)(w[6] >> 16);
                 Horizon.tpage = (u16)(w[7] >> 16);
                 if (windowed) HorizonC8State(0xE2000000, 0);
-                HorizonC8Grid(levelU, levelV, uvs);
+                HORIZON_GRID(HorizonC8GridLevels, levelU, levelV, uvs);
                 if (windowed) HorizonC8State(w[12], 0);
             } else if (Horizon.lineFlags & 8) {
                 PolyGT4WordPacket *p;
@@ -3208,6 +3390,7 @@ static void HorizonC8Pass(const VisibleCourseViews *views, int section, u32 stri
                 p->color1C = (s32)Horizon.corner[2].w.color;
                 p->color28 = (s32)Horizon.corner[3].w.color;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 12);
+                HORIZON_TAG(p);
                 Horizon.cursor = (u8 *)(p + 1);
                 if (windowed) HorizonC8State(0xE2000000, w[12]);
             } else {
@@ -3218,6 +3401,7 @@ static void HorizonC8Pass(const VisibleCourseViews *views, int section, u32 stri
                 RR_SXY_COPY(p->xy3, Horizon.sxy[3]);
                 p->colorCode04 = 0x28000000;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 5);
+                HORIZON_TAG(p);
                 Horizon.cursor = (u8 *)(p + 1);
             }
         }
@@ -3324,6 +3508,7 @@ static void HorizonC7WholeFT4(const u32 uvs[4], s32 color)
     RR_SXY_COPY(p->words.xy3, Horizon.sxy[3]);
     p->words.color04 = color;
     RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
+    HORIZON_TAG(p);
     Horizon.cursor = (u8 *)(p + 1);
 }
 
@@ -3387,7 +3572,7 @@ static int HorizonC7Front(const s32 pos[4], const u32 zw[2], u32 tileFlags, s32 
     depth = otz >> (scene->depthShift60 & 31);
     if ((u32)depth >= 0x1C0) return 0;
     if (depth == 0 && !(0x122 < gte_mfc2(GTE_SZ0) || 0x122 < gte_mfc2(GTE_SZ1) ||
-                        0x122 < gte_mfc2(GTE_SZ2) || 0x122 < gte_mfc2(GTE_SZ3)))
+                        0x122 < gte_mfc2(GTE_SZ2) || 0x122 < gte_mfc2(GTE_SZ3)) && HorizonNearTileSkipped())
         return 0;
     lod = HorizonLod(otz);
     *halveOut = far & tileFlags & 1;
@@ -3420,6 +3605,7 @@ static void HorizonPassNormalTiles(const VisibleCourseViews *views, int section,
         const u8 *cursor = base + (u32)range->first * stride;
         u32 n;
         for (n = range->count; n != 0; n--, cursor += stride) {
+            HorizonInterpTile(cursor, stride);
             const HorizonNormalTile *tile = (const HorizonNormalTile *)cursor;
             s32 pos[4] = {tile->xy0, tile->xy1, tile->xy2, tile->xy3};
             u32 zw[2] = {tile->z0z1, tile->z2z3};
@@ -3473,7 +3659,7 @@ static void HorizonPassNormalTiles(const VisibleCourseViews *views, int section,
                 gte_cmd(GTE_NCS);
                 Horizon.corner[3].w.color = (u32)gte_mfc2(GTE_RGB2);
                 Horizon.lineColor = HorizonC7LineColorFromCorner();
-                HorizonEmitLitGrid(levelU, levelV, uvs);
+                HORIZON_GRID(HorizonEmitLitGridLevels, levelU, levelV, uvs);
                 if (windowed) HorizonC7StatePacket(tile->textureWindow44, 0);
             } else {
                 PolyGT4WordPacket *p;
@@ -3493,6 +3679,7 @@ static void HorizonPassNormalTiles(const VisibleCourseViews *views, int section,
                 gte_ldv(0, &HorizonC7Normal[3]);
                 gte_cmd(GTE_NCS);
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 12);
+                HORIZON_TAG(p);
                 p->color28 = gte_mfc2(GTE_RGB2);
                 Horizon.cursor = (u8 *)(p + 1);
                 if (windowed) HorizonC7StatePacket(0xE2000000, tile->textureWindow44);
@@ -3515,7 +3702,7 @@ static void HorizonPassC7b(const VisibleCourseViews *views)
 
 /* func_8006AD04: HorizonEmitLitGrid with one colour (corner 0) and FT4
  * pieces; only positions and texture coordinates are interpolated. */
-static void HorizonEmitFlatGridC7(s32 levelU, s32 levelV, const u32 uv[4])
+static void HorizonEmitFlatGridC7Levels(s32 levelU, s32 levelV, const u32 uv[4])
 {
     HorizonVertex *cur = Horizon.rows[0], *prev = Horizon.rows[1];
     HorizonVertex *c = Horizon.corner;
@@ -3528,6 +3715,7 @@ static void HorizonEmitFlatGridC7(s32 levelU, s32 levelV, const u32 uv[4])
     if ((levelV & 31) > 4) levelV = 4;
     stepCols = (s32)(0x1000u >> levelV);
     last = 1 << levelV;
+    HorizonInterpSetPiece(HorizonInterpCell(levelU, levelV, 0x1FFF, 0xFF));
 
     c[0].w.uv = (u16)uv[0];
     c[1].w.uv = (u16)uv[1];
@@ -3573,6 +3761,7 @@ static void HorizonEmitFlatGridC7(s32 levelU, s32 levelV, const u32 uv[4])
             if (t == 0) HorizonLineStrip(cur, last);
         }
         for (j = 0; j < last; j++) {
+            HorizonInterpSetPiece(HorizonInterpCell(levelU, levelV, t, j));
             const HorizonVertex *p0 = &prev[j], *p1 = &cur[j], *p2 = &prev[j + 1], *p3 = &cur[j + 1];
             s32 a, b, mirror;
             RR_GTE_LOAD_SXY(GTE_SXY0, &p0->w.xy);
@@ -3601,6 +3790,7 @@ static void HorizonEmitFlatGridC7(s32 levelU, s32 levelV, const u32 uv[4])
                 p->fields.v3 = (u8)(p3->w.uv >> 8);
                 p->words.color04 = (s32)c[0].w.color;
                 RR_GPU_ADD_PRIM(Horizon.ot, p, 9);
+                HORIZON_TAG(p);
                 Horizon.cursor = (u8 *)(p + 1);
             }
         }
@@ -3618,6 +3808,7 @@ static void HorizonPassC7c(const VisibleCourseViews *views)
         const HorizonFlatNormalTile *tile = (const HorizonFlatNormalTile *)RelFileOffsetPtr13 + range->first;
         u32 n;
         for (n = range->count; n != 0; n--, tile++) {
+            HorizonInterpTile(tile, sizeof(*tile));
             s32 pos[4] = {tile->xy0, tile->xy1, tile->xy2, tile->xy3};
             u32 zw[2] = {tile->z0z1, tile->z2z3};
             s32 far, halve, levelU, levelV, subdivide;
@@ -3638,7 +3829,7 @@ static void HorizonPassC7c(const VisibleCourseViews *views)
                 Horizon.lineColor = HorizonC7LineColorFromCorner();
                 Horizon.clut = (u16)(uvs[0] >> 16);
                 Horizon.tpage = (u16)(uvs[1] >> 16);
-                HorizonEmitFlatGridC7(levelU, levelV, uvs);
+                HORIZON_GRID(HorizonEmitFlatGridC7Levels, levelU, levelV, uvs);
                 continue;
             }
             HorizonC7WholeFT4(uvs, (s32)Horizon.corner[0].w.color);
@@ -3675,6 +3866,7 @@ static const HorizonPass *const HorizonMirrorPrograms[9] = {
 void SubmitCourseHorizon(void *scene, VisibleCourseViews *views, s32 course)
 {
     const HorizonPass *program;
+    u32 interp = InterpBegin(INTERP_COURSE, 0);
     Horizon.scene = (RroSceneScratchPrefix *)scene;
     Horizon.savedFarColor[0] = gte_cfc2(GTE_FC_R);
     Horizon.savedFarColor[1] = gte_cfc2(GTE_FC_G);
@@ -3686,6 +3878,7 @@ void SubmitCourseHorizon(void *scene, VisibleCourseViews *views, s32 course)
     gte_ctc2(GTE_FC_G, Horizon.savedFarColor[1]);
     gte_ctc2(GTE_FC_B, Horizon.savedFarColor[2]);
     RR_GPU_SCRATCH->cursor = Horizon.cursor;
+    InterpEnd(interp);
 }
 
 /* ------------------------------------------------------------------------ */

@@ -102,6 +102,24 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      4:3 (menu captures are bit-identical). In Classic 4:3 every value is
      the original one.
 
+   - **Frame interpolation:** a race frame takes two fields (25 fps PAL);
+     with the option on PsyZ presents a midpoint between two frames at the
+     blank in between (`Psyz_GpuPrepareInterpolatedBlank` in `MainLoop`),
+     drawn into a separate target from the same packets with averaged
+     vertices. The packets come from a linear arena, so the 3D renderers tag
+     each one with a stable identity (`include/rr/frame_interp.h`): the view,
+     the object (`InterpObject`: course, scenery, car and part, track object
+     placement) and a key from the renderer (the face record, the contents of
+     a course tile record with its grid cell and subdivision levels). A
+     packet pairs with the same identity in the previous frame; untagged
+     packets (HUD, 2D) keep their pose. Culling reaches past the view while
+     interpolating (`InterpMargin`), tiles nearer than the projection plane
+     and the previous level of detail of a re-subdivided tile are drawn into
+     the midpoint only, the new level into the frame only, and the midpoint
+     target starts as the previous frame so nothing uncovered shows an older
+     picture. A camera jump (`InterpViewCamera`) or a mode change starts new
+     identities. Off, nothing is tagged and every value is the original one.
+
 ## Repository layout
 
 | Path | Contents |

@@ -1,3 +1,4 @@
+#include "rr/frame_interp.h"
 #include "rr/rro_model.h"
 #include "game/gfx/model.h"
 #include "rr/track_lighting.h"
@@ -55,7 +56,7 @@ int TriggerWheelBump(RaceVehicle *vehicle, int wheel)
     return 1;
 }
 
-void DrawPreviewCar(RaceVehicle *arg0, PreviewRgb3 color, s32 arg2, s32 flags) {
+static void DrawPreviewCarParts(RaceVehicle *arg0, PreviewRgb3 color, s32 arg2, s32 flags) {
     MatrixWords32 sp10;
     MatrixWords32 sp30;
     MatrixWords32 sp50;
@@ -138,6 +139,7 @@ void DrawPreviewCar(RaceVehicle *arg0, PreviewRgb3 color, s32 arg2, s32 flags) {
 
     for (i = 0; i < 8; i++) {
         u8 s0_mode = CarPartRenderModes[i];
+        InterpPart(i);
         if (s0_mode != 1 || DrawRroModel(&sp158[CarPartTransformIndices[i]], &sp98[CarPartMatrixIndices[i]], CarPartModelIndices[i], 0) != s0_mode) {
             SetGteObjectTransform(
                 (ObjectTransform38 *)(SCRATCHPAD + 0x7C),
@@ -154,7 +156,7 @@ void DrawPreviewCar(RaceVehicle *arg0, PreviewRgb3 color, s32 arg2, s32 flags) {
 }
 
 
-void DrawPlayerCar(RaceVehicle *arg0, s32 viewMode) {
+static void DrawPlayerCarParts(RaceVehicle *arg0, s32 viewMode) {
     MatrixWords32 sp20;
     MatrixWords32 sp40;
     MatrixWords32 sp60;
@@ -239,9 +241,11 @@ void DrawPlayerCar(RaceVehicle *arg0, s32 viewMode) {
     if (v0_drag > 0) {
         s5_val |= 2;
     }
+    InterpPart(0x80);
     DrawWheelTrailEffects(arg0, &sp168[1].x, &spA8[1], &sp80, slot_idx, s5_val, 0);
     for (i = 0; i < 8; i++) {
         u8 s0_mode = CarPartRenderModes[i];
+        InterpPart(i);
         if (s0_mode != 1 || DrawRroModel(&sp168[CarPartTransformIndices[i]], &spA8[CarPartMatrixIndices[i]], CarPartModelIndices[i], 0) != s0_mode) {
             SetGteObjectTransform(
                 (ObjectTransform38 *)(SCRATCHPAD + 0x7C),
@@ -259,7 +263,7 @@ void DrawPlayerCar(RaceVehicle *arg0, s32 viewMode) {
 
 
 
-void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
+static void DrawOpponentCarParts(RaceVehicle *arg0, s32 arg1) {
     MatrixWords32 sp20;
     MatrixWords32 sp40;
     MatrixWords32 sp60;
@@ -367,9 +371,11 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
                 sp168[i + 3].y += sp168[2].y;
                 sp168[i + 3].z += sp168[2].z;
             }
+            InterpPart(0x80);
             DrawWheelTrailEffects(arg0, &sp168[1].x, &spA8[1], &sp80, slot_idx, s5_val, 0);
             for (i = 0; i < 8; i++) {
                 u8 s0_mode = CarPartRenderModes[i];
+                InterpPart(i);
                 if (s0_mode != 1 || DrawRroModel(&sp168[CarPartTransformIndices[i]], &spA8[CarPartMatrixIndices[i]], CarPartModelIndices[i], fp_val) != s0_mode) {
                     SetGteObjectTransform(
                         (ObjectTransform38 *)(SCRATCHPAD + 0x7C),
@@ -399,6 +405,7 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
             BuildRotMatrixZ(&sp60, -arg0->ang84);
             MulMatrix(&spA8[1], &sp60);
             MulMatrix2(&sp20, &spA8[1]);
+            InterpPart(0x80);
             DrawWheelTrailEffects(arg0, &sp168[1].x, &spA8[1], &sp80, slot_idx, s5_val, s7_val);
             SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&sp168[0], spA8[0].w);
             G->col78 = 0;
@@ -406,7 +413,9 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
             if (ModelBankFormat >= 4) {
                 a1_val = 3;
             }
+            InterpPart(0x10);
             SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1_val, 0, s7_val);
+            InterpPart(0x11);
             if (DrawRroModel(&sp168[1], &spA8[1], 1, fp_val) == 0) {
                 SetGteObjectTransform(
                     (ObjectTransform38 *)(SCRATCHPAD + 0x7C),
@@ -421,6 +430,7 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
             sp168[0].x = arg0->worldPosition10.words[0];
             sp168[0].y = arg0->worldPosition10.words[1];
             sp168[0].z = arg0->worldPosition10.words[2];
+            InterpPart(0x80);
             DrawWheelTrailEffects(arg0, &sp168[0].x, &spA8[0], &sp80, slot_idx, s5_val, s7_val);
             SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&sp168[0], spA8[0].w);
             G->col78 = fp_val;
@@ -428,11 +438,36 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
             if (ModelBankFormat >= 3) {
                 a1_val = 2;
             }
+            InterpPart(0x20);
             SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1_val, 1, s7_val);
             return;
         }
     }
+    InterpPart(0x80);
     DrawWheelTrailEffects(arg0, 0, 0, 0, slot_idx, 0, 0);
+}
+
+/* Frame interpolation: each car is one object, its parts are pieces. */
+static u32 InterpCarId(const RaceVehicle *car) {
+    return (u32)(((uintptr_t)car >> 4) & 0xFFFF) << 8;
+}
+
+void DrawPreviewCar(RaceVehicle *arg0, PreviewRgb3 color, s32 arg2, s32 flags) {
+    u32 interp = InterpBegin(INTERP_CAR, InterpCarId(arg0));
+    DrawPreviewCarParts(arg0, color, arg2, flags);
+    InterpEnd(interp);
+}
+
+void DrawPlayerCar(RaceVehicle *arg0, s32 viewMode) {
+    u32 interp = InterpBegin(INTERP_CAR, InterpCarId(arg0));
+    DrawPlayerCarParts(arg0, viewMode);
+    InterpEnd(interp);
+}
+
+void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
+    u32 interp = InterpBegin(INTERP_CAR, InterpCarId(arg0));
+    DrawOpponentCarParts(arg0, arg1);
+    InterpEnd(interp);
 }
 
 /* Initial values of the globals this module owns. */

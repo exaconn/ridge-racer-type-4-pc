@@ -1,3 +1,4 @@
+#include "rr/frame_interp.h"
 /* RODATA 0x800100e4 0x20 */
 #include "rr/widescreen.h"
 #include "scratchpad.h"
@@ -290,6 +291,7 @@ static SkyTri *SkyEmitTriFT3(SkyTri *a0, SkyCtx *a1, int a2) {
                     pkt->color1 = Psyz_GteDataRead(21);
                     pkt->color2 = Psyz_GteDataRead(22);
                     RR_GPU_ADD_PRIM(SkyOrderEntry(SKY_SCENERY_OT_BASE + a0->b7), pkt, 6);
+                    INTERP_TAG(pkt, a0, 0);
                     pkt++;
                 }
             }
@@ -356,6 +358,7 @@ static SkyQuad17528 *SkyEmitQuadG4(SkyQuad17528 *a0, SkyCtx *a1, int a2) {
                     SkyDepthCue1(a0->c3);
                     pkt->color3 = Psyz_GteDataRead(22);
                     RR_GPU_ADD_PRIM(SkyOrderEntry(SKY_SCENERY_OT_BASE + a0->b19), pkt, 8);
+                    INTERP_TAG(pkt, a0, 0);
                     pkt++;
                 }
             }
@@ -409,6 +412,7 @@ static SkyQuad177E4 *SkyEmitQuadFT4(SkyQuad177E4 *a0, SkyCtx *a1, int a2) {
                     SkyDepthCue1(a0->c0);
                     pkt->color = Psyz_GteDataRead(22);
                     RR_GPU_ADD_PRIM(SkyOrderEntry(SKY_SCENERY_OT_BASE + a0->b19), pkt, 9);
+                    INTERP_TAG(pkt, a0, 0);
                     pkt++;
                 }
             }
@@ -467,6 +471,7 @@ static SkyTri17A90 *EmitSkyDepthCuedGT3(SkyTri17A90 *a0, SkyCtx *a1, int a2) {
                     pkt->color1 = Psyz_GteDataRead(21);
                     pkt->color2 = Psyz_GteDataRead(22);
                     RR_GPU_ADD_PRIM(SkyOrderEntry(SKY_SCENERY_OT_BASE + a0->u1C.b.b1F), pkt, 9);
+                    INTERP_TAG(pkt, a0, 0);
                     pkt++;
                 }
             }
@@ -478,7 +483,15 @@ static SkyTri17A90 *EmitSkyDepthCuedGT3(SkyTri17A90 *a0, SkyCtx *a1, int a2) {
     return a0;
 }
 
+static void DrawTrackSceneryRecords(int a0);
+
 void DrawTrackScenery(int a0) {
+    u32 interp = InterpBegin(INTERP_SCENERY, 0);
+    DrawTrackSceneryRecords(a0);
+    InterpEnd(interp);
+}
+
+static void DrawTrackSceneryRecords(int a0) {
     const u8 *table = (const u8 *)TrackSkyTable;
     const SkyOffsetRecord *record;
     const u8 *r;
@@ -624,6 +637,7 @@ static SkyLitTri14 *SkyEmitLitTriG3(SkyLitTri14 *a0, SkyLitCtx *a1) {
                 z = a1->otzE8 >> shift;
                 if (z > 0 && z < 0x1C0) {
                     RR_GPU_ADD_PRIM(SkyOrderEntry(SKY_LIT_OT_BASE + z + a0->b11), pkt, 9);
+                    INTERP_TAG(pkt, a0, 0);
                     pkt++;
                 }
             }
@@ -694,6 +708,7 @@ static SkyLitQuad18 *SkyEmitLitTexQuadGT4(SkyLitQuad18 *a0, SkyLitCtx *a1) {
                 z = a1->otzE8 >> shift;
                 if (z > 0 && z < 0x1C0) {
                     RR_GPU_ADD_PRIM(SkyOrderEntry(SKY_LIT_OT_BASE + z + a0->b15), pkt, 12);
+                    INTERP_TAG(pkt, a0, 0);
                     pkt++;
                 }
             }
@@ -741,6 +756,7 @@ static SkyLitQuad18 *SkyEmitLitQuadG4(SkyLitQuad18 *a0, SkyLitCtx *a1) {
                         RR_GTE_OP(0x4B08041B);
                         RR_GTE14_SWC2_RGB2(&pkt->color3);
                         RR_GPU_ADD_PRIM(SkyOrderEntry(SKY_LIT_OT_BASE + z + a0->b15), pkt, 8);
+                        INTERP_TAG(pkt, a0, 0);
                         pkt++;
                     }
                 }
@@ -803,6 +819,7 @@ static SkyLitTexQuad24 *EmitSkyLitGT4(SkyLitTexQuad24 *a0, SkyLitCtx *a1) {
                         SkySpecularLight(0x4A4A6412);
                         RR_GTE14_SWC2_RGB2(&pkt->color3);
                         RR_GPU_ADD_PRIM(SkyOrderEntry(SKY_LIT_OT_BASE + z + a0->b21), pkt, 12);
+                        INTERP_TAG(pkt, a0, 0);
                         pkt++;
                     }
                 }
@@ -850,6 +867,7 @@ static SkyLitTexQuad24 *SkyEmitSpecTexQuadGT4(SkyLitTexQuad24 *a0, SkyLitCtx *a1
                         RR_GTE14_LIGHT0();
                         RR_GTE14_SWC2_RGB2(&pkt->color);
                         RR_GPU_ADD_PRIM(SkyOrderEntry(SKY_LIT_OT_BASE + z + a0->b21), pkt, 9);
+                        INTERP_TAG(pkt, a0, 0);
                         pkt++;
                     }
                 }

@@ -31,6 +31,7 @@ typedef struct Rr4Prefs {
     /* [graphics] */
     unsigned scale; /* internal resolution: 1, 2, 4, 6 or 8 */
     int fullscreen;
+    int fullscreen_field_rate; /* fullscreen at 50 Hz when the display can */
     int vsync; /* Rr4VsyncPref */
     int square_pixels;
     int disable_dithering;

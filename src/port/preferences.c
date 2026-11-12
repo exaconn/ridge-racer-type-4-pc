@@ -169,6 +169,8 @@ static int ParseValue(Rr4Prefs *p, const char *section, const char *key, char *v
         }
         if (!strcmp(key, "fullscreen"))
             return ParseFlag(value, &p->fullscreen);
+        if (!strcmp(key, "fullscreen_field_rate"))
+            return ParseFlag(value, &p->fullscreen_field_rate);
         if (!strcmp(key, "square_pixels"))
             return ParseFlag(value, &p->square_pixels);
         if (!strcmp(key, "disable_dithering"))
@@ -290,6 +292,7 @@ int Rr4PrefsSaveFile(const Rr4Prefs *p, const char *path) {
             "[graphics]\n"
             "internal_resolution = %u\n"
             "fullscreen = %s\n"
+            "fullscreen_field_rate = %s\n"
             "vsync = \"%s\"\n"
             "square_pixels = %s\n"
             "disable_dithering = %s\n"
@@ -302,7 +305,7 @@ int Rr4PrefsSaveFile(const Rr4Prefs *p, const char *path) {
             "mute = %s\n\n"
             "[disc]\n"
             "image = ",
-            p->scale, Bool(p->fullscreen),
+            p->scale, Bool(p->fullscreen), Bool(p->fullscreen_field_rate),
             kVsync[p->vsync >= 0 && p->vsync <= 2 ? p->vsync : 0],
             Bool(p->square_pixels), Bool(p->disable_dithering),
             Bool(p->antialiasing), Bool(p->texture_filtering),
@@ -459,6 +462,7 @@ void Rr4PrefsApply(const Rr4Prefs *p, int window_ready) {
         Psyz_SetKeyboardBinding_SDL3((unsigned)i, (SDL_Scancode)p->keys[i]);
         Psyz_SetGamepadBinding_SDL3((unsigned)i, p->buttons[i]);
     }
+    Psyz_VideoSetFullscreenFieldRate(p->fullscreen_field_rate != 0);
     if (window_ready)
         Psyz_SetFullscreen_SDL3(p->fullscreen != 0);
 }

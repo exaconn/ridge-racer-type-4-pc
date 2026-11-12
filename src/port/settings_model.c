@@ -35,8 +35,9 @@ static int ScaleIndex(unsigned scale) {
 }
 ACCESSORS(Scale, ScaleIndex(p->scale), p->scale = kScales[i])
 
-static const char *const kWindowNames[] = {"Windowed", "Fullscreen"};
-ACCESSORS(Fullscreen, p->fullscreen != 0, p->fullscreen = i)
+static const char *const kWindowNames[] = {"Windowed", "Fullscreen", "Fullscreen 50 Hz"};
+ACCESSORS(Fullscreen, p->fullscreen ? 1 + (p->fullscreen_field_rate != 0) : 0,
+          p->fullscreen = i != 0; if (i) p->fullscreen_field_rate = i == 2)
 
 static const char *const kVsyncNames[] = {"Auto", "On", "Off (limiter)"};
 ACCESSORS(Vsync, p->vsync >= 0 && p->vsync <= 2 ? p->vsync : 0, p->vsync = i)
@@ -61,7 +62,7 @@ ACCESSORS(Interpolation, p->frame_interpolation != 0, p->frame_interpolation = i
 static const ChoiceSetting kGraphics[] = {
     SETTING("Internal resolution", "Renders 3D at a multiple of the PlayStation resolution. Higher values cost GPU time.",
             kScaleNames, Scale),
-    SETTING("Display mode", "Switch between a window and borderless fullscreen. Shortcut: F4.",
+    SETTING("Display mode", "Window or fullscreen (F4). Fullscreen 50 Hz sets a display that has the mode (most 120 Hz ones) to the game's own rate for the smoothest motion.",
             kWindowNames, Fullscreen),
     SETTING("VSync", "Auto uses display sync on 60 Hz screens. Off paces 50 Hz PAL frames with a limiter.",
             kVsyncNames, Vsync),
@@ -222,6 +223,7 @@ static void ResetPage(SettingsModel *m) {
     case SETTINGS_PAGE_GRAPHICS:
         p->scale = d->scale;
         p->fullscreen = d->fullscreen;
+        p->fullscreen_field_rate = d->fullscreen_field_rate;
         p->vsync = d->vsync;
         p->square_pixels = d->square_pixels;
         p->disable_dithering = d->disable_dithering;

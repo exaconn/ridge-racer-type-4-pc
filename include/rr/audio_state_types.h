@@ -65,7 +65,7 @@ typedef struct {
     u8 *table;
 } AudioStreamBank;
 /* The original API distinguishes an unavailable table from a null address. */
-#define AUDIO_STREAM_TABLE_UNAVAILABLE ((u8 *)(long)-1)
+#define AUDIO_STREAM_TABLE_UNAVAILABLE ((u8 *)(intptr_t)-1)
 enum {
     AUDIO_BANKS_OFFSET = (0x2634+__alignof__(AudioStreamBank)-1)&~(__alignof__(AudioStreamBank)-1),
     AUDIO_CD_DELTA = AUDIO_BANKS_OFFSET+2*sizeof(AudioStreamBank)-0x2644,

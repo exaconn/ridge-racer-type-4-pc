@@ -33,7 +33,6 @@ s32 DebugPrintStub(const char *format, ...);
 void GPU_memset(s8 *destination, s8 value, s32 length);
 s32 _reset(s32 mode);
 /* BIOS service receives an encoded low-24-bit PAL address, not a native pointer. */
-s32 GPU_cw(unsigned long address);
 s32 ResetGraph(s32);
 
 RR_ASSERT_OFFSET(GpuResetState80, debug02, 2);

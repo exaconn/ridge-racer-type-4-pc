@@ -995,13 +995,13 @@ void ovl662_tool_swap_emblem_sides(s32 action)
     u32 *buffer;
     union {
         u32 *ptr;
-        long addr;
+        intptr_t addr;
     } image, palette, out;
     union {
         GarageTimBytes *ptr;
-        long addr;
+        intptr_t addr;
     } tim;
-    long t1, t2, t3;
+    intptr_t t1, t2, t3;
     u8 selected;
     volatile GarageSelectionPrefix *state;
 

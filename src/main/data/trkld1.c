@@ -66,7 +66,7 @@ int LoadCarSpecStep(int a0, int a1, int a2) {
       if (t != 0)
       {
         SetCarSpecTable((RaceSpecEntry30 *)RaceLoadCursor);
-        v = AlignUp4(t);
+        v = (int)AlignUp4(t);
         RaceLoadState = 0;
         RaceLoadCursor += v;
         return 1;
@@ -116,7 +116,7 @@ int LoadMenuCarStep(int a0, int a1) {
                 RegisterModelBank((char *)RaceLoadCursor + ((const MenuCarModelResourceHeader *)RaceLoadCursor)->modelBankOffset, 8);
                 RaceContext.model560 = RelocateOffsetTable(RaceLoadCursor + ((const MenuCarModelResourceHeader *)RaceLoadCursor)->meshTableOffset);
                 RaceContext.camera24C->tracks138 = (SceneCameraTrack24 *)(RaceLoadCursor + ((const MenuCarModelResourceHeader *)RaceLoadCursor)->cameraTracksOffset);
-                v = AlignUp4(t);
+                v = (int)AlignUp4(t);
                 RaceLoadState = 0;
                 RaceLoadCursor += v;
                 return 1;
@@ -146,7 +146,7 @@ int LoadCourseAssetsStep(int a0, int a1) {
         t = CdFileBytesLoaded();
         if (t != 0) {
             RegisterModelBank(RaceLoadCursor, 8);
-            v = AlignUp4(t);
+            v = (int)AlignUp4(t);
             RaceLoadCursor += v;
             if (CourseSkyboxTypeTable[a0] < 7) {
                 RaceLoadState = 0;
@@ -177,7 +177,7 @@ int LoadCourseAssetsStep(int a0, int a1) {
         t = CdFileBytesLoaded();
         if (t != 0) {
             RegisterModelBank(RaceLoadCursor, 9);
-            v = AlignUp4(t);
+            v = (int)AlignUp4(t);
             RaceLoadCursor += v;
             RaceLoadState = 0;
             return 1;
@@ -287,12 +287,12 @@ int LoadSfxVabStep(int a0, int a1) {
                 VabLoadArgs.header = RrWireTableAddress(RaceLoadCursor, prefixWords + 1);
                 samples = (char *)RrWireTableAddress(RaceLoadCursor, prefixWords + 2);
                 VabLoadArgs.samples = (const u16 *)samples;
-                sampleBytes = samples - RaceLoadCursor;
+                sampleBytes = (int)(samples - RaceLoadCursor);
                 LoadVab(&VabLoadArgs, config->open_mode, config->bank_slot);
                 if (a1 > 0) {
                     SoundState.seqAddr2858[TrackSeqTargetSlot] = (char *)RrWireTableAddress(RaceLoadCursor, 1);
                 }
-                sampleBytes = AlignUp4(sampleBytes);
+                sampleBytes = (int)AlignUp4(sampleBytes);
                 RaceLoadSubState = 0;
                 RaceLoadCursor += sampleBytes;
                 return 1;

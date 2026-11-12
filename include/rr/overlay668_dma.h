@@ -1,6 +1,7 @@
 #ifndef RR_OVERLAY668_DMA_H
 #define RR_OVERLAY668_DMA_H
 #include "rr/overlay668_wait.h"
+#include "psyq/sdk_types.h"
 
 /* The original driver programmed DMA channels 0/1 and the MDEC ports
  * directly. The host routes the same transfers through the PsyZ MDEC
@@ -13,5 +14,5 @@ void MDEC_in(void *buf, int size);
 void MDEC_out(void *buf, int size);
 int MDEC_in_sync(void);
 int MDEC_out_sync(void);
-unsigned long MDEC_status(void);
+PsyqULong MDEC_status(void); /* PsyZ: u_long MDEC_status(void). */
 #endif

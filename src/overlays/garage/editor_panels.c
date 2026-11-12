@@ -205,8 +205,8 @@ void ovl662_draw_tool_button(s32 index)
 void ovl662_draw_rgb_sliders(void)
 {
     GpuScratchPointers *scratch=RR_GPU_SCRATCH;
-    /* unsigned long retains the complete PAL/native address before selecting a color. */
-    GaragePaletteEntry *color=(GaragePaletteEntry *)(ovl662_editor_workspace.config22*2 + (unsigned long)ovl662_editor_workspace.palette48[ovl662_editor_workspace.active21]);
+    /* uintptr_t retains the complete PAL/native address before selecting a color. */
+    GaragePaletteEntry *color=(GaragePaletteEntry *)(ovl662_editor_workspace.config22*2 + (uintptr_t)ovl662_editor_workspace.palette48[ovl662_editor_workspace.active21]);
     u32 r,red;
     u16 blue,green;
     r=color->bytes[0];

@@ -38,24 +38,24 @@ void ovl667_close_sio_session(void){
  _sio_control(4,0,0);_sio_control(1,1,1);
 }
 
-void ovl667_init_sio_session(unsigned long configuration) {
+void ovl667_init_sio_session(u32 configuration) {
     s32 work;
     u32 *base;
     /* Three word lanes in the genuine24-word ring. Keep cursor arithmetic
      * at full pointer width: after the last store, the unused second/third
      * integer cursors advance beyond the ring without forming C pointers. */
-    unsigned long first;
-    unsigned long second;
-    unsigned long third;
+    uintptr_t first;
+    uintptr_t second;
+    uintptr_t third;
     SetDispMask(0);
     _sio_control(1,3,configuration);
     _sio_control(1,4,4);
-    _sio_control(4,0,(unsigned long)ovl667_check_sio_timeout);
+    _sio_control(4,0,(uintptr_t)ovl667_check_sio_timeout);
     work=0;
     base=ovl667_rx_packet_ring.words;
-    third=(unsigned long)base+8;
-    second=(unsigned long)base+4;
-    first=(unsigned long)base;
+    third=(uintptr_t)base+8;
+    second=(uintptr_t)base+4;
+    first=(uintptr_t)base;
     ovl667_checksum_error_flag=0;
     ovl667_active_slot_index=0;
     ovl667_consumed_slot_index=7;

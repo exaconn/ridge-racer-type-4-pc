@@ -33,7 +33,7 @@ extern CardFormatSector D_80114328;
 s32 _card_format(s32 port);
 
 typedef char CardAddressWordMustHoldPointer[
-    sizeof(unsigned long)>=sizeof(void*)?1:-1];
+    sizeof(uintptr_t)>=sizeof(void*)?1:-1];
 RR_ASSERT_SIZE(CardWireWord,4);
 RR_ASSERT_SIZE(CardDirectoryWire,32);
 RR_ASSERT_SIZE(CardBrokenWire,4);

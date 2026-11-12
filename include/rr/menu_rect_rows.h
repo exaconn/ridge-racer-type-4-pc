@@ -32,7 +32,7 @@ extern u8 MenuRectLineIntensitySlots[6];
 RR_ASSERT_SIZE(MenuRectEdgeCorners, 2);
 RR_ASSERT_OFFSET(MenuRectEdgeCorners, last, 1);
 extern MenuRectRow10 *Rect16Rows;
-typedef char rr_menu_row_address_fits[(sizeof(unsigned long)>=sizeof(void *))?1:-1];
+typedef char rr_menu_row_address_fits[(sizeof(uintptr_t)>=sizeof(void *))?1:-1];
 RR_ASSERT_SIZE(MenuRectRow10,0x10);
 RR_ASSERT_OFFSET(MenuRectRow10,x,4);
 RR_ASSERT_OFFSET(MenuRectRow10,phase,12);

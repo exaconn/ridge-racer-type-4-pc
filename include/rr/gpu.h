@@ -41,7 +41,6 @@ typedef struct {
 extern GpuMovePayload12 GpuMovePayload;
 void checkRECT(const char *name, GpuRectangle *rectangle);
 void GPU_DmaDoneRequeue();
-void _cwc(unsigned long address);
 s32 MoveImage2(GpuRectangle *rectangle, s32 x, s32 y);
 /* Uploads ceil(width*height/2) packed pixel words, using a CPU tail and DMA
  * blocks of16 words. Dimensions clamp against the signed configured limits

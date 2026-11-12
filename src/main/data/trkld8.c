@@ -42,7 +42,7 @@ int LoadIntroSceneStep(void) {
             t = CdFileBytesLoaded();
             if (t != 0) {
                 OverlayModuleBind(GetR4FileIndex(1, 10));
-                u = AlignUp4(t);
+                u = (int)AlignUp4(t);
                 w = RaceLoadCursor + u;
                 CourseIndex = 8;
                 LoadCursor = w;

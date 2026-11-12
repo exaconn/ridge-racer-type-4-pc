@@ -6,6 +6,6 @@
 
 void AddSIO(void) { AddCOMB(); }
 
-s32 _sio_control(s32 command, s32 operation, unsigned long argument) {
+s32 _sio_control(s32 command, s32 operation, uintptr_t argument) {
     return (s32)_comb_control((u32)command, (u32)operation, argument);
 }

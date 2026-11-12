@@ -10,5 +10,5 @@
  * disjoint complete512-word buffers. Rectangle table slot1 addresses the
  * first member of a complete GarageButton. Services may change all roots. */
 void ovl662_tool_rotate_layer(s32 command);
-typedef char GarageRotateAddressWidth[sizeof(unsigned long)==sizeof(void*)?1:-1];
+typedef char GarageRotateAddressWidth[sizeof(uintptr_t)==sizeof(void*)?1:-1];
 #endif

@@ -18,8 +18,8 @@ void ovl662_tool_select_pen(s32 mode);
 /* Slot5 clears the freshly selected512-word layer after backup/sound.
  * An already empty layer rejects without backup or clearing. */
 void ovl662_tool_clear_layer(s32 mode);
-/* unsigned long is the complete address word on both PAL and native LP64. */
-typedef unsigned long GarageImageAddress;
+/* uintptr_t is the complete address word on PAL, LP64 and LLP64 hosts. */
+typedef uintptr_t GarageImageAddress;
 typedef char GarageImageAddressWidth[(sizeof(GarageImageAddress)==sizeof(void*))?1:-1];
 /* Slot3 backs up images/palette, then copies rows63..0 from the inverse
  * buffer into the freshly selected layer. Buffers cover512 words; ordered

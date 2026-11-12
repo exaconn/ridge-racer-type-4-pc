@@ -99,7 +99,7 @@ void ovl667_update_course_menu(void) {
                         row = 0;
                         previewIndex = 0;
                         do {
-                            preview = (UiRow24 *)((previewIndex*sizeof(UiRow24))+(unsigned long)UiRows+0x288);
+                            preview = (UiRow24 *)((previewIndex*sizeof(UiRow24))+(uintptr_t)UiRows+0x288);
                             if (preview->byte14 == 2) {
                                 preview->byte14 = 7U;
                             }
@@ -128,7 +128,7 @@ void ovl667_update_course_menu(void) {
                     row = 0;
                     backIndex = 0;
                     do {
-                        back = (UiRow24 *)((backIndex*sizeof(UiRow24))+(unsigned long)UiRows+0x288);
+                        back = (UiRow24 *)((backIndex*sizeof(UiRow24))+(uintptr_t)UiRows+0x288);
                         if (back->byte14 == 2) {
                             back->byte14 = 3U;
                         }

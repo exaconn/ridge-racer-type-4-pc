@@ -552,7 +552,7 @@ void ovl662_scroll_layer_image(u32 *source,u32 *destination,s32 x,s32 y)
     {
         u32 *input=source;
         u32 *temporary=buffer;
-        long t1, t2;
+        intptr_t t1, t2;
         if(y>=0)cursor.row=y*8;
         else cursor.row=(y+64)*8;
         for(i=0;i<64;i++) {
@@ -575,10 +575,10 @@ void ovl662_scroll_layer_image(u32 *source,u32 *destination,s32 x,s32 y)
         }
     }
     {
-        long t1, t2;
+        intptr_t t1, t2;
         union {
             u32 *ptr;
-            long addr;
+            intptr_t addr;
         } dest, out;
         u32 *temporary=buffer;
         u32 *output;

@@ -7,7 +7,8 @@
 #if defined(__clang__) || (defined(__GNUC__) && __GNUC__ >= 4)
 #define RR_FIELD_OFFSET(type, field) __builtin_offsetof(type, field)
 #else
-#define RR_FIELD_OFFSET(type, field) ((unsigned long)&((type *)0)->field)
+#include <stddef.h>
+#define RR_FIELD_OFFSET(type, field) offsetof(type, field)
 #endif
 
 /* Original 32-bit layout checks. They describe the PS1 ABI (4-byte pointers)

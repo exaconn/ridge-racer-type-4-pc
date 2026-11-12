@@ -127,7 +127,7 @@ void ovl662_update_garage_car_view(void) {
                     SubmodeState = phase;
                     i = 0;
                     do {
-                        p = (UiRow24 *)(i * sizeof(UiRow24) + (unsigned long)UiRows);
+                        p = (UiRow24 *)(i * sizeof(UiRow24) + (uintptr_t)UiRows);
                         if (p->byte14 == 2) {
                             p->byte14 = 3;
                         }
@@ -144,7 +144,7 @@ void ovl662_update_garage_car_view(void) {
                         SubmodeState = 4;
                         i = 0;
                         do {
-                            p = (UiRow24 *)(i * sizeof(UiRow24) + (unsigned long)UiRows);
+                            p = (UiRow24 *)(i * sizeof(UiRow24) + (uintptr_t)UiRows);
                             if (p->byte14 == 2) {
                                 p->byte14 = 3;
                             }
@@ -164,7 +164,7 @@ void ovl662_update_garage_car_view(void) {
                     BadgeRows[1].state10 = 4;
                     ImageRows->f1 = phase;
                     do {
-                        p = (UiRow24 *)(i * sizeof(UiRow24) + (unsigned long)UiRows);
+                        p = (UiRow24 *)(i * sizeof(UiRow24) + (uintptr_t)UiRows);
                         if (p->byte14 == 2) {
                             p->byte14 = 3;
                         }
@@ -180,7 +180,7 @@ void ovl662_update_garage_car_view(void) {
                 BadgeRows[1].state10 = 4;
                 ImageRows->f1 = phase;
                 do {
-                    p = (UiRow24 *)(i * sizeof(UiRow24) + (unsigned long)UiRows);
+                    p = (UiRow24 *)(i * sizeof(UiRow24) + (uintptr_t)UiRows);
                     if (p->byte14 == 2) {
                         p->byte14 = 3;
                     }

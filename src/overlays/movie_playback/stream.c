@@ -239,7 +239,7 @@ s32 ovl668_decode_next_frame(StrDisplayConfig *config) {
     *index = *index < 1U;
     ovl668_mdec_decode_vlc(data, ((StrPlaybackState *)RaceContext.streamStateB8)->commands10[*index]);
     ovl668_spend_vlc_time(((StrPlaybackState *)RaceContext.streamStateB8)->commands10[*index]);
-    return StFreeRing(data);
+    return (s32)StFreeRing(data);
 }
 
 u8 *ovl668_acquire_stream_frame(StrDisplayConfig *config) {

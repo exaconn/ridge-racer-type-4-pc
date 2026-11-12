@@ -163,7 +163,7 @@ void ovl662_update_emblem_selector(void) {
                             ovl662_emblem_preview_fade = 0;
                             SubmodeState = (u16) badgePhase;
                             do {
-                                acceptRow = (UiRow24 *)(index * sizeof(UiRow24) + (unsigned long)UiRows);
+                                acceptRow = (UiRow24 *)(index * sizeof(UiRow24) + (uintptr_t)UiRows);
                                 if (acceptRow->byte14 == 2) {
                                     acceptRow->byte14 = 3U;
                                 }
@@ -180,7 +180,7 @@ void ovl662_update_emblem_selector(void) {
                         ovl662_menu_substate = (s16) rowPhase;
                         BadgeRows->state10 = 4;
                         do {
-                            closingRow = (UiRow24 *)(index * sizeof(UiRow24) + (unsigned long)UiRows);
+                            closingRow = (UiRow24 *)(index * sizeof(UiRow24) + (uintptr_t)UiRows);
                             if (closingRow->byte14 == 2) {
                                 closingRow->byte14 = 3U;
                             }
@@ -196,7 +196,7 @@ void ovl662_update_emblem_selector(void) {
                         ovl662_emblem_preview_fade = 0;
                         BadgeRows->state10 = 4;
                         do {
-                            cancelRow = (UiRow24 *)(index * sizeof(UiRow24) + (unsigned long)UiRows);
+                            cancelRow = (UiRow24 *)(index * sizeof(UiRow24) + (uintptr_t)UiRows);
                             if (cancelRow->byte14 == 2) {
                                 cancelRow->byte14 = 3U;
                             }

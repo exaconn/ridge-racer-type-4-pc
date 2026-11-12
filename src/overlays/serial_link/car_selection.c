@@ -151,8 +151,8 @@ void ovl667_init_session_menus(void){
  CourseIndex=0;SelectedCourseChoice=0;NumLaps=3;
  ActivePlayerIndex=(1-(s16)LinkHostFlag)*2;
  for(;i<2;i++,offset+=36)for(j=0,repeat=sourceBase,pos=offset;j<9;repeat+=4,j++,pos+=4) {
-  u8 *dest=((u8 *)(pos+(unsigned long)destBase));
-  __builtin_memcpy(dest,(u8 *)(pos+(unsigned long)sourceBase),4);
+  u8 *dest=((u8 *)(pos+(uintptr_t)destBase));
+  __builtin_memcpy(dest,(u8 *)(pos+(uintptr_t)sourceBase),4);
   __builtin_memcpy(dest+72,repeat,4);
  }
  for(i=0;i<2;i++)CopyStringClearTail(LinkPlayerNames[ActivePlayerIndex+i],ovl667_default_player_names[ActivePlayerIndex+i]);

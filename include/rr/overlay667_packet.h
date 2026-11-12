@@ -35,7 +35,7 @@ extern s32 ovl667_tx_packet_count,ovl667_tx_miss_count,ovl667_tx_stage;
 extern u8 ovl667_rx_slot_index,ovl667_active_slot_index,ovl667_remote_pause_bits,ovl667_local_pause_bits;
 extern u8 ovl667_consumed_slot_index;
 extern u8 ovl667_remote_error_code;
-void ovl667_init_sio_session(unsigned long configuration);
+void ovl667_init_sio_session(u32 configuration);
 /* An event-ready packet's flags byte must be a valid ring index0..7: the
  * original uses the full byte as the index, without stripping control bits.
  * Serial services may mutate globals; every later ring access stays in0..7. */

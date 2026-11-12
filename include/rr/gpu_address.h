@@ -8,10 +8,10 @@
  * not native pointers. The first payload byte follows the four-byte tag. */
 #if defined(mips)
 static __inline__ u32 GpuDmaEncodeAddress(const void *pointer) {
-    return (unsigned long)pointer;
+    return (uintptr_t)pointer;
 }
 static __inline__ u8 GpuDmaReadPayloadByte(u32 address) {
-    return ((const u8 *)(unsigned long)address)[4];
+    return ((const u8 *)(uintptr_t)address)[4];
 }
 #else
 /* Native backends install the actual buffers and their PSX CPU addresses.

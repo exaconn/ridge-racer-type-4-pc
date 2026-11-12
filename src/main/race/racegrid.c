@@ -477,7 +477,7 @@ void OpenLinkSerial(void) {
     _sio_control(1, 4, 1);
     LinkWriteHandle = FileOpen(SioDeviceName, 2);
     LinkReadHandle = FileOpen(SioDeviceName, 1);
-    _sio_control(4, 0, (unsigned long)(uintptr_t)LinkTimeoutCallback);
+    _sio_control(4, 0, (uintptr_t)LinkTimeoutCallback);
     _sio_control(2, 0, 0);
 }
 
@@ -614,7 +614,7 @@ int UpdateLinkHandshake(int a0)
         if (CourseSelectLockedFlag != 0)
         {
           LinkEntryState[0][1 - (q3 = LinkHostFlag)] = -1;
-          ((void (*)())_sio_control)(1, 1, 0, q3);
+          _sio_control(1, 1, 0);
         }
       }
     }

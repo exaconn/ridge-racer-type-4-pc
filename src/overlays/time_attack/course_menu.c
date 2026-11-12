@@ -132,7 +132,7 @@ void ovl660_update_menu(void) {
                         previewIndex = 0;
                         UiRows[0].cells[0] = 1;
                         do {
-                            preview = (UiRow24 *)((previewIndex*sizeof(UiRow24))+(unsigned long)UiRows);
+                            preview = (UiRow24 *)((previewIndex*sizeof(UiRow24))+(uintptr_t)UiRows);
                             if (preview->byte14 == 2) {
                                 preview->byte14 = 3U;
                             }
@@ -145,7 +145,7 @@ void ovl660_update_menu(void) {
                         if (UiRowCount > 0) {
                             settingsIndex = 0;
                             do {
-                                settings = (UiRow24 *)((settingsIndex*sizeof(UiRow24))+(unsigned long)UiRows);
+                                settings = (UiRow24 *)((settingsIndex*sizeof(UiRow24))+(uintptr_t)UiRows);
                                 if (settings->byte14 == 2) {
                                     settings->byte14 = 3U;
                                 }
@@ -161,7 +161,7 @@ void ovl660_update_menu(void) {
                         if (UiRowCount > 0) {
                             cancelIndex = 0;
                             do {
-                                cancel = (UiRow24 *)((cancelIndex*sizeof(UiRow24))+(unsigned long)UiRows);
+                                cancel = (UiRow24 *)((cancelIndex*sizeof(UiRow24))+(uintptr_t)UiRows);
                                 if (cancel->byte14 == 2) {
                                     cancel->byte14 = 3U;
                                 }
@@ -186,7 +186,7 @@ check_back:
                     if (UiRowCount > 0) {
                         backIndex = 0;
                         do {
-                            back = (UiRow24 *)((backIndex*sizeof(UiRow24))+(unsigned long)UiRows);
+                            back = (UiRow24 *)((backIndex*sizeof(UiRow24))+(uintptr_t)UiRows);
                             if (back->byte14 == 2) {
                                 back->byte14 = 3U;
                             }

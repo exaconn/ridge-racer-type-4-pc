@@ -89,7 +89,7 @@ void ovl661_update_menu(void) {
                     if ((s16) MenuCursor == 0) {
                         var_s0 = 0;
                         do {
-                            temp_v1 = (UiRow24 *)((var_s0*36)+(unsigned long)UiRows+648);
+                            temp_v1 = (UiRow24 *)((var_s0*36)+(uintptr_t)UiRows+648);
                             if (temp_v1->byte14 == 2) {
                                 temp_v1->byte14 = 7U;
                             }
@@ -136,7 +136,7 @@ void ovl661_update_menu(void) {
                     SetModelTexturePage(-1);
                     var_s0 = 0;
                     do {
-                        temp_v1_3 = (UiRow24 *)((var_s0*36)+(unsigned long)UiRows+648);
+                        temp_v1_3 = (UiRow24 *)((var_s0*36)+(uintptr_t)UiRows+648);
                         if (temp_v1_3->byte14 == 2) {
                             temp_v1_3->byte14 = 3U;
                         }

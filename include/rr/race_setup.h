@@ -19,7 +19,7 @@ void InitRearViewMirrorState(void);
 void ClearTrackObjectStates(s32);
 int DrawSync(int mode);
 s32 ovl667_open_sio_events(void);
-void ovl667_init_sio_session(unsigned long);
+void ovl667_init_sio_session(u32);
 extern u32 ScreenFrame;
 extern s32 RaceVoiceFlags;
 extern s16 ForceTailLightTrails;

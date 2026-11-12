@@ -11,7 +11,7 @@
 extern s32 ovl662_arena_init_stage;
 extern GpuRectangle ovl662_vram_emblem_image_rect,ovl662_vram_emblem_clut_rect;
 void ovl662_dispatch_editor_actions(s32);
-typedef unsigned long GarageArenaAddress;
+typedef uintptr_t GarageArenaAddress;
 typedef char GarageArenaAddressWidth[sizeof(GarageArenaAddress)==sizeof(void*)?1:-1];
 /* At stage1 the published root has0x2944 writable bytes with enough alignment
  * for the next four-byte boundary. The two complete TIM spans are0x840 bytes,

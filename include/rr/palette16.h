@@ -11,7 +11,7 @@ typedef union {
 } Palette16;
 /* Address arithmetic must preserve full pointers on both PAL and the native
  * fixture host. This is a pointer-sized address, not a PAL machine-word cast. */
-typedef unsigned long PaletteAddress;
+typedef uintptr_t PaletteAddress;
 typedef char rr_palette_address_width[(sizeof(PaletteAddress)==sizeof(void*))?1:-1];
 RR_ASSERT_SIZE(PaletteEntry16,2);
 RR_ASSERT_SIZE(Palette16,32);

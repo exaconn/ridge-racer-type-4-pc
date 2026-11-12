@@ -12,5 +12,5 @@ void DrawBigFontString(s32 x,s32 y,u8 *text);
  * The renderer reads a terminated string and may change later global state. */
 void DrawLinkEntryScreen(s32 mode);
 typedef char rr_player_status_native_address_width[
-    sizeof(unsigned long)>=sizeof(void*)?1:-1];
+    sizeof(uintptr_t)>=sizeof(void*)?1:-1];
 #endif

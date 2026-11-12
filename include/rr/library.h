@@ -50,12 +50,12 @@ RR_ASSERT_OFFSET(GpuDebugSettings, height, 4);
  * Queue operations retain their legacy unspecified-argument callback type;
  * payload and parameter transport retain complete native pointer widths. */
 typedef int (*GpuOpFunc)();
-typedef void (*LibDrawOrderingTable)(unsigned long address);
+typedef void (*LibDrawOrderingTable)(uintptr_t address);
 union GpuRectangle;
 typedef struct GpuDriver40 {
     const char *name00;
-    void (*enqueue04)(GpuOpFunc, void *, unsigned long);
-    s32 (*dispatch)(GpuOpFunc, void *, s32, unsigned long);
+    void (*enqueue04)(GpuOpFunc, void *, uintptr_t);
+    s32 (*dispatch)(GpuOpFunc, void *, s32, uintptr_t);
     s32 (*clear0C)(union GpuRectangle *, u32);
     void (*control10)(u32);
     s32 (*writeBuffer14)(int *, s32);

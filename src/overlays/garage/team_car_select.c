@@ -202,7 +202,7 @@ void ovl662_update_team_car_select(void) {
                             closePhase = 3;
                             ImageRows->f1 = closePhase;
                             do {
-                                temp_v1_2 = (UiRow24 *)(var_s0 * sizeof(UiRow24) + (unsigned long)UiRows);
+                                temp_v1_2 = (UiRow24 *)(var_s0 * sizeof(UiRow24) + (uintptr_t)UiRows);
                                 if (temp_v1_2->byte14 == 2) {
                                     temp_v1_2->byte14 = 3U;
                                 }
@@ -220,7 +220,7 @@ void ovl662_update_team_car_select(void) {
                         BadgeRows->state10 = 4;
                         ImageRows->f1 = (s8) temp_s1;
                         do {
-                            temp_v1_3 = (UiRow24 *)(var_s0 * sizeof(UiRow24) + (unsigned long)UiRows);
+                            temp_v1_3 = (UiRow24 *)(var_s0 * sizeof(UiRow24) + (uintptr_t)UiRows);
                             if (temp_v1_3->byte14 == 2) {
                                 temp_v1_3->byte14 = 3U;
                             }
@@ -239,7 +239,7 @@ void ovl662_update_team_car_select(void) {
                             BadgeRows->state10 = 4;
                             ImageRows->f1 = (s8) temp_s1;
                             do {
-                                temp_v1_4 = (UiRow24 *)(var_s0 * sizeof(UiRow24) + (unsigned long)UiRows);
+                                temp_v1_4 = (UiRow24 *)(var_s0 * sizeof(UiRow24) + (uintptr_t)UiRows);
                                 if (temp_v1_4->byte14 == 2) {
                                     temp_v1_4->byte14 = 3U;
                                 }
@@ -257,7 +257,7 @@ block_40:
                         if (UiRowCount > 0) {
 
                             do {
-                                temp_v1_5 = (UiRow24 *)(var_s0 * sizeof(UiRow24) + (unsigned long)UiRows);
+                                temp_v1_5 = (UiRow24 *)(var_s0 * sizeof(UiRow24) + (uintptr_t)UiRows);
                                 if (temp_v1_5->byte14 == 2) {
                                     temp_v1_5->byte14 = 3U;
                                 }
@@ -277,7 +277,7 @@ block_40:
                     if (UiRowCount > 0) {
 
                         do {
-                            temp_v1_6 = (UiRow24 *)(var_s0 * sizeof(UiRow24) + (unsigned long)UiRows);
+                            temp_v1_6 = (UiRow24 *)(var_s0 * sizeof(UiRow24) + (uintptr_t)UiRows);
                             if (temp_v1_6->byte14 == 2) {
                                 temp_v1_6->byte14 = 3U;
                             }

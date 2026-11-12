@@ -38,7 +38,8 @@ static void TestDefaults(void) {
     const Rr4Prefs *d = Rr4PrefsDefaults();
     CHECK(d->scale == 1);
     CHECK(d->volume == 100);
-    CHECK(!d->mute && !d->fullscreen && !d->frame_interpolation && !d->widescreen);
+    CHECK(!d->mute && !d->fullscreen && !d->frame_interpolation &&
+          d->aspect_ratio == RR4_ASPECT_CLASSIC);
     CHECK(d->vsync == RR4_VSYNC_AUTO);
     for (int i = 0; i < RR4_PREFS_BUTTONS; i++) {
         CHECK(d->keys[i] == Psyz_GetKeyboardBinding_SDL3((unsigned)i));
@@ -211,9 +212,8 @@ static void TestPrefsFile(const char *dir) {
     p.scale = 4;
     p.fullscreen = 1;
     p.vsync = RR4_VSYNC_ON;
-    p.square_pixels = 1;
     p.antialiasing = 1;
-    p.widescreen = 1;
+    p.aspect_ratio = RR4_ASPECT_WIDESCREEN;
     p.volume = 35;
     p.mute = 1;
     p.keys[BTN_UP] = SDL_SCANCODE_I;
@@ -240,6 +240,31 @@ static void TestPrefsFile(const char *dir) {
     CHECK(q.keys[BTN_UP] == Rr4PrefsDefaults()->keys[BTN_UP]); /* Escape refused */
     CHECK(q.keys[BTN_CROSS] == 7);
     CHECK(!Rr4PrefsLoadFile(&q, "/nonexistent/rr4.toml"));
+
+    /* Earlier aspect keys: square pixels alone is classic, widescreen 16:9. */
+    snprintf(path, sizeof(path), "%s/aspect.toml", dir);
+    f = fopen(path, "w");
+    CHECK(f != NULL);
+    if (f) {
+        fputs("[graphics]\nsquare_pixels = true\n", f);
+        fclose(f);
+    }
+    q = *Rr4PrefsDefaults();
+    CHECK(Rr4PrefsLoadFile(&q, path) && q.aspect_ratio == RR4_ASPECT_CLASSIC);
+    f = fopen(path, "w");
+    CHECK(f != NULL);
+    if (f) {
+        fputs("[graphics]\nsquare_pixels = true\nwidescreen = true\n", f);
+        fclose(f);
+    }
+    CHECK(Rr4PrefsLoadFile(&q, path) && q.aspect_ratio == RR4_ASPECT_WIDESCREEN);
+    f = fopen(path, "w");
+    CHECK(f != NULL);
+    if (f) {
+        fputs("[graphics]\naspect_ratio = \"sideways\"\n", f);
+        fclose(f);
+    }
+    CHECK(Rr4PrefsLoadFile(&q, path) && q.aspect_ratio == RR4_ASPECT_CLASSIC);
 
     /* RR4_CONFIG_HOME selects the user file and wins over other layers. */
     snprintf(path, sizeof(path), "%s/home/ridge-racer-type-4.toml", dir);

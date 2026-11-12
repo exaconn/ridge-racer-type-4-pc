@@ -192,6 +192,7 @@ void MainLoop(void) {
         PutDrawEnv(&CurrentDrawBuf->buffer.environment00.draw00);
         WideCommitFrame(CurrentDrawBuf->buffer.environment00.draw00.clip.y,
                         CurrentDrawBuf->buffer.environment00.draw00.clip.w,
+                        CurrentDrawBuf->buffer.environment00.draw00.clip.h,
                         &CurrentDrawBuf->buffer.ordering70.tags[703],
                         DrawSubOtFlag ? &CurrentDrawBuf->buffer.secondaryOrderingB70.tags[703] : NULL);
         DrawOTag(&CurrentDrawBuf->buffer.ordering70.tags[703]);

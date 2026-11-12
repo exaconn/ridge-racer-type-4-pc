@@ -42,11 +42,9 @@ ACCESSORS(Fullscreen, p->fullscreen ? 1 + (p->fullscreen_field_rate != 0) : 0,
 static const char *const kVsyncNames[] = {"Auto", "On", "Off (limiter)"};
 ACCESSORS(Vsync, p->vsync >= 0 && p->vsync <= 2 ? p->vsync : 0, p->vsync = i)
 
-static const char *const kAspectNames[] = {"Classic 4:3", "Square pixels"};
-ACCESSORS(Aspect, p->square_pixels != 0, p->square_pixels = i)
-
-static const char *const kWidescreenNames[] = {"Off (4:3)", "16:9"};
-ACCESSORS(Widescreen, p->widescreen != 0, p->widescreen = i)
+static const char *const kAspectNames[] = {"Classic 4:3", "Widescreen 16:9"};
+ACCESSORS(Aspect, p->aspect_ratio == RR4_ASPECT_WIDESCREEN,
+          p->aspect_ratio = i ? RR4_ASPECT_WIDESCREEN : RR4_ASPECT_CLASSIC)
 
 static const char *const kDitherNames[] = {"Original", "Off"};
 ACCESSORS(Dither, p->disable_dithering != 0, p->disable_dithering = i)
@@ -69,10 +67,8 @@ static const ChoiceSetting kGraphics[] = {
             kWindowNames, Fullscreen),
     SETTING("VSync", "Auto uses display sync on 60 Hz screens. Off paces 50 Hz PAL frames with a limiter.",
             kVsyncNames, Vsync),
-    SETTING("Aspect ratio", "Classic 4:3 matches a TV. Square pixels shows the framebuffer 1:1.",
+    SETTING("Aspect ratio", "Classic 4:3 matches a TV. Widescreen 16:9 shows more of the race to the sides; menus stay 4:3.",
             kAspectNames, Aspect),
-    SETTING("Widescreen", "Experimental. Races show more to the sides at 16:9; menus stay 4:3. Sharpest at 4x or 8x.",
-            kWidescreenNames, Widescreen),
     SETTING("Dithering", "Original: PlayStation 15-bit colour, dithered on shaded polygons. Off: smooth full-colour shading.",
             kDitherNames, Dither),
     SETTING("Antialiasing", "Smoother edges: twice each axis, four samples per pixel. Costs GPU time and memory.",
@@ -230,13 +226,12 @@ static void ResetPage(SettingsModel *m) {
         p->fullscreen = d->fullscreen;
         p->fullscreen_field_rate = d->fullscreen_field_rate;
         p->vsync = d->vsync;
-        p->square_pixels = d->square_pixels;
+        p->aspect_ratio = d->aspect_ratio;
         p->disable_dithering = d->disable_dithering;
         p->antialiasing = d->antialiasing;
         p->texture_filtering = d->texture_filtering;
         p->geometry_correction = d->geometry_correction;
         p->frame_interpolation = d->frame_interpolation;
-        p->widescreen = d->widescreen;
         break;
     case SETTINGS_PAGE_CONTROLS:
         memcpy(DeviceBindings(p, m->device), DeviceBindings((Rr4Prefs *)d, m->device),

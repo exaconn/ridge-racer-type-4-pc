@@ -40,11 +40,13 @@ settings menu; Escape again resumes. Game time stops and audio is paused
 while it is open. Tabs (`Tab`/`PgUp`/`PgDn`, gamepad shoulders):
 
 - **Graphics** — internal resolution (1x to 8x), windowed or fullscreen,
-  VSync, aspect ratio, dithering, antialiasing, and experimental 16:9
-  widescreen, texture filtering, geometry correction and frame interpolation
-  (off by default). Widescreen shows more of the race to the sides (the 4:3
-  picture is unchanged, the HUD moves to the edges); menus and other 2D
-  screens stay 4:3. It is sharpest at 4x or 8x.
+  VSync, aspect ratio, dithering, antialiasing, and experimental texture
+  filtering, geometry correction and frame interpolation (off by default).
+  The aspect ratio is Classic 4:3 (the PAL TV picture) or Widescreen 16:9
+  (square pixels): races, replays and the attract demo show more to the
+  sides (the 4:3 picture is unchanged, the HUD moves to the edges), while
+  menus and other screens are drawn exactly as in Classic 4:3. Races are
+  sharpest at 4x or 8x.
 - **Controls** — every keyboard and gamepad binding with its default; `Enter`
   rebinds (a binding already in use is swapped), `Backspace` restores the
   default.

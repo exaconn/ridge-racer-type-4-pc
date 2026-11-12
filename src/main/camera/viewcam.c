@@ -246,7 +246,7 @@ void SetupViewport(s32 viewport) {
  * width, which PsyZ keeps as the whole squeezed buffer. Like the viewport,
  * the margin lasts until the next SetupViewport (a time attack race sets
  * its view up only when paused); WideBeginFrame follows the option. */
-static s32 WideViewThisFrame, WideViewLastFrame, WideHudThisFrame;
+static s32 WideViewThisFrame, WideViewLastFrame, WideSqueezedThisFrame;
 
 static void WideUpdateMargin(void) {
     const GpuRectangleFields *rect = &((RroSceneScratchPrefix *)SCRATCHPAD)->viewport6C.rect;
@@ -268,18 +268,22 @@ void WideCourseView(void) {
         WideViewThisFrame = 1;
 }
 
-/* As far as the 16:9 view reaches past the screen (29 pixels at the PAL
- * display aspect, 53 with square pixels), so edge elements keep their
+s32 WideFrameSqueezed(void) {
+    if (!Psyz_VideoGetWidescreen() || !(WideViewThisFrame || WideViewLastFrame))
+        return 0;
+    WideSqueezedThisFrame = 1;
+    return 1;
+}
+
+/* As far as the 16:9 view reaches past the screen (53 pixels with the
+ * square pixels of the widescreen aspect), so edge elements keep their
  * original distance from the view's edges. */
 s32 WideHudShift(s32 side) {
     s32 margin;
 
-    if (!side || !(WideViewThisFrame || WideViewLastFrame))
+    if (!side || !WideFrameSqueezed())
         return 0;
     margin = Psyz_VideoGetWidescreenViewMargin();
-    if (margin <= 0)
-        return 0;
-    WideHudThisFrame = 1;
     return side < 0 ? -margin : margin;
 }
 
@@ -307,7 +311,8 @@ static s32 WideShapeWords(const u32 *w, s32 left) {
 
 /* A frame with nothing but untextured shapes that together span the
  * screen's width (a flash or fade between race and replay), or nothing at
- * all: it looks the same at either aspect, so it keeps the last one. */
+ * all, in the display mode of the race frame before it: it stays 16:9
+ * instead of flashing bars. */
 static s32 WideBlankFrame(const GpuDmaTag *tag) {
     s32 minX = 0x7FFF, maxX = -0x8000, packets = 0, any = 0;
 
@@ -346,20 +351,31 @@ static s32 WideBlankFrame(const GpuDmaTag *tag) {
     return !any || (minX <= 0 && maxX >= 0x140);
 }
 
-void WideCommitFrame(s32 bufferY, s32 width, const GpuDmaTag *ordering, const GpuDmaTag *secondary) {
-    static s32 presentedWide;
-    s32 wide = WideViewThisFrame || WideHudThisFrame;
+void WideCommitFrame(s32 bufferY, s32 width, s32 height, const GpuDmaTag *ordering,
+                     const GpuDmaTag *secondary) {
+    static s32 presentedWide, wideWidth, wideHeight;
+    s32 wide = WideViewThisFrame || WideSqueezedThisFrame;
 
     if (Psyz_VideoGetWidescreen()) {
-        if (!wide && presentedWide && WideBlankFrame(ordering) && (!secondary || WideBlankFrame(secondary)))
+        if (!wide && presentedWide && width == wideWidth && height == wideHeight &&
+            WideBlankFrame(ordering) && (!secondary || WideBlankFrame(secondary)))
             wide = 1;
-        Psyz_VideoSetWidescreenPicture(bufferY, wide ? -WIDE_MARGIN : 0,
-                                       wide ? width + WIDE_MARGIN : width);
+        /* Everything else is drawn and shown exactly as with the option off. */
+        if (wide)
+            Psyz_VideoSetWidescreenPicture(bufferY, -WIDE_MARGIN, width + WIDE_MARGIN);
+        else
+            Psyz_VideoSetWidescreenNative(bufferY);
+    } else {
+        wide = 0;
     }
     presentedWide = wide;
+    if (wide) {
+        wideWidth = width;
+        wideHeight = height;
+    }
     WideViewLastFrame = WideViewThisFrame;
     WideViewThisFrame = 0;
-    WideHudThisFrame = 0;
+    WideSqueezedThisFrame = 0;
 }
 
 int GetViewTrackNode(const s32 *position, s32 player) {

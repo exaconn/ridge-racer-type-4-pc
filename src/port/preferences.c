@@ -171,8 +171,17 @@ static int ParseValue(Rr4Prefs *p, const char *section, const char *key, char *v
             return ParseFlag(value, &p->fullscreen);
         if (!strcmp(key, "fullscreen_field_rate"))
             return ParseFlag(value, &p->fullscreen_field_rate);
+        if (!strcmp(key, "aspect_ratio")) {
+            char mode[16];
+            if (!ParseString(value, mode, sizeof(mode)))
+                return 0;
+            p->aspect_ratio = !strcmp(mode, "widescreen") ? RR4_ASPECT_WIDESCREEN : RR4_ASPECT_CLASSIC;
+            return 1;
+        }
+        /* Earlier files: square_pixels alone is no longer offered (classic);
+         * widescreen = true was 16:9. */
         if (!strcmp(key, "square_pixels"))
-            return ParseFlag(value, &p->square_pixels);
+            return 1;
         if (!strcmp(key, "disable_dithering"))
             return ParseFlag(value, &p->disable_dithering);
         if (!strcmp(key, "antialiasing"))
@@ -183,8 +192,12 @@ static int ParseValue(Rr4Prefs *p, const char *section, const char *key, char *v
             return ParseFlag(value, &p->geometry_correction);
         if (!strcmp(key, "frame_interpolation"))
             return ParseFlag(value, &p->frame_interpolation);
-        if (!strcmp(key, "widescreen"))
-            return ParseFlag(value, &p->widescreen);
+        if (!strcmp(key, "widescreen")) {
+            if (!ParseFlag(value, &v))
+                return 0;
+            p->aspect_ratio = v ? RR4_ASPECT_WIDESCREEN : RR4_ASPECT_CLASSIC;
+            return 1;
+        }
         return 1;
     }
     if (!strcmp(section, "audio")) {
@@ -296,13 +309,12 @@ int Rr4PrefsSaveFile(const Rr4Prefs *p, const char *path) {
             "fullscreen = %s\n"
             "fullscreen_field_rate = %s\n"
             "vsync = \"%s\"\n"
-            "square_pixels = %s\n"
+            "aspect_ratio = \"%s\"\n"
             "disable_dithering = %s\n"
             "antialiasing = %s\n"
             "texture_filtering = %s\n"
             "geometry_correction = %s\n"
-            "frame_interpolation = %s\n"
-            "widescreen = %s\n\n"
+            "frame_interpolation = %s\n\n"
             "[audio]\n"
             "volume = %u\n"
             "mute = %s\n\n"
@@ -310,10 +322,11 @@ int Rr4PrefsSaveFile(const Rr4Prefs *p, const char *path) {
             "image = ",
             p->scale, Bool(p->fullscreen), Bool(p->fullscreen_field_rate),
             kVsync[p->vsync >= 0 && p->vsync <= 2 ? p->vsync : 0],
-            Bool(p->square_pixels), Bool(p->disable_dithering),
+            p->aspect_ratio == RR4_ASPECT_WIDESCREEN ? "widescreen" : "classic",
+            Bool(p->disable_dithering),
             Bool(p->antialiasing), Bool(p->texture_filtering),
             Bool(p->geometry_correction), Bool(p->frame_interpolation),
-            Bool(p->widescreen), p->volume, Bool(p->mute));
+            p->volume, Bool(p->mute));
     WriteString(file, p->disc);
     fputs("\n\n# SDL scancodes\n[keyboard]\n", file);
     for (int i = 0; i < RR4_PREFS_BUTTONS; i++)
@@ -448,17 +461,30 @@ int Rr4PrefsSave(const Rr4Prefs *prefs) { return Rr4PrefsSaveFile(prefs, s_path)
 
 /* ---- applying ---- */
 
+void Rr4ApplyWidescreen(int enabled) {
+    /* Switched on: the buffers drawn so far (RR4's display buffers start at
+     * rows 0 and 256, system/frmenv.c) are shown as drawn, 4:3, until the
+     * game marks its next frames (camera/viewcam.c WideCommitFrame). */
+    if (enabled && !Psyz_VideoGetWidescreen() && Psyz_VideoSetWidescreen(1) == 0) {
+        Psyz_VideoSetWidescreenNative(0);
+        Psyz_VideoSetWidescreenNative(256);
+    } else if (!enabled) {
+        Psyz_VideoSetWidescreen(0);
+    }
+}
+
 void Rr4PrefsApply(const Rr4Prefs *p, int window_ready) {
     static const PsyzVsyncMode kVsync[] = {PSYZ_VSYNC_AUTO, PSYZ_VSYNC_ON, PSYZ_VSYNC_OFF};
 
     Psyz_VideoSetInternalResolution(p->scale >= 1 ? p->scale : 1);
-    Psyz_VideoSetAspectMode(p->square_pixels ? PSYZ_ASPECT_SQUARE : PSYZ_ASPECT_DISPLAY);
+    Psyz_VideoSetAspectMode(p->aspect_ratio == RR4_ASPECT_WIDESCREEN ? PSYZ_ASPECT_SQUARE
+                                                                     : PSYZ_ASPECT_DISPLAY);
     Psyz_VideoSetDitheringMode(p->disable_dithering ? PSYZ_DITHER_OFF : PSYZ_DITHER_AUTO);
     Psyz_VideoSetAntialiasing(p->antialiasing != 0);
     Psyz_VideoSetModelFiltering(p->texture_filtering != 0);
     Psyz_VideoSetGeometryCorrection(p->geometry_correction != 0);
     Psyz_GpuSetFrameInterpolation(p->frame_interpolation != 0);
-    Psyz_VideoSetWidescreen(p->widescreen != 0);
+    Rr4ApplyWidescreen(p->aspect_ratio == RR4_ASPECT_WIDESCREEN);
     if (Psyz_VideoGetVsyncMode() != kVsync[p->vsync >= 0 && p->vsync <= 2 ? p->vsync : 0])
         Psyz_VideoSetVsyncMode(kVsync[p->vsync >= 0 && p->vsync <= 2 ? p->vsync : 0]);
     Psyz_AudioSetOutputVolume(p->mute ? 0 : (p->volume <= 100 ? p->volume : 100));

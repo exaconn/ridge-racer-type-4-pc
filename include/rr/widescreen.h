@@ -4,13 +4,15 @@
 
 struct GpuDmaTag;
 
-/* Hor+ 16:9 widescreen (Escape menu Graphics > Widescreen, PsyZ
- * Psyz_VideoSetWidescreen). The projection is unchanged, so the 4:3 picture
- * stays exactly where it was. A full-width 3D view (the race, replay, attract
- * demo and both halves of the split screen) also draws what projects up to
- * WIDE_MARGIN game pixels past each side of the 320-pixel screen; PsyZ
- * squeezes the display buffer to hold it and presents it at 16:9. Frames
- * without such a view (menus, 2D screens) are presented 4:3 with bars.
+/* Hor+ 16:9 widescreen (Escape menu Graphics > Aspect ratio > Widescreen
+ * 16:9, PsyZ Psyz_VideoSetWidescreen with square pixels). The projection is
+ * unchanged, so the 4:3 picture stays exactly where it was. A full-width 3D
+ * view (the race, replay, attract demo and both halves of the split screen)
+ * also draws what projects up to WIDE_MARGIN game pixels past each side of
+ * the 320-pixel screen; PsyZ squeezes the display buffer to hold it and
+ * presents it at 16:9. Frames without such a view (menus, 2D screens) are
+ * drawn and shown exactly as with the option off
+ * (Psyz_VideoSetWidescreenNative).
  *
  * With the option off every value here is the original one (margin 0). */
 
@@ -33,6 +35,11 @@ void WideSetupViewport(s32 viewport);
 void WideBeginFrame(void);
 /* A full-width view draws the course: the frame shows 16:9. */
 void WideCourseView(void);
+/* Whether this frame's buffer is squeezed for 16:9 (this frame or the
+ * previous one drew a wide course view); a caller that draws for the
+ * squeezed buffer keeps the frame 16:9. Other frames (menus, 2D screens)
+ * are drawn and shown exactly as with the option off. */
+s32 WideFrameSqueezed(void);
 /* HUD x offset towards the 16:9 edges for an element on the left (side < 0)
  * or right (side > 0) of the screen: how far the view reaches past the
  * screen (Psyz_VideoGetWidescreenViewMargin) while race frames show
@@ -44,7 +51,7 @@ s32 WideHudShift(s32 side);
 /* MainLoop, before the frame's ordering tables (secondary may be NULL) are
  * drawn: tell PsyZ whether this buffer holds a 16:9 picture, and reset the
  * per-frame state. */
-void WideCommitFrame(s32 bufferY, s32 width, const struct GpuDmaTag *ordering,
+void WideCommitFrame(s32 bufferY, s32 width, s32 height, const struct GpuDmaTag *ordering,
                      const struct GpuDmaTag *secondary);
 
 #endif

@@ -27,19 +27,23 @@ typedef enum Rr4VsyncPref {
     RR4_VSYNC_OFF = 2, /* PsyZ frame limiter */
 } Rr4VsyncPref;
 
+typedef enum Rr4AspectPref {
+    RR4_ASPECT_CLASSIC = 0,    /* the PAL display aspect, everything 4:3 */
+    RR4_ASPECT_WIDESCREEN = 1, /* square pixels; races 16:9, the rest 4:3 */
+} Rr4AspectPref;
+
 typedef struct Rr4Prefs {
     /* [graphics] */
     unsigned scale; /* internal resolution: 1, 2, 4, 6 or 8 */
     int fullscreen;
     int fullscreen_field_rate; /* fullscreen at 50 Hz when the display can */
     int vsync; /* Rr4VsyncPref */
-    int square_pixels;
     int disable_dithering;
     int antialiasing;
     int texture_filtering;
     int geometry_correction;
     int frame_interpolation;
-    int widescreen; /* 16:9, more picture to the sides in races */
+    int aspect_ratio; /* Rr4AspectPref */
     /* [audio] */
     unsigned volume; /* 0..100 */
     int mute;
@@ -50,6 +54,9 @@ typedef struct Rr4Prefs {
     int keys[RR4_PREFS_BUTTONS];
     int buttons[RR4_PREFS_BUTTONS];
 } Rr4Prefs;
+
+/* Psyz_VideoSetWidescreen for RR4: buffers already drawn stay 4:3. */
+void Rr4ApplyWidescreen(int enabled);
 
 /* Lower-case pad button names, the TOML keys ("l2" ... "left"). */
 const char *Rr4PrefsButtonKey(int button);

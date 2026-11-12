@@ -108,10 +108,11 @@
  *   RR4_GRAPHICS=l     graphics options for this run, as the Escape menu
  *                      sets them: a comma list of geometry (geometry
  *                      correction), nodither (dithering off), aa
- *                      (antialiasing), filter (texture filtering), square
- *                      (square pixels), interpolation (frame
- *                      interpolation) and wide (16:9 widescreen). With
- *                      PSYZ_HEADLESS=gpu the captures show them.
+ *                      (antialiasing), filter (texture filtering),
+ *                      interpolation (frame interpolation) and wide (the
+ *                      Widescreen 16:9 aspect ratio: square pixels, races
+ *                      at 16:9). With PSYZ_HEADLESS=gpu the captures show
+ *                      them.
  *
  * Interactive runs (no PSYZ_HEADLESS) read the preferences file
  * (src/port/preferences.c) and apply it, and Escape opens the settings menu
@@ -839,16 +840,16 @@ int main(int argc, char **argv) {
         prefs.disable_dithering = strstr(l, "nodither") != NULL;
         prefs.antialiasing = strstr(l, "aa") != NULL;
         prefs.texture_filtering = strstr(l, "filter") != NULL;
-        prefs.square_pixels = strstr(l, "square") != NULL;
         prefs.frame_interpolation = strstr(l, "interpolation") != NULL;
-        prefs.widescreen = strstr(l, "wide") != NULL;
+        prefs.aspect_ratio = strstr(l, "wide") ? RR4_ASPECT_WIDESCREEN : RR4_ASPECT_CLASSIC;
         Psyz_VideoSetGeometryCorrection(prefs.geometry_correction);
         Psyz_VideoSetDitheringMode(prefs.disable_dithering ? PSYZ_DITHER_OFF : PSYZ_DITHER_AUTO);
         Psyz_VideoSetAntialiasing(prefs.antialiasing);
         Psyz_VideoSetModelFiltering(prefs.texture_filtering);
-        Psyz_VideoSetAspectMode(prefs.square_pixels ? PSYZ_ASPECT_SQUARE : PSYZ_ASPECT_DISPLAY);
+        Psyz_VideoSetAspectMode(prefs.aspect_ratio == RR4_ASPECT_WIDESCREEN ? PSYZ_ASPECT_SQUARE
+                                                                            : PSYZ_ASPECT_DISPLAY);
         Psyz_GpuSetFrameInterpolation(prefs.frame_interpolation);
-        Psyz_VideoSetWidescreen(prefs.widescreen);
+        Rr4ApplyWidescreen(prefs.aspect_ratio == RR4_ASPECT_WIDESCREEN);
     }
     {
         const char *limit = getenv("RR4_FRAME_LIMIT");

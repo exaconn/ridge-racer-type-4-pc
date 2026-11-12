@@ -25,7 +25,7 @@
 #include "rr/gpu.h"
 #include "game/data/globals.h"
 #include "rr/textured_panel.h"
-#include <psyz/video.h>
+#include "rr/widescreen.h"
 
 
 
@@ -128,7 +128,7 @@ void EmitSceneOverlaySprites(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
         s2->v = uv->y;
         y = uv->h;
         x = uv->w;
-        if (Psyz_VideoGetWidescreen() && s2->w > 0 && s2->h > 0) {
+        if (s2->w > 0 && s2->h > 0 && WideFrameSqueezed()) {
             u8 *quad = (u8 *)(s2 + 1);
             u8 *end = EmitWideSceneOverlayQuad(quad, s2,
                 (u16)(((a3 & 3) << 5) | 0x100 | ((s16)((y & 0x100) >> 4)) | ((x & 0x3FF) >> 6) | ((s16)(y & 0x200) << 2)));

@@ -82,14 +82,16 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      and draws it at subpixel precision with perspective-correct texturing
      (PGXP-like); the main loop starts a new generation of them per frame
      (`Psyz_PgxpNextFrame`). With the option off the packets are unchanged.
-   - **Widescreen (hor+):** the projection is unchanged; with the option on
-     a full-width race view (`include/rr/widescreen.h`, set up in
+   - **Widescreen 16:9 (hor+, square pixels):** the projection is
+     unchanged; a full-width race view (`include/rr/widescreen.h`, set up in
      `camera/viewcam.c`) culls `WIDE_MARGIN` pixels past both screen sides,
      merges the course list of the neighbouring view octant
      (`camera/viewini.c`), anchors edge HUD elements to the 16:9 view and
-     tells PsyZ per buffer whether it holds a 16:9 picture
-     (`Psyz_VideoSetWidescreenPicture`); other frames are shown 4:3. Off,
-     every value is the original one.
+     tells PsyZ per buffer that it holds a 16:9 picture
+     (`Psyz_VideoSetWidescreenPicture`). Every other frame is marked
+     `Psyz_VideoSetWidescreenNative`: drawn and shown exactly as in Classic
+     4:3 (menu captures are bit-identical). In Classic 4:3 every value is
+     the original one.
 
 ## Repository layout
 

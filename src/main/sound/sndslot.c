@@ -1,3 +1,4 @@
+#include "rr/cpu_time.h"
 #include "rr/scene_camera_state.h"
 #include "types.h"
 #include "rr/audio_loop.h"
@@ -38,6 +39,8 @@ void SoundMasterFadeStep(void) {
 }
 
 void SoundUpdate(void) {
+    RR_CPU_CYCLES(1624); // DuckStation, per call outside races, with the routines it calls
+
     int slotIndex;
     AudioSlot620 *slot;
     u32 beatPhase;

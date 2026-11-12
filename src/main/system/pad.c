@@ -1,4 +1,5 @@
 #include "types.h"
+#include "rr/cpu_time.h"
 #include "rr/video_timing.h"
 #include "rr/runtime_settings.h"
 #include "game/system/pad.h"
@@ -24,6 +25,8 @@ extern char StrControllerNoErrorFmt[];
 extern char StrActuatorNoErrorFmt[];
 
 void PadUpdate(void) {
+    RR_CPU_CYCLES(6248); // DuckStation, per call, with the routines it calls
+
     PadPort28 *ports[2] = { &PadPorts[0], &PadPorts[1] };
     ControllerState5C *states[2] = { &PlayerControllers[0], &PlayerControllers[1] };
     s32 i;

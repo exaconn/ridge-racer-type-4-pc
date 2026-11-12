@@ -1,3 +1,4 @@
+#include "rr/cpu_time.h"
 #include "game/gfx/fontdraw.h"
 #include "scratchpad.h"
 #include "rr/gpu_scratch_types.h"
@@ -14,6 +15,8 @@ extern const char HudPauseMenuItemCounts[13][16];
 extern unsigned int OverlayTextSpriteUv;
 void DrawIntroRippleSprites(void)
 {
+    RR_CPU_CYCLES(2198); // DuckStation, per call
+
   int l[2];
   short h[2];
   int i;

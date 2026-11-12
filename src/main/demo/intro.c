@@ -1,4 +1,5 @@
 /* RODATA 0x80011270 0x2c */
+#include "rr/cpu_time.h"
 #include "types.h"
 #include "rr/frame_storage_types.h"
 #include "rr/frame_loop.h"
@@ -33,6 +34,8 @@ int IntroScriptStep(void);
 void IntroInit(void);
 
 int IntroScriptStep(void) {
+    RR_CPU_CYCLES(1282); // DuckStation, per call
+
     short sp28[4];
     unsigned char sp30[4];
     int i;

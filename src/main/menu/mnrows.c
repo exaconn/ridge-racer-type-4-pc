@@ -1,3 +1,4 @@
+#include "rr/cpu_time.h"
 #include "game/ui/uipart1.h"
 #include "rr/save_slots.h"
 /* RODATA 0x80010774 0x4c */
@@ -203,6 +204,8 @@ l428:
 }
 
 void UpdateMenuScript(void) {
+    RR_CPU_CYCLES(506); // DuckStation, per call
+
     s32 next_frame;
     s32 mode;
     s32 status;

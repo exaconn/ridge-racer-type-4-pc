@@ -1,3 +1,4 @@
+#include "rr/cpu_time.h"
 #include "game/system/pad.h"
 #include "game/car/carstat.h"
 #include "types.h"
@@ -335,6 +336,7 @@ void AddHGradientRectPrim(RectU16 *arg0, ColorRGB8 *arg1, ColorRGB8 *arg2, s32 a
 }
 
 void AddSlantedGradientRect(unsigned short *a0, int a1, unsigned char *a2, unsigned char *a3, int a4) {
+    RR_CPU_CYCLES(314); // DuckStation, per call
     PolyG4Packet *p = (PolyG4Packet *)RR_GPU_SCRATCH->cursor;
     p->code = 0x3A;
     if (a1 == 0) {

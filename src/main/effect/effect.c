@@ -1,3 +1,4 @@
+#include "rr/cpu_time.h"
 #include "types.h"
 #include "rr/frame_storage_types.h"
 #include "scratchpad.h"
@@ -10,6 +11,8 @@
 #include "psyq/libgpu/gpudisp.h"
 
 void UpdateParticles(void) {
+    RR_CPU_CYCLES(840); // DuckStation, per call
+
     GpuDrawModePacket *p;
     s32 i;
 

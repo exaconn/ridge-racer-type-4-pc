@@ -1,3 +1,4 @@
+#include "rr/cpu_time.h"
 #include "rr/gpu_scratch_types.h"
 #include "rr/frame_storage_types.h"
 #include "rr/gpu.h"
@@ -55,12 +56,14 @@ void *AddTextSprites(GpuDmaTag *ordering, void *cursor, s32 screenX, s32 screenY
     SpritePacket *packet;
     SpritePacket *emitted;
     brightness = color >> 1;
+    RR_CPU_CYCLES(120); // DuckStation: 120 per call and 192 per glyph drawn
     if ((*text) != 0) {
         packet = cursor;
         do {
             glyph = (u8)*text - 0x20;
             text++;
             if (glyph != 0) {
+                RR_CPU_CYCLES(192);
                 tileU = FontAtlasTileCoords[glyph * 2] << 3;
                 tileV = FontAtlasTileCoords[(glyph * 2) + 1] << 4;
                 SetSprt(cursor);

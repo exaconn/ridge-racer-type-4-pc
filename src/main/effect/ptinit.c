@@ -1,3 +1,4 @@
+#include "rr/cpu_time.h"
 #include "types.h"
 #include "rr/frame_storage_types.h"
 #include "rr/gpu_scratch_types.h"
@@ -92,6 +93,8 @@ void SpawnParticlePair(void)
 }
 
 void UpdateParticle(int a0) {
+    RR_CPU_CYCLES(103); // DuckStation, per call
+
     UiParticle20 *e = &ParticleSystem.entries2C[a0];
     int st = e->state04;
     int t, d;
@@ -136,6 +139,8 @@ void UpdateParticle(int a0) {
 
 
 void DrawParticle(int a0) {
+    RR_CPU_CYCLES(2358); // DuckStation, per call
+
     GpuColorCommand c[4];
     GpuRectangleFields rect;
     UiParticle20 *e;

@@ -5,7 +5,7 @@
 <img src="packaging/icon/ridge-racer-type-4.png" alt="" width="128" align="right">
 
 A native PC port of *Ridge Racer Type 4*, built from the original game code
-with [our PsyZ fork](https://github.com/khasinski/parasite-eve-psyz). It runs
+with [our PsyZ fork](https://github.com/khasinski/ridge-racer-type-4-psyz). It runs
 on macOS, Linux and Windows. This is an early alpha.
 
 ## Discord

@@ -12,7 +12,7 @@ on:
       psyz_ref:
         description: PsyZ branch or commit to build the shaders of
         required: false
-        default: rr4
+        default: main
         type: string
 
 permissions:

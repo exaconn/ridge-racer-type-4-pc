@@ -11,8 +11,7 @@ paths as in the source tree.
 
 ## PsyZ
 
-The game runs on our fork of [PsyZ](https://github.com/khasinski/parasite-eve-psyz)
-(`rr4` branch), pinned as the `third_party/psyz` submodule, which provides the
+The game runs on our fork of [PsyZ](https://github.com/khasinski/ridge-racer-type-4-psyz), pinned as the `third_party/psyz` submodule, which provides the
 matching source. Per its top-level `LICENSE`:
 
 - `psyz/src/platform/` and `psyz/src/psyz/` (runtime and SDL3 platform layer)

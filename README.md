@@ -90,6 +90,10 @@ preferences and never show a dialog; `RR4_INTERNAL_RES=n` sets the
 resolution for one run (`PSYZ_HEADLESS=gpu` keeps the real GPU renderer, so
 captures are `n` times larger) and `RR4_SETTINGS_SCRIPT` drives the Escape
 menu (see `src/port/settings_overlay.h`).
+`RR4_WATCH` (print globals with the trace) and `RR4_POKE` (set them) look the
+game's globals up by name in the executable: macOS builds export them, Linux
+and Windows builds only when configured with `-DRR4_EXPORT_SYMBOLS=ON`. All
+diagnostics are listed at the top of `src/port/main.c`.
 
 ## Layout
 

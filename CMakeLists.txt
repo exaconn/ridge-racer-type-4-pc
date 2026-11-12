@@ -145,6 +145,8 @@ if(MINGW)
     target_link_options(ridge-racer-type-4-pc PRIVATE ${RR4_MINGW_STATIC})
 endif()
 if(WIN32)
+    # CommandLineToArgvW: the UTF-16 command line (src/port/main.c).
+    target_link_libraries(ridge-racer-type-4-pc PRIVATE shell32)
     # Executable icon and version information.
     enable_language(RC)
     set(RR4_ICON_ICO ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/ridge-racer-type-4.ico)
@@ -165,6 +167,24 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME settings COMMAND rr4_settings_test ${CMAKE_CURRENT_BINARY_DIR}/settings-test)
     set_tests_properties(settings PROPERTIES ENVIRONMENT "PSYZ_HEADLESS=1;SDL_AUDIODRIVER=dummy")
+    # Memory card saves through the game's file services, preferences and a
+    # synthetic disc image under a non-ASCII (UTF-8) directory.
+    add_executable(rr4_host_files_test tests/port/host_files_test.c)
+    target_include_directories(rr4_host_files_test SYSTEM PRIVATE ${PSYZ_DIR}/psyz/include)
+    target_compile_definitions(rr4_host_files_test PRIVATE __psyz)
+    target_link_libraries(rr4_host_files_test PRIVATE rr4_host rr4_game psyz)
+    if(MINGW)
+        target_link_options(rr4_host_files_test PRIVATE ${RR4_MINGW_STATIC})
+    endif()
+    add_test(NAME host-files COMMAND rr4_host_files_test ${CMAKE_CURRENT_BINARY_DIR}/host-files-test)
+    set_tests_properties(host-files PROPERTIES ENVIRONMENT "PSYZ_HEADLESS=1;SDL_AUDIODRIVER=dummy")
+    # A CUE path outside the Windows ANSI code page reaches PsyZ intact
+    # (UTF-16 command line): the error names it in UTF-8.
+    add_test(NAME startup-utf8-disc-path
+        COMMAND ridge-racer-type-4-pc "${CMAKE_CURRENT_BINARY_DIR}/Zoë 日本/missing.cue")
+    set_tests_properties(startup-utf8-disc-path PROPERTIES
+        ENVIRONMENT "PSYZ_HEADLESS=1;SDL_AUDIODRIVER=dummy;RR4_DISC="
+        PASS_REGULAR_EXPRESSION "cannot open disc image .*Zoë 日本/missing\\.cue")
     # Startup without a disc image: a headless run prints its usage.
     add_test(NAME startup-usage COMMAND ridge-racer-type-4-pc)
     set_tests_properties(startup-usage PROPERTIES

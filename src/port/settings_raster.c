@@ -1,5 +1,7 @@
 #include "settings_raster.h"
 
+#include <psyz/file.h>
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -342,7 +344,7 @@ void SettingsPaint(SettingsSurface *surface, const SettingsModel *model, const S
 }
 
 int SettingsSurfaceDump(const SettingsSurface *surface, const char *path) {
-    FILE *file = fopen(path, "wb");
+    FILE *file = Psyz_FileOpen(path, "wb");
 
     if (!file)
         return 0;

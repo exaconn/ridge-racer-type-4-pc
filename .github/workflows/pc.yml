@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -92,3 +93,64 @@ jobs:
           ctest --test-dir build --output-on-failure --no-tests=error
           ./build/ridge-racer-type-4-pc.exe 2>&1 | tee startup.log || true
           grep -q 'usage: ' startup.log
+      - name: PsyZ host file tests (memory cards, disc images, UTF-8 paths)
+        run: |
+          cmake -S third_party/psyz/psyz/tests -B build/psyz-tests -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/psyz-tests --parallel 4
+          cd third_party/psyz/psyz/tests
+          ../../../../build/psyz-tests/psyz_tests.exe --verbose \
+            '--filter=bu::*,truncation::*,path_adjustment::*,card_utf8::*,libcd::*'
+
+  # MSVC (cl.exe) keeps PsyZ free of GCC/Clang-only constructs: Parasite Eve
+  # and PsyZ itself build it with Visual Studio. The PsyZ suite runs on the
+  # D3D12 backend with a hidden window.
+  windows-msvc:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    env:
+      CI: 1
+      PSYZ_HEADLESS: gpu
+      SDL_VIDEODRIVER: offscreen
+      SDL_AUDIO_DRIVER: dummy
+      SDL_GPU_DRIVER: direct3d12
+    steps:
+      - name: Keep LF line endings
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: false
+      - name: Fetch PsyZ and SDL
+        shell: bash
+        run: |
+          git submodule update --init third_party/psyz
+          git -C third_party/psyz submodule update --init external/SDL
+      - name: Build the PsyZ tests (MSVC x64)
+        shell: bash
+        run: |
+          cmake -S third_party/psyz/psyz/tests -B build/psyz-msvc -A x64
+          cmake --build build/psyz-msvc --config Release --parallel 4
+      - name: PsyZ tests (MSVC)
+        shell: bash
+        working-directory: third_party/psyz/psyz/tests
+        run: ../../../../build/psyz-msvc/Release/psyz_tests.exe
+      - name: Build the game (MSVC x64)
+        shell: bash
+        run: |
+          cmake -S . -B build/msvc -A x64 -DBUILD_TESTING=ON
+          cmake --build build/msvc --config Release --parallel 4 -- -m -v:minimal 2>&1 | tee msvc-build.log
+          test "${PIPESTATUS[0]}" = 0
+      - name: Game tests (MSVC)
+        shell: bash
+        run: ctest --test-dir build/msvc -C Release --output-on-failure --no-tests=error
+        env:
+          PSYZ_HEADLESS: "1"
+          SDL_AUDIODRIVER: dummy
+      - name: Upload test failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: msvc-failures
+          path: |
+            third_party/psyz/psyz/tests/expected/*.actual.png
+            msvc-build.log
+          if-no-files-found: ignore

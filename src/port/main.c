@@ -43,6 +43,11 @@
  *   RR4_WATCH=list     with RR4_TRACE, also print globals by name: a comma
  *                      list of name[:size] (size 1, 2 or 4 bytes, default 4,
  *                      signed), e.g. "TitleSceneStage:2,FadeCountdown:2".
+ *                      RR4_WATCH and RR4_POKE find the names among the
+ *                      executable's exported symbols: macOS builds export
+ *                      them, Linux and Windows builds only when configured
+ *                      with -DRR4_EXPORT_SYMBOLS=ON (otherwise no name is
+ *                      found).
  *                      name+offset reads a member at a byte offset (decimal
  *                      or 0x hex) into the object, e.g. "SoundState+9904".
  *                      RR4_TRACE_RAND=1 also prints the BIOS rand() state
@@ -105,12 +110,14 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <shellapi.h>
 #else
 #include <dlfcn.h>
 #endif
 #include <psyz.h>
 #include <psyz/audio.h>
 #include <psyz/cd.h>
+#include <psyz/file.h>
 #include <psyz/gpu.h>
 #include <psyz/input.h>
 #include <psyz/system.h>
@@ -125,6 +132,8 @@
 #include "game/system/pad.h"
 #include "preferences.h"
 #include "settings_overlay.h"
+
+#include <SDL3/SDL.h>
 
 void MainLoop(void);
 void Psyz_Srand(unsigned int seed);
@@ -147,6 +156,40 @@ static void *find_symbol(const char *name) {
     return dlsym(RTLD_DEFAULT, name);
 #endif
 }
+
+/* Host paths are UTF-8 (PsyZ opens them with Psyz_FileOpen, wide APIs on
+ * Windows). The CRT's getenv and main's argv are in the ANSI code page on
+ * Windows; SDL_getenv reads the UTF-16 environment and returns UTF-8. */
+static const char *path_env(const char *name) {
+    return SDL_getenv(name);
+}
+
+#ifdef _WIN32
+/* main's argv converted from the UTF-16 command line, so that a CUE path
+ * with characters outside the ANSI code page survives. */
+static char **utf8_argv(int *argc) {
+    int count = 0;
+    wchar_t **wide = CommandLineToArgvW(GetCommandLineW(), &count);
+    char **argv;
+
+    if (!wide)
+        return NULL;
+    argv = (char **)calloc((size_t)count + 1, sizeof(*argv));
+    for (int i = 0; argv && i < count; i++) {
+        int bytes = WideCharToMultiByte(CP_UTF8, 0, wide[i], -1, NULL, 0, NULL, NULL);
+        argv[i] = bytes > 0 ? (char *)malloc((size_t)bytes) : NULL;
+        if (!argv[i] ||
+            !WideCharToMultiByte(CP_UTF8, 0, wide[i], -1, argv[i], bytes, NULL, NULL)) {
+            argv = NULL; /* keep the CRT's argv; the copies are left */
+            break;
+        }
+    }
+    LocalFree(wide);
+    if (argv)
+        *argc = count;
+    return argv;
+}
+#endif
 
 static void set_env(const char *name, const char *value) {
 #ifdef _WIN32
@@ -438,8 +481,8 @@ static unsigned short autodrive_mask(void) {
         static unsigned short *replay;
         static int replay_state = -1;
         if (replay_state < 0) {
-            const char *path = getenv("RR4_AUTODRIVE_REPLAY");
-            FILE *in = path ? fopen(path, "r") : NULL;
+            const char *path = path_env("RR4_AUTODRIVE_REPLAY");
+            FILE *in = path ? Psyz_FileOpen(path, "r") : NULL;
             int frame;
             unsigned m;
             replay_state = 0;
@@ -519,7 +562,7 @@ static void write_ppm(const char *path, unsigned char *rgb, int w, int h) {
 
     if (!rgb || w <= 0 || h <= 0)
         return;
-    f = fopen(path, "wb");
+    f = Psyz_FileOpen(path, "wb");
     if (f) {
         fprintf(f, "P6\n%d %d\n255\n", w, h);
         fwrite(rgb, 3, (size_t)w * (size_t)h, f);
@@ -549,7 +592,7 @@ static void put_le(unsigned char *p, unsigned long v, int n) {
 static void start_audio_capture(const char *path) {
     unsigned char header[44] = {0};
 
-    audio_capture = fopen(path, "wb");
+    audio_capture = Psyz_FileOpen(path, "wb");
     if (!audio_capture) {
         fprintf(stderr, "ridge-racer-type-4-pc: cannot write %s\n", path);
         return;
@@ -590,10 +633,10 @@ static void host_exit(void) {
 
     finish_audio_capture();
 
-    path = getenv("RR4_CAPTURE");
+    path = path_env("RR4_CAPTURE");
     if (path && *path)
         write_ppm(path, Psyz_VideoAllocRenderedFrame(&w, &h), w, h);
-    path = getenv("RR4_VRAM");
+    path = path_env("RR4_VRAM");
     if (path && *path)
         write_ppm(path, Psyz_VideoAllocVramDump(&w, &h), w, h);
     fprintf(stderr, "ridge-racer-type-4-pc: exit after %ld vsyncs\n", frame_count);
@@ -606,7 +649,7 @@ static int capture_at_len;
 static void capture_at_vsync(long vsync) {
     for (int i = 0; i < capture_at_len; i++) {
         if (capture_at[i] == vsync) {
-            const char *base = getenv("RR4_CAPTURE");
+            const char *base = path_env("RR4_CAPTURE");
             char path[512];
             int w, h;
             snprintf(path, sizeof(path), "%s.%ld.ppm", base && *base ? base : "capture", vsync);
@@ -620,7 +663,7 @@ static int gpu_dump_at_len;
 static long gpu_dump_open = -1;
 
 static void gpu_dump_vsync(long vsync) {
-    const char *base = getenv("RR4_GPU_DUMP");
+    const char *base = path_env("RR4_GPU_DUMP");
     char path[512];
 
     if (!base || !*base)
@@ -667,7 +710,7 @@ static const char *disc_path(int argc, char **argv) {
 
     if (argc > 1)
         return argv[1];
-    env = getenv("RR4_DISC");
+    env = path_env("RR4_DISC");
     if (env && *env)
         return env;
     return NULL;
@@ -694,13 +737,18 @@ static void enter_preferences_directory(void) {
 #endif
 
 static int file_exists(const char *path) {
-    FILE *f = path && *path ? fopen(path, "rb") : NULL;
+    FILE *f = path && *path ? Psyz_FileOpen(path, "rb") : NULL;
     if (f)
         fclose(f);
     return f != NULL;
 }
 
 int main(int argc, char **argv) {
+#ifdef _WIN32
+    char **wide_argv = utf8_argv(&argc);
+    if (wide_argv)
+        argv = wide_argv;
+#endif
     const char *cue = disc_path(argc, argv);
     const char *headless = getenv("PSYZ_HEADLESS");
     int interactive = !(headless && *headless);
@@ -769,11 +817,11 @@ int main(int argc, char **argv) {
         parse_watch(getenv("RR4_WATCH"));
         parse_pad_script(getenv("RR4_PAD_SCRIPT"));
         parse_poke(getenv("RR4_POKE"));
-        if (getenv("RR4_AUDIO_CAPTURE") && *getenv("RR4_AUDIO_CAPTURE"))
-            start_audio_capture(getenv("RR4_AUDIO_CAPTURE"));
+        if (path_env("RR4_AUDIO_CAPTURE") && *path_env("RR4_AUDIO_CAPTURE"))
+            start_audio_capture(path_env("RR4_AUDIO_CAPTURE"));
         autodrive = getenv("RR4_AUTODRIVE") && atoi(getenv("RR4_AUTODRIVE"));
-        if (autodrive && getenv("RR4_AUTODRIVE_LOG"))
-            autodrive_log = fopen(getenv("RR4_AUTODRIVE_LOG"), "w");
+        if (autodrive && path_env("RR4_AUTODRIVE_LOG"))
+            autodrive_log = Psyz_FileOpen(path_env("RR4_AUTODRIVE_LOG"), "w");
         for (const char *l = getenv("RR4_GPU_DUMP_AT"); l && *l && gpu_dump_at_len < 64;) {
             char *end;
             gpu_dump_at[gpu_dump_at_len++] = strtol(l, &end, 10);

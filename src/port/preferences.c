@@ -218,22 +218,8 @@ static int ParseValue(Rr4Prefs *p, const char *section, const char *key, char *v
     return 1; /* unknown sections stay harmless */
 }
 
-/* SDL paths are UTF-8; the Windows CRT's narrow fopen is not. */
-static FILE *OpenFile(const char *path, const char *mode) {
-#ifdef _WIN32
-    wchar_t *wide_path = (wchar_t *)SDL_iconv_string("UTF-16LE", "UTF-8", path, strlen(path) + 1);
-    wchar_t *wide_mode = (wchar_t *)SDL_iconv_string("UTF-16LE", "UTF-8", mode, strlen(mode) + 1);
-    FILE *file = wide_path && wide_mode ? _wfopen(wide_path, wide_mode) : NULL;
-    SDL_free(wide_path);
-    SDL_free(wide_mode);
-    return file;
-#else
-    return fopen(path, mode);
-#endif
-}
-
 int Rr4PrefsLoadFile(Rr4Prefs *prefs, const char *path) {
-    FILE *file = OpenFile(path, "r");
+    FILE *file = Psyz_FileOpen(path, "r");
     char line[RR4_PREFS_PATH_MAX + 256];
     char section[64] = "";
     unsigned number = 0;
@@ -296,7 +282,7 @@ int Rr4PrefsSaveFile(const Rr4Prefs *p, const char *path) {
     if (!path || !*path)
         return 0;
     snprintf(temporary, sizeof(temporary), "%s.tmp", path);
-    file = OpenFile(temporary, "w");
+    file = Psyz_FileOpen(temporary, "w");
     if (!file)
         return 0;
     fprintf(file,

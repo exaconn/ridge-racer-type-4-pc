@@ -99,6 +99,13 @@
 #if defined(__linux__) && !defined(_GNU_SOURCE)
 #define _GNU_SOURCE /* setenv and RTLD_DEFAULT under -std=c11 */
 #endif
+/* windows.h first: PsyZ types.h defers to its byte typedef. */
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
+#include <dlfcn.h>
+#endif
 #include <psyz.h>
 #include <psyz/audio.h>
 #include <psyz/cd.h>
@@ -108,8 +115,8 @@
 #include <psyz/video.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
-#include <dlfcn.h>
 #ifdef __APPLE__
 #include <unistd.h>
 #endif
@@ -127,6 +134,25 @@ extern unsigned short SubmodeState;
 extern unsigned int FrameCounter;
 
 static long trace_every;
+
+/* Address of a global for RR4_WATCH / RR4_POKE. The executable exports its
+ * symbols on macOS; on Linux and Windows only a build configured with
+ * -DRR4_EXPORT_SYMBOLS=ON (-rdynamic, --export-all-symbols) has them. */
+static void *find_symbol(const char *name) {
+#ifdef _WIN32
+    return (void *)(uintptr_t)GetProcAddress(GetModuleHandleW(NULL), name);
+#else
+    return dlsym(RTLD_DEFAULT, name);
+#endif
+}
+
+static void set_env(const char *name, const char *value) {
+#ifdef _WIN32
+    _putenv_s(name, value);
+#else
+    setenv(name, value, 1);
+#endif
+}
 
 #define WATCH_MAX 16
 static struct {
@@ -161,7 +187,7 @@ static void parse_watch(const char *list) {
                 *plus = 0;
                 offset = strtol(plus + 1, NULL, 0);
             }
-            watches[watch_count].addr = dlsym(RTLD_DEFAULT, item);
+            watches[watch_count].addr = find_symbol(item);
             if (watches[watch_count].addr)
                 watches[watch_count].addr = (const char *)watches[watch_count].addr + offset;
         }
@@ -259,7 +285,7 @@ static void parse_poke(const char *list) {
                 long from_offset = off ? strtol(off + 1, NULL, 0) : 0;
                 if (off)
                     *off = 0;
-                pokes[poke_count].value_from = dlsym(RTLD_DEFAULT, eq + 1);
+                pokes[poke_count].value_from = find_symbol(eq + 1);
                 if (pokes[poke_count].value_from)
                     pokes[poke_count].value_from = (const int *)((const char *)pokes[poke_count].value_from + from_offset);
                 if (!pokes[poke_count].value_from) {
@@ -288,7 +314,7 @@ static void parse_poke(const char *list) {
             poke_count++;
             continue;
         }
-        pokes[poke_count].addr = dlsym(RTLD_DEFAULT, item);
+        pokes[poke_count].addr = find_symbol(item);
         if (!pokes[poke_count].addr) {
             fprintf(stderr, "RR4_POKE: no symbol %s\n", item);
             continue;
@@ -687,7 +713,7 @@ int main(int argc, char **argv) {
      * clock. Set before PsyZ reads it (kernel and audio initialisation). */
     if (getenv("PSYZ_HEADLESS") && *getenv("PSYZ_HEADLESS") &&
         !getenv("PSYZ_AUDIO_CLOCK"))
-        setenv("PSYZ_AUDIO_CLOCK", "video", 1);
+        set_env("PSYZ_AUDIO_CLOCK", "video");
     /* Preferences and the image dialog are for players only. */
     Rr4PrefsCaptureDefaults();
     prefs = *Rr4PrefsDefaults();

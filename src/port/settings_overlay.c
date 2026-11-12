@@ -32,7 +32,7 @@ static int s_stick_x, s_stick_y;
 static int s_pending_open;
 
 /* RR4_SETTINGS_SCRIPT: keys pressed at given presents, for headless checks. */
-#define SCRIPT_MAX 64
+#define SCRIPT_MAX 256
 static struct {
     long present;
     SDL_Scancode key;
@@ -666,6 +666,8 @@ static void ParseScript(const char *script) {
             fprintf(stderr, "RR4_SETTINGS_SCRIPT: unknown key in \"%.*s\"\n", (int)len, script);
         script = next ? next + 1 : NULL;
     }
+    if (s_script_len == SCRIPT_MAX && script && *script)
+        fprintf(stderr, "RR4_SETTINGS_SCRIPT: more than %d keys, ignoring \"%s\"\n", SCRIPT_MAX, script);
 }
 
 static void ApplyChanges(void) {

@@ -3,7 +3,7 @@
 #include "rr/race_types.h"
 
 /* Four encoded input bytes; byte-aligned transfers also support packed streams. */
-typedef struct {u32 word;} __attribute__((packed)) ReplayFrame4;
+typedef struct {u32 word;} RR_PACKED ReplayFrame4;
 
 /* One car's encoded input for the current frame; replays record the same four
  * bytes as a ReplayFrame4. CarInputs (0x800ADAD8) holds one per player slot.

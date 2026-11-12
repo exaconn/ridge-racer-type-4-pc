@@ -4,7 +4,7 @@
 #include "rr/bios_devices.h"
 
 /* Byte-aligned wire views preserve unaligned card-buffer loads/stores. */
-typedef struct {u32 value;} __attribute__((packed)) CardWireWord;
+typedef struct {u32 value;} RR_PACKED CardWireWord;
 typedef union {u8 bytes[32];CardWireWord words[8];} CardDirectoryWire;
 typedef union {u8 bytes[4];CardWireWord word;} CardBrokenWire;
 typedef struct {

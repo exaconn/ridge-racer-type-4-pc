@@ -686,7 +686,7 @@ int LoadSplashAssetsStep(void) {
  * stack, about 0xEB000 bytes, where menus and race loads place overlay
  * images, models, textures and sound banks. Host tables and packets are
  * wider, so the arena is twice that. */
-static u8 FreeRamArena[0x200000] __attribute__((aligned(16)));
+static _Alignas(16) u8 FreeRamArena[0x200000];
 u8 *CdDirectoryBuffer = FreeRamArena;
 char LoadIndex;
 u8 *LoadDestCursor;

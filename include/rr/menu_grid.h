@@ -6,7 +6,7 @@
 /* Two words copied with unaligned loads/stores; both are captured first. */
 typedef struct {
     u32 first, second;
-} __attribute__((packed)) GridRow8;
+} RR_PACKED GridRow8;
 
 typedef struct {
     s32 w00;

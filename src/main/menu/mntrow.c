@@ -65,7 +65,7 @@ void DrawMenuTextRow(s32 a0) {
     sp1C = MenuTextRows[a0].rendering.text;
     sp10 = MenuTextRows[a0].rendering.y;
     s5 = MenuTextRows[a0].rendering.clut;
-    for (s2 = 0; *sp1C != 0; fp += 0xD, s2++, ({; })) {
+    for (s2 = 0; *sp1C != 0; fp += 0xD, s2++) {
         s0 = *sp1C - 0x20;
         sp1C++;
         if (s0 != 0) {

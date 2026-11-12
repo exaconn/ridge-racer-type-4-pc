@@ -163,25 +163,25 @@ void ReadCarInput(RaceVehicle *arg0, s32 arg1) {
                     case 0:
                     case 5: {
                         int i0;
-                        t1 = (PlayerControllers[({ i0 = t2;i0; })].pressure22 * 0xFF) / 106;
+                        t1 = (PlayerControllers[i0 = t2].pressure22 * 0xFF) / 106;
                         a1 = (PlayerControllers[i0].pressure24 * 0xFF) / 106;
                         break;
                     }
                     case 1:
                     case 6: {
                         int i1;
-                        t1 = (PlayerControllers[({ i1 = t2;i1; })].pressure24 * 0xFF) / 106;
+                        t1 = (PlayerControllers[i1 = t2].pressure24 * 0xFF) / 106;
                         a1 = (PlayerControllers[i1].pressure22 * 0xFF) / 106;
                         break;
                     }
                     case 2: {
                         int i2;
-                        a1 = (PlayerControllers[({ i2 = t2;i2; })].pressure26 * 0xFF) / 106;
+                        a1 = (PlayerControllers[i2 = t2].pressure26 * 0xFF) / 106;
                         break;
                     }
                     case 3: {
                         int i3;
-                        t1 = (PlayerControllers[({ i3 = t2;i3; })].pressure24 * 0xFF) / 106;
+                        t1 = (PlayerControllers[i3 = t2].pressure24 * 0xFF) / 106;
                         a1 = (PlayerControllers[i3].pressure26 * 0xFF) / 106;
                         break;
                     }

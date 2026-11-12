@@ -15,7 +15,7 @@ typedef struct {
     s32 reserved20, step;
 } ScrollTrack40;
 
-typedef struct {s16 x, y, z, pad;} __attribute__((packed)) MotionVector8;
+typedef struct {s16 x, y, z, pad;} RR_PACKED MotionVector8;
 
 typedef struct {
     MotionVector8 from;

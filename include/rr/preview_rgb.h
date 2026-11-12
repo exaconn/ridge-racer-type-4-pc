@@ -4,8 +4,9 @@
 /* Three defined color channels passed in one aligned ABI word. The final
  * byte is natural tail padding and has no color meaning. */
 typedef struct {
-    u8 r, g, b;
-} __attribute__((aligned(4))) PreviewRgb3;
+    _Alignas(4) u8 r;
+    u8 g, b;
+} PreviewRgb3;
 typedef struct {
     u8 r, g, b;
 } RgbChannels;

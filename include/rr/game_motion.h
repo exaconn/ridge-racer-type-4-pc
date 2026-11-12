@@ -9,7 +9,7 @@
 #include <stddef.h>
 #define RR_SCROLL_CHANNEL_OFFSET offsetof(ScrollTrack40,channel)
 #endif
-typedef struct {u8 prefix[RR_SCROLL_CHANNEL_OFFSET];ScrollChannel4 channel;} __attribute__((__may_alias__)) ScrollChannelCursor;
+typedef struct {u8 prefix[RR_SCROLL_CHANNEL_OFFSET];ScrollChannel4 channel;} RR_MAY_ALIAS ScrollChannelCursor;
 
 RR_ASSERT_SIZE(ScrollKey4,4);
 RR_ASSERT_SIZE(ScrollChannel4,4);

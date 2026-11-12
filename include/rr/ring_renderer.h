@@ -7,7 +7,7 @@
 #include "rr/object_transform_types.h"
 
 typedef struct { s16 x, y, z, pad; } RingVertex8;
-typedef struct { s16 x, y; } __attribute__((packed)) RingScreen4;
+typedef struct { s16 x, y; } RR_PACKED RingScreen4;
 
 /* Geometry view of the scratch tail after the transform service has run. */
 typedef struct {

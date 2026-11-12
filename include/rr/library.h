@@ -7,7 +7,7 @@
 
 typedef struct {
     u32 value;
-} __attribute__((packed)) LibPackedWord;
+} RR_PACKED LibPackedWord;
 
 /* Partial layout of the 0x20-byte entries referenced by StRingHeaders. */
 typedef struct {

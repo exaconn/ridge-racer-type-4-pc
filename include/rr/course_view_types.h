@@ -11,7 +11,7 @@ typedef struct {u16 count, first;} CoursePrimitiveRange;
 typedef struct {
     u32 reserved00[4];
     CoursePrimitiveRange ranges10[16];
-} __attribute__((packed)) CourseViewRecord;
+} RR_PACKED CourseViewRecord;
 
 /* On-disc visibility: a word count followed by halfword record indices. */
 typedef struct {

@@ -125,21 +125,26 @@ jobs:
           git submodule update --init third_party/psyz
           git -C third_party/psyz submodule update --init external/SDL
       - name: Build the PsyZ tests (MSVC x64)
+        id: psyz_build
         shell: bash
         run: |
           cmake -S third_party/psyz/psyz/tests -B build/psyz-msvc -A x64
           cmake --build build/psyz-msvc --config Release --parallel 4
-      - name: PsyZ tests (MSVC)
-        shell: bash
-        working-directory: third_party/psyz/psyz/tests
-        run: ../../../../build/psyz-msvc/Release/psyz_tests.exe
       - name: Build the game (MSVC x64)
+        id: game_build
+        if: success() || failure()
         shell: bash
         run: |
           cmake -S . -B build/msvc -A x64 -DBUILD_TESTING=ON
           cmake --build build/msvc --config Release --parallel 4 -- -m -v:minimal 2>&1 | tee msvc-build.log
           test "${PIPESTATUS[0]}" = 0
+      - name: PsyZ tests (MSVC)
+        if: (success() || failure()) && steps.psyz_build.outcome == 'success'
+        shell: bash
+        working-directory: third_party/psyz/psyz/tests
+        run: ../../../../build/psyz-msvc/Release/psyz_tests.exe
       - name: Game tests (MSVC)
+        if: (success() || failure()) && steps.game_build.outcome == 'success'
         shell: bash
         run: ctest --test-dir build/msvc -C Release --output-on-failure --no-tests=error
         env:

@@ -2387,7 +2387,7 @@ static void HorizonPass8(const VisibleCourseViews *views)
  * lists it). Section 15 (ranges10[15], RelFileSection15) billboards in one
  * colour: the light colour of a vertical unit normal under the camera yaw
  * (NCS with RGBC 2C000000). */
-static __attribute__((unused)) void HorizonPassSection15(const VisibleCourseViews *views)
+static RR_UNUSED void HorizonPassSection15(const VisibleCourseViews *views)
 {
     u32 lit;
     int i;

@@ -9,7 +9,7 @@
 #include "game/data/globals.h"
 #include "game/data/selection.h"
 
-typedef struct { int x; } __attribute__((packed)) U4;
+typedef struct { int x; } RR_PACKED U4;
 
 extern s16 CardMenuOperation;
 extern int PsyqBzero();

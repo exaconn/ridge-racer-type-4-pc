@@ -8,19 +8,24 @@ struct GpuDmaTag;
  * 16:9, PsyZ Psyz_VideoSetWidescreen with square pixels). The projection is
  * unchanged, so the 4:3 picture stays exactly where it was. A full-width 3D
  * view (the race, replay, attract demo and both halves of the split screen)
- * also draws what projects up to WIDE_MARGIN game pixels past each side of
+ * also draws what projects up to WideMargin() game pixels past each side of
  * the 320-pixel screen; PsyZ squeezes the display buffer to hold it and
- * presents it at 16:9. Frames without such a view (menus, 2D screens) are
- * drawn and shown exactly as with the option off
+ * presents it at 16:9. The squeeze is fitted to the display mode
+ * (Psyz_VideoSetWidescreenSqueeze 0), so the buffer holds exactly the 16:9
+ * view at square pixels, without stretching it. Frames without such a view
+ * (menus, 2D screens) are drawn and shown exactly as with the option off
  * (Psyz_VideoSetWidescreenNative).
  *
  * With the option off every value here is the original one (margin 0). */
 
-/* A sixth of the screen width, rounded up: PsyZ's buffer holds -1/6..7/6. */
-#define WIDE_MARGIN 54
+/* Game pixels the squeezed buffer holds past each side of the screen for
+ * the current display mode (Psyz_VideoGetWidescreenBufferMargin): 68 for
+ * the 320x256 PAL screen (a 16:9 view at square pixels is 455.1 pixels
+ * wide), 54 for 320x240. 0 while the option is off. */
+s32 WideMargin(void);
 
 /* Game pixels the current view's culling reaches past each screen side:
- * WIDE_MARGIN while the option is on and the scene viewport (SetupViewport)
+ * WideMargin() while the option is on and the scene viewport (SetupViewport)
  * is the screen's full width, otherwise 0. */
 extern s32 WideMarginX;
 

@@ -476,9 +476,12 @@ int Rr4PrefsSave(const Rr4Prefs *prefs) { return Rr4PrefsSaveFile(prefs, s_path)
 /* ---- applying ---- */
 
 void Rr4ApplyWidescreen(int enabled) {
-    /* Switched on: the buffers drawn so far (RR4's display buffers start at
-     * rows 0 and 256, system/frmenv.c) are shown as drawn, 4:3, until the
-     * game marks its next frames (camera/viewcam.c WideCommitFrame). */
+    /* The squeeze fits the display mode, so the buffer holds exactly the
+     * 16:9 view at square pixels (rr/widescreen.h). Switched on: the buffers
+     * drawn so far (RR4's display buffers start at rows 0 and 256,
+     * system/frmenv.c) are shown as drawn, 4:3, until the game marks its
+     * next frames (camera/viewcam.c WideCommitFrame). */
+    Psyz_VideoSetWidescreenSqueeze(0.0f);
     if (enabled && !Psyz_VideoGetWidescreen() && Psyz_VideoSetWidescreen(1) == 0) {
         Psyz_VideoSetWidescreenNative(0);
         Psyz_VideoSetWidescreenNative(256);

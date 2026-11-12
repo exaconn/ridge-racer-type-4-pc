@@ -12,7 +12,7 @@ void AddScreenFadeTiles(GpuDmaTag *ordering,s32 intensity,u32 mode) {
     s32 index;
     s32 column;
     GpuRectangleFields *rectangle;
-    s32 margin=Psyz_VideoGetWidescreen()?WIDE_MARGIN:0;
+    s32 margin=WideMargin();
     if(intensity<0)intensity=0;
     else if(intensity>=256)intensity=255;
     tile=(GpuTilePacket *)RR_GPU_SCRATCH->cursor;

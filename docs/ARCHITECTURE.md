@@ -93,11 +93,14 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      without PGXP); geometry correction is the watertight mode.
    - **Widescreen 16:9 (hor+, square pixels):** the projection is
      unchanged; a full-width race view (`include/rr/widescreen.h`, set up in
-     `camera/viewcam.c`) culls `WIDE_MARGIN` pixels past both screen sides,
+     `camera/viewcam.c`) culls `WideMargin()` pixels past both screen sides,
      merges the course list of the neighbouring view octant
      (`camera/viewini.c`), anchors edge HUD elements to the 16:9 view and
      tells PsyZ per buffer that it holds a 16:9 picture
-     (`Psyz_VideoSetWidescreenPicture`). Every other frame is marked
+     (`Psyz_VideoSetWidescreenPicture`). PsyZ's squeeze is fitted to the
+     display mode (`Psyz_VideoSetWidescreenSqueeze(0)`): the 320x256 buffer
+     holds exactly the 455.1-pixel 16:9 view at square pixels (squeeze
+     45/64, margin 68, HUD shift 67), so nothing is stretched. Every other frame is marked
      `Psyz_VideoSetWidescreenNative`: drawn and shown exactly as in Classic
      4:3 (menu captures are bit-identical). In Classic 4:3 every value is
      the original one.

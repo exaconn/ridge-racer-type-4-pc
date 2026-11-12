@@ -248,10 +248,14 @@ void SetupViewport(s32 viewport) {
  * its view up only when paused); WideBeginFrame follows the option. */
 static s32 WideViewThisFrame, WideViewLastFrame, WideSqueezedThisFrame;
 
+s32 WideMargin(void) {
+    return Psyz_VideoGetWidescreenBufferMargin();
+}
+
 static void WideUpdateMargin(void) {
     const GpuRectangleFields *rect = &((RroSceneScratchPrefix *)SCRATCHPAD)->viewport6C.rect;
 
-    WideMarginX = Psyz_VideoGetWidescreen() && rect->x == 0 && rect->w == 0x140 ? WIDE_MARGIN : 0;
+    WideMarginX = rect->x == 0 && rect->w == 0x140 ? WideMargin() : 0;
 }
 
 void WideSetupViewport(s32 viewport) {
@@ -275,9 +279,9 @@ s32 WideFrameSqueezed(void) {
     return 1;
 }
 
-/* As far as the 16:9 view reaches past the screen (53 pixels with the
- * square pixels of the widescreen aspect), so edge elements keep their
- * original distance from the view's edges. */
+/* As far as the 16:9 view reaches past the screen (67 pixels for 320x256
+ * at the square pixels of the widescreen aspect), so edge elements keep
+ * their original distance from the view's edges. */
 s32 WideHudShift(s32 side) {
     s32 margin;
 
@@ -362,7 +366,7 @@ void WideCommitFrame(s32 bufferY, s32 width, s32 height, const GpuDmaTag *orderi
             wide = 1;
         /* Everything else is drawn and shown exactly as with the option off. */
         if (wide)
-            Psyz_VideoSetWidescreenPicture(bufferY, -WIDE_MARGIN, width + WIDE_MARGIN);
+            Psyz_VideoSetWidescreenPicture(bufferY, -WideMargin(), width + WideMargin());
         else
             Psyz_VideoSetWidescreenNative(bufferY);
     } else {

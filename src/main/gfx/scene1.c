@@ -26,6 +26,8 @@
 #include "game/data/globals.h"
 #include "rr/textured_panel.h"
 #include "rr/widescreen.h"
+#include <math.h>
+#include <psyz/video.h>
 
 
 
@@ -66,10 +68,12 @@ void SetSceneOverlayEnabled(s32 enabled) {
 /* Widescreen: PsyZ keeps the display buffers squeezed (rr/widescreen.h),
  * so the copy of the other buffer is drawn across the whole squeezed buffer
  * instead: a textured quad from where buffer column first lands to where
- * column first + w does reads every column into itself. */
+ * column first + w does (the column's distance from the centre over the
+ * squeeze, to the nearest pixel) reads every column into itself. */
 static s16 WideBufferColumnX(s32 column) {
-    s32 x = (column - 0xA0) * 4;
-    return (s16)(0xA0 + (x < 0 ? -((-x + 1) / 3) : (x + 1) / 3));
+    const float squeeze = Psyz_VideoGetWidescreenSqueeze();
+
+    return (s16)(0xA0 + (s32)lroundf((float)(column - 0xA0) / squeeze));
 }
 
 static u8 *EmitWideSceneOverlayQuad(u8 *cursor, const SpritePacket *sprite, u16 tpage) {

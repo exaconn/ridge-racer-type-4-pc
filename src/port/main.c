@@ -797,11 +797,6 @@ int main(int argc, char **argv) {
     const char *headless = getenv("PSYZ_HEADLESS");
     int interactive = !(headless && *headless);
     static Rr4Prefs prefs;
-
-    /* Automated runs must stay invisible: on macOS a hidden-window (GPU)
-     * headless process would still get a Dock icon and activate. */
-    if (!interactive)
-        SDL_SetHint(SDL_HINT_MAC_BACKGROUND_APP, "1");
     static char mounted[RR4_PREFS_PATH_MAX];
 
     /* Headless runs are not paced (PsyZ limitless mode), so wall time has no

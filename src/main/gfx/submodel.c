@@ -1237,7 +1237,7 @@ static int HorizonInterpFacing(int front, int corners)
         return 1;
     if (!HorizonInterpNear)
         return 0;
-    HorizonInterpFlags |= INTERP_MIDPOINT_ONLY;
+    HorizonInterpFlags |= INTERP_MIDPOINT_ONLY | INTERP_NO_POSE;
     return 1;
 }
 
@@ -1251,7 +1251,7 @@ static int HorizonInterpPieceKept(int front)
         return 1;
     if (!InterpObject || !HorizonInterpNear)
         return 0;
-    HorizonInterpPieceFlags |= INTERP_MIDPOINT_ONLY;
+    HorizonInterpPieceFlags |= INTERP_MIDPOINT_ONLY | INTERP_NO_POSE;
     return 1;
 }
 

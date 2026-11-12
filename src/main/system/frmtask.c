@@ -249,6 +249,7 @@ static inline u64 InterpMix(u64 x) {
 _Static_assert(INTERP_ANY_TEXTURE == PSYZ_INTERP_ANY_TEXTURE, "PsyZ tag flag");
 _Static_assert(INTERP_MIDPOINT_ONLY == PSYZ_INTERP_MIDPOINT_ONLY, "PsyZ tag flag");
 _Static_assert(INTERP_FRAME_ONLY == PSYZ_INTERP_FRAME_ONLY, "PsyZ tag flag");
+_Static_assert(INTERP_NO_POSE == PSYZ_INTERP_NO_POSE, "PsyZ tag flag");
 
 u32 InterpViewGeneration(void) {
     u32 view = (u32)ActiveViewportIndex & 7;

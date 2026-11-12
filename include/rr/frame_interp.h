@@ -82,6 +82,8 @@ static inline void InterpPart(u32 part) {
 #define INTERP_MIDPOINT_ONLY 2u
 /* Left out of the midpoint (PSYZ_INTERP_FRAME_ONLY). */
 #define INTERP_FRAME_ONLY 4u
+/* Its coordinates this frame are no projection (PSYZ_INTERP_NO_POSE). */
+#define INTERP_NO_POSE 8u
 /* Tag the shape whose GP0 command word is at shape with key and a piece
  * number for the current object (INTERP_ANY_TEXTURE, INTERP_MIDPOINT_ONLY, INTERP_FRAME_ONLY). */
 void InterpTagShape(const void *shape, uintptr_t key, u32 piece, unsigned flags);

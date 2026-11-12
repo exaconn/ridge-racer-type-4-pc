@@ -1,4 +1,5 @@
 #include "rr/emblem_images.h"
+#include "rr/cpu_time.h"
 #include "types.h"
 #include "rr/load_cursor.h"
 #include "game/data/ldscn1.h"
@@ -43,6 +44,8 @@ extern s16 SubmodeState;
 extern s16 CardMenuOperation;
 
 void InitDefaultTimeRecords(void) {
+    RR_CPU_CYCLES(10589); // DuckStation, per call
+
     int i, j, k;
 
     for (i = 0; i < 2; i++) {
@@ -85,6 +88,7 @@ void InitCourseChoices(void)
      * the rest of the table and the nine words the linker placed after it,
      * which therefore start from zero once the frame environment is set up. */
     PsyqBzero((char *)CourseChoiceTable + 0x24, sizeof(CourseChoiceTable) - 0x24);
+    RR_CPU_CYCLES(0x24 * 132); // the BIOS bzero's 132 clocks a byte past the table
     BackColorR = 0;               /* 0x800ABE98 */
     RelFileOffsetPtr7 = NULL;
     TrackCollisionGridPtr = NULL;

@@ -4,6 +4,7 @@
 #include "psyq/libgte/gtemat3.h"
 #include "psyq/libgte/gtemat.h"
 #include "rr/matrix_workspace.h"
+#include "rr/cpu_time.h"
 #include "types.h"
 #include "scratchpad.h"
 #include "psyq/libgte/libgte.h"
@@ -99,6 +100,8 @@ void SetFogNearFar(s32 a0, s32 a1, s32 a2) {
     GTE_CTC2_28(r1);
 }
 void InitTimTemplate(EmblemTimImage840 *image) {
+    RR_CPU_CYCLES(2129); // DuckStation, per call
+
     u32 *words = image->words;
     int n;
     *words++ = 0x10;

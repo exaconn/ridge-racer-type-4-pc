@@ -29,6 +29,7 @@ typedef struct {
     FileKind kind;
     int host;
     int card;
+    long channel; /* card port << 4 | slot */
     int async;
 } FileHandle;
 
@@ -56,7 +57,7 @@ static s32 FileTransferDone(FileHandle *file, long count) {
         return -1; /* end of file or host error: no data was transferred */
     }
     if (file->card) {
-        Psyz_CardFileTransfer(count, file->async);
+        Psyz_CardFileTransfer(file->channel, count, file->async);
     }
     return (s32)count;
 }
@@ -72,14 +73,17 @@ s32 FileOpen(const char *name, s32 mode) {
         return -1;
     }
     if (FileIsDevice(name, "sio:")) {
-        FileHandles[descriptor] = (FileHandle){FILE_KIND_LINK, -1, 0, 0};
+        FileHandles[descriptor] = (FileHandle){FILE_KIND_LINK, -1, 0, 0, 0};
         return descriptor;
     }
     int host = psyz_open(name, mode);
     if (host < 0) {
         return -1;
     }
-    FileHandles[descriptor] = (FileHandle){FILE_KIND_HOST, host, FileIsDevice(name, "bu"),
+    int card = FileIsDevice(name, "bu") && name[2] >= '0' && name[2] <= '1' &&
+               name[3] >= '0' && name[3] <= '3';
+    FileHandles[descriptor] = (FileHandle){FILE_KIND_HOST, host, card,
+                                           card ? (name[2] - '0') << 4 | (name[3] - '0') : 0,
                                            (mode & FILE_MODE_ASYNC) != 0};
     if (FileHandles[descriptor].card && (mode & FILE_MODE_CREATE)) {
         Psyz_CardFileCreate();

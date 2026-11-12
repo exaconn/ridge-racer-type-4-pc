@@ -30,6 +30,8 @@ jobs:
       SDL_AUDIODRIVER: dummy
       SDL_GPU_DRIVER: direct3d12
     steps:
+      - name: Keep LF line endings
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: false
@@ -68,19 +70,27 @@ jobs:
           name: psyz-dxil-headers
           path: third_party/psyz/psyz/src/platform/shaders/*_dxil.h
           if-no-files-found: error
-      - name: PsyZ tests on D3D12 (hidden window)
-        working-directory: third_party/psyz/psyz
-        shell: cmd
-        run: test.bat -A x64
-      - name: GPU tests on D3D12, verbose
-        if: always()
-        working-directory: third_party/psyz/psyz/tests
-        shell: pwsh
+      - name: Build the PsyZ tests (MinGW, with the new headers)
+        shell: msys2 {0}
         run: |
-          & ./build/msvc/Debug/psyz_tests.exe '--filter=gpu::*' 2>&1 | Tee-Object gpu-tests.log
-          $result = $LASTEXITCODE
-          Select-String -Path gpu-tests.log -Pattern 'direct3d12|D3D12|revision|native_rasterization_matches_ps1_gpu|mask|clut|polyline|fuzz' | Select-Object -First 60
-          exit $result
+          cmake -S third_party/psyz/psyz/tests -B build/psyz-tests -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/psyz-tests --parallel 4
+      - name: PsyZ tests on D3D12 (hidden window)
+        shell: msys2 {0}
+        working-directory: third_party/psyz/psyz/tests
+        run: |
+          set -o pipefail
+          ../../../../build/psyz-tests/psyz_tests.exe --verbose 2>&1 | tee psyz-tests.log
+      - name: GPU tests named by the rasterizer change
+        if: always()
+        shell: msys2 {0}
+        working-directory: third_party/psyz/psyz/tests
+        run: |
+          set -o pipefail
+          ../../../../build/psyz-tests/psyz_tests.exe --list | grep -iE 'native_rasterization|fuzz|mask|clut|polyline' || true
+          ../../../../build/psyz-tests/psyz_tests.exe --verbose \
+            '--filter=gpu::native_rasterization_matches_ps1_gpu,*fuzz*,*mask*,*clut*,*polyline*' 2>&1 | tee gpu-tests.log
+          grep -iE 'direct3d12|d3d12|revision|fallback' psyz-tests.log gpu-tests.log | head -20 || true
       - name: Upload test failure artifacts
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -88,5 +98,5 @@ jobs:
           name: psyz-d3d12-test-failures
           path: |
             third_party/psyz/psyz/tests/expected/*.actual.png
-            third_party/psyz/psyz/tests/gpu-tests.log
+            third_party/psyz/psyz/tests/*.log
           if-no-files-found: ignore

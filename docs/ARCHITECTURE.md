@@ -160,6 +160,32 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      layout, text) is kept whole with `Psyz_GpuSetNtscPalPicture`. The
      choice is made at startup (preference or `RR4_VIDEO`); with PAL every
      value is the original one.
+     Checked against the Japanese disc on DuckStation, NTSC timing races
+     match it field for field in their timing (race load 636 fields,
+     countdown, two fields a frame, the frames-to-milliseconds lap time);
+     with the same random state and input the car still differs by one
+     position unit from the eleventh race frame, which is the release's
+     code or data, not timing. Release differences that are not frame-rate
+     conversions keep the PAL behaviour: the splash turns the display on at
+     its third frame (the NTSC release at its second) after a full-screen
+     clear the NTSC release does not draw, and its loads read the PAL disc
+     (larger menu sound banks, other file positions and seeks), so the
+     NTSC-timing splash lasts 314 fields against the Japanese release's
+     291.
+
+   - **PS1 time model:** the game and PsyZ spend the PS1 time of the work
+     that decides on which field something happens (CPU routines, BIOS and
+     SDK calls, CD, card, SPU, GPU and interrupt handlers), measured on
+     DuckStation; mode entries, `FrameCounter` and `rand` then match it
+     field for field (splash, opening movie, title, attract, menus, Grand
+     Prix, Time Attack, Extra Trial). Fit costs to runs without GDB
+     breakpoints: any breakpoint slows DuckStation's CPU by about 1%
+     (`tools/port/duckstation.py` stepping and RAM reads do not). The
+     memory card driver serves the ports on alternate vblanks, a sector
+     transfer ends 266k clocks after its vblank, and file I/O takes a turn
+     per frame; the interlace field flips at line 0 and the displayed field
+     is latched at the vblank, as in DuckStation's CRTC, so every other
+     VSync(0) in 480-line interlace returns late on the console's fields.
 
 ## Repository layout
 

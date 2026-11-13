@@ -161,3 +161,8 @@ jobs:
             third_party/psyz/psyz/tests/expected/*.actual.png
             msvc-build.log
           if-no-files-found: ignore
+      - name: Upload Windows MSVC Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ridge-racer-type-4-pc-msvc
+          path: build/msvc/Release/

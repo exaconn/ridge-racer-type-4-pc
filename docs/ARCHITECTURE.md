@@ -146,7 +146,19 @@ src/main/ + src/overlays/ -> host C11 compiler -> original game + PsyZ
      where it shares their vertex: its own continued motion does not know
      how the view moved this frame (a camera jolt against a wall), and a
      new face's pose in this frame is not where its neighbours are in the
-     midpoint. A triangle the GPU skips for its size in this frame (it
+     midpoint. These neighbours are found within one batch of queued
+     primitives, which holds a whole race frame. A vertex of a finer
+     subdivision that lies on an edge of a coarser neighbour in both
+     frames, to the precision of the projection (a T-junction), is put on
+     that edge's midpoint, so the midpoint is as watertight as the frames.
+     An outline (a line the course renderer draws along a tile's edges, at
+     whole pixels and behind the tile) is drawn into the midpoint as a quad
+     per segment whose points go where the polygon vertices they lie at
+     went, also when its identity is new (an outline's key counts its place
+     in the tile); a new outline where ghosts go stays out. Car light
+     trails are tagged by the trail sample they reach back to, since their
+     ring advances every frame. A triangle the GPU skips for its size in
+     this frame (it
      passes close to the view) that the frame before drew is still drawn
      into the midpoint. A midpoint that is no plausible in-between (most
      identities new: a cut; much of the picture without a pose in the frame

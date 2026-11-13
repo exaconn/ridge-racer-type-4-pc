@@ -670,6 +670,11 @@ const RroTexturedQuadPrefix *EmitProjectedQuadsFT4(const RroTexturedQuadPrefix *
     return quad;
 }
 
+/* Frame interpolation: the trail sample (ring entry) the panels being
+ * emitted reach back to. A trail's ring advances every frame, so the
+ * panels of one sample keep their identity only keyed by it. */
+static const void *TrailPanelSample;
+
 void EmitProjectedLitTrisGT3(const RroTrailPanelCommand *command, s32 count, RroEffectWork *work) {
     GpuPolyG4 *packet = (GpuPolyG4 *)RR_GPU_SCRATCH->cursor;
     s32 primaryColor = work->colors15C.palette.rgb160[0] | 0x3A000000;
@@ -727,7 +732,7 @@ void EmitProjectedLitTrisGT3(const RroTrailPanelCommand *command, s32 count, Rro
                             packet[i].words.color14 = secondaryColor;
                             packet[i].words.color1C = 0;
                             RR_GPU_ADD_PRIM(head, &packet[i], 8);
-                            INTERP_TAG(&packet[i], command, i);
+                            INTERP_TAG(&packet[i], command, (u32)((uintptr_t)TrailPanelSample >> 2) << 2 | (u32)i);
                         }
                         /* Three G4 panels are followed by one E1 command. */
                         mode = (GpuCommandPacket *)(packet + 3);
@@ -1063,6 +1068,7 @@ void DrawWheelTrailEffects(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 ar
                     p = work->commands84;
                     work->projectedD0 = work->projectedD4;
                     work->projectedD4 = entry->verts;
+                    TrailPanelSample = entry;
                     EmitProjectedLitTrisGT3((const RroTrailPanelCommand *)(p + 1), RRO_COMMAND_COUNT(p), work);
                     work->colors15C.palette.rgb160[0] = work->colors15C.palette.rgb160[1];
                     s1--;
@@ -1151,6 +1157,7 @@ void DrawWheelTrailEffects(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 ar
                 s1 = (s1 + 1) % 4;
                 p = work->commands84;
                 work->projectedD4 = ((TrailEntry4 *)&slot->second3C[s1])->verts;
+                TrailPanelSample = &slot->second3C[s1];
                 EmitProjectedLitTrisGT3((const RroTrailPanelCommand *)(p + 1), RRO_COMMAND_COUNT(p), work);
                 if (work->colors15C.palette.rgb160[1] <= 0) {
                     break;
@@ -1297,6 +1304,7 @@ void DrawWheelTrailEffects(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 ar
                     RR_GTE_SWC2_RGB2(&work->colors15C.palette.rgb160[1]);
                 }
                 p = work->commands84;
+                TrailPanelSample = a2;
                 EmitProjectedLitTrisGT3((const RroTrailPanelCommand *)(p + 1), RRO_COMMAND_COUNT(p), work);
                 d4 = work->projectedD4;
                 d0 = work->projectedD0;
